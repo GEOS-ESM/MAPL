@@ -22,7 +22,7 @@ module pFIO_VariableMod
    public :: Variable_deserialize
 
    integer, parameter :: Variable_SERIALIZE_TYPE = 100
- 
+
    type :: Variable
       private
       integer :: type = -1
@@ -30,6 +30,8 @@ module pFIO_VariableMod
       type (StringAttributeMap) :: attributes
       type (UnlimitedEntity) :: const_value
       integer :: deflation = 0 ! default no compression
+      integer :: quantize_algorithm = 1 ! default bitgroom
+      integer :: quantize_level = 0 ! default no quantize_level
       integer, allocatable :: chunksizes(:)
    contains
       procedure :: get_type
@@ -47,6 +49,8 @@ module pFIO_VariableMod
 
       procedure :: get_chunksizes
       procedure :: get_deflation
+      procedure :: get_quantize_algorithm
+      procedure :: get_quantize_level
       procedure :: is_attribute_present
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
@@ -65,7 +69,7 @@ module pFIO_VariableMod
 contains
 
 
-   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, rc) result(var)
+   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)
       type (Variable) :: var
       integer, optional, intent(in) :: type
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -73,12 +77,16 @@ contains
       integer, optional, intent(in) :: chunksizes(:)
       type (UnlimitedEntity), optional, intent(in) :: const_value
       integer, optional, intent(in) :: deflation
+      integer, optional, intent(in) :: quantize_algorithm
+      integer, optional, intent(in) :: quantize_level
       integer, optional, intent(out) :: rc
 
       integer:: empty(0)
 
       var%type = -1
       var%deflation = 0
+      var%quantize_algorithm = 1
+      var%quantize_level = 0
       var%chunksizes = empty
       var%dimensions = StringVector()
       var%attributes = StringAttributeMap()
@@ -87,7 +95,7 @@ contains
       if (present(type)) then
          var%type = type
       endif
- 
+
       if (present(dimensions)) then
          call parse_dimensions()
       end if
@@ -99,11 +107,19 @@ contains
       if (present(const_value)) then
          var%const_value = const_value
       endif
- 
+
       if (present(deflation)) then
          var%deflation = deflation
       endif
- 
+
+      if (present(quantize_algorithm)) then
+         var%quantize_algorithm = quantize_algorithm
+      endif
+
+      if (present(quantize_level)) then
+         var%quantize_level = quantize_level
+      endif
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains
@@ -121,8 +137,8 @@ contains
             dim_string = dim_string(idx+1:) ! do not forget to skip separator !
          end do
       end subroutine parse_dimensions
-      
-      
+
+
    end function new_Variable
 
 
@@ -150,13 +166,13 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end function get_ith_dimension
-   
+
    function get_dimensions(this) result(dimensions)
       class (Variable), target, intent(in) :: this
       type (StringVector), pointer :: dimensions
 
       dimensions => this%dimensions
-      
+
    end function get_dimensions
 
 
@@ -165,7 +181,7 @@ contains
       type (StringAttributeMap), pointer :: attributes
 
       attributes => this%attributes
-      
+
    end function get_attributes
 
 
@@ -184,7 +200,7 @@ contains
          call attr%set(q)
          call this%attributes%insert(attr_name, attr)
       end select
-         
+
       _RETURN(_SUCCESS)
    end subroutine add_attribute_0d
 
@@ -245,8 +261,8 @@ contains
 
       const_value =>this%const_value
 
-   end function get_const_value 
- 
+   end function get_const_value
+
    function get_chunksizes(this) result(chunksizes)
       class (Variable), target, intent(in) :: this
       integer, pointer :: chunksizes(:)
@@ -266,6 +282,20 @@ contains
       deflateLevel=this%deflation
    end function get_deflation
 
+   function get_quantize_algorithm(this) result(quantizeAlgorithm)
+      class (Variable), target, intent(In) :: this
+      integer :: quantizeAlgorithm
+
+      quantizeAlgorithm=this%quantize_algorithm
+   end function get_quantize_algorithm
+
+   function get_quantize_level(this) result(quantizeLevel)
+      class (Variable), target, intent(In) :: this
+      integer :: quantizeLevel
+
+      quantizeLevel=this%quantize_level
+   end function get_quantize_level
+
    logical function equal(a, b)
       class (Variable), target, intent(in) :: a
       type (Variable), target, intent(in) :: b
@@ -281,11 +311,11 @@ contains
       equal = ( a%dimensions%size() == 0 .and. &
                 b%dimensions%size() == 0 .and. &
                 a%attributes%size() == 0 .and. &
-                b%attributes%size() == 0 ) 
+                b%attributes%size() == 0 )
 
       if (equal) return
 
-      equal = (a%type == b%type)      
+      equal = (a%type == b%type)
       if (.not. equal) return
 
       equal = (a%dimensions == b%dimensions)
@@ -310,7 +340,7 @@ contains
          call iter%next()
       end do
 
-      
+
    end function equal
 
    logical function not_equal(a, b)
@@ -329,15 +359,18 @@ contains
       integer :: status
 
       if(allocated(buffer)) deallocate(buffer)
-      
+
       call StringVector_serialize(this%dimensions, tmp_buffer)
       buffer =[serialize_intrinsic(this%type), tmp_buffer]
       call StringAttributeMap_serialize(this%attributes, tmp_buffer, status)
       _VERIFY(status)
-      buffer = [buffer, tmp_buffer] 
+      buffer = [buffer, tmp_buffer]
       call this%const_value%serialize(tmp_buffer, status)
       _VERIFY(status)
-      buffer = [buffer, tmp_buffer,serialize_intrinsic(this%deflation)] 
+      buffer = [buffer, tmp_buffer]
+      buffer = [buffer, serialize_intrinsic(this%deflation)]
+      buffer = [buffer, serialize_intrinsic(this%quantize_algorithm)]
+      buffer = [buffer, serialize_intrinsic(this%quantize_level)]
 
       if( .not. allocated(this%chunksizes)) then
         buffer =[buffer,[1]]
@@ -347,7 +380,7 @@ contains
 
       length = serialize_buffer_length(length) + serialize_buffer_length(Variable_SERIALIZE_TYPE) + size(buffer)
       buffer = [serialize_intrinsic(length), serialize_intrinsic(Variable_SERIALIZE_TYPE), buffer]
-      _RETURN(_SUCCESS) 
+      _RETURN(_SUCCESS)
    end subroutine
 
    subroutine Variable_deserialize(buffer, var, rc)
@@ -367,7 +400,7 @@ contains
          integer :: n,length, v_type
          type (UnlimitedEntity) :: const
          integer :: status
- 
+
          n = 1
          call deserialize_intrinsic(buffer(n:),length)
          _ASSERT(length == size(buffer), "length does not match")
@@ -397,6 +430,12 @@ contains
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%deflation)
          length = serialize_buffer_length(this%deflation)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%quantize_algorithm)
+         length = serialize_buffer_length(this%quantize_algorithm)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%quantize_level)
+         length = serialize_buffer_length(this%quantize_level)
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%chunksizes)
          _RETURN(_SUCCESS)

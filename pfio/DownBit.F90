@@ -9,21 +9,21 @@ module pFIO_DownbitMod
    interface pFIO_DownBit
       module procedure pFIO_DownBit1D
       module procedure pFIO_DownBit2D
-      module procedure pFIO_DownBit3D 
+      module procedure pFIO_DownBit3D
    end interface pFIO_DownBit
 
 contains
 
-   subroutine pFIO_DownBit3D ( x, xr, nbits, undef, flops, rc )
+   subroutine pFIO_DownBit3D ( x, xr, nbits_to_keep, undef, flops, rc )
 
      implicit NONE
 
 !
 ! !INPUT PARAMETERS:
 !
-     real, intent(in)    ::  x(:,:,:)       ! input array 
-     integer, intent(in) :: nbits           ! number of bits per word to retain
-                                            ! - no action if nbits<1
+     real, intent(in)    ::  x(:,:,:)       ! input array
+     integer, intent(in) :: nbits_to_keep   ! number of bits per word to retain
+                                            ! - no action if nbits_to_keep<1
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
                                             !  based algorithm
@@ -35,12 +35,12 @@ contains
                                         ! if it has same kind
      integer, optional, intent(out)  :: rc        ! error code
                                         !  = 0 - all is well
-                                        ! /= 0 - something went wrong 
+                                        ! /= 0 - something went wrong
 !
-! !DESCRIPTION:  
+! !DESCRIPTION:
 !
 !  This routine returns a lower precision version of the input array
-!  {\tt x} which retains {\tt nbits} of precision. See routine
+!  {\tt x} which retains {\tt nbits_to_keep} of precision. See routine
 !  {\tt ESMF\_CFIODownBit2D} for additional details. This version for
 !  rank 3 arrays, calls {\tt ESMF\_CFIODownBit2D()} for each vertical
 !  level.
@@ -55,21 +55,21 @@ contains
    integer :: k
 
    do k = lbound(x,3), ubound(x,3)
-      call pFIO_DownBit2D ( x(:,:,k), xr(:,:,k), nbits, &
+      call pFIO_DownBit2D ( x(:,:,k), xr(:,:,k), nbits_to_keep, &
                                  undef=undef, flops=flops, rc=rc )
    end do
 
    end subroutine pFIO_DownBit3D
 
-   subroutine pFIO_DownBit2D ( x, xr, nbits, undef, flops, rc )
+   subroutine pFIO_DownBit2D ( x, xr, nbits_to_keep, undef, flops, rc )
 
      implicit NONE
 
 !
 ! !INPUT PARAMETERS:
 !
-     real, intent(in)    ::  x(:,:)         ! input array 
-     integer, intent(in) :: nbits           ! number of bits per word to retain
+     real, intent(in)    ::  x(:,:)         ! input array
+     integer, intent(in) :: nbits_to_keep   ! number of bits per word to retain
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
                                             !  based algorithm
@@ -81,27 +81,27 @@ contains
 !                                       !  if it has same kind
      integer, optional, intent(out)  :: rc        ! error code
                                         !  = 0 - all is well
-                                        ! /= 0 - something went wrong 
+                                        ! /= 0 - something went wrong
 !
-! !DESCRIPTION:  
+! !DESCRIPTION:
 !
 !
 !  This routine returns a lower precision version of the input array
-!  {\tt x} which retains {\tt nbits} of precision. Two algorithms are
+!  {\tt x} which retains {\tt nbits_to_keep} of precision. Two algorithms are
 !  implemented: 1) a fast one writen in C which downgrades precision
-!  by shifting {\tt xbits = 24 - nbits} bits of the mantissa, and 2) a slower
-!  float point based algorithm which is the same algorithm as GRIB 
-!  with fixed number of bits packing. Notice that as in GRIB the scaling 
-!  factor is forced to be a power of 2 rather than a generic float.  
-!  Using this power of 2 binary scaling has the advantage of improving 
+!  by shifting {\tt xbits = 24 - nbits_to_keep} bits of the mantissa, and 2) a slower
+!  float point based algorithm which is the same algorithm as GRIB
+!  with fixed number of bits packing. Notice that as in GRIB the scaling
+!  factor is forced to be a power of 2 rather than a generic float.
+!  Using this power of 2 binary scaling has the advantage of improving
 !  the GZIP compression rates.
 !
-!  This routine returns an array of the same type and kind as the input array, 
+!  This routine returns an array of the same type and kind as the input array,
 !  so no data compression has taken place. The goal here is to reduce the
-!  entropy in the input array, thereby improving compression rates 
-!  by the lossless algorithms implemented internally by HDF-4/5 when writing 
-!  these data to a file. In fact, these GZIP'ed and pre-conditioned files 
-!  have sizes comparable to the equivalent GRIB file, while being a bonafide 
+!  entropy in the input array, thereby improving compression rates
+!  by the lossless algorithms implemented internally by HDF-4/5 when writing
+!  these data to a file. In fact, these GZIP'ed and pre-conditioned files
+!  have sizes comparable to the equivalent GRIB file, while being a bonafide
 !  self-describing HDF/NetCDF file.
 !
 ! !TO DO:
@@ -142,7 +142,7 @@ contains
     if ( shave_mantissa ) then
 
        xr = x   ! compiled r8 this will convert to r4.
-       xbits = 24 - nbits
+       xbits = 24 - nbits_to_keep
        rc = pFIO_ShaveMantissa32 ( xr, xr, size(x), xbits, has_undef, undef_, size(x) )
        return
 
@@ -150,7 +150,7 @@ contains
 !   --------------------------------------
     else
 
-       if ( nbits < 1 ) then
+       if ( nbits_to_keep < 1 ) then
           xr = x
           rc = 1
           return
@@ -158,16 +158,16 @@ contains
 
        tol = 0.0001 * undef_
        xmin = minval(x,mask=(abs(undef_-x)>tol))
-       xr = x - xmin     ! As in GRIB, force non-negative values 
+       xr = x - xmin     ! As in GRIB, force non-negative values
        xmax = maxval(xr,mask=(abs(undef_-x)>tol)) ! max of positive
 
        if ( xmax <= 0.0 ) then
             xr = x
             rc = 0
-            return  ! this means field is constant 
+            return  ! this means field is constant
        end if
 
-       E = nint(log(xmax)/log(2.)) - nbits ! GRIB binary scale factor
+       E = nint(log(xmax)/log(2.)) - nbits_to_keep ! GRIB binary scale factor
        scale = 2.**E                       ! GRIB requires power of 2
 
        if ( present(undef) ) then
@@ -182,13 +182,13 @@ contains
 
    end subroutine pFIO_DownBit2D
 
-   subroutine pFIO_DownBit1D ( x, xr, nbits, undef, flops, rc )
+   subroutine pFIO_DownBit1D ( x, xr, nbits_to_keep, undef, flops, rc )
      implicit NONE
 !
 ! !INPUT PARAMETERS:
 !
-     real,target, intent(in)    ::  x(:)         ! input array 
-     integer, intent(in) :: nbits           ! number of bits per word to retain
+     real,target, intent(in)    ::  x(:)         ! input array
+     integer, intent(in) :: nbits_to_keep           ! number of bits per word to retain
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
                                             !  based algorithm
@@ -202,13 +202,13 @@ contains
      real, pointer :: x_tmp(:,:)
      real, pointer :: xr_tmp(:,:)
      type(c_ptr) :: x_ptr, xr_ptr
-     
+
      x_ptr = c_loc(x(1))
      call c_f_pointer(x_ptr,  x_tmp,[size(x),1])
      xr_ptr = c_loc(xr(1))
      call c_f_pointer(xr_ptr, xr_tmp,[size(x),1])
 
-     call pFIO_Downbit2d(x_tmp(:,:), xr_tmp(:,:), nbits, undef=undef, flops=flops, rc=rc)
+     call pFIO_Downbit2d(x_tmp(:,:), xr_tmp(:,:), nbits_to_keep, undef=undef, flops=flops, rc=rc)
 
    end subroutine pFIO_Downbit1D
 
