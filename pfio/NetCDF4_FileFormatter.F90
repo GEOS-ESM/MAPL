@@ -1083,6 +1083,8 @@ contains
       integer :: iotype
       type(Variable) :: v
 
+      integer :: fio_type
+      type(Variable) :: concrete_var
 
       !$omp critical
       status = nf90_inquire(this%ncid, nVariables=nVariables)
@@ -1158,8 +1160,9 @@ contains
             allocate(var, source=CoordinateVariable(v, coordinate_data))
             deallocate(coordinate_data)
          else
-            allocate(var, source=Variable(type= get_fio_type(xtype,rc=status), dimensions=dim_string))
-            _VERIFY(status)
+            Fio_type = get_fio_type(xtype, rc=status); _VERIFY(status)
+            Concrete_var = Variable(type=fio_type, dimensions=dim_string)
+            Allocate(var, source=concrete_var)
          end if
 
          call this%inq_var_attributes(var, varid, rc=status)

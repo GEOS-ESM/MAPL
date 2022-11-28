@@ -9,12 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the subroutine that removes a variable from FileMetadata Object
 - Defined real64 constants in consistent way
+- Workarounds for NVIDIA compiler
 
 ### Added
 
+- Added a function to remove a variable from FileMetadata object.
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
-- Add to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
+- Added to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
+- Added capability to Automatic Code Generator to detect inconsistencies in spec files at build time
 
 - Add support for netCDF quantize.
   - Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
