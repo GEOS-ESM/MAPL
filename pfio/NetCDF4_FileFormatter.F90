@@ -672,6 +672,8 @@ contains
       integer, allocatable :: dimids(:)
       integer, pointer :: chunksizes(:)
       integer :: deflation
+      integer :: quantize_algorithm
+      integer :: quantize_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
@@ -727,6 +729,19 @@ contains
            status = nf90_def_var_deflate(this%ncid, varid, 1, 1, deflation)
            !$omp end critical
            _VERIFY(status)
+         end if
+
+         quantize_algorithm = var%get_quantize_algorithm()
+         quantize_level = var%get_quantize_level()
+         if (quantize_level /= 0) then
+#ifdef NF_HAS_QUANTIZE
+           !$omp critical
+           status = nf90_def_var_quantize(this%ncid, varid, quantize_algorithm, quantize_level)
+           !$omp end critical
+           _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with quantize support")
+#endif
          end if
 
          call this%put_var_attributes(var, varid, rc=status)

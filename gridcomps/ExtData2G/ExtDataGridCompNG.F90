@@ -32,9 +32,8 @@
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
    use MAPL_NewArthParserMod
-   use MAPL_ConstantsMod, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES
-   use MAPL_IOMod, only: MAPL_NCIOParseTimeUnits
-   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+   use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
    use ESMF_CFIOCollectionVectorMod
    use ESMF_CFIOCollectionMod
