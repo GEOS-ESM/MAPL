@@ -51,6 +51,7 @@ module MAPL_Base
   public MAPL_FieldDestroy
   public MAPL_FieldBundleDestroy
   public MAPL_GetHorzIJIndex
+  public MAPL_GetGlobalHorzIJIndex
   public MAPL_GenGridName
   public MAPL_GenXYOffset
   public MAPL_GeosNameNew
@@ -728,6 +729,22 @@ module MAPL_Base
        type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
        integer,            optional, intent(out  ) :: rc  ! return code
      end subroutine MAPL_GetHorzIJIndex
+
+     module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
+       use ESMF, only: ESMF_KIND_R8, ESMF_GRid
+       implicit none
+       !ARGUMENTS:
+       integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
+       integer,                      intent(inout) :: II(npts) ! array of the first index for each lat and lon
+       integer,                      intent(inout) :: JJ(npts) ! array of the second index for each lat and lon
+       real, optional,               intent(in   ) :: lon(npts) ! array of longitudes in radians
+       real, optional,               intent(in   ) :: lat(npts) ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
+       type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
+       integer,            optional, intent(out  ) :: rc  ! return code
+     end subroutine MAPL_GetGlobalHorzIJIndex
+
 
      module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
        integer :: im, jm

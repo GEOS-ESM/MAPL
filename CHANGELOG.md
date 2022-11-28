@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.31.0] - 2022-11-28
+
 ### Fixed
 
 - Fixed the subroutine that removes a variable from FileMetadata Object
@@ -19,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
 - Added to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
 - Added capability to Automatic Code Generator to detect inconsistencies in spec files at build time
-
 - Add support for netCDF quantize.
   - Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
     to make sure the netCDF library was compiled with support. This test uses `NETCDF_INCLUDE_DIRS` and as such
     within GEOS requires the use of ESMA_cmake v3.20.0 or later to (possibly) succeed.
+- Added subroutine to calculate IJ indexes of given lats lons for cubed-sphere grid
 
 ### Changed
 
@@ -41,10 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - CDO 2.1.0
 - Removed some unneeded `use` statements in `ExtDataGridCompNG.F90`. This seemed to let this new quantize support build with Intel
 - Changed `nbits` internally to be `nbits_to_keep`. Note that externally, you still use `nbits:` in `HISTORY.rc`
-
-### Removed
-
-### Deprecated
 
 ## [2.30.3] - 2022-11-15
 
