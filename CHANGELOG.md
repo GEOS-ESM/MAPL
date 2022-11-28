@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the subroutine that removes a variable from FileMetadata Object
 - Defined real64 constants in consistent way
 - Workarounds for NVIDIA compiler
 
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a function to remove a variable from FileMetadata object.
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
 - Added to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
+- Added capability to Automatic Code Generator to detect inconsistencies in spec files at build time
 
 - Added subroutine to calculate IJ indexes of given lats lons for cubed-sphere grid
 
