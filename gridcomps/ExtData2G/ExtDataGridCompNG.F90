@@ -32,9 +32,8 @@
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
    use MAPL_NewArthParserMod
-   use MAPL_ConstantsMod, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES
-   use MAPL_IOMod, only: MAPL_NCIOParseTimeUnits
-   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+   use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
    use ESMF_CFIOCollectionVectorMod
    use ESMF_CFIOCollectionMod
@@ -460,7 +459,6 @@ CONTAINS
 
       item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
       call create_primary_field(item,self%ExtDataState,time,_RC)
-
    end do PrimaryLoop
 
 ! Check if we have any files that would need to be vertically interpolated
@@ -1747,7 +1745,7 @@ CONTAINS
 
 
      call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,_RC)
-     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC) 
+     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC)
      call ESMF_FieldGet(derived_field,grid=grid,_RC)
 
      call ESMF_StateRemove(ExtDataState,[trim(item%name)],_RC)
@@ -1781,7 +1779,7 @@ CONTAINS
         type(ESMF_Grid), intent(in) :: grid
         integer, intent(in) :: num_levels
         integer, optional, intent(out) :: rc
- 
+
         integer :: status
         real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
         if (num_levels ==0) then
@@ -1795,7 +1793,7 @@ CONTAINS
         end if
         _RETURN(_SUCCESS)
      end function
-        
+
   end subroutine create_primary_field
 
 

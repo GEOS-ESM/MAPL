@@ -7,18 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
 ### Added
-- Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
 
 - Added new option to allow for gaps in datasets ingested by ExtDataNG
 
 ### Changed
 
+### Fixed
+
 ### Removed
 
 ### Deprecated
+
+## [2.31.0] - 2022-11-28
+
+### Fixed
+
+- Fixed the subroutine that removes a variable from FileMetadata Object
+- Defined real64 constants in consistent way
+- Workarounds for NVIDIA compiler
+
+### Added
+
+- Added a function to remove a variable from FileMetadata object.
+- Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
+- Added to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
+- Added capability to Automatic Code Generator to detect inconsistencies in spec files at build time
+- Add support for netCDF quantize.
+  - Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
+    to make sure the netCDF library was compiled with support. This test uses `NETCDF_INCLUDE_DIRS` and as such
+    within GEOS requires the use of ESMA_cmake v3.20.0 or later to (possibly) succeed.
+- Added subroutine to calculate IJ indexes of given lats lons for cubed-sphere grid
+
+### Changed
+
+- Updated to ESMA_cmake v3.20.0
+  - This is to support the `NETCDF_INCLUDE_DIRS` used in the quantize support test
+- Updated to ESMA_env v4.7.0
+  - This has many updates including moving to netCDF-C v4.9.0 and netCDF-Fortran v4.6.0. The other updates:
+    - Baselibs v7.6.0
+      - ESMF v8.4.0
+      - zlib 1.2.13
+      - curl 7.86.0
+      - netCDF-C 4.9.0
+      - netCDF-Fortran 4.6.0
+      - NCO 5.1.1
+      - CDO 2.1.0
+- Removed some unneeded `use` statements in `ExtDataGridCompNG.F90`. This seemed to let this new quantize support build with Intel
+- Changed `nbits` internally to be `nbits_to_keep`. Note that externally, you still use `nbits:` in `HISTORY.rc`
+
+## [2.30.3] - 2022-11-15
+
+### Fixed
+
+- Fixed bug when writing fields in History with ungridded dimension when the split option is not requested
+
+## [2.30.2] - 2022-11-09
+
+### Fixed
+
+-  When a grid is received from outside of MAPL (e.g., NOAA UFS), MAPL must provide a mechanism to specify a grid-type for internal processing.
+Add an option to set_grid to set GridType explicitly.
 
 ## [2.30.1] - 2022-11-07
 
