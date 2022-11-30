@@ -5,7 +5,7 @@ module MAPL_FargparseCLIMod
    use MPI
    use ESMF
    use fArgParse
-   use gFTL_IntegerVector
+   use gFTL2_IntegerVector
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
    use mapl_CapOptionsMod, only:  MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
@@ -67,6 +67,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(dummy)
    end function new_CapOptions_from_fargparse
 
    function new_CapOptions_from_fargparse_back_comp(unusable, extra, rc) result (fargparsecap)
@@ -97,8 +98,6 @@ contains
       integer, optional, intent(out) :: rc
 
       type(IntegerVector) :: intvec
-      integer :: status
-      _UNUSED_DUMMY(unusable)
 
       call parser%add_argument('--root_dso', &
            help='name of root dso to use',   &
@@ -225,6 +224,7 @@ contains
            action='store_true')
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    end subroutine add_command_line_options
 
@@ -233,14 +233,13 @@ contains
       type(MAPL_CapOptions), intent(out) :: cap_options
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status, n
+      integer :: status
       character(:), allocatable :: buffer
       logical :: one_node_output, compress_nodes, use_sub_comm
 
-      integer, allocatable :: tmp_int_array(:), nodes_output_server(:)
+      integer, allocatable :: nodes_output_server(:)
       class(*), pointer :: option, option_npes, option_nodes
       type (IntegerVector) :: tmp_int_vector, tmp_npes_vector, tmp_nodes_vector
-      type (IntegerVectorIterator) :: iter
 
       option => fargparseCLI%options%at('root_dso')
       if (associated(option)) then
@@ -307,7 +306,7 @@ contains
       option => fargparseCLI%options%at('npes_input_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         cap_options%npes_input_server = tmp_int_vector%get_data()
+         cap_options%npes_input_server = tmp_int_vector%data()
       else
          cap_options%npes_input_server = [0]
       end if
@@ -316,7 +315,7 @@ contains
       option => fargparseCLI%options%at('nodes_input_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         cap_options%nodes_input_server = tmp_int_vector%get_data()
+         cap_options%nodes_input_server = tmp_int_vector%data()
       else
          cap_options%nodes_input_server = [0]
       end if
@@ -332,7 +331,7 @@ contains
       option => fargparseCLI%options%at('npes_output_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         cap_options%npes_output_server = tmp_int_vector%get_data()
+         cap_options%npes_output_server = tmp_int_vector%data()
       else
          cap_options%npes_output_server = [0]
       end if
@@ -341,7 +340,7 @@ contains
       option => fargparseCLI%options%at('nodes_output_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         nodes_output_server = tmp_int_vector%get_data()
+         nodes_output_server = tmp_int_vector%data()
       else
          nodes_output_server = [0]
       end if
@@ -421,14 +420,13 @@ contains
       type (MAPL_FargparseCLI), intent(inout) :: fargparseCLI
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status, n
+      integer :: status
       character(:), allocatable :: buffer
       logical :: one_node_output, compress_nodes, use_sub_comm
 
-      integer, allocatable :: tmp_int_array(:), nodes_output_server(:)
+      integer, allocatable :: nodes_output_server(:)
       class(*), pointer :: option, option_npes, option_nodes
       type (IntegerVector) :: tmp_int_vector, tmp_npes_vector, tmp_nodes_vector
-      type (IntegerVectorIterator) :: iter
 
       option => fargparseCLI%options%at('root_dso')
       if (associated(option)) then
@@ -495,7 +493,7 @@ contains
       option => fargparseCLI%options%at('npes_input_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         cap_options%npes_input_server = tmp_int_vector%get_data()
+         cap_options%npes_input_server = tmp_int_vector%data()
       else
          cap_options%npes_input_server = [0]
       end if
@@ -504,7 +502,7 @@ contains
       option => fargparseCLI%options%at('nodes_input_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         cap_options%nodes_input_server = tmp_int_vector%get_data()
+         cap_options%nodes_input_server = tmp_int_vector%data()
       else
          cap_options%nodes_input_server = [0]
       end if
@@ -520,7 +518,7 @@ contains
       option => fargparseCLI%options%at('npes_output_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         cap_options%npes_output_server = tmp_int_vector%get_data()
+         cap_options%npes_output_server = tmp_int_vector%data()
       else
          cap_options%npes_output_server = [0]
       end if
@@ -529,7 +527,7 @@ contains
       option => fargparseCLI%options%at('nodes_output_server')
       call cast(option, tmp_int_vector, _RC)
       if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
-         nodes_output_server = tmp_int_vector%get_data()
+         nodes_output_server = tmp_int_vector%data()
       else
          nodes_output_server = [0]
       end if
@@ -600,6 +598,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function old_CapOptions_from_Fargparse
 
 end module MAPL_FargparseCLIMod

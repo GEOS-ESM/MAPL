@@ -31,8 +31,6 @@ program main
 
          integer :: status
          character(len=:), allocatable :: input_file
-         class(*), pointer :: option
-         type(MAPL_FargparseCLI) :: newcli
 
          call MPI_Init(status)
          _VERIFY(status)
