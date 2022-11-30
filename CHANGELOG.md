@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated to ESMA_cmake v3.21.0
+  - Adds support for a generic `x86_64` processor for GNU
+- Updated to ESMA_env v4.7.0
+   - Baselibs v7.6.0
+      - fArgParse v1.4.1
+      - pFUnit v4.6.1
+
 ### Removed
 
 ### Deprecated
