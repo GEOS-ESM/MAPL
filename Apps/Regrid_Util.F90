@@ -3,35 +3,9 @@
    module regrid_util_support_mod
 
    use ESMF
-   use ESMFL_Mod
-   use MAPL_Profiler
-   use MAPL_ExceptionHandling
-   use MAPL_BaseMod
-   use MAPL_MemUtilsMod
-   use MAPL_CFIOMod
-   use MAPL_CommsMod
-   use MAPL_ShmemMod
-   use ESMF_CFIOMod
-   use ESMF_CFIOUtilMod
-   use ESMF_CFIOFileMod
-   use MAPL_NewRegridderManager
-   use MAPL_AbstractRegridderMod
-   use mapl_RegridMethods
-   use MAPL_GridManagerMod
-   use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-   use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-   use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-   use MAPL_Constants, only: MAPL_PI_R8
-   use MAPL_ExceptionHandling
-   use MAPL_ApplicationSupport
-   use pFIO
-   use MAPL_ESMFFieldBundleWrite
-   use MAPL_ESMFFieldBundleRead
-   use MAPL_ServerManager
-   use MAPL_FileMetadataUtilsMod
+   use MAPL
    use gFTL_StringVector
-   use MAPL_VerticalDataMod
- 
+
    implicit NONE
 
    public
@@ -50,6 +24,8 @@
       real :: cs_stretch_param(3)
       real :: lon_range(2), lat_range(2)
       integer :: deflate, shave
+      integer :: quantize_algorithm
+      integer :: quantize_level
    contains
       procedure :: create_grid
       procedure :: process_command_line
@@ -101,7 +77,7 @@
     subroutine process_command_line(this,rc)
     class(regrid_support) :: this
     integer, optional, intent(out) :: rc
-    
+
     character(len=ESMF_MAXSTR) :: RegridMth
     integer :: nargs, i, status
     character(len=ESMF_MAXPATHLEN) :: str,astr
@@ -119,6 +95,8 @@
     this%lat_range=uninit
     this%shave=64
     this%deflate=0
+    this%quantize_algorithm=1
+    this%quantize_level=0
     nargs = command_argument_count()
     do i=1,nargs
       call get_command_argument(i,str)
@@ -175,9 +153,15 @@
       case('-deflate')
          call get_command_argument(i+1,astr)
          read(astr,*)this%deflate
+      case('-quantize_algorithm')
+         call get_command_argument(i+1,astr)
+         read(astr,*)this%quantize_algorithm
+      case('-quantize_level')
+         call get_command_argument(i+1,astr)
+         read(astr,*)this%quantize_level
       case('--help')
          if (mapl_am_I_root()) then
-         
+
          end if
          call MPI_Finalize(status)
          return
@@ -197,7 +181,7 @@
     _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
     if (.not.this%alltimes) then
        _ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
-    end if 
+    end if
 
     call this%create_grid(gridname,_RC)
     _RETURN(_SUCCESS)
@@ -306,7 +290,7 @@
           end if
        end if
 
-     end function create_cf 
+     end function create_cf
 
    end module regrid_util_support_mod
 
@@ -341,7 +325,7 @@
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
    use regrid_util_support_mod
- 
+
    implicit NONE
 
    type(DistributedProfiler), target :: t_prof
@@ -350,9 +334,9 @@
    include "mpif.h"
 
    call main()
-    
+
 CONTAINS
- 
+
     subroutine main()
 
    type(regrid_support) :: support
@@ -382,7 +366,7 @@ CONTAINS
    logical :: writer_created, has_vertical_level
    type(ServerManager) :: io_server
 
- 
+
    call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, _RC)
    call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
    call MAPL_Initialize(_RC)
@@ -392,7 +376,7 @@ CONTAINS
    call support%process_command_line(_RC)
 
    t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
-   call t_prof%start(_RC) 
+   call t_prof%start(_RC)
 
    call io_server%initialize(mpi_comm_world)
 
@@ -414,7 +398,7 @@ CONTAINS
    do j=1,support%filenames%size()
 
       filename = support%filenames%at(j)
-      if (j>1) then 
+      if (j>1) then
          if (allocated(tSeries)) deallocate(tSeries)
          call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
       end if
@@ -444,7 +428,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,vertical_data=vertical_data,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,_RC)
             writer_created=.true.
          end if
 
@@ -454,7 +438,7 @@ CONTAINS
          end if
          call newWriter%write_to_file(_RC)
          call t_prof%stop("write")
-    
+
       end do
    enddo
 !   All done
@@ -497,8 +481,8 @@ CONTAINS
       plevs => levs
       vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
                       force_no_regrid=.true.,_RC)
-      nullify(plevs)    
- 
+      nullify(plevs)
+
       _RETURN(_SUCCESS)
 
    end subroutine get_file_levels
@@ -542,7 +526,7 @@ CONTAINS
       end if
       call ESMF_TimeIntervalGet(TimeInterval,h=hour,m=minute,s=second,_RC)
       tint=hour*10000+minute*100+second
- 
+
       _RETURN(_SUCCESS)
 
    end subroutine get_file_times
@@ -565,19 +549,19 @@ CONTAINS
          character(:), allocatable :: report_lines(:)
          integer :: i
          character(1) :: empty(0)
-   
+
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
          call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
          call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
-         call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))   
+         call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
          call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
          call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
          call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE'))) 
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(t_prof)
-         if (mapl_am_I_root()) then 
+         if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'
             write(*,'(a)')'============='
             do i = 1, size(report_lines)
@@ -586,5 +570,5 @@ CONTAINS
             write(*,'(a)') ''
          end if
     end subroutine generate_report
- 
-    end program Regrid_Util 
+
+    end program Regrid_Util

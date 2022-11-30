@@ -32,9 +32,8 @@
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
    use MAPL_NewArthParserMod
-   use MAPL_ConstantsMod, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES
-   use MAPL_IOMod, only: MAPL_NCIOParseTimeUnits
-   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+   use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
    use ESMF_CFIOCollectionVectorMod
    use ESMF_CFIOCollectionMod
@@ -460,7 +459,7 @@ CONTAINS
       item%initialized = .true.
 
       item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
-      call create_primary_field(item,self%ExtDataState,_RC) 
+      call create_primary_field(item,self%ExtDataState,_RC)
       if (item%isConst) then
          call set_constant_field(item,self%extDataState,_RC)
          cycle
@@ -993,7 +992,7 @@ CONTAINS
 
      call ESMF_StateGet(state,item%vcomp1,field,_RC)
      call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
-     block 
+     block
         character(len=1024) :: fname
         integer :: rank
         call ESMF_FieldGet(field,name=fname,rank=rank,_RC)
@@ -1722,7 +1721,7 @@ CONTAINS
 
 
      call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,_RC)
-     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC) 
+     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC)
      call ESMF_FieldGet(derived_field,grid=grid,_RC)
 
      call ESMF_StateRemove(ExtDataState,[trim(item%name)],_RC)
@@ -1749,7 +1748,7 @@ CONTAINS
         type(ESMF_Grid), intent(in) :: grid
         integer, intent(in) :: num_levels
         integer, optional, intent(out) :: rc
- 
+
         integer :: status
         if (num_levels ==0) then
            new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,_RC)
@@ -1758,7 +1757,7 @@ CONTAINS
         end if
         _RETURN(_SUCCESS)
      end function
-        
+
   end subroutine create_primary_field
 
 

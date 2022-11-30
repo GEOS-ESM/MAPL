@@ -26,7 +26,7 @@
       status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
      !$omp end critical
 
-     _ASSERT(status==0,"Variable not found: "//trim(var_name)) 
+     _ASSERT(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file))
      !$omp critical
 #if (_RANK == 0)
       status = nf90_get_var(this%ncid, varid, values)
@@ -34,7 +34,7 @@
       status = nf90_get_var(this%ncid, varid, values, start, count)
 #endif
      !$omp end critical
-      _VERIFY(status)
+      _ASSERT(status==0,"Unable to get variable: "//trim(var_name)//" from file: "//trim(this%origin_file))
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

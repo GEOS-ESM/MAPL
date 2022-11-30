@@ -49,6 +49,7 @@ module pFIO_FileMetadataMod
       procedure :: get_coordinate_variable
       procedure :: add_variable
       procedure :: get_variables
+      procedure :: remove_variable
       procedure :: get_order
       procedure :: set_order
       procedure :: modify_variable
@@ -435,6 +436,31 @@ contains
       _UNUSED_DUMMY(unusable)
       
    end subroutine modify_variable
+
+   subroutine remove_variable(this, var_name, unusable, rc)
+      class (FileMetadata), target, intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      type(StringVectorIterator)      :: viter
+      type(StringVariableMapIterator) :: miter
+
+      viter = this%order%begin()
+      do while (viter /= this%order%end())
+         if ( var_name == viter%get() ) then
+           call  this%order%erase(viter)
+           exit
+         endif
+         call viter%next()
+      enddo
+      miter = this%variables%find(var_name)
+      call  this%variables%erase(miter)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      
+   end subroutine remove_variable
 
    subroutine add_var_attribute_0d(this, var_name, attr_name, value, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
