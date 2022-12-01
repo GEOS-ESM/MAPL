@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add fArgParse CLI argument parser
+- Added new option to allow for gaps in datasets ingested by ExtDataNG
 
 ### Fixed
 
