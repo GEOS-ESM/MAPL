@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Move to use GitHub Actions for label enforcement
+
 ### Fixed
 
 ### Removed
