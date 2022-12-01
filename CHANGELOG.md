@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added new option to allow for gaps in datasets ingested by ExtDataNG
+
+### Changed
+
 ### Fixed
 
 ### Removed

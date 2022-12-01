@@ -30,4 +30,5 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 23. Test multiple datasets and treat Climatology in the first and a real-time in the 2nd
 24. Test reading cubed-sphere input
 25. Test reading edge variable
-26. Test reading edge + cetner variables
+26. Test reading edge + center variables
+27. Case with a "gap" in the data

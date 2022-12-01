@@ -21,6 +21,7 @@ module MAPL_ExtDataRule
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
       logical :: multi_rule
+      logical :: fail_on_missing_file = .true.
       contains
          procedure :: set_defaults
          procedure :: split_vector
@@ -106,6 +107,10 @@ contains
          tempc = config%of("starting")
          rule%start_time = tempc
       end if
+
+      if (config%has("fail_on_missing_file")) then
+         rule%fail_on_missing_file = config%of("fail_on_missing_file")
+      end if 
   
       rule%multi_rule=usable_multi_rule
 
