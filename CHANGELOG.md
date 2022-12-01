@@ -12,8 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add fArgParse CLI argument parser
 - Added new option to allow for gaps in datasets ingested by ExtDataNG
 
-### Fixed
-
 ### Changed
 
 - Updated to ESMA_cmake v3.21.0
@@ -22,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Baselibs v7.6.0
       - fArgParse v1.4.1
       - pFUnit v4.6.1
+- Move to use GitHub Actions for label enforcement
+
+### Fixed
 
 ### Removed
 
