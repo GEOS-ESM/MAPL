@@ -10,6 +10,7 @@ module MAPL_ExtDataTimeSample
 
    type, public :: ExtDataTimeSample
       logical :: time_interpolation
+      logical :: exact
       type(ESMF_Time), allocatable :: source_time(:)
       character(:), allocatable :: extrap_outside
       character(:), allocatable :: refresh_time
@@ -44,6 +45,11 @@ contains
          TimeSample%time_interpolation = config%of("time_interpolation")
       else
          TimeSample%time_interpolation = .true.
+      end if
+      if (config%has("exact")) then
+         TimeSample%exact = config%of("exact")
+      else
+         TimeSample%exact = .false.
       end if
 
       if (config%has("update_reference_time")) TimeSample%refresh_time=config%of("update_reference_time")
