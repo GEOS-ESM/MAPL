@@ -358,8 +358,6 @@ CONTAINS
 !  -----------------------
    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  _RC )
 
-   call extdata_lgr%info("Using ExtData2G, note this is still in BETA stage")
-
 !                         ---------------------------
 !                         Parse ExtData Resource File
 !                         ---------------------------
