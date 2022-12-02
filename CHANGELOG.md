@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.32.0] - 2022-12-02
+
+### Added
+
 - Add fArgParse CLI argument parser
 - Added subroutines for reading 4d integers in NetCDF4_FileFormatter
 - Added new option to allow for gaps in datasets ingested by ExtDataNG
@@ -17,17 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated to ESMA_cmake v3.21.0
   - Adds support for a generic `x86_64` processor for GNU
-- Updated to ESMA_env v4.7.0
-   - Baselibs v7.6.0
+- Updated to ESMA_env v4.8.0
+   - Baselibs v7.7.0
       - fArgParse v1.4.1
       - pFUnit v4.6.1
 - Move to use GitHub Actions for label enforcement
-
-### Fixed
-
-### Removed
-
-### Deprecated
 
 ## [2.31.0] - 2022-11-28
 
