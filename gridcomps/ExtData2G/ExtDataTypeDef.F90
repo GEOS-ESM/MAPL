@@ -23,6 +23,7 @@ module MAPL_ExtDataTypeDef
      ! if vertically interpolating vector fields
      type(ExtDataBracket) :: auxiliary1
      type(ExtDataBracket) :: auxiliary2
+     logical :: initialized = .false.
   end type BracketingFields
 
   type PrimaryExport
@@ -73,6 +74,7 @@ module MAPL_ExtDataTypeDef
      ! for multiple collections
      type(ESMF_Time), allocatable :: start_end_time(:)
      logical :: initialized = .false.
+     logical :: fail_on_missing_file = .true.
   end type PrimaryExport
   
   type DerivedExport

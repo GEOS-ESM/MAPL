@@ -35,7 +35,7 @@ module MAPL_ExtdataAbstractFileHandler
    end type
 
    abstract interface
-      subroutine get_file_bracket(this, input_time, source_time, bracket, rc)
+      subroutine get_file_bracket(this, input_time, source_time, bracket, fail_on_missing_file, rc)
          use ESMF
          use MAPL_ExtDataBracket
          import ExtDataAbstractFileHandler
@@ -43,6 +43,7 @@ module MAPL_ExtdataAbstractFileHandler
          type(ESMF_Time), intent(in) :: input_time
          type(ESMF_Time), intent(in) :: source_time(:)
          type(ExtDataBracket), intent(inout) :: bracket
+         logical, intent(in) :: fail_on_missing_file
          integer, optional, intent(out) :: rc
       end subroutine get_file_bracket
 
@@ -100,6 +101,9 @@ contains
          wrap_=.false.
       end if
       time_index=time_not_found
+      if (trim(filename) == file_not_found) then
+         _RETURN(_SUCCESS)
+      end if
 
       call this%make_metadata(filename,file_metadata,_RC) 
       call file_metadata%get_time_info(timeVector=time_series,_RC)
@@ -164,5 +168,4 @@ contains
 
   end subroutine make_metadata
  
-
 end module MAPL_ExtdataAbstractFileHandler
