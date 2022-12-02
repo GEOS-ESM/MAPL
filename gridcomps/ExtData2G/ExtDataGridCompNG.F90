@@ -358,8 +358,6 @@ CONTAINS
 !  -----------------------
    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  _RC )
 
-   call extdata_lgr%info("Using ExtData2G, note this is still in BETA stage")
-
 !                         ---------------------------
 !                         Parse ExtData Resource File
 !                         ---------------------------
@@ -1728,8 +1726,8 @@ CONTAINS
      type(ESMF_Grid)  :: grid
      logical :: must_create
      character(len=ESMF_MAXSTR) :: derived_field_name
-     type(FileMetadataUtils), pointer :: metadata 
-     type(MAPLDataCollection), pointer :: collection 
+     type(FileMetadataUtils), pointer :: metadata
+     type(MAPLDataCollection), pointer :: collection
      character(len=ESMF_MAXPATHLEN) :: filename
      logical :: file_found
 
