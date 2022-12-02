@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added subroutines for reading 4d integers in NetCDF4_FileFormatter
 - Added new option to allow for gaps in datasets ingested by ExtDataNG
 
 ### Changed
