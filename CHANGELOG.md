@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added new test case for ExtData2G to test multiple input files
+
 ### Changed
 
 ### Fixed
+
+- Implemented workaround for gfortran runtime issue with YafYaml when parsing multiple ExtData yaml files for ExtData2G
 
 ### Removed
 
