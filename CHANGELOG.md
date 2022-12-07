@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug with mutliple ExtData2G files when using gfortran
+
 ### Removed
 
 ### Deprecated
