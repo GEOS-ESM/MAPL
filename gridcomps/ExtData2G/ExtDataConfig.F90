@@ -17,6 +17,8 @@ module MAPL_ExtDataConfig
    use MAPL_ExtDataTimeSampleMap
    use MAPL_TimeStringConversion
    use MAPL_ExtDataMask
+   use MAPL_ExtDataYamlNodeStack
+   use MAPL_ExtDataYamlNodeWrapper
    implicit none
    private
 
@@ -49,7 +51,11 @@ contains
       integer, optional, intent(out) :: rc
 
       type(Parser)              :: p
+#ifndef __GFORTRAN__
       class(YAML_Node), allocatable :: config
+#else
+      integer :: my_stack
+#endif
       class(YAML_Node), pointer :: subcfg, ds_config, rule_config, derived_config, sample_config, subconfigs, rule_map
       class(NodeIterator), allocatable :: iter
       character(len=:), pointer :: key
@@ -74,6 +80,11 @@ contains
       inquire(file=trim(config_file),exist=file_found)
       _ASSERT(file_found,"could not find: "//trim(config_file))
 
+#ifdef __GFORTRAN__
+      stack_depth = stack_depth + 1
+      my_stack = stack_depth
+      associate(config => yaml_node_stack(my_stack)%a_yaml_node)   
+#endif
       p = Parser('core')
       config = p%load(config_file,rc=status)
       if (status/=_SUCCESS) then
@@ -88,7 +99,12 @@ contains
            call new_ExtDataConfig_from_yaml(ext_config,sub_file,current_time,rc=status)
            _VERIFY(status)
          end do
+#ifdef __GFORTRAN__
+         deallocate(config)
+         config = p%load(config_file,rc=status)
+#endif
       end if
+      
 
       if (config%has("Samplings")) then
          sample_config => config%of("Samplings")
@@ -164,6 +180,9 @@ contains
          _VERIFY(status)
       end if
 
+#ifdef __GFORTRAN__
+      end associate
+#endif
       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 
