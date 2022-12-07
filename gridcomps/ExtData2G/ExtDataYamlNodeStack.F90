@@ -8,7 +8,7 @@ module MAPL_ExtDataYamlNodeStack
    public :: yaml_node_stack
 
    integer, save :: stack_depth = 0
-   integer, parameter :: max_file_depth = 20
-   type(YamlNodeWrapper), save :: yaml_node_stack(max_file_depth)
+   integer, parameter :: MAX_FILE_DEPTH = 20
+   type(YamlNodeWrapper), save :: yaml_node_stack(MAX_FILE_DEPTH)
 
 end module MAPL_ExtDataYamlNodeStack
