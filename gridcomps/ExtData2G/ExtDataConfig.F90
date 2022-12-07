@@ -82,7 +82,7 @@ contains
 
 #ifdef __GFORTRAN__
       stack_depth = stack_depth + 1
-      _ASSERT(stack_depth <=max_file_depth,"yaml config stack too small")
+      _ASSERT(stack_depth <= MAX_FILE_DEPTH,"yaml config stack too small")
       my_stack = stack_depth
       associate(config => yaml_node_stack(my_stack)%a_yaml_node)   
 #endif
