@@ -61,7 +61,7 @@ module ParentNoChild_GridComp
      type(ESMF_Clock), intent(inout) :: clock
      integer, intent(out), optional :: rc
 
-     real, pointer :: ptr_2d(:,:), ptr_3d(:,:)
+     real, pointer :: ptr_2d(:,:), ptr_3d(:,:,:)
      type (MAPL_MetaComp),      pointer  :: MAPL
      real :: my_constant
      integer :: status

@@ -21,7 +21,7 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 14. Testing that we can take a climatology for a non-leap year and interpolate to a leap year. Daily files each with 1 value for 2007 (non-leap year). Interpolate to 02/29/2008 (leap year)
 15. Testing that we can take a climatology for a non-leap year and interpolate to a non-leap year. Daily files each with 1 value for 2007 (non-leap year). Interpolate to 03/29/2006 (leap year)
 16. Testing that we can take a climatology for a leap year and interpolate to a non-leap year. Daily files each with 1 value for 2008 (leap year). Interpolate to 03/29/2006 15z (leap year)
-17. Not used
+17. Test ability of ExtData (2G only) to allow for subconfigs, i.e. split input yaml files into multiple files
 18. Test vector regridding
 19. Test set file to /dev/null
 20. Make daily files for 2016. Then start on February 29th in 2020 and allow extrapolation outside of dataset a climatology
