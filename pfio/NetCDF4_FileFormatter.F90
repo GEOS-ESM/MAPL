@@ -150,12 +150,21 @@ contains
 
       integer :: status
       integer :: mode_
+      integer :: pfio_mode
 
       if (present(mode)) then
-         mode_=mode
+         pfio_mode=mode
       else
-         mode_=NF90_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
+
+      select case (pfio_mode)
+      case (pFIO_CLOBBER)
+         mode_ = NF90_CLOBBER
+      case (pFIO_NOCLOBBER)
+         mode_ = NF90_NOCLOBBER
+      end select
+         
       !$omp critical
       status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
@@ -179,12 +188,20 @@ contains
       integer :: info_
       integer :: status
       integer :: mode_
+      integer :: pfio_mode
 
       if (present(mode)) then
-         mode_=mode
+         pfio_mode=mode
       else
-         mode_=NF90_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
+
+      select case (pfio_mode)
+      case (pFIO_CLOBBER)
+         mode_ = NF90_CLOBBER
+      case (pFIO_NOCLOBBER)
+         mode_ = NF90_NOCLOBBER
+      end select
 
       if (present(comm)) then
          comm_ = comm
@@ -234,7 +251,7 @@ contains
       case (pFIO_WRITE)
          omode = NF90_WRITE
       case default
-         _ASSERT(.false.,"read or write mode")
+         _FAIL("read or write mode")
       end select
 
       if (present(comm)) then

@@ -17,6 +17,7 @@ if (BUILD_WITH_FLAP)
     target_link_libraries(ExtDataDriver.x PRIVATE OpenMP::OpenMP_Fortran)
   endif ()
   set_target_properties(ExtDataDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+  target_compile_definitions (ExtDataDriver.x PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WITH_EXTDATA2G>)
 
   ecbuild_add_executable (TARGET pfio_MAPL_demo.x SOURCES pfio_MAPL_demo.F90)
   target_link_libraries (pfio_MAPL_demo.x PRIVATE MAPL FLAP::FLAP esmf)
@@ -25,9 +26,6 @@ if (BUILD_WITH_FLAP)
     target_link_libraries(pfio_MAPL_demo.x PRIVATE OpenMP::OpenMP_Fortran)
   endif ()
   set_target_properties(pfio_MAPL_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+  add_subdirectory(ExtData_Testing_Framework EXCLUDE_FROM_ALL)
 
 endif ()
-
-#install(PROGRAMS ExtDataDriver.x DESTINATION bin)
-#install(TARGETS ExtDataDriver.x DESTINATION bin)
-

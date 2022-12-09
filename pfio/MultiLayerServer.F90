@@ -180,7 +180,7 @@ contains
                  type is (RDMAReference)
                     remotePtr=>dataRefPtr
                  class default
-                    _ASSERT(.false., "remote is a must")
+                    _FAIL( "remote is a must")
                  end select
 
                  request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')

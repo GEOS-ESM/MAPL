@@ -138,7 +138,7 @@ module MAPL_FileMetadataUtilsMod
          tmpd = attr_val
          attr_real32 = REAL(tmpd(1))
       class default
-         _ASSERT(.false.,'unsupported subclass for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+         _FAIL('unsupported subclass (not real32) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -169,7 +169,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_real64 = tmp(1)
       class default
-          _ASSERT(.false.,'unsupported subclass for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+         _FAIL('unsupported subclass (not real64) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -200,7 +200,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_int32 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupported subclass for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+         _FAIL('unsupported subclass (not int32) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -231,7 +231,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_int64 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupported subclass for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+         _FAIL('unsupported subclass (not int64) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -260,7 +260,7 @@ module MAPL_FileMetadataUtilsMod
       type is(character(*))
          attr_string = attr_val
       class default
-         _ASSERT(.false.,'unsupported subclass for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+         _FAIL('unsupported subclass (not string) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -378,7 +378,7 @@ module MAPL_FileMetadataUtilsMod
            endif
          endif
       class default
-         _ASSERT(.false.,"Time unit must be character in "//fname)
+         _FAIL("Time unit must be character in "//fname)
       end select
       call ESMF_TimeSet(unmodStartTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
       _VERIFY(status)
@@ -399,7 +399,7 @@ module MAPL_FileMetadataUtilsMod
       type is (integer(kind=INT32))
          tr_r64=ptr
       class default
-         _ASSERT(.false.,"unsupported time variable type in "//fname)
+         _FAIL("unsupported time variable type in "//fname)
       end select
       do i=1,tsize
         select case (trim(tUnits))
@@ -420,7 +420,7 @@ module MAPL_FileMetadataUtilsMod
            _VERIFY(status)
            tvec(i)=unmodStartTime+tint
         case default
-           _ASSERT(.false.,"unsupported time unit in "//fname)
+           _FAIL("unsupported time unit in "//fname)
         end select
       enddo
 
@@ -439,6 +439,7 @@ module MAPL_FileMetadataUtilsMod
          allocate(timeVector,source=tVec,stat=status)
          _VERIFY(status)
       end if
+      _RETURN(_SUCCESS)
 
    end subroutine get_time_info
  
@@ -461,7 +462,6 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
-
       character(:), allocatable :: fname
       character(len=:), pointer :: units 
       type(Attribute), pointer :: attr => null()
@@ -481,7 +481,7 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             units => vunits
          class default
-            _ASSERT(.false.,'units must be string for '//var_name//' in '//fname)
+            _FAIL('units must be string for '//var_name//' in '//fname)
          end select
       else
          units => null()
@@ -522,7 +522,7 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _ASSERT(.false.,'coordinate units must be string in '//fname)
+            _FAIL('coordinate units must be string in '//fname)
          end select
       end if 
 
@@ -539,9 +539,10 @@ module MAPL_FileMetadataUtilsMod
          type is (integer(kind=INT32))
             coords=ptr
          class default
-            _ASSERT(.false.,"unsupported coordel variable type in "//fname)
+            _FAIL("unsupported coordinate variable type in "//fname)
          end select
       end if
+      _RETURN(_SUCCESS)
 
    end subroutine get_coordinate_info
 

@@ -421,7 +421,7 @@ def main():
     if ( REPO ):
          FULL_TREE = True
          TRIM = False
-    
+
     MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK, FULL_TREE, TRIM, REPO)
 
     if OUT_TYPE=='chname':
@@ -452,7 +452,7 @@ def parse_args():
                     choices=['txt','mm'], default='txt')
     p.add_argument('-F','--full', help='display full tree', action='store_true')
     p.add_argument('-l','--link', help='add external link to nodes (edit MAPL_Tree::get_link)', action='store_true')
-    p.add_argument('-t','--trim', help='skip non GridComps, shorten names, use bult-in aliases',action='store_true')
+    p.add_argument('-t','--trim', help='skip non GridComps, shorten names, use built-in aliases',action='store_true')
     p.add_argument('-r','--repo', help='shows only the repository hierarchy',action='store_true')
 
     # Do not document this, it should be removed

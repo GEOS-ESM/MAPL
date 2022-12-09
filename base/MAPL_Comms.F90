@@ -464,7 +464,7 @@ module MAPL_CommsMod
           _VERIFY(STATUS)
        end if
     else
-       _ASSERT(.false., 'unsupported action')
+       _FAIL( 'unsupported action')
     end if
 
 ! Allocate a contiguous buffer for communication

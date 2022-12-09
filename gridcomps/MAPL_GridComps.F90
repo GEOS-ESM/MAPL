@@ -1,6 +1,7 @@
 module MAPL_GridCompsMod
    use mapl_CapMod
    use mapl_CapOptionsMod
+   use mapl_externalGCStorage
 #ifdef USE_FLAP
    use mapl_FlapCLIMod
 #endif

@@ -40,6 +40,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
   use pFIO_DownbitMod, only: pFIO_DownBit
+  use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -108,14 +109,12 @@ module MAPL_HistoryGridCompMod
      type(HistoryCollectionGlobalAttributes) :: global_atts
      integer                             :: CoresPerNode, mype, npes
      integer                             :: AvoidRootNodeThreshold
-     integer                             :: blocksize
-     integer                             :: MarkDone
-     integer                             :: PrePost
      integer                             :: version
      logical                             :: fileOrderAlphabetical
      logical                             :: integer_time
      integer                             :: collectionWriteSplit
      integer                             :: serverSizeSplit
+     logical                             :: allow_overwrite
   end type HISTORY_STATE
 
   type HISTORY_wrap
@@ -428,7 +427,9 @@ contains
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
-    character(len=ESMF_MAXSTR) :: name
+    character(len=ESMF_MAXSTR) :: name,regrid_method
+    logical :: has_conservative_keyword, has_regrid_keyword
+    integer :: create_mode
 
 ! ewl: gchp merge conflict. The following are only in GCHP.    
 ! debug variables
@@ -505,7 +506,7 @@ contains
     ! set up few variables to deal with monthly
     startOfThisMonth = currTime
     call ESMF_TimeSet(startOfThisMonth,dd=1,h=0,m=0,s=0,__RC__)
-    call ESMF_TimeIntervalSet( oneMonth, MM=1, __RC__)
+    call ESMF_TimeIntervalSet( oneMonth, MM=1, StartTime=StartTime, __RC__)
 
 
 ! Read User-Supplied History Lists from Config File
@@ -544,19 +545,20 @@ contains
                                    label ='AvoidRootNodeThreshold:', default=1024, rc=status )
     _VERIFY(STATUS)
 
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%blocksize,         &
-                                         label='BlockSize:', default=10, rc=status)
-    _VERIFY(STATUS)
-
     call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
                                          label='FileOrder:', default='ABC', rc=status)
     _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
+                                         label='Allow_Overwrite:', default=.false., _RC)
+    create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+    if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
     else if (trim(cFileOrder) == 'AddOrder') then
        intstate%fileOrderAlphabetical = .false.
     else
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
     end if
 
     call ESMF_ConfigGetAttribute(config, value=intstate%integer_time,label="IntegerTime:", default=.false.,_RC)
@@ -570,14 +572,6 @@ contains
     call o_Clients%split_server_pools(n_server_split = IntState%serverSizeSplit, &
                                       n_hist_split   = IntState%collectionWriteSplit,rc=status)
     _VERIFY(status)
-
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%MarkDone,          &
-                                         label='MarkDone:', default=0, rc=status)
-    _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%PrePost,          &
-                                         label='PrePost:', default=1, rc=status)
-    _VERIFY(STATUS)
-
 
     call ESMF_ConfigGetAttribute(config, value=snglcol,          &
                                          label='SINGLE_COLUMN:', default=0, rc=status)
@@ -598,9 +592,6 @@ contains
        print *, 'EXPID: ',trim(INTSTATE%expid)
        print *, 'Descr: ',trim(INTSTATE%expdsc)
        print *, 'DisableSubVmChecks:', disableSubVmChecks
-       print *, 'BlockSize: '        , INTSTATE%blocksize
-       print *, 'MarkDone:  '        , INTSTATE%MarkDone
-       print *, 'PrePost:   '        , INTSTATE%PrePost
        print *
        if (reverseTime .eq. 1) THEN
           print *, 'REVERSE_TIME = "',  reverseTime, '"'
@@ -905,13 +896,27 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
                                       label=trim(string) // 'tm:', rc=status )
        _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%conservative, default=0, &
-                                      label=trim(string) // 'conservative:'  ,rc=status )
-       _VERIFY(STATUS)
-       if (list(n)%conservative==0) then
-          list(n)%conservative=REGRID_METHOD_BILINEAR
-       else if (list(n)%conservative==1) then
-          list(n)%conservative=REGRID_METHOD_CONSERVE
+
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)
+       _ASSERT(.not.(has_conservative_keyword .and. has_regrid_keyword),trim(string)//" specified both conservative and regrid_method")
+
+       list(n)%regrid_method = REGRID_METHOD_BILINEAR
+       if (has_conservative_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%regrid_method, default=0, &
+                                         label=trim(string) // 'conservative:'  ,rc=status )
+          _VERIFY(STATUS)
+          if (list(n)%regrid_method==0) then
+             list(n)%regrid_method=REGRID_METHOD_BILINEAR
+          else if (list(n)%regrid_method==1) then
+             list(n)%regrid_method=REGRID_METHOD_CONSERVE
+          end if
+       end if
+       if (has_regrid_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
+                                         label=trim(string) // 'regrid_method:'  ,rc=status )
+          _VERIFY(STATUS)
+           list(n)%regrid_method = get_regrid_method(trim(regrid_method))
        end if
 
 ! Get an optional file containing a 1-D track for the output
@@ -950,7 +955,7 @@ contains
        if (old_fields_style) then
           field_set_name = trim(string) // 'fields'
           allocate(field_set)
-          call parse_fields(cfg, trim(field_set_name), field_set, list(n)%items, rc=status)
+          call parse_fields(cfg, trim(field_set_name), field_set, collection_name = list(n)%collection, items = list(n)%items, _RC)
        end if
 
        list(n)%field_set => field_set
@@ -1280,7 +1285,7 @@ contains
           RingTime = startOfThisMonth
        else
           sec = MAPL_nsecf( list(n)%frequency )
-          call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
           RingTime = RefTime
        end if
 
@@ -1370,7 +1375,7 @@ contains
        if( list(n)%duration.ne.0 ) then
           if (.not.list(n)%monthly) then
              sec = MAPL_nsecf( list(n)%duration )
-             call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+             call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
           else
              Frequency = oneMonth
              !ALT keep the values from above
@@ -1524,7 +1529,7 @@ contains
           else
              if (index(list(n)%field_set%fields(1,m),'%') /= 0) then
                 call WRITE_PARALLEL('Can not do arithmetic expression with bundle item')
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
              end if
           end if
        enddo
@@ -1862,17 +1867,19 @@ ENDDO PARSER
            stateIntent = ESMF_STATEINTENT_IMPORT, &
            rc=status )
       _VERIFY(STATUS)
-      if(list(n)%mode == "instantaneous") then
+
+      select case (list(n)%mode)
+      case ("instantaneous")
          IntState%average(n) = .false.
-      else
+      case ("time-averaged")
          IntState%average(n) = .true.
          IntState%CIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
-              stateIntent = ESMF_STATEINTENT_IMPORT, &
-              rc=status )
-         _VERIFY(STATUS)
+              stateIntent = ESMF_STATEINTENT_IMPORT, _RC)
          NULLIFY(INTSTATE%SRCS(n)%SPEC)
          NULLIFY(INTSTATE%DSTS(n)%SPEC)
-      endif
+      case default
+         _FAIL("Invalid mode ["//trim(list(n)%mode)//"] for collection ["//trim(list(n)%collection)//"]. Only 'instantaneous' and 'time-averaged' are supported")
+      end select
 
       if (associated(IntState%Regrid(n)%PTR)) then
          _ASSERT(.not. list(n)%subVm,'needs informative message') ! ALT: currently we are not supporting regridding on subVM
@@ -2587,6 +2594,10 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
+       if (list(n)%format == 'CFIOasync') then
+          list(n)%format = 'CFIO'
+          if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
+       end if
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
@@ -2605,7 +2616,7 @@ ENDDO PARSER
           _VERIFY(status)
           call list(n)%mGriddedIO%set_param(nbits=list(n)%nbits,rc=status)
           _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%conservative,rc=status)
+          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,rc=status)
           _VERIFY(status)
           call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
           _VERIFY(status)
@@ -2641,7 +2652,7 @@ ENDDO PARSER
 ! ewl end
                 _VERIFY(status)
              end if
-             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata)
+             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
        end if
@@ -2711,7 +2722,7 @@ ENDDO PARSER
                 case (3)
                            print *, '   XY-offset: ',list(n)%xyoffset,'  (DePe: Dateline Edge, Pole Edge)'
                 case default
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
          end select
 
          !print *, '      Fields: ',((trim(list(n)%field_set%fields(3,m)),' '),m=1,list(n)%field_set%nfields)
@@ -3141,7 +3152,7 @@ ENDDO PARSER
       exp_state = export(k)
 
       call MAPL_StateGet(exp_state,baseName,fld,__RC__)
-      
+
       okToSplit = hasSplitField(fld, __RC__)
 
       if (okToSplit) then
@@ -3288,20 +3299,27 @@ ENDDO PARSER
     end function extract_unquoted_item
 
 
-    subroutine parse_fields(cfg, label, field_set, items, rc)
+    subroutine parse_fields(cfg, label, field_set, collection_name, items, rc)
        type(ESMF_Config), intent(inout) :: cfg
        character(*), intent(in) :: label
        type (FieldSet), intent(inout) :: field_set
+       character(*), intent(in), optional :: collection_name
        type(GriddedIOitemVector), intent(inout), optional :: items
        integer, optional, intent(out) :: rc
        logical :: table_end
-       logical :: vectorDone
-       integer :: m
+       logical :: vectorDone,match_alias
+       integer :: m,i,j
        character(ESMF_MAXSTR), pointer:: fields (:,:)
 
        type(GriddedIOitem) :: item
        integer :: status
+       character(len=:), allocatable :: usable_collection_name
 
+       if (present(collection_name)) then
+          usable_collection_name = trim(collection_name)
+       else
+          usable_collection_name = "unknown"
+       end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', rc=status)
        _VERIFY(status)
 
@@ -3440,6 +3458,17 @@ ENDDO PARSER
           if(present(items)) call items%push_back(item)
        enddo
        field_set%nfields = m
+!      check for duplicates
+       do i=1,field_set%nfields-1
+          do j=i+1,field_set%nfields
+
+             match_alias = field_set%fields(3,i) == field_set%fields(3,j)
+             if (match_alias) then
+                _FAIL("Caught collection "//usable_collection_name//" with this duplicate alias or shortname if no alias provided: "//trim(field_set%fields(3,i)))
+             end if
+
+          enddo
+       enddo
 
        end subroutine parse_fields
 
@@ -3475,7 +3504,6 @@ ENDDO PARSER
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
-    integer                        :: CollBlock
     type(ESMF_Time)                :: current_time
     type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
@@ -3487,6 +3515,7 @@ ENDDO PARSER
 
 !   ErrLog vars
     integer                        :: status
+    logical                        :: file_exists
 
 !   Debug variables
     type(ESMF_Time)                :: CurrTime
@@ -3517,7 +3546,6 @@ ENDDO PARSER
     list => IntState%list
     nlist = size(list)
 
-    CollBlock = IntState%blocksize
 ! Retrieve the pointer to the generic state
 !------------------------------------------
 
@@ -3774,6 +3802,10 @@ ENDDO PARSER
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
                   call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)
                   list(n)%currentFile = filename(n)
@@ -4046,6 +4078,7 @@ ENDDO PARSER
    type(ESMF_Grid)                :: grid
    type(ESMF_Time)                :: CurrTime
    type(ESMF_Time)                :: StopTime
+   type(ESMF_Time)                :: StartTime
    type(ESMF_Calendar)            :: cal
    type(ESMF_TimeInterval)        :: ti, Frequency
    integer                        :: nsteps
@@ -4081,9 +4114,10 @@ ENDDO PARSER
                'DTDT'     , 'PHYSICS'    , &
                'DTDT'     , 'GWD'        /
 
-   call ESMF_ClockGet ( clock,  currTime=CurrTime ,rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock,  StopTime=StopTime ,rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock,  Calendar=cal      ,rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, currTime=CurrTime,   rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, StopTime=StopTime,   rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, StartTime=StartTime, rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, Calendar=cal,        rc=STATUS ) ; _VERIFY(STATUS)
 
    call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
 
@@ -4095,7 +4129,7 @@ ENDDO PARSER
 
    ti = StopTime-CurrTime
    freq = MAPL_nsecf( list%frequency )
-   call ESMF_TimeIntervalSet( Frequency, S=freq, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+   call ESMF_TimeIntervalSet( Frequency, S=freq, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
 
    nsteps =  ti/Frequency + 1
 
@@ -5268,7 +5302,7 @@ ENDDO PARSER
 
                if (ifound_vloc) then
                   if (ivLoc /= Totloc(i) .and. totloc(i) /= MAPL_VLocationNone) then
-                     _ASSERT(.false.,'arithmetic expression has two different vlocations')
+                     _FAIL('arithmetic expression has two different vlocations')
                   end if
                else
                   if (totloc(i) /= MAPL_VLocationNone) then
@@ -5564,7 +5598,7 @@ ENDDO PARSER
           call pFIO_DownBit(ptr3d,ptr3d,list%nbits,undef=MAPL_undef,rc=status)
           _VERIFY(STATUS)
        else
-          _ASSERT(.false. ,'The field rank is not implmented')
+          _FAIL('The field rank is not implmented')
        endif
     enddo
 
