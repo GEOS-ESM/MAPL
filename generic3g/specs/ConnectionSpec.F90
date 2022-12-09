@@ -1,5 +1,5 @@
 module mapl3g_ConnectionSpec
-   use mapl3g_ConnectionPoint
+   use mapl3g_ConnectionPt
    implicit none
    private
 
@@ -10,8 +10,8 @@ module mapl3g_ConnectionSpec
 !!$   public :: can_share_pointer
 
    type :: ConnectionSpec
-      type(ConnectionPoint) :: source
-      type(ConnectionPoint) :: destination
+      type(ConnectionPt) :: source
+      type(ConnectionPt) :: destination
    contains
       procedure :: is_export_to_import
       procedure :: is_valid
@@ -56,9 +56,11 @@ contains
    logical function is_sibling(this)
       class(ConnectionSpec), intent(in) :: this
 
-      associate(src_intent => this%source%state_intent(), dst_intent => this%destination%state_intent())
-        is_sibling = (src_intent == 'export' .and. dst_intent == 'import')
-      end associate
+      character(:), allocatable :: src_intent, dst_intent
+
+      src_intent = this%source%state_intent()
+      dst_intent = this%destination%state_intent()
+      is_sibling = (src_intent == 'export' .and. dst_intent == 'import')
 
    end function is_sibling
 

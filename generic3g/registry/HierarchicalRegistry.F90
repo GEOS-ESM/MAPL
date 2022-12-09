@@ -1,15 +1,25 @@
+! Notes:
+
+! 1. TerminateImport() is implemented in MAPL_Generic as an add_export() in parent and a add_connection() between parent and child.
+
+
+
 #include "MAPL_Generic.h"
 
 module mapl3g_HierarchicalRegistry
    use mapl3g_AbstractRegistry
    use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItemSpecPtr
-   use mapl3g_RelConnPtStateItemPtrMap
-   use mapl3g_ConnectionPoint
-   use mapl3g_RelativeConnectionPoint
+   use mapl3g_ActualPtSpecPtrMap
+   use mapl3g_ConnectionPt
+   use mapl3g_VirtualConnectionPt
    use mapl3g_StateItemVector
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap
+   use mapl3g_ActualConnectionPt
+   use mapl3g_ActualPtVector
+   use mapl3g_ActualPtSpecPtrMap
+   use mapl3g_ActualPtVec_Map
    use mapl3g_ConnectionSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -20,15 +30,48 @@ module mapl3g_HierarchicalRegistry
   
    type, extends(AbstractRegistry) :: HierarchicalRegistry
       private
-      type(StateItemVector) :: specs
-      type(RelConnPtStateItemPtrMap) :: specs_map
+      character(:), allocatable :: name
+      
+      type(StateItemVector) :: local_specs ! specs for items "owned" by gridcomp
+      type(ActualPtSpecPtrMap) :: actual_specs_map ! all items in states of gridcomp
+      type(ActualPtVec_Map) :: actual_pts_map     ! Grouping of items with shared virtual connection point
+
+      ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
    contains
-      procedure :: get_item_spec_ptr
+
+      procedure :: get_name
+      ! Getters for actual pt
       procedure :: get_item_spec
-      procedure :: add_item_spec
-      procedure :: has_item_spec
+      procedure :: get_item_SpecPtr
+
+      procedure :: get_actual_pts
+      procedure :: get_actual_pt_SpecPtrs
+
+      procedure :: add_item_spec_virtual
+      procedure :: add_item_spec_virtual_override
+      procedure :: add_item_spec_actual
+      generic :: add_item_spec => add_item_spec_virtual
+      generic :: add_item_spec => add_item_spec_virtual_override
+      generic :: add_item_spec => add_item_spec_actual
+      procedure :: link_item_spec_actual
+      procedure :: link_item_spec_virtual
+      generic :: link_item_spec => link_item_spec_actual, link_item_spec_virtual
+
+      procedure :: add_extension
+      procedure, nopass :: make_extension_pt
+
+      procedure :: has_item_spec_actual
+      procedure :: has_item_spec_virtual
+      generic :: has_item_spec => has_item_spec_actual, has_item_spec_virtual
       procedure :: set_active
+
+      procedure :: propagate_unsatisfied_imports_all
+      procedure :: propagate_unsatisfied_imports_child
+      procedure :: propagate_unsatisfied_imports_virtual_pt
+      generic :: propagate_unsatisfied_imports => propagate_unsatisfied_imports_all
+      generic :: propagate_unsatisfied_imports => propagate_unsatisfied_imports_child
+      generic :: propagate_unsatisfied_imports => propagate_unsatisfied_imports_virtual_pt
 
       procedure :: add_subregistry
       procedure :: get_subregistry_comp
@@ -36,16 +79,14 @@ module mapl3g_HierarchicalRegistry
       generic :: get_subregistry => get_subregistry_comp, get_subregistry_conn
       procedure :: has_subregistry
 
-      procedure :: terminate_import
       procedure :: add_connection
-
       procedure :: connect_sibling
-      procedure :: propagate_ptr
+      procedure :: connect_export2export
    end type HierarchicalRegistry
 
    interface HierarchicalRegistry
       module procedure new_HierarchicalRegistry_leaf
-      module procedure new_HierarchicalRegistry_subregistries
+      module procedure new_HierarchicalRegistry_parent
    end interface HierarchicalRegistry
 
    ! Submodule implementations
@@ -60,95 +101,217 @@ module mapl3g_HierarchicalRegistry
 
 contains
 
-   function new_HierarchicalRegistry_leaf() result(registry)
+   ! Constructors
+   function new_HierarchicalRegistry_leaf(name) result(registry)
       type(HierarchicalRegistry) :: registry
+      character(*), intent(in) :: name
+      registry = HierarchicalRegistry(name, RegistryPtrMap())
    end function new_HierarchicalRegistry_leaf
 
-      
-   function new_HierarchicalRegistry_subregistries(subregistries) result(registry)
+   function new_HierarchicalRegistry_parent(name, subregistries) result(registry)
       type(HierarchicalRegistry) :: registry
+      character(*), intent(in) :: name
       type(RegistryPtrMap), intent(in) :: subregistries
 
+      registry%name = name
       registry%subregistries = subregistries
-   end function new_HierarchicalRegistry_subregistries
+   end function new_HierarchicalRegistry_parent
 
-      
-   function get_item_spec_ptr(this, conn_pt) result(spec_ptr)
-      class(StateItemSpecPtr), pointer :: spec_ptr
+
+   function get_name(this) result(name)
+      character(:), allocatable:: name
       class(HierarchicalRegistry), intent(in) :: this
-      type(RelativeConnectionPoint), intent(in) :: conn_pt
 
-      integer :: status
+      name = this%name
 
-      ! failure is ok; return null ptr
-      spec_ptr => this%specs_map%at(conn_pt, rc=status)
+   end function get_name
 
-   end function get_item_spec_ptr
-
-   function get_item_spec(this, conn_pt) result(spec)
+   ! Retrieve a pointer to the item spect associated with an actual pt
+   ! in this registry.  Failure returns null pointer.
+   function get_item_spec(this, actual_pt, rc) result(spec)
       class(AbstractStateItemSpec), pointer :: spec
-      class(HierarchicalRegistry), intent(in) :: this
-      type(RelativeConnectionPoint), intent(in) :: conn_pt
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
 
       integer :: status
       type(StateItemSpecPtr), pointer :: wrap
 
-      ! failure is ok; return null ptr
-      wrap => this%specs_map%at(conn_pt, rc=status)
-      if (associated(wrap)) then
-         spec => wrap%ptr
-      else
-         spec => null()
-      end if
+      spec => null()
+      
+      wrap => this%actual_specs_map%at(actual_pt, _RC)
+      if (associated(wrap)) spec => wrap%ptr
 
+      _RETURN(_SUCCESS)
    end function get_item_spec
 
-   subroutine add_item_spec(this, conn_pt, spec, rc)
+   ! A virtual pt might be associated with multiple specs, so we need
+   ! a getter that returns wrapped pointers that can be used in
+   ! containers.
+   function get_item_SpecPtr(this, actual_pt, rc) result(spec_ptr)
+      class(StateItemSpecPtr), pointer :: spec_ptr
+      class(HierarchicalRegistry), intent(in) :: this
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      spec_ptr => this%actual_specs_map%at(actual_pt, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_item_SpecPtr
+
+
+   function get_actual_pt_SpecPtrs(this, virtual_pt, rc) result(specs)
+      type(StateItemSpecPtr), allocatable :: specs(:)
+      class(HierarchicalRegistry), intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      integer :: i
+      type(ActualPtVector), pointer :: actual_pts
+
+      actual_pts => this%actual_pts_map%at(virtual_pt, _RC)
+      associate ( n => actual_pts%size() )
+        allocate(specs(n))
+        do i = 1, n
+           specs(i) = this%get_item_SpecPtr(actual_pts%of(i), _RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function get_actual_pt_SpecPtrs
+
+   subroutine add_item_spec_actual(this, actual_pt, spec, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      type(RelativeConnectionPoint), intent(in) :: conn_pt
+      type(ActualConnectionPt), intent(in) :: actual_pt
       class(AbstractStateItemSpec), target, intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemSpecPtr) :: wrap
+      class(AbstractStateItemSpec), pointer :: internal_spec
 
+      _ASSERT(.not. this%has_item_spec(actual_pt), 'Duplicate item name.')
 
-      _ASSERT(.not. this%has_item_spec(conn_pt), 'Duplicate item name.')
-
-      call this%specs%push_back(spec)
-      wrap = StateItemSpecPtr(this%specs%back())
-      call this%specs_map%insert(conn_pt, wrap)
+      call this%local_specs%push_back(spec)
+      internal_spec => this%local_specs%back()
+      call this%link_item_spec_actual(actual_pt, internal_spec, _RC)
 
       ! Internal state items are always active.
-      if (conn_pt%is_internal()) call this%set_active(conn_pt)
+      if (actual_pt%is_internal()) call internal_spec%set_active()
 
       _RETURN(_SUCCESS)
-   end subroutine add_item_spec
+   end subroutine add_item_spec_actual
 
-   logical function has_item_spec(this, conn_pt)
-      class(HierarchicalRegistry), intent(in) :: this
-      type(RelativeConnectionPoint), intent(in) :: conn_pt
-      has_item_spec = (this%specs_map%count(conn_pt) > 0)
-   end function has_item_spec
-
-   subroutine set_active(this, conn_pt, unusable, require_inactive, rc)
+   subroutine link_item_spec_actual(this, actual_pt, spec, unusable, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      class(RelativeConnectionPoint), intent(in) :: conn_pt
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      class(AbstractStateItemSpec), target :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      type(StateItemSpecPtr) :: wrap
+
+      _ASSERT(.not. this%has_item_spec(actual_pt), 'Duplicate item name.')
+      wrap = StateItemSpecPtr(spec)
+      call this%actual_specs_map%insert(actual_pt, wrap)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine link_item_spec_actual
+
+
+   subroutine add_item_spec_virtual(this, virtual_pt, spec, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      class(AbstractStateItemSpec), target, intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ActualConnectionPt) :: actual_pt
+
+      actual_pt = ActualConnectionPt(virtual_pt)
+      call this%add_item_spec(virtual_pt, spec, actual_pt, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_item_spec_virtual
+   
+   subroutine add_item_spec_virtual_override(this, virtual_pt, spec, actual_pt, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      class(AbstractStateItemSpec), target, intent(in) :: spec
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%add_extension(virtual_pt, actual_pt)
+      call this%add_item_spec(actual_pt, spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_item_spec_virtual_override
+   
+
+   subroutine add_extension(this, virtual_pt, actual_pt)
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      type(ActualConnectionPt), intent(in) :: actual_pt
+
+      associate (extensions => this%actual_pts_map)
+        if (extensions%count(virtual_pt) == 0) then
+           call extensions%insert(virtual_pt, ActualPtVector())
+        end if
+        associate (actual_pts => this%actual_pts_map%of(virtual_pt))
+          call actual_pts%push_back(actual_pt)
+        end associate
+      end associate
+      
+   end subroutine add_extension
+
+
+   ! This procedure is used when a child import/export must be propagated to parent.
+   subroutine link_item_spec_virtual(this, virtual_pt, spec, actual_pt, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      class(AbstractStateItemSpec), target :: spec
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%add_extension(virtual_pt, actual_pt)
+      call this%link_item_spec(actual_pt, spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine link_item_spec_virtual
+
+   logical function has_item_spec_actual(this, actual_pt) result(has_item_spec)
+      class(HierarchicalRegistry), intent(in) :: this
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      has_item_spec = (this%actual_specs_map%count(actual_pt) > 0)
+   end function has_item_spec_actual
+
+   logical function has_item_spec_virtual(this, virtual_pt) result(has_item_spec)
+      class(HierarchicalRegistry), intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      has_item_spec = (this%actual_pts_map%count(virtual_pt) > 0)
+   end function has_item_spec_virtual
+
+   subroutine set_active(this, actual_pt, unusable, require_inactive, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
+      class(ActualConnectionPt), intent(in) :: actual_pt
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: require_inactive
       integer, optional, intent(out) :: rc
 
       class(AbstractStateItemSpec), pointer :: spec
-      logical :: require_inactive_
 
-      spec => this%get_item_spec(conn_pt)
+      spec => this%get_item_spec(actual_pt)
       _ASSERT(associated(spec), 'unknown connection point')
 
-      require_inactive_ = .false.
-      if (present(require_inactive)) require_inactive_ = require_inactive
-
-      if (require_inactive_) then
-         _ASSERT(.not. spec%is_active(), 'Cannot terminate import that is already satisfied.')
+      if (opt(require_inactive)) then
+         _ASSERT(.not. spec%is_active(), 'Exected inactive pt to activate.')
       end if
 
       call spec%set_active()
@@ -158,14 +321,15 @@ contains
    end subroutine set_active
 
 
-   subroutine add_subregistry(this, name, subregistry, rc)
+   subroutine add_subregistry(this, subregistry, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      character(len=*), intent(in) :: name
       class(HierarchicalRegistry), target :: subregistry
       integer, optional, intent(out) :: rc
 
       type(RegistryPtr) :: wrap
+      character(:), allocatable :: name
 
+      name = subregistry%get_name()
       _ASSERT(.not. this%has_subregistry(name), 'Duplicate subregistry entry.')
       wrap%registry => subregistry
       call this%subregistries%insert(name, wrap)
@@ -174,39 +338,48 @@ contains
    end subroutine add_subregistry
 
    ! Returns null() if not found.
-   function get_subregistry_comp(this, comp_name) result(subregistry)
-      class(AbstractRegistry), pointer :: subregistry
+   function get_subregistry_comp(this, comp_name, rc) result(subregistry)
+      type(HierarchicalRegistry), pointer :: subregistry
       class(HierarchicalRegistry), target, intent(in) :: this
       character(len=*), intent(in) :: comp_name
+      integer, optional, intent(out) :: rc
 
       type(RegistryPtr), pointer :: wrap
       integer :: status
 
-      if (comp_name == SELF) then
-         subregistry => this
-         return
-      end if
-      
-      wrap => this%subregistries%at(comp_name,rc=status)
-      if (associated(wrap)) then
-         subregistry => wrap%registry
-         return
-      end if
-
       subregistry => null()
 
+      if (comp_name == SELF) then
+         subregistry => this
+         _RETURN(_SUCCESS)
+      end if
       
+      wrap => this%subregistries%at(comp_name,_RC)
+      _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
+
+      
+      select type (q => wrap%registry)
+      type is (HierarchicalRegistry)
+         subregistry => q
+         _RETURN(_SUCCESS)
+      class default
+         _FAIL('Illegal subtype of AbstractRegistry encountered.')
+      end select
 
    end function get_subregistry_comp
 
 
-   function get_subregistry_conn(this, conn_pt) result(subregistry)
+   function get_subregistry_conn(this, conn_pt, rc) result(subregistry)
       class(AbstractRegistry), pointer :: subregistry
       class(HierarchicalRegistry), target, intent(in) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(ConnectionPt), intent(in) :: conn_pt
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      
+      subregistry => this%get_subregistry(conn_pt%component_name,_RC)
 
-      subregistry => this%get_subregistry(conn_pt%component_name)
-
+      _RETURN(_SUCCESS)
    end function get_subregistry_conn
 
 
@@ -217,13 +390,14 @@ contains
    end function has_subregistry
 
 
+   ! Connect two _virtual_ connection points.
+   ! Use extension map to find actual connection points.
    subroutine add_connection(this, connection, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(ConnectionSpec), intent(in) :: connection
       integer, optional, intent(out) :: rc
 
       class(AbstractRegistry), pointer :: src_registry, dst_registry
-      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
       integer :: status
 
       associate(src_pt => connection%source, dst_pt => connection%destination)
@@ -238,13 +412,12 @@ contains
            _RETURN(_SUCCESS)
         end if
 
-        call dst_registry%propagate_ptr(src_registry, connection, _RC)
-
+        ! Non-sibling connection: just propagate pointer "up"
+           call this%connect_export2export(src_registry, connection, _RC)
       end associate
       
       _RETURN(_SUCCESS)
    end subroutine add_connection
-
 
    subroutine connect_sibling(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), intent(in) :: this
@@ -253,65 +426,212 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      type(StateItemSpecPtr), allocatable :: export_specs(:), import_specs(:)
+      class(AbstractStateItemSpec), pointer :: export_spec, import_spec
+      integer :: i, j
+      logical :: satisfied
       integer :: status
       
       associate (src_pt => connection%source, dst_pt => connection%destination)
-        dst_spec => this%get_item_spec(dst_pt%relative_pt)
-        _ASSERT(associated(dst_spec), 'no such dst pt')
-        
-        src_spec => src_registry%get_item_spec(src_pt%relative_pt)
-        _ASSERT(associated(src_spec), 'no such src pt')
 
-        call src_spec%set_active()
-        call dst_spec%connect_to(src_spec, _RC)
+        import_specs = this%get_actual_pt_SpecPtrs(dst_pt%virtual_pt, _RC)
+        select type (q => src_registry)
+        type is (HierarchicalRegistry)
+           export_specs = q%get_actual_pt_SpecPtrs(src_pt%virtual_pt, _RC)
+        class default
+           _FAIL('internal error - invalid object of class AbstractRegistry')
+        end select
+
+        do i = 1, size(import_specs)
+           import_spec => import_specs(i)%ptr
+           satisfied = .true.
+           do j = 1, size(export_specs)
+              export_spec => export_specs(j)%ptr
+              
+              if (import_spec%can_connect_to(export_spec)) then
+                 call export_spec%set_active()
+                 call import_spec%connect_to(export_spec, _RC)
+                 satisfied = .true.
+                 exit
+              end if
+           end do
+
+           _ASSERT(satisfied,'no matching actual export spec found')
+        end do
       end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling
 
-   subroutine propagate_ptr(this, src_registry, connection, unusable, rc)
-      class(HierarchicalRegistry), intent(in) :: this
+   subroutine connect_export2export(this, src_registry, connection, unusable, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
       class(AbstractRegistry), intent(in) :: src_registry
       type(ConnectionSpec), intent(in) :: connection
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(StateItemSpecPtr), pointer :: dst_wrap, src_wrap
+      type(ActualPtVectorIterator) :: iter
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ActualConnectionPt), pointer :: src_actual_pt
+      type(ActualConnectionPt) :: dst_actual_pt
+      character(:), pointer :: dst_short_name
+      integer :: status
 
-      associate (src_pt => connection%source, dst_pt => connection%destination)
-        dst_wrap => this%get_item_spec_ptr(dst_pt%relative_pt)
-        
-        _ASSERT(associated(dst_wrap), 'no such dst pt')
-        _ASSERT(associated(dst_wrap%ptr), 'uninitialized dst wrapper')
-        
-        src_wrap => src_registry%get_item_spec_ptr(src_pt%relative_pt)
-        _ASSERT(associated(src_wrap), 'no such src pt')
-        _ASSERT(associated(src_wrap%ptr), 'uninitialized src wrapper')
-        
-        dst_wrap = src_wrap
+      associate (src_pt => connection%source%virtual_pt, dst_pt => connection%destination%virtual_pt)
+        _ASSERT(this%actual_pts_map%count(src_pt) == 0, 'Specified virtual point already exists in this registry')
+        associate (actual_pts => src_registry%get_actual_pts(src_pt))
+          associate (e => actual_pts%end())
+            iter = actual_pts%begin()
+            do while (iter /= e)
+               src_actual_pt => iter%of()
+               dst_actual_pt = src_actual_pt
+               call dst_actual_pt%set_short_name(str_replace(src_actual_pt%short_name(), src_pt%short_name(), dst_pt%short_name()))
+               spec => src_registry%get_item_spec(src_actual_pt)
+               _ASSERT(associated(spec), 'This should not happen.')
+               call this%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
+               call iter%next()
+            end do
+          end associate
+        end associate
       end associate
+        
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine propagate_ptr
 
-   subroutine terminate_import(this, conn_pt, rc)
+   contains
+
+      function str_replace(buffer, pattern, replacement) result(new_str)
+         character(:), allocatable :: new_str
+         character(*), intent(in) :: buffer
+         character(*), intent(in) :: pattern
+         character(*), intent(in) :: replacement
+
+         integer :: idx
+
+         idx = scan(buffer, pattern)
+         new_str = buffer(:idx-1) // replacement // buffer(idx+len(pattern):)
+      end function str_replace
+
+   end subroutine connect_export2export
+
+   ! Loop over children and propagate unsatisfied imports of each
+   subroutine propagate_unsatisfied_imports_all(this, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
       integer, optional, intent(out) :: rc
 
-      class(AbstractRegistry), pointer :: subregistry
+      type(RegistryPtrMapIterator) :: iter
+      type(HierarchicalRegistry), pointer :: r_child
       integer :: status
 
-      _ASSERT(conn_pt%is_import(), 'Cannot terminate import on item that is not an import.')
-
-      subregistry => this%get_subregistry(conn_pt)
-      _ASSERT(associated(subregistry), 'Cannot terminate import on unregistered item.')
-
-      call subregistry%set_active(conn_pt%relative_pt, require_inactive=.true., _RC)
+      associate (e => this%subregistries%end())
+        iter = this%subregistries%begin()
+        do while (iter /= e)
+           r_child => this%get_subregistry(iter%first(), _RC)
+           call this%propagate_unsatisfied_imports(iter%first(), r_child, _RC)
+           call iter%next()
+        end do
+      end associate
 
       _RETURN(_SUCCESS)
-   end subroutine terminate_import
+   end subroutine propagate_unsatisfied_imports_all
+
+   ! Loop over virtual pts and propagate any unsatisfied actual pts.
+   subroutine propagate_unsatisfied_imports_child(this, child_name, child_r, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
+      character(*), intent(in) :: child_name
+      type(HierarchicalRegistry), target, intent(in) :: child_r
+      integer, optional, intent(out) :: rc
+
+      type(ActualPtVector), pointer :: actual_pts_vector
+      type(ActualPtVec_Map), pointer :: actual_pts_map
+      type(ActualPtVec_MapIterator) :: iter
+      class(AbstractRegistry), pointer :: r_child
+      integer :: status
+      class(StateItemSpecPtr), allocatable :: specs(:)
+
+      associate (e => child_r%actual_pts_map%end())
+        iter = child_r%actual_pts_map%begin()
+        do while (iter /= e)
+           call this%propagate_unsatisfied_imports_virtual_pt(child_name, child_r, iter, _RC)
+           call iter%next()
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine propagate_unsatisfied_imports_child
+
+   ! Loop over unsatisfied imports of child registry and propagate to
+   ! parent.
+   subroutine propagate_unsatisfied_imports_virtual_pt(this, child_name, r_child, iter, rc)
+      class(HierarchicalRegistry), intent(inout) :: this
+      character(*), intent(in) :: child_name
+      type(HierarchicalRegistry), target, intent(in) :: r_child
+      type(ActualPtVec_MapIterator), intent(in) :: iter
+      integer, optional, intent(out) :: rc
+
+      integer :: i
+      integer :: status
+      class(AbstractStateItemSpec), pointer :: item
+      type(VirtualConnectionPt), pointer :: virtual_pt
+      type(ActualPtVector), pointer :: actual_pts
+
+      virtual_pt => iter%first()
+      actual_pts => iter%second()
+      do i = 1, actual_pts%size()
+         associate (actual_pt => actual_pts%of(i))
+           item => r_child%get_item_spec(actual_pt)
+           _ASSERT(associated(item), 'Should not happen.')
+
+           if (actual_pt%is_import() .and. .not. item%is_active()) then
+              call this%link_item_spec_virtual(virtual_pt, item, this%make_extension_pt(actual_pt, child_name), _RC)
+           end if
+
+         end associate
+      end do
+      _RETURN(_SUCCESS)
+   contains
+
+
+   end subroutine propagate_unsatisfied_imports_virtual_pt
+
+
+
+   logical function opt(arg)
+      logical, optional, intent(in) :: arg
+
+      opt = .false.
+      if (present(arg)) then
+         opt = arg
+      end if
+
+   end function opt
+
+
+   function get_actual_pts(this, virtual_pt) result(actual_pts)
+      type(ActualPtVector), pointer :: actual_pts
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+
+      integer :: status
+
+      ! failure is ok; just returns null pointer
+      actual_pts => this%actual_pts_map%at(virtual_pt, rc=status)
+
+   end function get_actual_pts
+
+   function make_extension_pt(actual_pt, child_name) result(extension_pt)
+      type(ActualConnectionPt) :: extension_pt
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      character(*), intent(in) :: child_name
+      
+      if (actual_pt%is_extension_pt()) then
+         extension_pt = actual_pt
+      else
+         extension_pt = ActualConnectionPt('import/<extensions>/<'//child_name//'>/'//actual_pt%short_name())
+      end if
+   end function make_extension_pt
+
+
 end module mapl3g_HierarchicalRegistry

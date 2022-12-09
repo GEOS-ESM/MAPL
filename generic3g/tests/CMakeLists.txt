@@ -5,6 +5,8 @@ add_library(scratchpad SHARED scratchpad.F90)
 add_subdirectory(gridcomps)
 
 set (test_srcs
+  Test_VirtualConnectionPt.pf
+  
 #  Test_AddVarSpec.pf
   Test_SimpleLeafGridComp.pf
   Test_Traverse.pf
@@ -13,7 +15,7 @@ set (test_srcs
   Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
 
-  Test_ConnectionPoint.pf
+  Test_ConnectionPt.pf
   Test_FieldDictionary.pf
   Test_GenericInitialize.pf
 

@@ -1,16 +1,16 @@
-module mapl3g_ConnPtStateItemPtrMap
-   use mapl3g_ConnectionPoint
+module mapl3g_ActualPtSpecPtrMap
+   use mapl3g_ActualConnectionPt
    use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItemSpecPtr
 
-#define Key ConnectionPoint
+#define Key ActualConnectionPt
 #define Key_LT(a,b) (a < b)
 #define T StateItemSpecPtr
 #define T_polymorphic
 
-#define Map ConnPtStateItemPtrMap
-#define MapIterator ConnPtStateItemPtrMapIterator
-#define Pair ConnPtStateItemPtrPair
+#define Map ActualPtSpecPtrMap
+#define MapIterator ActualPtSpecPtrMapIterator
+#define Pair ActualPtSpecPtrPair
 
 #include "map/template.inc"
 
@@ -21,4 +21,4 @@ module mapl3g_ConnPtStateItemPtrMap
 #undef T
 #undef Key
 
-end module mapl3g_ConnPtStateItemPtrMap
+end module mapl3g_ActualPtSpecPtrMap
