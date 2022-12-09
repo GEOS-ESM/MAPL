@@ -65,16 +65,18 @@ contains
 
       character(:), allocatable :: buf
       type(StringVector) :: nested_name
+      character(:), allocatable :: s_intent
 
       buf = long_name
-      associate (state_intent => get_next_item(buf))
-        internal_pt%state_intent_ = state_intent
-        do
-           if (len(buf) == 0) exit
-           call nested_name%push_back(get_next_item(buf))
-        end do
-        internal_pt = InternalConnectionPt(state_intent, nested_name)
-      end associate
+      s_intent = get_next_item(buf)
+      internal_pt%state_intent_ = s_intent
+
+      do
+         if (len(buf) == 0) exit
+         call nested_name%push_back(get_next_item(buf))
+      end do
+
+      internal_pt = InternalConnectionPt(s_intent, nested_name)
 
    contains
 
@@ -162,6 +164,7 @@ contains
       character(:), allocatable :: s
 
       type(StringVectorIterator) :: iter
+      s = ''
       s = this%state_intent_
       associate (e => this%nested_name%end())
         iter = this%nested_name%begin()
