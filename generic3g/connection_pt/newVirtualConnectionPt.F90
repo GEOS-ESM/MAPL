@@ -21,13 +21,13 @@ module mapl3g_newVirtualConnectionPt
    contains
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: add_comp_name
    end type newVirtualConnectionPt
 
    ! Constructors
    interface newVirtualConnectionPt
       module procedure new_VirtualPt_basic
       module procedure new_VirtualPt_string_intent
-      module procedure new_VirtualPt_with_comp_name
    end interface newVirtualConnectionPt
 
    interface operator(<)
@@ -46,7 +46,6 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
       
-
       v_pt%state_intent = state_intent
       v_pt%short_name = short_name
       
@@ -77,15 +76,15 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_VirtualPt_string_intent
 
-   function new_VirtualPt_with_comp_name(pt, comp_name) result(v_pt)
+   function add_comp_name(this, comp_name) result(v_pt)
       type(newVirtualConnectionPt) :: v_pt
-      type(newVirtualConnectionPt) :: pt
+      class(newVirtualConnectionPt), intent(in) :: this
       character(*), intent(in) :: comp_name
 
-      v_pt = pt
+      v_pt = this
       v_pt%comp_name = comp_name
       
-   end function new_VirtualPt_with_comp_name
+   end function add_comp_name
 
    function get_state_intent(this) result(state_intent)
       character(:), allocatable :: state_intent
@@ -113,7 +112,6 @@ contains
       if (allocated(this%comp_name)) name = this%comp_name // ':: '
       name = name // this%short_name
       
-         
    end function get_esmf_name
       
 

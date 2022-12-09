@@ -15,12 +15,15 @@ module mapl3g_ExtensionConnectionPt
    type, extends(newActualConnectionPt) :: ExtensionConnectionPt
       private
       integer :: label = 0
+   contains
+      procedure :: increment
+      procedure :: get_esmf_name
    end type ExtensionConnectionPt
 
    ! Constructors
    interface ExtensionConnectionPt
-      module procedure new_ExtensionPt_from_v_pt
       module procedure new_ExtensionPt_from_gc_pt
+      module procedure new_ExtensionPt_from_v_pt
    end interface ExtensionConnectionPt
 
    interface operator(<)
@@ -45,6 +48,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_ExtensionPt_from_gc_pt
 
+
    function new_ExtensionPt_from_v_pt(v_pt, unusable, label) result(ext_pt)
       type(ExtensionConnectionPt) :: ext_pt
       type(newVirtualConnectionPt), intent(in) :: v_pt
@@ -56,6 +60,28 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_ExtensionPt_from_v_pt
 
+   ! Usually we just want to just increment the label when we encounter
+   ! the need for a new extension point.
+   function increment(this) result(new_pt)
+      type(ExtensionConnectionPt) :: new_pt
+      class(ExtensionConnectionPt), intent(in) :: this
+
+      new_pt = this
+      new_pt%label = new_pt%label + 1
+      
+   end function increment
+
+   ! Important that name is different if either comp_name or short_name differ
+   function get_esmf_name(this) result(name)
+      character(:), allocatable :: name
+      class(ExtensionConnectionPt), intent(in) :: this
+
+      character(16) :: buf
+
+      write(buf, '(i0)') this%label
+      name = this%newActualConnectionPt%get_esmf_name() // '(' // trim(buf) // ')'
+
+   end function get_esmf_name
 
    logical function less_than(lhs, rhs)
       type(ExtensionConnectionPt), intent(in) :: lhs
@@ -66,6 +92,8 @@ contains
 
       ! if greater:
       if (rhs%newActualConnectionPt < lhs%newActualConnectionPt) return
+
+      ! Tie breaker
       less_than = lhs%label < rhs%label
 
    end function less_than
