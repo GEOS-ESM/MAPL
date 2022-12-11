@@ -5,7 +5,6 @@ module mapl3g_ConnectionSpec
 
    public :: ConnectionSpec
    public :: is_valid
-   public :: SELF ! For EtoE and ItoI type connections
 
 !!$   public :: can_share_pointer
 
@@ -18,7 +17,6 @@ module mapl3g_ConnectionSpec
       procedure :: is_sibling
    end type ConnectionSpec
 
-   character(*), parameter :: SELF = '_self_'
 
 contains
 

@@ -1,0 +1,77 @@
+module Test_VirtualConnectionPt
+   use funit
+   use mapl3g_newVirtualConnectionPt
+   use esmf
+   implicit none
+
+contains
+
+   @test
+   subroutine test_get_intent()
+      type(newVirtualConnectionPt) :: v_pt
+
+      v_pt = newVirtualConnectionPt(ESMF_STATEINTENT_IMPORT, 'T')
+      @assertEqual('T', v_pt%get_esmf_name())
+      @assertTrue(v_pt%get_state_intent() == 'import')
+      
+      v_pt = newVirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'U')
+      @assertEqual('U', v_pt%get_esmf_name())
+      @assertTrue(v_pt%get_state_intent() == 'export')
+
+      v_pt = newVirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, 'V')
+      @assertEqual('V', v_pt%get_esmf_name())
+      @assertTrue(v_pt%get_state_intent() == 'internal')
+   end subroutine test_get_intent
+   
+   @test
+   subroutine test_alt_constructor()
+      type(newVirtualConnectionPt) :: v_pt
+
+      v_pt = newVirtualConnectionPt(state_intent='import', short_name='T')
+      @assertEqual('T', v_pt%get_esmf_name())
+      @assertTrue(v_pt%get_state_intent() == 'import')
+      
+      v_pt = newVirtualConnectionPt(state_intent='export', short_name='U')
+      @assertEqual('U', v_pt%get_esmf_name())
+      @assertTrue(v_pt%get_state_intent() == 'export')
+
+      v_pt = newVirtualConnectionPt(state_intent='internal', short_name='V')
+      @assertEqual('V', v_pt%get_esmf_name())
+      @assertTrue(v_pt%get_state_intent() == 'internal')
+   end subroutine test_alt_constructor
+   
+
+   @test
+   subroutine test_less()
+      type(newVirtualConnectionPt) :: v_pt_1, v_pt_2
+
+      v_pt_1 = newVirtualConnectionPt(state_intent='import', short_name='A')
+      v_pt_2 = newVirtualConnectionPt(state_intent='import', short_name='B')
+
+      ! Identical
+      @assert_that((v_pt_1 < v_pt_1), is(false()))
+      @assert_that((v_pt_2 < v_pt_2), is(false()))
+      ! Different
+      @assert_that((v_pt_1 < v_pt_2), is(true()))
+      @assert_that((v_pt_2 < v_pt_1), is(false()))
+
+   end subroutine test_less
+
+   @test
+   subroutine test_less2()
+      type(newVirtualConnectionPt) :: v_pt_0, v_pt_1, v_pt_2
+
+      v_pt_0 = newVirtualConnectionPt(ESMF_STATEINTENT_IMPORT, short_name='A')
+      v_pt_1 = v_pt_0%add_comp_name('A')
+      v_pt_2 = v_pt_0%add_comp_name('B')
+
+      ! Identical
+      @assert_that((v_pt_1 < v_pt_1), is(false()))
+      @assert_that((v_pt_2 < v_pt_2), is(false()))
+      ! Different
+      @assert_that((v_pt_1 < v_pt_2), is(true()))
+      @assert_that((v_pt_2 < v_pt_1), is(false()))
+
+   end subroutine test_less2
+
+end module Test_VirtualConnectionPt

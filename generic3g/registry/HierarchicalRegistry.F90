@@ -348,15 +348,13 @@ contains
       integer :: status
 
       subregistry => null()
-
-      if (comp_name == SELF) then
+      if (comp_name == this%get_name()) then
          subregistry => this
          _RETURN(_SUCCESS)
       end if
       
       wrap => this%subregistries%at(comp_name,_RC)
       _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
-
       
       select type (q => wrap%registry)
       type is (HierarchicalRegistry)
@@ -479,13 +477,14 @@ contains
       integer :: status
 
       associate (src_pt => connection%source%virtual_pt, dst_pt => connection%destination%virtual_pt)
-        _ASSERT(this%actual_pts_map%count(src_pt) == 0, 'Specified virtual point already exists in this registry')
+        _ASSERT(this%actual_pts_map%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
         associate (actual_pts => src_registry%get_actual_pts(src_pt))
           associate (e => actual_pts%end())
             iter = actual_pts%begin()
             do while (iter /= e)
                src_actual_pt => iter%of()
-               dst_actual_pt = src_actual_pt
+               dst_actual_pt = ActualConnectionPt(dst_pt)
+
                call dst_actual_pt%set_short_name(str_replace(src_actual_pt%short_name(), src_pt%short_name(), dst_pt%short_name()))
                spec => src_registry%get_item_spec(src_actual_pt)
                _ASSERT(associated(spec), 'This should not happen.')
