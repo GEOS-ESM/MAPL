@@ -352,8 +352,8 @@ contains
       type(HierarchicalRegistry), target :: r_A, r_B, r_P, r_C
       class(AbstractStateItemSpec), pointer :: spec
 
-      type(VirtualConnectionPt) :: cp_1, cp_2, cp_3, cp_4
-      type(ConnectionSpec) :: e2e, i2i, sib
+      type(VirtualConnectionPt) :: cp_1, cp_2, cp_4
+      type(ConnectionSpec) :: e2e, sib
 
       r = HierarchicalRegistry('R')
       r_P = HierarchicalRegistry('P')
@@ -369,43 +369,35 @@ contains
 
       cp_1 = VirtualConnectionPt('export', 'A1')
       cp_2 = VirtualConnectionPt('export', 'A2')
-      cp_3 = VirtualConnectionPt('import', 'A3')
       cp_4 = VirtualConnectionPt('import', 'A4')
 
-      call r_A%add_item_spec(cp_1, MockItemSpec('A1'))
-      call r_C%add_item_spec(cp_4, MockItemSpec('A4'))
+      call r_A%add_item_spec(cp_1, MockItemSpec('name:A1'))
+      call r_C%add_item_spec(cp_4, MockItemSpec('name:A4'))
 
         !-------------------------------------------
         !
         !                    sib*
-        !          P  cp_2   --->    cp_3  B
+        !          P  cp_2   --->    cp_4*  B   
         !              ^              |
-        !     e2e      |              |     i2i
+        !     e2e      |              |     i2i (implicit)
         !              |              V
         !          A  cp_1           cp_4  C
         !
         !-------------------------------------------
       e2e = ConnectionSpec(CP('A',cp_1), CP('P',cp_2))
-      i2i = ConnectionSpec(CP('C',cp_4), CP('B',cp_3))
-      sib = ConnectionSpec(CP('P',cp_2), CP('B', cp_3))
+      sib = ConnectionSpec(CP('P',cp_2), CP('B', cp_4))
 
       spec => r_A%get_item_spec(ActualConnectionPt(cp_1)) ! ultimate export
       @assert_that(spec%is_active(), is(false()))
 
       call r_P%add_connection(e2e)
       @assert_that(spec%is_active(), is(false()))
-      if (.not. check(r_P, cp_2, ['A1'])) return
+      if (.not. check(r_P, cp_2, ['name:A1'])) return
+      call r_B%propagate_unsatisfied_imports()
+
       ! 1 => A, 2 => A, 3 => C, 4 => D
 
-      call r_B%add_connection(i2i)
-      @assert_that(spec%is_active(), is(false()))
-      if (.not. check(r_B, cp_3, ['A4'])) return
-      ! 1 => A, 2 => A, 3 => C, 4 => C
-
       call r%add_connection(sib)
-
-      ! C = A
-      ! 1 => A, 2 => A, 3 => C, 4 => C
       
       spec => r_A%get_item_spec(ActualConnectionPt(cp_1))
       @assert_that('cp_1', spec%is_active(), is(true()))
@@ -413,7 +405,7 @@ contains
       spec => r_P%get_item_spec(ActualConnectionPt(cp_2))
       @assert_that(spec%is_active(), is(true()))
       
-      spec => r_B%get_item_spec(ActualConnectionPt(cp_3))
+      spec => r_B%get_item_spec(ActualConnectionPt('import/<extensions>/<C>/A4'))
       @assert_that(spec%is_active(), is(true()))
       
       spec => r_C%get_item_spec(ActualConnectionPt(cp_4))
@@ -493,12 +485,15 @@ contains
    subroutine test_propagate_import()
       type(HierarchicalRegistry), target :: r_child, r_parent
 
+      integer :: status
+      
       r_parent = HierarchicalRegistry('parent')
       r_child = HierarchicalRegistry('child')
       call r_parent%add_subregistry(r_child)
       call r_child%add_item_spec(VirtualConnectionPt('import', 'T'), MockItemSpec('T_child'))
-      call r_parent%propagate_unsatisfied_imports()
+      call r_parent%propagate_unsatisfied_imports(rc=status)
 
+      @assert_that(status, is(0))
       @assert_that(r_parent%has_item_spec(VirtualConnectionPt('import', 'T')), is(true()))
       @assert_that(r_parent%has_item_spec(ActualConnectionPt('import/<extensions>/<child>/T')), is(true()))
       
@@ -513,7 +508,7 @@ contains
         !                  sib*
         !              A   --->     B
         !                          / \  
-        !                         /   \      i2i
+        !                         /   \      i2i (implicit)
         !                        /     \
         !                       C       D
         !
