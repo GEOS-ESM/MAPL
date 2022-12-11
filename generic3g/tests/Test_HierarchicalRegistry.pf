@@ -196,9 +196,9 @@ contains
       type(ConnectionSpec) :: conn
       integer :: status
 
+      r = HierarchicalRegistry('P')
       r_a = HierarchicalRegistry('child_A')
       r_b = HierarchicalRegistry('child_B')
-
       call r%add_subregistry(r_a)
       call r%add_subregistry(r_b)
 
@@ -208,9 +208,6 @@ contains
       call r_a%add_item_spec(cp_A, MockItemSpec('AE'))
       call r_b%add_item_spec(cp_B, MockItemSpec('AI'))
 
-      r = HierarchicalRegistry('P')
-      call r%add_subregistry(r_a)
-      call r%add_subregistry(r_b)
       conn = ConnectionSpec(CP('child_A', cp_A), CP('child_B', cp_B))
       call r%add_connection(conn, rc=status)
       @assert_that(status, is(0))
@@ -572,5 +569,69 @@ contains
    end subroutine test_multi_import
 
 
+   @test
+   ! This functionality was referred to as "TerminateImport" in
+   ! MAPL-2.  Under MAPL3, the parent must have an export and a proper
+   ! "sibling" connection is made between parent and child.  The
+   ! approach in MAPL-2 was invalid in scenarios where parent and
+   ! child cannot share a pointer.  Grid-comps must be updated. (Level
+   ! 0 compliance.)
+   
+   subroutine test_import_from_parent()
+      type(HierarchicalRegistry), target :: r_parent, r_child
+      type(VirtualConnectionPt) :: cp_parent, cp_child
+      type(ConnectionSpec) :: conn
+      integer :: status
+
+      r_parent = HierarchicalRegistry('parent')
+      r_child = HierarchicalRegistry('child')
+      call r_parent%add_subregistry(r_child)
+
+      cp_parent = VirtualConnectionPt('export', 'ae')
+      cp_child = VirtualConnectionPt('import', 'ai')
+
+      call r_parent%add_item_spec(cp_parent, MockItemSpec('AE'))
+      call r_child%add_item_spec(cp_child, MockItemSpec('AI'))
+
+      conn = ConnectionSpec(CP('parent', cp_parent), CP('child', cp_child))
+      call r_parent%add_connection(conn, rc=status)
+      @assert_that(status, is(0))
+
+      if (.not. check(r_child, cp_child, ['AE'])) return
+
+   end subroutine test_import_from_parent
+
+   @test
+
+   ! This functionality was implicit in MAPL2.  Parent components
+   ! would either refer to fields in child components, or would use an
+   ! export-to-export connection and then access the field in its own
+   ! export state.  Both approaches are invalid under scenarios where
+   ! parent and child cannot share a pointer.  Grid comps will need to
+   ! be updated. (Level 0 compliance.)
+   
+   subroutine test_import_from_child()
+      type(HierarchicalRegistry), target :: r_parent, r_child
+      type(VirtualConnectionPt) :: cp_parent, cp_child
+      type(ConnectionSpec) :: conn
+      integer :: status
+
+      r_parent = HierarchicalRegistry('parent')
+      r_child = HierarchicalRegistry('child')
+      call r_parent%add_subregistry(r_child)
+
+      cp_parent = VirtualConnectionPt('import', 'ai')
+      cp_child = VirtualConnectionPt('export', 'ae')
+
+      call r_parent%add_item_spec(cp_parent, MockItemSpec('AI'))
+      call r_child%add_item_spec(cp_child, MockItemSpec('AE'))
+
+      conn = ConnectionSpec(CP('child', cp_child), CP('parent', cp_parent))
+      call r_parent%add_connection(conn, rc=status)
+      @assert_that(status, is(0))
+
+      if (.not. check(r_parent, cp_parent, ['AE'])) return
+
+   end subroutine test_import_from_child
 
 end module Test_HierarchicalRegistry
