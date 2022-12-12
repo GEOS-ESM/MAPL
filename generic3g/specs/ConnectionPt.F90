@@ -1,5 +1,5 @@
 module mapl3g_ConnectionPt
-   use mapl3g_VirtualConnectionPt
+   use mapl3g_newVirtualConnectionPt
    implicit none
    private
 
@@ -9,13 +9,13 @@ module mapl3g_ConnectionPt
 
    type :: ConnectionPt
       character(:), allocatable :: component_name
-      type(VirtualConnectionPt) :: virtual_pt
+      type(newVirtualConnectionPt) :: v_pt
    contains
       procedure :: is_import
       procedure :: is_export
       procedure :: is_internal
-      procedure :: short_name
-      procedure :: state_intent
+      procedure :: get_esmf_name
+      procedure :: get_state_intent
    end type ConnectionPt
 
    interface operator(<)
@@ -34,13 +34,13 @@ module mapl3g_ConnectionPt
 contains
 
 
-   function new_connection_point_basic(component_name, virtual_pt) result(conn_pt)
+   function new_connection_point_basic(component_name, v_pt) result(conn_pt)
       type(ConnectionPt) :: conn_pt
       character(*), intent(in) :: component_name
-      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      type(newVirtualConnectionPt), intent(in) :: v_pt
 
       conn_pt%component_name = component_name
-      conn_pt%virtual_pt = virtual_pt
+      conn_pt%v_pt = v_pt
       
    end function new_connection_point_basic
 
@@ -51,21 +51,21 @@ contains
       character(*), intent(in) :: short_name
 
       conn_pt%component_name = component_name
-      conn_pt%virtual_pt = VirtualConnectionPt(state_intent, short_name)
+      conn_pt%v_pt = newVirtualConnectionPt(state_intent=state_intent, short_name=short_name)
       
    end function new_connection_point_simple
 
-   function short_name(this)
-      character(:), pointer :: short_name
+   function get_esmf_name(this) result(esmf_name)
+      character(:), allocatable :: esmf_name
       class(ConnectionPt), intent(in) :: this
-      short_name => this%virtual_pt%short_name()
-   end function short_name
+      esmf_name = this%v_pt%get_esmf_name()
+   end function get_esmf_name
 
-   function state_intent(this)
-      character(:), pointer :: state_intent
+   function get_state_intent(this) result(state_intent)
+      character(:), allocatable :: state_intent
       class(ConnectionPt), intent(in) :: this
-      state_intent => this%virtual_pt%state_intent()
-   end function state_intent
+      state_intent = this%v_pt%get_state_intent()
+   end function get_state_intent
 
    ! We need an ordering on ConnectionPt objects such that we can
    ! use them as keys in map containers.  Components are compared in
@@ -84,14 +84,14 @@ contains
       if (greater) return
       
       ! tie so far
-      less = (lhs%virtual_pt < rhs%virtual_pt)
+      less = (lhs%v_pt < rhs%v_pt)
 
    end function less
 
    logical function equal_to(lhs, rhs)
       type(ConnectionPt), intent(in) :: lhs, rhs
 
-      equal_to = (lhs%virtual_pt == rhs%virtual_pt)
+      equal_to = (lhs%v_pt == rhs%v_pt)
       if (.not. equal_to) return
 
       equal_to = (lhs%component_name == rhs%component_name)
@@ -102,32 +102,17 @@ contains
 
    logical function is_import(this)
       class(ConnectionPt), intent(in) :: this
-      is_import = (this%state_intent() == 'import')
+      is_import = (this%get_state_intent() == 'import')
    end function is_import
 
    logical function is_export(this)
       class(ConnectionPt), intent(in) :: this
-      is_export = (this%state_intent() == 'export')
+      is_export = (this%get_state_intent() == 'export')
    end function is_export
 
    logical function is_internal(this)
       class(ConnectionPt), intent(in) :: this
-      is_internal = (this%state_intent() == 'internal')
+      is_internal = (this%get_state_intent() == 'internal')
    end function is_internal
-
-
-!!$   function extend(this) result(extension_pt, ith)
-!!$      type(ConnectionPt) :: extension_pt
-!!$      class(ConnectionPt), intent(in) :: this
-!!$      integer, intent(in) :: ith
-!!$
-!!$      extension_pt = this
-!!$      call extension_pt%nesting%pop_back()
-!!$      associate (short_name => this%short_name())
-!!$        call extension_pt%push_back('extension(' // short_name // ')')
-!!$        call extension_pt%push_back(short_name // '(' // to_string(ith) // ')')
-!!$      end associate
-!!$   end function extend
-   
 
 end module mapl3g_ConnectionPt

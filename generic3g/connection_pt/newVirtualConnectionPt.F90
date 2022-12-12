@@ -22,6 +22,11 @@ module mapl3g_newVirtualConnectionPt
       procedure :: get_state_intent
       procedure :: get_esmf_name
       procedure :: add_comp_name
+
+      procedure :: is_import
+      procedure :: is_export
+      procedure :: is_internal
+      procedure :: to_string
    end type newVirtualConnectionPt
 
    ! Constructors
@@ -109,7 +114,7 @@ contains
       class(newVirtualConnectionPt), intent(in) :: this
 
       name = ''
-      if (allocated(this%comp_name)) name = this%comp_name // ':: '
+      if (allocated(this%comp_name)) name = this%comp_name // '::'
       name = name // this%short_name
       
    end function get_esmf_name
@@ -145,4 +150,25 @@ contains
       
    end function equal_to
 
+   logical function is_import(this)
+      class(newVirtualConnectionPt), intent(in) :: this
+      is_import = (this%get_state_intent() == 'import')
+   end function is_import
+
+   logical function is_export(this)
+      class(newVirtualConnectionPt), intent(in) :: this
+      is_export = (this%get_state_intent() == 'export')
+   end function is_export
+
+   logical function is_internal(this)
+      class(newVirtualConnectionPt), intent(in) :: this
+      is_internal = (this%get_state_intent() == 'internal')
+   end function is_internal
+
+   function to_string(this) result(s)
+      character(:), allocatable :: s
+      class(newVirtualConnectionPt), intent(in) :: this
+
+      s = "Virtual{intent: <" // this%get_state_intent() // ">, name: <" // this%get_esmf_name() //"> }"
+   end function to_string
 end module mapl3g_newVirtualConnectionPt

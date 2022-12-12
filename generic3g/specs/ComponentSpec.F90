@@ -2,7 +2,7 @@
 
 module mapl3g_ComponentSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_VirtualConnectionPt
+   use mapl3g_newVirtualConnectionPt
    use mapl3g_ConnectionSpecVector
    use mapl3g_ConnectionSpec
    use mapl3g_VirtualPtStateItemSpecMap
@@ -46,7 +46,7 @@ contains
 
    subroutine add_state_item_spec(this, conn_pt, spec)
       class(ComponentSpec), intent(inout) :: this
-      type(VirtualConnectionPt), intent(in) :: conn_pt
+      type(newVirtualConnectionPt), intent(in) :: conn_pt
       class(AbstractStateItemSpec), intent(in) :: spec
       call this%state_item_specs%insert(conn_pt, spec)
    end subroutine add_state_item_spec
@@ -88,7 +88,7 @@ contains
 !!$      class(AbstractStateItemSpec), pointer :: spec
 !!$      integer :: status
 !!$      type(ESMF_State) :: primary_state
-!!$      type(VirtualConnectionPt), pointer :: conn_pt
+!!$      type(newVirtualConnectionPt), pointer :: conn_pt
 !!$      
 !!$      conn_pt => iter%first()
 !!$      spec => registry%get_item_spec(conn_pt)
@@ -103,7 +103,7 @@ contains
 
    subroutine add_to_state(state, virtual_pt, spec, rc)
       type(ESMF_State), intent(inout) :: state
-      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      type(newVirtualConnectionPt), intent(in) :: virtual_pt
       class(AbstractStateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 

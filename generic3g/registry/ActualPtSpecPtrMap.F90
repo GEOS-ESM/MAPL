@@ -1,9 +1,9 @@
 module mapl3g_ActualPtSpecPtrMap
-   use mapl3g_ActualConnectionPt
+   use mapl3g_newActualConnectionPt
    use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItemSpecPtr
 
-#define Key ActualConnectionPt
+#define Key newActualConnectionPt
 #define Key_LT(a,b) (a < b)
 #define T StateItemSpecPtr
 #define T_polymorphic

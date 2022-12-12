@@ -13,7 +13,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
    use mapl3g_ChildComponentMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_VirtualConnectionPt
+   use mapl3g_newVirtualConnectionPt
    use mapl3g_ConnectionPt
    use mapl3g_ConnectionSpec
    use mapl3g_HierarchicalRegistry
@@ -708,7 +708,7 @@ contains
       _ASSERT(count(state_intent == ['import  ' ,'export  ', 'internal']) == 1, 'invalid state intent')
       _ASSERT(is_valid_name(short_name), 'Short name <' // short_name //'> does not conform to GEOS standards.')
 
-      associate (conn_pt => VirtualConnectionPt(state_intent, short_name))
+      associate (conn_pt => newVirtualConnectionPt(state_intent=state_intent, short_name=short_name))
         call this%component_spec%add_state_item_spec(conn_pt, spec)
       end associate
 

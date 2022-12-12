@@ -5,8 +5,8 @@ module Test_HierarchicalRegistry
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPt
    use mapl3g_ActualPtVector
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
+   use mapl3g_newVirtualConnectionPt
+   use mapl3g_newActualConnectionPt
    use mapl3g_ConnectionSpec
    use mapl3g_AbstractActionSpec
    use MockItemSpecMod
@@ -21,11 +21,25 @@ module Test_HierarchicalRegistry
 #define CP(x,y)  ConnectionPt(x,y)
 contains
 
+   ! We want client code to be careful, but requiring keywords is
+   ! annoying in this context.
+   function new_a_pt(state_intent, short_name) result(a_pt)
+      type(newActualConnectionPt) :: a_pt
+      character(*), intent(in) :: state_intent, short_name
+      a_pt = newActualConnectionPt(new_v_pt(state_intent,short_name))
+   end function new_a_pt
+      
+   function new_v_pt(state_intent, short_name) result(v_pt)
+      type(newVirtualConnectionPt) :: v_pt
+      character(*), intent(in) :: state_intent, short_name
+      v_pt = newVirtualConnectionPt(state_intent=state_intent, short_name=short_name)
+   end function new_v_pt
+
    ! Helpful function to check expected state of registry.  Inputs are
    ! a registry, an actual point, and expected name of mock object.
    logical function check_actual(r, actual_pt, expected_name) result(check)
       type(HierarchicalRegistry), intent(in) :: r 
-      type(ActualConnectionPt), intent(in) :: actual_pt
+      type(newActualConnectionPt), intent(in) :: actual_pt
       character(*), intent(in) :: expected_name
 
       class(AbstractStateItemSpec), pointer :: spec
@@ -46,11 +60,11 @@ contains
    ! a registry, a virtual point, and expected name of mock object.
    logical function check_virtual(r, virtual_pt, expected_names) result(check)
       type(HierarchicalRegistry), intent(in) :: r 
-      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      type(newVirtualConnectionPt), intent(in) :: virtual_pt
       character(*), intent(in) :: expected_names(:)
 
       type(ActualPtVector), pointer :: actual_pts
-      type(ActualConnectionPt), pointer :: actual_pt
+      type(newActualConnectionPt), pointer :: actual_pt
       integer :: i
       
       check = .false.
@@ -65,29 +79,13 @@ contains
 
 
    @test
-   subroutine test_make_extension_pt_import()
-      type(HierarchicalRegistry) :: r
-      type(ActualConnectionPt) ::  a_pt, e_pt
-
-      a_pt = ActualConnectionPt('import', 'T')
-      e_pt = r%make_extension_pt(a_pt, 'child')
-      @assert_that(e_pt == ActualConnectionPt('import/<extensions>/<child>/T'), is(true()))
-
-      a_pt = e_pt
-      e_pt = r%make_extension_pt(a_pt, 'child')
-      @assert_that(e_pt == ActualConnectionPt('import/<extensions>/<child>/T'), is(true()))
-     
-
-   end subroutine test_make_extension_pt_import
-
-   @test
    subroutine test_get_item_spec_not_found()
 
       type(HierarchicalRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
       r = HierarchicalRegistry('A')
-      spec => r%get_item_spec(ActualConnectionPt('import', 'a'))
+      spec => r%get_item_spec(new_a_pt('import', 'a'))
       @assertExceptionRaised('status=1')
       @assert_that(associated(spec), is(false()))
       
@@ -97,11 +95,11 @@ contains
    subroutine test_add_item_duplicate_fail()
       type(HierarchicalRegistry) :: r
       integer :: status
-      type(ActualConnectionPt) :: cp
+      type(newActualConnectionPt) :: cp
 
       r = HierarchicalRegistry('A')
 
-      cp = ActualConnectionPt('A','A')
+      cp = new_a_pt('A','A')
       call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
       @assert_that(status, is(0))
       call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
@@ -115,10 +113,10 @@ contains
    subroutine test_get_item_spec_found()
       type(HierarchicalRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
-      type(ActualConnectionPt) :: cp
+      type(newActualConnectionPt) :: cp
 
       r = HierarchicalRegistry('A')
-      cp = ActualConnectionPt('import', 'a')
+      cp = new_a_pt('import','a')
       call r%add_item_spec(cp, MockItemSpec('A'))
 
       spec => r%get_item_spec(cp)
@@ -134,11 +132,11 @@ contains
    ! name.
    subroutine test_get_item_spec_multi()
       type(HierarchicalRegistry) :: r 
-      type(ActualConnectionPt) :: cp_1, cp_2, cp_3
+      type(newActualConnectionPt) :: cp_1, cp_2, cp_3
 
-      cp_1 = ActualConnectionPt('export', 'ae1')
-      cp_2 = ActualConnectionPt('export', 'ae2')
-      cp_3 = ActualConnectionPt('import', 'ai')
+      cp_1 = new_a_pt('export', 'ae1')
+      cp_2 = new_a_pt('export', 'ae2')
+      cp_3 = new_a_pt('import', 'ai')
 
       r = HierarchicalRegistry('A')
       call r%add_item_spec(cp_1, MockItemSpec('AE1'))
@@ -192,7 +190,7 @@ contains
    subroutine test_connect()
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B ! child registries
-      type(VirtualConnectionPt) :: cp_A, cp_B
+      type(newVirtualConnectionPt) :: cp_A, cp_B
       type(ConnectionSpec) :: conn
       integer :: status
 
@@ -202,8 +200,8 @@ contains
       call r%add_subregistry(r_a)
       call r%add_subregistry(r_b)
 
-      cp_A = VirtualConnectionPt('export', 'ae')
-      cp_B = VirtualConnectionPt('import', 'ai')
+      cp_A = new_v_pt('export', 'ae')
+      cp_B = new_v_pt('import', 'ai')
 
       call r_a%add_item_spec(cp_A, MockItemSpec('AE'))
       call r_b%add_item_spec(cp_B, MockItemSpec('AI'))
@@ -220,7 +218,7 @@ contains
    subroutine test_export_to_export_connection()
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A
-      type(VirtualConnectionPt) :: cp_1, cp_2
+      type(newVirtualConnectionPt) :: cp_1, cp_2
 
       integer :: status
 
@@ -228,16 +226,14 @@ contains
       r_A = HierarchicalRegistry('A')
       call r%add_subregistry(r_A)
 
-      cp_1 = VirtualConnectionPt('export', 'ae1')
-      cp_2 = VirtualConnectionPt('export', 'ae2')
+      cp_1 = new_v_pt('export', 'ae1')
+      cp_2 = new_v_pt('export', 'ae2')
 
       ! True export
       call r_A%add_item_spec(cp_1, MockItemSpec('AE1'))
 
-      print*,__FILE__,__LINE__
       ! E-to-E with rename
       call r%add_connection(ConnectionSpec(CP('A',cp_1), CP('R',cp_2)), rc=status)
-      print*,__FILE__,__LINE__
       @assert_that(status, is(0))
 
       if (.not. check(r, cp_2, ['AE1'])) return
@@ -247,14 +243,14 @@ contains
    @test
    subroutine test_internal_to_export_connection()
       type(HierarchicalRegistry), target :: r
-      type(VirtualConnectionPt) :: cp_1, cp_2
+      type(newVirtualConnectionPt) :: cp_1, cp_2
       class(AbstractStateItemSpec), pointer :: spec
 
       integer :: status
 
       r = HierarchicalRegistry('R')
-      cp_1 = VirtualConnectionPt('internal', 'a')
-      cp_2 = VirtualConnectionPt('export', 'a')
+      cp_1 = new_v_pt('internal', 'a')
+      cp_2 = new_v_pt('export', 'a')
 
       ! True export
       call r%add_item_spec(cp_1, MockItemSpec('AE1'))
@@ -266,7 +262,7 @@ contains
       if (.not. check(r, cp_2, ['AE1'])) return
 
       ! Internal is always active, so this export should be as well:
-      spec => r%get_item_spec(ActualConnectionPt('export','a'))
+      spec => r%get_item_spec(newActualConnectionPt(cp_2))
       @assert_that(spec%is_active(), is(true()))
 
    end subroutine test_internal_to_export_connection
@@ -279,7 +275,7 @@ contains
    subroutine test_e2e_preserve_actual_pt()
       type(HierarchicalRegistry), target :: r
       type(HierarchicalRegistry), target :: r_A
-      type(VirtualConnectionPt) :: cp_1, cp_2
+      type(newVirtualConnectionPt) :: cp_1, cp_2
 
       integer :: status
 
@@ -287,8 +283,8 @@ contains
       r_A = HierarchicalRegistry('A')
       call r%add_subregistry(r_A)
 
-      cp_1 = VirtualConnectionPt('export', 'ae1')
-      cp_2 = VirtualConnectionPt('export', 'ae2')
+      cp_1 = new_v_pt('export', 'ae1')
+      cp_2 = new_v_pt('export', 'ae2')
 
       ! True export
       call r_A%add_item_spec(cp_1, MockItemSpec('AE1'))
@@ -296,7 +292,7 @@ contains
       ! E-to-E with rename
       call r%add_connection(ConnectionSpec(CP('A',cp_1), CP('R',cp_2)), rc=status)
 
-      @assert_that(r%has_item_spec(ActualConnectionPt(cp_2)), is(true()))
+      @assert_that(r%has_item_spec(newActualConnectionPt(cp_2%add_comp_name('A'))), is(true()))
 
    end subroutine test_e2e_preserve_actual_pt
 
@@ -310,7 +306,7 @@ contains
    subroutine test_connect_chain()
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild
-      type(VirtualConnectionPt) :: cp_1, cp_2, cp_3
+      type(newVirtualConnectionPt) :: cp_1, cp_2, cp_3
 
       integer :: status
 
@@ -323,9 +319,9 @@ contains
       call r%add_subregistry(r_A)
       call r%add_subregistry(r_B)
 
-      cp_1 = VirtualConnectionPt('export', 'ae1')
-      cp_2 = VirtualConnectionPt('export', 'ae2')
-      cp_3 = VirtualConnectionPt('import', 'ai')
+      cp_1 = new_v_pt('export', 'ae1')
+      cp_2 = new_v_pt('export', 'ae2')
+      cp_3 = new_v_pt('import', 'ai')
 
       call r_grandchild%add_item_spec(cp_1, MockItemSpec('AE1'))
       call r_B%add_item_spec(cp_3, MockItemSpec('AI'))
@@ -349,7 +345,7 @@ contains
       type(HierarchicalRegistry), target :: r_A, r_B, r_P, r_C
       class(AbstractStateItemSpec), pointer :: spec
 
-      type(VirtualConnectionPt) :: cp_1, cp_2, cp_4
+      type(newVirtualConnectionPt) :: cp_1, cp_2, cp_4
       type(ConnectionSpec) :: e2e, sib
 
       r = HierarchicalRegistry('R')
@@ -364,9 +360,9 @@ contains
       call r_P%add_subregistry(r_A)
       call r_B%add_subregistry(r_C)
 
-      cp_1 = VirtualConnectionPt('export', 'A1')
-      cp_2 = VirtualConnectionPt('export', 'A2')
-      cp_4 = VirtualConnectionPt('import', 'A4')
+      cp_1 = new_v_pt('export', 'A1')
+      cp_2 = new_v_pt('export', 'A2')
+      cp_4 = new_v_pt('import', 'A4')
 
       call r_A%add_item_spec(cp_1, MockItemSpec('name:A1'))
       call r_C%add_item_spec(cp_4, MockItemSpec('name:A4'))
@@ -384,7 +380,7 @@ contains
       e2e = ConnectionSpec(CP('A',cp_1), CP('P',cp_2))
       sib = ConnectionSpec(CP('P',cp_2), CP('B', cp_4))
 
-      spec => r_A%get_item_spec(ActualConnectionPt(cp_1)) ! ultimate export
+      spec => r_A%get_item_spec(newActualConnectionPt(cp_1)) ! ultimate export
       @assert_that(spec%is_active(), is(false()))
 
       call r_P%add_connection(e2e)
@@ -395,17 +391,17 @@ contains
       ! 1 => A, 2 => A, 3 => C, 4 => D
 
       call r%add_connection(sib)
-      
-      spec => r_A%get_item_spec(ActualConnectionPt(cp_1))
+
+      spec => r_A%get_item_spec(newActualConnectionPt(cp_1))
       @assert_that('cp_1', spec%is_active(), is(true()))
       
-      spec => r_P%get_item_spec(ActualConnectionPt(cp_2))
+      spec => r_P%get_item_spec(newActualConnectionPt(cp_2%add_comp_name('A')))
+      @assert_that(spec%is_active(), is(true()))
+
+      spec => r_B%get_item_spec(newActualConnectionPt(cp_4%add_comp_name('C')))
       @assert_that(spec%is_active(), is(true()))
       
-      spec => r_B%get_item_spec(ActualConnectionPt('import/<extensions>/<C>/A4'))
-      @assert_that(spec%is_active(), is(true()))
-      
-      spec => r_C%get_item_spec(ActualConnectionPt(cp_4))
+      spec => r_C%get_item_spec(newActualConnectionPt(cp_4))
       @assert_that('cp_4', spec%is_active(), is(true()))
       
    end subroutine test_sibling_activation
@@ -417,10 +413,10 @@ contains
       type(HierarchicalRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
-      type(ActualConnectionPt) :: cp_1, cp_2, cp_3
-           cp_1 = ActualConnectionPt('internal', 'A')
-           cp_2 = ActualConnectionPt('export', 'A')
-           cp_3 = ActualConnectionPt('import', 'A')
+      type(newActualConnectionPt) :: cp_1, cp_2, cp_3
+           cp_1 = new_a_pt('internal', 'A')
+           cp_2 = new_a_pt('export', 'A')
+           cp_3 = new_a_pt('import', 'A')
 
         call r%add_item_spec(cp_1, MockItemSpec('A1'))
         call r%add_item_spec(cp_2, MockItemSpec('A2'))
@@ -445,10 +441,10 @@ contains
       class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
       class(AbstractActionSpec), allocatable :: action_spec
 
-      type(ActualConnectionPt) :: e1, i1
+      type(newActualConnectionPt) :: e1, i1
 
-      e1 = ActualConnectionPt('export', 'Q')
-      i1 = ActualConnectionPt('import', 'Q')
+      e1 = new_a_pt('export', 'Q')
+      i1 = new_a_pt('import', 'Q')
       call r_A%add_item_spec(e1, MockItemSpec('E1','fruit'))
       call r_B%add_item_spec(i1, MockItemSpec('I1','animal'))
 
@@ -483,16 +479,20 @@ contains
       type(HierarchicalRegistry), target :: r_child, r_parent
 
       integer :: status
+      type(newVirtualConnectionPt) :: c_pt
+      
       
       r_parent = HierarchicalRegistry('parent')
       r_child = HierarchicalRegistry('child')
       call r_parent%add_subregistry(r_child)
-      call r_child%add_item_spec(VirtualConnectionPt('import', 'T'), MockItemSpec('T_child'))
+
+      c_pt = new_v_pt('import', 'T')
+      call r_child%add_item_spec(c_pt, MockItemSpec('T_child'))
       call r_parent%propagate_unsatisfied_imports(rc=status)
 
       @assert_that(status, is(0))
-      @assert_that(r_parent%has_item_spec(VirtualConnectionPt('import', 'T')), is(true()))
-      @assert_that(r_parent%has_item_spec(ActualConnectionPt('import/<extensions>/<child>/T')), is(true()))
+      @assert_that(r_parent%has_item_spec(new_v_pt('import', 'T')), is(true()))
+      @assert_that(r_parent%has_item_spec(newActualConnectionPt(c_pt%add_comp_name('child'))), is(true()))
       
    end subroutine test_propagate_import
 
@@ -518,7 +518,7 @@ contains
    subroutine test_multi_import()
       type(HierarchicalRegistry), target :: r_C, r_D, r_A, r_B
       type(HierarchicalRegistry) :: r_P 
-      type(VirtualConnectionPt) :: T_A, T_B, T_C, T_D
+      type(newVirtualConnectionPt) :: T_A, T_B, T_C, T_D
       class(AbstractStateItemSpec), pointer :: spec
 
       r_A = HierarchicalRegistry('A')
@@ -532,10 +532,10 @@ contains
       call r_P%add_subregistry(r_A)
       call r_P%add_subregistry(r_B)
 
-      T_A = VirtualConnectionPt('export', 'T')
-      T_B = VirtualConnectionPt('import', 'T')
-      T_C = VirtualConnectionPt('import', 'T')
-      T_D = VirtualConnectionPt('import', 'T')
+      T_A = new_v_pt('export', 'T')
+      T_B = new_v_pt('import', 'T')
+      T_C = new_v_pt('import', 'T')
+      T_D = new_v_pt('import', 'T')
 
       call r_A%add_item_spec(T_A, MockItemSpec('T_A'))
       call r_C%add_item_spec(T_C, MockItemSpec('T_C'))
@@ -548,21 +548,21 @@ contains
       call r_P%add_connection(ConnectionSpec(CP('A',T_A), CP('B', T_B)))
 
       ! Export should be active
-      spec => r_A%get_item_spec(ActualConnectionPt('export', 'T'))
+      spec => r_A%get_item_spec(new_a_pt('export', 'T'))
       @assert_that(spec%is_active(), is(true()))
 
       ! Primary imports should be active
-      spec => r_C%get_item_spec(ActualConnectionPt('import', 'T'))
+      spec => r_C%get_item_spec(new_a_pt('import', 'T'))
       @assert_that(spec%is_active(), is(true()))
       
-      spec => r_D%get_item_spec(ActualConnectionPt('import', 'T'))
+      spec => r_D%get_item_spec(new_a_pt('import', 'T'))
       @assert_that(spec%is_active(), is(true()))
 
       ! Secondary imports should be active
-      spec => r_B%get_item_spec(ActualConnectionPt('import/<extensions>/<C>/T'))
+      spec => r_B%get_item_spec(newActualConnectionPt(T_C%add_comp_name('C')))
       @assert_that(spec%is_active(), is(true()))
       
-      spec => r_B%get_item_spec(ActualConnectionPt('import/<extensions>/<D>/T'))
+      spec => r_B%get_item_spec(newActualConnectionPt(T_D%add_comp_name('D')))
       @assert_that(spec%is_active(), is(true()))
       
       
@@ -579,7 +579,7 @@ contains
    
    subroutine test_import_from_parent()
       type(HierarchicalRegistry), target :: r_parent, r_child
-      type(VirtualConnectionPt) :: cp_parent, cp_child
+      type(newVirtualConnectionPt) :: cp_parent, cp_child
       type(ConnectionSpec) :: conn
       integer :: status
 
@@ -587,8 +587,8 @@ contains
       r_child = HierarchicalRegistry('child')
       call r_parent%add_subregistry(r_child)
 
-      cp_parent = VirtualConnectionPt('export', 'ae')
-      cp_child = VirtualConnectionPt('import', 'ai')
+      cp_parent = new_v_pt('export', 'ae')
+      cp_child = new_v_pt('import', 'ai')
 
       call r_parent%add_item_spec(cp_parent, MockItemSpec('AE'))
       call r_child%add_item_spec(cp_child, MockItemSpec('AI'))
@@ -612,7 +612,7 @@ contains
    
    subroutine test_import_from_child()
       type(HierarchicalRegistry), target :: r_parent, r_child
-      type(VirtualConnectionPt) :: cp_parent, cp_child
+      type(newVirtualConnectionPt) :: cp_parent, cp_child
       type(ConnectionSpec) :: conn
       integer :: status
 
@@ -620,8 +620,8 @@ contains
       r_child = HierarchicalRegistry('child')
       call r_parent%add_subregistry(r_child)
 
-      cp_parent = VirtualConnectionPt('import', 'ai')
-      cp_child = VirtualConnectionPt('export', 'ae')
+      cp_parent = new_v_pt('import', 'ai')
+      cp_child = new_v_pt('export', 'ae')
 
       call r_parent%add_item_spec(cp_parent, MockItemSpec('AI'))
       call r_child%add_item_spec(cp_child, MockItemSpec('AE'))
