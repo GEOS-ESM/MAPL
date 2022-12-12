@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Converted files in `Python/MAPL` to Python 3. Note this will most likely require changes to codes that call MAPL. This conversion
+  was done in concert with converting `pyrob` to Python 3
+
 ### Fixed
 
 ### Removed

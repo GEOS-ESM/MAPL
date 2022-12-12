@@ -12,7 +12,7 @@ import os
 import sys
 from types import *
 from datetime import datetime
-    
+
 class Config(object):
 
     def __init__(self,RcFiles,delim=':',Environ=True):
@@ -23,7 +23,7 @@ class Config(object):
         the current value of environment variables.
         """
 
-        if type(RcFiles) is StringType:
+        if isinstance(RcFiles, str):
             Files = ( RcFiles, ) # in case a single file is given
         else:
             Files = RcFiles     # more often, a List/Tuple of RC files
@@ -39,10 +39,10 @@ class Config(object):
                     if value is not None:
                         value = string.Template(value).safe_substitute(os.environ)
                 if name:
-                    self.Rc[name] = {  'value': value, 
-                                     'comment': comment, 
+                    self.Rc[name] = {  'value': value,
+                                     'comment': comment,
                                         'flag': 0}
-                    
+
     def __call__(self,name,value=None):
         """Either get or set a resource depending on whether *value* is given"""
         if value == None:
@@ -50,11 +50,11 @@ class Config(object):
                 return self.Rc[name]['value']
         else:
             if self.Rc.__contains__(name):
-                self.Rc[name]['value'] = value 
+                self.Rc[name]['value'] = value
                 self.Rc[name]['flag'] = 1
                 return self.Rc[name]['value']
         return None
-        
+
     get = __call__
 
     def set(self,name,value):
@@ -65,7 +65,7 @@ class Config(object):
         if rcfile is None:
             f = sys.stdout
         else:
-            f = open(rcfile,'w') 
+            f = open(rcfile,'w')
         for line in self.Lines:
             line = line.rstrip()
             name, value, comment = _parseLine(line,self.delim)
@@ -76,16 +76,16 @@ class Config(object):
                     else:
                         comment = ''
                     value = self.Rc[name]['value']
-                    print >>f, name + self.delim+' ' + str(value) + comment # this line has been edited
+                    print(name + self.delim+' ' + str(value) + comment, file=f) # this line has been edited
                 else:
-                    print >>f, line
+                    print(line, file=f)
             else:
-                print >>f, line
+                print(line, file=f)
         f.close()
-       
+
     def upd(self,dict):
         pass
-         
+
     def interp(self,str,outFile=None,**kws):
         """
         Use the resource values for $-substitution (a.k.a.
@@ -108,7 +108,7 @@ class Config(object):
         for tmpl in Tmpl:
             Text.append(self.interpStr(tmpl,**kws))
         open(outFile,"w").writelines(Text)
-                    
+
     def interpStr(self,template,strict=False):
         """
         Replace occurences of resource variables in the
@@ -149,21 +149,21 @@ class Config(object):
         Use resources to set environment variables. Option,
         one can provide a list of strings (*Only*) with those
         resources to be turned into environment variables.
-        """ 
+        """
         for name in self.Rc:
             if Only is None:
                 os.environ[name] = self.Rc[name]['value']
             elif name in Only:
                 os.environ[name] = self.Rc[name]['value']
- 
+
     def keys(self):
-        """ 
+        """
         Return list of resource names.
         """
-        return self.Rc.keys()
+        return list(self.Rc.keys())
 
     def values(self):
-        """ 
+        """
         Return list of resource names.
         """
         vals = []
@@ -216,7 +216,7 @@ def strTemplate(templ,expid=None,nymd=None,nhms=None,
 
        dtime ---  python datetime
 
-    Unlike GrADS, notice that seconds are expanded using the %S2 token. 
+    Unlike GrADS, notice that seconds are expanded using the %S2 token.
     Input date/time can be either strings or integers.
 
     Examples:
@@ -229,9 +229,9 @@ def strTemplate(templ,expid=None,nymd=None,nhms=None,
 
     """
 
-    MMM = ( 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 
-            'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ) 
-    
+    MMM = ( 'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+            'jul', 'aug', 'sep', 'oct', 'nov', 'dec' )
+
     str_ = templ[:]
 
     if dtime is not None:
@@ -254,24 +254,24 @@ def strTemplate(templ,expid=None,nymd=None,nhms=None,
         m = (nhms - h * 10000)/100
         s = nhms - (10000*h + 100*m)
 
-    if expid is not None: 
+    if expid is not None:
         str_ = str_.replace('%s',expid)
-    if yy is not None: 
+    if yy is not None:
         y2 = yy%100
         str_ = str_.replace('%y4',str(yy))
         str_ = str_.replace('%y2',"%02d"%y2)
-    if mm is not None: 
+    if mm is not None:
         mm = int(mm)
         mmm = MMM[mm-1]
         str_ = str_.replace('%m2',"%02d"%mm)
         str_ = str_.replace('%m3',mmm)
-    if dd is not None: 
+    if dd is not None:
         str_ = str_.replace('%d2',"%02d"%int(dd))
-    if h  is not None: 
+    if h  is not None:
         str_ = str_.replace('%h2',"%02d"%int(h))
-    if m  is not None: 
+    if m  is not None:
         str_ = str_.replace('%n2',"%02d"%int(m))
-    if s  is not None: 
+    if s  is not None:
         str_ = str_.replace('%S2',"%02d"%int(s))
 
     return str_
@@ -284,14 +284,14 @@ def strTemplate(templ,expid=None,nymd=None,nhms=None,
 def _ut_strTemplate():
 
 
-    
+
     templ = "%s.aer_f.eta.%m3%y2.%y4%m2%d2_%h2:%n2:%S2z.nc"
 
     expid = "e0054A"
     yy = "2008"
     mm = "10"
     dd = "30"
-    
+
     h = "1"
     m = "30"
     s = "47"
@@ -301,20 +301,20 @@ def _ut_strTemplate():
     nymd = int(yy) * 10000 + int(mm)*100 + int(dd)
     nhms = int(h) * 10000 + int(m) * 100 + int(s)
 
-    print "Template: "+templ
-    print strTemplate(templ)
-    print strTemplate(templ,expid=expid)
-    print strTemplate(templ,expid=expid,yy=2008)
-    print strTemplate(templ,expid=expid,yy=2008,mm=mm)
-    print strTemplate(templ,expid=expid,yy=2008,mm=mm,dd=dd)
-    print strTemplate(templ,expid=expid,yy=2008,mm=mm,dd=dd,h=h)
-    print strTemplate(templ,expid=expid,yy=2008,mm=mm,dd=dd,h=h,m=m,s=s)
-    print strTemplate(templ,expid=expid,nymd=nymd)
-    print strTemplate(templ,expid=expid,nymd=nymd,nhms=nhms)
-    print strTemplate(templ,expid=expid,dtime=dtime)
+    print("Template: "+templ)
+    print(strTemplate(templ))
+    print(strTemplate(templ,expid=expid))
+    print(strTemplate(templ,expid=expid,yy=2008))
+    print(strTemplate(templ,expid=expid,yy=2008,mm=mm))
+    print(strTemplate(templ,expid=expid,yy=2008,mm=mm,dd=dd))
+    print(strTemplate(templ,expid=expid,yy=2008,mm=mm,dd=dd,h=h))
+    print(strTemplate(templ,expid=expid,yy=2008,mm=mm,dd=dd,h=h,m=m,s=s))
+    print(strTemplate(templ,expid=expid,nymd=nymd))
+    print(strTemplate(templ,expid=expid,nymd=nymd,nhms=nhms))
+    print(strTemplate(templ,expid=expid,dtime=dtime))
 
 if __name__ == "__main__":
     cf = Config('test.rc', delim=' = ')
-    
+
 #    _ut_strTemplate()
 
