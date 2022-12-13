@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
+
 ### Fixed
 
 ### Removed
