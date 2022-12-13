@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed procedure "find" in CFIOCollection.F90 that was missing a _RETURN(_SUCCESS) at the end
+
 ### Removed
 
 ### Deprecated
