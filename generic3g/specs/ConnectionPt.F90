@@ -1,5 +1,5 @@
 module mapl3g_ConnectionPt
-   use mapl3g_newVirtualConnectionPt
+   use mapl3g_VirtualConnectionPt
    implicit none
    private
 
@@ -9,7 +9,7 @@ module mapl3g_ConnectionPt
 
    type :: ConnectionPt
       character(:), allocatable :: component_name
-      type(newVirtualConnectionPt) :: v_pt
+      type(VirtualConnectionPt) :: v_pt
    contains
       procedure :: is_import
       procedure :: is_export
@@ -37,7 +37,7 @@ contains
    function new_connection_point_basic(component_name, v_pt) result(conn_pt)
       type(ConnectionPt) :: conn_pt
       character(*), intent(in) :: component_name
-      type(newVirtualConnectionPt), intent(in) :: v_pt
+      type(VirtualConnectionPt), intent(in) :: v_pt
 
       conn_pt%component_name = component_name
       conn_pt%v_pt = v_pt
@@ -51,7 +51,7 @@ contains
       character(*), intent(in) :: short_name
 
       conn_pt%component_name = component_name
-      conn_pt%v_pt = newVirtualConnectionPt(state_intent=state_intent, short_name=short_name)
+      conn_pt%v_pt = VirtualConnectionPt(state_intent=state_intent, short_name=short_name)
       
    end function new_connection_point_simple
 

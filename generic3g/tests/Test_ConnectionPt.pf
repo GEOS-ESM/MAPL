@@ -12,8 +12,8 @@ contains
    subroutine test_relative_less()
       type(VirtualConnectionPt) :: rcp_1, rcp_2
 
-      rcp_1 = VirtualConnectionPt('import', 'A')
-      rcp_2 = VirtualConnectionPt('import', 'B')
+      rcp_1 = VirtualConnectionPt(state_intent='import', short_name='A')
+      rcp_2 = VirtualConnectionPt(state_intent='import', short_name='B')
 
       ! Identical
         @assert_that((rcp_1 < rcp_1), is(false()))
@@ -28,8 +28,8 @@ contains
    subroutine test_connectionpt_less()
       type(ConnectionPt) :: cp_1, cp_2
 
-      cp_1 = ConnectionPt('A','import','A')
-      cp_2 = ConnectionPt('B','export','B')
+      cp_1 = ConnectionPt('A', state_intent='import', short_name='A')
+      cp_2 = ConnectionPt('B', state_intent='export', short_name='B')
         ! Identical
         @assert_that((cp_1 < cp_1), is(false()))
         @assert_that((cp_2 < cp_2), is(false()))
@@ -44,14 +44,14 @@ contains
       type(ConnectionPt) :: cp(2,2,2)
       integer :: i, j, k
 
-      cp(1,1,1) = ConnectionPt('A','import','A')
-      cp(2,1,1) = ConnectionPt('A','import','B')
-      cp(1,2,1) = ConnectionPt('A','export','A')
-      cp(2,2,1) = ConnectionPt('A','export','B')
-      cp(1,1,2) = ConnectionPt('B','import','A')
-      cp(2,1,2) = ConnectionPt('B','import','B')
-      cp(1,2,2) = ConnectionPt('B','export','A')
-      cp(2,2,2) = ConnectionPt('B','export','B')
+      cp(1,1,1) = ConnectionPt('A', state_intent='import', short_name='A')
+      cp(2,1,1) = ConnectionPt('A', state_intent='import', short_name='B')
+      cp(1,2,1) = ConnectionPt('A',state_intent='export', short_name='A')
+      cp(2,2,1) = ConnectionPt('A',state_intent='export', short_name='B')
+      cp(1,1,2) = ConnectionPt('B', state_intent='import', short_name='A')
+      cp(2,1,2) = ConnectionPt('B', state_intent='import', short_name='B')
+      cp(1,2,2) = ConnectionPt('B',state_intent='export', short_name='A')
+      cp(2,2,2) = ConnectionPt('B',state_intent='export', short_name='B')
         ! Identical pts are neither less nor greater
         do k = 1, 2
            do j = 1, 2
@@ -90,9 +90,9 @@ contains
    subroutine test_connectionpt_less_registry()
 
       type(ConnectionPt) :: cp_1, cp_2, cp_3
-      cp_1 = ConnectionPt('grandchild_A','export','ae1')
-      cp_2 = ConnectionPt('child_A','export','ae2')
-      cp_3 = ConnectionPt('child_B', 'import', 'ai')
+      cp_1 = ConnectionPt('grandchild_A',state_intent='export',short_name='ae1')
+      cp_2 = ConnectionPt('child_A',state_intent='export',short_name='ae2')
+      cp_3 = ConnectionPt('child_B',  state_intent='import', short_name='ai')
 
         ! Identical
         @assert_that((cp_1 < cp_1), is(false()))

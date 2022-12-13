@@ -2,7 +2,6 @@ target_sources(MAPL.generic3g PRIVATE
 
   # containers
   StateItemSpecPtr.F90
-  ActualPtSpecMap.F90
   ActualPtSpecPtrMap.F90
   VirtualPtStateItemPtrMap.F90
   VirtualPtStateItemSpecMap.F90
