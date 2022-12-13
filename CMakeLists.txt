@@ -143,7 +143,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF MODULE REQUIRED)
+    find_package(ESMF 8.4.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
