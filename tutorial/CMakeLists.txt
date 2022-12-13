@@ -2,6 +2,7 @@ install (PROGRAMS run_tutorial_case.sh DESTINATION bin)
 
 add_subdirectory (driver_app)
 add_subdirectory (grid_comps)
+add_subdirectory (pure_esmf_example)
 
 file (GLOB_RECURSE tutorial_files CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} mapl_tutorials/*)
 foreach ( file ${tutorial_files} )
