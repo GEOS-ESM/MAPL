@@ -54,6 +54,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `MAPL_find_bounds => find_bounds` and `MAPL_Interval => Interval` to `MAPL.F90` for use when doing component level OpenMP
+- Added requirement for ESMF 8.4.0 in `find_package()` call
+
+### Changed
+
+### Fixed
+
+- Fixed procedure "find" in CFIOCollection.F90 that was missing a _RETURN(_SUCCESS) at the end
+
+### Removed
+
+### Deprecated
+
+## [2.33.0] - 2022-12-08
+
+### Added
+
+- Added new test case for ExtData2G to test multiple input files
+
+### Fixed
+
+- Fixed bug in tutorial case parent_no_children when attempting recommended exercises
+- Implemented workaround for gfortran runtime issue with YafYaml when parsing multiple ExtData yaml files for ExtData2G
+
+## [2.32.0] - 2022-12-02
+
+### Added
+
+- Add fArgParse CLI argument parser
+- Added subroutines for reading 4d integers in NetCDF4_FileFormatter
+- Added new option to allow for gaps in datasets ingested by ExtDataNG
+
+### Changed
+
+- Updated to ESMA_cmake v3.21.0
+  - Adds support for a generic `x86_64` processor for GNU
+- Updated to ESMA_env v4.8.0
+   - Baselibs v7.7.0
+      - fArgParse v1.4.1
+      - pFUnit v4.6.1
+- Move to use GitHub Actions for label enforcement
+
+## [2.31.0] - 2022-11-28
+
 ### Fixed
 
 - Fixed the subroutine that removes a variable from FileMetadata Object
@@ -66,12 +112,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
 - Added to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
 - Added capability to Automatic Code Generator to detect inconsistencies in spec files at build time
+- Add support for netCDF quantize.
+  - Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
+    to make sure the netCDF library was compiled with support. This test uses `NETCDF_INCLUDE_DIRS` and as such
+    within GEOS requires the use of ESMA_cmake v3.20.0 or later to (possibly) succeed.
+- Added subroutine to calculate IJ indexes of given lats lons for cubed-sphere grid
 
 ### Changed
 
-### Removed
-
-### Deprecated
+- Updated to ESMA_cmake v3.20.0
+  - This is to support the `NETCDF_INCLUDE_DIRS` used in the quantize support test
+- Updated to ESMA_env v4.7.0
+  - This has many updates including moving to netCDF-C v4.9.0 and netCDF-Fortran v4.6.0. The other updates:
+    - Baselibs v7.6.0
+      - ESMF v8.4.0
+      - zlib 1.2.13
+      - curl 7.86.0
+      - netCDF-C 4.9.0
+      - netCDF-Fortran 4.6.0
+      - NCO 5.1.1
+      - CDO 2.1.0
+- Removed some unneeded `use` statements in `ExtDataGridCompNG.F90`. This seemed to let this new quantize support build with Intel
+- Changed `nbits` internally to be `nbits_to_keep`. Note that externally, you still use `nbits:` in `HISTORY.rc`
 
 ## [2.30.3] - 2022-11-15
 

@@ -20,6 +20,8 @@ set (srcs
      ExtData_IOBundleMod.F90
      ExtData_IOBundleVectorMod.F90
      ExtDataMasking.F90
+     ExtDataYamlNodeStack.F90
+     ExtDataYamlNodeWrapper.F90
     )
 
 
