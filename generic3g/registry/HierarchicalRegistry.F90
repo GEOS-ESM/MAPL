@@ -480,6 +480,7 @@ contains
                else
                   dst_actual_pt = newActualConnectionPt(dst_pt%add_comp_name(src_registry%get_name()))
                end if
+               dst_actual_pt = extend(dst_actual_pt)
 
                spec => src_registry%get_item_spec(src_actual_pt)
                _ASSERT(associated(spec), 'This should not happen.')
@@ -577,7 +578,7 @@ contains
            _ASSERT(associated(item), 'Should not happen.')
 
            if (actual_pt%is_import() .and. .not. item%is_active()) then
-              call this%link_item_spec_virtual(virtual_pt, item, actual_pt%add_comp_name(child_name), _RC)
+              call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_name)), _RC)
            end if
 
          end associate

@@ -7,6 +7,7 @@ module mapl3g_newActualConnectionPt
    private
   
    public :: newActualConnectionPt
+   public :: extend
    public :: operator(<)
    public :: operator(==)
 
@@ -22,7 +23,7 @@ module mapl3g_newActualConnectionPt
       type(newVirtualConnectionPt) :: v_pt
       integer, allocatable :: label
    contains
-      procedure :: extend
+      procedure :: extend => extend_
 
       procedure :: get_state_intent
       procedure :: get_esmf_name
@@ -52,6 +53,10 @@ module mapl3g_newActualConnectionPt
       module procedure equal_to
    end interface operator(==)
 
+   interface extend
+      module procedure extend_
+   end interface extend
+
 contains
 
    function new_newActualPt_from_v_pt(v_pt) result(a_pt)
@@ -72,16 +77,19 @@ contains
 
    end function new_extension
 
-   function extend(this) result(ext_pt)
+   function extend_(this) result(ext_pt)
       type(newActualConnectionPt) :: ext_pt
       class(newActualConnectionPt), intent(in) :: this
 
       ext_pt%v_pt = this%v_pt
-
+      if (this%is_extension()) then
+         ext_pt%label = this%label + 1
+         return
+      endif
+      ! default
       ext_pt%label = 0
-      if (this%is_extension()) ext_pt%label = this%label + 1
          
-   end function extend
+   end function extend_
 
    function add_comp_name(this, comp_name) result(a_pt)
       type(newActualConnectionPt) :: a_pt
@@ -127,14 +135,22 @@ contains
 
    logical function less_than(lhs, rhs)
       type(newActualConnectionPt), intent(in) :: lhs
-      class(newActualConnectionPt), intent(in) :: rhs
+      type(newActualConnectionPt), intent(in) :: rhs
 
-      select type (rhs)
-      type is (newActualConnectionPt)
-         less_than = lhs%v_pt < rhs%v_pt
-      class default
-         less_than = .true.
-      end select
+      less_than = (lhs%v_pt < rhs%v_pt)
+      if (less_than) return
+      if (rhs%v_pt < lhs%v_pt) return
+
+      less_than = get_label(rhs) < get_label(lhs)
+
+   contains
+
+      integer function get_label(a_pt)
+         type(newActualConnectionPt), intent(in) :: a_pt
+
+         get_label = -1
+         if (allocated(a_pt%label)) get_label = a_pt%label
+      end function get_label
 
    end function less_than
 
