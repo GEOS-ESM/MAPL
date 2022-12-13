@@ -26,7 +26,9 @@ module mapl3g_VirtualConnectionPt
       procedure :: is_import
       procedure :: is_export
       procedure :: is_internal
-      procedure :: to_string
+
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type VirtualConnectionPt
 
    ! Constructors
@@ -165,10 +167,17 @@ contains
       is_internal = (this%get_state_intent() == 'internal')
    end function is_internal
 
-   function to_string(this) result(s)
-      character(:), allocatable :: s
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(VirtualConnectionPt), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
 
-      s = "Virtual{intent: <" // this%get_state_intent() // ">, name: <" // this%get_esmf_name() //"> }"
-   end function to_string
+
+      write(unit, '("Virtual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
+           this%get_state_intent(), this%get_esmf_name()
+   end subroutine write_formatted
+
 end module mapl3g_VirtualConnectionPt

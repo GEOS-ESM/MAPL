@@ -76,6 +76,9 @@ module mapl3g_HierarchicalRegistry
       procedure :: add_connection
       procedure :: connect_sibling
       procedure :: connect_export2export
+
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type HierarchicalRegistry
 
    interface HierarchicalRegistry
@@ -95,6 +98,7 @@ module mapl3g_HierarchicalRegistry
 
 contains
 
+
    ! Constructors
    function new_HierarchicalRegistry_leaf(name) result(registry)
       type(HierarchicalRegistry) :: registry
@@ -106,7 +110,6 @@ contains
       type(HierarchicalRegistry) :: registry
       character(*), intent(in) :: name
       type(RegistryPtrMap), intent(in) :: subregistries
-
       registry%name = name
       registry%subregistries = subregistries
    end function new_HierarchicalRegistry_parent
@@ -115,9 +118,7 @@ contains
    function get_name(this) result(name)
       character(:), allocatable:: name
       class(HierarchicalRegistry), intent(in) :: this
-
       name = this%name
-
    end function get_name
 
    ! Retrieve a pointer to the item spect associated with an actual pt
@@ -580,7 +581,6 @@ contains
            if (actual_pt%is_import() .and. .not. item%is_active()) then
               call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_name)), _RC)
            end if
-
          end associate
       end do
       _RETURN(_SUCCESS)
@@ -612,36 +612,58 @@ contains
 
    end function get_actual_pts
 
-   subroutine dump(this)
-      class(HierarchicalRegistry), target, intent(in) :: this
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(HierarchicalRegistry), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
       type(ActualPtSpecPtrMapIterator) :: actual_iter
       type(ActualPtVec_MapIterator) :: virtual_iter
       type(ActualConnectionPt), pointer :: actual_pt
-      write(*,'(a,a,a,i0,a,i0,a,i0,a)') 'HierarchicalRegistry(name=', this%name, &
-           ', n_local=', this%local_specs%size(), &
-           ', n_actual=', this%actual_specs_map%size(), &
-           ', n_virtual=', this%actual_pts_map%size(), ')'
-      write(*,*) '   actuals: '
-      associate (e => this%actual_specs_map%end())
-        actual_iter = this%actual_specs_map%begin()
+
+      type(HierarchicalRegistry), target :: copy
+
+      copy = this
+
+      write(unit,*,iostat=iostat,iomsg=iomsg) new_line('a')
+      if (iostat /= 0) return
+
+      write(unit,'(a,a,a,i0,a,i0,a,i0,a)',iostat=iostat,iomsg=iomsg) &
+           'HierarchicalRegistry(name=', copy%name, &
+           ', n_local=', copy%local_specs%size(), &
+           ', n_actual=', copy%actual_specs_map%size(), &
+           ', n_virtual=', copy%actual_pts_map%size(), ')'// new_line('a')
+      if (iostat /= 0) return
+      write(unit,*,iostat=iostat,iomsg=iomsg) '   actuals: '// new_line('a')
+      if (iostat /= 0) return
+
+      associate (e => copy%actual_specs_map%end())
+        actual_iter = copy%actual_specs_map%begin()
         do while (actual_iter /= e)
            actual_pt => actual_iter%first()
-           write(*,*)'        ',actual_pt%to_string()
+           write(unit,*,iostat=iostat,iomsg=iomsg)'        ',actual_pt, new_line('a')
+           if (iostat /= 0) return
            call actual_iter%next()
         end do
       end associate
       
-      write(*,*) '   virtuals: '
-      associate (e => this%actual_pts_map%end())
-        virtual_iter = this%actual_pts_map%begin()
+      write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
+      if (iostat /= 0) return
+      associate (e => copy%actual_pts_map%end())
+        virtual_iter = copy%actual_pts_map%begin()
         do while (virtual_iter /= e)
            associate (virtual_pt => virtual_iter%first())
-             write(*,*)'        ',virtual_pt%to_string()
+             write(unit,*,iostat=iostat,iomsg=iomsg)'        ',virtual_pt,  new_line('a')
+             if (iostat /= 0) return
            end associate
            call virtual_iter%next()
         end do
       end associate
-   end subroutine dump
+
+   end subroutine write_formatted
 
       
 end module mapl3g_HierarchicalRegistry
