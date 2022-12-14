@@ -127,6 +127,7 @@ Add an option to set_grid to set GridType explicitly.
 
 - Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
 - Fix handling of return macros for programs and subroutines (#1194)
+- Fixed the naming convention of the split field name (#1874)
 
 ### Added
 
