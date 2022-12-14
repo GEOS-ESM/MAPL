@@ -337,6 +337,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_subregistry
 
+   ! We need a special accessor to retrieve child registries due to the use of gFTL.
+   ! To avoid circularity HierarchicalRegistry inherits from AbstractRegistry and children
+   ! are stored as class(AbstractRegistry).  This routine does the casting.
+   !
    ! Returns null() if not found.
    function get_subregistry_comp(this, comp_name, rc) result(subregistry)
       type(HierarchicalRegistry), pointer :: subregistry
@@ -518,14 +522,14 @@ contains
       integer, optional, intent(out) :: rc
 
       type(RegistryPtrMapIterator) :: iter
-      type(HierarchicalRegistry), pointer :: r_child
+      type(HierarchicalRegistry), pointer :: child
       integer :: status
 
       associate (e => this%subregistries%end())
         iter = this%subregistries%begin()
         do while (iter /= e)
-           r_child => this%get_subregistry(iter%first(), _RC)
-           call this%propagate_unsatisfied_imports(iter%first(), r_child, _RC)
+           child => this%get_subregistry(iter%first(), _RC)
+           call this%propagate_unsatisfied_imports(child, _RC)
            call iter%next()
         end do
       end associate
@@ -534,21 +538,19 @@ contains
    end subroutine propagate_unsatisfied_imports_all
 
    ! Loop over virtual pts and propagate any unsatisfied actual pts.
-   subroutine propagate_unsatisfied_imports_child(this, child_name, child_r, rc)
+   subroutine propagate_unsatisfied_imports_child(this, child_r, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      character(*), intent(in) :: child_name
       type(HierarchicalRegistry), target, intent(in) :: child_r
       integer, optional, intent(out) :: rc
 
       type(ActualPtVector), pointer :: actual_pts_vector
       type(ActualPtVec_MapIterator) :: iter
-      class(AbstractRegistry), pointer :: r_child
       integer :: status
 
       associate (e => child_r%actual_pts_map%end())
         iter = child_r%actual_pts_map%begin()
         do while (iter /= e)
-           call this%propagate_unsatisfied_imports_virtual_pt(child_name, child_r, iter, _RC)
+           call this%propagate_unsatisfied_imports_virtual_pt(child_r, iter, _RC)
            call iter%next()
         end do
       end associate
@@ -558,10 +560,9 @@ contains
 
    ! Loop over unsatisfied imports of child registry and propagate to
    ! parent.
-   subroutine propagate_unsatisfied_imports_virtual_pt(this, child_name, r_child, iter, rc)
+   subroutine propagate_unsatisfied_imports_virtual_pt(this, child_r, iter, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      character(*), intent(in) :: child_name
-      type(HierarchicalRegistry), target, intent(in) :: r_child
+      type(HierarchicalRegistry), target, intent(in) :: child_r
       type(ActualPtVec_MapIterator), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
@@ -575,11 +576,11 @@ contains
       actual_pts => iter%second()
       do i = 1, actual_pts%size()
          associate (actual_pt => actual_pts%of(i))
-           item => r_child%get_item_spec(actual_pt)
+           item => child_r%get_item_spec(actual_pt)
            _ASSERT(associated(item), 'Should not happen.')
 
            if (actual_pt%is_import() .and. .not. item%is_active()) then
-              call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_name)), _RC)
+              call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_r%get_name())), _RC)
            end if
          end associate
       end do
