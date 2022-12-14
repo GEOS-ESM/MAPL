@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.28.0
+  VERSION 2.33.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -82,8 +82,16 @@ endif()
 if(NOT TARGET GFTL_SHARED::gftl-shared)
   find_package(GFTL_SHARED REQUIRED)
 endif()
-if(NOT TARGET FARGPARSE::fargparse)
-  find_package(FARGPARSE QUIET)
+
+option(BUILD_WITH_FARGPARSE "Use fArgParse for command line processing" ON)
+if(BUILD_WITH_FARGPARSE)
+  if(NOT TARGET FARGPARSE::fargparse)
+    find_package(FARGPARSE 1.4.1 REQUIRED)
+  else()
+    if (FARGPARSE_VERSION VERSION_LESS 1.4.1)
+      message(FATAL_ERROR "fArgParse must be at least 1.4.1")
+    endif ()
+  endif()
 endif()
 
 option(USE_EXTDATA2G "Use ExtData2G" ON)
@@ -135,7 +143,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF MODULE REQUIRED)
+    find_package(ESMF 8.4.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the

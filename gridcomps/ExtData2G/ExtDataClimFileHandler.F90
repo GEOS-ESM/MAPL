@@ -27,11 +27,12 @@ module MAPL_ExtdataClimFileHandler
 
 contains
 
-   subroutine get_file_bracket(this, input_time, source_time, bracket, rc)
+   subroutine get_file_bracket(this, input_time, source_time, bracket, fail_on_missing_file, rc)
       class(ExtdataClimFileHandler), intent(inout) :: this
       type(ESMF_Time), intent(in) :: input_time
       type(ESMF_Time), intent(in) :: source_time(:)
       type(ExtDataBracket), intent(inout) :: bracket
+      logical, intent(in) :: fail_on_missing_file
       integer, optional, intent(out) :: rc
 
       type(ESMF_Time) :: time
@@ -44,7 +45,8 @@ contains
       integer :: target_year, original_year,clim_shift,valid_years(2)
       integer, allocatable :: source_years(:)
      
-      
+   
+      _ASSERT(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology") 
       if (bracket%time_in_bracket(input_time)) then
          _RETURN(_SUCCESS)
       end if

@@ -45,6 +45,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
       procedure :: ___SUB(get_var,int32,3)
+      procedure :: ___SUB(get_var,int32,4)
       procedure :: ___SUB(get_var,int64,0)
       procedure :: ___SUB(get_var,int64,1)
       procedure :: ___SUB(get_var,int64,2)
@@ -65,6 +66,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
       procedure :: ___SUB(put_var,int32,3)
+      procedure :: ___SUB(put_var,int32,4)
       procedure :: ___SUB(put_var,int64,0)
       procedure :: ___SUB(put_var,int64,1)
       procedure :: ___SUB(put_var,int64,2)
@@ -80,12 +82,13 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,2)
       procedure :: ___SUB(put_var,real64,3)
       procedure :: ___SUB(put_var,real64,4)
-      
+
 
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
       generic :: get_var => ___SUB(get_var,int32,3)
+      generic :: get_var => ___SUB(get_var,int32,4)
       generic :: get_var => ___SUB(get_var,int64,0)
       generic :: get_var => ___SUB(get_var,int64,1)
       generic :: get_var => ___SUB(get_var,int64,2)
@@ -106,6 +109,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
       generic :: put_var => ___SUB(put_var,int32,3)
+      generic :: put_var => ___SUB(put_var,int32,4)
       generic :: put_var => ___SUB(put_var,int64,0)
       generic :: put_var => ___SUB(put_var,int64,1)
       generic :: put_var => ___SUB(put_var,int64,2)
@@ -123,7 +127,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: put_var => ___SUB(put_var,real64,4)
 
 #include "undo_overload.macro"
-      
+
       procedure, private :: def_dimensions
       procedure, private :: put_attributes
       procedure, private :: put_var_attributes
@@ -165,7 +169,7 @@ contains
       case (pFIO_NOCLOBBER)
          mode_ = NF90_NOCLOBBER
       end select
-         
+
       !$omp critical
       status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
@@ -315,10 +319,10 @@ contains
 
       call this%def_variables(cf, rc=status)
       _VERIFY(status)
-      
+
       call this%put_attributes(cf, NF90_GLOBAL, rc=status)
       _VERIFY(status)
- 
+
       !$omp critical
       status= nf90_enddef(this%ncid)
       !$omp end critical
@@ -347,7 +351,7 @@ contains
       integer, pointer :: dim_len
 
       integer :: nf90_len
-      
+
       dims => cf%get_dimensions()
       iter = dims%begin()
       do while (iter /= dims%end())
@@ -396,7 +400,7 @@ contains
          p_attribute => iter%value()
          shp = p_attribute%get_shape()
 
-         if (size(shp) > 0) then 
+         if (size(shp) > 0) then
            attr_values => p_attribute%get_values()
            _ASSERT(associated(attr_values), "should have values")
 
@@ -506,7 +510,7 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next() 
+         call var_iter%next()
       enddo
 
       _UNUSED_DUMMY(unusable)
@@ -557,7 +561,7 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next() 
+         call var_iter%next()
 
       enddo
 
@@ -613,7 +617,7 @@ contains
                !$omp critical
                status = nf90_put_att(this%ncid, varid, attr_name, q)
                !$omp end critical
-            type is (stringWrap) 
+            type is (stringWrap)
                !$omp critical
                status = nf90_put_att(this%ncid, varid, attr_name, q%value)
                !$omp end critical
@@ -672,6 +676,8 @@ contains
       integer, allocatable :: dimids(:)
       integer, pointer :: chunksizes(:)
       integer :: deflation
+      integer :: quantize_algorithm
+      integer :: quantize_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
@@ -722,16 +728,29 @@ contains
          end if
 
          deflation = var%get_deflation()
-         if (deflation > 0) then 
+         if (deflation > 0) then
             !$omp critical
            status = nf90_def_var_deflate(this%ncid, varid, 1, 1, deflation)
            !$omp end critical
            _VERIFY(status)
          end if
 
+         quantize_algorithm = var%get_quantize_algorithm()
+         quantize_level = var%get_quantize_level()
+         if (quantize_level /= 0) then
+#ifdef NF_HAS_QUANTIZE
+           !$omp critical
+           status = nf90_def_var_quantize(this%ncid, varid, quantize_algorithm, quantize_level)
+           !$omp end critical
+           _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with quantize support")
+#endif
+         end if
+
          call this%put_var_attributes(var, varid, rc=status)
          _VERIFY(status)
-         
+
          deallocate(dimids)
 
          call var_iter%next()
@@ -795,7 +814,7 @@ contains
 
       return
    end function get_fio_type
-   
+
    function read(this, unusable, rc) result(cf)
       type (FileMetadata), target :: cf
       class (NetCDF4_FileFormatter), intent(inout) :: this
@@ -860,7 +879,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       integer :: attnum, nAttributes
       integer :: xtype
       integer :: len
@@ -929,7 +948,7 @@ contains
             deallocate(str)
          case (NF90_STRING)
             ! W.Y. Note: pfio only supports global string attributes.
-            ! varid is not passed in. NC_GLOBAL is used inside the call 
+            ! varid is not passed in. NC_GLOBAL is used inside the call
             !$omp critical
             status = pfio_get_att_string(this%ncid, trim(attr_name), str)
             !$omp end critical
@@ -939,7 +958,7 @@ contains
          case default
             _RETURN(_FAILURE)
          end select
-            
+
       end do
 
       _RETURN(_SUCCESS)
@@ -955,7 +974,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       integer :: attnum, nAttributes
       integer :: xtype
       integer :: len
@@ -1039,7 +1058,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine inq_var_attributes
 
-   
+
    subroutine inq_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       type (FileMetadata), target, intent(inout) :: cf
@@ -1068,6 +1087,8 @@ contains
       integer :: iotype
       type(Variable) :: v
 
+      integer :: fio_type
+      type(Variable) :: concrete_var
 
       !$omp critical
       status = nf90_inquire(this%ncid, nVariables=nVariables)
@@ -1079,7 +1100,7 @@ contains
          status = nf90_inquire_variable(this%ncid, varid, name=var_name, xtype=xtype, ndims=ndims)
          !$omp end critical
          _VERIFY(status)
-         
+
          allocate(dimids(ndims))
          !$omp critical
          status = nf90_inquire_variable(this%ncid, varid, dimids=dimids)
@@ -1143,8 +1164,9 @@ contains
             allocate(var, source=CoordinateVariable(v, coordinate_data))
             deallocate(coordinate_data)
          else
-            allocate(var, source=Variable(type= get_fio_type(xtype,rc=status), dimensions=dim_string))
-            _VERIFY(status)
+            Fio_type = get_fio_type(xtype, rc=status); _VERIFY(status)
+            Concrete_var = Variable(type=fio_type, dimensions=dim_string)
+            Allocate(var, source=concrete_var)
          end if
 
          call this%inq_var_attributes(var, varid, rc=status)
@@ -1175,6 +1197,10 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
@@ -1228,7 +1254,7 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #undef _VARTYPE
-   
+
    ! REAL64
 #define _VARTYPE 5
 #  define _RANK 0
@@ -1252,8 +1278,8 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #undef _VARTYPE
-   
-   
+
+
 #undef _TYPE
 
 
@@ -1272,7 +1298,7 @@ contains
       status = nf90_inq_dimid(this%ncid, name=dim_name, dimid=dimid)
       !$omp end critical
       _VERIFY(status)
-      
+
       length = 0
       !$omp critical
       status = nf90_inquire_dimension(this%ncid, dimid, len=length)
@@ -1298,7 +1324,7 @@ contains
 
       ! Sucess means that a dimension exists of the name name
       is_coordinate_dimension = (status == 0)
-      
+
    end function is_coordinate_dimension
 
 end module pFIO_NetCDF4_FileFormatterMod

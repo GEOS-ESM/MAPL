@@ -152,7 +152,6 @@ contains
       type(FileMetadataUtils), pointer :: metadata
       type(ESMF_Time), allocatable :: time_series(:)
       integer :: status
-      character(len=ESMF_MAXPATHLEN) :: filename
 
       if (multi_rule) then
          _ASSERT(allocated(this%valid_range),"must use a collection with valid range")
@@ -175,13 +174,6 @@ contains
          end if
       end if
 
-      if (get_range_ .or. multi_rule) then
-         call fill_grads_template(filename,this%file_template,time=this%valid_range(1),_RC)
-      else
-         call fill_grads_template(filename,this%file_template,time=time,_RC)
-      end if
-      metadata => collection%find(filename,_RC)
-      metadata_out = metadata
       _RETURN(_SUCCESS)
 
    end subroutine detect_metadata

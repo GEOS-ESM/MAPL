@@ -73,14 +73,14 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 //  the baby with the bathwater", for variables, such as Kelvin temperatures
 //  or geopotentials, that may have large offsets.
 //
-//  The number of bits retained is {\tt nbits = 24 - xbits}, given that
+//  The number of bits retained is {\tt nbits_to_keep = 24 - xbits}, given that
 //  32-bit floats in IEEE representation reserves only 24 bits for the
 //  mantissa. The purpose of this precision degradation is to promote
 //  internal GZIP compression by HDF-4.
 //
 //  For variables without large offsets, this algorithm produces very
 //  similar results as the standard GRIB encoding with fixed number of bits
-//  ({\tt nbits = 24 - xbits}) and power of 2 binary scaling. For most files,
+//  ({\tt nbits_to_keep = 24 - xbits}) and power of 2 binary scaling. For most files,
 //  it produces comparable compression to GRIB while using only standard
 //  compression techniques (e.g. GZIP).
 //
