@@ -45,6 +45,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
       procedure :: ___SUB(get_var,int32,3)
+      procedure :: ___SUB(get_var,int32,4)
       procedure :: ___SUB(get_var,int64,0)
       procedure :: ___SUB(get_var,int64,1)
       procedure :: ___SUB(get_var,int64,2)
@@ -65,6 +66,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
       procedure :: ___SUB(put_var,int32,3)
+      procedure :: ___SUB(put_var,int32,4)
       procedure :: ___SUB(put_var,int64,0)
       procedure :: ___SUB(put_var,int64,1)
       procedure :: ___SUB(put_var,int64,2)
@@ -86,6 +88,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
       generic :: get_var => ___SUB(get_var,int32,3)
+      generic :: get_var => ___SUB(get_var,int32,4)
       generic :: get_var => ___SUB(get_var,int64,0)
       generic :: get_var => ___SUB(get_var,int64,1)
       generic :: get_var => ___SUB(get_var,int64,2)
@@ -106,6 +109,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
       generic :: put_var => ___SUB(put_var,int32,3)
+      generic :: put_var => ___SUB(put_var,int32,4)
       generic :: put_var => ___SUB(put_var,int64,0)
       generic :: put_var => ___SUB(put_var,int64,1)
       generic :: put_var => ___SUB(put_var,int64,2)
@@ -672,6 +676,8 @@ contains
       integer, allocatable :: dimids(:)
       integer, pointer :: chunksizes(:)
       integer :: deflation
+      integer :: quantize_algorithm
+      integer :: quantize_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
@@ -727,6 +733,19 @@ contains
            status = nf90_def_var_deflate(this%ncid, varid, 1, 1, deflation)
            !$omp end critical
            _VERIFY(status)
+         end if
+
+         quantize_algorithm = var%get_quantize_algorithm()
+         quantize_level = var%get_quantize_level()
+         if (quantize_level /= 0) then
+#ifdef NF_HAS_QUANTIZE
+           !$omp critical
+           status = nf90_def_var_quantize(this%ncid, varid, quantize_algorithm, quantize_level)
+           !$omp end critical
+           _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with quantize support")
+#endif
          end if
 
          call this%put_var_attributes(var, varid, rc=status)
@@ -1178,6 +1197,10 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
 #  undef _RANK

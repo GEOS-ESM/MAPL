@@ -428,6 +428,7 @@ contains
     logical :: has_conservative_keyword, has_regrid_keyword
     integer :: create_mode
     type(ESMF_Info) :: infoh
+    character(len=:), allocatable :: uppercase_algorithm
 
 ! Begin
 !------
@@ -861,12 +862,51 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%vunit, default="", &
                                       label=trim(string) // 'vunit:'  ,rc=status )
        _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%nbits, default=100, &
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%nbits_to_keep, default=MAPL_NBITS_NOT_SET, &
                                       label=trim(string) // 'nbits:' ,rc=status )
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
                                       label=trim(string) // 'deflate:' ,rc=status )
        _VERIFY(STATUS)
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
+                                      label=trim(string) // 'quantize_algorithm:' ,rc=status )
+       _VERIFY(STATUS)
+
+       ! Uppercase the algorithm string just to allow for any case
+       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
+       select case (trim(uppercase_algorithm))
+       case ('NONE')
+          list(n)%quantize_algorithm = MAPL_Quantize_Disabled
+       case ('BITGROOM')
+          list(n)%quantize_algorithm = MAPL_Quantize_BitGroom
+       case ('GRANULARBR')
+          list(n)%quantize_algorithm = MAPL_Quantize_GranularBR
+       case ('BITROUND')
+          list(n)%quantize_algorithm = MAPL_Quantize_BitRound
+       case default
+          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, BitGroom, GranularBR, BitRound')
+       end select
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
+                                      label=trim(string) // 'quantize_level:' ,rc=status )
+       _VERIFY(STATUS)
+
+       ! If nbits_to_keep < MAPL_NBITS_UPPER_LIMIT (24) and quantize_algorithm greater than 0, then a user might be doing different
+       ! shaving algorithms. We do not allow this
+       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > 0) ), 'nbits < 24 and quantize_algorithm > 0 is not allowed. Choose one bit grooming method.')
+
+       ! quantize_algorithm must be between 0 and 3 where 0 means not enabled
+       _ASSERT( (list(n)%quantize_algorithm >= 0) .and. (list(n)%quantize_algorithm <= 3), 'quantize_algorithm must be between 0 and 3, where 0 means not enabled')
+
+       ! Now we test in the case that a valid quantize algorithm is chosen
+       if (list(n)%quantize_algorithm == 0) then
+         ! If quantize_algorithm is 0, then quantize_level must be 0
+          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is 0, so quantize_level must be 0')
+       else
+         ! If quantize_algorithm is greater than 0, then quantize_level must be greater than or equal to 0
+         _ASSERT( list(n)%quantize_level >= 0, 'netCDF quantize has been enabled, so quantize_level must be greater than or equal to 0')
+       end if
 
        tm_default = -1
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
@@ -2499,9 +2539,13 @@ ENDDO PARSER
           end if
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,rc=status)
           _VERIFY(status)
+          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,rc=status)
+          _VERIFY(status)
+          call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,rc=status)
+          _VERIFY(status)
           call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,rc=status)
           _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(nbits=list(n)%nbits,rc=status)
+          call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,rc=status)
           _VERIFY(status)
           call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,rc=status)
           _VERIFY(status)
@@ -2555,9 +2599,15 @@ ENDDO PARSER
          print *, '--------------------------- '
          print *, '      Format: ',  trim(list(n)%format)
          print *, '        Mode: ',  trim(list(n)%mode)
-         print *, '       Nbits: ',       list(n)%nbits
+         if (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+            print *, '       Nbits: ',       list(n)%nbits_to_keep
+         end if
          print *, '      Slices: ',       list(n)%Slices
          print *, '     Deflate: ',       list(n)%deflate
+         if (list(n)%quantize_algorithm > 0) then
+            print *, 'Quantize Alg: ',       trim(list(n)%quantize_algorithm_string)
+            print *, 'Quantize Lvl: ',       list(n)%quantize_level
+         end if
          if (associated(list(n)%chunksize)) then
             print *, '   ChunkSize: ',       list(n)%chunksize
          end if
@@ -5407,7 +5457,7 @@ ENDDO PARSER
     type(ESMF_Field) :: field
     real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:)
 
-    if (list%nbits >=24) then
+    if (list%nbits_to_keep >=MAPL_NBITS_UPPER_LIMIT) then
        _RETURN(ESMF_SUCCESS)
     endif
 
@@ -5418,17 +5468,17 @@ ENDDO PARSER
        if (fieldRank ==1) then
           call ESMF_FieldGet(field, farrayptr=ptr1d, rc=status)
           _VERIFY(STATUS)
-          call pFIO_DownBit(ptr1d,ptr1d,list%nbits,undef=MAPL_undef,rc=status)
+          call pFIO_DownBit(ptr1d,ptr1d,list%nbits_to_keep,undef=MAPL_undef,rc=status)
           _VERIFY(STATUS)
        elseif (fieldRank ==2) then
           call ESMF_FieldGet(field, farrayptr=ptr2d, rc=status)
           _VERIFY(STATUS)
-          call pFIO_DownBit(ptr2d,ptr2d,list%nbits,undef=MAPL_undef,rc=status)
+          call pFIO_DownBit(ptr2d,ptr2d,list%nbits_to_keep,undef=MAPL_undef,rc=status)
           _VERIFY(STATUS)
        elseif (fieldRank ==3) then
           call ESMF_FieldGet(field, farrayptr=ptr3d, rc=status)
           _VERIFY(STATUS)
-          call pFIO_DownBit(ptr3d,ptr3d,list%nbits,undef=MAPL_undef,rc=status)
+          call pFIO_DownBit(ptr3d,ptr3d,list%nbits_to_keep,undef=MAPL_undef,rc=status)
           _VERIFY(STATUS)
        else
           _FAIL('The field rank is not implmented')
