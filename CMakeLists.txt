@@ -160,6 +160,33 @@ if (NOT Baselibs_FOUND)
   endif ()
 endif ()
 
+# We wish to add extra flags when compiling as Debug. We should only
+# do this if we are using esma_cmake since the flags are defined
+# there. Note that some flags like STANDARD_F18 might be available on
+# all compilers, but others might only be needed for, say, Intel, since,
+# for example, GNU does not allow if(integer) no matter what
+if (COMMAND esma)
+  set (STRICT_DEBUG_FLAGS
+    ${STANDARD_F18}
+    ${ERROR_IF_INTEGER}
+    ${ERROR_LOGICAL_SET_TO_INTEGER}
+    ${DISABLE_LONG_LINE_LENGTH_WARNING}
+    )
+
+  # Are we compiling Fortran?
+  set (is_fortran "$<COMPILE_LANGUAGE:Fortran>")
+  # and is our build type Debug?
+  set (is_build_type_debug "$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>")
+  # set the logical AND
+  set (meets_requirements "$<AND:${is_fortran},${is_build_type_debug}>")
+
+  foreach (flag ${STRICT_DEBUG_FLAGS})
+    # We use SHELL to avoid de-duplication and preserve spaces:
+    #   https://cmake.org/cmake/help/latest/command/target_compile_options.html?highlight=target_compile_options#option-de-duplication
+    add_compile_options("SHELL:$<${meets_requirements}:${flag}>")
+  endforeach ()
+endif ()
+
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
 else ()
