@@ -36,8 +36,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
-
       call append_message(gc, 'wasRun')
       
       _RETURN(ESMF_SUCCESS)
@@ -50,7 +48,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
 
       call append_message(gc, 'wasRun_extra')
       
@@ -65,7 +62,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
 
       call append_message(gc, 'wasInit')
       
@@ -79,7 +75,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
 
       call append_message(gc, 'wasFinal')
       

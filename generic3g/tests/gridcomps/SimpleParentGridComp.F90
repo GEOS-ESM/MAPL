@@ -37,8 +37,8 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      integer :: status
 
       call append_message('wasRun')
       outer_meta => get_outer_meta(gc, _RC)
@@ -54,8 +54,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
-
       call append_message('wasRun_extra')
       
 
@@ -69,8 +67,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      integer :: status
-
       call append_message('wasInit')
       
       _RETURN(ESMF_SUCCESS)
@@ -82,8 +78,6 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
-
-      integer :: status
 
       call append_message('wasFinal')
       

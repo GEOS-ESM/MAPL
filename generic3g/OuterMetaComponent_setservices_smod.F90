@@ -15,6 +15,8 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
 
 contains
 
+   ! Note we spell the following routine with trailing underscore as a workaround
+   ! for a bug in gfortran-12 that "leaks" private names into client code.
    !========================================================================
    ! Generic SetServices order of operations:
    !
@@ -27,7 +29,7 @@ contains
    ! reverse when step (3) is moved to a new generic initialization phase.
    !=========================================================================
    
-   recursive module subroutine SetServices(this, rc)
+   recursive module subroutine SetServices_(this, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), intent(inout) :: this
       integer, intent(out) :: rc
@@ -130,7 +132,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine process_generic_specs
 
-   end subroutine SetServices
+   end subroutine SetServices_
 
    function create_user_gridcomp(this, unusable, rc) result(user_gridcomp)
       type(ESMF_GridComp) :: user_gridcomp

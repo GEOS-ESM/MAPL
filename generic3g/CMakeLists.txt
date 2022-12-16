@@ -54,6 +54,7 @@ esma_add_library(${this}
   )
 add_subdirectory(specs)
 add_subdirectory(registry)
+add_subdirectory(connection_pt)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

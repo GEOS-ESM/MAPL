@@ -55,8 +55,6 @@ contains
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      
       call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
@@ -66,8 +64,6 @@ contains
    subroutine destroy(this, rc)
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       call this%set_created(.false.)
 
@@ -80,7 +76,6 @@ contains
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
       
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
@@ -90,8 +85,6 @@ contains
       class(MockItemSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
@@ -147,9 +140,6 @@ contains
       character(*), intent(in) :: short_name
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Field) :: alias
-      integer :: status
-
       _FAIL('unimplemented')
 
    end subroutine add_to_state
@@ -166,8 +156,6 @@ contains
       class(MockItemSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type(src_spec)
       type is (MockItemSpec)

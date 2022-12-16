@@ -2,13 +2,12 @@
 
 module mapl3g_ComponentSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_RelativeConnectionPoint
-   use mapl3g_ConnectionPoint
-   use mapl3g_ConnectionPointVector
+   use mapl3g_VirtualConnectionPt
    use mapl3g_ConnectionSpecVector
    use mapl3g_ConnectionSpec
-   use mapl3g_ConnPtStateItemSpecMap
-   use mapl3g_FieldRegistry
+   use mapl3g_VirtualPtStateItemSpecMap
+   use mapl3g_VirtualPtStateItemPtrMap
+   use mapl3g_HierarchicalRegistry
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -18,7 +17,7 @@ module mapl3g_ComponentSpec
 
    type :: ComponentSpec
 !!$      private
-      type(ConnPtStateItemSpecMap) :: state_item_specs
+      type(VirtualPtStateItemSpecMap) :: state_item_specs
       type(ConnectionSpecVector) :: connections
    contains
       procedure :: add_state_item_spec
@@ -37,7 +36,7 @@ contains
 
    function new_ComponentSpec(state_item_specs, connections) result(spec)
       type(ComponentSpec) :: spec
-      type(ConnPtStateItemSpecMap), optional, intent(in) :: state_item_specs
+      type(VirtualPtStateItemSpecMap), optional, intent(in) :: state_item_specs
       type(ConnectionSpecVector), optional, intent(in) :: connections
 
       if (present(state_item_specs)) spec%state_item_specs = state_item_specs
@@ -47,7 +46,7 @@ contains
 
    subroutine add_state_item_spec(this, conn_pt, spec)
       class(ComponentSpec), intent(inout) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(VirtualConnectionPt), intent(in) :: conn_pt
       class(AbstractStateItemSpec), intent(in) :: spec
       call this%state_item_specs%insert(conn_pt, spec)
    end subroutine add_state_item_spec
@@ -62,56 +61,56 @@ contains
 
    subroutine make_primary_states(this, registry, comp_states, rc)
       class(ComponentSpec), intent(in) :: this
-      type(FieldRegistry), intent(in) :: registry
+      type(HierarchicalRegistry), intent(in) :: registry
       type(ESMF_State), intent(in) :: comp_states
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ConnPtStateItemSpecMapIterator) :: iter
-
-      associate (e => this%state_item_specs%end())
-        iter = this%state_item_specs%begin()
-        do while (iter /= e)
-           call add_item_to_state(iter, registry, comp_states, _RC)
-           call iter%next()
-        end do
-      end associate
+!!$      integer :: status
+!!$      type(VirtualPtStateItemSpecMapIterator) :: iter
+!!$
+!!$      associate (e => this%state_item_specs%end())
+!!$        iter = this%state_item_specs%begin()
+!!$        do while (iter /= e)
+!!$           call add_item_to_state(iter, registry, comp_states, _RC)
+!!$           call iter%next()
+!!$        end do
+!!$      end associate
 
       _RETURN(_SUCCESS)
    end subroutine make_primary_states
 
    subroutine add_item_to_state(iter, registry, comp_states, rc)
-      type(ConnPtStateItemSpecMapIterator), intent(in) :: iter
-      type(FieldRegistry), intent(in) :: registry
+      type(VirtualPtStateItemSpecMapIterator), intent(in) :: iter
+      type(HierarchicalRegistry), intent(in) :: registry
       type(ESMF_State), intent(in) :: comp_states
       integer, optional, intent(out) :: rc
 
-      class(AbstractStateItemSpec), pointer :: spec
-      integer :: status
-      type(ESMF_State) :: primary_state
-      type(ConnectionPoint), pointer :: conn_pt
-      
-      conn_pt => iter%first()
-      spec => registry%get_item_spec(conn_pt)
-      _ASSERT(associated(spec), 'invalid connection point')
-
-      call ESMF_StateGet(comp_states, itemName=conn_pt%state_intent, nestedState=primary_state, _RC)
-      call add_to_state(primary_state, conn_pt%relative_pt, spec, _RC)
+!!$      class(AbstractStateItemSpec), pointer :: spec
+!!$      integer :: status
+!!$      type(ESMF_State) :: primary_state
+!!$      type(VirtualConnectionPt), pointer :: conn_pt
+!!$      
+!!$      conn_pt => iter%first()
+!!$      spec => registry%get_item_spec(conn_pt)
+!!$      _ASSERT(associated(spec), 'invalid connection point')
+!!$
+!!$      call ESMF_StateGet(comp_states, itemName=conn_pt%state_intent(), nestedState=primary_state, _RC)
+!!$      call add_to_state(primary_state, conn_pt, spec, _RC)
       
       _RETURN(_SUCCESS)
    end subroutine add_item_to_state
 
 
-   subroutine add_to_state(state, relative_pt, spec, rc)
+   subroutine add_to_state(state, virtual_pt, spec, rc)
       type(ESMF_State), intent(inout) :: state
-      type(RelativeConnectionPoint), intent(in) :: relative_pt
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
       class(AbstractStateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_State) :: innermost_state
-
-!!$      innermost_state = create_substates(state, relative_pt%substates, _RC)
+!!$      integer :: status
+!!$      type(ESMF_State) :: innermost_state
+!!$
+!!$      innermost_state = create_substates(state, virtual_pt%substates, _RC)
 !!$      call spec%add_to_state(innermost_state, short_name, _RC)
 !!$
 !!$      _RETURN(_SUCCESS)
@@ -126,10 +125,10 @@ contains
       integer, optional, intent(out) :: rc
 
 
-      type(StringVectorIterator) :: iter
-      character(:), pointer :: substate_name
-      integer :: itemcount
-      integer :: status
+!!$      type(StringVectorIterator) :: iter
+!!$      character(:), pointer :: substate_name
+!!$      integer :: itemcount
+!!$      integer :: status
 
 !!$      innermost_state = state
 !!$      associate (e => substates%end())
@@ -183,7 +182,7 @@ contains
       type(ConnectionSpec) :: conn
       integer, optional, intent(out) :: rc
 
-      integer :: status
+!!$      integer :: status
 
 !!$      src_comp => this%get_source_comp(connection)
 !!$      dst_comp => this%get_dest_comp(connection)

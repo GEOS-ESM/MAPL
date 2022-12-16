@@ -13,7 +13,8 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
    use mapl3g_ChildComponentMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_ConnectionPoint
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_ConnectionPt
    use mapl3g_ConnectionSpec
    use mapl3g_HierarchicalRegistry
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
@@ -63,7 +64,7 @@ module mapl3g_OuterMetaComponent
       procedure :: set_entry_point
 
       ! Generic methods
-      procedure :: setServices
+      procedure :: setServices => setservices_
 
       procedure :: initialize ! main/any phase
       procedure :: initialize_user
@@ -98,6 +99,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_gridcomp
       procedure :: is_root
       procedure :: get_registry
+      procedure :: get_subregistries
 
    end type OuterMetaComponent
 
@@ -117,7 +119,7 @@ module mapl3g_OuterMetaComponent
    ! Submodule interfaces
    interface
 
-      recursive module subroutine SetServices(this, rc)
+      recursive module subroutine SetServices_(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
@@ -179,8 +181,6 @@ contains
       class(OuterMetaComponent), intent(out) :: this
       type(ESMF_GridComp), intent(inout) :: gridcomp
 
-      character(ESMF_MAXSTR) :: name
-
       this%self_gridcomp = gridcomp
       call initialize_phases_map(this%phases_map)
 
@@ -208,7 +208,7 @@ contains
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status
       type(ChildComponent) :: child
 
       child = this%get_child(child_name, _RC)
@@ -387,8 +387,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-
+!!$      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+!!$
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
 !!$      call apply_to_children(this, set_child_grid, _RC)
 
@@ -407,8 +407,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-
+!!$      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+!!$
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
 !!$      call apply_to_children(this, set_child_grid, _RC)
 
@@ -472,9 +472,7 @@ contains
       type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
-      type(ChildComponent), pointer :: child
-      type(ChildComponentMapIterator) :: iter
+      integer :: status
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
@@ -507,9 +505,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      integer :: phase
-      type(ChildComponent), pointer :: child
-
       
       associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name=phase_name, rc=status))
         if (status == _SUCCESS) then
@@ -605,7 +600,6 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
 
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart
@@ -619,8 +613,6 @@ contains
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
-      integer :: status, userRC
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
@@ -716,12 +708,8 @@ contains
       _ASSERT(count(state_intent == ['import  ' ,'export  ', 'internal']) == 1, 'invalid state intent')
       _ASSERT(is_valid_name(short_name), 'Short name <' // short_name //'> does not conform to GEOS standards.')
 
-      associate(comp_name => this%get_name())
-      
-        associate (conn_pt => ConnectionPoint(comp_name, state_intent, short_name))
-          call this%component_spec%add_state_item_spec(conn_pt, spec)
-        end associate
-
+      associate (conn_pt => VirtualConnectionPt(state_intent=state_intent, short_name=short_name))
+        call this%component_spec%add_state_item_spec(conn_pt, spec)
       end associate
 
       _RETURN(_SUCCESS)
@@ -758,5 +746,37 @@ contains
 
       r => this%registry
    end function get_registry
+
+   subroutine get_subregistries(this, subregistries, rc)
+      use mapl3g_RegistryPtrMap
+      use mapl3g_RegistryPtr
+      class(OuterMetaComponent), intent(in) :: this
+      type(RegistryPtrMap), intent(out) :: subregistries
+      integer, optional, intent(out) :: rc
+
+      type(ChildComponentMapIterator) :: iter
+      character(:), pointer :: name
+      type(ChildComponent), pointer :: child
+      type(Outermetacomponent), pointer :: child_meta
+      type(RegistryPtr) :: wrap
+      
+      associate (e => this%children%end())
+        iter = this%children%begin()
+
+        do while (iter /= e)
+           name => iter%first()
+           child => iter%second()
+           child_meta => get_outer_meta(child%gridcomp)
+           wrap%registry => child_meta%get_registry()
+
+           call subregistries%insert(name, wrap)
+
+           call iter%next()
+        end do
+
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine get_subregistries
 
 end module mapl3g_OuterMetaComponent

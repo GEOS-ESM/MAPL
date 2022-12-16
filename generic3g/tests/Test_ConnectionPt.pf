@@ -1,19 +1,19 @@
-module Test_ConnectionPoint
+module Test_ConnectionPt
    use funit
-   use mapl3g_ConnectionPoint
-   use mapl3g_RelativeConnectionPoint
+   use mapl3g_ConnectionPt
+   use mapl3g_VirtualConnectionPt
    implicit none
 
 contains
 
    @test
    ! This should already be covered by gFTL tests, but am troubleshooting
-   ! problem with ordering of ConnectionPoint
+   ! problem with ordering of ConnectionPt
    subroutine test_relative_less()
-      type(RelativeConnectionPoint) :: rcp_1, rcp_2
+      type(VirtualConnectionPt) :: rcp_1, rcp_2
 
-      rcp_1 = RelativeConnectionPoint('A')
-      rcp_2 = RelativeConnectionPoint('B')
+      rcp_1 = VirtualConnectionPt(state_intent='import', short_name='A')
+      rcp_2 = VirtualConnectionPt(state_intent='import', short_name='B')
 
       ! Identical
         @assert_that((rcp_1 < rcp_1), is(false()))
@@ -25,11 +25,11 @@ contains
    end subroutine test_relative_less
    
    @test
-   subroutine test_connectionpoint_less()
-      type(ConnectionPoint) :: cp_1, cp_2
+   subroutine test_connectionpt_less()
+      type(ConnectionPt) :: cp_1, cp_2
 
-      cp_1 = ConnectionPoint('A','A','A')
-      cp_2 = ConnectionPoint('B','B','B')
+      cp_1 = ConnectionPt('A', state_intent='import', short_name='A')
+      cp_2 = ConnectionPt('B', state_intent='export', short_name='B')
         ! Identical
         @assert_that((cp_1 < cp_1), is(false()))
         @assert_that((cp_2 < cp_2), is(false()))
@@ -37,22 +37,22 @@ contains
         @assert_that((cp_1 < cp_2), is(true()))
         @assert_that((cp_2 < cp_1), is(false()))
 
-   end subroutine test_connectionpoint_less
+   end subroutine test_connectionpt_less
    
    @test
-   subroutine test_connectionpoint_less_full()
-      type(ConnectionPoint) :: cp(2,2,2)
+   subroutine test_connectionpt_less_full()
+      type(ConnectionPt) :: cp(2,2,2)
       integer :: i, j, k
 
-      cp(1,1,1) = ConnectionPoint('A','A','A')
-      cp(2,1,1) = ConnectionPoint('A','A','B')
-      cp(1,2,1) = ConnectionPoint('A','B','A')
-      cp(2,2,1) = ConnectionPoint('A','B','B')
-      cp(1,1,2) = ConnectionPoint('B','A','A')
-      cp(2,1,2) = ConnectionPoint('B','A','B')
-      cp(1,2,2) = ConnectionPoint('B','B','A')
-      cp(2,2,2) = ConnectionPoint('B','B','B')
-        ! Identical points are neither less nor greater
+      cp(1,1,1) = ConnectionPt('A', state_intent='import', short_name='A')
+      cp(2,1,1) = ConnectionPt('A', state_intent='import', short_name='B')
+      cp(1,2,1) = ConnectionPt('A',state_intent='export', short_name='A')
+      cp(2,2,1) = ConnectionPt('A',state_intent='export', short_name='B')
+      cp(1,1,2) = ConnectionPt('B', state_intent='import', short_name='A')
+      cp(2,1,2) = ConnectionPt('B', state_intent='import', short_name='B')
+      cp(1,2,2) = ConnectionPt('B',state_intent='export', short_name='A')
+      cp(2,2,2) = ConnectionPt('B',state_intent='export', short_name='B')
+        ! Identical pts are neither less nor greater
         do k = 1, 2
            do j = 1, 2
               do i = 1, 2
@@ -83,16 +83,16 @@ contains
            end do
         end do
 
-   end subroutine test_connectionpoint_less_full
+   end subroutine test_connectionpt_less_full
    
    @test
    ! Reproducer from failing registry test
-   subroutine test_connectionpoint_less_registry()
+   subroutine test_connectionpt_less_registry()
 
-      type(ConnectionPoint) :: cp_1, cp_2, cp_3
-      cp_1 = ConnectionPoint('grandchild_A','export','ae1')
-      cp_2 = ConnectionPoint('child_A','export','ae2')
-      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
+      type(ConnectionPt) :: cp_1, cp_2, cp_3
+      cp_1 = ConnectionPt('grandchild_A',state_intent='export',short_name='ae1')
+      cp_2 = ConnectionPt('child_A',state_intent='export',short_name='ae2')
+      cp_3 = ConnectionPt('child_B',  state_intent='import', short_name='ai')
 
         ! Identical
         @assert_that((cp_1 < cp_1), is(false()))
@@ -105,6 +105,6 @@ contains
         @assert_that((cp_3 < cp_1), is(true()))
 
       
-   end subroutine test_connectionpoint_less_registry
+   end subroutine test_connectionpt_less_registry
    
-end module Test_ConnectionPoint
+end module Test_ConnectionPt
