@@ -119,7 +119,8 @@ contains
       class(ActualConnectionPt), intent(in) :: this
 
       name = this%v_pt%get_esmf_name()
-         
+      if (this%is_extension()) &
+           name = name // this%get_extension_string()
    end function get_esmf_name
 
    function get_extension_string(this) result(s)
@@ -130,7 +131,7 @@ contains
 
       s = ''
       if (this%is_extension()) then
-         write(buf, '(i0)') this%label
+         write(buf, '("(",i0,")")') this%label
          s = trim(buf)
       end if
    end function get_extension_string

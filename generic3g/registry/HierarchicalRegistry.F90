@@ -166,12 +166,14 @@ contains
       integer :: status
       integer :: i
       type(ActualPtVector), pointer :: actual_pts
+      type(ActualConnectionPt), pointer :: actual_pt
 
       actual_pts => this%actual_pts_map%at(virtual_pt, _RC)
       associate ( n => actual_pts%size() )
         allocate(specs(n))
         do i = 1, n
-           specs(i) = this%get_item_SpecPtr(actual_pts%of(i), _RC)
+           actual_pt => actual_pts%of(i)
+           specs(i)%ptr => this%get_item_spec(actual_pt, _RC)
         end do
       end associate
 
@@ -258,13 +260,14 @@ contains
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       type(ActualConnectionPt), intent(in) :: actual_pt
 
+      type(ActualPtVector), pointer :: actual_pts
+
       associate (extensions => this%actual_pts_map)
         if (extensions%count(virtual_pt) == 0) then
            call extensions%insert(virtual_pt, ActualPtVector())
         end if
-        associate (actual_pts => this%actual_pts_map%of(virtual_pt))
-          call actual_pts%push_back(actual_pt)
-        end associate
+        actual_pts => this%actual_pts_map%of(virtual_pt)
+        call actual_pts%push_back(actual_pt)
       end associate
       
    end subroutine add_extension
@@ -470,32 +473,31 @@ contains
       class(AbstractStateItemSpec), pointer :: spec
       type(ActualConnectionPt), pointer :: src_actual_pt
       type(ActualConnectionPt), allocatable :: dst_actual_pt
+      type(ActualPtVector), pointer :: actual_pts
       integer :: status
 
       associate (src_pt => connection%source%v_pt, dst_pt => connection%destination%v_pt)
         _ASSERT(this%actual_pts_map%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
-        associate (actual_pts => src_registry%get_actual_pts(src_pt))
-          associate (e => actual_pts%end())
-            iter = actual_pts%begin()
-            do while (iter /= e)
-               src_actual_pt => iter%of()
-               if (src_actual_pt%is_internal()) then
-                  ! Don't encode with comp name
-                  dst_actual_pt = ActualConnectionPt(dst_pt)
-               else
-                  dst_actual_pt = ActualConnectionPt(dst_pt%add_comp_name(src_registry%get_name()))
-               end if
-               dst_actual_pt = extend(dst_actual_pt)
-
-               spec => src_registry%get_item_spec(src_actual_pt)
-               _ASSERT(associated(spec), 'This should not happen.')
-               call this%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
-               call iter%next()
-            end do
-          end associate
+        actual_pts => src_registry%get_actual_pts(src_pt)
+        associate (e => actual_pts%end())
+          iter = actual_pts%begin()
+          do while (iter /= e)
+             src_actual_pt => iter%of()
+             if (src_actual_pt%is_internal()) then
+                ! Don't encode with comp name
+                dst_actual_pt = ActualConnectionPt(dst_pt)
+             else
+                dst_actual_pt = ActualConnectionPt(dst_pt%add_comp_name(src_registry%get_name()))
+             end if
+             dst_actual_pt = extend(dst_actual_pt)
+             
+             spec => src_registry%get_item_spec(src_actual_pt)
+             _ASSERT(associated(spec), 'This should not happen.')
+             call this%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
+             call iter%next()
+          end do
         end associate
       end associate
-        
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -571,18 +573,18 @@ contains
       class(AbstractStateItemSpec), pointer :: item
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(ActualPtVector), pointer :: actual_pts
+      type(ActualConnectionPt), pointer :: actual_pt
 
       virtual_pt => iter%first()
       actual_pts => iter%second()
       do i = 1, actual_pts%size()
-         associate (actual_pt => actual_pts%of(i))
-           item => child_r%get_item_spec(actual_pt)
-           _ASSERT(associated(item), 'Should not happen.')
+         actual_pt => actual_pts%of(i)
+         item => child_r%get_item_spec(actual_pt)
+         _ASSERT(associated(item), 'Should not happen.')
 
-           if (actual_pt%is_import() .and. .not. item%is_active()) then
-              call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_r%get_name())), _RC)
-           end if
-         end associate
+         if (actual_pt%is_import() .and. .not. item%is_active()) then
+            call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_r%get_name())), _RC)
+         end if
       end do
       _RETURN(_SUCCESS)
 

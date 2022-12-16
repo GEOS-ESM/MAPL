@@ -64,7 +64,7 @@ module mapl3g_OuterMetaComponent
       procedure :: set_entry_point
 
       ! Generic methods
-      procedure :: setServices
+      procedure :: setServices => setservices_
 
       procedure :: initialize ! main/any phase
       procedure :: initialize_user
@@ -119,7 +119,7 @@ module mapl3g_OuterMetaComponent
    ! Submodule interfaces
    interface
 
-      recursive module subroutine SetServices(this, rc)
+      recursive module subroutine SetServices_(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
