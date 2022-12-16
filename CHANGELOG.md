@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `MAPL_find_bounds => find_bounds` and `MAPL_Interval => Interval` to `MAPL.F90` for use when doing component level OpenMP
 - Added requirement for ESMF 8.4.0 in `find_package()` call
+- Modified Apps/MAPL_GridCompSpecs_ACG.py to use the * capability for `LONG_NAME` like `SHORT_NAME`
 
 ### Changed
 
