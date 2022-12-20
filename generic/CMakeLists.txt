@@ -69,7 +69,7 @@ target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+   target_link_libraries(${this} PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
 endif ()
 
 if (PFUNIT_FOUND)

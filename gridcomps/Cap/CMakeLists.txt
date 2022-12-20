@@ -25,7 +25,7 @@ target_compile_definitions (${this} PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WIT
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+   target_link_libraries(${this} PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
 endif ()
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 if (BUILD_WITH_FLAP)

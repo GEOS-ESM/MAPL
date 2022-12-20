@@ -14,7 +14,7 @@ if (BUILD_WITH_FLAP)
   target_link_libraries (ExtDataDriver.x PRIVATE MAPL FLAP::FLAP esmf)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-    target_link_libraries(ExtDataDriver.x PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+    target_link_libraries(ExtDataDriver.x PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
   endif ()
   set_target_properties(ExtDataDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
   target_compile_definitions (ExtDataDriver.x PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WITH_EXTDATA2G>)
@@ -24,7 +24,7 @@ if (BUILD_WITH_FLAP)
   target_link_libraries (pfio_MAPL_demo.x PRIVATE MAPL FLAP::FLAP esmf)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-    target_link_libraries(pfio_MAPL_demo.x PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+    target_link_libraries(pfio_MAPL_demo.x PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
   endif ()
   set_target_properties(pfio_MAPL_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
@@ -36,7 +36,7 @@ if (BUILD_WITH_FARGPARSE)
   target_link_libraries (MAPL_demo_fargparse.x PRIVATE MAPL FARGPARSE::fargparse esmf)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-    target_link_libraries(MAPL_demo_fargparse.x PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+    target_link_libraries(MAPL_demo_fargparse.x PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
   endif ()
   set_target_properties(MAPL_demo_fargparse.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 

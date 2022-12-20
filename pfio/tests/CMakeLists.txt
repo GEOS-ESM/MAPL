@@ -65,7 +65,7 @@ ecbuild_add_executable (
   DEFINITIONS USE_MPI)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${TESTO} $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+   target_link_libraries(${TESTO} $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
 endif ()
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
@@ -127,7 +127,7 @@ ecbuild_add_executable (
   LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${TESTPERF} $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+   target_link_libraries(${TESTPERF} $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
 endif ()
 target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

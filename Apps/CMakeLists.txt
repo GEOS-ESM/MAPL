@@ -20,7 +20,7 @@ target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran esmf)
 target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-  target_link_libraries(Regrid_Util.x PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+  target_link_libraries(Regrid_Util.x PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
 endif ()
 
 ecbuild_add_executable (TARGET time_ave_util.x SOURCES time_ave_util.F90)
@@ -28,5 +28,5 @@ target_link_libraries (time_ave_util.x PRIVATE MAPL MPI::MPI_Fortran esmf)
 target_include_directories (time_ave_util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-  target_link_libraries(time_ave_util.x PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
+  target_link_libraries(time_ave_util.x PRIVATE $<$<BOOL:${BUILD_WITH_OPENMP}>:OpenMP::OpenMP_Fortran>)
 endif ()
