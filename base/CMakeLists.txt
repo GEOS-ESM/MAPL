@@ -66,7 +66,7 @@ esma_add_library(
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
+   target_link_libraries(${this} PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
 endif ()
 
 if(DISABLE_GLOBAL_NAME_WARNING)
@@ -86,7 +86,7 @@ ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEP
 target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(cub2latlon.x PRIVATE OpenMP::OpenMP_Fortran)
+   target_link_libraries(cub2latlon.x PRIVATE $<$<BOOL:BUILD_WITH_OPENMP>:OpenMP::OpenMP_Fortran>)
 endif ()
 set_target_properties(cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 

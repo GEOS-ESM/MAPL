@@ -67,6 +67,12 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
+option (BUILD_WITH_OPENMP "Build MAPL with OpenMP support" ON)
+if (BUILD_WITH_OPENMP)
+  find_package (OpenMP REQUIRED)
+endif ()
+message (STATUS "Building MAPL with OpenMP support: ${BUILD_WITH_OPENMP}")
+
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()
