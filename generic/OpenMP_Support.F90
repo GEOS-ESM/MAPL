@@ -21,6 +21,7 @@ module MAPL_OpenMP_Support
     public :: subset_array
     public :: get_current_thread
     public :: get_num_threads
+    public :: get_callbacks
 
     type :: Interval
         integer :: min
@@ -491,6 +492,9 @@ module MAPL_OpenMP_Support
             end do
          end if
       end do
+
+      call copy_callbacks(state, substates, _RC)
+
       _RETURN(0)
     end function make_substates_from_num_grids
 
@@ -519,13 +523,14 @@ module MAPL_OpenMP_Support
         character(len=ESMF_MAXSTR) :: comp_name
         character(len=:), allocatable :: labels(:)
         integer :: phase
+        type(ESMF_Config) :: CF
 
         allocate(subgridcomps(num_grids))
 
         call ESMF_VMGetCurrent(vm, _RC)
         call ESMF_VMGet(vm, localPET=myPET, _RC)
 
-        call ESMF_GridCompGet(GridComp, name=comp_name, _RC)
+        call ESMF_GridCompGet(GridComp, name=comp_name, CONFIG=CF, _RC)
         call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
         if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (trim(labels(i)),i=1,size(labels)), '>'
         print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
@@ -533,6 +538,7 @@ module MAPL_OpenMP_Support
           associate (gc => subgridcomps(i) )
             gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
                  & contextflag=ESMF_CONTEXT_OWN_VM, _RC)
+            call ESMF_GridCompSet(gc, CONFIG=CF, _RC)
             call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, _RC)
             _VERIFY(user_status)
           end associate
@@ -570,6 +576,63 @@ module MAPL_OpenMP_Support
             end do
            _RETURN(ESMF_SUCCESS)
         end subroutine set_services
+
     end function make_subgridcomps
+
+    subroutine copy_callbacks(state, multi_states, rc)
+       use mapl_ESMF_Interfaces
+       use mapl_CallbackMap
+       type(ESMF_State), intent(in   ) :: state
+       type(ESMF_State), intent(inout) :: multi_states(:)
+
+       integer :: n_multi
+       type(CallbackMethodWrapper) :: wrapper
+       type(CallbackMap), pointer :: callbacks
+
+       n_multi = size(multi_states)
+       call get_callbacks(state, callbacks, _RC)
+       if (associated(callbacks)) then
+          associate (e => callbacks%end())
+            iter = callbacks%begin()
+            do
+               wrapper => iter%second()
+               do i = 1, n_multi
+                  call ESMF_MethodAdd(multi_states(i), iter%first(), wrapper%userRoutine, _RC)
+               end do
+               call iter%next()
+            end do
+          end associate
+       end if
+
+       _RETURN(ESMF_SUCCESS)
+
+    end subroutine copy_callbacks
+
+    subroutine get_callbacks(state, callbacks, rc)
+       use mapl_ESMF_Interfaces
+       use mapl_CallbackMap
+       type(ESMF_State), intent(inout) :: state
+       type(CallbackMap), pointer, intent(out) :: callbacks
+       integer, optional, intent(out) :: rc
+
+       type(CallbackMethodWrapper) :: wrapper
+       integer :: value(:)
+
+       call ESMF_AttributeGet(state, label='MAPL_CALLBACK_MAP', value, rc=status)
+       if (status /= 0) then ! create callback map for this state
+          allocate(callbacks)
+          wrapper%map => callbacks
+          value = transfer(wrapper, value)
+          call ESMD_AttributeSet(state, label='MAPL_CALLBACK_MAP', value, _RC)
+       end if
+
+       call ESMF_AttributeGet(state, label='MAPL_CALLBACK_MAP', value, rc=status)
+
+       wrapper = transfer(value, wrapper)
+       callbacks => wrapper%map
+
+       _RETURN(ESMF_SUCCESS)
+
+    end subroutine get_callbacks
 
 end module MAPL_OpenMP_Support 

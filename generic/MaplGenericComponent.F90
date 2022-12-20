@@ -16,11 +16,14 @@ module mapl_MaplGenericComponent
    use mapl_MaplGrid
    use mapl_RunEntryPoint
    use mapl_EntryPointVector
+   use mapl_ESMF_Interfaces
+   use mapl_CallbackMap
    implicit none
    private
 
    public :: MaplGenericComponent
    public :: get_grid
+   public :: MAPL_AddMethod
 
    procedure(), pointer :: user_method => null()
 
@@ -379,5 +382,26 @@ contains
      end if
 
   end function get_gridcomp
+
+   subroutine MAPL_AddMethod(state, label, userRoutine, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: label
+      procedure(I_CallBackMethod) :: userRoutine
+      integer, optional, intent(out) :: rc
+
+      call ESMF_AddMethod(state, userRoutine, _RC)
+
+      call get_callbacks(state, callbacks, _RC)
+      call callbacks%insert(label, wrap(userRoutine)
+
+   contains
+
+      function wrap(proc) result(userRoutine)
+         type(CallbackMethodWrapper) :: wrapper
+         procedure(I_CallBackMethod) :: userRoutine
+         wrapper%userRoutine => proc
+      end function wrap
+
+   end subroutine MAPL_AddMethod
 
 end module mapl_MaplGenericComponent
