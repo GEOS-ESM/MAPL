@@ -11,10 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `MAPL_find_bounds => find_bounds` and `MAPL_Interval => Interval` to `MAPL.F90` for use when doing component level OpenMP
 - Added requirement for ESMF 8.4.0 in `find_package()` call
+- Modified Apps/MAPL_GridCompSpecs_ACG.py to use the * capability for `LONG_NAME` like `SHORT_NAME`
+- Added CMake code to apply stricter debug flags when building MAPL as Debug
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
+- Reduced amount of CI tests to reduce cost
+
 ### Fixed
+
+- Fixed procedure "find" in CFIOCollection.F90 that was missing a _RETURN(_SUCCESS) at the end
 
 ### Removed
 
@@ -121,6 +129,7 @@ Add an option to set_grid to set GridType explicitly.
 
 - Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
 - Fix handling of return macros for programs and subroutines (#1194)
+- Fixed the naming convention of the split field name (#1874)
 
 ### Added
 
