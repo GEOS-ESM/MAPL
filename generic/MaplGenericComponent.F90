@@ -396,10 +396,10 @@ contains
 
    contains
 
-      function wrap(proc) result(userRoutine)
+      function wrap(userRoutine) result(wrapper)
          type(CallbackMethodWrapper) :: wrapper
          procedure(I_CallBackMethod) :: userRoutine
-         wrapper%userRoutine => proc
+         wrapper%userRoutine => userRoutine
       end function wrap
 
    end subroutine MAPL_AddMethod
