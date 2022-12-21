@@ -433,7 +433,7 @@ module MAPL_OpenMP_Support
 
     recursive function make_substates_from_num_grids(state, num_subgrids, unusable, rc) result(substates)
       type(ESMF_State), allocatable :: substates(:)
-      type(ESMF_State), intent(in) :: state
+      type(ESMF_State), intent(inout) :: state
       integer, intent(in) :: num_subgrids
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -582,12 +582,15 @@ module MAPL_OpenMP_Support
     subroutine copy_callbacks(state, multi_states, rc)
        use mapl_ESMF_Interfaces
        use mapl_CallbackMap
-       type(ESMF_State), intent(in   ) :: state
+       type(ESMF_State), intent(inout) :: state
        type(ESMF_State), intent(inout) :: multi_states(:)
+       integer, optional, intent(out) :: rc
 
-       integer :: n_multi
-       type(CallbackMethodWrapper) :: wrapper
+       integer :: n_multi, i
+       integer :: status
+       type(CallbackMethodWrapper), pointer :: wrapper
        type(CallbackMap), pointer :: callbacks
+       type(CallbackMapIterator) :: iter
 
        n_multi = size(multi_states)
        call get_callbacks(state, callbacks, _RC)
@@ -615,6 +618,7 @@ module MAPL_OpenMP_Support
        type(CallbackMap), pointer, intent(out) :: callbacks
        integer, optional, intent(out) :: rc
 
+       integer :: status
        type(CallbackMethodWrapper) :: wrapper
        integer :: value(:)
 
@@ -626,7 +630,7 @@ module MAPL_OpenMP_Support
           call ESMD_AttributeSet(state, label='MAPL_CALLBACK_MAP', value, _RC)
        end if
 
-       call ESMF_AttributeGet(state, label='MAPL_CALLBACK_MAP', value, rc=status)
+       call ESMF_AttributeGet(state, label='MAPL_CALLBACK_MAP', value, _RC)
 
        wrapper = transfer(value, wrapper)
        callbacks => wrapper%map
