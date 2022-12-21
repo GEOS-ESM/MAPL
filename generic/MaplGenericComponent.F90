@@ -25,8 +25,6 @@ module mapl_MaplGenericComponent
    public :: get_grid
    public :: MAPL_AddMethod
 
-   procedure(), pointer :: user_method => null()
-
    type SubComponent
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: internal_state
@@ -396,10 +394,10 @@ contains
 
    contains
 
-      function wrap(proc) result(userRoutine)
+      function wrap(userRoutine) result(wrapper)
          type(CallbackMethodWrapper) :: wrapper
          procedure(I_CallBackMethod) :: userRoutine
-         wrapper%userRoutine => proc
+         wrapper%userRoutine => userRoutine
       end function wrap
 
    end subroutine MAPL_AddMethod

@@ -51,7 +51,7 @@ set (srcs
   RunEntryPoint.F90
   EntryPointVector.F90
 
-  ESMF_Interfaces.F90
+  MAPL_ESMF_Interfaces.F90
   CallbackMap.F90
   )
 

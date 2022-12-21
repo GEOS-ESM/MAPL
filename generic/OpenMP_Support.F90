@@ -523,14 +523,13 @@ module MAPL_OpenMP_Support
         character(len=ESMF_MAXSTR) :: comp_name
         character(len=:), allocatable :: labels(:)
         integer :: phase
-        type(ESMF_Config) :: CF
 
         allocate(subgridcomps(num_grids))
 
         call ESMF_VMGetCurrent(vm, _RC)
         call ESMF_VMGet(vm, localPET=myPET, _RC)
 
-        call ESMF_GridCompGet(GridComp, name=comp_name, CONFIG=CF, _RC)
+        call ESMF_GridCompGet(GridComp, name=comp_name, _RC)
         call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
         if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (trim(labels(i)),i=1,size(labels)), '>'
         print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
@@ -538,7 +537,6 @@ module MAPL_OpenMP_Support
           associate (gc => subgridcomps(i) )
             gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
                  & contextflag=ESMF_CONTEXT_OWN_VM, _RC)
-            call ESMF_GridCompSet(gc, CONFIG=CF, _RC)
             call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, _RC)
             _VERIFY(user_status)
           end associate
@@ -594,18 +592,17 @@ module MAPL_OpenMP_Support
 
        n_multi = size(multi_states)
        call get_callbacks(state, callbacks, _RC)
-       if (associated(callbacks)) then
-          associate (e => callbacks%end())
-            iter = callbacks%begin()
-            do
-               wrapper => iter%second()
-               do i = 1, n_multi
-                  call ESMF_MethodAdd(multi_states(i), iter%first(), wrapper%userRoutine, _RC)
-               end do
-               call iter%next()
+       _ASSERT(associated(callbacks), 'callbacks must be associated')
+       associate (e => callbacks%end())
+         iter = callbacks%begin()
+         do
+            wrapper => iter%second()
+            do i = 1, n_multi
+               call ESMF_MethodAdd(multi_states(i), iter%first(), wrapper%userRoutine, _RC)
             end do
-          end associate
-       end if
+            call iter%next()
+         end do
+       end associate
 
        _RETURN(ESMF_SUCCESS)
 
