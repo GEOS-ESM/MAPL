@@ -29,9 +29,23 @@ module MAPL_ExtDataPointerUpdate
          procedure :: is_disabled
          procedure :: is_single_shot
          procedure :: disable
+         procedure :: get_adjusted_time
    end type
 
    contains
+
+   function get_adjusted_time(this,time,rc) result(adjusted_time)
+      type(ESMF_Time) :: adjusted_time
+      class(ExtDataPointerUpdate), intent(inout) :: this
+      type(ESMF_Time), intent(in) :: time
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      adjusted_time = time+this%offset
+
+      _RETURN(_SUCCESS)
+   end function
 
    subroutine create_from_parameters(this,update_time,update_freq,update_offset,time,clock,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this

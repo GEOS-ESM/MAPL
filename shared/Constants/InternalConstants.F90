@@ -131,18 +131,18 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_FifthPhase
    endenum
 
-   integer, parameter :: MAPL_Ocean              = 0  
-   integer, parameter :: MAPL_Lake               = 19 
-   integer, parameter :: MAPL_LandIce            = 20 
+   integer, parameter :: MAPL_Ocean              = 0
+   integer, parameter :: MAPL_Lake               = 19
+   integer, parameter :: MAPL_LandIce            = 20
    integer, parameter :: MAPL_Land               = 100
    integer, parameter :: MAPL_Vegetated          = 101
-   integer, parameter :: MAPL_NumVegTypes        = 6 
+   integer, parameter :: MAPL_NumVegTypes        = 6
 
    enum, bind(c)
       enumerator MAPL_AGrid
       enumerator MAPL_CGrid
       enumerator MAPL_DGrid
-   endenum 
+   endenum
 
    enum, bind(c)
       enumerator MAPL_RotateLL
@@ -164,6 +164,15 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_RestartSkipInitial
    endenum
 
+   integer, parameter :: MAPL_NBITS_NOT_SET = 1000
+   integer, parameter :: MAPL_NBITS_UPPER_LIMIT = 24
+   ! Constants for netCDF quantize
+   enum, bind(c)
+      enumerator MAPL_Quantize_Disabled
+      enumerator MAPL_Quantize_BitGroom
+      enumerator MAPL_Quantize_GranularBR
+      enumerator MAPL_Quantize_BitRound
+   endenum
 !EOP
 
 end module MAPL_InternalConstantsMod

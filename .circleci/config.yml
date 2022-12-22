@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.5.0
+baselibs_version: &baselibs_version v7.7.0
 bcs_version: &bcs_version v10.23.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -35,7 +35,8 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
-              cmake_generator: ['Unix Makefiles', 'Ninja']
+              #cmake_generator: ['Unix Makefiles', 'Ninja']
+              cmake_generator: ['Unix Makefiles']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -61,7 +62,8 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran]
-              cmake_generator: ['Unix Makefiles', 'Ninja']
+              #cmake_generator: ['Unix Makefiles', 'Ninja']
+              cmake_generator: ['Unix Makefiles']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -84,14 +86,14 @@ workflows:
           run_unit_tests: true
           ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
-      # Build GEOSgcm
+      # Build GEOSgcm -- ifort
       - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [ifort]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
@@ -99,14 +101,33 @@ workflows:
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
-      # Build GEOSldas
+      # Build GEOSgcm -- GCC -- only to main
+      - ci/build:
+          filters:
+            branches:
+              only:
+                - main
+          name: build-GEOSgcm-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran]
+          baselibs_version: *baselibs_version
+          repo: GEOSgcm
+          checkout_fixture: true
+          mepodevelop: true
+          checkout_mapl_branch: true
+          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
+
+      # Build GEOSldas on ifort
       - ci/build:
           name: build-GEOSldas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [ifort]
           baselibs_version: *baselibs_version
           repo: GEOSldas
           mepodevelop: false
@@ -114,8 +135,31 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
 
-      # Build GEOSadas (ifort only, needs a couple develop branches)
+      # Build GEOSldas on gfortran -- only to main
       - ci/build:
+          filters:
+            branches:
+              only:
+                - main
+          name: build-GEOSldas-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran]
+          baselibs_version: *baselibs_version
+          repo: GEOSldas
+          mepodevelop: false
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
+
+      # Build GEOSadas (ifort only, needs a couple develop branches) -- only to main
+      - ci/build:
+          filters:
+            branches:
+              only:
+                - main
           name: build-GEOSadas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
@@ -131,10 +175,14 @@ workflows:
           fixture_branch: feature/mathomp4/mapldevelop
           checkout_mapl_branch: true
           mepodevelop: false
-          rebuild_procs: 8
+          rebuild_procs: 1
 
-      # Run GCM (1 hour, no ExtData)
+      # Run GCM (1 hour, no ExtData) -- only to main
       - ci/run_gcm:
+          filters:
+            branches:
+              only:
+                - main
           name: run-GCM-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
@@ -147,14 +195,39 @@ workflows:
           baselibs_version: *baselibs_version
           bcs_version: *bcs_version
 
-      # Run MAPL Tutorials
+      # Run Coupled GCM (1 hour, no ExtData) -- only to main
+      - ci/run_gcm:
+          filters:
+            branches:
+              only:
+                - main
+          name: run-coupled-GCM-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+          repo: GEOSgcm
+          baselibs_version: *baselibs_version
+          bcs_version: *bcs_version
+          gcm_ocean_type: MOM6
+          change_layout: false
+
+      # Run MAPL Tutorials -- only to main
       - ci/run_mapl_tutorial:
+          filters:
+            branches:
+              only:
+                - main
           name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              #compiler: [gfortran, ifort]
+              compiler: [ifort]
               tutorial_name:
                 - hello_world
                 - parent_no_children

@@ -61,6 +61,7 @@ module ESMFL_MOD
   public MAPL_AreaMean
   public ESMFL_Diff
   public ESMFL_statistics
+  public ESMFL_field_is_undefined
   !EOP
 
   ! regridding
@@ -4472,5 +4473,39 @@ CONTAINS
   endif
   end function check_list_
 
+  function ESMFL_field_is_undefined(field,rc) result(field_is_undefined)
+     use mpi
+     logical :: field_is_undefined
+     type(ESMF_Field), intent(in) :: field
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     type(ESMF_Grid) :: grid
+     type(ESMF_VM) :: vm
+     integer :: my_mpi_comm, local_undef, global_undef,grid_size(3),rank
+     real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
+
+     call ESMF_VMGetCurrent(VM,_RC)
+     call ESMF_VMGet(VM,mpiCommunicator=my_mpi_comm,_RC)
+     call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
+     call MAPL_GridGet(grid,globalcellcountperdim=grid_size,_RC)
+     if (rank ==2) then
+        call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+        local_undef = count(ptr2d==MAPL_UNDEF)
+        call MPI_AllReduce(local_undef,global_undef,1,MPI_INTEGER,MPI_SUM,my_mpi_comm,status)
+        _VERIFY(status)
+        field_is_undefined = global_undef == (grid_size(1)*grid_size(2))
+     else if (rank ==3) then
+        call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+        local_undef = count(ptr3d==MAPL_UNDEF)
+        call MPI_AllReduce(local_undef,global_undef,1,MPI_INTEGER,MPI_SUM,my_mpi_comm,status)
+        _VERIFY(status)
+        field_is_undefined = global_undef == (grid_size(1)*grid_size(2)*grid_size(3))
+     else
+        _FAIL("Unsupported rank when checking for undef")
+     end if
+    
+     _RETURN(_SUCCESS)
+  end function
 
 end module ESMFL_MOD

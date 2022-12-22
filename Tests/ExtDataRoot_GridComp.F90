@@ -626,57 +626,49 @@ MODULE ExtDataUtRoot_GridCompMod
 
       integer :: status
       character(len=*), parameter :: Iam=__FILE__//"::CompareState"
-      integer                             :: ii,i,j,k
-      real, pointer                       :: ptr3_1(:,:,:) => null()
-      real, pointer                       :: ptr3_2(:,:,:) => null()
-      real, pointer                       :: ptr2_1(:,:) => null()
-      real, pointer                       :: ptr2_2(:,:) => null()
-      integer :: itemcount,rank1,rank2,lb(3),ub(3)
+      integer                             :: i
+      real, pointer                       :: ptr3_1(:,:,:)
+      real, pointer                       :: ptr3_2(:,:,:)
+      real, pointer                       :: ptr2_1(:,:)
+      real, pointer                       :: ptr2_2(:,:)
+      integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
+      logical :: all_undef1, all_undef2
     
       call ESMF_StateGet(State1,itemcount=itemCount,_RC)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
-         allocate(foundDiff(itemCount),stat=status)
+         allocate(foundDiff(itemCount),stat=status,source=.false.)
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
-         do ii=1,itemCount
-            call ESMF_StateGet(State1,trim(nameList(ii)),field1,_RC)
-            call ESMF_StateGet(State2,trim(nameList(ii)),field2,_RC)
+         do i=1,itemCount
+            call ESMF_StateGet(State1,trim(nameList(i)),field1,_RC)
+            call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
-            call ESMF_FieldGet(field1,rank=rank2,_RC)
-            _ASSERT(rank1==rank2,'needs informative message')
-            foundDiff(ii)=.false.
-            if (rank1==2) then
-               call MAPL_GetPointer(state1,ptr2_1,trim(nameList(ii)),_RC)
-               call MAPL_GetPointer(state2,ptr2_2,trim(nameList(ii)),_RC)
-               do i=1,size(ptr2_1,1) 
-                  do j=1,size(ptr2_1,2)
-                     if (abs(ptr2_1(i,j)-ptr2_2(i,j)) .gt. tol) then
-                        foundDiff(ii)=.true.
-                        exit
-                     end if
-                  enddo
-               enddo
-            else if (rank1==3) then
-               call MAPL_GetPointer(state1,ptr3_1,trim(nameList(ii)),_RC)
-               call MAPL_GetPointer(state2,ptr3_2,trim(nameList(ii)),_RC)
-               lb=lbound(ptr3_1)
-               ub=ubound(ptr3_1) 
-               do i=1,size(ptr3_1,1) 
-                  do j=1,size(ptr3_1,2) 
-                     do k=lb(3),ub(3)
-                        if (abs(ptr3_1(i,j,k)-ptr3_2(i,j,k)) .gt. tol) then
-                           foundDiff(ii)=.true.
-                           exit
-                        end if
-                     enddo
-                  enddo
-               enddo
+            call ESMF_FieldGet(field2,rank=rank2,_RC)
+            all_undef1 = is_field_undef(field1,_RC)
+            all_undef2 = is_field_undef(field2,_RC)
+            if (all_undef1 .or. all_undef2) then
+               exit
             end if
-            if (foundDiff(ii)) then 
+            _ASSERT(rank1==rank2,'needs informative message')
+            foundDiff(i)=.false.
+            if (rank1==2) then
+               call MAPL_GetPointer(state1,ptr2_1,trim(nameList(i)),_RC)
+               call MAPL_GetPointer(state2,ptr2_2,trim(nameList(i)),_RC)
+               if (any((ptr2_1-ptr2_2) > tol)) then
+                   foundDiff(i) = .true.
+               end if
+            else if (rank1==3) then
+               call MAPL_GetPointer(state1,ptr3_1,trim(nameList(i)),_RC)
+               call MAPL_GetPointer(state2,ptr3_2,trim(nameList(i)),_RC)
+               if (any((ptr3_1-ptr3_2) > tol)) then
+                   foundDiff(i) = .true.
+               end if
+            end if
+            if (foundDiff(i)) then 
                _FAIL('found difference when compare state')
             end if
          enddo

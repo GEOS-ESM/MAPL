@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.28.0
+  VERSION 2.33.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -82,8 +82,16 @@ endif()
 if(NOT TARGET GFTL_SHARED::gftl-shared)
   find_package(GFTL_SHARED REQUIRED)
 endif()
-if(NOT TARGET FARGPARSE::fargparse)
-  find_package(FARGPARSE QUIET)
+
+option(BUILD_WITH_FARGPARSE "Use fArgParse for command line processing" ON)
+if(BUILD_WITH_FARGPARSE)
+  if(NOT TARGET FARGPARSE::fargparse)
+    find_package(FARGPARSE 1.4.1 REQUIRED)
+  else()
+    if (FARGPARSE_VERSION VERSION_LESS 1.4.1)
+      message(FATAL_ERROR "fArgParse must be at least 1.4.1")
+    endif ()
+  endif()
 endif()
 
 option(USE_EXTDATA2G "Use ExtData2G" ON)
@@ -135,7 +143,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF MODULE REQUIRED)
+    find_package(ESMF 8.4.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
@@ -152,11 +160,40 @@ if (NOT Baselibs_FOUND)
   endif ()
 endif ()
 
+# We wish to add extra flags when compiling as Debug. We should only
+# do this if we are using esma_cmake since the flags are defined
+# there. Note that some flags like STANDARD_F18 might be available on
+# all compilers, but others might only be needed for, say, Intel, since,
+# for example, GNU does not allow if(integer) no matter what
+if (COMMAND esma)
+  set (STRICT_DEBUG_FLAGS
+    ${STANDARD_F18}
+    ${ERROR_IF_INTEGER}
+    ${ERROR_LOGICAL_SET_TO_INTEGER}
+    ${DISABLE_LONG_LINE_LENGTH_WARNING}
+    )
+
+  # Are we compiling Fortran?
+  set (is_fortran "$<COMPILE_LANGUAGE:Fortran>")
+  # and is our build type Debug?
+  set (is_build_type_debug "$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>")
+  # set the logical AND
+  set (meets_requirements "$<AND:${is_fortran},${is_build_type_debug}>")
+
+  foreach (flag ${STRICT_DEBUG_FLAGS})
+    # We use SHELL to avoid de-duplication and preserve spaces:
+    #   https://cmake.org/cmake/help/latest/command/target_compile_options.html?highlight=target_compile_options#option-de-duplication
+    add_compile_options("SHELL:$<${meets_requirements}:${flag}>")
+  endforeach ()
+endif ()
+
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
 else ()
   add_subdirectory (pflogger_stub)
 endif ()
+
+add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
