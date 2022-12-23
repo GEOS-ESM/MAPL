@@ -1,15 +1,17 @@
 ! This module is a collection of abstract interfaces that enforce
-! interfaces of user routines that are passed to ESMF.  MAPL3 has
-! several of these for ... SetServices, GridCompRun, etc.
+! interfaces of user routines that are passed to ESMF.
+
 module mapl_ESMF_Interfaces
+   implicit none
+   private ! except
    public :: I_CallBackMethod
    public :: CallbackMethodWrapper
 
    abstract interface
       subroutine I_CallBackMethod(state, rc)
          use ESMF
-         type(ESMF_State), intent(inout) :: state
-         integer, optional, intent(out) :: rc
+         type(ESMF_State) :: state
+         integer, intent(out) :: rc
       end subroutine I_CallBackMethod
    end interface
 

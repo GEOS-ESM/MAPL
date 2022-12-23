@@ -598,7 +598,7 @@ module MAPL_OpenMP_Support
          do
             wrapper => iter%second()
             do i = 1, n_multi
-               call ESMF_MethodAdd(multi_states(i), iter%first(), wrapper%userRoutine, _RC)
+               call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=wrapper%userRoutine, _RC)
             end do
             call iter%next()
          end do
@@ -616,20 +616,28 @@ module MAPL_OpenMP_Support
        integer, optional, intent(out) :: rc
 
        integer :: status
-       type(CallbackMethodWrapper) :: wrapper
-       integer :: value(:)
+       integer, allocatable :: valueList(:)
+       logical :: isPresent
+       integer :: i
 
-       call ESMF_AttributeGet(state, label='MAPL_CALLBACK_MAP', value, rc=status)
-       if (status /= 0) then ! create callback map for this state
+       type CallbackMapWrapper
+          type(CallbackMap), pointer :: map
+       end type
+       type(CallbackMapWrapper) :: wrapper
+
+       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', isPresent=isPresent, _RC)
+       if (.not. isPresent) then ! create callback map for this state
           allocate(callbacks)
           wrapper%map => callbacks
-          value = transfer(wrapper, value)
-          call ESMD_AttributeSet(state, label='MAPL_CALLBACK_MAP', value, _RC)
+          valueList = transfer(wrapper, i)
+          call ESMF_AttributeSet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
        end if
 
-       call ESMF_AttributeGet(state, label='MAPL_CALLBACK_MAP', value, _RC)
+       ! Ugly hack to decode ESMF attribute as a gFTL map
+       valueList = transfer(wrapper, i)
+       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
 
-       wrapper = transfer(value, wrapper)
+       wrapper = transfer(valueList, wrapper)
        callbacks => wrapper%map
 
        _RETURN(ESMF_SUCCESS)
