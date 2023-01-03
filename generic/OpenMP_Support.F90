@@ -630,7 +630,6 @@ module MAPL_OpenMP_Support
        if (.not. isPresent) then ! create callback map for this state
           allocate(callbacks)
           wrapper%map => callbacks
-          !valueList = transfer(wrapper, i)
           valueList = transfer(wrapper, valueList)
           call ESMF_AttributeSet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
        end if
