@@ -635,7 +635,6 @@ module MAPL_OpenMP_Support
        end if
 
        ! Ugly hack to decode ESMF attribute as a gFTL map
-       !valueList = transfer(wrapper, i)
        valueList = transfer(wrapper, valueList)
        call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
        wrapper = transfer(valueList, wrapper)
