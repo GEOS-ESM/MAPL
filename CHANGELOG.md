@@ -19,10 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
 - Reduced amount of CI tests to reduce cost
+- Added `message` to label enforcer (requires v3)
 
 ### Fixed
 
-- Fixed procedure "find" in CFIOCollection.F90 that was missing a _RETURN(_SUCCESS) at the end
+- Fixed procedure "find" in CFIOCollection.F90 that was missing a `_RETURN(_SUCCESS)` at the end
 
 ### Removed
 
