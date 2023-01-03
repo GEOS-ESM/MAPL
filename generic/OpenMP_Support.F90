@@ -593,17 +593,16 @@ module MAPL_OpenMP_Support
        n_multi = size(multi_states)
        call get_callbacks(state, callbacks, _RC)
        _ASSERT(associated(callbacks), 'callbacks must be associated')
-       if (.not. callbacks%empty()) then
+       associate( e => callbacks%end())
           iter = callbacks%begin()
-          do
+          do while (iter /= e)
              wrapper => iter%second()
              do i = 1, n_multi
                 call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=wrapper%userRoutine, _RC)
              end do
              call iter%next()
-             if (iter == callbacks%end()) exit
           end do
-       end if
+       end associate
 
        _RETURN(ESMF_SUCCESS)
 
