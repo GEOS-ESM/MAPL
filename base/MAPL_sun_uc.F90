@@ -41,6 +41,7 @@ module MAPL_SunMod
   public MAPL_SunGetSolarConstant
   public MAPL_SunGetDaylightDuration
   public MAPL_SunGetDaylightDurationMax
+  public MAPL_SunGetLocalSolarHourAngle
 
 ! !PUBLIC TYPES:
 
@@ -2976,6 +2977,146 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_SunGetDaylightDurationMax
+
+!==========================================================================
+
+!BOPI
+
+! !IROUTINE:  MAPL_SunGetLocalSolarHourAngle
+
+! !DESCRIPTION:
+
+! Returns the local solar hour angle (in radians) at the single time and
+! multiple longitudes specified. In order of preference, time is taken
+! from TIME, if present, or else the CURRTIME of CLOCK, if present, or
+! else the CURRTIME of the ORBIT's associated clock.
+! NB: For accurate results, ensure the ORBIT has the EOT flag set true.
+
+! !INTERFACE:
+
+   subroutine MAPL_SunGetLocalSolarHourAngle(ORBIT,LONS,LSHA,TIME,CLOCK,RC)
+
+! !ARGUMENTS:
+
+      type (MAPL_SunOrbit),            intent(IN ) :: ORBIT
+      real,    dimension(:),           intent(IN ) :: LONS   ! [radians]
+      logical, dimension(:),           intent(OUT) :: LSHA
+      type (ESMF_Time),      optional, intent(IN ) :: TIME
+      type (ESMF_Clock),     optional, intent(IN ) :: CLOCK
+      integer,               optional, intent(OUT) :: RC
+
+! !EXAMPLE OF USE:
+!
+!     ! detecting noon within the current timestep
+!     type (ESMF_Time) :: NOW
+!     type (ESMF_TimeInterval) :: DELT
+!     real,    dimension(size(LONS)) :: LSHA0, LSHA1
+!     logical, dimension(size(LONS)) :: isNoon
+!     call ESMF_ClockGet (CLOCK, CURRTIME=NOW, TIMESTEP=DELT, __RC__)
+!     call MAPL_SunGetLocalSolarHourAngle (ORBIT, LONS, LSHA0, TIME=NOW,      __RC__)
+!     call MAPL_SunGetLocalSolarHourAngle (ORBIT, LONS, LSHA1, TIME=NOW+DELT, __RC__)
+!     isnoon = (LSHA0 <= 0. .and. LSHA1 > 0.)
+
+!EOPI
+
+!     Locals
+
+      character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_SunGetLocalSolarHourAngle"
+      integer                               :: STATUS
+
+      type (ESMF_Time) :: T
+      real (ESMF_KIND_R8) :: days
+      integer :: YEAR, SEC_OF_DAY, DAY_OF_YEAR, IDAY, IDAYP1
+      real :: DFRAC, GSHA
+      real :: ECC, OBQ, LAMBDAP
+      real :: OMECC, OPECC, OMSQECC, EAFAC
+      real :: MA, EA, dE, TA, LAMBDA
+      real :: RT, RM, ET
+      integer :: i, nits
+
+!     Begin
+
+      _ASSERT (MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+
+      ! Which time?
+      if (present(TIME)) then
+         T = TIME
+      else
+         if (present(CLOCK)) then
+            call ESMF_ClockGet (      CLOCK, CURRTIME=T, RC=STATUS)
+            _VERIFY(STATUS)
+         else
+            call ESMF_ClockGet (ORBIT%CLOCK, CURRTIME=T, RC=STATUS)
+            _VERIFY(STATUS)
+         end if
+      end if
+      call ESMF_TimeGet (T, S=SEC_OF_DAY, RC=STATUS)
+      _VERIFY(STATUS)
+
+      ! fraction of day (0 at midnight)
+      DFRAC = real(SEC_OF_DAY) / 86400.
+
+      ! Greenwich MEAN solar hour angle (zero at noon)
+      GSHA = 2. * MAPL_PI * (DFRAC - 0.5)
+
+      ! Apply equation of time correction?
+      if (ORBIT%EOT) then
+
+         if (ORBIT%ANAL2B) then
+
+            ! include time variation in orbit from reference time
+            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_REF, d_r8=days, RC=STATUS)
+            _VERIFY(STATUS)
+            ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
+            OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
+            LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
+            ! derived quantities
+            OMECC = 1. - ECC
+            OPECC = 1. + ECC
+            OMSQECC = OMECC * OPECC
+            EAFAC = sqrt(OMECC/OPECC)
+            ! time interval since perhelion in days
+            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_PERI, d_r8=days, RC=STATUS)
+            _VERIFY(STATUS)
+            ! mean anomaly
+            MA = ORBIT%ORB2B_OMG0 * days
+            ! eccentric anomaly
+            call invert_Keplers_Newton (MA,ECC,EA,dE,nits)
+            ! true anomaly
+            TA = calcTAfromEA (EA,EAFAC)
+            ! celestial longitude
+            LAMBDA = TA + LAMBDAP
+            ! solar right ascension (true and mean)
+            RT = atan2(sin(LAMBDA)*cos(OBQ),cos(LAMBDA))
+            RM = MA + LAMBDAP
+            ! equation of time
+            ET = RECT_PMPI (RM - RT)
+
+         else
+
+            ! get equation of time by from table interpolation
+            call ESMF_TimeGet (T, YY=YEAR, dayOfYear=DAY_OF_YEAR, RC=STATUS)
+            _VERIFY(STATUS)
+            YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
+            IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
+            IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
+            ET = ORBIT%ET(IDAYP1)*DFRAC + ORBIT%ET(IDAY)*(1.-DFRAC)
+
+         endif
+
+         ! Gives Greenwich TRUE solar hour angle
+         GSHA = GSHA + ET
+
+      end if  ! EOT correction
+
+      ! LOCAL solar hour angle
+      do i = 1, size(LONS)
+         LSHA(i) = RECT_PMPI (GSHA + LONS(i))
+      end do
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_SunGetLocalSolarHourAngle
 
 !==========================================================================
 
