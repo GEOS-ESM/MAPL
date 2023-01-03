@@ -617,7 +617,7 @@ module MAPL_OpenMP_Support
        integer, optional, intent(out) :: rc
 
        integer :: status
-       integer, allocatable :: valueList(:)
+       integer(kind=ESMF_KIND_I4), allocatable :: valueList(:)
        logical :: isPresent
        integer :: i
 
