@@ -653,23 +653,25 @@ module MAPL_OpenMP_Support
        integer :: status
        integer(kind=ESMF_KIND_I4), allocatable :: valueList(:)
        logical :: isPresent
+       type(ESMF_Info) :: infoh
 
        type CallbackMapWrapper
           type(CallbackMap), pointer :: map
        end type
        type(CallbackMapWrapper) :: wrapper
 
-       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', isPresent=isPresent, _RC)
+       call ESMF_InfoGetFromHost(state, infoh, _RC)
+       isPresent = ESMF_InfoIsPresent(infoh,'MAPL_CALLBACK_MAP',_RC)
        if (.not. isPresent) then ! create callback map for this state
           allocate(callbacks)
           wrapper%map => callbacks
           valueList = transfer(wrapper, valueList)
-          call ESMF_AttributeSet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
+          call ESMF_InfoSet(infoh, key='MAPL_CALLBACK_MAP', values=valueList, _RC)
        end if
 
        ! Ugly hack to decode ESMF attribute as a gFTL map
        valueList = transfer(wrapper, valueList)
-       call ESMF_AttributeGet(state, name='MAPL_CALLBACK_MAP', valueList=valueList, _RC)
+       call ESMF_InfoGet(infoh, key='MAPL_CALLBACK_MAP', values=valueList, _RC)
        wrapper = transfer(valueList, wrapper)
        callbacks => wrapper%map
 
