@@ -8,9 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added subroutine MAPL_MethodAdd to MAPL_Generic.F90
-- Added subrutines get_callbacks and copy_callbacks to OpenMP_Support.F90
-- These added subroutines are to support "callback" procedures when inside OpenMP parallel region  for mini states for component level threading.
+
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.34.0] - 2023-01-04
 
 ### Added
 
@@ -18,11 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added requirement for ESMF 8.4.0 in `find_package()` call
 - Modified Apps/MAPL_GridCompSpecs_ACG.py to use the * capability for `LONG_NAME` like `SHORT_NAME`
 - Added CMake code to apply stricter debug flags when building MAPL as Debug
+- Added subroutine MAPL_MethodAdd to MAPL_Generic.F90
+- Added subroutines get_callbacks and copy_callbacks to OpenMP_Support.F90
+  - These added subroutines are to support "callback" procedures when inside OpenMP parallel region for mini states for component level threading.
 
 ### Changed
 
 - Update `components.yaml`
-  - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
+  - ESMA_cmake v3.24.0 (defines stricter debug flags for Intel, preliminary support for `ifx`)
 - Reduced amount of CI tests to reduce cost
 - Added `message` to label enforcer (requires v3)
 - Fixed the naming convention of the split field name (#1874)
@@ -32,10 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed procedure "find" in CFIOCollection.F90 that was missing a `_RETURN(_SUCCESS)` at the end
-
-### Removed
-
-### Deprecated
 
 ## [2.33.0] - 2022-12-08
 
