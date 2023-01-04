@@ -3000,7 +3000,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       type (MAPL_SunOrbit),            intent(IN ) :: ORBIT
       real,    dimension(:),           intent(IN ) :: LONS   ! [radians]
-      logical, dimension(:),           intent(OUT) :: LSHA
+      real,    dimension(:),           intent(OUT) :: LSHA
       type (ESMF_Time),      optional, intent(IN ) :: TIME
       type (ESMF_Clock),     optional, intent(IN ) :: CLOCK
       integer,               optional, intent(OUT) :: RC
