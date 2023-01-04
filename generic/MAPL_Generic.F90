@@ -226,6 +226,7 @@ module MAPL_GenericMod
    public MAPL_GenericStateRestore
    public MAPL_RootGcRetrieve
    public MAPL_AddAttributeToFields
+   public MAPL_MethodAdd
 
    !BOP
    ! !PUBLIC TYPES:
@@ -11431,6 +11432,34 @@ contains
       _RETURN(_SUCCESS)
    end subroutine MAPL_AddAttributeToFields_I4
 
+   subroutine MAPL_MethodAdd(state, label, userRoutine, rc)
+      use mapl_ESMF_Interfaces
+      use mapl_CallbackMap
+      use mapl_OpenMP_Support, only : get_callbacks
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: label
+      procedure(I_CallBackMethod) :: userRoutine
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CallbackMap), pointer :: callbacks
+
+      call ESMF_MethodAdd(state, label=label, userRoutine=userRoutine, _RC)
+
+      call get_callbacks(state, callbacks, _RC)
+      call callbacks%insert(label, wrap(userRoutine))
+
+      _RETURN(ESMF_SUCCESS)
+   contains
+
+      function wrap(userRoutine) result(wrapper)
+         type(CallbackMethodWrapper) :: wrapper
+         procedure(I_CallBackMethod) :: userRoutine
+         wrapper%userRoutine => userRoutine
+      end function wrap
+
+   end subroutine MAPL_MethodAdd
+
    ! Interface mandated by ESMF
    recursive subroutine new_generic_setservices(gc, rc)
       type(ESMF_GridComp), intent(inout) :: gc
@@ -11644,6 +11673,5 @@ contains
 
 
    end subroutine new_generic_setservices
-
 
 end module MAPL_GenericMod
