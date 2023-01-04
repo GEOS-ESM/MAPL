@@ -618,7 +618,6 @@ module MAPL_OpenMP_Support
        integer :: status
        integer(kind=ESMF_KIND_I4), allocatable :: valueList(:)
        logical :: isPresent
-       integer :: i
 
        type CallbackMapWrapper
           type(CallbackMap), pointer :: map
