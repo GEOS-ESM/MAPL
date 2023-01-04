@@ -3857,7 +3857,7 @@ contains
          i1 = index(longName, "%d")
          _ASSERT(i1>0, "Nothing to expand")
          i2 = i1 + 2 ! size of "%d"
-         tlen = len(trim(longName))
+         tlen = len_trim(longName)
          _ASSERT(tlen + 1 <= len(longName),'LONG_NAME would exceed MAX length after expansion')
          write(tmp,'(i3.3)') i
          newLongName = longName(1:i1-1)//tmp//trim(longName(i2:tlen))
