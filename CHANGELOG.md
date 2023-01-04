@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
 - Reduced amount of CI tests to reduce cost
 - Added `message` to label enforcer (requires v3)
+- Fixed the naming convention of the split field name (#1874)
+  - NOTE: This could change the name of any field in HISTORY using field splitting. The data will be the same, but the name will be
+    different.
 
 ### Fixed
 
@@ -130,7 +133,6 @@ Add an option to set_grid to set GridType explicitly.
 
 - Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
 - Fix handling of return macros for programs and subroutines (#1194)
-- Fixed the naming convention of the split field name (#1874)
 
 ### Added
 
