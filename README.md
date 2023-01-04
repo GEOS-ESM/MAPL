@@ -11,7 +11,8 @@
 
 MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF).   MAPL fills in missing capabilities of ESMF, provides higher-level interfaces for common boiler-plate logic, and enforces various componentization conventions across ESMF gridded components within GEOS.
 
-MAPL has 10 primary subdirectories for Fortran source code.
+MAPL has 10 primary subdirectories for Fortran source code:
+
 1. shared - low level utilities that are used throughout the remainder of MAPL.
 2. profiler - time and memory profiling utility
 3. pfio - high-performance client-server I/O layer
@@ -24,6 +25,7 @@ MAPL has 10 primary subdirectories for Fortran source code.
 
 
 MAPL also has a variety of other auxiliary directories:
+
 1. include - include files used by external gridded components.
 2. Apps - various Python and Perl scripts used by gridded components.
 3. Python - beginnings of a run-time scripting framework for GEOS configurations
@@ -32,10 +34,6 @@ MAPL also has a variety of other auxiliary directories:
 6. Tests - miscellaneous standalone drivers.
 7. pflogger_stub - workaround for apps that wish to avoid a dependency on pFlogger
 8. pfunit - pFUnit (unit testing framework) extensions for ESMF components
-
-
-
-
 
 ## Contributing
 
