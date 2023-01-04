@@ -51,7 +51,11 @@ set (srcs
 
   RunEntryPoint.F90
   EntryPointVector.F90
+
+  MAPL_ESMF_Interfaces.F90
+  CallbackMap.F90
   )
+
 if (BUILD_WITH_PFLOGGER)
   find_package(PFLOGGER REQUIRED)
 endif ()
