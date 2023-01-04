@@ -3050,7 +3050,10 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             _VERIFY(STATUS)
          end if
       end if
-      call ESMF_TimeGet (T, S=SEC_OF_DAY, RC=STATUS)
+
+      ! NB: include YY and dayOfYear here so that S is seconds WITHIN a day.
+      ! YEAR and DAY_OF_YEAR are used within the non-ANAL2B branch anyway.
+      call ESMF_TimeGet (T, YY=YEAR, dayOfYear=DAY_OF_YEAR, S=SEC_OF_DAY, RC=STATUS)
       _VERIFY(STATUS)
 
       ! fraction of day (0 at midnight)
@@ -3094,9 +3097,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
          else
 
-            ! get equation of time by from table interpolation
-            call ESMF_TimeGet (T, YY=YEAR, dayOfYear=DAY_OF_YEAR, RC=STATUS)
-            _VERIFY(STATUS)
+            ! get equation of time by table interpolation
             YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
             IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
             IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
