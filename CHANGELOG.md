@@ -55,7 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added ability to expand "%d" in the long name when we split fields for History
 
 ### Changed
 
@@ -65,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.34.0] - 2023-01-04
+## [2.34.0] - 2023-01-05
 
 ### Added
 
@@ -76,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added subroutine MAPL_MethodAdd to MAPL_Generic.F90
 - Added subroutines get_callbacks and copy_callbacks to OpenMP_Support.F90
   - These added subroutines are to support "callback" procedures when inside OpenMP parallel region for mini states for component level threading.
+- Added ability to expand "%d" in the long name when we split fields for History
 
 ### Changed
 
