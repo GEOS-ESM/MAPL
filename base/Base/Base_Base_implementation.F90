@@ -3261,7 +3261,7 @@ contains
     JM_World = dims(2)
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
-    dalpha = 2.0d0*alpha/IM_WORLD  
+    dalpha = 2.0d0*alpha/IM_WORLD
 
     ! make sure the grid can be used in this subroutine
     good_grid = grid_is_ok(grid)
@@ -3337,7 +3337,7 @@ contains
          J = J + IM_WORLD*4
        ! face = 6
        elseif (abs(z+1.0d0) <= tolerance) then
-         call angle_to_index( y,  x, i, j) 
+         call angle_to_index( y,  x, i, j)
          J = J + IM_WORLD*5
        endif
 
@@ -3362,10 +3362,10 @@ contains
        real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8) :: accurate_lat, accurate_lon
        real :: tolerance
- 
+
        tolerance = epsilon(1.0)
        call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
-       OK = .true. 
+       OK = .true.
        ! check the edge of face 1 along longitude
        if ( I1 ==1 .and. J2<=IM_WORLD ) then
           allocate(corner_lons(I2-I1+2, J2-J1+2))
@@ -3741,6 +3741,7 @@ contains
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
+    character(len=ESMF_MAXSTR) :: longName
     TYPE(ESMF_Info)            :: infoh1,infoh2
 
     ! get ptr
@@ -3887,9 +3888,46 @@ contains
     deallocate(gridToFieldMap)
     deallocate(splitNameArray)
     ! fields SHOULD be deallocated by the caller!!!
+
+!ALT: check if we need to expand "%d" in the long name
+!    Note that at this point the original, and each of the split fields
+!    have the same long name. We check the original.
+
+    call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=longName, _RC)
+    if (index(longName, "%d") /= 0) then
+       call expandBinNumber(fields, _RC)
+    end if
+
+
     _RETURN(ESMF_SUCCESS)
 
   contains
+    subroutine expandBinNumber(fields, rc)
+      type(ESMF_Field) :: fields(:)
+      integer, optional :: rc
+
+      integer :: i, tlen, i1, i2
+      character(len=ESMF_MAXSTR) :: longName
+      character(len=3) :: tmp
+      character(len=ESMF_MAXSTR) :: newLongName
+
+      do i = 1, size(fields)
+         call ESMF_AttributeGet(fields(i), NAME='LONG_NAME', VALUE=longName, _RC)
+         i1 = index(longName, "%d")
+         _ASSERT(i1>0, "Nothing to expand")
+         i2 = i1 + 2 ! size of "%d"
+         tlen = len_trim(longName)
+         _ASSERT(tlen + 1 <= len(longName),'LONG_NAME would exceed MAX length after expansion')
+         write(tmp,'(i3.3)') i
+         newLongName = longName(1:i1-1)//tmp//trim(longName(i2:tlen))
+         ! remove old attribute
+         call ESMF_AttributeRemove(fields(i), NAME='LONG_NAME', _RC)
+         ! save the new one
+         call ESMF_AttributeSet(fields(i), NAME='LONG_NAME', VALUE=newLongName, _RC)
+      end do
+    _RETURN(ESMF_SUCCESS)
+    end subroutine expandBinNumber
+
     subroutine genAlias(name, n, splitNameArray, aliasName, rc)
       integer :: n
       character(len=*) :: name
