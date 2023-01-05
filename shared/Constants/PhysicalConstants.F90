@@ -75,6 +75,24 @@ module MAPL_PhysicalConstantsMod
    real, parameter              :: MAPL_RHO_SNOW                  = 330.0                                         ! snow density      [kg/m^3]
    real, parameter              :: MAPL_CELSIUS_TO_KELVIN         = 273.15                                        ! K
 
+   ! Standard sun orbital system properties 
+   real, parameter              :: ORBIT_ECCENTRICITY             = 0.0167
+   real, parameter              :: ORBIT_OBLIQUITY                = 23.45
+   real, parameter              :: ORBIT_PERIHELION               = 102.0
+   integer, parameter           :: ORBIT_EQUINOX                  = 80
+   real, parameter              :: ORB2B_YEARLEN                  = 365.2596
+   real, parameter              :: ORB2B_ECC_RATE                 = -4.2e-5
+   real, parameter              :: ORB2B_OBQ_RATE                 = -1.3e-2
+   real, parameter              :: ORB2B_LAMBDAP_RATE             = 1.7195
+   ! The reference time (not constants but related properties ....)
+   integer, parameter           :: ORB2B_REF_YYYYMMDD             = 20000101
+   integer, parameter           :: ORB2B_REF_HHMMSS               = 115856
+   integer, parameter           :: ORB2B_EQUINOX_YYYYMMDD         = 20000320 
+   integer, parameter           :: ORB2B_EQUINOX_HHMMSS           =  73500
+   real, parameter              :: ORB2B_ECC_REF                  = 0.016710
+   real, parameter              :: ORB2B_OBQ_REF                  = 23.44
+   real, parameter              :: ORB2B_LAMBDAP_REF              = 282.947
+
 !EOP
 
 end module MAPL_PhysicalConstantsMod

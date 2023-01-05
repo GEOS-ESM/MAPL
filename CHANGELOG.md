@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Moved some orbital system properties to Constants module
 - Update `components.yaml`
   - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
 - Reduced amount of CI tests to reduce cost

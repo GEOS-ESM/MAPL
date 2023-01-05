@@ -4116,19 +4116,19 @@ contains
             ! Fixed parameters of standard orbital system (tabularized intercalation cycle)
             ! -----------------------------------------------------------------------------
 
-            call MAPL_GetResource(STATE, ECC, Label="ECCENTRICITY:", default=0.0167, &
+            call MAPL_GetResource(STATE, ECC, Label="ECCENTRICITY:", default=ORBIT_ECCENTRICITY, &
                  RC=status)
             _VERIFY(status)
 
-            call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:", default=23.45, &
+            call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:", default=ORBIT_OBLIQUITY, &
                  RC=status)
             _VERIFY(status)
 
-            call MAPL_GetResource(STATE, PER, Label="PERIHELION:", default=102.0, &
+            call MAPL_GetResource(STATE, PER, Label="PERIHELION:", default=ORBIT_PERIHELION, &
                  RC=status)
             _VERIFY(status)
 
-            call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:", default=80, &
+            call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:", default=ORBIT_EQUINOX, &
                  RC=status)
             _VERIFY(status)
 
@@ -4149,67 +4149,67 @@ contains
 
             ! Fixed anomalistic year length in mean solar days
             call MAPL_GetResource(STATE, &
-                 ORB2B_YEARLEN, Label="ORB2B_YEARLEN:", default=365.2596, &
+                 ORB2B_YEARLEN, Label="ORB2B_YEARLEN:", default=ORB2B_YEARLEN, &
                  RC=status)
             _VERIFY(status)
 
             ! Reference date and time for orbital parameters
             ! (defaults to J2000 = 01Jan2000 12:00:00 TT = 11:58:56 UTC)
             call MAPL_GetResource(STATE, &
-                 ORB2B_REF_YYYYMMDD, Label="ORB2B_REF_YYYYMMDD:", default=20000101, &
+                 ORB2B_REF_YYYYMMDD, Label="ORB2B_REF_YYYYMMDD:", default=ORB2B_REF_YYYYMMDD, &
                  RC=status)
             _VERIFY(status)
             call MAPL_GetResource(STATE, &
-                 ORB2B_REF_HHMMSS, Label="ORB2B_REF_HHMMSS:", default=115856, &
+                 ORB2B_REF_HHMMSS, Label="ORB2B_REF_HHMMSS:", default=ORB2B_REF_HHMMSS, &
                  RC=status)
             _VERIFY(status)
 
             ! Orbital eccentricity at reference date
             call MAPL_GetResource(STATE, &
-                 ORB2B_ECC_REF, Label="ORB2B_ECC_REF:", default=0.016710, &
+                 ORB2B_ECC_REF, Label="ORB2B_ECC_REF:", default=ORB2B_ECC_REF, &
                  RC=status)
             _VERIFY(status)
 
             ! Rate of change of orbital eccentricity per Julian century
             call MAPL_GetResource(STATE, &
-                 ORB2B_ECC_RATE, Label="ORB2B_ECC_RATE:", default=-4.2e-5, &
+                 ORB2B_ECC_RATE, Label="ORB2B_ECC_RATE:", default=ORB2B_ECC_RATE, &
                  RC=status)
             _VERIFY(status)
 
             ! Earth's obliquity (axial tilt) at reference date [degrees]
             call MAPL_GetResource(STATE, &
-                 ORB2B_OBQ_REF, Label="ORB2B_OBQ_REF:", default=23.44, &
+                 ORB2B_OBQ_REF, Label="ORB2B_OBQ_REF:", default=ORB2B_OBQ_REF, &
                  RC=status)
             _VERIFY(status)
 
             ! Rate of change of obliquity [degrees per Julian century]
             call MAPL_GetResource(STATE, &
-                 ORB2B_OBQ_RATE, Label="ORB2B_OBQ_RATE:", default=-1.3e-2, &
+                 ORB2B_OBQ_RATE, Label="ORB2B_OBQ_RATE:", default=ORB2B_OBQ_RATE, &
                  RC=status)
             _VERIFY(status)
 
             ! Longitude of perihelion at reference date [degrees]
             !   (from March equinox to perihelion in direction of earth's motion)
             call MAPL_GetResource(STATE, &
-                 ORB2B_LAMBDAP_REF, Label="ORB2B_LAMBDAP_REF:", default=282.947, &
+                 ORB2B_LAMBDAP_REF, Label="ORB2B_LAMBDAP_REF:", default=ORB2B_LAMBDAP_REF, &
                  RC=status)
             _VERIFY(status)
 
             ! Rate of change of LAMBDAP [degrees per Julian century]
             !   (Combines both equatorial and ecliptic precession)
             call MAPL_GetResource(STATE, &
-                 ORB2B_LAMBDAP_RATE, Label="ORB2B_LAMBDAP_RATE:", default=1.7195, &
+                 ORB2B_LAMBDAP_RATE, Label="ORB2B_LAMBDAP_RATE:", default=ORB2B_LAMBDAP_RATE, &
                  RC=status)
             _VERIFY(status)
 
             ! March Equinox date and time
             ! (defaults to March 20, 2000 at 07:35:00 UTC)
             call MAPL_GetResource(STATE, &
-                 ORB2B_EQUINOX_YYYYMMDD, Label="ORB2B_EQUINOX_YYYYMMDD:", default=20000320, &
+                 ORB2B_EQUINOX_YYYYMMDD, Label="ORB2B_EQUINOX_YYYYMMDD:", default=ORB2B_EQUINOX_YYYYMMDD, &
                  RC=status)
             _VERIFY(status)
             call MAPL_GetResource(STATE, &
-                 ORB2B_EQUINOX_HHMMSS, Label="ORB2B_EQUINOX_HHMMSS:", default=073500, &
+                 ORB2B_EQUINOX_HHMMSS, Label="ORB2B_EQUINOX_HHMMSS:", default=ORB2B_EQUINOX_HHMMSS, &
                  RC=status)
             _VERIFY(status)
 
