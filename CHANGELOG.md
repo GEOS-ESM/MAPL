@@ -13,11 +13,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed procedure "find" in CFIOCollection.F90 that was missing a _RETURN(_SUCCESS) at the end
-
 ### Removed
 
 ### Deprecated
+
+## [2.34.0] - 2023-01-05
+
+### Added
+
+- Added `MAPL_find_bounds => find_bounds` and `MAPL_Interval => Interval` to `MAPL.F90` for use when doing component level OpenMP
+- Added requirement for ESMF 8.4.0 in `find_package()` call
+- Modified Apps/MAPL_GridCompSpecs_ACG.py to use the * capability for `LONG_NAME` like `SHORT_NAME`
+- Added CMake code to apply stricter debug flags when building MAPL as Debug
+- Added subroutine MAPL_MethodAdd to MAPL_Generic.F90
+- Added subroutines get_callbacks and copy_callbacks to OpenMP_Support.F90
+  - These added subroutines are to support "callback" procedures when inside OpenMP parallel region for mini states for component level threading.
+- Added ability to expand "%d" in the long name when we split fields for History
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v3.24.0 (defines stricter debug flags for Intel, preliminary support for `ifx`)
+- Reduced amount of CI tests to reduce cost
+- Added `message` to label enforcer (requires v3)
+- Fixed the naming convention of the split field name (#1874)
+  - NOTE: This could change the name of any field in HISTORY using field splitting. The data will be the same, but the name will be
+    different.
+
+### Fixed
+
+- Fixed procedure "find" in CFIOCollection.F90 that was missing a `_RETURN(_SUCCESS)` at the end
 
 ## [2.33.0] - 2022-12-08
 
