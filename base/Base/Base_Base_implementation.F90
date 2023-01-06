@@ -3742,7 +3742,7 @@ contains
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
     character(len=ESMF_MAXSTR) :: longName
-    TYPE(ESMF_Info)            :: infoh1,infoh2
+    type(ESMF_Info)            :: infoh1,infoh2,infoh
 
     ! get ptr
     ! loop over 3-d or 4-d dim
@@ -3893,7 +3893,8 @@ contains
 !    Note that at this point the original, and each of the split fields
 !    have the same long name. We check the original.
 
-    call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=longName, _RC)
+    call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
+    call ESMF_InfoGet(infoh, 'LONG_NAME', longName, _RC)
     if (index(longName, "%d") /= 0) then
        call expandBinNumber(fields, _RC)
     end if
@@ -3910,9 +3911,12 @@ contains
       character(len=ESMF_MAXSTR) :: longName
       character(len=3) :: tmp
       character(len=ESMF_MAXSTR) :: newLongName
+      type(ESMF_Info) :: infoh
 
       do i = 1, size(fields)
-         call ESMF_AttributeGet(fields(i), NAME='LONG_NAME', VALUE=longName, _RC)
+         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+
+         call ESMF_InfoGet(infoh, key='LONG_NAME', value=longName, _RC)
          i1 = index(longName, "%d")
          _ASSERT(i1>0, "Nothing to expand")
          i2 = i1 + 2 ! size of "%d"
@@ -3921,9 +3925,9 @@ contains
          write(tmp,'(i3.3)') i
          newLongName = longName(1:i1-1)//tmp//trim(longName(i2:tlen))
          ! remove old attribute
-         call ESMF_AttributeRemove(fields(i), NAME='LONG_NAME', _RC)
+         call ESMF_InfoRemove(infoh, 'LONG_NAME', _RC)
          ! save the new one
-         call ESMF_AttributeSet(fields(i), NAME='LONG_NAME', VALUE=newLongName, _RC)
+         call ESMF_InfoSet(infoh, key='LONG_NAME', value=newLongName, _RC)
       end do
     _RETURN(ESMF_SUCCESS)
     end subroutine expandBinNumber
