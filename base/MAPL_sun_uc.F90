@@ -3055,11 +3055,9 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          T = TIME
       else
          if (present(CLOCK)) then
-            call ESMF_ClockGet (      CLOCK, CURRTIME=T, RC=STATUS)
-            _VERIFY(STATUS)
+            call ESMF_ClockGet (      CLOCK, CURRTIME=T, _RC)
          else
-            call ESMF_ClockGet (ORBIT%CLOCK, CURRTIME=T, RC=STATUS)
-            _VERIFY(STATUS)
+            call ESMF_ClockGet (ORBIT%CLOCK, CURRTIME=T, _RC)
          end if
       end if
 
