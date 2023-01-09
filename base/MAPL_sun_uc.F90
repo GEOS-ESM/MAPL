@@ -3092,8 +3092,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             OMSQECC = OMECC * OPECC
             EAFAC = sqrt(OMECC/OPECC)
             ! time interval since perhelion in days
-            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_PERI, d_r8=days, RC=STATUS)
-            _VERIFY(STATUS)
+            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_PERI, d_r8=days, _RC)
             ! mean anomaly
             MA = ORBIT%ORB2B_OMG0 * days
             ! eccentric anomaly
