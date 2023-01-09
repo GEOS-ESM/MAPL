@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This provides a
+  convenient local solar hour angle diagnostic which will be used to detect local
+  solar noon via the EXAMPLE OF USE in the subroutine header. See DESCRIPTION in code for more
+  details. Provides the TRUE local solar hour angle (i.e., with equation of time included), but
+  can also provide the MEAN value (without EOT) via FORCE_MLSHA=.TRUE. optional argument.
+
 ### Changed
 
 ### Fixed
