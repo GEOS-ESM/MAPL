@@ -2990,11 +2990,23 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 ! multiple longitudes specified. In order of preference, time is taken
 ! from TIME, if present, or else the CURRTIME of CLOCK, if present, or
 ! else the CURRTIME of the ORBIT's associated clock.
-! NB: For accurate results, ensure the ORBIT has the EOT flag set true.
+!
+! NB: For accurate results, namely to receive the TRUE local solar hour
+! angle, ensure the ORBIT has the EOT flag set true. Conversely, to get
+! only the MEAN local solar hour angle, use the optional argument 
+! FORCE_MLSHA=.TRUE.. This will turn off the Equation of Time correction
+! (for this LSHA calculation only) even if the ORBIT includes it. For
+! example, in the local noon detection in the EXAMPLE below, this will
+! give mean local noons that are exactly 24 hours apart at a particular
+! location. But they will no longer exactly be the solar culmination
+! times (the TRUE local noon) in that case. TRUE local noons are not
+! exactly 24h apart because of orbital variations in length of day
+! throughout the year, as described by the Equation of Time.
 
 ! !INTERFACE:
 
-   subroutine MAPL_SunGetLocalSolarHourAngle(ORBIT,LONS,LSHA,TIME,CLOCK,RC)
+   subroutine MAPL_SunGetLocalSolarHourAngle (ORBIT,LONS,LSHA, &
+      TIME,CLOCK,FORCE_MLSHA,RC)
 
 ! !ARGUMENTS:
 
@@ -3003,6 +3015,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real,    dimension(:),           intent(OUT) :: LSHA
       type (ESMF_Time),      optional, intent(IN ) :: TIME
       type (ESMF_Clock),     optional, intent(IN ) :: CLOCK
+      logical,               optional, intent(IN ) :: FORCE_MLSHA
       integer,               optional, intent(OUT) :: RC
 
 ! !EXAMPLE OF USE:
@@ -3033,8 +3046,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real :: MA, EA, dE, TA, LAMBDA
       real :: RT, RM, ET
       integer :: i, nits
-
-!     Begin
+      logical :: do_EOT
 
       _ASSERT (MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
 
@@ -3063,7 +3075,11 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       GSHA = 2. * MAPL_PI * (DFRAC - 0.5)
 
       ! Apply equation of time correction?
-      if (ORBIT%EOT) then
+      do_EOT = ORBIT%EOT
+      if (present(FORCE_MLSHA)) then
+         if (FORCE_MLSHA) do_EOT = .FALSE.
+      endif
+      if (do_EOT) then
 
          if (ORBIT%ANAL2B) then
 
