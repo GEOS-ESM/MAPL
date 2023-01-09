@@ -1720,8 +1720,8 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1
-         len = size(array,1)
+         last = size(array,1)-1
+         len = size(array,2)
 
          call MAPL_CommsSendRecv(this%layout,      &
               array(2     , : ),  len,  pet_west,  &
@@ -1746,8 +1746,8 @@ contains
          len = size(array,2)
 
          call MAPL_CommsSendRecv(this%layout,   &
-              array(last  , : ),  len,  pet_west,  &
-              array(1     , : ),  len,  pet_east,  &
+              array(last  , : ),  len,  pet_east,  &
+              array(1     , : ),  len,  pet_west,  &
               rc=status)
          _VERIFY(status)
 
