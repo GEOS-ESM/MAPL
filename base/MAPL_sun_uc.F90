@@ -3082,8 +3082,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (ORBIT%ANAL2B) then
 
             ! include time variation in orbit from reference time
-            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_REF, d_r8=days, RC=STATUS)
-            _VERIFY(STATUS)
+            call ESMF_TimeIntervalGet (T - ORBIT%ORB2B_TIME_REF, d_r8=days, _RC)
             ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
             OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
             LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
