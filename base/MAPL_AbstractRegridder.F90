@@ -11,7 +11,7 @@ module MAPL_AbstractRegridderMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
-   
+
    public :: AbstractRegridder
 
    type, abstract :: AbstractRegridder
@@ -29,7 +29,7 @@ module MAPL_AbstractRegridderMod
       procedure :: get_spec
       procedure :: set_spec
       procedure :: isTranspose
-      
+
       procedure :: regrid_scalar_2d_real32
       procedure :: regrid_scalar_2d_real64
       procedure :: regrid_scalar_3d_real32
@@ -44,7 +44,7 @@ module MAPL_AbstractRegridderMod
       ! interfaces.
       procedure :: regrid_esmf_fields_scalar
       procedure :: regrid_esmf_fields_vector
-      
+
       ! Generic overload
       generic :: regrid => regrid_esmf_fields_scalar
       generic :: regrid => regrid_esmf_fields_vector
@@ -90,6 +90,7 @@ module MAPL_AbstractRegridderMod
       procedure :: get_undef_value
       procedure :: clear_undef_value
       procedure :: has_undef_value
+      procedure :: get_regrid_method
 
    end type AbstractRegridder
 
@@ -105,7 +106,7 @@ module MAPL_AbstractRegridderMod
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_subclass
-         
+
    end interface
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_AbstractRegridder::'
@@ -272,7 +273,7 @@ contains
       type (ESMF_Field), intent(in) :: f_in
       type (ESMF_Field), intent(in) :: f_out
       integer, optional, intent(out) :: rc
-      
+
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_esmf_fields'
       integer :: rank_in
       type (ESMF_TypeKind_Flag) :: typekind_in
@@ -298,7 +299,7 @@ contains
 
             block
               real(REAL32), pointer :: q_in(:,:), q_out(:,:)
-              
+
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
@@ -311,7 +312,7 @@ contains
 
             block
               real(REAL64), pointer :: q_in(:,:), q_out(:,:)
-              
+
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
@@ -356,13 +357,13 @@ contains
          case default ! unsupported type/kind
             _FAIL( 'unsupported type kind')
          end select
-      
+
       case default ! unsupported rank
          _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
-      
+
    end subroutine regrid_esmf_fields_scalar
 
 
@@ -377,7 +378,7 @@ contains
       type (ESMF_Field), intent(in) :: f_in(NUM_DIM)
       type (ESMF_Field), intent(in) :: f_out(NUM_DIM)
       integer, optional, intent(out) :: rc
-      
+
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_esmf_fields'
       integer :: rank_in(NUM_DIM)
       type (ESMF_TypeKind_Flag) :: typekind_in(NUM_DIM)
@@ -413,7 +414,7 @@ contains
             block
               real(REAL32), pointer :: u_in(:,:), v_in(:,:)
               real(REAL32), pointer :: u_out(:,:), v_out(:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -431,7 +432,7 @@ contains
             block
               real(REAL64), pointer :: u_in(:,:), v_in(:,:)
               real(REAL64), pointer :: u_out(:,:), v_out(:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -455,7 +456,7 @@ contains
             block
               real(REAL32), pointer :: u_in(:,:,:), v_in(:,:,:)
               real(REAL32), pointer :: u_out(:,:,:), v_out(:,:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -473,7 +474,7 @@ contains
             block
               real(REAL64), pointer :: u_in(:,:,:), v_in(:,:,:)
               real(REAL64), pointer :: u_out(:,:,:), v_out(:,:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -489,19 +490,19 @@ contains
          case default ! unsupported type/kind
             _FAIL( 'unsupported type-kind')
          end select
-      
+
       case default ! unsupported rank
          _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
-      
+
 
    end subroutine regrid_esmf_fields_vector
 
 
    ! Begin - transpose interfaces
-   
+
    subroutine transpose_regrid_scalar_2d_real32(this, q_in, q_out, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: q_in(:,:)
@@ -531,7 +532,7 @@ contains
       _RETURN(_FAILURE)
    end subroutine transpose_regrid_scalar_2d_real64
 
-   
+
    subroutine transpose_regrid_scalar_3d_real32(this, q_in, q_out, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: q_in(:,:,:)
@@ -563,7 +564,7 @@ contains
 
    end subroutine transpose_regrid_scalar_3d_real64
 
-   
+
    subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: u_in(:,:)
@@ -585,7 +586,7 @@ contains
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
-      
+
    end subroutine transpose_regrid_vector_2d_real32
 
 
@@ -610,7 +611,7 @@ contains
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
-      
+
    end subroutine transpose_regrid_vector_2d_real64
 
 
@@ -635,7 +636,7 @@ contains
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
-      
+
    end subroutine transpose_regrid_vector_3d_real32
 
 
@@ -658,7 +659,7 @@ contains
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
-      
+
    end subroutine transpose_regrid_vector_3d_real64
 
 
@@ -672,7 +673,7 @@ contains
       type (ESMF_Field), intent(in) :: f_in
       type (ESMF_Field), intent(in) :: f_out
       integer, optional, intent(out) :: rc
-      
+
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_esmf_fields'
       integer :: rank_in
       type (ESMF_TypeKind_Flag) :: typekind_in
@@ -698,7 +699,7 @@ contains
 
             block
               real(REAL32), pointer :: q_in(:,:), q_out(:,:)
-              
+
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
@@ -711,7 +712,7 @@ contains
 
             block
               real(REAL64), pointer :: q_in(:,:), q_out(:,:)
-              
+
               call ESMF_FieldGet(f_in , 0, q_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
@@ -756,13 +757,13 @@ contains
          case default ! unsupported type/kind
             _FAIL( 'unsupported typekind')
          end select
-      
+
       case default ! unsupported rank
          _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
-      
+
    end subroutine transpose_regrid_esmf_fields_scalar
 
 
@@ -777,7 +778,7 @@ contains
       type (ESMF_Field), intent(in) :: f_in(NUM_DIM)
       type (ESMF_Field), intent(in) :: f_out(NUM_DIM)
       integer, optional, intent(out) :: rc
-      
+
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_esmf_fields'
       integer :: rank_in(NUM_DIM)
       type (ESMF_TypeKind_Flag) :: typekind_in(NUM_DIM)
@@ -813,7 +814,7 @@ contains
             block
               real(REAL32), pointer :: u_in(:,:), v_in(:,:)
               real(REAL32), pointer :: u_out(:,:), v_out(:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -831,7 +832,7 @@ contains
             block
               real(REAL64), pointer :: u_in(:,:), v_in(:,:)
               real(REAL64), pointer :: u_out(:,:), v_out(:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -855,7 +856,7 @@ contains
             block
               real(REAL32), pointer :: u_in(:,:,:), v_in(:,:,:)
               real(REAL32), pointer :: u_out(:,:,:), v_out(:,:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -873,7 +874,7 @@ contains
             block
               real(REAL64), pointer :: u_in(:,:,:), v_in(:,:,:)
               real(REAL64), pointer :: u_out(:,:,:), v_out(:,:,:)
-              
+
               call ESMF_FieldGet(f_in(1) , 0, u_in, rc=status)
               _VERIFY(status)
               call ESMF_FieldGet(f_in(2) , 0, v_in, rc=status)
@@ -889,13 +890,13 @@ contains
          case default ! unsupported type/kind
             _FAIL( 'unsupported typekind')
          end select
-      
+
       case default ! unsupported rank
          _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
-      
+
 
    end subroutine transpose_regrid_esmf_fields_vector
 
@@ -940,7 +941,7 @@ contains
       class (AbstractRegridder), intent(in) :: this
       spec = this%spec
    end function get_spec
-   
+
    subroutine set_spec(this, spec)
       class(AbstractRegridder), intent(inout) :: this
       type(RegridderSpec), intent(in) :: spec
@@ -974,7 +975,7 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine initialize_base
-         
+
    function clone(this)
       class (AbstractRegridder), allocatable :: clone
       class (AbstractRegridder), intent(in) :: this
@@ -999,5 +1000,10 @@ contains
       _RETURN(_SUCCESS)
 
    end function supports
+
+   integer function get_regrid_method(this) result(method)
+      class (AbstractRegridder), intent(in) :: this
+      method = this%spec%regrid_method
+   end function get_regrid_method
 
 end module MAPL_AbstractRegridderMod

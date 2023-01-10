@@ -144,11 +144,10 @@ module MAPL_GriddedIOMod
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
 
-        id_in = get_factory_id(input_grid,_RC)
-        id_out = get_factory_id(this%output_grid,_RC)
-        if (id_in == id_out) then
-           this%regrid_method = REGRID_METHOD_IDENTITY
-        end if
+        ! We get the regrid_method here because we default to bilinear even in the case
+        ! of input_grid and this%output_grid being the same. But if the regrid_handle
+        ! is the identity regridder, then this will set it to REGRID_METHOD_IDENTITY
+        this%regrid_method = this%regrid_handle%get_regrid_method()
 
         call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
         _VERIFY(status)
@@ -1010,11 +1009,6 @@ module MAPL_GriddedIOMod
      if (filegrid/=output_grid) then
         this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
-        id_in = get_factory_id(input_grid,_RC)
-        id_out = get_factory_id(this%output_grid,_RC)
-        if (id_in == id_out) then
-           this%regrid_method = REGRID_METHOD_IDENTITY
-        end if
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)

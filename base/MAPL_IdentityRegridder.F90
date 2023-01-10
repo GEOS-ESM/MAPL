@@ -8,7 +8,7 @@ module MAPL_IdentityRegridderMod
    use mapl_ErrorHandlingMod
    use mapl_RegridMethods
    use ESMF
-   
+
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -38,15 +38,19 @@ module MAPL_IdentityRegridderMod
    character(len=*), parameter :: MOD_NAME = 'MAPL_IdentityRegridder::'
 
    type (IdentityRegridder), save, target :: singleton
-   
+
 contains
 
 
    function identity_regridder() result(regridder)
       use ESMF
       type (IdentityRegridder), pointer :: regridder
+      type (RegridderSpec), pointer :: spec
 
       regridder => singleton
+
+      spec => regridder%get_spec()
+      spec%regrid_method = REGRID_METHOD_IDENTITY
     end function identity_regridder
 
 
@@ -63,7 +67,7 @@ contains
       q_out = q_in
 
       _RETURN(_SUCCESS)
-      
+
    end subroutine regrid_scalar_2d_real32
 
 
@@ -85,7 +89,7 @@ contains
       q_out = q_in
 
       _RETURN(_SUCCESS)
-      
+
    end subroutine regrid_scalar_3d_real32
 
    subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
@@ -169,5 +173,5 @@ contains
       _UNUSED_DUMMY(rc)
 
    end subroutine initialize_subclass
-   
+
 end module MAPL_IdentityRegridderMod
