@@ -19,8 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added the correct values to halo corner of LatLon grid  
+- Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
+- Corrected issue with native output having metadata saying it was bilinearly regridded
 
 ### Removed
 

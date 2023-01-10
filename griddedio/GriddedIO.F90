@@ -125,6 +125,7 @@ module MAPL_GriddedIOMod
         integer :: metadataVarsSize
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
+        integer (kind=ESMF_KIND_I8) :: id_in, id_out
         integer :: status
 
         this%items = items
@@ -142,6 +143,13 @@ module MAPL_GriddedIOMod
         end if
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
+
+        id_in = get_factory_id(input_grid,_RC)
+        id_out = get_factory_id(this%output_grid,_RC)
+        if (id_in == id_out) then
+           this%regrid_method = REGRID_METHOD_IDENTITY
+        end if
+
         call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
         _VERIFY(status)
         factory => get_factory(this%output_grid,rc=status)
@@ -1002,6 +1010,11 @@ module MAPL_GriddedIOMod
      if (filegrid/=output_grid) then
         this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
+        id_in = get_factory_id(input_grid,_RC)
+        id_out = get_factory_id(this%output_grid,_RC)
+        if (id_in == id_out) then
+           this%regrid_method = REGRID_METHOD_IDENTITY
+        end if
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)
