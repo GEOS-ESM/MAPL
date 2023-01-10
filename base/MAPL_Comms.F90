@@ -208,6 +208,7 @@ module MAPL_CommsMod
 
   interface MAPL_CommsSendRecv
      module procedure MAPL_CommsSendRecv_I4_0
+     module procedure MAPL_CommsSendRecv_R4_0
      module procedure MAPL_CommsSendRecv_R4_1
      module procedure MAPL_CommsSendRecv_R4_2
      module procedure MAPL_CommsSendRecv_R8_1
@@ -1477,6 +1478,11 @@ module MAPL_CommsMod
 !---------------------------
 #define RANK_ 0
 #define VARTYPE_ 1
+#include "sendrecv.H"
+
+!---------------------------
+#define RANK_ 0
+#define VARTYPE_ 3
 #include "sendrecv.H"
 
 !---------------------------
