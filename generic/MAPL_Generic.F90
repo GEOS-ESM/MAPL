@@ -4035,8 +4035,8 @@ contains
 !     real                                  :: OB
 !     real                                  :: PER
 !     integer                               :: EQNX
-!     logical                               :: FIX_SUN
-!     character(len=ESMF_MAXSTR)            :: gname
+      logical                               :: FIX_SUN
+      character(len=ESMF_MAXSTR)            :: gname
 
 !     logical :: EOT, ORBIT_ANAL2B
 !     integer :: ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
@@ -4106,13 +4106,8 @@ contains
 
          if(.not.MAPL_SunOrbitCreated(STATE%ORBIT)) then
 
-!           call ESMF_GridGet(STATE%GRID%ESMFGRID,name=gname,rc=status)
-!           _VERIFY(status)
-!           if (index(gname,"DP")>0) then
-!              FIX_SUN=.true.
-!           else
-!              FIX_SUN=.false.
-!           end if
+            call ESMF_GridGet(STATE%GRID%ESMFGRID,name=gname,_RC)
+            FIX_SUN = (index(gname,"DP")>0) 
 
 !           ! Fixed parameters of standard orbital system (tabularized intercalation cycle)
 !           ! -----------------------------------------------------------------------------
@@ -4226,7 +4221,7 @@ contains
 !           _VERIFY(status)
 
             ! create the orbit object
-            STATE%ORBIT = MAPL_SunOrbitCreateFromResource (STATE, _RC)
+            STATE%ORBIT = MAPL_SunOrbitCreateFromConfig (STATE%CF, STATE%CLOCK, FIX_SUN, _RC)
 
          end if
          ORBIT=STATE%ORBIT

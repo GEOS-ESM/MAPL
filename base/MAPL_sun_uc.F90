@@ -24,7 +24,6 @@ module MAPL_SunMod
   use MAPL_IOMod
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
-  use MAPL_GenericMod, only: MAPL_MetaComp
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: logging, Logger
@@ -35,7 +34,7 @@ module MAPL_SunMod
 ! !PUBLIC MEMBER FUNCTIONS:
 
   public MAPL_SunOrbitCreate
-  public MAPL_SunOrbitCreateFromResource
+  public MAPL_SunOrbitCreateFromConfig
   public MAPL_SunOrbitCreated
   public MAPL_SunOrbitDestroy
   public MAPL_SunOrbitQuery
@@ -810,34 +809,33 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
 !BOPI
 
-! !IROUTINE:  MAPL_SunOrbitCreateFromResource
+! !IROUTINE:  MAPL_SunOrbitCreateFromConfig
 
 ! !DESCRIPTION:
 
-! Like MAPL_SunOrbitCreate() but gets orbital parameters from the Resource
-! file associated with the STATE.
+! Like MAPL_SunOrbitCreate() but gets orbital parameters from Config CF.
 
 ! !INTERFACE:
 
-   function MAPL_SunOrbitCreateFromResource (STATE, RC) result (ORBIT)
+   function MAPL_SunOrbitCreateFromConfig ( &
+      CF, CLOCK, FIX_SUN, RC) result (ORBIT)
 
 ! !ARGUMENTS:
 
-      type (MAPL_MetaComp), intent(IN) :: STATE
-      integer, optional,   intent(OUT) :: RC
+      type (ESMF_Config), intent(INOUT) :: CF
+      type (ESMF_Clock),  intent(IN   ) :: CLOCK
+      logical,            intent(IN   ) :: FIX_SUN
+      integer, optional,  intent(OUT  ) :: RC
 
-      type (MAPL_SunOrbit)             :: ORBIT
+      type (MAPL_SunOrbit)              :: ORBIT
 
 !EOPI
 
-      character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreateFromResource"
+      character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreateFromConfig"
+      integer :: STATUS
 
-      real                                  :: ECC
-      real                                  :: OB
-      real                                  :: PER
-      integer                               :: EQNX
-      logical                               :: FIX_SUN
-      character(len=ESMF_MAXSTR)            :: gname
+      real :: ECC, OB, PER
+      integer :: EQNX
 
       logical :: EOT, ORBIT_ANAL2B
       integer :: ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
@@ -861,94 +859,94 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       ! object. If its not already created then it will be made below. GridComps that
       ! don't needed an orbit and dont request one will not have one.
 
-      call ESMF_GridGet(STATE%GRID%ESMFGRID,name=gname,_RC)
-      if (index(gname,"DP")>0) then
-         FIX_SUN=.true.
-      else
-         FIX_SUN=.false.
-      end if
-
       ! Parameters of standard orbital system (tabularized intercalation cycle)
       ! -----------------------------------------------------------------------
-      call MAPL_GetResource(STATE, ECC, Label="ECCENTRICITY:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ECC, label="ECCENTRICITY:", &
          default=DEFAULT_ORBIT_ECCENTRICITY, _RC)
 
-      call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         OB, label="OBLIQUITY:", &
          default=DEFAULT_ORBIT_OBLIQUITY, _RC)
 
-      call MAPL_GetResource(STATE, PER, Label="PERIHELION:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         PER, label="PERIHELION:", &
          default=DEFAULT_ORBIT_PERIHELION, _RC)
 
-      call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         EQNX, label="EQUINOX:", &
          default=DEFAULT_ORBIT_EQUINOX, _RC)
 
       ! Apply Equation of Time correction?
       ! ----------------------------------
-      call MAPL_GetResource(STATE, EOT, Label="EOT:", default=.FALSE., _RC)
+      call ESMF_ConfigGetAttribute (CF, &
+         EOT, label="EOT:", &
+         default=.FALSE., _RC)
 
       ! New orbital system (analytic two-body) allows some time-varying
       ! behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.
       ! ---------------------------------------------------------------
 
-      call MAPL_GetResource(STATE, &
-         ORBIT_ANAL2B, Label="ORBIT_ANAL2B:", default=.FALSE., _RC)
+      call ESMF_ConfigGetAttribute (CF, &
+         ORBIT_ANAL2B, label="ORBIT_ANAL2B:", &
+         default=.FALSE., _RC)
 
       ! Fixed anomalistic year length in mean solar days
-      call MAPL_GetResource(STATE, &
-         ORB2B_YEARLEN, Label="ORB2B_YEARLEN:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_YEARLEN, label="ORB2B_YEARLEN:", &
          default=DEFAULT_ORB2B_YEARLEN, _RC)
 
       ! Reference date and time for orbital parameters
-      call MAPL_GetResource(STATE, &
-         ORB2B_REF_YYYYMMDD, Label="ORB2B_REF_YYYYMMDD:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_REF_YYYYMMDD, label="ORB2B_REF_YYYYMMDD:", &
          default=DEFAULT_ORB2B_REF_YYYYMMDD, _RC)
-      call MAPL_GetResource(STATE, &
-         ORB2B_REF_HHMMSS, Label="ORB2B_REF_HHMMSS:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_REF_HHMMSS, label="ORB2B_REF_HHMMSS:", &
          default=DEFAULT_ORB2B_REF_HHMMSS, _RC)
 
       ! Orbital eccentricity at reference date
-      call MAPL_GetResource(STATE, &
-         ORB2B_ECC_REF, Label="ORB2B_ECC_REF:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_ECC_REF, label="ORB2B_ECC_REF:", &
          default=DEFAULT_ORB2B_ECC_REF, _RC)
 
       ! Rate of change of orbital eccentricity per Julian century
-      call MAPL_GetResource(STATE, &
-         ORB2B_ECC_RATE, Label="ORB2B_ECC_RATE:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_ECC_RATE, label="ORB2B_ECC_RATE:", &
          default=DEFAULT_ORB2B_ECC_RATE, _RC)
 
       ! Earth's obliquity (axial tilt) at reference date [degrees]
-      call MAPL_GetResource(STATE, &
-         ORB2B_OBQ_REF, Label="ORB2B_OBQ_REF:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_OBQ_REF, label="ORB2B_OBQ_REF:", &
          default=DEFAULT_ORB2B_OBQ_REF, _RC)
 
       ! Rate of change of obliquity [degrees per Julian century]
-      call MAPL_GetResource(STATE, &
-         ORB2B_OBQ_RATE, Label="ORB2B_OBQ_RATE:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_OBQ_RATE, label="ORB2B_OBQ_RATE:", &
          default=DEFAULT_ORB2B_OBQ_RATE, _RC)
 
       ! Longitude of perihelion at reference date [degrees]
       !   (from March equinox to perihelion in direction of earth's motion)
-      call MAPL_GetResource(STATE, &
-         ORB2B_LAMBDAP_REF, Label="ORB2B_LAMBDAP_REF:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_LAMBDAP_REF, label="ORB2B_LAMBDAP_REF:", &
          default=DEFAULT_ORB2B_LAMBDAP_REF, _RC)
 
       ! Rate of change of LAMBDAP [degrees per Julian century]
       !   (Combines both equatorial and ecliptic precession)
-      call MAPL_GetResource(STATE, &
-         ORB2B_LAMBDAP_RATE, Label="ORB2B_LAMBDAP_RATE:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_LAMBDAP_RATE, label="ORB2B_LAMBDAP_RATE:", &
          default=DEFAULT_ORB2B_LAMBDAP_RATE, _RC)
 
       ! March Equinox date and time
-      call MAPL_GetResource(STATE, &
-         ORB2B_EQUINOX_YYYYMMDD, Label="ORB2B_EQUINOX_YYYYMMDD:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_EQUINOX_YYYYMMDD, label="ORB2B_EQUINOX_YYYYMMDD:", &
          default=DEFAULT_ORB2B_EQUINOX_YYYYMMDD, _RC)
-      call MAPL_GetResource(STATE, &
-         ORB2B_EQUINOX_HHMMSS, Label="ORB2B_EQUINOX_HHMMSS:", &
+      call ESMF_ConfigGetAttribute (CF, &
+         ORB2B_EQUINOX_HHMMSS, label="ORB2B_EQUINOX_HHMMSS:", &
          default=DEFAULT_ORB2B_EQUINOX_HHMMSS, _RC)
 
       ! create the orbit object
       ORBIT = MAPL_SunOrbitCreate ( &
-         STATE%CLOCK, ECC, OB, PER, EQNX, &
+         CLOCK, ECC, OB, PER, EQNX, &
          EOT, ORBIT_ANAL2B, ORB2B_YEARLEN, &
          ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
          ORB2B_ECC_REF, ORB2B_ECC_RATE, &
@@ -959,7 +957,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
       _RETURN(ESMF_SUCCESS)
 
-   end function MAPL_SunOrbitCreateFromResource
+   end function MAPL_SunOrbitCreateFromConfig
 
 !==========================================================================
 
