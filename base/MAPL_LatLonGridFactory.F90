@@ -1617,6 +1617,8 @@ contains
       integer :: pet_south
       integer :: pet_east
       integer :: pet_west
+      integer :: pet_N_E, pet_N_W, pet_S_E, pet_S_W
+      integer :: last_lon, last_lat
 
       _UNUSED_DUMMY(unusable)
       ! not yet implmented, default is 1
@@ -1626,6 +1628,9 @@ contains
          call this%init_halo(rc=status)
          _VERIFY(status)
       end if
+
+      last_lon = size(array,1)
+      last_lat = size(array,2)
 
       associate (nx => this%nx, ny => this% ny, px => this%px, py => this%py)
         ! Nearest neighbors processor' ids
@@ -1643,6 +1648,51 @@ contains
         _VERIFY(status)
         call fill_west(array, rc=status)
         _VERIFY(status)
+
+        pet_N_E   = get_pet(px+1, py+1, nx, ny)
+        pet_N_W   = get_pet(px-1, py+1, nx, ny)
+        pet_S_E   = get_pet(px+1, py-1, nx, ny)
+        pet_S_W   = get_pet(px-1, py-1, nx, ny)
+
+        !fill north east
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(2,      2         ), 1,  pet_S_W,  &
+              array(last_lon,last_lat ), 1,  pet_N_E,  &
+              rc=status)
+        _VERIFY(status)
+
+        !fill north west
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(last_lon-1, 2), 1,  pet_S_E,  &
+              array(1,   last_lat), 1,  pet_N_W,  &
+              rc=status)
+        _VERIFY(status)
+
+        ! north pol corner
+        if(this%py== this%ny-1) then
+           array(last_lon,last_lat) = array(last_lon-1,last_lat-1)
+           array(1,last_lat)        = array(2,last_lat-1)
+        endif
+
+        !fill south east
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(2, last_lat-1), 1,  pet_N_W,  &
+              array(last_lon,1),    1,  pet_S_E,  &
+              rc=status)
+        _VERIFY(status)
+
+        !fill south west
+        call MAPL_CommsSendRecv(this%layout,              &
+              array(last_lon-1,last_lat-1), 1,  pet_N_E,  &
+              array(1,1                  ), 1,  pet_S_W,  &
+              rc=status)
+        _VERIFY(status)
+
+        ! south pole corner
+        if(this%py==0) then
+           array(last_lon,1   ) = array(last_lon-1,2 )
+           array(1,1   )        = array(2,2 )
+        endif
 
       end associate
 
