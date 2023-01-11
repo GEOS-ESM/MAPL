@@ -65,9 +65,9 @@ module MAPL_SunMod
    ! Parameters of old orbital system (tabularized intercalation cycle)
    ! ------------------------------------------------------------------
    real, parameter    :: DEFAULT_ORBIT_ECCENTRICITY     = 0.0167
-   real, parameter    :: DEFAULT_ORBIT_OBLIQUITY        = 23.45
-   real, parameter    :: DEFAULT_ORBIT_PERIHELION       = 102.0
-   integer, parameter :: DEFAULT_ORBIT_EQUINOX          = 80
+   real, parameter    :: DEFAULT_ORBIT_OBLIQUITY        = 23.45   ! degrees
+   real, parameter    :: DEFAULT_ORBIT_PERIHELION       = 102.0   ! degrees
+   integer, parameter :: DEFAULT_ORBIT_EQUINOX          = 80      ! days
 
    ! Parameters of new orbital system (analytic two-body), which allows some
    ! time-varying behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.
