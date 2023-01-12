@@ -17,11 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
+  respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
+  more accurately reflect what the RegridMethods functions do.
+
 ### Fixed
 
 - Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
-- Corrected issue with native output having metadata saying it was bilinearly regridded
+- Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
+  `regrid_method: identity`
 
 ### Removed
 
