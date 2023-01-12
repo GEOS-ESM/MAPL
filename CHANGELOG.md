@@ -9,13 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This provides a
-  convenient local solar hour angle diagnostic which will be used to detect local
-  solar noon via the EXAMPLE OF USE in the subroutine header. See DESCRIPTION in code for more
-  details. Provides the TRUE local solar hour angle (i.e., with equation of time included), but
-  can also provide the MEAN value (without EOT) via FORCE_MLSHA=.TRUE. optional argument.
+- Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
+  provides a convenient local solar hour angle diagnostic which will be used to detect local
+  solar noon via the `EXAMPLE OF USE` in the subroutine header. See `DESCRIPTION` in code
+  for more details. Provides the TRUE local solar hour angle (i.e., with equation of time
+  included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
+  optional argument.
 
 ### Changed
+
+- Changed call to `MAPL_SunOrbitCreate()` inside `MAPL_Generic.F90` to call to new function
+  `MAPL_SunOrbitCreateFromConfig()`, the latter which get the orbital parameters from the MAPL
+  state's Config. In this way no default orbital parameter values need appear in `MAPL_Generic.F90`.
+  Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
+  and are now explicitly named and commented on at the head of the module. This is a structural
+  zero-diff change.
 
 ### Fixed
 
