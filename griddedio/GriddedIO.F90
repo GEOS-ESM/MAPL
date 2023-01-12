@@ -125,7 +125,6 @@ module MAPL_GriddedIOMod
         integer :: metadataVarsSize
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
-        integer (kind=ESMF_KIND_I8) :: id_in, id_out
         integer :: status
 
         this%items = items
