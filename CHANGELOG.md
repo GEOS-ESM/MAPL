@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug when writing 4D fields to checkpoint files with the via the WRITE_RESTART_BY_OSERVER option
+
 ### Removed
 
 ### Deprecated
