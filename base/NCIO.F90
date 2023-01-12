@@ -781,14 +781,12 @@ module NCIOMod
        call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
                       ref,start=[i1,j1,1], &
                       global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
-       _RETURN(_SUCCESS)
-    endif
-
-    do l=1,size(a,3)
-       call MAPL_VarWrite(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
-       _VERIFY(status)
-    enddo
-
+    else
+       do l=1,size(a,3)
+          call MAPL_VarWrite(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+          _VERIFY(status)
+       enddo
+    end if
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_VarWriteNCpar_R8_3d
