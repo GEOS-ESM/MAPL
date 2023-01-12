@@ -24,7 +24,6 @@ module mapl_RegridderSpec
       generic :: operator (==) => equals
       procedure :: less_than
       generic :: operator (<) => less_than
-      procedure :: set_regrid_method
    end type RegridderSpec
 
 
@@ -157,13 +156,6 @@ contains
       return
 
    end function less_than
-
-   subroutine set_regrid_method(this, regrid_method)
-      class (RegridderSpec), intent(inout) :: this
-      integer, intent(in) :: regrid_method
-
-      this%regrid_method = regrid_method
-   end subroutine set_regrid_method
 
 end module MAPL_RegridderSpec
 #undef _UNUSED_DUMMY

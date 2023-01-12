@@ -53,7 +53,7 @@ contains
       ! bilinear. But if an identity regridder is requested, we
       ! want to reflect that in the metadata by updating the spec.
       spec = regridder%get_spec()
-      call spec%set_regrid_method(REGRID_METHOD_IDENTITY)
+      spec%regrid_method = REGRID_METHOD_IDENTITY
       call regridder%set_spec(spec)
     end function identity_regridder
 
