@@ -65,6 +65,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
+  respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
+  more accurately reflect what the RegridMethods functions do.
 - Changed call to `MAPL_SunOrbitCreate()` inside `MAPL_Generic.F90` to call to new function
   `MAPL_SunOrbitCreateFromConfig()`, the latter which get the orbital parameters from the MAPL
   state's Config. In this way no default orbital parameter values need appear in `MAPL_Generic.F90`.
@@ -74,8 +77,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added the correct values to halo corner of LatLon grid  
+- Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
+- Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
+  `regrid_method: identity`
 - Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
 
 ### Removed

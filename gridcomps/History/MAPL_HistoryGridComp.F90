@@ -932,7 +932,7 @@ contains
           call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
                                          label=trim(string) // 'regrid_method:'  ,rc=status )
           _VERIFY(STATUS)
-           list(n)%regrid_method = get_regrid_method(trim(regrid_method))
+           list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
 ! Get an optional file containing a 1-D track for the output

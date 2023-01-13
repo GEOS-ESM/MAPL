@@ -54,7 +54,7 @@ module MAPL_ExtDataOldTypesCreator
       _RETURN(_SUCCESS)
    end function new_ExtDataOldTypesCreator
 
-   
+
    subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
       class(ExtDataOldTypesCreator), intent(inout) :: this
       character(len=*), intent(in) :: item_name
@@ -77,7 +77,7 @@ module MAPL_ExtDataOldTypesCreator
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
       time_sample => this%sample_map%at(rule%sample_key)
-      
+
       if(.not.associated(time_sample)) then
         call default_time_sample%set_defaults()
         time_sample=>default_time_sample
@@ -106,14 +106,14 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%itemType = ItemTypeScalar
          primary_item%fileVars%xname  = trim(rule%file_var)
       end if
-      
+
       ! regrid method
       if (index(rule%regrid_method,"FRACTION;")>0) then
          semi_pos = index(rule%regrid_method,";")
          read(rule%regrid_method(semi_pos+1:),*) primary_item%fracVal
          primary_item%trans = REGRID_METHOD_FRACTION
       else
-         primary_item%trans = get_regrid_method(rule%regrid_method)
+         primary_item%trans = regrid_method_string_to_int(rule%regrid_method)
       end if
       _ASSERT(primary_item%trans/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
@@ -131,7 +131,7 @@ module MAPL_ExtDataOldTypesCreator
       call primary_item%update_freq%create_from_parameters(time_sample%refresh_time, &
            time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, _RC)
 
-      disable_interpolation =  .not.time_sample%time_interpolation 
+      disable_interpolation =  .not.time_sample%time_interpolation
       exact = time_sample%exact
 
       call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
@@ -185,7 +185,7 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%derived_map%at(trim(item_name))
-  
+
       derived_item%name = trim(item_name)
       derived_item%expression = rule%expression
       if (allocated(rule%sample_key)) then
@@ -204,7 +204,7 @@ module MAPL_ExtDataOldTypesCreator
       end if
 
       _RETURN(_SUCCESS)
- 
+
    end subroutine fillin_derived
 
 end module MAPL_ExtDataOldTypesCreator
