@@ -53,6 +53,7 @@ set (srcs
   TimeStringConversion.F90
   MAPL_ISO8601_DateTime_ESMF.F90
   FieldUtilities.F90
+  MAPL_ResourceMod.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
