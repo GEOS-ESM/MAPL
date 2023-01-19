@@ -1341,14 +1341,14 @@ CONTAINS
 
                ! update left time
                call lgr%debug('   ExtData Run_: HAS_RUN: NotSingle is true. Update left time (bracket L)')
-               call UpdateBracketTime(item,time,"L",item%interp_time1, &
+               call UpdateBracketTime(item,time,time0,"L",item%interp_time1, &
                     item%time1,file_processed1,self%allowExtrap,rc=status)
                _VERIFY(status)
                call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed1,MAPL_ExtDataLeft,item%tindex1,__RC__)
 
                ! update right time
                call lgr%debug('      ExtData Run_: HAS_RUN: NotSingle is true. Update right time (bracket R)')
-               call UpdateBracketTime(item,time,"R",item%interp_time2, &
+               call UpdateBracketTime(item,time,time0,"R",item%interp_time2, &
                     item%time2,file_processed2,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
                call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed2,MAPL_ExtDataRight,item%tindex2,__RC__)
@@ -1412,7 +1412,7 @@ CONTAINS
 
                call MAPL_TimerOn(MAPLSTATE,'--Bracket')
 
-               call UpdateBracketTime(item,time,"R",item%interp_time2, &
+               call UpdateBracketTime(item,time,time0,"R",item%interp_time2, &
                     item%time2,file_processed,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
                call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed,MAPL_ExtDataRight,item%tindex2,__RC__)
@@ -1427,7 +1427,7 @@ CONTAINS
 
                call MAPL_TimerOn(MAPLSTATE,'--Bracket')
 
-               call UpdateBracketTime(item,time,"L",item%interp_time1, &
+               call UpdateBracketTime(item,time,time0,"L",item%interp_time1, &
                     item%time1,file_processed,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
                call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed,MAPL_ExtDataLeft,item%tindex1,__RC__)
@@ -2238,9 +2238,10 @@ CONTAINS
 
      end subroutine GetLevs
 
-     subroutine UpdateBracketTime(item,cTime,bSide,interpTime,fileTime,file_processed,allowExtrap,rc)
+     subroutine UpdateBracketTime(item,cTime,currTime,bSide,interpTime,fileTime,file_processed,allowExtrap,rc)
         type(PrimaryExport),                 intent(inout) :: item
         type(ESMF_Time),                     intent(inout) :: cTime
+        type(ESMF_Time),                     intent(in   ) :: currTime ! GCHP
         character(len=1),                    intent(in   ) :: bSide
         type(ESMF_TIME),                     intent(inout) :: interpTime
         type(ESMF_TIME),                     intent(inout) :: fileTime
@@ -2309,7 +2310,7 @@ CONTAINS
            end if
            ! GCHP: pass UniFileDOW
            !call GetBracketTimeOnSingleFile(fdata,xTSeries,cTime,bSide,UniFileClim,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
-           call GetBracketTimeOnSingleFile(fdata,xTSeries,cTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
+           call GetBracketTimeOnSingleFile(fdata,xTSeries,cTime,currTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
            if (status /= ESMF_SUCCESS) then
               call lgr%error('Bracket timing request failed on fixed file %a for side %a', trim(item%file), bSide)
               _RETURN(ESMF_FAILURE)
@@ -2882,12 +2883,12 @@ CONTAINS
 
      end subroutine OffsetTimeYear
 
-     ! GCHP: add argument UniFileDOW
-     !subroutine GetBracketTimeOnSingleFile(fdata,tSeries,cTime,bSide,UniFileClim,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
-     subroutine GetBracketTimeOnSingleFile(fdata,tSeries,cTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
+     ! GCHP: add args UniFileClim and currTime for day of week handling
+     subroutine GetBracketTimeOnSingleFile(fdata,tSeries,cTime,currTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
         class(FileMetadataUtils),            intent(inout) :: fdata
         type(ESMF_Time),                     intent(in   ) :: tSeries(:)
         type(ESMF_Time),                     intent(inout) :: cTime
+        type(ESMF_Time),                     intent(in   ) :: currTime   ! GCHP
         character(len=1),                    intent(in   ) :: bSide
         logical,                             intent(in   ) :: UniFileClim
         logical,                             intent(in   ) :: UniFileDOW ! GCHP
@@ -2908,9 +2909,7 @@ CONTAINS
         logical                            :: LSide, RSide
         integer                            :: yrOffset, yrOffsetNeg, targYear
         integer                            :: iEntry
-        integer                            :: yrAdjust, yCentury  ! GCHP
-        integer                            :: yRem, TargDOW       ! GCHP
-        integer                            :: monthOffset         ! GCHP
+        integer                            :: monthOffset, targDOW ! GCHP
         type(ESMF_Time), allocatable       :: tSeriesC(:)
         logical                            :: foundYear
         integer                            :: tSteps, curYear, nsteps
@@ -2923,46 +2922,59 @@ CONTAINS
 
         ! GCHP: If getting DOW, get the target day of the week
         If (UniFileDOW) Then
-           ! DOW calculator
-           ! Tested for Jan 1st 1000 AD through Dec 31st 2199
-           ! Gives Sunday = 0 and Saturday = 6
-           yrAdjust = targYear
-           if (imm .lt. 3) yrAdjust = yrAdjust - 1
-           yCentury = floor(real(yrAdjust)/100.0)
-           yRem = yrAdjust - (yCentury*100)
-           targDOW = idd + floor(2.6*(real(mod(imm-3,12)+1)) - 0.2) - 2*yCentury + yRem + floor(real(yRem)/4.0) + floor(real(yCentury/4.0))
-           targDOW = mod(targDOW,7)
-           ! Fortran will allow a negative DOW
-           if (targDOW < 0) targDOW = targDOW + 7
+
+           ! Get day of week of current (clock) time. Returns Monday = 1 through Sunday = 7.
+           call ESMF_TimeGet(currTime,dayOfWeek=targDow,rc=status)
+
+           ! Shift to Sunday = 0
+           if (targDow==7) targDow=0
+
            ! Different behavior for different brackets
            LSide = (bSide == "L")
            If (LSide) Then
-              ! Straight-forward
+              ! Set left bracket to current month/day with target year
               call ESMF_TimeSet(interpTime,yy=targYear,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
            Else
-              ! Change DOW to be the next day
+              ! Change to the next day for right bracket
               targDOW = targDOW + 1
               if (targDOW > 6) targDOW = targDOW - 7
-              ! Also set the target date to be the next day
               call ESMF_TimeSet(interpTime,yy=targYear,mm=imm,dd=idd+1,h=0,m=0,s=0,__RC__)
               ! Tricky: increasing the day may put us into a new month, so retrieve
               ! the target month from the updated time
               call ESMF_TimeGet(interpTime,yy=targYear,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            End If
-           ! Do we have an individual set for each month?
+
+           ! Set month offset based on if file contains factors for one month or all months
            if (nsteps == 7) then
               monthOffset = 0
            elseif (nsteps == 84) then
-              ! Separate scaling factors for each month
               monthOffset = ((imm-1)*7)
            else
               call lgr%debug('ERROR: DOW files must have either 7 or 84 entries but %a contains %i0.3',trim(fdata%get_file_name()), nsteps)
               rc = ESMF_FAILURE
               return
            end if
+
+           ! Set file time index for current month and day-of-week (not calendar day)
+           ! This is the file time that will be used for simulation times greater than
+           ! or equal to left bracket time and prior to right bracket time.
+           ! Expected mapping example:
+           !    tindex = 1  : January  Sunday  (dow = 0, monthOffset = 0 )
+           !    tindex = 2  : January  Monday  (dow = 1, monthOffset = 0 )
+           !    tindex = 10 : February Tuesday (dow = 2, monthOffset = 1 )
            iEntry = targDOW + 1 + monthOffset
            fileTime = tSeries(iEntry)
            tindex = iEntry
+
+           if (lgr%isEnabledFor(DEBUG)) then
+              call lgr%debug('               GetBracketTimeOnSingleFile: Reading data for DOW %i1 (entry %i2) into bracket %a',targDOW, iEntry, trim(bSide))
+              call lgr%debug('                  ==> File: %a', trim(fdata%get_file_name()))
+              call ESMF_TimeGet(fileTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+              call lgr%debug('                  ==> Data from: month %i0.2, day of week %i0.2 (01=Sunday)', iMm, iDd)
+              call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+              call lgr%debug('                  ==> Mapped to: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2', iYr, iMm, iDd, iHr, iMn)
+           end if
+
            rc = esmf_success
            return
         end if
