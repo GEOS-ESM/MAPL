@@ -40,6 +40,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.34.2] - 2023-01-19
+
+### Fixed
+
+- Fixed bug with ExtDataDriver.x when enabling oserver on dedicated resources
+
 ## [2.34.1] - 2023-01-13
 
 ### Fixed
