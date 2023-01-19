@@ -18,7 +18,7 @@ character(len=3),parameter :: mon_lc(12) = [&
 integer, parameter :: uninit_time = -999999
 
 contains
-   subroutine StrTemplate(str, tmpl, class, xid, nymd, nhms, stat, preserve)
+   subroutine StrTemplate(str, tmpl, class, xid, nymd, nhms, stat, preserve, integer_token)
       character(len=*), intent(out) :: str
       character(len=*), intent(in ) :: tmpl
 
@@ -28,14 +28,15 @@ contains
       integer,          optional, intent(in ) :: nhms
       integer,          optional, intent(out) :: stat
       logical,          optional, intent(in ) :: preserve
+      integer,          optional, intent(in ) :: integer_token
 
       _UNUSED_DUMMY(class)
 
       call fill_grads_template(str, tmpl, &
-            experiment_id=xid, nymd=nymd, nhms=nhms,preserve=preserve, rc=stat)
+            experiment_id=xid, nymd=nymd, nhms=nhms,integer_token=integer_token,preserve=preserve, rc=stat)
    end subroutine StrTemplate
 
-   subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,preserve,rc)
+   subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,integer_token,preserve,rc)
       character(len=*), intent(out) :: output_string
       character(len=*), intent(in)  :: template
       class(keywordEnforcer), optional, intent(in) :: unusable
@@ -43,6 +44,7 @@ contains
       integer, intent(in), optional :: nymd
       integer, intent(in), optional :: nhms
       type(ESMF_Time), intent(in), optional :: time
+      integer, intent(in), optional :: integer_token
       logical, intent(in), optional :: preserve
       integer, intent(out), optional :: rc
 
@@ -50,6 +52,7 @@ contains
       integer  :: i, m, istp, k, kstp, i1, i2
       character(len=1) :: c0,c1,c2
       character(len=4) :: sbuf
+      character(len=5) :: int_buf
       logical :: valid_token,preserve_
       integer :: status
      
@@ -111,6 +114,21 @@ contains
                   k=k+1
                else
                   _FAIL("Using %s token with no experiment id")
+               end if
+            case("i")
+               if (present(integer_token)) then
+                  istp=2
+                  write(int_buf,'(I0)')integer_token
+                  kstp = len_trim(int_buf)
+                  m=k+kstp-1
+                  output_string(k:m)=int_buf
+                  k=m+1
+                  cycle
+               else if (preserve_) then
+                  output_string(k:k+1)="%i"
+                  k=k+1
+               else
+                  _FAIL("Using %i token, value to fill with not provided")
                end if
             case("%")
                istp=2

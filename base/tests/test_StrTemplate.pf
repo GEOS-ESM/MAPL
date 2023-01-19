@@ -1,0 +1,72 @@
+#include "MAPL_Exceptions.h"
+
+module Test_StrTemplate
+    use MAPL_ExceptionHandling
+    use MAPL_StringTemplate
+    use funit
+    implicit none
+    private
+
+    public :: test_integer_token
+    public :: test_string_token
+    public :: test_date_token
+
+    integer :: nymd = 20000414
+    integer :: nhms = 210000
+
+    integer :: integer_token_181 = 181
+    integer :: integer_token_72 = 72
+
+    character(len=128) :: string_token = "foofoo"
+
+contains
+
+    @test
+    subroutine test_integer_token()
+        character(len=*), parameter :: input_template ='an_emission_file_L%i.nc4'
+
+        character(len=128) :: expected_output
+        character(len=128) :: actual_output
+
+        expected_output = "an_emission_file_L181.nc4"
+        call StrTemplate(actual_output,input_template,integer_token=integer_token_181)
+        @assertEqual(expected_output, actual_output)
+
+        expected_output = "an_emission_file_L72.nc4"
+        call StrTemplate(actual_output,input_template,integer_token=integer_token_72)
+        @assertEqual(expected_output, actual_output)
+
+    end subroutine test_integer_token
+
+    @test
+    subroutine test_string_token()
+        character(len=*), parameter :: input_template1 ='%s_an_emission_file.nc4'
+        character(len=*), parameter :: input_template2 ='an_emission_file_%s.nc4'
+
+        character(len=128) :: expected_output
+        character(len=128) :: actual_output
+
+        expected_output = "foofoo_an_emission_file.nc4"
+        call StrTemplate(actual_output,input_template1,xid = string_token)
+        @assertEqual(expected_output, actual_output)
+
+        expected_output = "an_emission_file_foofoo.nc4"
+        call StrTemplate(actual_output,input_template2,xid = string_token)
+        @assertEqual(expected_output, actual_output)
+
+    end subroutine test_string_token
+
+    @test
+    subroutine test_date_token()
+        character(len=*), parameter :: input_template ='/Y%y4/M%m2/an_emission_file_%y4%m2%d2_%h2%n2z.nc4'
+
+        character(len=128) :: expected_output
+        character(len=128) :: actual_output
+
+        expected_output = "/Y2000/M04/an_emission_file_20000414_2100z.nc4"
+        call StrTemplate(actual_output,input_template,nymd=nymd,nhms=nhms)
+        @assertEqual(expected_output, actual_output)
+
+    end subroutine test_date_token
+
+end module Test_StrTemplate
