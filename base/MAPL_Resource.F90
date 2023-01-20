@@ -21,8 +21,10 @@ module MAPL_ResourceMod
    !wdb Do I need ESMF and ESMF_Mod
    use ESMF
    use ESMFL_Mod
-   use MAPL_Constants, only: MAPL_CF_COMPONENT_SEPARATOR
    use gFTL_StringVector
+   use MAPL_CommsMod
+   use MAPL_Constants, only: MAPL_CF_COMPONENT_SEPARATOR
+   use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 !wdb end
 
@@ -32,6 +34,7 @@ module MAPL_ResourceMod
    private
 
    public MAPL_GetResource_config_scalar
+   public MAPL_GetResource_config_array
 
 contains
 
@@ -41,13 +44,13 @@ contains
       character(len=*), intent(in) :: compname, label
       character(len=ESMF_MAXSTR) :: labels_with_prefix(4), component_type
 
-      component_type = component_name(index(component_name, ":") + 1:)
+      component_type = compname(index(compname, ":") + 1:)
 
       ! The order to search for labels in resource files
-      labels_with_prefix(1) = trim(component_name)//"_"//trim(label)
+      labels_with_prefix(1) = trim(compname)//"_"//trim(label)
       labels_with_prefix(2) = trim(component_type)//"_"//trim(label)
       labels_with_prefix(3) = trim(label)
-      labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
+      labels_with_prefix(4) = trim(compname)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
 
    end function get_labels_with_prefix
 
@@ -56,10 +59,11 @@ contains
       character(len=*), intent(in) :: label
       character(len=*), intent(in) :: compname
       logical, intent(out) :: label_is_present
-      character(len=ESMF_MAXSTR), intent(out) :: label_to_use
+      character(len=:), allocatable, intent(out) :: label_to_use
       integer, optional, intent(out) :: rc
 
       character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
+      integer :: i
       integer :: status
 
       label_is_present = .false.
@@ -78,12 +82,12 @@ contains
 
    end subroutine get_label_to_use
 
-   subroutine MAPL_GetResource_config_scalar(config, compname, val, label_to_find, default, rc)
+   subroutine MAPL_GetResource_config_scalar(config, val, label_to_find, default, compname, rc)
       type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: compname
       class(*), intent(inout) :: val
       character(len=*), intent(in) :: label_to_find
       class(*), optional, intent(in) :: default
+      character(len=*), optional, intent(in) :: compname
       integer, optional, intent(out) :: rc
 
       integer :: status, printrc
@@ -97,7 +101,12 @@ contains
          _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
-      call get_label_to_use(config, label_to_find, compname, label_is_present, label, _RC)
+      if (present(compname)) then
+         call get_label_to_use(config, label_to_find, compname, label_is_present, label, _RC)
+      else
+         label = label_to_find
+         call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, _RC)
+      end if
 
       ! No default and not in config, error
       if (.not. label_is_present .and. .not. default_is_present) then
@@ -188,9 +197,8 @@ contains
       class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
-      character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
       character(len=:), allocatable :: label_to_use
-      integer :: i, status, count
+      integer :: status, count
       logical :: label_is_present, default_is_present
 
       default_is_present = present(default)

@@ -8432,15 +8432,14 @@ contains
 
       integer :: status
 
-      call MAPL_GetResourceFromConfig_scalar(state%cf, state%compname, val, label, default, _RC)
+      call MAPL_GetResource_config_scalar(state%cf, val, label, default, state%compname, _RC)
 
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
 
-   subroutine MAPL_GetResourceFromConfig_scalar(config, compname, val, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
       type(ESMF_Config), intent(inout) :: config
-      character(*), intent(in) :: compname
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
       class(*), optional, intent(in) :: default
@@ -8448,7 +8447,7 @@ contains
 
       integer :: status
 
-      call MAPL_GetResource_config_scalar(config, compname, val, label, default, _RC)
+      call MAPL_GetResource_config_scalar(config, val, label, default, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
