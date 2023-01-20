@@ -10,7 +10,7 @@ module mapl_RegridderSpec
    implicit none
    private
 
-      
+
    public :: RegridderSpec
 
    type :: RegridderSpec
@@ -25,7 +25,7 @@ module mapl_RegridderSpec
       procedure :: less_than
       generic :: operator (<) => less_than
    end type RegridderSpec
-   
+
 
    interface RegridderSpec
       module procedure newRegridderSpec
@@ -109,7 +109,7 @@ contains
       integer (kind=INT64) :: a_out_id, b_out_id
 
       integer :: a_esmf_method, b_esmf_method
-      
+
       select case (a%regrid_method)
       case (REGRID_METHOD_CONSERVE, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
          a_esmf_method = REGRID_METHOD_CONSERVE
@@ -141,7 +141,7 @@ contains
          less_than = .true.
          return
       end if
-         
+
       a_out_id = get_factory_id(a%grid_out)
       b_out_id = get_factory_id(b%grid_out)
       if (a_out_id > b_out_id) then
@@ -154,7 +154,7 @@ contains
 
       less_than = .false.
       return
-         
+
    end function less_than
 
 end module MAPL_RegridderSpec

@@ -142,6 +142,13 @@ module MAPL_GriddedIOMod
         end if
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
+
+        ! We get the regrid_method here because in the case of Identity, we set it to
+        ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
+        ! to change the regrid_method in the GriddedIO object to be the same as the
+        ! the regridder object.
+        this%regrid_method = this%regrid_handle%get_regrid_method()
+
         call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
         _VERIFY(status)
         factory => get_factory(this%output_grid,rc=status)
@@ -366,7 +373,7 @@ module MAPL_GriddedIOMod
         call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-        call v%add_attribute('regrid_method', translate_regrid_method(this%regrid_method))
+        call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)

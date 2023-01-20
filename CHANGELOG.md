@@ -9,24 +9,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This provides a
-  convenient local solar hour angle diagnostic which will be used to detect local
-  solar noon via the EXAMPLE OF USE in the subroutine header. See DESCRIPTION in code for more
-  details. Provides the TRUE local solar hour angle (i.e., with equation of time included), but
-  can also provide the MEAN value (without EOT) via FORCE_MLSHA=.TRUE. optional argument.
+- Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
+  provides a convenient local solar hour angle diagnostic which will be used to detect local
+  solar noon via the `EXAMPLE OF USE` in the subroutine header. See `DESCRIPTION` in code
+  for more details. Provides the TRUE local solar hour angle (i.e., with equation of time
+  included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
+  optional argument.
 
 ### Changed
+
+- Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
+  respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
+  more accurately reflect what the RegridMethods functions do.
+- Changed call to `MAPL_SunOrbitCreate()` inside `MAPL_Generic.F90` to call to new function
+  `MAPL_SunOrbitCreateFromConfig()`, the latter which get the orbital parameters from the MAPL
+  state's Config. In this way no default orbital parameter values need appear in `MAPL_Generic.F90`.
+  Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
+  and are now explicitly named and commented on at the head of the module. This is a structural
+  zero-diff change.
 - Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
   The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
   most of the functionality is in MAPL_ResourceMod now.
+
 ### Fixed
 
-- Added the correct values to halo corner of LatLon grid  
+- Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
+- Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
+  `regrid_method: identity`
+- Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
 
 ### Removed
 
 ### Deprecated
+
+## [2.34.2] - 2023-01-19
+
+### Fixed
+
+- Fixed bug with ExtDataDriver.x when enabling oserver on dedicated resources
+
+## [2.34.1] - 2023-01-13
+
+### Fixed
+
+- Fixed bug when writing 4D fields to checkpoint files with the PFIO server via the WRITE_RESTART_BY_OSERVER option
 
 ## [2.34.0] - 2023-01-05
 
