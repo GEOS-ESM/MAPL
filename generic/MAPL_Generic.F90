@@ -8438,6 +8438,8 @@ contains
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
 
+   ! This is a pass-through routine. It maintains the interface for
+   ! MAPL_GetResource as is instead of moving this subroutine to another module.
    subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label

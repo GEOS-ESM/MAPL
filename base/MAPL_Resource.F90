@@ -1,9 +1,6 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-
-!wdb TODO COMMENT if not needed
 #include "unused_dummy.H"
-!wdb end
 
 !=============================================================================
 
@@ -17,8 +14,6 @@ module MAPL_ResourceMod
 
    ! !USES:
 
-!wdb TODO what is needed
-   !wdb Do I need ESMF and ESMF_Mod
    use ESMF
    use ESMFL_Mod
    use gFTL_StringVector
@@ -26,7 +21,6 @@ module MAPL_ResourceMod
    use MAPL_Constants, only: MAPL_CF_COMPONENT_SEPARATOR
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
-!wdb end
 
    ! !PUBLIC MEMBER FUNCTIONS:
 
@@ -38,7 +32,6 @@ module MAPL_ResourceMod
 
 contains
 
-   !wdb TODO where is ESMF_MAXSTR defined?
    ! MAPL searches for labels with certain prefixes as well as just the label itself
    pure function get_labels_with_prefix(compname, label) result(labels_with_prefix)
       character(len=*), intent(in) :: compname, label
@@ -54,6 +47,8 @@ contains
 
    end function get_labels_with_prefix
 
+   ! If possible, find label or label with prefix. Out: logical to if label found, 
+   ! version of label found,
    subroutine get_label_to_use(config, label, compname, label_is_present, label_to_use, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
@@ -82,6 +77,7 @@ contains
 
    end subroutine get_label_to_use
 
+   ! Find value of scalar variable in config
    subroutine MAPL_GetResource_config_scalar(config, val, label_to_find, default, compname, rc)
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: val
@@ -101,6 +97,8 @@ contains
          _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
+      ! If compname is present, find label in some form in config. Else search
+      ! for exact label
       if (present(compname)) then
          call get_label_to_use(config, label_to_find, compname, label_is_present, label, _RC)
       else
@@ -109,6 +107,7 @@ contains
       end if
 
       ! No default and not in config, error
+      ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
          if (present(rc)) rc = ESMF_FAILURE
          return
@@ -189,6 +188,7 @@ contains
 
    end subroutine MAPL_GetResource_config_scalar
 
+   ! Find value of array variable in config
    subroutine MAPL_GetResource_config_array(config, compname, vals, label_to_find, default, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: compname
@@ -210,6 +210,7 @@ contains
       call get_label_to_use(config, label_to_find, compname, label_is_present, label_to_use, _RC)
 
       ! No default and not in config, error
+      ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
          if (present(rc)) rc = ESMF_FAILURE
          return
