@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Tested optiona arguments arrdes in MAPL_WriteVars
 - Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
 - Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have

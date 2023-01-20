@@ -614,7 +614,7 @@ module NCIOMod
     type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:,:)
-    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type(ArrDescr), optional    , intent(INOUT) :: ARRDES
     type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
@@ -623,29 +623,39 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "output server is needed")
-       call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-       _VERIFY(status)
-       call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
-       _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
-       _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
-       ref = ArrayReference(A)
-       _ASSERT( size(a,1) == in-i1+1, "size not match")
-       _ASSERT( size(a,2) == jn-j1+1, "size not match")
-       call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
-                   ref,start=[i1,j1,1,1], &
-                   global_start=[1,1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3),size(a,4)])
+    if (present(arrdes)) then
+       if (arrdes%write_restart_by_oserver) then
+          _ASSERT(present(oClients), "output server is needed")
+          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+          _VERIFY(status)
+          call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
+          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
+          ref = ArrayReference(A)
+          _ASSERT( size(a,1) == in-i1+1, "size not match")
+          _ASSERT( size(a,2) == jn-j1+1, "size not match")
+          call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+                      ref,start=[i1,j1,1,1], &
+                      global_start=[1,1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3),size(a,4)])
+       else
+          do K = 1,size(A,4)
+             do L = 1,size(A,3)
+                call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
+                     & oClients=oClients, lev=l, offset2=k, rc=status)
+                _VERIFY(status)
+             end do
+          end do
+       end if
     else
-
        do K = 1,size(A,4)
           do L = 1,size(A,3)
-             call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
+             call MAPL_VarWrite(formatter, name, A(:,:,L,K), &
                   & oClients=oClients, lev=l, offset2=k, rc=status)
              _VERIFY(status)
           end do
-       end do
-    end if
+       enddo
+    endif
+
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_VarWriteNCpar_R4_4d
@@ -706,22 +716,29 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "output server is needed")
-       call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-       _VERIFY(status)
-       call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
-       _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
-       _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
-       ref = ArrayReference(A)
-       _ASSERT( size(a,1) == in-i1+1, "size not match")
-       _ASSERT( size(a,2) == jn-j1+1, "size not match")
-       call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
-                   ref,start=[i1,j1,1], &
-                   global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
+    if (present(arrdes)) then
+       if (arrdes%write_restart_by_oserver) then
+          _ASSERT(present(oClients), "output server is needed")
+          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+          _VERIFY(status)
+          call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
+          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
+          ref = ArrayReference(A)
+          _ASSERT( size(a,1) == in-i1+1, "size not match")
+          _ASSERT( size(a,2) == jn-j1+1, "size not match")
+          call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+                      ref,start=[i1,j1,1], &
+                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
+       else
+          do l=1,size(a,3)
+             call MAPL_VarWrite(formatter,name,A(:,:,l), arrdes=arrdes,lev=l, rc=status)
+             _VERIFY(status)
+          enddo
+       endif
     else
        do l=1,size(a,3)
-          call MAPL_VarWrite(formatter,name,A(:,:,l), arrdes=arrdes,lev=l, rc=status)
+          call MAPL_VarWrite(formatter,name,A(:,:,l), lev=l, rc=status)
           _VERIFY(status)
        enddo
     endif
