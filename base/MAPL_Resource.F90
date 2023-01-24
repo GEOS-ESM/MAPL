@@ -405,7 +405,7 @@ contains
          class default
          _FAIL( "Unsupported type in intrinsic_to_string")
       end select
-
+_RETURN(_SUCCESS)
    end function intrinsic_to_string
 
 end module MAPL_ResourceMod
