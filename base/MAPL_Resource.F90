@@ -69,6 +69,8 @@ contains
       integer :: i
       integer :: status
 
+      _UNUSED_DUMMY(unusable)
+
       label_is_present = .false.
 
       ! If component_name is present, find label in some form in config. Else search
@@ -101,6 +103,8 @@ contains
       logical :: default_is_present, label_is_present
       character(len=:), allocatable :: label_to_print
       character(len=:), allocatable :: actual_label
+
+      _UNUSED_DUMMY(unusable)
 
       default_is_present = present(default)
 
@@ -205,6 +209,8 @@ contains
       character(len=:), allocatable :: actual_label
       integer :: status, count
       logical :: label_is_present, default_is_present
+
+      _UNUSED_DUMMY(unusable)
 
       default_is_present = present(default)
 
@@ -366,6 +372,8 @@ contains
          print output_format, trim(label), trim(val_str)
       end if
 
+      _RETURN(_SUCCESS)
+
    end subroutine print_resource
 
    logical function vector_contains_str(vector, string)
@@ -409,7 +417,9 @@ contains
          class default
          _FAIL( "Unsupported type in intrinsic_to_string")
       end select
-_RETURN(_SUCCESS)
+
+      _RETURN(_SUCCESS)
+
    end function intrinsic_to_string
 
 end module MAPL_ResourceMod
