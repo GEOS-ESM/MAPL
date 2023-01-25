@@ -16,7 +16,7 @@ module MAPL_ResourceMod
 
    use ESMF
    use ESMFL_Mod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_CommsMod
    use MAPL_Constants, only: MAPL_CF_COMPONENT_SEPARATOR
    use MAPL_ExceptionHandling
@@ -377,15 +377,13 @@ contains
 
       vector_contains_str = .false.
 
-      if (vector%size() /= 0) then
-         do while (iter /= vector%end())
-            if (trim(string) == iter%get()) then
-               vector_contains_str = .true.
-               return
-            end if
-            call iter%next()
-         end do
-      end if
+      do while (iter /= vector%end())
+         if (trim(string) == iter%of()) then
+            vector_contains_str = .true.
+            return
+         end if
+         call iter%next()
+      end do
 
    end function vector_contains_str
 
