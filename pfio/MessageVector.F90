@@ -27,9 +27,10 @@ module pFIO_MessageVectorUtilMod
 
 contains
 
-  subroutine serialize_message_vector(msgVec,buffer)
+  subroutine serialize_message_vector(msgVec,buffer, rc)
      type (MessageVector),intent(in) :: msgVec
      integer, allocatable,intent(inout) :: buffer(:)
+     integer, optional, intent(out) :: rc
      integer, allocatable :: tmp(:)
      class (AbstractMessage),pointer :: msg
      integer :: n, i
@@ -42,7 +43,13 @@ contains
         msg=>msgVec%at(i)
         tmp =[tmp, parser%encode(msg)]
      enddo
+
+     if(size(tmp, kind=8) > huge(0)) then
+       _ASSERT( .false., " need to increase oserver's nfront")
+     endif
+
      i = size(tmp)+1
+
      if (allocated(buffer)) deallocate(buffer)
      buffer =[i,tmp]
 

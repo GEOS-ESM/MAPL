@@ -56,7 +56,9 @@ contains
       else
          buffer = buff_tmp
       endif
-
+      if ( size(buffer, kind=8) > huge(0)) then
+        _ASSERT(.false., "need to increase oserver's number of front cores (nfront)")
+      endif
       _RETURN(_SUCCESS)
 
    end subroutine serialize
