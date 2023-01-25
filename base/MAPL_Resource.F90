@@ -20,6 +20,7 @@ module MAPL_ResourceMod
    use MAPL_CommsMod
    use MAPL_Constants, only: MAPL_CF_COMPONENT_SEPARATOR
    use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 
    ! !PUBLIC MEMBER FUNCTIONS:
@@ -33,28 +34,35 @@ module MAPL_ResourceMod
 contains
 
    ! MAPL searches for labels with certain prefixes as well as just the label itself
-   pure function get_labels_with_prefix(compname, label) result(labels_with_prefix)
-      character(len=*), intent(in) :: compname, label
-      character(len=ESMF_MAXSTR) :: labels_with_prefix(4), component_type
+   pure function get_labels_with_prefix(label, component_name) result(labels_with_prefix)
+      character(len=*), intent(in) :: label
+      character(len=*), optional, intent(in) :: component_name
+      character(len=ESMF_MAXSTR) :: component_type
+      character(len=ESMF_MAXSTR) :: labels_with_prefix(4)
 
-      component_type = compname(index(compname, ":") + 1:)
+      if(present(commponent_name)) then
+         component_type = component_name(index(component_name, ":") + 1:)
 
-      ! The order to search for labels in resource files
-      labels_with_prefix(1) = trim(compname)//"_"//trim(label)
-      labels_with_prefix(2) = trim(component_type)//"_"//trim(label)
-      labels_with_prefix(3) = trim(label)
-      labels_with_prefix(4) = trim(compname)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
+         ! The order to search for labels in resource files
+         labels_with_prefix = [  trim(compname)//"_"//trim(label), &
+                                 trim(component_type)//"_"//trim(label), &
+                                 trim(label), &
+                                 trim(compname)//MAPL_CF_COMPONENT_SEPARATOR//trim(label) ]
+      else
+         labels_with_prefix = ''
+         labels_with_prefix(1) = label
+      end if
 
    end function get_labels_with_prefix
 
-   ! If possible, find label or label with prefix. Out: logical to if label found, 
-   ! version of label found,
-   subroutine get_label_to_use(config, label, compname, label_is_present, label_to_use, rc)
+   ! If possible, find label or label with prefix. Out: label found (logical)  ! version of label found,
+   subroutine get_actual_label(config, label, label_is_present, actual_label, unusable, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
-      character(len=*), intent(in) :: compname
       logical, intent(out) :: label_is_present
-      character(len=:), allocatable, intent(out) :: label_to_use
+      character(len=:), allocatable, intent(out) :: actual_label
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
       character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
@@ -62,34 +70,37 @@ contains
       integer :: status
 
       label_is_present = .false.
-      labels_to_try = get_labels_with_prefix(compname, label)
+
+      ! If component_name is present, find label in some form in config. Else search
+      ! for exact label
+
+      labels_to_try = get_labels_with_prefix(label, component_name)
 
       do i = 1, size(labels_to_try)
-         label_to_use = trim(labels_to_try(i))
-         call ESMF_ConfigFindLabel(config, label = label_to_use, isPresent = label_is_present, _RC)
-
-         if (label_is_present) then
-            exit
-         end if
+         actual_label = trim(labels_to_try(i))
+         if (len_trim(actual_label) == 0 ) cycle
+         call ESMF_ConfigFindLabel(config, label = actual_label, isPresent = label_is_present, _RC)
+         if (label_is_present) exit
       end do
 
       _RETURN(_SUCCESS)
 
-   end subroutine get_label_to_use
+   end subroutine get_actual_label
 
    ! Find value of scalar variable in config
-   subroutine MAPL_GetResource_config_scalar(config, val, label_to_find, default, compname, rc)
+   subroutine MAPL_GetResource_config_scalar(config, val, label, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: val
-      character(len=*), intent(in) :: label_to_find
+      character(len=*), intent(in) :: label
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
-      character(len=*), optional, intent(in) :: compname
+      character(len=*), optional, intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
       integer :: status, printrc
       logical :: default_is_present, label_is_present
       character(len=:), allocatable :: label_to_print
-      character(len=:), allocatable :: label
+      character(len=:), allocatable :: actual_label
 
       default_is_present = present(default)
 
@@ -97,14 +108,7 @@ contains
          _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
-      ! If compname is present, find label in some form in config. Else search
-      ! for exact label
-      if (present(compname)) then
-         call get_label_to_use(config, label_to_find, compname, label_is_present, label, _RC)
-      else
-         label = label_to_find
-         call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, _RC)
-      end if
+      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
 
       ! No default and not in config, error
       ! label or default must be present
@@ -121,7 +125,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
          end if
       type is(integer(int64))
          if (default_is_present .and. .not. label_is_present) then
@@ -130,7 +134,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
          end if
       type is(real(real32))
          if (default_is_present .and. .not. label_is_present) then
@@ -139,7 +143,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
          end if
       type is (real(real64))
          if (default_is_present .and. .not. label_is_present) then
@@ -148,7 +152,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
          end if
       type is(character(len=*))
          if (default_is_present .and. .not. label_is_present) then
@@ -157,7 +161,7 @@ contains
                val = trim(default)
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
          end if
       type is(logical)
          if (default_is_present .and. .not. label_is_present) then
@@ -166,7 +170,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
          end if
          class default
          _FAIL( "Unupported type")
@@ -177,9 +181,9 @@ contains
       ! Can set printrc to negative to not print at all
       if (MAPL_AM_I_Root() .and. printrc >= 0) then
          if (label_is_present) then
-            label_to_print = label
+            label_to_print = actual_label
          else
-            label_to_print = trim(label_to_find)
+            label_to_print = trim(label)
          end if
          call print_resource(printrc, label_to_print, val, default=default, _RC)
       end if
@@ -189,15 +193,15 @@ contains
    end subroutine MAPL_GetResource_config_scalar
 
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, compname, vals, label_to_find, default, rc)
+   subroutine MAPL_GetResource_config_array(config, compname, vals, label, default, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: compname
-      character(len=*), intent(in) :: label_to_find
+      character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
       class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
-      character(len=:), allocatable :: label_to_use
+      character(len=:), allocatable :: actual_label
       integer :: status, count
       logical :: label_is_present, default_is_present
 
@@ -207,7 +211,7 @@ contains
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      call get_label_to_use(config, label_to_find, compname, label_is_present, label_to_use, _RC)
+      call get_actual_label(config, label, compname, label_is_present, actual_label, _RC)
 
       ! No default and not in config, error
       ! label or default must be present
@@ -226,7 +230,7 @@ contains
                if (.not. label_is_present) vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
          end if
       type is(integer(int64))
          if (default_is_present .and. .not. label_is_present) then
@@ -235,7 +239,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
          end if
       type is(real(real32))
          if (default_is_present .and. .not. label_is_present) then
@@ -244,7 +248,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
          end if
       type is (real(real64))
          if (default_is_present .and. .not. label_is_present) then
@@ -253,7 +257,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
          end if
       type is(character(len=*))
          if (default_is_present .and. .not. label_is_present) then
@@ -262,7 +266,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
          end if
       type is(logical)
          if (default_is_present .and. .not. label_is_present) then
@@ -271,7 +275,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
          end if
          class default
          _FAIL( "Unsupported type")

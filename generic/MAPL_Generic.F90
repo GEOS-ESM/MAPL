@@ -8294,7 +8294,7 @@ contains
 
       integer :: status
 
-      call MAPL_GetResource_config_scalar(state%cf, val, label, default, state%compname, _RC)
+      call MAPL_GetResource_config_scalar(state%cf, val, label, default = default, component_name = state%compname, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -8311,7 +8311,7 @@ contains
 
       integer :: status
 
-      call MAPL_GetResource_config_scalar(config, val, label, default, _RC)
+      call MAPL_GetResource_config_scalar(config, val, label, default = default, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
