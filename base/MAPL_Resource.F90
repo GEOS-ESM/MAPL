@@ -227,7 +227,7 @@ contains
          if (default_is_present .and. .not. label_is_present) then
             select type(default)
             type is(integer(int32))
-               if (.not. label_is_present) vals = default
+               vals = default
             end select
          else
             call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
