@@ -212,6 +212,7 @@ contains
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
+      _ASSERT(present(compname), "Component name is present but not present.")
       call get_actual_label(config, label, compname, label_is_present, actual_label, _RC)
 
       ! No default and not in config, error
