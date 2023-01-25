@@ -193,12 +193,13 @@ contains
    end subroutine MAPL_GetResource_config_scalar
 
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, compname, vals, label, default, rc)
+   subroutine MAPL_GetResource_config_array(config, vals, label, unusable, default, compname, rc)
       type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: compname
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      character(len=*), optional, intent(in) :: compname
       integer, optional, intent(out) :: rc
 
       character(len=:), allocatable :: actual_label
