@@ -40,14 +40,14 @@ contains
       character(len=ESMF_MAXSTR) :: component_type
       character(len=ESMF_MAXSTR) :: labels_with_prefix(4)
 
-      if(present(commponent_name)) then
+      if(present(component_name)) then
          component_type = component_name(index(component_name, ":") + 1:)
 
          ! The order to search for labels in resource files
-         labels_with_prefix = [  trim(compname)//"_"//trim(label), &
+         labels_with_prefix = [  trim(component_name)//"_"//trim(label), &
                                  trim(component_type)//"_"//trim(label), &
                                  trim(label), &
-                                 trim(compname)//MAPL_CF_COMPONENT_SEPARATOR//trim(label) ]
+                                 trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label) ]
       else
          labels_with_prefix = ''
          labels_with_prefix(1) = label
@@ -193,13 +193,13 @@ contains
    end subroutine MAPL_GetResource_config_scalar
 
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, vals, label, unusable, default, compname, rc)
+   subroutine MAPL_GetResource_config_array(config, vals, label, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
-      character(len=*), optional, intent(in) :: compname
+      character(len=*), optional, intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
       character(len=:), allocatable :: actual_label
@@ -212,8 +212,8 @@ contains
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      _ASSERT(present(compname), "Component name is present but not present.")
-      call get_actual_label(config, label, compname, label_is_present, actual_label, _RC)
+      _ASSERT(present(component_name), "Component name is present but not present.")
+      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
 
       ! No default and not in config, error
       ! label or default must be present
