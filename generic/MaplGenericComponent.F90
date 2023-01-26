@@ -22,8 +22,6 @@ module mapl_MaplGenericComponent
    public :: MaplGenericComponent
    public :: get_grid
 
-   procedure(), pointer :: user_method => null()
-
    type SubComponent
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: internal_state

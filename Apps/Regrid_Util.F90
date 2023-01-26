@@ -171,7 +171,7 @@
     if (.not.allocated(this%tripolar_file_out)) then
        this%tripolar_file_out = "empty"
     end if
-    this%regridMethod = get_regrid_method(regridMth)
+    this%regridMethod = regrid_method_string_to_int(regridMth)
     _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
     this%filenames = split_string(cfilenames,',')
