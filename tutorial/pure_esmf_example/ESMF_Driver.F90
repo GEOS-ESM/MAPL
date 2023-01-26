@@ -1,13 +1,23 @@
 program Example_Driver
    use MPI
    use ESMF
+!  use for our component
+   ! use Kitty_GridCompMod,  only:  Kitty_SetServices => SetServices
    implicit none
 
-   integer :: status,mpi_stat
+   integer :: status,userRc
+   type(ESMF_GridComp :: gc
 
    call ESMF_Initialize(rc=status)
    if (status/=0) call abort_program()
 
+   gc = ESMF_GridCompCreate(name="cute_kitten_component",rc=status
+   call ESMF_GridCompSetServices (gc, Kittye_SetServices, userRC=userRC, rc=status)
+!  call component's initialize
+
+!  do some time stepping and run
+
+!  finalize component
 
    call ESMF_Finalize(rc=status)
    if (status/=0) call abort_program()
