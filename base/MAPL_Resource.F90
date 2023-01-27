@@ -3,6 +3,55 @@
 #include "unused_dummy.H"
 
 !=============================================================================
+!FPP macros for repeated (type-dependent) code
+
+#ifdef SET_VAL
+#  undef SET_VAL
+#endif
+
+#define SET_VAL(T) \
+type is (T) \
+   if (default_is_present .and. .not. label_is_present) then \
+      select type(default) \
+      type is(T) \
+         val = default \
+      class default
+         _FAIL("Type of 'default' does not match type of 'val'.")
+      end select \
+   else \
+      call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC) \
+   end if
+
+#ifdef SET_VALS
+#  undef SET_VALS
+#endif
+
+#define SET_VALS(T) \
+type is (T) \
+   if (default_is_present .and. .not. label_is_present) then \
+      select type(default) \
+      type is(T) \
+         vals = default \
+      class default
+         _FAIL("Type of 'default' does not match type of 'vals'.")
+      end select \
+   else \
+      call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC) \
+   end if
+
+#ifdef SET_STRINGS
+#  undef SET_STRINGS
+#endif
+
+#define SET_STRINGS(T, TS, TF) \
+type is (T) \
+   type_str = TS \
+   val_str = intrinsic_to_string(val, TF) \
+   if (present(default)) then \
+      default_str = intrinsic_to_string(default, TF) \
+   end if
+
+!=============================================================================
 
 
 module MAPL_ResourceMod
@@ -122,61 +171,13 @@ contains
       end if
 
       select type(val)
-      type is(integer(int32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int32))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
-         end if
-      type is(integer(int64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int64))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
-         end if
-      type is(real(real32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(real(real32))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
-         end if
-      type is (real(real64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(real(real64))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
-         end if
-      type is(character(len=*))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(character(len=*))
-               val = trim(default)
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
-         end if
-      type is(logical)
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(logical)
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC)
-         end if
-         class default
+      SET_VAL(integer(int32))
+      SET_VAL(integer(int64))
+      SET_VAL(real(real32))
+      SET_VAL(real(real64))
+      SET_VAL(character(len=*))
+      SET_VAL(logical)
+      class default
          _FAIL( "Unupported type")
       end select
 
@@ -231,61 +232,13 @@ contains
       count = size(vals)
 
       select type(vals)
-      type is(integer(int32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int32))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
-         end if
-      type is(integer(int64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int64))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
-         end if
-      type is(real(real32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(real32))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
-         end if
-      type is (real(real64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(real64))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
-         end if
-      type is(character(len=*))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(character(*))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
-         end if
-      type is(logical)
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(logical)
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC)
-         end if
-         class default
+      SET_VALS(integer(int32))
+      SET_VALS(integer(int64))
+      SET_VALS(real(real32))
+      SET_VALS(real(real64))
+      SET_VALS(character(len=*))
+      SET_VALS(logical)
+      class default
          _FAIL( "Unsupported type")
       end select
 
@@ -315,52 +268,17 @@ contains
       end if
 
       select type(val)
-      type is(integer(int32))
-         type_str = "'Integer*4 '"
-         type_format = '(i0.1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(integer(int64))
-         type_str = "'Integer*8 '"
-         type_format = '(i0.1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(real(real32))
-         type_str = "'Real*4 '"
-         type_format = '(f0.6)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(real(real64))
-         type_str = "'Real*8 '"
-         type_format = '(f0.6)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(logical)
-         type_str = "'Logical '"
-         type_format = '(l1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(character(len=*))
-         type_str = "'Character '"
-         val_str = trim(val)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, 'a')
-         end if
-         class default
+      SET_STRINGS(integer(int32), "'Integer*4 '", '(i0.1)')
+      SET_STRINGS(integer(int64), "'Integer*8 '", '(i0.1)')
+      SET_STRINGS(real(real32), "'Real*4 '" , '(f0.6)')
+      SET_STRINGS(real(real64), "'Real*8 '" , '(f0.6)')
+      SET_STRINGS(logical, "'Logical '" , '(l1)' )
+      SET_STRINGS(character(len=*),"'Character '", '(a)') 
+      class default
          _FAIL("Unsupported type")
       end select
 
-      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
+      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)a"
 
       ! printrc = 0 - Only print non-default values
       ! printrc = 1 - Print all values
