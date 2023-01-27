@@ -37,7 +37,7 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_Grid), allocatable                :: primary_grid
+      type(ESMF_GeomBase), allocatable            :: geom_base
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
       logical                                     :: is_root_ = .false.
@@ -68,7 +68,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: initialize ! main/any phase
       procedure :: initialize_user
-      procedure :: initialize_grid
+      procedure :: initialize_geom_base
       procedure :: initialize_advertise
       procedure :: initialize_realize
 
@@ -94,7 +94,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: traverse
 
-      procedure :: set_grid
+      procedure :: set_geom_base
       procedure :: get_name
       procedure :: get_gridcomp
       procedure :: is_root
@@ -337,10 +337,10 @@ contains
 
    ! ESMF initialize methods
 
-   ! initialize_grid() is responsible for passing grid down to
+   ! initialize_geom() is responsible for passing grid down to
    ! children.  User component can insert a different grid using
    ! GENERIC_INIT_GRID phase in their component.
-   recursive subroutine initialize_grid(this, importState, exportState, clock, unusable, rc)
+   recursive subroutine initialize_geom_base(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
@@ -353,12 +353,12 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GRID'
 
       call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
-      call apply_to_children(this, set_child_grid, _RC)
+      call apply_to_children(this, set_child_geom, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
 
-      subroutine set_child_grid(this, child, rc)
+      subroutine set_child_geom(this, child, rc)
          class(OuterMetaComponent), intent(inout) :: this
          type(ChildComponent), intent(inout) ::  child
          integer, optional, intent(out) :: rc
@@ -366,16 +366,16 @@ contains
          integer :: status
          class(OuterMetaComponent), pointer :: child_meta
          
-         if (allocated(this%primary_grid)) then
+         if (allocated(this%geom_base)) then
             child_meta => get_outer_meta(child%gridcomp, _RC)
-            call child_meta%set_grid(this%primary_grid)
+            call child_meta%set_geom_base(this%geom_base)
          end if
          call child%initialize(clock, phase_name=PHASE_NAME, _RC)
          
          _RETURN(ESMF_SUCCESS)
-      end subroutine set_child_grid
+      end subroutine set_child_geom
 
-   end subroutine initialize_grid
+   end subroutine initialize_geom_base
 
    recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -387,10 +387,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-!!$      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-!!$
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
-!!$      call apply_to_children(this, set_child_grid, _RC)
+!!$      call apply_to_children(this, set_child_geom, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -518,7 +518,7 @@ contains
          _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
          select case (phase_name)
          case ('GENERIC::INIT_GRID')
-            call this%initialize_grid(importState, exportState, clock, _RC)
+            call this%initialize_geom_base(importState, exportState, clock, _RC)
          case ('GENERIC::INIT_USER')
             call this%initialize_user(importState, exportState, clock, _RC)
          case default
@@ -733,12 +733,12 @@ contains
       is_root = this%is_root_
    end function is_root
 
-   pure subroutine set_grid(this, primary_grid)
+   subroutine set_geom_base(this, geom_base)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Grid), intent(in) :: primary_grid
+      type(ESMF_GeomBase), intent(in) :: geom_base
 
-      this%primary_grid = primary_grid
-   end subroutine set_grid
+      this%geom_base = geom_base
+   end subroutine set_geom_base
 
    function get_registry(this) result(r)
       type(HierarchicalRegistry), pointer :: r

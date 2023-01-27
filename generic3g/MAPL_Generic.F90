@@ -24,7 +24,9 @@ module mapl3g_Generic
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_AbstractStateItemSpec
    use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_Grid
+   use :: esmf, only: ESMF_GeomBase, ESMF_GeomBaseCreate
+   use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
+   use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_Clock
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
@@ -53,7 +55,16 @@ module mapl3g_Generic
 !!$   public :: MAPL_GetCoordinates
 !!$   public :: MAPL_GetLayout
 
-   public :: MAPL_SetGrid
+   public :: MAPL_SetGeomBase
+
+   interface MAPL_SetGeom
+      module procedure MAPL_SetGeomBase
+      module procedure MAPL_SetGeomGrid
+      module procedure MAPL_SetGeomMesh
+      module procedure MAPL_SetGeomXgrid
+      module procedure MAPL_SetGeomLocStream
+   end interface MAPL_SetGeom
+
 
 !!$   interface MAPL_GetInternalState
 !!$      module procedure :: get_internal_state
@@ -283,18 +294,86 @@ contains
 
 
 
-   subroutine MAPL_SetGrid(gridcomp, primary_grid, rc)
+   subroutine MAPL_SetGeomBase(gridcomp, geom_base, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_Grid), intent(in) :: primary_grid
+      type(ESMF_GeomBase), intent(in) :: geom_base
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%set_grid(primary_grid)
+      call outer_meta%set_geom_base(geom_base)
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_SetGrid
+   end subroutine MAPL_SetGeomBase
+
+   subroutine MAPL_SetGeomGrid(gridcomp, grid, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_Grid), intent(in) :: grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ESMF_GeomBase) :: geom_base
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+
+      geom_base = ESMF_GeomBaseCreate(grid, ESMF_STAGGERLOC_INVALID, _RC)
+      call outer_meta%set_geom_base(geom_base)
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_SetGeomGrid
+
+   subroutine MAPL_SetGeomMesh(gridcomp, mesh, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_Mesh), intent(in) :: mesh
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ESMF_GeomBase) :: geom_base
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+
+      geom_base = ESMF_GeomBaseCreate(mesh, _RC)
+      call outer_meta%set_geom_base(geom_base)
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_SetGeomMesh
+
+   subroutine MAPL_SetGeomXGrid(gridcomp, xgrid, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_XGrid), intent(in) :: xgrid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ESMF_GeomBase) :: geom_base
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+
+      geom_base = ESMF_GeomBaseCreate(xgrid, _RC)
+      call outer_meta%set_geom_base(geom_base)
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_SetGeomXGrid
+
+   subroutine MAPL_SetGeomLocStream(gridcomp, locstream, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_LocStream), intent(in) :: locstream
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ESMF_GeomBase) :: geom_base
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+
+      geom_base = ESMF_GeomBaseCreate(locstream, _RC)
+      call outer_meta%set_geom_base(geom_base)
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_SetGeomLocStream
 
 end module mapl3g_Generic
