@@ -10,16 +10,16 @@
 #endif
 
 #define SET_VAL(T) \
-type is (T) \
-   if (default_is_present .and. .not. label_is_present) then \
-      select type(default) \
-      type is(T) \
-         val = default \
-      class default
-         _FAIL("Type of 'default' does not match type of 'val'.")
-      end select \
-   else \
-      call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC) \
+type is (T) ;\
+   if (default_is_present .and. .not. label_is_present) then ;\
+      select type(default) ;\
+      type is(T) ;\
+         val = default ;\
+      class default ;\
+         _FAIL("Type of 'default' does not match type of 'val'.") ;\
+      end select ;\
+   else ;\
+      call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC) ;\
    end if
 
 #ifdef SET_VALS
@@ -27,16 +27,16 @@ type is (T) \
 #endif
 
 #define SET_VALS(T) \
-type is (T) \
-   if (default_is_present .and. .not. label_is_present) then \
-      select type(default) \
-      type is(T) \
-         vals = default \
-      class default
-         _FAIL("Type of 'default' does not match type of 'vals'.")
-      end select \
-   else \
-      call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC) \
+type is (T) ;\
+   if (default_is_present .and. .not. label_is_present) then ;\
+      select type(default) ;\
+      type is(T) ;\
+         vals = default ;\
+      class default ;\
+         _FAIL("Type of 'default' does not match type of 'vals'.") ;\
+      end select ;\
+   else ;\
+      call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC) ;\
    end if
 
 #ifdef SET_STRINGS
@@ -44,11 +44,11 @@ type is (T) \
 #endif
 
 #define SET_STRINGS(T, TS, TF) \
-type is (T) \
-   type_str = TS \
-   val_str = intrinsic_to_string(val, TF) \
-   if (present(default)) then \
-      default_str = intrinsic_to_string(default, TF) \
+type is (T) ;\
+   type_str = TS ;\
+   val_str = intrinsic_to_string(val, TF) ;\
+   if (present(default)) then ;\
+      default_str = intrinsic_to_string(default, TF) ;\
    end if
 
 !=============================================================================
