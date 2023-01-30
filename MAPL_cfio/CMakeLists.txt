@@ -1,6 +1,6 @@
 esma_set_this ()
 string (REPLACE MAPL_cfio_ "" precision ${this})
-
+find_package(F2PY2 REQUIRED)
 
 set (srcs
   ESMF_CFIOBaseMod.f
@@ -54,3 +54,17 @@ if (precision MATCHES "r8")
     target_compile_options (${lib} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${flag}>)
   endforeach ()
 endif ()
+
+esma_add_f2py2_module(ShaveMantissa_
+   SOURCES ShaveMantissa_py.F90
+   DESTINATION lib/Python/${this}
+   INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}
+   )
+add_dependencies(ShaveMantissa_ ${this})
+
+
+# Install the Python files
+install (
+   FILES shavemantissa.py
+   DESTINATION lib/Python/${this}
+   )
