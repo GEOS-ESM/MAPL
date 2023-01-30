@@ -607,6 +607,7 @@ contains
        class (*), pointer :: x_ptr(:)
        integer , allocatable :: buffer_v(:)
        type (Attribute), pointer :: attr_ptr
+       type (Attribute) :: attr_tmp
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
@@ -666,9 +667,11 @@ contains
                   if (var_iter == vars_map%end()) then
                      msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
                      allocate(buffer_v(msize_word), source = -1)
-                     call vars_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
-                     var_iter = vars_map%find(i_to_string(q%request_id))
+                     attr_tmp = Attribute(buffer_v)
                      deallocate(buffer_v)
+                     call vars_map%insert(i_to_string(q%request_id),attr_tmp)
+                     call attr_tmp%destroy() 
+                     var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
                   attr_ptr => var_iter%value()

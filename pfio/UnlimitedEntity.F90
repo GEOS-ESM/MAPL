@@ -55,6 +55,7 @@ module pFIO_UnlimitedEntityMod
       procedure :: serialize
       procedure :: get_string
       procedure :: is_empty
+      procedure :: destroy
    end type UnlimitedEntity
 
    ! This derived type is a workaround for sporadic Intel Fortran
@@ -253,6 +254,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set
 
+   subroutine destroy(this, rc)
+      class (UnlimitedEntity), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      if(allocated(this%value)) deallocate(this%value)
+      if(allocated(this%values)) deallocate(this%values)
+      if(allocated(this%shape)) deallocate(this%shape)
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   ! get string or scalar
    ! get string or scalar
    function get_value(this, rc) result(value)
       class (UnlimitedEntity), target, intent(in) :: this
