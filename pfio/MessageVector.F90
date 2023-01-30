@@ -45,7 +45,7 @@ contains
      enddo
 
      if(size(tmp, kind=8) > huge(0)) then
-       _ASSERT( .false., " need to increase oserver's nfront")
+       _FAIL("need to increase oserver's nfront")
      endif
 
      i = size(tmp)+1
