@@ -146,6 +146,7 @@ module MAPL_GenericMod
    public MAPL_GenericSetServices
    public MAPL_GenericInitialize
    public MAPL_GenericRunChildren
+   public MAPL_AddDatabaseAttributes
    public MAPL_GenericFinalize
 
    public MAPL_AddInternalSpec
@@ -463,6 +464,7 @@ module MAPL_GenericMod
       procedure :: get_child_gridcomp
       procedure :: get_child_import_state
       procedure :: get_child_export_state
+      procedure :: get_child_internal_state
 
    end type MAPL_MetaComp
    !EOC
@@ -1968,6 +1970,13 @@ contains
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
+      type(ESMF_State), pointer :: child_internal_state
+      
+      character(len=ESMF_MAXSTR)       :: FILENAME, FILETYPE
+      character(len=ESMF_MAXSTR) :: resolution, config, compiler
+      integer :: numFlags
+      character(len=ESMF_MAXSTR), allocatable :: flags(:)
+      character(len=ESMF_MAXSTR) :: maplVers, compVers
       !=============================================================================
 
       ! Begin...
@@ -1988,6 +1997,11 @@ contains
 
       call MAPL_InternalStateGet ( GC, STATE, RC=status)
       _VERIFY(status)
+
+      !FILETYPE = ESMF_UtilStringLowerCase(FILETYPE,rc=status)
+      FILETYPE = 'pnc4'
+      FILENAME = trim(comp_name)//"_"
+      allocate(flags(1))
 
 !@ call MAPL_TimerOn (STATE,"GenRunTot")
 
@@ -2015,13 +2029,63 @@ contains
                call MAPL_TimerOn (STATE,trim(CHILD_NAME))
                child_import_state => STATE%get_child_import_state(i)
                child_export_state => STATE%get_child_export_state(i)
+	       child_internal_state => STATE%get_child_internal_state(i)               
+
+	       if (trim(comp_name) == 'GWD') then
+	       call MAPL_ESMFStateWriteToFile(child_internal_state, CLOCK, trim(FILENAME)//"internal_before", &
+                    FILETYPE, STATE, .false., rc=status)
+               _VERIFY(status)
+               end if
+
+	       if (trim(comp_name) == 'GWD') then
+               print *, '******************'
+	       print *, 'Entering to write', comp_name, ' import before to file'
+               print*, '******************' 
+               call MAPL_ESMFStateWriteToFile(child_import_state, CLOCK, trim(FILENAME)//"import_before", &
+                    FILETYPE, STATE, .false., RC=status)
+               _VERIFY(status)
+               end if
+
+	       resolution = "c12"
+               config = "sample config"
+               compiler = "Intel"
+               numFlags = 1
+               flags(1) = "sample flag"
+	       maplVers = "version number"
+               compVers = "component version"
+
+!	       call MAPL_AddDatabaseAttributes(trim(FILENAME)//"import_before", comp_name, PHASE, &
+!		    trim(resolution), trim(config), trim(compiler), numFlags, flags, trim(maplVers), trim(compVers), RC=status)
+!	       _VERIFY(status)
+	       
+
+!               call MAPL_ESMFStateWriteToFile(child_export_state, CLOCK, trim(FILENAME)//"export_before", &
+!                    FILETYPE, STATE, .false., RC=status )
+!               _VERIFY(status)
+
+
                call ESMF_GridCompRun (gridcomp, &
                     importState=child_import_state, &
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_RUN(PHASE), &
                     userRC=userRC, _RC )
                _VERIFY(userRC)
-               call MAPL_TimerOff(STATE,trim(CHILD_NAME))
+
+                if (trim(comp_name) == 'GWD') then
+                call MAPL_ESMFStateWriteToFile(child_internal_state, CLOCK, trim(FILENAME)//"internal_after", &
+                    FILETYPE, STATE, .false., RC=status )
+               _VERIFY(status)
+
+                call MAPL_ESMFStateWriteToFile(child_import_state, CLOCK, trim(FILENAME)//"import_after", &
+                    FILETYPE, STATE, .false., RC=status )
+               _VERIFY(status)
+               end if
+
+!                call MAPL_ESMFStateWriteToFile(child_export_state, CLOCK, trim(FILENAME)//"export_after", &
+!                    FILETYPE, STATE, .false., RC=status )
+!               _VERIFY(status)
+
+                call MAPL_TimerOff(STATE,trim(CHILD_NAME))
             end if
 
             !ALT question for Max - if user wants to run particular phase only, when should we run couplers
@@ -2048,6 +2112,40 @@ contains
 
    end subroutine MAPL_GenericRunChildren
 
+subroutine MAPL_AddDatabaseAttributes(filename, compPhase, runPhase, resolution, config, compiler, numFlags, flags, maplVers, compVers, rc)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: runPhase
+    character(len=*), optional, intent(in) :: compPhase, resolution, config, compiler
+    integer, intent(in) :: numFlags
+    character(len=*), optional, dimension(numFlags), intent(in) :: flags
+    character(len=*), optional, intent(in) :: maplVers, compVers
+    integer, optional, intent(out) :: rc
+    type(Netcdf4_Fileformatter) :: formatter
+    type(FileMetaData) :: metadata
+    integer :: status
+
+    print*, filename
+    if (MAPL_AM_I_ROOT()) then
+    
+    call formatter%open(filename, pFIO_READ, rc=status)
+    _VERIFY(status)
+    metadata = formatter%read(rc=status)
+    _VERIFY(status)
+
+    call metadata%add_attribute("component phase", compPhase) ! component phase?
+    call metadata%add_attribute("run phase", runPhase)
+    call metadata%add_attribute("resolution", resolution)
+    call metadata%add_attribute("configuration", config)
+    call metadata%add_attribute("compiler", compiler)
+    call metadata%add_attribute("optimization flags", flags)
+    call metadata%add_attribute("MAPL version", maplVers)
+    call metadata%add_attribute("component version", compVers)
+   
+    call formatter%close(rc=status)
+    _VERIFY(status)
+    end if
+    _RETURN(ESMF_SUCCESS)
+end subroutine MAPL_AddDatabaseAttributes
 
    !BOPI
    ! !IROUTINE: MAPL_GenericFinalize -- Finalizes the component and its children
@@ -11478,6 +11576,20 @@ contains
 
    end function get_child_export_state
 
+   function get_child_internal_state(this, i) result(state)
+      type(ESMF_State), pointer :: state
+      class(MAPL_MetaComp), target :: this
+      integer, intent(in) :: i
+   !   integer :: status, rc
+
+      class(MaplGenericComponent), pointer :: child
+
+      child => this%get_ith_child(i)
+    !  call MAPL_Get(this,INTERNAL_ESMF_STATE=state,rc=status)
+    !  _VERIFY(status)
+      state => child%get_internal_state()
+
+   end function get_child_internal_state
 
    function MAPL_IsStateEmpty(state, rc) result(empty)
       type(ESMF_State), intent(in) :: state
