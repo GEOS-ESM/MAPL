@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for more details. Provides the TRUE local solar hour angle (i.e., with equation of time
   included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
   optional argument.
+- Add `shavemantissa` f2py code. This is used by AeroApps.
 
 ### Changed
 
