@@ -61,7 +61,8 @@ set (srcs
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger GFTL_SHARED::gftl-shared
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger 
+               GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE ${MAPL_LIBRARY_TYPE})
 

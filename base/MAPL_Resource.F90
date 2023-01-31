@@ -9,46 +9,46 @@
 #  undef SET_VAL
 #endif
 
-#define SET_VAL(T) \
+#define SET_VAL(T, VAL) \
 type is (T) ;\
    if (default_is_present .and. .not. label_is_present) then ;\
       select type(default) ;\
       type is(T) ;\
-         val = default ;\
+         VAL = default ;\
       class default ;\
-         _FAIL("Type of 'default' does not match type of 'val'.") ;\
+         _FAIL("Type of 'default' does not match type of 'VAL'.") ;\
       end select ;\
    else ;\
-      call ESMF_ConfigGetAttribute(config, val, label = actual_label, _RC) ;\
+      call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, _RC) ;\
    end if
 
 #ifdef SET_VALS
 #  undef SET_VALS
 #endif
 
-#define SET_VALS(T) \
+#define SET_VALS(T, VALS) \
 type is (T) ;\
    if (default_is_present .and. .not. label_is_present) then ;\
       select type(default) ;\
       type is(T) ;\
-         vals = default ;\
+         VALS = default ;\
       class default ;\
-         _FAIL("Type of 'default' does not match type of 'vals'.") ;\
+         _FAIL("Type of 'default' does not match type of 'VALS'.") ;\
       end select ;\
    else ;\
-      call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = actual_label, _RC) ;\
+      call ESMF_ConfigGetAttribute(config, valuelist = VALS, count = count, label = actual_label, _RC) ;\
    end if
 
 #ifdef SET_STRINGS
 #  undef SET_STRINGS
 #endif
 
-#define SET_STRINGS(T, TS, TF) \
+#define SET_STRINGS(T, TSTR, TFMT) \
 type is (T) ;\
-   type_str = TS ;\
-   val_str = intrinsic_to_string(val, TF) ;\
+   type_str = TSTR ;\
+   val_str = intrinsic_to_string(val, TFMT) ;\
    if (present(default)) then ;\
-      default_str = intrinsic_to_string(default, TF) ;\
+      default_str = intrinsic_to_string(default, TFMT) ;\
    end if
 
 !=============================================================================
@@ -171,12 +171,12 @@ contains
       end if
 
       select type(val)
-      SET_VAL(integer(int32))
-      SET_VAL(integer(int64))
-      SET_VAL(real(real32))
-      SET_VAL(real(real64))
-      SET_VAL(character(len=*))
-      SET_VAL(logical)
+      SET_VAL(integer(int32), val)
+      SET_VAL(integer(int64), val)
+      SET_VAL(real(real32), val)
+      SET_VAL(real(real64), val)
+      SET_VAL(character(len=*), val)
+      SET_VAL(logical, val)
       class default
          _FAIL( "Unupported type")
       end select
@@ -232,12 +232,12 @@ contains
       count = size(vals)
 
       select type(vals)
-      SET_VALS(integer(int32))
-      SET_VALS(integer(int64))
-      SET_VALS(real(real32))
-      SET_VALS(real(real64))
-      SET_VALS(character(len=*))
-      SET_VALS(logical)
+      SET_VALS(integer(int32), vals)
+      SET_VALS(integer(int64), vals)
+      SET_VALS(real(real32), vals)
+      SET_VALS(real(real64), vals)
+      SET_VALS(character(len=*), vals)
+      SET_VALS(logical, vals)
       class default
          _FAIL( "Unsupported type")
       end select
