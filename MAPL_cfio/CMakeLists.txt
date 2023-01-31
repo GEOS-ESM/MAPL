@@ -55,16 +55,17 @@ if (precision MATCHES "r8")
   endforeach ()
 endif ()
 
-esma_add_f2py2_module(ShaveMantissa_
-   SOURCES ShaveMantissa_py.F90
-   DESTINATION lib/Python/${this}
-   INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}
-   )
-add_dependencies(ShaveMantissa_ ${this})
+if (precision MATCHES "r4")
+  esma_add_f2py2_module(ShaveMantissa_
+     SOURCES ShaveMantissa_py.F90 ShaveMantissa.c
+     DESTINATION lib/Python/${this}
+     INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}
+     )
+  add_dependencies(ShaveMantissa_ ${this})
 
-
-# Install the Python files
-install (
-   FILES shavemantissa.py
-   DESTINATION lib/Python/${this}
-   )
+  # Install the Python files
+  install (
+     FILES shavemantissa.py
+     DESTINATION lib/Python/${this}
+     )
+endif ()
