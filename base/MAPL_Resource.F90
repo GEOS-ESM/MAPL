@@ -93,10 +93,10 @@ contains
          component_type = component_name(index(component_name, ":") + 1:)
 
          ! The order to search for labels in resource files
-         labels_with_prefix = [  trim(component_name)//"_"//trim(label), &
-                                 trim(component_type)//"_"//trim(label), &
-                                 trim(label), &
-                                 trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label) ]
+         labels_with_prefix(1) = trim(component_name)//"_"//trim(label)
+         labels_with_prefix(2) = trim(component_type)//"_"//trim(label)
+         labels_with_prefix(3) = trim(label)
+         labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
       else
          labels_with_prefix = ''
          labels_with_prefix(1) = label
