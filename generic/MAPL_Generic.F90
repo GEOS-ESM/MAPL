@@ -18,6 +18,43 @@
 # define _FTELL ftell
 #endif
 
+#ifdef SET_VAL
+#  undef SET_VAL
+#endif
+
+#ifdef SET_VAL(VAL, T, TYPE_STR, TYPE_FMT, IS_ARRAY) \
+      type is (T)
+         if (default_is_present) then
+            select type (default)
+            type is (T)
+               if (label_is_present) then
+                  if (IS_ARRAY) then
+                  else
+                  call ESMF_ConfigGetAttribute(config, VAL, label = label, _RC)
+                  val_differs = do_print_value .and. (VAL == default)
+               else
+                  VAL = default
+            class default
+               _FAIL("Type of 'default' does not match type of 'VAL'.")
+            end select
+         if (label_is_present) then
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            if (do_print_value .and. default_is_present) then
+               select type(default)
+               type is (T)
+                  value_differs = VAL .eq. default
+               class default
+                  _FAIL("Type of 'default' does not match type of 'VAL')
+               end select
+            end if
+         else
+            _FAIL("Label not found. Default missing.")
+         end if
+         if (do_print_value) then
+            type_str = TYPE_STR
+            write(val_str, TYPE_FMT) VAL
+         end if
+
 #include "unused_dummy.H"
 
 !=============================================================================
@@ -350,7 +387,14 @@ module MAPL_GenericMod
       module procedure MAPL_AddAttributeToFields_I4
    end interface
 
-
+   interface set_val_to_default
+      module procedure set_val_to_default_int32
+      module procedure set_val_to_default_int64
+      module procedure set_val_to_default_real32
+      module procedure set_val_to_default_real64
+      module procedure set_val_to_default_character
+      module procedure set_val_to_default_logical
+   end interface set_val_to_default
    ! =======================================================================
 
 
@@ -396,6 +440,12 @@ module MAPL_GenericMod
    type MAPL_Link
       type (MAPL_LinkForm), pointer :: PTR
    end type MAPL_Link
+
+   type MAPL_Resource_Print_Parameters
+      logical                       :: do_print
+      integer                       :: printrc
+      character(len=:), allocatable :: label_to_print
+   end type MAPL_Resource_Print_Parameters
 
    !BOP
    !BOC
@@ -8437,7 +8487,6 @@ contains
       labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
    end function get_labels_with_prefix
 
-
    subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, default, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
@@ -8493,90 +8542,185 @@ contains
       integer :: status, printrc
       logical :: default_is_present, label_is_present
       character(len=:), allocatable :: label_to_print
-
-      default_is_present = present(default)
-
-      if (default_is_present) then
-         _ASSERT(same_type_as(val, default), "Value and default must have same type")
-      end if
+      logical :: do_print_value
+      logical :: value_differs
+      character(len=ESMF_MAXSTR) :: val_str
+      character(len=:), allocatable :: type_str
+      character(len=:), allocatable :: type_format
 
       call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, _RC)
 
+      default_is_present = present(default)
+      if (present(default)) then
+         _ASSERT(same_type_as(val, default), "Value and default must have same type")
+      end if
+
+      do_print_value = .FALSE. 
+      ! Can set printrc to negative to not print at all
+      if (MAPL_AM_I_Root()) then
+         call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 1, _RC)
+         if (printrc >= 0)
+            do_print_value = .TRUE.
+            if (label_is_present) then
+               label_to_print = label
+            else
+               label_to_print = trim(label)
+            end if
+         end if
+      end if
+
+      value_differs = .FALSE.
       select type(val)
       type is(integer(int32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int32))
-               val = default
-            end select
-         else
+         if (label_is_present) then
             call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            if (default_is_present) value_differs = value_not_equal_default(val, default)
+         else if (default_is_present) then
+            call set_val_to_default(default, val)
+         else
+            _FAIL("Label not found. Default missing.")
          end if
+         type_str = "'Integer*4 '"
+         type_format = '(i0.1)'
+         write(val_str, type_format) val
       type is(integer(int64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int64))
-               val = default
-            end select
-         else
+         if (label_is_present) then
             call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            if (default_is_present) value_differs = value_not_equal_default(val, default)
+         else if (default_is_present) then
+            call set_val_to_default(default, val)
+         else
+            _FAIL("Label not found. Default missing.")
          end if
+         type_str = "'Integer*8 '"
+         type_format = '(i0.1)'
+         write(val_str, type_format) val
       type is(real(real32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(real(real32))
-               val = default
-            end select
-         else
+         if (label_is_present) then
             call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            if (default_is_present) value_differs = value_not_equal_default(val, default)
+         else if (default_is_present) then
+            call set_val_to_default(default, val)
+         else
+            _FAIL("Label not found. Default missing.")
          end if
+         type_str = "'Real*4 '"
+         type_format = '(f0.6)'
+         write(val_str, type_format) val
       type is (real(real64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(real(real64))
-               val = default
-            end select
-         else
+         if (label_is_present) then
             call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
-         end if
-      type is(character(len=*))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(character(len=*))
-               val = trim(default)
-            end select
+            if (default_is_present) value_differs = value_not_equal_default(val, default)
+         else if (default_is_present) then
+            call set_val_to_default(default, val)
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            _FAIL("Label not found. Default missing.")
          end if
+         type_str = "'Real*8 '"
+         type_format = '(f0.6)'
+         write(val_str, type_format) val
       type is(logical)
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(logical)
-               val = default
-            end select
-         else
+         if (label_is_present) then
             call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            if (default_is_present) value_differs = value_not_equal_default(val, default)
+         else if (default_is_present) then
+            call set_val_to_default(default, val)
+         else
+            _FAIL("Label not found. Default missing.")
          end if
+         type_str = "'Logical '"
+         type_format = '(l1)'
+         write(val_str, type_format) val
+      type is(character(len=*))
+         if (label_is_present) then
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
+            if (default_is_present) value_differs = value_not_equal_default(val, default)
+         else if (default_is_present) then
+            call set_val_to_default(default, val)
+         else
+            _FAIL("Label not found. Default missing.")
+         end if
+         type_str = "'Character '"
+         type_format = '(a)'
+         write(val_str, type_format) val
       class default
          _FAIL( "Unupported type")
       end select
-
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 1, _RC)
-
-      ! Can set printrc to negative to not print at all
-      if (MAPL_AM_I_Root() .and. printrc >= 0) then
-         if (label_is_present) then
-            label_to_print = label
-         else
-            label_to_print = trim(label)
-         end if
-         call print_resource_scalar(printrc, label_to_print, val, default=default,_RC)
-      end if
 
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
+   subroutine set_print_parameters(do_print, label_to_print)
+      logical, intent(in) :: do_print
+      
+   end subroutine set_print_parameters
+
+   subroutine set_val_to_default_int32(default, val)
+      class(*), intent(in) :: default
+      integer(int32), intent(out) :: val
+
+      select type(default)
+      type is(integer(int32))
+         val = default
+      end select
+
+   end subroutine set_val_to_default_int32
+
+   subroutine set_val_to_default_int64(default, val)
+      class(*), intent(in) :: default
+      integer(int64), intent(out) :: val
+
+      select type(default)
+      type is(integer(int64))
+         val = default
+      end select
+
+   end subroutine set_val_to_default_int64
+
+   subroutine set_val_to_default_real32(default, val)
+      class(*), intent(in) :: default
+      real(real32), intent(out) :: val  
+
+      select type(default)
+      type is(integer(real32))
+         val = default
+      end select
+
+   end subroutine set_val_to_default_real32
+
+   subroutine set_val_to_default_real64(default, val)
+      class(*), intent(in) :: default
+      real(real64), intent(out) :: val  
+
+      select type(default)
+      type is(integer(real64))
+         val = default
+      end select
+
+   end subroutine set_val_to_default_real64
+
+   subroutine set_val_to_default_character(default, val)
+      class(*), intent(in) :: default
+      character(len=*, intent(out) :: val
+
+      select type(default)
+      type is(character(len=*))
+         val = trim(default)
+      end select
+
+   end subroutine set_val_to_default_character
+
+   subroutine set_val_to_default_logical(default, val)
+      class(*), intent(in) :: default
+      logical, intent(out) :: val
+
+      select type(default)
+      type is(logical)
+         val = default
+      end select
+
+   end subroutine set_val_to_default_logical
 
    subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
       type(MAPL_MetaComp), intent(inout) :: state
@@ -8748,43 +8892,43 @@ contains
       type is(integer(int32))
          type_str = "'Integer*4 '"
          type_format = '(i0.1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
+         write(val_str, type_format) val
+         if (present(default)) 
+            write(default_str, type_format) default
          end if
       type is(integer(int64))
          type_str = "'Integer*8 '"
          type_format = '(i0.1)'
-         val_str = intrinsic_to_string(val, type_format)
+         write(val_str, type_format) val
          if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
+            write(default_str, type_format) default
          end if
       type is(real(real32))
          type_str = "'Real*4 '"
          type_format = '(f0.6)'
-         val_str = intrinsic_to_string(val, type_format)
+         write(val_str, type_format) val
          if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
+            write(default_str, type_format) default
          end if
       type is(real(real64))
          type_str = "'Real*8 '"
          type_format = '(f0.6)'
-         val_str = intrinsic_to_string(val, type_format)
+         write(val_str, type_format) val
          if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
+            write(default_str, type_format) default
          end if
       type is(logical)
          type_str = "'Logical '"
          type_format = '(l1)'
-         val_str = intrinsic_to_string(val, type_format)
+         write(val_str, type_format) val
          if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
+            write(default_str, type_format) default
          end if
       type is(character(len=*))
          type_str = "'Character '"
          val_str = trim(val)
          if (present(default)) then
-            default_str = intrinsic_to_string(default, 'a')
+            default_str = trim(default)
          end if
       class default
          _FAIL("Unsupported type")
@@ -8795,17 +8939,6 @@ contains
       else
          output_parameter(printrc, type_str, val_str)
       end if
-!      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
-!
-!      ! printrc = 0 - Only print non-default values
-!      ! printrc = 1 - Print all values
-!      if (present(default)) then
-!         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
-!            print output_format, trim(label), trim(val_str)
-!         end if
-!      else
-!         print output_format, trim(label), trim(val_str)
-!      end if
 
    contains
 
@@ -8830,30 +8963,30 @@ contains
 
       end function vector_contains_str
 
-      function intrinsic_to_string(val, str_format, rc) result(formatted_str)
-         class(*), intent(in) :: val
-         character(len=*), intent(in) :: str_format
-         character(len=256) :: formatted_str
-         integer, optional, intent(out) :: rc
-
-         select type(val)
-         type is(integer(int32))
-            write(formatted_str, str_format) val
-         type is(integer(int64))
-            write(formatted_str, str_format) val
-         type is(real(real32))
-            write(formatted_str, str_format) val
-         type is(real(real64))
-            write(formatted_str, str_format) val
-         type is(logical)
-            write(formatted_str, str_format) val
-         type is(character(len=*))
-            formatted_str = trim(val)
-         class default
-            _FAIL( "Unsupported type in intrinsic_to_string")
-         end select
-
-      end function intrinsic_to_string
+!      function intrinsic_to_string(val, str_format, rc) result(formatted_str)
+!         class(*), intent(in) :: val
+!         character(len=*), intent(in) :: str_format
+!         character(len=256) :: formatted_str
+!         integer, optional, intent(out) :: rc
+!
+!         select type(val)
+!         type is(integer(int32))
+!            write(formatted_str, str_format) val
+!         type is(integer(int64))
+!            write(formatted_str, str_format) val
+!         type is(real(real32))
+!            write(formatted_str, str_format) val
+!         type is(real(real64))
+!            write(formatted_str, str_format) val
+!         type is(logical)
+!            write(formatted_str, str_format) val
+!         type is(character(len=*))
+!            formatted_str = trim(val)
+!         class default
+!            _FAIL( "Unsupported type in intrinsic_to_string")
+!         end select
+!
+!      end function intrinsic_to_string
 
    end subroutine print_resource_scalar
 
@@ -11737,6 +11870,4 @@ contains
       enddo
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_AddAttributeToFields_I4
-
 end module MAPL_GenericMod
