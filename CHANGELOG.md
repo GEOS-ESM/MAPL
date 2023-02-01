@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
   and are now explicitly named and commented on at the head of the module. This is a structural
   zero-diff change.
+- Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
+  The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
+  most of the functionality is in MAPL_ResourceMod now.
 
 ### Fixed
 
@@ -39,6 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.34.2] - 2023-01-19
+
+### Fixed
+
+- Fixed bug with ExtDataDriver.x when enabling oserver on dedicated resources
 
 ## [2.34.1] - 2023-01-13
 
