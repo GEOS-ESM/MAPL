@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and are now explicitly named and commented on at the head of the module. This is a structural
   zero-diff change.
 - Created `MAPL.profiler` logger and moved throughput, per-component, and global timers to use it
+- Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
+  The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
+  most of the functionality is in MAPL_ResourceMod now.
 
 ### Fixed
 
