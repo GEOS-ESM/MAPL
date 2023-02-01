@@ -306,7 +306,6 @@ contains
       _VERIFY(status)
       call stop_timer()
 
-      ! W.J note : below reporting will be remove soon
       call report_throughput()
 
       _RETURN(_SUCCESS)
