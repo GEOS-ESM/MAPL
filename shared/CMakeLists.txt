@@ -25,6 +25,8 @@ set (srcs
     FileSystemUtilities.F90
     DSO_Utilities.F90
     MAPL_ISO8601_DateTime.F90
+    DownBit.F90
+    ShaveMantissa.c
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
@@ -38,6 +40,8 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 endif ()
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
