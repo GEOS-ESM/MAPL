@@ -14,6 +14,6 @@
 
 
  /* prototype */
- int pFIO_ShaveMantissa ( float32 a[], float32 ain[], int32 len, int xbits, 
-                     int has_undef, float32 undef, int32 chunksize );
+ int MAPL_ShaveMantissa ( float32 a[], float32 ain[], int32 len, int xbits, 
+                     int has_undef, float32 undef, int32 chunksize, int passed_minmax, float32 arr_min, float32 arrmax );
 

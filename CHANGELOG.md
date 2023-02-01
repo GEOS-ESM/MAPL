@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
 - Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
   provides a convenient local solar hour angle diagnostic which will be used to detect local
   solar noon via the `EXAMPLE OF USE` in the subroutine header. See `DESCRIPTION` in code
