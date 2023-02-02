@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
   optional argument.
 - Add `shavemantissa` f2py code. This is used by AeroApps.
+  - NOTE: If you do not have a need for this code, build with `-DUSE_F2PY=OFF`. Note that even if you try to build the f2py code, it might fail anyway due to issues with the Python stack on the machine. ESMA_cmake has code that "tests" if f2py works. If it doesn't, it should failover gracefully.
 
 ### Changed
 
