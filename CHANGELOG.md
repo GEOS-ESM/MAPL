@@ -78,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
   The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
   most of the functionality is in MAPL_ResourceMod now.
+- Update "build like UFS" CI test
 
 ### Fixed
 
