@@ -1,4 +1,7 @@
 target_sources(MAPL.generic3g PRIVATE
+  VariableSpec.F90
+  VariableSpecVector.F90
+
   #  HorizontalStaggerLoc.F90
 
   UngriddedDimSpec.F90

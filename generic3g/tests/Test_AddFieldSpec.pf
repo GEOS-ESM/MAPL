@@ -15,8 +15,9 @@ contains
    ! is to pass.
    subroutine test_add_one_field()
       type(StateSpec) :: state_spec
-      type(ESMF_Grid) :: grid
-      call state_spec%add_item('A', FieldSpec(ExtraDimsSpec(), grid))
+      type(ESMF_GeomBase) :: geom_base
+
+      call state_spec%add_item('A', FieldSpec(ExtraDimsSpec(), geom_base))
    end subroutine test_add_one_field
    
    @test
@@ -32,9 +33,9 @@ contains
       class(AbstractStateItemSpec), pointer :: item_spec
 
       type(FieldSpec) :: field_spec
-      type(ESMF_Grid) :: grid
+      type(ESMF_GeomBase) :: geom_base
 
-      field_spec = FieldSpec(ExtraDimsSpec(), Grid)
+      field_spec = FieldSpec(ExtraDimsSpec(), geom_base)
       call state_spec%add_item('A', field_spec)
 
       ! Different name/key

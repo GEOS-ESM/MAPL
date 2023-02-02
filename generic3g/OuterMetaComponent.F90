@@ -2,6 +2,11 @@
 
 module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
+   use mapl3g_VariableSpec
+   use mapl3g_ExtraDimsSpec
+   use mapl3g_FieldSpec
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_VariableSpecVector
    use mapl3g_GenericConfig
    use mapl3g_ComponentSpec
    use mapl3g_ChildComponent
@@ -48,6 +53,7 @@ module mapl3g_OuterMetaComponent
 
       class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
 
+      type(VariableSpecVector)                    :: variable_specs
       type(ComponentSpec)                         :: component_spec
       type(OuterMetaComponent), pointer           :: parent_private_state
       type(HierarchicalRegistry) :: registry
@@ -380,21 +386,84 @@ contains
    recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
       class(KE), optional, intent(in) :: unusable
-      type(ESMF_State), optional :: importState
-      type(ESMF_State), optional :: exportState
-      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-!!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
-!!$      call apply_to_children(this, set_child_geom, _RC)
+      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call local_advertise(this, importState, exportState, clock, _RC)
+      call apply_to_children(this, init_child, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    contains
 
+      subroutine init_child(this, child, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(ChildComponent), intent(inout) ::  child
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         call child%initialize(clock, phase_name=PHASE_NAME, _RC)
+         _RETURN(ESMF_SUCCESS)
+      end subroutine init_child
+
+
+      subroutine local_advertise(this, importState, exportState, clock, unusable, rc)
+         
+         class(OuterMetaComponent), intent(inout) :: this
+         ! optional arguments
+         type(ESMF_State) :: importState
+         type(ESMF_State) :: exportState
+         type(ESMF_Clock) :: clock
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+         type(VariableSpecVectorIterator) :: iter
+         type(VariableSpec), pointer :: var_spec
+
+         associate (e => this%variable_specs%end())
+           iter = this%variable_specs%begin()
+           do while (iter /= e)
+              var_spec => iter%of()
+              call advertise_variable (var_spec, this%registry, this%geom_base, _RC)
+              call iter%next()
+           end do
+         end associate
+
+         _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
+      end subroutine local_advertise
+
+
+      subroutine advertise_variable(var_spec, registry, geom_base, unusable, rc)
+         type(VariableSpec), intent(in) :: var_spec
+         type(HierarchicalRegistry), intent(inout) :: registry
+         type(ESMF_GeomBase), intent(in) :: geom_base
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         class(AbstractStateItemSpec), allocatable :: item_spec
+         type(VirtualConnectionPt) :: virtual_pt
+         type(ExtraDimsSpec) :: extra_dims
+
+         ! Hardwire for field for now
+
+         item_spec = FieldSpec(extra_dims, geom_base)
+         virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
+         call registry%add_item_spec(virtual_pt, item_spec)
+         
+         _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
+      end subroutine advertise_variable
+         
    end subroutine initialize_advertise
 
    recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
