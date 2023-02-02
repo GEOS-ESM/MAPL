@@ -1932,7 +1932,7 @@ ENDDO PARSER
          end if
          ! check if split is needed
          if (.not. split) then
-            allocate(splitFields(1), __STAT__)
+            allocate(splitFields(1), _STAT)
             splitFields(1) = field
          else
             call MAPL_FieldSplit(field, splitFields, aliasName=alias_name, _RC)
@@ -1943,7 +1943,7 @@ ENDDO PARSER
          szr = size(list(n)%r4)
          if (big > szr) then
             ! grow
-            allocate(tmp_r4(big), tmp_r8(big), tmp_r8_to_r4(big), __STAT__)
+            allocate(tmp_r4(big), tmp_r8(big), tmp_r8_to_r4(big), _STAT)
             tmp_r4(1:szr) = list(n)%r4
             tmp_r8(1:szr) = list(n)%r8
             tmp_r8_to_r4(1:szr) = list(n)%r8_to_r4
@@ -2006,7 +2006,7 @@ ENDDO PARSER
 
                call ESMF_FieldGet(FIELD, dimCount=fieldRank, _RC)
                call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
-               allocate(gridToFieldMap(gridRank), __STAT__)
+               allocate(gridToFieldMap(gridRank), _STAT)
                call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, _RC)
 
                notGridded = count(gridToFieldMap==0)
@@ -2026,7 +2026,7 @@ ENDDO PARSER
                   allocate(ungriddedLBound(unGridDims), &
                        ungriddedUBound(unGridDims), &
                        ungrd(unGridDims),           &
-                       __STAT__)
+                       _STAT)
 
                   call ESMF_FieldGet(field, Array=array, _RC)
 
@@ -2044,7 +2044,7 @@ ENDDO PARSER
                   if (isPresent) then
                      call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",itemcount=ungrdsize,_RC)
                      if ( ungrdsize /= 0 ) then
-                        allocate(ungridded_coord(ungrdsize),__STAT__)
+                        allocate(ungridded_coord(ungrdsize),_STAT)
                         call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,_RC)
                      end if
                   else
@@ -3287,7 +3287,7 @@ ENDDO PARSER
 
    allocate(Writing (nlist), _STAT)
    allocate(filename(nlist), _STAT)
-   allocate(NewSeg (nlist), __STAT__)
+   allocate(NewSeg (nlist), _STAT)
    newSeg = .false.
 
   ! decide if we are writing based on alarms
@@ -5054,8 +5054,8 @@ ENDDO PARSER
 
     call ESMF_StateGet(src,  itemCount=itemCount, _RC)
 
-    allocate(itemnames(itemcount), __STAT__)
-    allocate(itemtypes(itemcount), __STAT__)
+    allocate(itemnames(itemcount), _STAT)
+    allocate(itemtypes(itemcount), _STAT)
 
     call ESMF_StateGet(src, itemNameList=itemNames, &
                        itemTypeList=itemTypes, _RC)
