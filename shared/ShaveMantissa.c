@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "pFIO_ShaveMantissa.h"   /* protype */
+#include "ShaveMantissa.h"   /* protype */
 
 #define MAXBITS 20
 
@@ -22,7 +22,7 @@
 
 //========================================
 
-float32 pfio_SetOffset(float32 minv, float32 maxv)
+float32 MAPL_SetOffset(float32 minv, float32 maxv)
 {
   float32   midv, mnabs,  range;
 
@@ -43,7 +43,7 @@ float32 pfio_SetOffset(float32 minv, float32 maxv)
 //
 // !INTERFACE:
 */
-int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int has_undef, float32 undef, int32 chunksize )
+int MAPL_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int has_undef, float32 undef, int32 chunksize, int passed_minmax, float32 arr_min, float32 arr_max )
 
 /*
 // !INPUT PARAMETERS:
@@ -101,7 +101,7 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 //                       was not copying input to output arrays.
 //  10Mar2009  Suarez    Used a union for the shaving. Also changed the
 //                       SKIP  checks and protected the max and min.
-//  24oct2009  da Silva  Changed abs() to fabs() in pfio_SetOffset; moved float32
+//  24oct2009  da Silva  Changed abs() to fabs() in MAPL_SetOffset; moved float32
 //                       defs to header so that it can be used with prototype.
 //  28oct2010  da Silva  Changed another occurence of abs() -> fabs()
 //EOP
@@ -125,14 +125,14 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 
   if ( len < 0 || xbits < 1 ) {
     fprintf(stderr,
-          "ShaveMantissa32: Bad length of mask bits: len= %d, xbits= %d\n",
+          "MAPL_ShaveMantissa32: Bad length of mask bits: len= %d, xbits= %d\n",
           len, xbits );
     return 1;
   }
 
   if ( xbits > MAXBITS ) {
     fprintf(stderr,
-          "ShaveMantissa32: Shaving too many bits: %d; maximum allowed is %d\n",
+          "MAPL_ShaveMantissa32: Shaving too many bits: %d; maximum allowed is %d\n",
           xbits, MAXBITS );
     return 2;
   }
@@ -155,7 +155,7 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
   b = a;
   if(ain!=a) {
     if(labs(ain-a)<len) {
-      fprintf(stderr,"ShaveMantissa32: Overlapping arrays");
+      fprintf(stderr,"MAPL_ShaveMantissa32: Overlapping arrays");
       return 3;
     }
     while(a<=last) *a++=*ain++;
@@ -194,13 +194,16 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
       }
     }
 
+    if (passed_minmax) minv = arr_min;
+    if (passed_minmax) maxv = arr_max;
+
     // Constant chunk; no need to shave; go to next chunck.
 
     if(minv==maxv) {b=begnxt; continue;}
 
     // Find optimum offset
 
-    offset = pfio_SetOffset(minv,maxv);
+    offset = MAPL_SetOffset(minv,maxv);
 
     // Shave chunk beginning at first valid value
 
@@ -231,21 +234,21 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 
 //    Simple hook for FORTRAN interface.
 
-int pFIO_SHAVEMANTISSA32 (float32 *a, float32 *ain, int32 *len, int *xbits,
-                     int *has_undef, float32 *undef, int32 *chunksize)
-{return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
+int MAPL_SHAVEMANTISSA32 (float32 *a, float32 *ain, int32 *len, int *xbits,
+                     int *has_undef, float32 *undef, int32 *chunksize, int *passed_minmax, float32 *arr_min, float32 *arr_max)
+{return (int)MAPL_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize,*passed_minmax,*arr_min,*arr_max);}
 
-int pFIO_SHAVEMANTISSA32_ (float32 *a, float32 *ain, int32 *len, int *xbits,
-                      int *has_undef, float32 *undef, int32 *chunksize)
-{return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
+int MAPL_SHAVEMANTISSA32_ (float32 *a, float32 *ain, int32 *len, int *xbits,
+                      int *has_undef, float32 *undef, int32 *chunksize, int *passed_minmax, float32 *arr_min, float32 *arr_max)
+{return (int)MAPL_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize,*passed_minmax,*arr_min,*arr_max);}
 
-int pfio_shavemantissa32 (float32 *a, float32 *ain, int32 *len, int *xbits,
-                     int *has_undef, float32 *undef, int32 *chunksize)
-{return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
+int mapl_shavemantissa32 (float32 *a, float32 *ain, int32 *len, int *xbits,
+                     int *has_undef, float32 *undef, int32 *chunksize, int *passed_minmax,float32 *arr_min, float32 *arr_max)
+{return (int)MAPL_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize,*passed_minmax,*arr_min,*arr_max);}
 
-int pfio_shavemantissa32_ (float32 *a, float32 *ain, int32 *len, int *xbits,
-                      int *has_undef, float32 *undef, int32 *chunksize)
-{return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
+int mapl_shavemantissa32_ (float32 *a, float32 *ain, int32 *len, int *xbits,
+                      int *has_undef, float32 *undef, int32 *chunksize, int *passed_minmax, float32 *arr_min, float32 *arr_max)
+{return (int)MAPL_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize,*passed_minmax,*arr_min,*arr_max);}
 
 
 

@@ -28,7 +28,6 @@ module pFIO
    use pFIO_ArrayReferenceMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringVariableMapMod
-   use pFIO_DownBitMod
    use pFIO_LocalMemReferenceMod
    use pFIO_FormatterPtrVectorMod
    use pFIO_StringVectorUtilMod 
