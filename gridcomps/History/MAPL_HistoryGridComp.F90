@@ -151,35 +151,28 @@ contains
 ! Register services for this component
 ! ------------------------------------
 
-    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE, Initialize, rc=status)
-    _VERIFY(status)
+    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE, Initialize, _RC)
 
-    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,   Run,       rc=status)
-    _VERIFY(status)
+    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,   Run,       _RC)
 
-    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, Finalize,  rc=status)
-    _VERIFY(status)
+    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, Finalize,  _RC)
 
-    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_WRITERESTART, RecordRestart, rc=status)
-    _VERIFY(status)
+    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_WRITERESTART, RecordRestart, _RC)
 
 ! Allocate an instance of the private internal state...
 !------------------------------------------------------
 
-    allocate(internal_state, stat=status)
-    _VERIFY(status)
+    allocate(internal_state, _STAT)
 
 ! and save its pointer in the GC
 !-------------------------------
 
     wrap%ptr => internal_state
     call ESMF_GridCompSetInternalState(gc, wrap, status)
-    _VERIFY(status)
 
 ! Generic Set Services
 ! --------------------
-    call MAPL_GenericSetServices ( gc,RC=STATUS )
-    _VERIFY(STATUS)
+    call MAPL_GenericSetServices ( gc,_RC )
 
     _RETURN(ESMF_SUCCESS)
 
@@ -434,12 +427,10 @@ contains
 
     _UNUSED_DUMMY(dumexport)
 
-    call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GetObjectFromGC ( gc, GENSTATE, _RC)
 
 ! Retrieve the pointer to the state
     call ESMF_GridCompGetInternalState(gc, wrap, status)
-    _VERIFY(status)
     IntState => wrap%ptr
 
     call ESMF_UserCompGetInternalState(GC, 'MAPL_LocStreamList', &
@@ -448,13 +439,10 @@ contains
        lsaddr_ptr => lswrap%ptr%lsaddr_ptr
     end if
 
-    call ESMF_GridCompGet(gc, vm=vm, rc=status)
-    _VERIFY(status)
+    call ESMF_GridCompGet(gc, vm=vm, _RC)
 
-    call ESMF_VMGetCurrent(vm, rc=status)
-    _VERIFY(status)
-    call ESMF_VMGet       (VM, localpet=MYPE, petcount=NPES,  RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_VMGetCurrent(vm, _RC)
+    call ESMF_VMGet       (VM, localpet=MYPE, petcount=NPES,  _RC)
 
     IntState%mype = mype
     IntState%npes = npes
@@ -462,10 +450,10 @@ contains
 
 ! Get Clock StartTime for Default ref_date, ref_time
 ! --------------------------------------------------
-    call ESMF_ClockGet ( clock,     calendar=cal,       rc=STATUS ) ; _VERIFY(STATUS)
-    call ESMF_ClockGet ( clock,     currTime=CurrTime,  rc=STATUS ) ; _VERIFY(STATUS)
-    call ESMF_ClockGet ( clock,     StartTime=StartTime,rc=STATUS ) ; _VERIFY(STATUS)
-    call ESMF_TimeGet  ( StartTime, TimeString=string  ,rc=STATUS ) ; _VERIFY(STATUS)
+    call ESMF_ClockGet ( clock,     calendar=cal,       _RC )
+    call ESMF_ClockGet ( clock,     currTime=CurrTime,  _RC )
+    call ESMF_ClockGet ( clock,     StartTime=StartTime,_RC )
+    call ESMF_TimeGet  ( StartTime, TimeString=string  ,_RC )
 
     read(string( 1: 4),'(i4.4)') year
     read(string( 6: 7),'(i2.2)') month
@@ -477,7 +465,7 @@ contains
     nymd0 =  year*10000 +  month*100 + day
     nhms0 =  hour*10000 + minute*100 + second
 
-    call ESMF_TimeGet  ( CurrTime, TimeString=string  ,rc=STATUS ) ; _VERIFY(STATUS)
+    call ESMF_TimeGet  ( CurrTime, TimeString=string  ,_RC )
 
     read(string( 1: 4),'(i4.4)') year
     read(string( 6: 7),'(i2.2)') month
@@ -497,17 +485,14 @@ contains
 
 ! Read User-Supplied History Lists from Config File
 ! -------------------------------------------------
-    call ESMF_GridCompGet( gc, config=config, rc=STATUS ) ; _VERIFY(STATUS)
+    call ESMF_GridCompGet( gc, config=config, _RC )
 
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expsrc, &
-                                   label ='EXPSRC:', default='', rc=status )
-    _VERIFY(STATUS)
+                                   label ='EXPSRC:', default='', _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expid, &
-                                   label ='EXPID:', default='', rc=status )
-    _VERIFY(STATUS)
+                                   label ='EXPID:', default='', _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expdsc, &
-                                   label ='EXPDSC:', default='', rc=status )
-    _VERIFY(STATUS)
+                                   label ='EXPDSC:', default='', _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%institution, &
                                    label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%references, &
@@ -522,18 +507,14 @@ contains
                                    label ='SOURCE:', &
                                    default=trim(INTSTATE%expsrc) // ' experiment_id: ' // trim(INTSTATE%expid), _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%CoresPerNode, &
-                                   label ='CoresPerNode:', default=min(npes,8), rc=status )
-    _VERIFY(STATUS)
+                                   label ='CoresPerNode:', default=min(npes,8), _RC )
     call ESMF_ConfigGetAttribute ( config, value=disableSubVmChecks, &
-                                   label ='DisableSubVmChecks:', default=.false., rc=status )
-    _VERIFY(STATUS)
+                                   label ='DisableSubVmChecks:', default=.false., _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%AvoidRootNodeThreshold, &
-                                   label ='AvoidRootNodeThreshold:', default=1024, rc=status )
-    _VERIFY(STATUS)
+                                   label ='AvoidRootNodeThreshold:', default=1024, _RC )
 
     call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
-                                         label='FileOrder:', default='ABC', rc=status)
-    _VERIFY(STATUS)
+                                         label='FileOrder:', default='ABC', _RC)
     call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
                                          label='Allow_Overwrite:', default=.false., _RC)
     create_mode = PFIO_NOCLOBBER ! defaut no overwrite
@@ -550,21 +531,16 @@ contains
     call ESMF_ConfigGetAttribute(config, value=intstate%integer_time,label="IntegerTime:", default=.false.,_RC)
 
     call ESMF_ConfigGetAttribute(config, value=IntState%collectionWriteSplit, &
-         label = 'CollectionWriteSplit:', default=0, rc=status)
-    _VERIFY(status)
+         label = 'CollectionWriteSplit:', default=0, _RC)
     call ESMF_ConfigGetAttribute(config, value=IntState%serverSizeSplit, &
-         label = 'ServerSizeSplit:', default=0, rc=status)
-    _VERIFY(status)
+         label = 'ServerSizeSplit:', default=0, _RC)
     call o_Clients%split_server_pools(n_server_split = IntState%serverSizeSplit, &
-                                      n_hist_split   = IntState%collectionWriteSplit,rc=status)
-    _VERIFY(status)
+                                      n_hist_split   = IntState%collectionWriteSplit,_RC)
 
     call ESMF_ConfigGetAttribute(config, value=snglcol,          &
-                                         label='SINGLE_COLUMN:', default=0, rc=status)
-    _VERIFY(STATUS)
+                                         label='SINGLE_COLUMN:', default=0, _RC)
     call ESMF_ConfigGetAttribute(config, value=intstate%version,          &
-                                         label='VERSION:', default=0, rc=status)
-    _VERIFY(STATUS)
+                                         label='VERSION:', default=0, _RC)
     if( MAPL_AM_I_ROOT() ) then
        print *
        print *, 'EXPSRC:',trim(INTSTATE%expsrc)
@@ -581,12 +557,10 @@ contains
        print *, '-------------------------'
     endif
 
-    call ESMF_ConfigFindLabel ( config,'COLLECTIONS:',rc=STATUS )
-    _VERIFY(STATUS)
+    call ESMF_ConfigFindLabel ( config,'COLLECTIONS:',_RC )
     tend  = .false.
     nlist = 0
-    allocate(IntState%list(nlist), stat=status)
-    _VERIFY(STATUS)
+    allocate(IntState%list(nlist), _STAT)
     do while (.not.tend)
           call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
           if (tmpstring /= '')  then
@@ -596,16 +570,14 @@ contains
              call IntState%collections%push_back(collection)
 
              nlist = nlist + 1
-             allocate( list(nlist), stat=status )
-             _VERIFY(STATUS)
+             allocate( list(nlist), _STAT )
              list(1:nlist-1)=IntState%list
              list(nlist)%collection = tmpstring
              list(nlist)%filename = list(nlist)%collection
              deallocate(IntState%list)
              IntState%list => list
           end if
-          call ESMF_ConfigNextLine     ( config,tableEnd=tend,rc=STATUS )
-          _VERIFY(STATUS)
+          call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
     enddo
 
     if (nlist == 0) then
@@ -619,40 +591,32 @@ contains
          integer :: nl
          character(len=60) :: grid_type
 
-         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',rc=STATUS )
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
          do while (.not.tend)
              call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
              if (tmpstring /= '')  then
                 call IntState%output_grids%insert(trim(tmpString), output_grid)
              end if
-             call ESMF_ConfigNextLine     ( config,tableEnd=tend,rc=STATUS )
-             _VERIFY(STATUS)
+             call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
           enddo
 
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
              key => iter%key()
-             call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",rc=status)
-             _VERIFY(status)
-             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,rc=status)
-             _VERIFY(status)
-             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,rc=status)
-             _VERIFY(status)
+             call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
              if ((.not.hasNX) .and. (.not.hasNY)) then
                 if (trim(grid_type)=='Cubed-Sphere') then
-                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
-                   _VERIFY(status)
+                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
                 else
-                   call MAPL_MakeDecomposition(nx,ny,rc=status)
-                   _VERIFY(status)
+                   call MAPL_MakeDecomposition(nx,ny,_RC)
                 end if
-                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
-                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
+                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
+                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
              end if
-             output_grid = grid_manager%make_grid(config, prefix=key//'.', rc=status)
-             _VERIFY(status)
+             output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
           end do
@@ -660,8 +624,7 @@ contains
     end if
 
     if (intstate%version >= 2) then
-       call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', rc=status)
-       _VERIFY(status)
+       call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.
        do while (.not. table_end)
           call ESMF_ConfigGetAttribute ( config, value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
@@ -671,28 +634,23 @@ contains
              call intstate%field_sets%insert(trim(tmpString), field_set)
              deallocate(field_set)
           end if
-          call ESMF_ConfigNextLine     ( config,tableEnd=table_end,rc=STATUS )
-          _VERIFY(STATUS)
+          call ESMF_ConfigNextLine     ( config,tableEnd=table_end,_RC )
        enddo
 
        field_set_iter = intState%field_sets%begin()
        do while (field_set_iter /= intState%field_sets%end())
           key => field_set_iter%key()
           field_set => field_set_iter%value()
-          call parse_fields(config, key, field_set, rc=status)
-          _VERIFY(status)
+          call parse_fields(config, key, field_set, _RC)
           call field_set_iter%next()
        end do
 
     end if
 
 
-    allocate(IntState%Regrid(nlist), stat=STATUS)
-    _VERIFY(STATUS)
-    allocate(          Vvarn(nlist), stat=STATUS)
-    _VERIFY(STATUS)
-    allocate(INTSTATE%STAMPOFFSET(nlist), stat=status)
-    _VERIFY(STATUS)
+    allocate(IntState%Regrid(nlist), _STAT)
+    allocate(          Vvarn(nlist), _STAT)
+    allocate(INTSTATE%STAMPOFFSET(nlist), _STAT)
 
 ! We are parsing HISTORY config file to split each collection into separate RC
 ! ----------------------------------------------------------------------------
@@ -700,16 +658,14 @@ contains
     if( MAPL_AM_I_ROOT(vm) ) then
 
        call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
-            label="HIST_CF:", default="HIST.rc", RC=STATUS )
-       _VERIFY(STATUS)
-       unitr = GETFILE(HIST_CF, FORM='formatted', RC=status)
-       _VERIFY(STATUS)
+            label="HIST_CF:", default="HIST.rc", _RC )
+       unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
 !       for each collection
        do n = 1, nlist
          rewind(unitr)
          string = trim( list(n)%collection ) // '.'
-         unitw = GETFILE(trim(string)//'rcx', FORM='formatted', RC=status)
+         unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
 
          match = .false.
          contLine = .false.
@@ -732,18 +688,15 @@ contains
          end do
 
 1234     continue
-         call free_file(unitw, rc=status)
-         _VERIFY(STATUS)
+         call free_file(unitw, _RC)
       end do
 
-      call free_file(unitr, rc=status)
-      _VERIFY(STATUS)
+      call free_file(unitr, _RC)
 
     end if
 
 
-    call ESMF_VMbarrier(vm, RC=status)
-    _VERIFY(STATUS)
+    call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
 ! ------------------------
@@ -764,20 +717,15 @@ contains
        list(n)%splitField = .false.
        list(n)%regex = .false.
 
-       cfg = ESMF_ConfigCreate(rc=STATUS)
-       _VERIFY(STATUS)
+       cfg = ESMF_ConfigCreate(_RC)
 
-       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%template, default="", &
-                                      label=trim(string) // 'template:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'template:' ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%format,default='flat', &
-                                      label=trim(string) // 'format:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'format:' ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%mode,default='instantaneous', &
-                                      label=trim(string) // 'mode:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'mode:' ,_RC )
 
        ! Fill the global attributes
 
@@ -786,8 +734,7 @@ contains
        list(n)%global_atts%filename = list(n)%filename
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%descr, &
                                       default=INTSTATE%expdsc, &
-                                      label=trim(string) // 'descr:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'descr:' ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%comment, &
                                       default=INTSTATE%global_atts%comment, &
                                       label=trim(string) // 'comment:' ,_RC)
@@ -808,69 +755,53 @@ contains
                                       label=trim(string) // 'source:' ,_RC)
 
        call ESMF_ConfigGetAttribute ( cfg, mntly, default=0, &
-                                      label=trim(string) // 'monthly:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'monthly:',_RC )
        list(n)%monthly = (mntly /= 0)
        call ESMF_ConfigGetAttribute ( cfg, spltFld, default=0, &
-                                      label=trim(string) // 'splitField:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'splitField:',_RC )
        list(n)%splitField = (spltFld /= 0)
        call ESMF_ConfigGetAttribute ( cfg, useRegex, default=0, &
-                                      label=trim(string) // 'UseRegex:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'UseRegex:',_RC )
        list(n)%regex = (useRegex /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
-                                      label=trim(string) // 'frequency:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'frequency:',_RC )
        call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_interval, default=list(n)%frequency, &
-                                      label=trim(string) // 'acc_interval:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'acc_interval:',_RC )
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_date, default=nymdc, &
-                                      label=trim(string) // 'ref_date:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'ref_date:',_RC )
        _ASSERT(is_valid_date(list(n)%ref_date),'Invalid ref_date')
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_time, default=000000, &
-                                      label=trim(string) // 'ref_time:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'ref_time:',_RC )
        _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
-                                      label=trim(string) // 'end_date:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'end_date:',_RC )
        if (list(n)%end_date /= -999) then
           _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
        end if
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
-                                      label=trim(string) // 'end_time:',rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'end_time:',_RC )
        if (list(n)%end_time /= -999) then
           _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
        end if
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
-                                      label=trim(string) // 'duration:'  ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'duration:'  ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, list(n)%verbose, default=0, &
-                                      label=trim(string) // 'verbose:'  ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'verbose:'  ,_RC )
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%vscale, default=1.0, &
-                                      label=trim(string) // 'vscale:'  ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'vscale:'  ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, list(n)%vunit, default="", &
-                                      label=trim(string) // 'vunit:'  ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'vunit:'  ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, list(n)%nbits_to_keep, default=MAPL_NBITS_NOT_SET, &
-                                      label=trim(string) // 'nbits:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'nbits:' ,_RC )
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
-                                      label=trim(string) // 'deflate:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'deflate:' ,_RC )
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
-                                      label=trim(string) // 'quantize_algorithm:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'quantize_algorithm:' ,_RC )
 
        ! Uppercase the algorithm string just to allow for any case
        uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
@@ -888,8 +819,7 @@ contains
        end select
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
-                                      label=trim(string) // 'quantize_level:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'quantize_level:' ,_RC )
 
        ! If nbits_to_keep < MAPL_NBITS_UPPER_LIMIT (24) and quantize_algorithm greater than 0, then a user might be doing different
        ! shaving algorithms. We do not allow this
@@ -909,8 +839,7 @@ contains
 
        tm_default = -1
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
-                                      label=trim(string) // 'tm:', rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'tm:', _RC )
 
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)
@@ -919,8 +848,7 @@ contains
        list(n)%regrid_method = REGRID_METHOD_BILINEAR
        if (has_conservative_keyword) then
           call ESMF_ConfigGetAttribute ( cfg, list(n)%regrid_method, default=0, &
-                                         label=trim(string) // 'conservative:'  ,rc=status )
-          _VERIFY(STATUS)
+                                         label=trim(string) // 'conservative:'  ,_RC )
           if (list(n)%regrid_method==0) then
              list(n)%regrid_method=REGRID_METHOD_BILINEAR
           else if (list(n)%regrid_method==1) then
@@ -929,23 +857,21 @@ contains
        end if
        if (has_regrid_keyword) then
           call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
-                                         label=trim(string) // 'regrid_method:'  ,rc=status )
-          _VERIFY(STATUS)
+                                         label=trim(string) // 'regrid_method:'  ,_RC )
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
-                                    label=trim(string) // 'track_file:', rc=status)
+                                    label=trim(string) // 'track_file:', _RC)
        if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
-                                    label=trim(string) // 'recycle_track:', rc=status)
+                                    label=trim(string) // 'recycle_track:', _RC)
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
-                                      label=trim(string) // 'backwards:'  ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'backwards:'  ,_RC )
        list(n)%backwards = (reverse /= 0)
 
 !      Disable streams when frequencies, times are negative
@@ -959,8 +885,7 @@ contains
        old_fields_style = .true. ! unless
        if (intstate%version >= 2) then
           call ESMF_ConfigGetAttribute ( cfg, value=field_set_name, label=trim(string)//'field_set:', &
-               & default='', rc=status)
-          _VERIFY(status)
+               & default='', _RC)
           if (field_set_name /= '') then  ! field names already parsed
              old_fields_style = .false.
              field_set => intstate%field_sets%at(trim(field_set_name))
@@ -979,10 +904,9 @@ contains
 ! Decide on orientation of output
 ! -------------------------------
 
-          call ESMF_ConfigFindLabel(cfg,trim(string)//'positive:',isPresent=isPresent,rc=status)
+          call ESMF_ConfigFindLabel(cfg,trim(string)//'positive:',isPresent=isPresent,_RC)
           if (isPresent) then
-             call ESMF_ConfigGetAttribute(cfg,value=list(n)%positive,rc=status)
-             _VERIFY(status)
+             call ESMF_ConfigGetAttribute(cfg,value=list(n)%positive,_RC)
              _ASSERT(list(n)%positive=='down'.or.list(n)%positive=='up',"positive value for collection must be down or up")
           else
              list(n)%positive = 'down'
@@ -996,12 +920,10 @@ contains
        len = ESMF_ConfigGetLen( cfg, label=trim(trim(string) // 'levels:'), rc = status )
 
        LEVS: if( status == ESMF_SUCCESS ) then
-          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'levels:'), rc = status )
-          _VERIFY(STATUS)
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'levels:'),_RC)
              j = 0
           do i = 1, len
-             call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS)
-             _VERIFY(STATUS)
+             call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
              if( trim(tmpstring) == ',' )  cycle
              j = j + 1
 
@@ -1023,8 +945,7 @@ contains
                    INQUIRE ( FILE=trim(tmpstring), EXIST=fileExists )
                    _ASSERT(fileExists,'needs informative message')
 
-                   unit = GETFILE(trim(tmpstring), form='formatted', rc=status)
-                   _VERIFY(STATUS)
+                   unit = GETFILE(trim(tmpstring), form='formatted', _RC)
 
                    if (MAPL_Am_I_Root(vm)) then
                       k=0
@@ -1036,11 +957,9 @@ contains
 
                    end if
 
-                   call MAPL_CommsBcast(vm, DATA=k, N=1, ROOT=MAPL_Root, RC=status)
-                   _VERIFY(STATUS)
+                   call MAPL_CommsBcast(vm, DATA=k, N=1, ROOT=MAPL_Root, _RC)
 
                    allocate( list(n)%levels(k), stat = status )
-                   _VERIFY(STATUS)
 
                    if (MAPL_Am_I_Root(vm)) then
                       rewind(unit)
@@ -1050,8 +969,7 @@ contains
                    end if
 
                    call MAPL_CommsBcast(vm, DATA=list(n)%levels, N=k, &
-                        ROOT=MAPL_Root, RC=status)
-                   _VERIFY(STATUS)
+                        ROOT=MAPL_Root, _RC)
 
                    call FREE_FILE(UNIT)
                 end if
@@ -1060,7 +978,6 @@ contains
              if(isFileName) cycle
 
              allocate( levels(j), stat = status )
-             _VERIFY(STATUS)
                      i1 = index(tmpstring(:),",")
                  if( i1.eq.1 )  tmpstring = adjustl( tmpstring(2:)   )
                      j1 = index(tmpstring(:),",")-1
@@ -1068,13 +985,11 @@ contains
              read(tmpstring,*)  levels(j)
              if( j.eq.1 ) then
                  allocate( list(n)%levels(j), stat = status )
-                 _VERIFY(STATUS)
                  list(n)%levels(j) = levels(j)
              else
                  levels(1:j-1) = list(n)%levels(:)
                  deallocate( list(n)%levels )
                    allocate( list(n)%levels(j), stat = status )
-                   _VERIFY(STATUS)
                    list(n)%levels(:) = levels(:)
              endif
              deallocate( levels )
@@ -1083,11 +998,10 @@ contains
 ! Get an interpolating variable
 ! -----------------------------
 
-          call ESMF_ConfigFindLabel ( cfg,trim(string) // 'vvars:',isPresent=isPresent,rc=STATUS )
+          call ESMF_ConfigFindLabel ( cfg,trim(string) // 'vvars:',isPresent=isPresent,_RC )
           VINTRP: if(isPresent) then
 
-             call ESMF_ConfigGetAttribute ( cfg,value=list(n)%vvars(1), rc=STATUS)
-             _VERIFY(STATUS)
+             call ESMF_ConfigGetAttribute ( cfg,value=list(n)%vvars(1), _RC)
              i = index(list(n)%vvars(1)(  1:),"'")
              j = index(list(n)%vvars(1)(i+1:),"'")+i
              if( i.ne.0 ) then
@@ -1096,11 +1010,9 @@ contains
                  list(n)%vvars(1) = adjustl( list(n)%vvars(1) )
              endif
 
-             call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS)
-             _VERIFY(STATUS)
+             call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
              if( trim(tmpstring) == ',' )  then
-                 call ESMF_ConfigGetAttribute ( cfg,value=list(n)%vvars(2),rc=STATUS)
-                 _VERIFY(STATUS)
+                 call ESMF_ConfigGetAttribute ( cfg,value=list(n)%vvars(2),_RC)
              else
                  list(n)%vvars(2) = tmpstring
              endif
@@ -1132,7 +1044,7 @@ contains
 
                 if( .not.found ) then
                    list(n)%field_set%nfields = list(n)%field_set%nfields + 1
-                   allocate( fields(4,  list(n)%field_set%nfields), stat=status )
+                   allocate( fields(4,  list(n)%field_set%nfields), _STAT )
                    fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
                    fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
                    fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
@@ -1141,8 +1053,7 @@ contains
                    fields(2,  list(n)%field_set%nfields  ) = list(n)%vvars (2)
                    fields(3,  list(n)%field_set%nfields  ) = Vvar
                    fields(4,  list(n)%field_set%nfields  ) = BLANK
-                   deallocate( list(n)%field_set%fields, stat=status )
-                   _VERIFY(STATUS)
+                   deallocate( list(n)%field_set%fields, _STAT )
                    list(n)%field_set%fields => fields
                 endif
              end if
@@ -1158,8 +1069,7 @@ contains
        select case (intstate%version)
        case(1:)
           call ESMF_ConfigGetAttribute ( cfg, tmpString, default='' , &
-                                         label=trim(string) // 'grid_label:' ,rc=status )
-          _VERIFY(status)
+                                         label=trim(string) // 'grid_label:' ,_RC )
           if (len_trim(tmpString) == 0) then
              list(n)%output_grid_label=''
           else
@@ -1180,8 +1090,7 @@ contains
              cubeFormat = 0
              j = 0
              do i = 1,2
-                call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS)
-                _VERIFY(STATUS)
+                call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
                 if( trim(tmpstring) == ',' )  cycle
                 j = j + 1
                 _ASSERT(j<=2,'needs informative message')
@@ -1191,8 +1100,7 @@ contains
                     if( j1.gt.0 )  tmpstring = adjustl( tmpstring(1:j1) )
                 read(tmpstring,*)  resolution(j)
              enddo
-             call list(n)%AddGrid(IntState%output_grids,resolution,rc=status)
-             _VERIFY(status)
+             call list(n)%AddGrid(IntState%output_grids,resolution,_RC)
           else
              list(n)%output_grid_label=''
           end if
@@ -1204,36 +1112,30 @@ contains
        newFormat = cubeFormat
        if (cubeFormat /= 0) then
           call ESMF_ConfigGetAttribute ( cfg, newFormat, default=cubeFormat, &
-                                         label=trim(string) // 'cubeFormat:'  ,rc=status )
-          _VERIFY(STATUS)
+                                         label=trim(string) // 'cubeFormat:'  ,_RC )
        end if
        list(n)%useNewFormat = (newFormat /= 0)
 
 ! Force history so that time averaged collections are timestamped with write time
        call ESMF_ConfigGetAttribute(cfg, list(n)%ForceOffsetZero, default=.false., &
-                                    label=trim(string)//'timestampEnd:', rc=status)
-       _VERIFY(status)
+                                    label=trim(string)//'timestampEnd:', _RC)
 ! Force history so that time averaged collections are timestamped at the begining of the accumulation interval
        call ESMF_ConfigGetAttribute(cfg, list(n)%timeStampStart, default=.false., &
-                                    label=trim(string)//'timestampStart:', rc=status)
-       _VERIFY(status)
+                                    label=trim(string)//'timestampStart:', _RC)
 
 ! Get an optional chunk size
 ! --------------------------
        len = ESMF_ConfigGetLen(cfg, label=trim(trim(string) // 'chunksize:'), rc = status)
        if ( status == ESMF_SUCCESS ) then
-          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'chunksize:'), rc =status)
-          _VERIFY(STATUS)
+          call ESMF_ConfigFindLabel( cfg, label=trim(trim(string) // 'chunksize:'), _RC)
           chnksz = 4
           if (list(n)%useNewFormat) then
              chnksz = 5
           end if
           allocate( list(n)%chunksize(chnksz), stat = status)
-          _VERIFY(STATUS)
           j=0
           do i=1,len
-             call ESMF_ConfigGetAttribute( cfg,value=tmpstring, rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ConfigGetAttribute( cfg,value=tmpstring, _RC)
              if (trim(tmpstring) == ',' ) cycle
              j = j + 1
              _ASSERT(j<=6,'needs informative message')
@@ -1248,17 +1150,14 @@ contains
 ! Get an optional tile file for regridding the output
 ! ---------------------------------------------------
        call ESMF_ConfigGetAttribute ( cfg, value=tilefile, default="", &
-                                      label=trim(string) // 'regrid_exch:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'regrid_exch:' ,_RC )
 
        call ESMF_ConfigGetAttribute ( cfg, value=gridname, default="", &
-                                      label=trim(string) // 'regrid_name:' ,rc=status )
-       _VERIFY(STATUS)
+                                      label=trim(string) // 'regrid_name:' ,_RC )
 
        NULLIFY(IntState%Regrid(n)%PTR)
        if (tilefile /= '' .OR. gridname /= '') then
-          allocate(IntState%Regrid(n)%PTR, stat=status)
-          _VERIFY(STATUS)
+          allocate(IntState%Regrid(n)%PTR, _STAT)
           IntState%Regrid(n)%PTR%tilefile = tilefile
           IntState%Regrid(n)%PTR%gridname = gridname
        end if
@@ -1302,7 +1201,7 @@ contains
           RingTime = startOfThisMonth
        else
           sec = MAPL_nsecf( list(n)%frequency )
-          call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, _RC )
           RingTime = RefTime
        end if
 
@@ -1316,16 +1215,15 @@ contains
            RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
        endif
        if ( list(n)%backwards ) then
-          list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, rc=status )
+          list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
        else
-          list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., rc=status )
+          list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
        endif
-       _VERIFY(STATUS)
 
        if( list(n)%duration.ne.0 ) then
           if (.not.list(n)%monthly) then
              sec = MAPL_nsecf( list(n)%duration )
-             call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
+             call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, _RC )
           else
              Frequency = oneMonth
              !ALT keep the values from above
@@ -1337,21 +1235,18 @@ contains
               RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
           endif
           if ( list(n)%backwards ) then
-             list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, rc=status )
+             list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
           else
-             list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., rc=status )
+             list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
           endif
-          _VERIFY(STATUS)
           if (list(n)%monthly .and. (currTime == RingTime)) then
-             call ESMF_AlarmRingerOn( list(n)%his_alarm,rc=status )
-             _VERIFY(STATUS)
+             call ESMF_AlarmRingerOn( list(n)%his_alarm,_RC )
           end if
 
        else
           ! this alarm should never ring, but it is checked if ringing
           list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, enabled=.false., &
-               ringTime=currTime, name='historyNewSegment', rc=status )
-          _VERIFY(STATUS)
+               ringTime=currTime, name='historyNewSegment', _RC )
        endif
 
 ! Mon Alarm based on 1st of Month 00Z
@@ -1370,17 +1265,16 @@ contains
                                    M  = REF_TIME(5), &
                                    S  = REF_TIME(6), calendar=cal, rc=rc )
 
-       call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+       call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, _RC )
        RingTime = RefTime
        do while ( RingTime < currTime )
           RingTime = RingTime + Frequency
        enddo
        if ( list(n)%backwards ) then
-          list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, rc=status )
+          list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
        else
-          list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., rc=status )
+          list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
        endif
-       _VERIFY(STATUS)
        if(list(n)%monthly) then
           !ALT this is temporary workaround. It has a memory leak
           ! we need to at least destroy his_alarm before assignment
@@ -1408,24 +1302,20 @@ contains
                                         S  = REF_TIME(6), calendar=cal, rc=rc )
 
            if ( list(n)%backwards ) then
-              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, rc=status )
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, _RC )
            else
-              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., rc=status )
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
            endif
-           _VERIFY(STATUS)
         else
            if ( list(n)%backwards ) then
-              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, rc=status )
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, _RC )
            else
-              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, sticky=.false., rc=status )
+              list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, sticky=.false., _RC )
            endif
-           _VERIFY(STATUS)
-           call  ESMF_AlarmRingerOff(list(n)%end_alarm, rc=status )
-           _VERIFY(STATUS)
+           call  ESMF_AlarmRingerOff(list(n)%end_alarm, _RC )
        endif
 
-       call ESMF_ConfigDestroy(cfg, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ConfigDestroy(cfg, _RC)
     enddo LISTLOOP
 
     if( MAPL_AM_I_ROOT() ) print *
@@ -1433,8 +1323,7 @@ contains
 ! START OF PARSER STUFF
     size0 = 1 !size( export )
     nstatelist = 0
-    allocate( statelist(size0), stat=status )
-    _VERIFY(STATUS)
+    allocate( statelist(size0), _STAT )
     statelist(1) = ''
 
 
@@ -1452,13 +1341,11 @@ contains
                 end if
              enddo
              if(k.eq.nstatelist+1) then
-                allocate( tmplist (nstatelist), stat=status )
-                _VERIFY(STATUS)
+                allocate( tmplist (nstatelist), _STAT )
                 tmplist = statelist
                 nstatelist = k
                 deallocate( statelist )
-                allocate( statelist(nstatelist), stat=status )
-                _VERIFY(STATUS)
+                allocate( statelist(nstatelist), _STAT )
                 if (k > 1) statelist(1:k-1) = tmplist
                 statelist(k)     = list(n)%field_set%fields(2,m)
                 deallocate(   tmplist )
@@ -1475,14 +1362,11 @@ contains
 ! Get Output Export States
 ! ------------------------
 
-    allocate ( exptmp(size0), stat=status )
-    _VERIFY(STATUS)
+    allocate ( exptmp(size0), _STAT )
     exptmp(1) = import
-    allocate ( export(nstatelist), stat=status )
-    _VERIFY(STATUS)
+    allocate ( export(nstatelist), _STAT )
     errorFound = .false.
-    allocate ( stateListAvail(nstatelist), stat=status )
-    _VERIFY(STATUS)
+    allocate ( stateListAvail(nstatelist), _STAT )
     stateListAvail = .true.
     if (disableSubVmChecks) then
 !ALT: setting disableSubVmChecks to .true. automatically assumes that subVm = .false.
@@ -1495,10 +1379,9 @@ contains
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),rc=status )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
-          _VERIFY(localStatus)
 
           if( STATUS/= ESMF_SUCCESS ) then
              stateListAvail(n) = .false.
@@ -1518,8 +1401,7 @@ contains
 ! ----------------------------------------------
     list(:)%subVm = .false.
     do n=1,nlist
-       allocate( list(n)%expSTATE(list(n)%field_set%nfields), stat=status )
-       _VERIFY(STATUS)
+       allocate( list(n)%expSTATE(list(n)%field_set%nfields), _STAT )
        do m=1,list(n)%field_set%nfields
 ! when we allow regex; some syntax resembles math expressions
         if (list(n)%regex .or. &
@@ -1540,13 +1422,11 @@ contains
     ! Important: the next modifies the field's list
     ! first we check if any regex expressions need to expanded
     !---------------------------------------------------------
-    call wildCardExpand(rc=status)
-    _VERIFY(status)
+    call wildCardExpand(_RC)
 
     do n=1,nlist
        m=list(n)%field_set%nfields
-       allocate(list(n)%r4(m), list(n)%r8(m), list(n)%r8_to_r4(m), stat=status)
-       _VERIFY(STATUS)
+       allocate(list(n)%r4(m), list(n)%r8(m), list(n)%r8_to_r4(m), _STAT)
     end do
 
 PARSER: do n=1,nlist
@@ -1564,18 +1444,15 @@ PARSER: do n=1,nlist
          endif
       enddo
 
-      allocate(list(n)%tmpfields(list(n)%field_set%nfields), stat=status)
-      _VERIFY(STATUS)
-      allocate(list(n)%ReWrite(list(n)%field_set%nfields), stat=status)
-      _VERIFY(STATUS)
+      allocate(list(n)%tmpfields(list(n)%field_set%nfields), _STAT)
+      allocate(list(n)%ReWrite(list(n)%field_set%nfields), _STAT)
 
       list(n)%tmpfields=''
       list(n)%ReWrite= .FALSE.
 
       call MAPL_SetExpression(list(n)%field_set%nfields,list(n)%field_set%fields,list(n)%tmpfields,list(n)%rewrite,  &
                               list(n)%nPExtraFields, &
-                              list(n)%PExtraFields, list(n)%PExtraGridComp, import,rc=STATUS)
-      _VERIFY(STATUS)
+                              list(n)%PExtraFields, list(n)%PExtraGridComp, import,_RC)
 
 ENDDO PARSER
 
@@ -1594,8 +1471,7 @@ ENDDO PARSER
 
     size0 = 1 !size( export )
     nstatelist = 0
-    allocate( statelist(size0), stat=status )
-    _VERIFY(STATUS)
+    allocate( statelist(size0), _STAT )
     statelist(1) = ''
 
 
@@ -1611,13 +1487,11 @@ ENDDO PARSER
              end if
           enddo
           if(k.eq.nstatelist+1) then
-             allocate( tmplist (nstatelist), stat=status )
-             _VERIFY(STATUS)
+             allocate( tmplist (nstatelist), _STAT )
              tmplist = statelist
              nstatelist = k
              deallocate( statelist )
-             allocate( statelist(nstatelist), stat=status )
-             _VERIFY(STATUS)
+             allocate( statelist(nstatelist), _STAT )
              if (k > 1) statelist(1:k-1) = tmplist
              statelist(k)     = list(n)%field_set%fields(2,m)
              deallocate(   tmplist )
@@ -1628,15 +1502,12 @@ ENDDO PARSER
 ! Get Output Export States
 ! ------------------------
 
-    allocate ( exptmp (size0), stat=status )
-    _VERIFY(STATUS)
+    allocate ( exptmp (size0), _STAT )
     exptmp(1) = import
 !    deallocate ( export )
-    allocate ( export(nstatelist), stat=status )
-    _VERIFY(STATUS)
+    allocate ( export(nstatelist), _STAT )
     errorFound = .false.
-    allocate ( stateListAvail(nstatelist), stat=status )
-    _VERIFY(STATUS)
+    allocate ( stateListAvail(nstatelist), _STAT )
     stateListAvail = .true.
     if (disableSubVmChecks) then
 !ALT: setting disableSubVmChecks to .true. automatically assumes that subVm = .false.
@@ -1649,10 +1520,9 @@ ENDDO PARSER
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),rc=status )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
-          _VERIFY(localStatus)
 
           if( STATUS/= ESMF_SUCCESS ) then
              stateListAvail(n) = .false.
@@ -1683,8 +1553,7 @@ ENDDO PARSER
 ! ----------------------------------------------
     list(:)%subVm = .false.
     do n=1,nlist
-       allocate( list(n)%expSTATE(list(n)%field_set%nfields), stat=status )
-       _VERIFY(STATUS)
+       allocate( list(n)%expSTATE(list(n)%field_set%nfields), _STAT )
        do m=1,list(n)%field_set%nfields
           do k=1,nstatelist
              if( trim(list(n)%field_set%fields(2,m)) .eq. trim(statelist(k)) ) then
@@ -1714,8 +1583,7 @@ ENDDO PARSER
              errorFound = .true.
           else
              if (index(list(n)%field_set%fields(1,m),'%') ==0) then
-                call MAPL_AllocateCoupling(Field, rc=status)
-                _VERIFY(STATUS)
+                call MAPL_AllocateCoupling(Field, _RC)
              end if
 
           end IF
@@ -1725,8 +1593,7 @@ ENDDO PARSER
     _ASSERT(.not. errorFound,'needs informative message')
 
 
-    allocate(INTSTATE%AVERAGE    (nlist), stat=status)
-    _VERIFY(STATUS)
+    allocate(INTSTATE%AVERAGE    (nlist), _STAT)
 
     IntState%average = .false.
     do n=1, nlist
@@ -1739,14 +1606,12 @@ ENDDO PARSER
        else
           sec = MAPL_nsecf(list(n)%acc_interval) / 2
        endif
-       call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
-       _VERIFY(STATUS)
+       call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
 
    nactual = npes
    if (.not. disableSubVmChecks) then
-      allocate(allPes(npes), stat=status)
-      _VERIFY(STATUS)
+      allocate(allPes(npes), _STAT)
       minactual = npes
       do n=1, nlist
          NULLIFY(list(n)%peAve)
@@ -1754,12 +1619,10 @@ ENDDO PARSER
          localPe(1) = mype
          if (list(n)%subVm) localPe(1) = -1
          call ESMF_VMAllGather(vm, sendData=localPe, recvData=allPEs, &
-              count=1, rc=status)
-         _VERIFY(STATUS)
+              count=1, _RC)
          nactual = count(allPEs >= 0)
          minactual = min(minactual, nactual)
-         allocate(list(n)%peAve(nactual), stat=status)
-         _VERIFY(STATUS)
+         allocate(list(n)%peAve(nactual), _STAT)
          list(n)%peAve = pack(allPEs, allPEs>=0)
       end do
 
@@ -1767,26 +1630,18 @@ ENDDO PARSER
       deallocate(allPEs)
    end if
 
-   allocate(INTSTATE%CCS(nlist), stat=status)
-   _VERIFY(STATUS)
-   allocate(INTSTATE%GIM(nlist), stat=status)
-   _VERIFY(STATUS)
-   allocate(INTSTATE%CIM(nlist), stat=status)
-   _VERIFY(STATUS)
-   allocate(INTSTATE%SRCS(nlist), stat=status)
-   _VERIFY(STATUS)
-   allocate(INTSTATE%DSTS(nlist), stat=status)
-   _VERIFY(STATUS)
-!   allocate(INTSTATE%GEX(nlist), stat=status)
-!   _VERIFY(STATUS)
-!   allocate(INTSTATE%GCNameList(nlist), stat=status)
-!   _VERIFY(STATUS)
+   allocate(INTSTATE%CCS(nlist), _STAT)
+   allocate(INTSTATE%GIM(nlist), _STAT)
+   allocate(INTSTATE%CIM(nlist), _STAT)
+   allocate(INTSTATE%SRCS(nlist), _STAT)
+   allocate(INTSTATE%DSTS(nlist), _STAT)
+!   allocate(INTSTATE%GEX(nlist), _STAT)
+!   allocate(INTSTATE%GCNameList(nlist), _STAT)
 
 ! Initialize Logical for Grads Control File
 ! -----------------------------------------
 
-   allocate( INTSTATE%LCTL(nlist), stat=status )
-   _VERIFY(STATUS)
+   allocate( INTSTATE%LCTL(nlist), _STAT )
    do n=1,nlist
       if (list(n)%disabled) cycle
       if( list(n)%format == 'flat' ) then
@@ -1802,8 +1657,7 @@ ENDDO PARSER
 
       IntState%GIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
            stateIntent = ESMF_STATEINTENT_IMPORT, &
-           rc=status )
-      _VERIFY(STATUS)
+           _RC )
 
       select case (list(n)%mode)
       case ("instantaneous")
@@ -1823,20 +1677,15 @@ ENDDO PARSER
 ! query a field from export (arbitrary first field in the stream) for grid_in
          _ASSERT(size(export(list(n)%expSTATE)) > 0,'needs informative message')
          call MAPL_StateGet( export(list(n)%expSTATE(1)), &
-                             trim(list(n)%field_set%fields(1,1)), field, rc=status )
-         _VERIFY(STATUS)
+                             trim(list(n)%field_set%fields(1,1)), field, _RC )
          IntState%Regrid(n)%PTR%state_out = ESMF_StateCreate ( name=trim(list(n)%filename)//'regrid_in', &
               stateIntent = ESMF_STATEINTENT_IMPORT, &
-              rc=status )
-         _VERIFY(STATUS)
+              _RC )
 
 ! get grid name, layout, dims
-         call ESMF_FieldGet(field, grid=grid_in, rc=status)
-         _VERIFY(STATUS)
-         call ESMF_GridGet(grid_in, name=gridname, distgrid=distgrid, rc=status)
-         _VERIFY(STATUS)
-         call ESMF_DistGridGet(distgrid, delayout=layout, rc=status)
-         _VERIFY(STATUS)
+         call ESMF_FieldGet(field, grid=grid_in, _RC)
+         call ESMF_GridGet(grid_in, name=gridname, distgrid=distgrid, _RC)
+         call ESMF_DistGridGet(distgrid, delayout=layout, _RC)
 
          IntState%Regrid(n)%PTR%noxform = .false.
 
@@ -1857,16 +1706,13 @@ ENDDO PARSER
 !           set the pointer to LocStream
 
             call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &
-                 value=ADDR, rc=status)
-            _VERIFY(STATUS)
+                 value=ADDR, _RC)
             call c_MAPL_LocStreamRestorePtr(exch, ADDR)
 
 !           Get the attached grid
-            call MAPL_LocStreamGet(EXCH, ATTACHEDGRID=GRID_ATTACHED, RC=STATUS)
-            _VERIFY(STATUS)
+            call MAPL_LocStreamGet(EXCH, ATTACHEDGRID=GRID_ATTACHED, _RC)
 
-            call ESMF_GridGet(grid_attached, name=attachedName, rc=status)
-            _VERIFY(STATUS)
+            call ESMF_GridGet(grid_attached, name=attachedName, _RC)
 
             if (attachedName == IntState%Regrid(n)%PTR%gridname) then
 !              T2G
@@ -1889,10 +1735,8 @@ ENDDO PARSER
                _ASSERT(associated(LSADDR_PTR),'needs informative message')
                do i = 1, size(LSADDR_PTR)
                   call c_MAPL_LocStreamRestorePtr(locStream, LSADDR_PTR(i))
-                  call MAPL_LocStreamGet(locStream, ATTACHEDGRID=GRID, RC=STATUS)
-                  _VERIFY(STATUS)
-                  call ESMF_GridGet(grid, name=tmpstr, rc=status)
-                  _VERIFY(STATUS)
+                  call MAPL_LocStreamGet(locStream, ATTACHEDGRID=GRID, _RC)
+                  call ESMF_GridGet(grid, name=tmpstr, _RC)
                   if (tmpstr == IntState%Regrid(n)%PTR%gridname) then
                      found = .true.
                      exit
@@ -1916,8 +1760,7 @@ ENDDO PARSER
 
 !>>>
 !           get gridnames from exch
-                  call MAPL_LocStreamGet(exch, GRIDNAMES = GNAMES, RC=STATUS)
-                  _VERIFY(STATUS)
+                  call MAPL_LocStreamGet(exch, GRIDNAMES = GNAMES, _RC)
 
                   ngrids = size(gnames)
                   _ASSERT(ngrids==2,'needs informative message')
@@ -1937,10 +1780,8 @@ ENDDO PARSER
                   found = .false.
                   do i = 1, size(LSADDR_PTR)
                      call c_MAPL_LocStreamRestorePtr(locStream, LSADDR_PTR(i))
-                     call MAPL_LocStreamGet(locStream, ATTACHEDGRID=GRID, RC=STATUS)
-                     _VERIFY(STATUS)
-                     call ESMF_GridGet(grid, name=tmpstr, rc=status)
-                     _VERIFY(STATUS)
+                     call MAPL_LocStreamGet(locStream, ATTACHEDGRID=GRID, _RC)
+                     call ESMF_GridGet(grid, name=tmpstr, _RC)
                      if (tmpstr == gnames(NG)) then
                         found = .true.
                         exit
@@ -1956,19 +1797,15 @@ ENDDO PARSER
                        LocStreamIn=exch, &
                        NAME='historyXFORMnative', &
                        UseFCollect=.true., &
-                       RC=STATUS )
-                  _VERIFY(STATUS)
+                       _RC )
 
                   ! get the name and layout of attached grid
-                  call ESMF_GridGet(grid_in, name=gridname, distgrid=distgrid, rc=status)
-                  _VERIFY(STATUS)
-                  call ESMF_DistGridGet(distgrid, delayout=layout, rc=status)
-                  _VERIFY(STATUS)
+                  call ESMF_GridGet(grid_in, name=gridname, distgrid=distgrid, _RC)
+                  call ESMF_DistGridGet(distgrid, delayout=layout, _RC)
 
                   call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locIn, &
                        layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
-                       NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, RC=STATUS)
-                  _VERIFY(STATUS)
+                       NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, _RC)
                end if
 
             end if
@@ -1982,8 +1819,7 @@ ENDDO PARSER
 
             call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locIn, &
                  layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
-                 NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, RC=STATUS)
-            _VERIFY(STATUS)
+                 NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, _RC)
 
          end if
 
@@ -1992,8 +1828,7 @@ ENDDO PARSER
          if (.not. ontiles) then
 !           get gridnames from loc_in
             call MAPL_LocStreamGet(IntState%Regrid(n)%PTR%locIn, &
-                 GRIDNAMES = GNAMES, RC=STATUS)
-            _VERIFY(STATUS)
+                 GRIDNAMES = GNAMES, _RC)
 ! query loc_in for ngrids
             ngrids = size(gnames)
             _ASSERT(ngrids==2,'needs informative message')
@@ -2026,21 +1861,18 @@ ENDDO PARSER
             grid_out=pgrid
             call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locOut, &
                  layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
-                 NAME='history_out', MASK=(/MAPL_Ocean/), Grid=grid_out, RC=STATUS)
-            _VERIFY(STATUS)
+                 NAME='history_out', MASK=(/MAPL_Ocean/), Grid=grid_out, _RC)
 
          endif
 
 ! query ntiles
          call MAPL_LocStreamGet(IntState%Regrid(n)%PTR%locOut, &
-              NT_LOCAL = IntState%Regrid(n)%PTR%ntiles_out, rc=status)
-         _VERIFY(STATUS)
+              NT_LOCAL = IntState%Regrid(n)%PTR%ntiles_out, _RC)
 
          if (.not.INTSTATE%Regrid(n)%PTR%noxform) then
 ! query ntiles
             call MAPL_LocStreamGet(IntState%Regrid(n)%PTR%locIn, &
-                 NT_LOCAL = IntState%Regrid(n)%PTR%ntiles_in, rc=status)
-            _VERIFY(STATUS)
+                 NT_LOCAL = IntState%Regrid(n)%PTR%ntiles_in, _RC)
 
 ! create XFORM
             call MAPL_LocStreamCreateXform ( XFORM=INTSTATE%Regrid(n)%PTR%XFORM, &
@@ -2048,8 +1880,7 @@ ENDDO PARSER
                  LocStreamIn=INTSTATE%Regrid(n)%PTR%LocIn, &
                  NAME='historyXFORM', &
                  UseFCollect=.true., &
-                 RC=STATUS )
-            _VERIFY(STATUS)
+                 _RC )
          end if
 
       endif
@@ -2057,25 +1888,18 @@ ENDDO PARSER
 ! Handle possible extra fields needed for the parser
       if (list(n)%nPExtraFields > 0) then
 
-         allocate ( exptmp (1), stat=status )
-         _VERIFY(STATUS)
+         allocate ( exptmp (1), _STAT )
          exptmp(1) = import
 
          do m=1,list(n)%nPExtraFields
-            call MAPL_ExportStateGet(exptmp,list(n)%PExtraGridComp(m),parser_state,rc=status)
-            _VERIFY(STATUS)
-            call MAPL_StateGet(parser_state,list(n)%PExtraFields(m),parser_field,rc=status)
-            _VERIFY(STATUS)
-            call MAPL_AllocateCoupling(parser_field, rc=status)
-            _VERIFY(STATUS)
-            f = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), rc=status)
-            _VERIFY(STATUS)
+            call MAPL_ExportStateGet(exptmp,list(n)%PExtraGridComp(m),parser_state,_RC)
+            call MAPL_StateGet(parser_state,list(n)%PExtraFields(m),parser_field,_RC)
+            call MAPL_AllocateCoupling(parser_field, _RC)
+            f = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), _RC)
             if (IntState%average(n)) then
-               call MAPL_StateAdd(IntState%CIM(N), f, rc=status)
-               _VERIFY(STATUS)
+               call MAPL_StateAdd(IntState%CIM(N), f, _RC)
             else
-               call MAPL_StateAdd(IntState%GIM(N), f, rc=status)
-               _VERIFY(STATUS)
+               call MAPL_StateAdd(IntState%GIM(N), f, _RC)
             end if
          end do
 
@@ -2363,39 +2187,33 @@ ENDDO PARSER
 
          call MAPL_StateCreateFromSpec(IntState%GIM(n), &
               IntState%DSTS(n)%SPEC,   &
-              RC=STATUS  )
-         _VERIFY(STATUS)
+              _RC  )
 
 !         create CC
          if (nactual == npes) then
             IntState%CCS(n) = ESMF_CplCompCreate (                  &
                  NAME       = list(n)%collection, &
                  contextFlag = ESMF_CONTEXT_PARENT_VM,              &
-                 RC=STATUS )
-            _VERIFY(STATUS)
+                 _RC )
          else
             IntState%CCS(n) = ESMF_CplCompCreate (                  &
                  NAME       = list(n)%collection, &
                  petList    = list(n)%peAve, &
                  contextFlag = ESMF_CONTEXT_OWN_VM,              &
-                 RC=STATUS )
-            _VERIFY(STATUS)
+                 _RC )
          end if
 
 !         CCSetServ
          call ESMF_CplCompSetServices (IntState%CCS(n), &
-                                       GenericCplSetServices, RC=STATUS )
-         _VERIFY(STATUS)
+                                       GenericCplSetServices, _RC )
 
          call MAPL_CplCompSetVarSpecs(IntState%CCS(n), &
                                       INTSTATE%SRCS(n)%SPEC,&
-                                      INTSTATE%DSTS(n)%SPEC,RC=STATUS)
-         _VERIFY(STATUS)
+                                      INTSTATE%DSTS(n)%SPEC,_RC)
 
          if (list(n)%monthly) then
             call MAPL_CplCompSetAlarm(IntState%CCS(n), &
-                 list(n)%his_alarm, RC=STATUS)
-            _VERIFY(STATUS)
+                 list(n)%his_alarm, _RC)
          end if
 
 !         CCInitialize
@@ -2414,12 +2232,12 @@ ENDDO PARSER
                                              exportState=INTSTATE%GIM(n), &
                                              clock=CLOCK,           &
                                              userRC=STATUS)
+               _VERIFY(STATUS)
                if (status == ESMF_RC_FILE_READ) then
                   list(n)%partial = .true.
                   STATUS = ESMF_SUCCESS
                   call WRITE_PARALLEL("DEBUG: no cpl restart found, producing partial month")
                end if
-               _VERIFY(STATUS)
             end if
          end if
       end if
@@ -2439,19 +2257,15 @@ ENDDO PARSER
 !ALT do this all the time       if (list(n)%format == 'CFIO') then
           write(string,'(a,i3.0)') 'STREAM',n
 
-          list(n)%bundle = ESMF_FieldBundleCreate(NAME=string, RC=STATUS)
-          _VERIFY(STATUS)
+          list(n)%bundle = ESMF_FieldBundleCreate(NAME=string, _RC)
 
           if(associated(list(n)%levels)) then
              LM = size(list(n)%levels)
           else
              call ESMF_StateGet(INTSTATE%GIM(n), &
-                  trim(list(n)%field_set%fields(3,1)), field, rc=status )
-             _VERIFY(STATUS)
-             call ESMF_FieldGet(field, grid=grid,   rc=status )
-             _VERIFY(STATUS)
-             call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-             _VERIFY(STATUS)
+                  trim(list(n)%field_set%fields(3,1)), field, _RC )
+             call ESMF_FieldGet(field, grid=grid,   _RC )
+             call MAPL_GridGet(GRID, globalCellCountPerDim=COUNTS, _RC)
              LM = counts(3)
           endif
 
@@ -2465,28 +2279,20 @@ ENDDO PARSER
 
           do m=1,list(n)%field_set%nfields
              call ESMF_StateGet( state_out, &
-                  trim(list(n)%field_set%fields(3,m)), field, rc=status )
-             _VERIFY(STATUS)
+                  trim(list(n)%field_set%fields(3,m)), field, _RC )
 
-             call MAPL_FieldBundleAdd( list(n)%bundle, field, rc=status )
-             _VERIFY(STATUS)
+             call MAPL_FieldBundleAdd( list(n)%bundle, field, _RC )
 
-             call ESMF_FieldGet(field, Array=array, grid=bgrid, rc=status)
-             _VERIFY(STATUS)
-             call ESMF_ArrayGet(array, rank=rank, rc=status)
-             _VERIFY(STATUS)
-             call ESMF_ArrayGet(array, localarrayList=larrayList, rc=status)
-             _VERIFY(STATUS)
+             call ESMF_FieldGet(field, Array=array, grid=bgrid, _RC)
+             call ESMF_ArrayGet(array, rank=rank, _RC)
+             call ESMF_ArrayGet(array, localarrayList=larrayList, _RC)
              larray => lArrayList(1) ! alias
-             call ESMF_GridGet(bgrid, distgrid=bdistgrid, rc=status)
-             _VERIFY(STATUS)
+             call ESMF_GridGet(bgrid, distgrid=bdistgrid, _RC)
              !ALT: we need the rank of the distributed grid
              ! MAPL (and GEOS-5) grid are distributed along X-Y
              ! tilegrids are distributed only along "tile" dimension
-             call ESMF_DistGridGet(bdistgrid, dimCount=distRank, rc=status)
-             _VERIFY(STATUS)
-             call ESMF_LocalArrayGet(larray, totalCount=counts, rc=status)
-             _VERIFY(STATUS)
+             call ESMF_DistGridGet(bdistgrid, dimCount=distRank, _RC)
+             call ESMF_LocalArrayGet(larray, totalCount=counts, _RC)
 
              if(list(n)%field_set%fields(3,m)/=vvarn(n)) then
                 nslices = 1
@@ -2522,29 +2328,19 @@ ENDDO PARSER
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
-             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,rc=status)
-             _VERIFY(status)
+             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
           else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
-             list(n)%vdata = VerticalData(levels=list(n)%levels,rc=status)
-             _VERIFY(status)
+             list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
           else
-             list(n)%vdata = VerticalData(positive=list(n)%positive,rc=status)
-             _VERIFY(status)
+             list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
           end if
-          call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,rc=status)
-          _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,rc=status)
-          _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,rc=status)
-          _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,rc=status)
-          _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,rc=status)
-          _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,rc=status)
-          _VERIFY(status)
-          call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
-          _VERIFY(status)
+          call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
+          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
+          call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
+          call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
+          call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
+          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
+          call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
           if (list(n)%monthly) then
                nextMonth = currTime - oneMonth
                dur = nextMonth - currTime
@@ -2554,19 +2350,15 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
-             _VERIFY(status)
-             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
-             _VERIFY(status)
+             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
+             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
-                _VERIFY(status)
+                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              else
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
-                _VERIFY(status)
+                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              end if
              collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
@@ -2628,8 +2420,7 @@ ENDDO PARSER
             integer :: im_world, jm_world,dims(3)
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             if (associated(pgrid)) then
-               call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,RC=status)
-               _VERIFY(status)
+               call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
                print *, ' Output RSLV: ',dims(1),dims(2)
             end if
          end block
@@ -2679,8 +2470,7 @@ ENDDO PARSER
     deallocate(stateListAvail)
     deallocate( statelist )
 
-    call MAPL_GenericInitialize( gc, import, dumexport, clock, rc=status )
-    _VERIFY(status)
+    call MAPL_GenericInitialize( gc, import, dumexport, clock, _RC )
 
     _RETURN(ESMF_SUCCESS)
 
@@ -2712,11 +2502,10 @@ ENDDO PARSER
          fld_set => list(n)%field_set
          nfields = fld_set%nfields
 
-         allocate(needSplit(nfields), regexList(nfields), stat=status)
-         _VERIFY(status)
+         allocate(needSplit(nfields), regexList(nfields), _STAT)
          regexList = ""
 
-         allocate(newItems, stat=status); _VERIFY(status)
+         allocate(newItems, _STAT)
 
          needSplit = .false.
 
@@ -2725,15 +2514,12 @@ ENDDO PARSER
          do while(iter /= list(n)%items%end())
             item => iter%get()
             if (item%itemType == ItemTypeScalar) then
-               expand = hasRegex(fldName=item%xname, rc=status)
-               _VERIFY(status)
+               expand = hasRegex(fldName=item%xname, _RC)
                if (.not.expand) call newItems%push_back(item)
             else if (item%itemType == ItemTypeVector) then
                ! Lets' not allow regex expand for vectors
-               expand = hasRegex(fldName=item%xname, rc=status)
-               _VERIFY(status)
-               expand = expand.or.hasRegex(fldName=item%yname, rc=status)
-               _VERIFY(status)
+               expand = hasRegex(fldName=item%xname, _RC)
+               expand = expand.or.hasRegex(fldName=item%yname, _RC)
                if (.not.expand) call newItems%push_back(item)
             end if
 
@@ -2745,10 +2531,9 @@ ENDDO PARSER
 
          if (nregex /= 0) then
             nfields = nfields - nregex
-            allocate(newExpState(nfields), stat=status)
-            _VERIFY(status)
-            allocate(newFieldSet, stat=status); _VERIFY(status)
-            allocate(fields(4,nfields), stat=status); _VERIFY(status)
+            allocate(newExpState(nfields), _STAT)
+            allocate(newFieldSet, _STAT)
+            allocate(fields(4,nfields), _STAT)
             do k = 1, size(fld_set%fields,1)
                fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
             end do
@@ -2766,20 +2551,17 @@ ENDDO PARSER
                expState = export(list(n)%expSTATE(k))
 
                call MAPL_WildCardExpand(state=expState, regexStr=regexList(k), &
-                    fieldNames=fieldNames, RC=status)
-               _VERIFY(STATUS)
+                    fieldNames=fieldNames, _RC)
 
                do i=1,size(fieldNames)
                   fldName = fieldNames(i)
                   call appendFieldSet(newFieldSet, fldName, &
                        stateName=stateName, &
                        aliasName=fldName, &
-                       specialName='', rc=status)
+                       specialName='', _RC)
 
-                  _VERIFY(status)
                   ! append expState
-                  call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
-                  _VERIFY(status)
+                  call appendArray(newExpState,idx=list(n)%expState(k),_RC)
 
                   item%itemType = ItemTypeScalar
                   item%xname = trim(fldName)
@@ -2866,21 +2648,16 @@ ENDDO PARSER
       integer :: nmatches(2, ESMF_MAXSTR)
       character(len=ESMF_MAXSTR), allocatable :: tmpFldNames(:)
 
-      call ESMF_StateGet(state, itemcount=nitems,  rc=status)
-      _VERIFY(status)
+      call ESMF_StateGet(state, itemcount=nitems,  _RC)
 
-      allocate(itemNameList(nitems), itemtypeList(nitems), stat=status)
-      _VERIFY(status)
+      allocate(itemNameList(nitems), itemtypeList(nitems), _STAT)
 
       call ESMF_StateGet(state,itemNameList=itemNameList,&
-                       itemTypeList=itemTypeList,RC=STATUS)
-    _VERIFY(STATUS)
+                       itemTypeList=itemTypeList,_RC)
       call regcomp(regex,trim(regexStr),'xmi',status=status)
-    _VERIFY(STATUS)
 
       if (.not.allocated(fieldNames)) then
-         allocate(fieldNames(0), stat=status)
-         _VERIFY(status)
+         allocate(fieldNames(0), _STAT)
       end if
       count = size(fieldNames)
 
@@ -2897,8 +2674,7 @@ ENDDO PARSER
 
             count = count + 1
             ! logic to grow the list
-            allocate(tmpFldNames(count), stat=status)
-            _VERIFY(status)
+            allocate(tmpFldNames(count), _STAT)
             tmpFldNames(1:count-1) = fieldNames
             call move_alloc(tmpFldNames, fieldNames)
 
@@ -2941,10 +2717,9 @@ ENDDO PARSER
       end if
       fld_set => list(n)%field_set
       nfields = fld_set%nfields
-      allocate(needSplit(nfields), fldList(nfields), stat=status)
-      _VERIFY(status)
+      allocate(needSplit(nfields), fldList(nfields), _STAT)
 
-      allocate(newItems, stat=status); _VERIFY(status)
+      allocate(newItems, _STAT)
 
       needSplit = .false.
 
@@ -2954,17 +2729,14 @@ ENDDO PARSER
          split = .false.
          item => iter%get()
          if (item%itemType == ItemTypeScalar) then
-            split = hasSplitableField(fldName=item%xname, rc=status)
-            _VERIFY(status)
+            split = hasSplitableField(fldName=item%xname, _RC)
             if (.not.split) call newItems%push_back(item)
          else if (item%itemType == ItemTypeVector) then
             ! Lets' not allow field split for vectors (at least for now);
             ! it is easy to implement; just tedious
 
-            split = hasSplitableField(fldName=item%xname, rc=status)
-            _VERIFY(status)
-            split = split.or.hasSplitableField(fldName=item%yname, rc=status)
-            _VERIFY(status)
+            split = hasSplitableField(fldName=item%xname, _RC)
+            split = split.or.hasSplitableField(fldName=item%yname, _RC)
             if (.not.split) call newItems%push_back(item)
 
             _ASSERT(.not. split, 'split field vectors of not allowed yet')
@@ -2980,11 +2752,10 @@ ENDDO PARSER
 
       if (nsplit /= 0) then
          nfields = nfields - nsplit
-         allocate(newExpState(nfields), stat=status)
-         _VERIFY(status)
+         allocate(newExpState(nfields), _STAT)
 
-         allocate(newFieldSet, stat=status); _VERIFY(status)
-         allocate(fields(4,nfields), stat=status); _VERIFY(status)
+         allocate(newFieldSet, _STAT)
+         allocate(fields(4,nfields), _STAT)
          do k = 1, size(fld_set%fields,1) ! 4
             fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
          end do
@@ -3001,27 +2772,23 @@ ENDDO PARSER
             stateName = fld_set%fields(2,k)
             aliasName = fld_set%fields(3,k)
 
-            call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
-            _VERIFY(STATUS)
+            call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, _RC)
 
             expState = export(list(n)%expSTATE(k))
 
             do i=1,size(splitFields)
                call ESMF_FieldGet(splitFields(i), name=fldName, &
-                    rc=status)
-               _VERIFY(status)
+                    _RC)
 
                alias = fldName
 
                call appendFieldSet(newFieldSet, fldName, &
                     stateName=stateName, &
                     aliasName=alias, &
-                    specialName='', rc=status)
+                    specialName='', _RC)
 
-               _VERIFY(status)
                ! append expState
-               call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
-               _VERIFY(status)
+               call appendArray(newExpState,idx=list(n)%expState(k),_RC)
 
                item%itemType = ItemTypeScalar
                item%xname = trim(alias)
@@ -3104,16 +2871,13 @@ ENDDO PARSER
       okToSplit = .false.
       fldRank = 0
 
-      call ESMF_FieldGet(fld, status=fieldStatus, rc=status)
-      _VERIFY(STATUS)
+      call ESMF_FieldGet(fld, status=fieldStatus, _RC)
 
       if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) then
-         call MAPL_AllocateCoupling(fld, rc=status)
-         _VERIFY(STATUS)
+         call MAPL_AllocateCoupling(fld, _RC)
       end if
 
-      call ESMF_FieldGet(fld,dimCount=fldRank,rc=status)
-      _VERIFY(status)
+      call ESMF_FieldGet(fld,dimCount=fldRank,_RC)
 
       _ASSERT(fldRank < 5, "unsupported rank")
 
@@ -3121,12 +2885,10 @@ ENDDO PARSER
          okToSplit = .true.
       else if (fldRank == 3) then
          ! split ONLY if X and Y are "gridded" and Z is "ungridded"
-         call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
-        _VERIFY(STATUS)
+         call ESMF_AttributeGet(fld, name='DIMS', value=dims, _RC)
         if (dims == MAPL_DimsHorzOnly) then
            call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
-                isPresent=has_ungrd, rc=status)
-            _VERIFY(STATUS)
+                isPresent=has_ungrd, _RC)
             if (has_ungrd) then
                okToSplit = .true.
             end if
@@ -3154,7 +2916,7 @@ ENDDO PARSER
 
      k = size(array)
      n = k + 1
-     allocate(tmp(n), stat=status) ; _VERIFY(status)
+     allocate(tmp(n), _STAT)
      tmp(1:k) = array
      tmp(n) = idx
 
@@ -3185,15 +2947,14 @@ ENDDO PARSER
      _ASSERT(mm == 4, 'wrong size for fields')
      k = size(fldset%fields, 2)
      nn = k + 1
-     allocate(flds(mm,nn), stat=status) ; _VERIFY(status)
+     allocate(flds(mm,nn), _STAT)
      flds(:,1:k) = fldset%fields
      flds(1,nn) = fldName
      flds(2,nn) = stateName
      flds(3,nn) = aliasName
      flds(4,nn) = specialName
 
-     deallocate( fldSet%fields, stat=status )
-     _VERIFY(STATUS)
+     deallocate( fldSet%fields, _STAT )
      fldset%fields => flds
 
      fldSet%nfields = nn
@@ -3242,8 +3003,7 @@ ENDDO PARSER
        else
           usable_collection_name = "unknown"
        end if
-       call ESMF_ConfigFindLabel ( cfg, label=label//':', rc=status)
-       _VERIFY(status)
+       call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
 
        table_end = .false.
        m = 0
@@ -3262,16 +3022,13 @@ ENDDO PARSER
                   print *
               endif
           endif
-          _VERIFY(STATUS)
           export_name = extract_unquoted_item(export_name)
 
 ! Get GC Name
 ! ------------
-          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS)
-          _VERIFY(STATUS)
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
           if( trim(tmpstring) == ',' )  then
-              call ESMF_ConfigGetAttribute ( cfg,value=component_name,rc=STATUS)
-              _VERIFY(STATUS)
+              call ESMF_ConfigGetAttribute ( cfg,value=component_name,_RC)
           else
               component_name = tmpstring
           endif
@@ -3280,9 +3037,9 @@ ENDDO PARSER
 
 ! Get Possible ALIAS Name
 ! -----------------------
-          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS)
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
           if( trim(tmpstring) == ',' )  then
-              call ESMF_ConfigGetAttribute ( cfg,value=export_alias,default=export_name,rc=STATUS)
+              call ESMF_ConfigGetAttribute ( cfg,value=export_alias,default=export_name,_RC)
           else
               if( trim(tmpstring) /= ' ' )  then
                   export_alias = tmpstring
@@ -3298,9 +3055,9 @@ ENDDO PARSER
 
 ! Get Possible COUPLER Function
 ! -----------------------------
-          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS)
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
           if( trim(tmpstring) == ',' )  then
-              call ESMF_ConfigGetAttribute ( cfg,value=coupler_function_name,default=BLANK,rc=STATUS)
+              call ESMF_ConfigGetAttribute ( cfg,value=coupler_function_name,default=BLANK,_RC)
           else
               if( trim(tmpstring) /= ' ' )  then
                   coupler_function_name = tmpstring
@@ -3310,12 +3067,10 @@ ENDDO PARSER
           endif
           coupler_function_name = extract_unquoted_item(coupler_function_name)
 ! convert to uppercase
-          tmpstring = ESMF_UtilStringUpperCase(coupler_function_name,rc=status)
-          _VERIFY(status)
+          tmpstring = ESMF_UtilStringUpperCase(coupler_function_name,_RC)
 ! -------------
 
-          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,rc=STATUS )
-          _VERIFY(STATUS)
+          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
           vectorDone=.false.
 
           idx = index(export_name,";")
@@ -3326,8 +3081,7 @@ ENDDO PARSER
              item%itemType = ItemTypeVector
           end if
           VECTORPAIR: do while(.not.vectorDone)
-             allocate( fields(4,m), stat=status )
-             _VERIFY(STATUS)
+             allocate( fields(4,m), _STAT )
 
              idx = index(export_name,";")
              if (idx == 0) then
@@ -3357,8 +3111,7 @@ ENDDO PARSER
                 fields(4,m)     = coupler_function_name
                 deallocate (field_set%fields)
              endif
-             allocate( field_set%fields(4,m), stat=status)
-             _VERIFY(STATUS)
+             allocate( field_set%fields(4,m), _STAT)
              field_set%fields = fields
              deallocate (fields)
              if (.not.vectorDone) then
@@ -3450,7 +3203,6 @@ ENDDO PARSER
 !----------------------------------
 
     call ESMF_GridCompGetInternalState(gc, wrap, status)
-    _VERIFY(status)
     IntState => wrap%ptr
 
 ! the collections
@@ -3462,14 +3214,12 @@ ENDDO PARSER
 ! Retrieve the pointer to the generic state
 !------------------------------------------
 
-    call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GetObjectFromGC ( gc, GENSTATE, _RC)
 
 !   Get clocks' direction
     FWD = .not. ESMF_ClockIsReverse(clock)
 
-   allocate(Ignore (nlist), stat=status)
-   _VERIFY(STATUS)
+   allocate(Ignore (nlist), _STAT)
    Ignore = .false.
 
   ! decide if clock direction and collections' backwards mode agree
@@ -3485,13 +3235,11 @@ ENDDO PARSER
      call MAPL_TimerOn(GENSTATE,"-ParserRun")
      if( (.not.list(n)%disabled .and. IntState%average(n)) ) then
       call MAPL_RunExpression(IntState%CIM(n),list(n)%field_set%fields,list(n)%tmpfields, &
-         list(n)%ReWrite,list(n)%field_set%nfields,RC=STATUS)
-      _VERIFY(STATUS)
+         list(n)%ReWrite,list(n)%field_set%nfields,_RC)
      end if
      if( (.not.list(n)%disabled) .and. (.not.IntState%average(n)) ) then
       call MAPL_RunExpression(IntState%GIM(n),list(n)%field_set%fields,list(n)%tmpfields, &
-         list(n)%ReWrite,list(n)%field_set%nfields,RC=STATUS)
-      _VERIFY(STATUS)
+         list(n)%ReWrite,list(n)%field_set%nfields,_RC)
      end if
      call MAPL_TimerOff(GENSTATE,"-ParserRun")
     endif
@@ -3504,8 +3252,7 @@ ENDDO PARSER
 !@   do n=1,nlist
 !@      do m=1,list(n)%field_set%nfields
 !@         if (list(n)%r8_to_r4(m)) then
-!@            call MAPL_FieldCopy(from=list(n)%r8(m), to=list(n)%r4(m), rc=status)
-!@            _VERIFY(status)
+!@            call MAPL_FieldCopy(from=list(n)%r8(m), to=list(n)%r4(m), _RC)
 !@         end if
 !@      end do
 !@   end do
@@ -3521,8 +3268,7 @@ ENDDO PARSER
           do m=1,list(n)%field_set%nfields
              if (list(n)%r8_to_r4(m)) then
                 call MAPL_FieldCopy(from=list(n)%r8(m), &
-                                    to=list(n)%r4(m), rc=status)
-                _VERIFY(status)
+                                    to=list(n)%r4(m), _RC)
              end if
           end do
 
@@ -3530,7 +3276,7 @@ ENDDO PARSER
                                 importState=INTSTATE%CIM(n), &
                                 exportState=INTSTATE%GIM(n), &
                                 clock=CLOCK,           &
-                                userRC=STATUS)
+                                userRC)
           _VERIFY(STATUS)
        end if
     end do
@@ -3539,10 +3285,8 @@ ENDDO PARSER
 ! Check for History Output
 ! ------------------------
 
-   allocate(Writing (nlist), stat=status)
-   _VERIFY(STATUS)
-   allocate(filename(nlist), stat=status)
-   _VERIFY(STATUS)
+   allocate(Writing (nlist), _STAT)
+   allocate(filename(nlist), _STAT)
    allocate(NewSeg (nlist), __STAT__)
    newSeg = .false.
 
@@ -3559,20 +3303,17 @@ ENDDO PARSER
       endif
 
 !      if(Writing(n)) then
-!         call ESMF_AlarmRingerOff( list(n)%his_alarm,rc=status )
-!         _VERIFY(STATUS)
+!         call ESMF_AlarmRingerOff( list(n)%his_alarm,_RC )
 !      end if
 
       if (Ignore(n)) then
          ! "Exersise" the alarms and then do nothing
          Writing(n) = .false.
 !         if (ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
-!            call ESMF_AlarmRingerOff( list(n)%his_alarm,rc=status )
-!            _VERIFY(STATUS)
+!            call ESMF_AlarmRingerOff( list(n)%his_alarm,_RC )
 !         end if
          if (ESMF_AlarmIsRinging ( list(n)%seg_alarm )) then
-            call ESMF_AlarmRingerOff( list(n)%seg_alarm,rc=status )
-            _VERIFY(STATUS)
+            call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
          end if
       end if
 
@@ -3581,8 +3322,7 @@ ENDDO PARSER
           do m=1,list(n)%field_set%nfields
              if (list(n)%r8_to_r4(m)) then
                 call MAPL_FieldCopy(from=list(n)%r8(m), &
-                                    to=list(n)%r4(m), rc=status)
-                _VERIFY(status)
+                                    to=list(n)%r4(m), _RC)
              end if
           end do
        end if
@@ -3593,8 +3333,7 @@ ENDDO PARSER
        NewSeg(n) = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
 
        if( NewSeg(n)) then
-          call ESMF_AlarmRingerOff( list(n)%seg_alarm,rc=status )
-          _VERIFY(STATUS)
+          call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
        endif
 
    end do
@@ -3615,8 +3354,7 @@ ENDDO PARSER
 
          call get_DateStamp ( clock, DateStamp=DateStamp,  &
               OFFSET = INTSTATE%STAMPOFFSET(n),            &
-                                                 rc=status )
-         _VERIFY(STATUS)
+                                                 _RC )
 
          if (trim(INTSTATE%expid) == "") then
             fntmpl =          trim(list(n)%filename)
@@ -3633,8 +3371,7 @@ ENDDO PARSER
 
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
-              nymd=nymd, nhms=nhms, rc=status ) ! here is where we get the actual filename of file we will write
-         _VERIFY(STATUS)
+              nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
@@ -3649,8 +3386,7 @@ ENDDO PARSER
                ! instead we compute the differece between
                ! thisMonth and lastMonth and as a new timeInterval
 
-               call ESMF_ClockGet(clock,currTime=current_time,rc=status)
-               _VERIFY(status)
+               call ESMF_ClockGet(clock,currTime=current_time,_RC)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, _RC)
                lastMonth = current_time - oneMonth
                dur = current_time - lastMonth
@@ -3662,10 +3398,8 @@ ENDDO PARSER
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
-               call list(n)%trajectory%close_file_handle(rc=status)
-               _VERIFY(status)
-               call list(n)%trajectory%create_file_handle(filename(n),rc=status)
-               _VERIFY(status)
+               call list(n)%trajectory%close_file_handle(_RC)
+               call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
@@ -3677,8 +3411,7 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
-                  _VERIFY(status)
+                  call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else
@@ -3718,7 +3451,7 @@ ENDDO PARSER
                        IntState%Regrid(n)%PTR%LocNative, &
                        IntState%Regrid(n)%PTR%ntiles_in, &
                        IntState%Regrid(n)%PTR%ntiles_out,&
-                       rc=status)
+                       _RC)
                else
                   call RegridTransform(IntState%GIM(n), &
                        IntState%Regrid(n)%PTR%xform, &
@@ -3727,7 +3460,7 @@ ENDDO PARSER
                        IntState%Regrid(n)%PTR%LocOut, &
                        IntState%Regrid(n)%PTR%ntiles_in, &
                        IntState%Regrid(n)%PTR%ntiles_out,&
-                       rc=status)
+                       _RC)
                end if
             else
                if (IntState%Regrid(n)%PTR%noxform) then
@@ -3735,17 +3468,16 @@ ENDDO PARSER
                        STATE_OUT=state_out, &
                        LS_OUT=IntState%Regrid(n)%PTR%LocOut, &
                        NTILES_OUT=IntState%Regrid(n)%PTR%ntiles_out, &
-                       rc=status)
+                       _RC)
                else
                   call RegridTransformT2G(STATE_IN=IntState%GIM(n), &
                        XFORM=IntState%Regrid(n)%PTR%xform, &
                        STATE_OUT=state_out, &
                        LS_OUT=IntState%Regrid(n)%PTR%LocOut, &
                        NTILES_OUT=IntState%Regrid(n)%PTR%ntiles_out, &
-                       rc=status)
+                       _RC)
                end if
             end if
-            _VERIFY(STATUS)
          else
             state_out = INTSTATE%GIM(n)
          end if
@@ -3753,8 +3485,7 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
-               call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
-               _VERIFY(status)
+               call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
 
             else
 
@@ -3765,14 +3496,12 @@ ENDDO PARSER
                   INTSTATE%LCTL(n) = .false.
                endif
 
-               call shavebits(state_out, list(n), rc=status)
-               _VERIFY(STATUS)
+               call shavebits(state_out, list(n), _RC)
 
                do m=1,list(n)%field_set%nfields
                   call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
                        NAME=trim(list(n)%field_set%fields(3,m)), &
-                       forceWriteNoRestart=.true., rc=status )
-                  _VERIFY(STATUS)
+                       forceWriteNoRestart=.true., _RC )
                enddo
                call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
 
@@ -3818,10 +3547,8 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-         call ESMF_ClockGet(clock,currTime=current_time,rc=status)
-         _VERIFY(status)
-         call list(n)%trajectory%append_file(current_time,rc=status)
-         _VERIFY(status)
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+         call list(n)%trajectory%append_file(current_time,_RC)
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -3872,13 +3599,11 @@ ENDDO PARSER
 
 ! Begin...
 
-    call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
-    _VERIFY(STATUS)
+    call MAPL_GetObjectFromGC ( gc, GENSTATE, _RC)
 
 ! Retrieve the pointer to the state
 
     call ESMF_GridCompGetInternalState(gc, wrap, status)
-    _VERIFY(status)
     IntState => wrap%ptr
     list => IntState%list
     nlist = size(list)
@@ -3891,8 +3616,7 @@ ENDDO PARSER
       if (list(n)%disabled) cycle
       IF (list(n)%format == 'CFIO') then
          if( MAPL_CFIOIsCreated(list(n)%mcfio) ) then
-            CALL MAPL_CFIOdestroy (list(n)%mcfio, rc=STATUS)
-            _VERIFY(STATUS)
+            CALL MAPL_CFIOdestroy (list(n)%mcfio, _RC)
          end if
       ELSE
          if( list(n)%unit.ne.0 ) call FREE_FILE( list(n)%unit )
@@ -3915,17 +3639,14 @@ ENDDO PARSER
 #if 0
    do n=1,nlist
       IF (IntState%average(n)) then
-         call MAPL_StateDestroy(IntState%gim(n), rc=status)
-         _VERIFY(STATUS)
-         call MAPL_StateDestroy(IntState%cim(n), rc=status)
-         _VERIFY(STATUS)
+         call MAPL_StateDestroy(IntState%gim(n), _RC)
+         call MAPL_StateDestroy(IntState%cim(n), _RC)
       end IF
    enddo
 #endif
 
 
-    call  MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC=status )
-    _VERIFY(STATUS)
+    call  MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, _RC )
 
 
     _RETURN(ESMF_SUCCESS)
@@ -3985,12 +3706,12 @@ ENDDO PARSER
                'DTDT'     , 'PHYSICS'    , &
                'DTDT'     , 'GWD'        /
 
-   call ESMF_ClockGet ( clock, currTime=CurrTime,   rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock, StopTime=StopTime,   rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock, StartTime=StartTime, rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock, Calendar=cal,        rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, currTime=CurrTime,   _RC )
+   call ESMF_ClockGet ( clock, StopTime=StopTime,   _RC )
+   call ESMF_ClockGet ( clock, StartTime=StartTime, _RC )
+   call ESMF_ClockGet ( clock, Calendar=cal,        _RC )
 
-   call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
+   call ESMF_TimeGet  ( CurrTime, timeString=TimeString, _RC )
 
    read(timestring( 1: 4),'(i4.4)') year
    read(timestring( 6: 7),'(i2.2)') month
@@ -4000,7 +3721,7 @@ ENDDO PARSER
 
    ti = StopTime-CurrTime
    freq = MAPL_nsecf( list%frequency )
-   call ESMF_TimeIntervalSet( Frequency, S=freq, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
+   call ESMF_TimeIntervalSet( Frequency, S=freq, StartTime=StartTime, _RC )
 
    nsteps =  ti/Frequency + 1
 
@@ -4021,13 +3742,10 @@ ENDDO PARSER
 
 ! Get Global Horizontal Dimensions
 ! --------------------------------
-   call ESMF_StateGet ( state,trim(list%field_set%fields(3,1)),field,rc=status )
-   _VERIFY(STATUS)
-   call ESMF_FieldGet ( field, grid=grid, rc=status )
-   _VERIFY(STATUS)
+   call ESMF_StateGet ( state,trim(list%field_set%fields(3,1)),field,_RC )
+   call ESMF_FieldGet ( field, grid=grid, _RC )
 
-   call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-   _VERIFY(STATUS)
+   call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, _RC)
 
    ZERO   =  0
    IM     =  DIMS(1)
@@ -4035,8 +3753,7 @@ ENDDO PARSER
    LM     =  DIMS(3)
    if (LM == 0) LM = 1 ! needed for tilegrids
 
-   call ESMF_GridGet(grid, name=gridname, rc=status)
-   _VERIFY(STATUS)
+   call ESMF_GridGet(grid, name=gridname, _RC)
 
    if (gridname(1:10) == 'tile_grid_') then
       DLON = 1.0
@@ -4060,15 +3777,13 @@ ENDDO PARSER
                                  Name     = "Latitude"              , &
                                  Location = ESMF_STAGGERLOC_CENTER  , &
                                  Units    = MAPL_UnitsRadians      , &
-                                 RC       = STATUS                    )
-      _VERIFY(STATUS)
+                                 _RC)
 
       call ESMFL_GridCoordGet(   GRID, LONS       , &
                                  Name     = "Longitude"             , &
                                  Location = ESMF_STAGGERLOC_CENTER  , &
                                  Units    = MAPL_UnitsRadians      , &
-                                 RC       = STATUS                    )
-      _VERIFY(STATUS)
+                                 _RC)
 
 !ALT: Note: the LATS(1,1) and LONS(1,1) are correct ONLY on root
       if( MAPL_AM_I_ROOT() ) then
@@ -4090,8 +3805,7 @@ ENDDO PARSER
          integer :: dims(3)
          pgrid => output_grids%at(trim(list%output_grid_label))
          if (associated(pgrid)) then
-            call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,RC=status)
-            _VERIFY(status)
+            call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
             IM = dims(1)
             JM = dims(2)
             DLON   =  360._REAL64/float(IM)
@@ -4108,18 +3822,14 @@ ENDDO PARSER
 
 ! Compute Vertical Dimension for each Field (Augment nfield for VDIMS > LM)
 ! -------------------------------------------------------------------------
-   allocate( vdim(list%field_set%nfields), stat=status )
-   _VERIFY(STATUS)
+   allocate( vdim(list%field_set%nfields), _STAT )
    vdim = 0
    nfield =   list%field_set%nfields
    do m = 1,list%field_set%nfields
       call ESMFL_StateGetFieldArray( state,trim(list%field_set%fields(3,m)),array,status )
-      _VERIFY(STATUS)
-      call ESMF_ArrayGet( array, localarrayList=larrayList, rc=status )
-      _VERIFY(STATUS)
+      call ESMF_ArrayGet( array, localarrayList=larrayList, _RC )
       call ESMF_LocalArrayGet( larrayList(1), RANK=rank, totalLBound=lbounds, &
-           totalUBound=ubounds, rc=status )
-      _VERIFY(STATUS)
+           totalUBound=ubounds, _RC )
       if( rank==3 ) then
          vdim(m) = ubounds(3)-lbounds(3)+1
          if( vdim(m).gt.LM ) nfield = nfield+1
@@ -4246,17 +3956,14 @@ ENDDO PARSER
     equivalence ( string(15),minute     )
     equivalence ( string(18),second     )
 
-    call ESMF_ClockGet ( clock, name=clockname, currTime=currentTime, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_ClockGet ( clock, name=clockname, currTime=currentTime, _RC)
 
     if (present(offset)) then
-        call ESMF_TimeIntervalGet( OFFSET, S=noffset, rc=status )
-        _VERIFY(STATUS)
+        call ESMF_TimeIntervalGet( OFFSET, S=noffset, _RC )
         if( noffset /= 0 ) then
             LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
         if( LPERP ) then
-            call ESMF_ClockGetAlarm ( clock, AlarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
-            _VERIFY(STATUS)
+            call ESMF_ClockGetAlarm ( clock, AlarmName='PERPETUAL', alarm=PERPETUAL, _RC )
             if( ESMF_AlarmIsRinging(PERPETUAL) ) then
 !
 ! Month has already been set back to PERPETUAL Month, therefore
@@ -4267,14 +3974,14 @@ ENDDO PARSER
                                                  DD = DD, &
                                                  H  = H , &
                                                  M  = M , &
-                                                 S  = S, rc=status )
+                                                 S  = S, _RC )
                                                  MM = MM + 1
                 call ESMF_TimeSet ( CurrentTime, YY = YY, &
                                                  MM = MM, &
                                                  DD = DD, &
                                                  H  = H , &
                                                  M  = M , &
-                                                 S  = S, rc=status )
+                                                 S  = S, _RC )
 #ifdef DEBUG
       if( MAPL_AM_I_ROOT() ) write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside HIST GetDate: ",YY,MM,DD,H,M,S
 #endif
@@ -4284,8 +3991,7 @@ ENDDO PARSER
         currentTime = currentTime - offset
     end if
 
-    call ESMF_TimeGet (currentTime, timeString=TimeString, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_TimeGet (currentTime, timeString=TimeString, _RC)
 
     if(present(DateStamp)) then
        DateStamp = year//month//day//'_'//hour//minute//second //'z'
@@ -4321,57 +4027,41 @@ ENDDO PARSER
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES_IN(:), ITEMTYPES_OUT(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES_IN(:), ITEMNAMES_OUT(:)
 
-    allocate(tile_in (ntiles_in ), stat=status)
-    _VERIFY(STATUS)
-    allocate(tile_out(ntiles_out), stat=status)
-    _VERIFY(STATUS)
+    allocate(tile_in (ntiles_in ), _STAT)
+    allocate(tile_out(ntiles_out), _STAT)
 
 
-    call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  _RC)
+    call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, _RC)
 
     _ASSERT(ITEMCOUNT_IN == ITEMCOUNT_OUT,'needs informative message')
 
     ITEMCOUNT = ITEMCOUNT_IN
     _ASSERT(ITEMCOUNT>0,'needs informative message')
 
-    allocate(ITEMNAMES_IN(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(ITEMTYPES_IN(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(ITEMNAMES_IN(ITEMCOUNT),_STAT)
+    allocate(ITEMTYPES_IN(ITEMCOUNT),_STAT)
 
     call ESMF_StateGet(STATE_IN, ITEMNAMELIST=ITEMNAMES_IN, &
-                       ITEMTYPELIST=ITEMTYPES_IN, RC=STATUS)
-    _VERIFY(STATUS)
+                       ITEMTYPELIST=ITEMTYPES_IN, _RC)
 
-    allocate(ITEMNAMES_OUT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(ITEMTYPES_OUT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(ITEMNAMES_OUT(ITEMCOUNT),_STAT)
+    allocate(ITEMTYPES_OUT(ITEMCOUNT),_STAT)
 
     call ESMF_StateGet(STATE_OUT, ITEMNAMELIST=ITEMNAMES_OUT, &
-                       ITEMTYPELIST=ITEMTYPES_OUT, RC=STATUS)
-    _VERIFY(STATUS)
+                       ITEMTYPELIST=ITEMTYPES_OUT, _RC)
 
     DO I=1, ITEMCOUNT
        _ASSERT(ITEMTYPES_IN (I) == ESMF_StateItem_Field,'needs informative message')
        _ASSERT(ITEMTYPES_OUT(I) == ESMF_StateItem_Field,'needs informative message')
 
-       call ESMF_StateGet(STATE_IN , ITEMNAMES_IN (i), field, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, Array=array_in , rc=status)
-       _VERIFY(STATUS)
-       call ESMF_StateGet(STATE_OUT, ITEMNAMES_OUT(i), field, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, Array=array_out, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_StateGet(STATE_IN , ITEMNAMES_IN (i), field, _RC)
+       call ESMF_FieldGet(field, Array=array_in , _RC)
+       call ESMF_StateGet(STATE_OUT, ITEMNAMES_OUT(i), field, _RC)
+       call ESMF_FieldGet(field, Array=array_out, _RC)
 
-       call ESMF_ArrayGet(array_in , rank=rank_in , rc=status)
-       _VERIFY(STATUS)
-       call ESMF_ArrayGet(array_out, rank=rank_out, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ArrayGet(array_in , rank=rank_in , _RC)
+       call ESMF_ArrayGet(array_out, rank=rank_out, _RC)
        _ASSERT(rank_in == rank_out,'needs informative message')
        _ASSERT(rank_in >=2, 'Rank is less than 2')
        _ASSERT(rank_in <= 3,'Rank is greater than 3')
@@ -4380,15 +4070,11 @@ ENDDO PARSER
           LM = 1
           LL = 1
           LU = 1
-          call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr2d_in , rc=status)
-          _VERIFY(STATUS)
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr2d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr2d_in , _RC)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr2d_out, _RC)
        else
-          call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr3d_in , rc=status)
-          _VERIFY(STATUS)
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr3d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr3d_in , _RC)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr3d_out, _RC)
           LM = size(ptr3d_in,3)
           LL = lbound(ptr3d_in,3)
           LU = ubound(ptr3d_in,3)
@@ -4403,14 +4089,11 @@ ENDDO PARSER
              ptr2d_out => ptr3d_out(:,:,L)
           end if
 
-          call MAPL_LocStreamTransform(LS_IN, TILE_IN, PTR2d_IN, RC=STATUS)
-          _VERIFY(STATUS)
+          call MAPL_LocStreamTransform(LS_IN, TILE_IN, PTR2d_IN, _RC)
 
-          call MAPL_LocStreamTransform( tile_out, XFORM, tile_in, RC=STATUS )
-          _VERIFY(STATUS)
+          call MAPL_LocStreamTransform( tile_out, XFORM, tile_in, _RC )
 
-          call MAPL_LocStreamTransform(LS_OUT, PTR2d_OUT, TILE_OUT, RC=STATUS)
-          _VERIFY(STATUS)
+          call MAPL_LocStreamTransform(LS_OUT, PTR2d_OUT, TILE_OUT, _RC)
 
        ENDDO
 
@@ -4467,69 +4150,48 @@ ENDDO PARSER
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES_IN(:), ITEMTYPES_OUT(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES_IN(:), ITEMNAMES_OUT(:)
 
-    allocate(tt_in (ntiles_in ), stat=status)
-    _VERIFY(STATUS)
-    allocate(tile_out(ntiles_out), stat=status)
-    _VERIFY(STATUS)
+    allocate(tt_in (ntiles_in ), _STAT)
+    allocate(tile_out(ntiles_out), _STAT)
 
 
-    call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  _RC)
+    call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, _RC)
 
     _ASSERT(ITEMCOUNT_IN == ITEMCOUNT_OUT,'needs informative message')
 
     ITEMCOUNT = ITEMCOUNT_IN
     _ASSERT(ITEMCOUNT>0,'needs informative message')
 
-    allocate(ITEMNAMES_IN(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(ITEMTYPES_IN(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(ITEMNAMES_IN(ITEMCOUNT),_STAT)
+    allocate(ITEMTYPES_IN(ITEMCOUNT),_STAT)
 
     call ESMF_StateGet(STATE_IN, ITEMNAMELIST=ITEMNAMES_IN, &
-                       ITEMTYPELIST=ITEMTYPES_IN, RC=STATUS)
-    _VERIFY(STATUS)
+                       ITEMTYPELIST=ITEMTYPES_IN, _RC)
 
-    allocate(ITEMNAMES_OUT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(ITEMTYPES_OUT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(ITEMNAMES_OUT(ITEMCOUNT),_STAT)
+    allocate(ITEMTYPES_OUT(ITEMCOUNT),_STAT)
 
     call ESMF_StateGet(STATE_OUT, ITEMNAMELIST=ITEMNAMES_OUT, &
-                       ITEMTYPELIST=ITEMTYPES_OUT, RC=STATUS)
-    _VERIFY(STATUS)
+                       ITEMTYPELIST=ITEMTYPES_OUT, _RC)
 
-    call MAPL_LocStreamGet(LS_NTV, ATTACHEDGRID=GRID, RC=STATUS)
-    _VERIFY(STATUS)
-    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, RC=STATUS)
-    _VERIFY(STATUS)
-    allocate(G2d_in(COUNTS(1),COUNTS(2)), stat=status)
-    _VERIFY(STATUS)
+    call MAPL_LocStreamGet(LS_NTV, ATTACHEDGRID=GRID, _RC)
+    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+    allocate(G2d_in(COUNTS(1),COUNTS(2)), _STAT)
 
-    call MAPL_LocStreamGet(LS_ntv, NT_LOCAL = sizett, rc=status)
-    _VERIFY(STATUS)
-    allocate(tt(sizett), stat=status)
-    _VERIFY(STATUS)
+    call MAPL_LocStreamGet(LS_ntv, NT_LOCAL = sizett, _RC)
+    allocate(tt(sizett), _STAT)
 
     DO I=1, ITEMCOUNT
        _ASSERT(ITEMTYPES_IN (I) == ESMF_StateItem_Field,'needs informative message')
        _ASSERT(ITEMTYPES_OUT(I) == ESMF_StateItem_Field,'needs informative message')
 
-       call ESMF_StateGet(STATE_IN , ITEMNAMES_IN (i), field, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, Array=array_in , rc=status)
-       _VERIFY(STATUS)
-       call ESMF_StateGet(STATE_OUT, ITEMNAMES_OUT(i), field, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, Array=array_out, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_StateGet(STATE_IN , ITEMNAMES_IN (i), field, _RC)
+       call ESMF_FieldGet(field, Array=array_in , _RC)
+       call ESMF_StateGet(STATE_OUT, ITEMNAMES_OUT(i), field, _RC)
+       call ESMF_FieldGet(field, Array=array_out, _RC)
 
-       call ESMF_ArrayGet(array_in , rank=rank_in , typekind=tk, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_ArrayGet(array_out, rank=rank_out, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ArrayGet(array_in , rank=rank_in , typekind=tk, _RC)
+       call ESMF_ArrayGet(array_out, rank=rank_out, _RC)
 
        _ASSERT(rank_in+1 == rank_out,'needs informative message')
        _ASSERT(rank_in >=1, 'Rank is less than 1')
@@ -4538,55 +4200,43 @@ ENDDO PARSER
        KM = 1
        if (rank_in == 1) then
           if (tk == ESMF_TypeKind_R4) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr1d_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr1d_in , _RC)
              tile_in => ptr1d_in
           else if (tk == ESMF_TypeKind_R8) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p1dr8_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p1dr8_in , _RC)
              if (.not. associated(tile1d)) then
-                allocate(tile1d(size(p1dr8_in)), stat=status)
-                _VERIFY(STATUS)
+                allocate(tile1d(size(p1dr8_in)), _STAT)
              end if
              tile1d = p1dr8_in
              tile_in => tile1d
           end if
 
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr2d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr2d_out, _RC)
           out2d   => ptr2d_out
           LM = 1
        else if (rank_in == 2) then
           if (tk == ESMF_TypeKind_R4) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr2d_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr2d_in , _RC)
           else if (tk == ESMF_TypeKind_R8) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p2dr8_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p2dr8_in , _RC)
              if (.not. associated(tile1d)) then
-                allocate(tile1d(size(p2dr8_in,1)), stat=status)
-                _VERIFY(STATUS)
+                allocate(tile1d(size(p2dr8_in,1)), _STAT)
              end if
           end if
 
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr3d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr3d_out, _RC)
           LM = size(ptr3d_out,3)
        else if (rank_in == 3) then
           if (tk == ESMF_TypeKind_R4) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr3d_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr3d_in , _RC)
           else if (tk == ESMF_TypeKind_R8) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p3dr8_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p3dr8_in , _RC)
              if (.not. associated(tile1d)) then
-                allocate(tile1d(size(p3dr8_in,1)), stat=status)
-                _VERIFY(STATUS)
+                allocate(tile1d(size(p3dr8_in,1)), _STAT)
              end if
           end if
 
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr4d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr4d_out, _RC)
           LM = size(ptr4d_out,3)
           KM = size(ptr4d_out,4)
        else
@@ -4614,21 +4264,16 @@ ENDDO PARSER
              end if
 
              ! T2T
-             call MAPL_LocStreamTransform( tt, XFORMntv, tile_in, RC=STATUS )
-             _VERIFY(STATUS)
+             call MAPL_LocStreamTransform( tt, XFORMntv, tile_in, _RC )
              ! T2G
-             call MAPL_LocStreamTransform(LS_NTV, G2d_IN, tt, RC=STATUS)
-             _VERIFY(STATUS)
+             call MAPL_LocStreamTransform(LS_NTV, G2d_IN, tt, _RC)
 
              ! G2T
-             call MAPL_LocStreamTransform(LS_IN, TT_IN, G2d_IN, RC=STATUS)
-             _VERIFY(STATUS)
+             call MAPL_LocStreamTransform(LS_IN, TT_IN, G2d_IN, _RC)
              ! T2T
-             call MAPL_LocStreamTransform( tile_out, XFORM, tt_in, RC=STATUS )
-             _VERIFY(STATUS)
+             call MAPL_LocStreamTransform( tile_out, XFORM, tt_in, _RC )
              ! T2G
-             call MAPL_LocStreamTransform(LS_OUT, PTR2d_OUT, TILE_OUT, RC=STATUS)
-             _VERIFY(STATUS)
+             call MAPL_LocStreamTransform(LS_OUT, PTR2d_OUT, TILE_OUT, _RC)
 
           ENDDO
        END DO
@@ -4682,109 +4327,82 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES_IN(:), ITEMNAMES_OUT(:)
 
     if (present(XFORM)) then
-       allocate(tile_out(ntiles_out), stat=status)
-       _VERIFY(STATUS)
+       allocate(tile_out(ntiles_out), _STAT)
     end if
 
-    call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(STATE_IN,  ITEMCOUNT=ITEMCOUNT_IN,  _RC)
+    call ESMF_StateGet(STATE_OUT, ITEMCOUNT=ITEMCOUNT_OUT, _RC)
 
     _ASSERT(ITEMCOUNT_IN == ITEMCOUNT_OUT,'needs informative message')
 
     ITEMCOUNT = ITEMCOUNT_IN
     _ASSERT(ITEMCOUNT>0,'needs informative message')
 
-    allocate(ITEMNAMES_IN(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(ITEMTYPES_IN(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(ITEMNAMES_IN(ITEMCOUNT),_STAT)
+    allocate(ITEMTYPES_IN(ITEMCOUNT),_STAT)
 
     call ESMF_StateGet(STATE_IN, ITEMNAMELIST=ITEMNAMES_IN, &
-                       ITEMTYPELIST=ITEMTYPES_IN, RC=STATUS)
-    _VERIFY(STATUS)
+                       ITEMTYPELIST=ITEMTYPES_IN, _RC)
 
-    allocate(ITEMNAMES_OUT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(ITEMTYPES_OUT(ITEMCOUNT),STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(ITEMNAMES_OUT(ITEMCOUNT),_STAT)
+    allocate(ITEMTYPES_OUT(ITEMCOUNT),_STAT)
 
     call ESMF_StateGet(STATE_OUT, ITEMNAMELIST=ITEMNAMES_OUT, &
-                       ITEMTYPELIST=ITEMTYPES_OUT, RC=STATUS)
-    _VERIFY(STATUS)
+                       ITEMTYPELIST=ITEMTYPES_OUT, _RC)
 
     DO I=1, ITEMCOUNT
        _ASSERT(ITEMTYPES_IN (I) == ESMF_StateItem_Field,'needs informative message')
        _ASSERT(ITEMTYPES_OUT(I) == ESMF_StateItem_Field,'needs informative message')
 
-       call ESMF_StateGet(STATE_IN , ITEMNAMES_IN (i), field, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, Array=array_in , rc=status)
-       _VERIFY(STATUS)
-       call ESMF_StateGet(STATE_OUT, ITEMNAMES_OUT(i), field, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, Array=array_out, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_StateGet(STATE_IN , ITEMNAMES_IN (i), field, _RC)
+       call ESMF_FieldGet(field, Array=array_in , _RC)
+       call ESMF_StateGet(STATE_OUT, ITEMNAMES_OUT(i), field, _RC)
+       call ESMF_FieldGet(field, Array=array_out, _RC)
 
-       call ESMF_ArrayGet(array_in , rank=rank_in , typekind=tk, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_ArrayGet(array_out, rank=rank_out, rc=status)
-       _VERIFY(STATUS)
+       call ESMF_ArrayGet(array_in , rank=rank_in , typekind=tk, _RC)
+       call ESMF_ArrayGet(array_out, rank=rank_out, _RC)
        _ASSERT(rank_out == rank_in + 1,'needs informative message')
 
        KM = 1
        if (rank_in == 1) then
           if (tk == ESMF_TypeKind_R4) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr1d_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr1d_in , _RC)
              tile_in => ptr1d_in
           else if (tk == ESMF_TypeKind_R8) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p1dr8_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p1dr8_in , _RC)
              if (.not. associated(tile1d)) then
-                allocate(tile1d(size(p1dr8_in)), stat=status)
-                _VERIFY(STATUS)
+                allocate(tile1d(size(p1dr8_in)), _STAT)
              end if
              tile1d = p1dr8_in
              tile_in => tile1d
           end if
 
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr2d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr2d_out, _RC)
           out2d   => ptr2d_out
           LM = 1
        else if (rank_in == 2) then
           if (tk == ESMF_TypeKind_R4) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr2d_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr2d_in , _RC)
           else if (tk == ESMF_TypeKind_R8) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p2dr8_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p2dr8_in , _RC)
              if (.not. associated(tile1d)) then
-                allocate(tile1d(size(p2dr8_in,1)), stat=status)
-                _VERIFY(STATUS)
+                allocate(tile1d(size(p2dr8_in,1)), _STAT)
              end if
           end if
 
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr3d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr3d_out, _RC)
           LM = size(ptr3d_out,3)
        else if (rank_in == 3) then
           if (tk == ESMF_TypeKind_R4) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr3d_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=ptr3d_in , _RC)
           else if (tk == ESMF_TypeKind_R8) then
-             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p3dr8_in , rc=status)
-             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array_in , localDE=0, farrayptr=p3dr8_in , _RC)
              if (.not. associated(tile1d)) then
-                allocate(tile1d(size(p3dr8_in,1)), stat=status)
-                _VERIFY(STATUS)
+                allocate(tile1d(size(p3dr8_in,1)), _STAT)
              end if
           end if
 
-          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr4d_out, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array_out, localDE=0, farrayptr=ptr4d_out, _RC)
           LM = size(ptr4d_out,3)
           KM = size(ptr4d_out,4)
        else
@@ -4812,14 +4430,12 @@ ENDDO PARSER
              end if
 
              if (present(XFORM)) then
-                call MAPL_LocStreamTransform( tile_out, XFORM, tile_in, RC=STATUS )
-                _VERIFY(STATUS)
+                call MAPL_LocStreamTransform( tile_out, XFORM, tile_in, _RC )
              else
                 tile_out => tile_in
              endif
 
-             call MAPL_LocStreamTransform(LS_OUT, OUT2d, TILE_OUT, RC=STATUS)
-             _VERIFY(STATUS)
+             call MAPL_LocStreamTransform(LS_OUT, OUT2d, TILE_OUT, _RC)
 
           END DO
        END DO
@@ -4961,8 +4577,7 @@ ENDDO PARSER
 ! rather than the actual output field variables (i.e., fields(1,:)).
 ! Also do check that there are no illegal operations
 !-------------------------------------------------------------------
-  allocate ( exptmp (1), stat=status )
-  _VERIFY(STATUS)
+  allocate ( exptmp (1), _STAT )
   exptmp(1) = ExpState
   ! check which fields are actual exports or expressions
   nPExtraFields = 0
@@ -4970,8 +4585,7 @@ ENDDO PARSER
   allocate(isBundle(nfield))
   do m=1,nfield
 
-    call MAPL_ExportStateGet(exptmp,fields(2,m),state,rc=status)
-    _VERIFY(STATUS)
+    call MAPL_ExportStateGet(exptmp,fields(2,m),state,_RC)
     if (index(fields(1,m),'%') == 0) then
        call checkIfStateHasField(state, fields(1,m), hasField, _RC)
        if (hasField) then
@@ -4993,10 +4607,8 @@ ENDDO PARSER
   enddo
 
   ! now that we know this allocated a place to store the names of the real fields
-  allocate(VarNames(iRealFields),stat=status)
-  _VERIFY(STATUS)
-  allocate(VarNeeded(iRealFields),stat=status)
-  _VERIFY(STATUS)
+  allocate(VarNames(iRealFields),_STAT)
+  allocate(VarNeeded(iRealFields),_STAT)
   k=0
   do m=1,nfield
      if ( (rewrite(m) .eqv. .False.) .and. (isBundle(m) .eqv. .False.) ) then
@@ -5013,8 +4625,7 @@ ENDDO PARSER
      if (rewrite(m)) then
 
          ExtVars = ""
-         call CheckSyntax(tmpfields(m),VarNames,VarNeeded,ExtVar=ExtVars,rc=status)
-         _VERIFY(STATUS)
+         call CheckSyntax(tmpfields(m),VarNames,VarNeeded,ExtVar=ExtVars,_RC)
 
          tmpList=ExtVars
          do i=1,len_trim(tmpList)
@@ -5039,8 +4650,7 @@ ENDDO PARSER
      if (rewrite(m)) then
 
          ExtVars = ""
-         call CheckSyntax(tmpfields(m),VarNames,VarNeeded,ExtVar=ExtVars,rc=status)
-         _VERIFY(STATUS)
+         call CheckSyntax(tmpfields(m),VarNames,VarNeeded,ExtVar=ExtVars,_RC)
 
          tmpList=ExtVars
          do i=1,len_trim(tmpList)
@@ -5079,16 +4689,11 @@ ENDDO PARSER
    end do
 
   totFields = iRealFields + nUniqueExtraFields
-  allocate(TotVarNames(totFields),stat=status)
-  _VERIFY(STATUS)
-  allocate(TotCmpNames(totFields),stat=status)
-  _VERIFY(STATUS)
-  allocate(TotAliasNames(totFields),stat=status)
-  _VERIFY(STATUS)
-  allocate(TotRank(totFields),stat=status)
-  _VERIFY(STATUS)
-  allocate(TotLoc(totFields),stat=status)
-  _VERIFY(STATUS)
+  allocate(TotVarNames(totFields),_STAT)
+  allocate(TotCmpNames(totFields),_STAT)
+  allocate(TotAliasNames(totFields),_STAT)
+  allocate(TotRank(totFields),_STAT)
+  allocate(TotLoc(totFields),_STAT)
 
   iRealFields = 0
   do i=1,nfield
@@ -5098,15 +4703,11 @@ ENDDO PARSER
        TotCmpNames(iRealFields) = trim(fields(2,i))
        TotAliasNames(iRealFields) = trim(fields(3,i))
 
-       call MAPL_ExportStateGet(exptmp,fields(2,i),state,rc=status)
-       _VERIFY(STATUS)
-       call MAPL_StateGet(state,fields(1,i),field,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeGet(field,name='DIMS',value=dims,rc=status)
-       _VERIFY(STATUS)
+       call MAPL_ExportStateGet(exptmp,fields(2,i),state,_RC)
+       call MAPL_StateGet(state,fields(1,i),field,_RC)
+       call ESMF_AttributeGet(field,name='DIMS',value=dims,_RC)
        TotRank(iRealFields) = dims
-       call ESMF_AttributeGet(field,name='VLOCATION',value=dims,rc=status)
-       _VERIFY(STATUS)
+       call ESMF_AttributeGet(field,name='VLOCATION',value=dims,_RC)
        TotLoc(iRealFields) = dims
 
     endif
@@ -5118,24 +4719,18 @@ ENDDO PARSER
         TotVarNames(iRealFields+nUniqueExtraFields) = NonUniqueVarNames(i,1)
         TotCmpNames(iRealFields+nUniqueExtraFields) = NonUniqueVarNames(i,2)
         TotAliasNames(iRealFields+nUniqueExtraFields) = NonUniqueVarNames(i,1)
-        call MAPL_ExportStateGet ( exptmp,NonUniqueVarNames(i,2),state,rc=status )
-        _VERIFY(STATUS)
-        call MAPL_StateGet(state, NonUniqueVarNames(i,1),field,rc=status)
-        _VERIFY(STATUS)
+        call MAPL_ExportStateGet ( exptmp,NonUniqueVarNames(i,2),state,_RC )
+        call MAPL_StateGet(state, NonUniqueVarNames(i,1),field,_RC)
 
-        call ESMF_AttributeGet(field,name='DIMS',value=dims,rc=status)
-        _VERIFY(STATUS)
+        call ESMF_AttributeGet(field,name='DIMS',value=dims,_RC)
         TotRank(iRealFields+nUniqueExtraFields) = dims
-        call ESMF_AttributeGet(field,name='VLOCATION',value=dims,rc=status)
-        _VERIFY(STATUS)
+        call ESMF_AttributeGet(field,name='VLOCATION',value=dims,_RC)
         TotLoc(iRealFields+nUniqueExtraFields) = dims
      end if
   end do
 
-  allocate(extraFields(nUniqueExtraFields),stat=status)
-  _VERIFY(STATUS)
-  allocate(extraGridComp(nUniqueExtraFields),stat=status)
-  _VERIFY(STATUS)
+  allocate(extraFields(nUniqueExtraFields),_STAT)
+  allocate(extraGridComp(nUniqueExtraFields),_STAT)
   nPExtraFields = nUniqueExtraFields
   nUniqueExtraFields = 0
   do i=1,nExtraFields
@@ -5155,15 +4750,13 @@ ENDDO PARSER
 ! But the actual arithmetic parsing field already has been copied to the temporialy field.
 ! Also we will do some syntax checking here since this is a good place
 !----------------------------------------------------------------------
- allocate(VarNeeded(TotFields),stat=status)
- _VERIFY(STATUS)
+ allocate(VarNeeded(TotFields),_STAT)
 
  do m=1,nfield
      if (Rewrite(m) .eqv. .TRUE.) then
          largest_rank =0
          ifound_vloc=.false.
-         call CheckSyntax(tmpfields(m),TotAliasNames,VarNeeded,rc=status)
-         _VERIFY(STATUS)
+         call CheckSyntax(tmpfields(m),TotAliasNames,VarNeeded,_RC)
          do i=1,TotFields
             if (VarNeeded(i)) then
                if (TotRank(i)> largest_rank) then
@@ -5217,11 +4810,9 @@ ENDDO PARSER
   do m=1,nfield
      if (rewrite(m)) then
         fname = trim(fields(3,m))
-        call MAPL_StateGet(state,fname,field,rc=status)
-        _VERIFY(STATUS)
+        call MAPL_StateGet(state,fname,field,_RC)
         fexpr = tmpfields(m)
-        call MAPL_StateEval(state,fexpr,field,rc=status)
-        _VERIFY(STATUS)
+        call MAPL_StateEval(state,fexpr,field,_RC)
      end if
   enddo
 
@@ -5244,47 +4835,33 @@ ENDDO PARSER
 
     integer                               :: I, J, N, NF
 
-    call ESMF_StateGet(state, ITEMCOUNT=N,  RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(state, ITEMCOUNT=N,  _RC)
 
-    allocate(itemNameList(N), STAT=STATUS)
-    _VERIFY(STATUS)
-    allocate(itemtypeList(N), STAT=STATUS)
-    _VERIFY(STATUS)
+    allocate(itemNameList(N), _STAT)
+    allocate(itemtypeList(N), _STAT)
 
-    call ESMF_StateGet(state,ITEMNAMELIST=itemNamelist,ITEMTYPELIST=itemtypeList,RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateGet(state,ITEMNAMELIST=itemNamelist,ITEMTYPELIST=itemtypeList,_RC)
 
     do I=1,N
        if(itemtypeList(I)==ESMF_STATEITEM_FIELD) then
-          call ESMF_StateGet(state,itemNameList(I),FIELD,RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_FieldDestroy(FIELD, rc=status)
-          _VERIFY(STATUS)
+          call ESMF_StateGet(state,itemNameList(I),FIELD,_RC)
+          call ESMF_FieldDestroy(FIELD, _RC)
        else if(itemtypeList(I)==ESMF_STATEITEM_FieldBundle) then
-          call ESMF_StateGet(state,itemNameList(I), BUNDLE, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_FieldBundleGet(BUNDLE,FieldCount=NF, RC=STATUS)
-          _VERIFY(STATUS)
+          call ESMF_StateGet(state,itemNameList(I), BUNDLE, _RC)
+          call ESMF_FieldBundleGet(BUNDLE,FieldCount=NF, _RC)
           DO J=1,NF
-             call ESMF_FieldBundleGet(BUNDLE, J, FIELD, RC=STATUS)
-             _VERIFY(STATUS)
-             call ESMF_FieldDestroy(field, rc=status)
-             _VERIFY(STATUS)
+             call ESMF_FieldBundleGet(BUNDLE, J, FIELD, _RC)
+             call ESMF_FieldDestroy(field, _RC)
           END DO
-          call ESMF_FieldBundleDestroy(BUNDLE, RC=STATUS)
-          _VERIFY(STATUS)
+          call ESMF_FieldBundleDestroy(BUNDLE, _RC)
        else if(itemtypeList(I)==ESMF_STATEITEM_State) then
 !ALT we ingore nested states for now, they will get destroyed by their GC
        end if
     end do
-    call ESMF_StateDestroy(STATE, RC=STATUS)
-    _VERIFY(STATUS)
+    call ESMF_StateDestroy(STATE, _RC)
 
-    deallocate(itemNameList, STAT=STATUS)
-    _VERIFY(STATUS)
-    deallocate(itemtypeList, STAT=STATUS)
-    _VERIFY(STATUS)
+    deallocate(itemNameList, _STAT)
+    deallocate(itemtypeList, _STAT)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateDestroy
@@ -5313,7 +4890,6 @@ ENDDO PARSER
     else
        call ESMF_StateGet(state,trim(name),field,rc=status)
         _ASSERT(status==ESMF_SUCCESS,'Field '//trim(name)//' not found')
-       _VERIFY(STATUS)
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -5350,20 +4926,17 @@ ENDDO PARSER
 ! Check if it is time to do anything
     doRecord = .false.
 
-    call MAPL_InternalStateRetrieve(GC, meta, rc=status)
-    _VERIFY(status)
+    call MAPL_InternalStateRetrieve(GC, meta, _RC)
 
-    doRecord = MAPL_RecordAlarmIsRinging(meta, rc=status)
+    doRecord = MAPL_RecordAlarmIsRinging(meta, _RC)
     if (.not. doRecord) then
        _RETURN(ESMF_SUCCESS)
     end if
 
-    call MAPL_DateStampGet(clock, datestamp, rc=status)
-    _VERIFY(STATUS)
+    call MAPL_DateStampGet(clock, datestamp, _RC)
 
 ! Retrieve the pointer to the state
     call ESMF_GridCompGetInternalState(gc, wrap, status)
-    _VERIFY(status)
     IntState => wrap%ptr
     list => IntState%list
     nlist = size(list)
@@ -5377,12 +4950,10 @@ ENDDO PARSER
              if (.not. list(n)%partial) then
 
                 ! save the compname
-                call ESMF_CplCompGet (INTSTATE%CCS(n), name=fname_saved, rc=status)
-                _VERIFY(status)
+                call ESMF_CplCompGet (INTSTATE%CCS(n), name=fname_saved, _RC)
                 ! add timestamp to filename
                 filename = trim(fname_saved) // datestamp
-                call ESMF_CplCompSet (INTSTATE%CCS(n), name=filename, rc=status)
-                _VERIFY(status)
+                call ESMF_CplCompSet (INTSTATE%CCS(n), name=filename, _RC)
 
                 call ESMF_CplCompWriteRestart (INTSTATE%CCS(n), &
                      importState=INTSTATE%CIM(n), &
@@ -5391,8 +4962,7 @@ ENDDO PARSER
                      userRC=STATUS)
                 _VERIFY(STATUS)
                 ! restore the compname
-                call ESMF_CplCompSet (INTSTATE%CCS(n), name=fname_saved, rc=status)
-                _VERIFY(status)
+                call ESMF_CplCompSet (INTSTATE%CCS(n), name=fname_saved, _RC)
              end if
           end if
        end if
@@ -5410,15 +4980,11 @@ ENDDO PARSER
     character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
     type(ESMF_StateItem_Flag),   allocatable  :: itemTypeList(:)
 
-    call ESMF_StateGet(state, itemcount=n,  rc=status)
-    _VERIFY(status)
+    call ESMF_StateGet(state, itemcount=n,  _RC)
 
-    allocate(itemNameList(n), stat=status)
-    _VERIFY(status)
-    allocate(itemTypeList(n), stat=status)
-    _VERIFY(status)
-    call ESMF_StateGet(state,itemnamelist=itemNamelist,itemtypelist=itemTypeList,rc=status)
-    _VERIFY(STATUS)
+    allocate(itemNameList(n), _STAT)
+    allocate(itemTypeList(n), _STAT)
+    call ESMF_StateGet(state,itemnamelist=itemNamelist,itemtypelist=itemTypeList,_RC)
 
     hasField = .false.
     do I=1,N
@@ -5428,10 +4994,8 @@ ENDDO PARSER
           exit
        end if
     end do
-    deallocate(itemNameList, stat=status)
-    _VERIFY(STATUS)
-    deallocate(itemTypeList, stat=status)
-    _VERIFY(status)
+    deallocate(itemNameList, _STAT)
+    deallocate(itemTypeList, _STAT)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine checkIfStateHasField
@@ -5455,24 +5019,17 @@ ENDDO PARSER
     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
 
     do m=1,list%field_set%nfields
-       call ESMF_StateGet(state, trim(list%field_set%fields(3,m)),field,rc=status )
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field, rank=fieldRank,rc=status)
+       call ESMF_StateGet(state, trim(list%field_set%fields(3,m)),field,_RC )
+       call ESMF_FieldGet(field, rank=fieldRank,_RC)
        if (fieldRank ==1) then
-          call ESMF_FieldGet(field, farrayptr=ptr1d, rc=status)
-          _VERIFY(STATUS)
-          call DownBit(ptr1d,ptr1d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-          _VERIFY(STATUS)
+          call ESMF_FieldGet(field, farrayptr=ptr1d, _RC)
+          call DownBit(ptr1d,ptr1d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,_RC)
        elseif (fieldRank ==2) then
-          call ESMF_FieldGet(field, farrayptr=ptr2d, rc=status)
-          _VERIFY(STATUS)
-          call DownBit(ptr2d,ptr2d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-          _VERIFY(STATUS)
+          call ESMF_FieldGet(field, farrayptr=ptr2d, _RC)
+          call DownBit(ptr2d,ptr2d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,_RC)
        elseif (fieldRank ==3) then
-          call ESMF_FieldGet(field, farrayptr=ptr3d, rc=status)
-          _VERIFY(STATUS)
-          call DownBit(ptr3d,ptr3d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-          _VERIFY(STATUS)
+          call ESMF_FieldGet(field, farrayptr=ptr3d, _RC)
+          call DownBit(ptr3d,ptr3d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,_RC)
        else
           _FAIL('The field rank is not implmented')
        endif
