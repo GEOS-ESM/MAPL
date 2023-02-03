@@ -4,8 +4,11 @@ module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_ExtraDimsSpec
+   use mapl3g_VariableSpec
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
+   use nuopc
 
    implicit none
    private
@@ -26,6 +29,7 @@ module mapl3g_FieldSpec
       type(ESMF_Field) :: payload
 
    contains
+      procedure :: initialize
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -44,26 +48,68 @@ module mapl3g_FieldSpec
 
 contains
 
+   subroutine initialize(this, geom_base, var_spec, unusable, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(VariableSpec), intent(in) :: var_spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
 
-   function new_FieldSpec_geombase(extra_dims, typekind, geom_base) result(field_spec)
+      character(:), allocatable :: units
+      integer :: status
+
+      this%geom_base = geom_base
+!!$      this%extra_dims = var_spec%extra_dims
+!!$      this%typekind = var_spec%typekind
+
+      call get_units(units, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   contains
+
+      subroutine get_units(units, rc)
+         character(:), intent(out), allocatable :: units
+         integer, optional, intent(out) :: rc
+
+         character(ESMF_MAXSTR) :: esmf_units
+         integer :: status
+         
+         if (allocated(var_spec%units)) units = var_spec%units ! user override
+
+         if (.not. allocated(units)) then
+            call NUOPC_FieldDictionaryGetEntry(var_spec%standard_name, esmf_units, status)
+            _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//var_spec%standard_name//'>')
+            units = trim(esmf_units)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine get_units
+      
+   end subroutine initialize
+
+
+   function new_FieldSpec_geombase(extra_dims, typekind, geom_base, units) result(field_spec)
       type(FieldSpec) :: field_spec
       type(ExtraDimsSpec), intent(in) :: extra_dims
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(ESMF_GeomBase), intent(in) :: geom_base
+      character(*), intent(in) :: units
 
       field_spec%extra_dims = extra_dims
       field_spec%typekind = typekind
       field_spec%geom_base = geom_base
-      field_spec%units = 'unknown'
+      field_spec%units = units
    end function new_FieldSpec_geombase
 
 
-   function new_FieldSpec_defaults(extra_dims, geom_base) result(field_spec)
+   function new_FieldSpec_defaults(extra_dims, geom_base, units) result(field_spec)
       type(FieldSpec) :: field_spec
       type(ExtraDimsSpec), intent(in) :: extra_dims
       type(ESMF_GeomBase), intent(in) :: geom_base
+      character(*), intent(in) :: units
       
-      field_spec = FieldSpec(extra_dims, ESMF_TYPEKIND_R4, geom_base)
+      field_spec = FieldSpec(extra_dims, ESMF_TYPEKIND_R4, geom_base, units)
       
    end function new_FieldSpec_defaults
 

@@ -14,6 +14,9 @@ module mapl3g_VariableSpec
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
+      character(:), allocatable :: standard_name
+
+      character(:), allocatable :: units
       ! Optional values:
    end type VariableSpec
 
@@ -23,12 +26,23 @@ module mapl3g_VariableSpec
 
 contains
 
-   function new_VariableSpec(short_name, unusable) result(spec)
+   function new_VariableSpec(state_intent, unusable, short_name, standard_name, units) result(spec)
       type(VariableSpec) :: spec
-      character(*), intent(in) :: short_name
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      ! Note: short_name and standard_name are not optional, but
+      ! require keywords to prevent confusion.
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: standard_name
+      ! Optional args:
+      character(*), optional, intent(in) :: units
 
+      spec%state_intent = state_intent
       spec%short_name = short_name
+      spec%standard_name = standard_name
+
+      if (present(units)) spec%units = units
+      
    end function new_VariableSpec
       
 
