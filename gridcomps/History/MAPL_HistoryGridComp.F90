@@ -3037,9 +3037,9 @@ ENDDO PARSER
 
 ! Get Possible ALIAS Name
 ! -----------------------
-          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS) ! MAT We don't check this status
           if( trim(tmpstring) == ',' )  then
-              call ESMF_ConfigGetAttribute ( cfg,value=export_alias,default=export_name,_RC)
+              call ESMF_ConfigGetAttribute ( cfg,value=export_alias,default=export_name,rc=STATUS) ! MAT We don't check this status
           else
               if( trim(tmpstring) /= ' ' )  then
                   export_alias = tmpstring
@@ -3055,9 +3055,9 @@ ENDDO PARSER
 
 ! Get Possible COUPLER Function
 ! -----------------------------
-          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,_RC)
+          call ESMF_ConfigGetAttribute ( cfg,value=tmpstring ,rc=STATUS) ! MAT We don't check this status
           if( trim(tmpstring) == ',' )  then
-              call ESMF_ConfigGetAttribute ( cfg,value=coupler_function_name,default=BLANK,_RC)
+              call ESMF_ConfigGetAttribute ( cfg,value=coupler_function_name,default=BLANK,rc=STATUS) ! MAT We don't check this status
           else
               if( trim(tmpstring) /= ' ' )  then
                   coupler_function_name = tmpstring
