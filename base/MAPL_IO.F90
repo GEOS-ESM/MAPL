@@ -49,7 +49,7 @@ module MAPL_IOMod
   public MAPL_Skip
   public MAPL_Backspace
   public MAPL_Rewind
-  public MAPL_ClimUpdate 
+  public MAPL_ClimUpdate
   public MAPL_DestroyFile
   public ArrDescr
   public ArrDescrSet
@@ -89,8 +89,8 @@ module MAPL_IOMod
 ! -----------------------------------------
   interface MAPL_VarRead
      module procedure MAPL_StateVarRead
-     module procedure MAPL_BundleRead 
-     module procedure MAPL_FieldRead 
+     module procedure MAPL_BundleRead
+     module procedure MAPL_FieldRead
      module procedure MAPL_VarRead_R4_1D
      module procedure MAPL_VarReadNCpar_R4_1d
      module procedure MAPL_VarRead_R4_2D
@@ -110,20 +110,20 @@ module MAPL_IOMod
   interface MAPL_VarReadNCPar
      module procedure MAPL_StateVarReadNCPar
      module procedure MAPL_BundleReadNCPar
-     module procedure MAPL_ArrayReadNCpar_1d 
-     module procedure MAPL_ArrayReadNCpar_2d 
-     module procedure MAPL_ArrayReadNCpar_3d 
+     module procedure MAPL_ArrayReadNCpar_1d
+     module procedure MAPL_ArrayReadNCpar_2d
+     module procedure MAPL_ArrayReadNCpar_3d
   end interface
 
   interface MAPL_VarWriteNCPar
      module procedure MAPL_StateVarWriteNCPar
-     module procedure MAPL_BundleWriteNCPar 
+     module procedure MAPL_BundleWriteNCPar
   end interface
 
   interface MAPL_VarWrite
      module procedure MAPL_StateVarWrite
-     module procedure MAPL_BundleWrite 
-     module procedure MAPL_FieldWrite 
+     module procedure MAPL_BundleWrite
+     module procedure MAPL_FieldWrite
      module procedure MAPL_VarWrite_I4_1D
      module procedure MAPL_VarWrite_R4_1D
      module procedure MAPL_VarWriteNCpar_R4_1d
@@ -487,10 +487,10 @@ module MAPL_IOMod
     IMPLICIT NONE
     character(LEN=*), intent(in   )           :: Name
     integer         , intent(  out), OPTIONAL :: RC
-     
+
     integer :: i
     logical :: found
-     
+
     found = .false.
     do i = 2, last_unit
        if(name==Mname(i)) then
@@ -498,7 +498,7 @@ module MAPL_IOMod
           exit
        end if
     end do
-     
+
     if (.not. found) then
        do i = 2,last_unit
           if(.not.MTAKEN(i)) then
@@ -512,11 +512,11 @@ module MAPL_IOMod
        if(present(rc)) rc = 1
        return
     endif
-     
-    mname(i)   = name 
+
+    mname(i)   = name
     mtaken(i)  = .true.
     getfileunit = i
-     
+
     if(present(rc)) rc = 0
     return
   end function getfileunit
@@ -535,23 +535,23 @@ module MAPL_IOMod
     integer         , intent(in   ), OPTIONAL :: BLOCKSIZE
     integer         , intent(in   ), OPTIONAL :: NUMBUFFERS
     integer         , intent(  out), OPTIONAL :: RC
-    
+
     INTEGER I
     integer :: DO_OPEN_
     logical :: ALL_PES_
     integer          :: status
-    
-    LOGICAL FILEOPEN, UNITOPEN, FOUND 
+
+    LOGICAL FILEOPEN, UNITOPEN, FOUND
 
     if(INDEX(NAME,'*') /= 0) then
         getfile = getfilemem(name,rc=status)
-	_VERIFY(STATUS)
-        _RETURN(ESMF_SUCCESS) 
+   _VERIFY(STATUS)
+        _RETURN(ESMF_SUCCESS)
     endif
 
     if (NAME == "stdout" .or. NAME== "STDOUT") then
        GETFILE = STD_OUT_UNIT_NUMBER
-       _RETURN(ESMF_SUCCESS) 
+       _RETURN(ESMF_SUCCESS)
     end if
 
     if (.not. present(DO_OPEN)) then
@@ -559,15 +559,15 @@ module MAPL_IOMod
     else
        DO_OPEN_ = DO_OPEN
     end if
-    
+
     ALL_PES_ = .false.
     if (present(ALL_PES)) then
        ALL_PES_ = ALL_PES
     end if
-      
+
     if (.not. MAPL_AM_I_ROOT() .and. .not. ALL_PES_) then
        GETFILE = UNDEF
-       _RETURN(ESMF_SUCCESS) 
+       _RETURN(ESMF_SUCCESS)
     end if
 
 !   Check if the file is already open
@@ -579,25 +579,25 @@ module MAPL_IOMod
     IF ( .NOT. FILEOPEN ) THEN
        I = 20
        FOUND = .FALSE.
-       DO WHILE ( I.LE.LAST_UNIT .AND. .NOT.FOUND ) 
+       DO WHILE ( I.LE.LAST_UNIT .AND. .NOT.FOUND )
           IF ( .NOT. TAKEN(I) ) THEN
              TAKEN(I) = .TRUE.
              INQUIRE ( UNIT=I, OPENED=UNITOPEN )
              IF ( .NOT. UNITOPEN ) THEN
-                
+
                 status = 0
-                
+
                 if ( DO_OPEN_ .NE. 0 ) then
                    call MAPL_open(UNIT=i,FILE=Name,FORM=FORM, &
                                   BLOCKSIZE= BLOCKSIZE, NUMBUFFERS=NUMBUFFERS, RC=STATUS)
                 endif
-                
+
                 if ( status /= 0 ) then
                    write (0,*) 'ERROR opening "',trim(Name),'" using GETFILE'
                    write (0,*) ' IOSTAT = ',status
                    _RETURN(ESMF_FAILURE)
                 endif
-               
+
                 GETFILE = I
                 FOUND = .TRUE.
              ENDIF
@@ -609,15 +609,15 @@ module MAPL_IOMod
 !         Write an error message
 !         Return Error status
 !      ENDIF there are no available logical units
-!  
+!
        IF ( .NOT. FOUND ) THEN
           WRITE (0,*) ' COULD NOT FIND ANY AVAILABLE UNITS '
           _RETURN(ESMF_FAILURE)
        ENDIF
 
-    ENDIF ! the file isnt already open 
+    ENDIF ! the file isnt already open
 
-    _RETURN(ESMF_SUCCESS) 
+    _RETURN(ESMF_SUCCESS)
   END FUNCTION GETFILE
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -644,7 +644,7 @@ module MAPL_IOMod
           _RETURN(ESMF_FAILURE)
        ELSE
           TAKEN(UNIT) = .FALSE.
-          MTAKEN(UNIT) = .FALSE. 
+          MTAKEN(UNIT) = .FALSE.
        ENDIF
     end if
 
@@ -702,7 +702,7 @@ module MAPL_IOMod
           print *, "Using buffer I/O for file: ", trim(file)
        endif
     endif
-        
+
     if (present(FORM)) then
        usableFORM = FORM
     else
@@ -833,7 +833,7 @@ module MAPL_IOMod
     logical, pointer                     :: DOIT(:)
     integer                              :: DIMS
     integer, pointer                     :: MASK(:) => null()
-    
+
     logical                            :: skipReading
     integer                            :: RST
     integer                            :: dna
@@ -846,7 +846,7 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR)           :: attrName
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
-    
+
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
 
@@ -978,7 +978,7 @@ module MAPL_IOMod
 !@                   allocate(Mask(1))
                 endif
              endif
-      
+
              call MAPL_FieldRead(unit, field, arrdes=arrdes, HomePE=Mask, ignoreEOF=ignoreEOF, rc=status)
              _VERIFY(STATUS)
 
@@ -1050,12 +1050,12 @@ module MAPL_IOMod
        end if
        skipReading = (RST == MAPL_RestartSkip)
        if (skipReading) cycle
-       
+
        ignoreEOF=.false.
        if (bootstrapable_ .and. (RST == MAPL_RestartOptional)) then
           ignoreEOF = .true.
        end if
-       
+
        call MAPL_FieldRead(unit, field, arrdes=ARRDES,  ignoreEOF=ignoreEOF, rc=status)
        _VERIFY(STATUS)
 
@@ -1126,7 +1126,7 @@ module MAPL_IOMod
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -1140,7 +1140,7 @@ module MAPL_IOMod
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -1216,7 +1216,7 @@ module MAPL_IOMod
              end if
           end if
        endif
-       
+
     else if (rank == 4) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
@@ -1303,7 +1303,7 @@ module MAPL_IOMod
     _VERIFY(STATUS)
 
     if (ignoreEOF_ .and. (unit > 0)) then
-       ! test for end-of-file by 
+       ! test for end-of-file by
        ! making a blank read followed by backspace
 
        if (MAPL_am_i_root(layout)) then
@@ -1347,7 +1347,7 @@ module MAPL_IOMod
                 _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, var_1d, unit, arrdes=arrdes, rc=status)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -1359,7 +1359,7 @@ module MAPL_IOMod
                 call MAPL_VarRead(unit, grid, vr8_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, vr8_1d, unit, arrdes=arrdes, rc=status)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -1539,7 +1539,7 @@ module MAPL_IOMod
        last  = first + Rsize - 1
 
 #ifdef DEBUG_MPIIO
-	if (mypeRd <= nrdrs-1) write(*,'(5i)') mypeRd, IM_WORLD, first, last, Rsize
+   if (mypeRd <= nrdrs-1) write(*,'(5i)') mypeRd, IM_WORLD, first, last, Rsize
 #endif
 
        allocate(VAR(Rsize), stat=status)
@@ -1553,9 +1553,9 @@ module MAPL_IOMod
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
 
           loffset = offset + (first-1)*4
@@ -1610,7 +1610,7 @@ module MAPL_IOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -1764,7 +1764,7 @@ module MAPL_IOMod
        if (.not. MAPL_ShmInitialized) then
           call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
           _VERIFY(STATUS)
-    
+
           deallocate(VAR)
        else
           call ArrayScatterShm(A, VAR, grid, mask=mask, rc=status)
@@ -1773,7 +1773,7 @@ module MAPL_IOMod
           _VERIFY(STATUS)
        end if
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_1d
 
@@ -1873,16 +1873,16 @@ module MAPL_IOMod
           _VERIFY(STATUS)
 
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
 
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*4
           cnt = IM_WORLD*jsize
           call MPI_FILE_READ_AT_ALL(UNIT, offset, VAR, cnt, MPI_REAL, mpistatus, STATUS)
           _VERIFY(STATUS)
-          call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS ) 
+          call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS )
           _VERIFY(STATUS)
           _ASSERT(cnt == numread, 'inconsistent numread')
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*4
@@ -1921,7 +1921,7 @@ module MAPL_IOMod
             0, arrdes%ioscattercomm, status )
        _VERIFY(STATUS)
 
-       if(myiorank==0) then 
+       if(myiorank==0) then
           deallocate(VAR, stat=status)
           _VERIFY(STATUS)
 !          deallocate(buf, stat=status)
@@ -2007,7 +2007,7 @@ module MAPL_IOMod
   if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Read Bandwidth (MB per second): ', peak_ioread_bandwidth, bwidth, mean_ioread_bandwidth/ioread_counter
   endif
 #endif
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_2d
 
@@ -2033,7 +2033,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_3d
-  
+
 !---------------------------
   subroutine MAPL_VarRead_R4_4d(UNIT, GRID, A, Arrdes, RC)
 
@@ -2056,7 +2056,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_4d
-  
+
 !---------------------------
   subroutine MAPL_VarRead_R8_1d(UNIT, GRID, A, MASK, arrdes, RC)
 
@@ -2126,7 +2126,7 @@ module MAPL_IOMod
        last  = first + Rsize - 1
 
 #ifdef DEBUG_MPIIO
-	if (mypeRd <= nrdrs-1) write(*,'(5i)') mypeRd, IM_WORLD, first, last, Rsize
+   if (mypeRd <= nrdrs-1) write(*,'(5i)') mypeRd, IM_WORLD, first, last, Rsize
 #endif
 
        allocate(VAR(Rsize), stat=status)
@@ -2140,9 +2140,9 @@ module MAPL_IOMod
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
 
           loffset = offset + (first-1)*8
@@ -2198,7 +2198,7 @@ module MAPL_IOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -2340,11 +2340,11 @@ module MAPL_IOMod
 
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
     _VERIFY(STATUS)
-    
+
     deallocate(VAR)
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_1d
 
@@ -2421,7 +2421,7 @@ module MAPL_IOMod
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
        _VERIFY(STATUS)
-       
+
        if(myiorank==0) then
           do j=1,num_io_rows
              jsize = arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1
@@ -2540,7 +2540,7 @@ module MAPL_IOMod
     end if
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
     _VERIFY(STATUS)
-    
+
     deallocate(VAR)
 
     END IF
@@ -2549,7 +2549,7 @@ module MAPL_IOMod
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
   itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS) 
+  _VERIFY(STATUS)
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -2558,8 +2558,8 @@ module MAPL_IOMod
   if (mod(ioread_counter,72.d0)==0) then
   if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Read Bandwidth (MB per second): ', peak_ioread_bandwidth, bwidth, mean_ioread_bandwidth/ioread_counter
   endif
-#endif 
-    
+#endif
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_2d
 
@@ -2585,7 +2585,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_3d
-  
+
 !---------------------------
   subroutine MAPL_VarRead_R8_4d(UNIT, GRID, A, arrdes, RC)
 
@@ -2608,7 +2608,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_4d
-  
+
 !---------------------------
 ! Write routines
 !---------------------------
@@ -2635,7 +2635,7 @@ module MAPL_IOMod
     logical                              :: forceWriteNoRestart_
     integer                              :: DIMS
     integer, pointer                     :: MASK(:) => null()
-    
+
     integer, allocatable :: orderlist(:)
     integer :: jj
     character(len=ESMF_MAXSTR)           :: attrName
@@ -2699,7 +2699,7 @@ module MAPL_IOMod
 
     do JJ = 1, natt
        I = ORDERLIST(JJ)
-    
+
        IF (DOIT     (I)) then
 
 #ifdef TIME_MPIIO
@@ -2859,8 +2859,8 @@ module MAPL_IOMod
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
-    
- 
+
+
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
@@ -2898,7 +2898,7 @@ module MAPL_IOMod
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 size_1d = size(var_1d,1)
              endif
- 
+
              if (arrdes%write_restart_by_oserver) then
                 if( MAPL_AM_I_ROOT())  then
                    lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
@@ -2908,7 +2908,7 @@ module MAPL_IOMod
                    lMemRef = LocalMemReference(pFIO_REAL32,[0])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
                 endif
-                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
                 endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
@@ -2948,7 +2948,7 @@ module MAPL_IOMod
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
                 endif
 
-                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
                 endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
@@ -3003,7 +3003,7 @@ module MAPL_IOMod
              endif ! dims
           else
              _ASSERT(.false., "Cannot write unassociated var-2d")
-          endif ! associated 
+          endif ! associated
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
           _VERIFY(STATUS)
@@ -3019,7 +3019,7 @@ module MAPL_IOMod
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[0,size(vr8_2d,2)])
                    endif
                    do J = 1,size(vr8_2d,2)
-                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status) 
+                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status)
                    enddo
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
                                  global_start=[1,1], global_count=[arrdes%im_world,size(vr8_2d,2)])
@@ -3107,7 +3107,7 @@ module MAPL_IOMod
                            & offset1=j, offset2=k, rc=status)
                       end do
                    end do
-                
+
                 endif
 
              else
@@ -3180,7 +3180,7 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR)         :: FORMATTED
     integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
-    
+
     if (unit < 0 .or. present(arrdes)) then
        FORMATTED = "NO"
     else
@@ -3213,7 +3213,7 @@ module MAPL_IOMod
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
           _VERIFY(STATUS)
-          if (associated(var_1d)) then 
+          if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarWrite(unit, grid, var_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
@@ -3360,16 +3360,16 @@ module MAPL_IOMod
     case (R4_1)
        _ASSERT(.not.present(jm), 'jm is present for 1d')
        allocate(A%r4_1(IM))
-    case (R8_2) 
+    case (R8_2)
        _ASSERT(present(jm), 'jm not present for 2d')
        allocate(A%r8_2(IM,JM))
-    case (R8_1) 
+    case (R8_1)
        _ASSERT(.not.present(jm),'jm is present for 1d')
        allocate(A%r8_1(IM))
-    case (i4_1) 
+    case (i4_1)
        _ASSERT(.not.present(jm), 'jm present for 1d')
        allocate(A%I4_1(IM))
-    case (i4_2) 
+    case (i4_2)
        _ASSERT(present(jm), 'jm not present for 2d')
        allocate(A%I4_2(IM,JM))
     case default
@@ -3389,32 +3389,32 @@ module MAPL_IOMod
 
     if(a%allocated/=not_allocated) then
        select case (a%allocated)
-       case (R4_2) 
+       case (R4_2)
           if(associated(A%r4_2)) then
              deallocate(A%r4_2)
              nullify(A%r4_2)
           end if
-       case (R4_1) 
+       case (R4_1)
           if(associated(A%r4_1)) then
              deallocate(A%r4_1)
              nullify(A%r4_1)
           end if
-       case (R8_2) 
+       case (R8_2)
           if(associated(A%r8_2)) then
              deallocate(A%r8_2)
              nullify(A%r8_2)
           end if
-       case (R8_1) 
+       case (R8_1)
           if(associated(A%r8_1)) then
              deallocate(A%r8_1)
              nullify(A%r8_1)
           end if
-       case (i4_1) 
+       case (i4_1)
           if(associated(A%i4_1)) then
              deallocate(A%i4_1)
              nullify(A%i4_1)
           end if
-       case (i4_2) 
+       case (i4_2)
           if(associated(A%i4_2)) then
              deallocate(A%i4_2)
              nullify(A%i4_2)
@@ -3459,7 +3459,7 @@ module MAPL_IOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),i4_1,size(A),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),i4_1,size(A),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%I4_1  = A
 
@@ -3484,7 +3484,7 @@ module MAPL_IOMod
        write (UNIT, IOSTAT=status) VAR
        _VERIFY(STATUS)
     end if
-    
+
     deallocate(VAR)
 
     endif
@@ -3532,13 +3532,13 @@ module MAPL_IOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: recl
-    logical                               :: useWriteFCtrl 
+    logical                               :: useWriteFCtrl
 
     integer :: mpistatus(MPI_STATUS_SIZE)
     logical :: amIRoot
 
     if(present(writeFCtrl)) then
-       useWriteFCtrl = writeFCtrl 
+       useWriteFCtrl = writeFCtrl
     else
        useWriteFCtrl = .true.
     end if
@@ -3574,7 +3574,7 @@ module MAPL_IOMod
        last  = first + Rsize - 1
 
 #ifdef DEBUG_MPIIO
-	if (mypeWr <= nwrts-1) write(*,'(5i)') mypeWr, IM_WORLD, first, last, Rsize
+   if (mypeWr <= nwrts-1) write(*,'(5i)') mypeWr, IM_WORLD, first, last, Rsize
 #endif
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
@@ -3615,7 +3615,7 @@ module MAPL_IOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -3706,9 +3706,9 @@ module MAPL_IOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -3720,9 +3720,9 @@ module MAPL_IOMod
        enddo
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
@@ -3785,7 +3785,7 @@ module MAPL_IOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),R4_1,size(A),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),R4_1,size(A),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R4_1  = A
 
@@ -3817,11 +3817,11 @@ module MAPL_IOMod
        write (UNIT, IOSTAT=status) VAR
        _VERIFY(STATUS)
     end if
-    
+
     deallocate(VAR)
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_1d
 
@@ -3883,15 +3883,15 @@ module MAPL_IOMod
 
        if(present(mask)) then
           JM_WORLD=size(a,2)
-       
+
 !          arrdes%offset = 0
 
 ! write Fortran control
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(arrdes%offset<=0) then
-                offset = 4 
+                offset = 4
              else
-                offset = arrdes%offset 
+                offset = arrdes%offset
              endif
 
              recl = IM_WORLD*JM_WORLD*4
@@ -3967,7 +3967,7 @@ module MAPL_IOMod
             0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
 
-       if(myiorank==0) then 
+       if(myiorank==0) then
 
           jprev = 0
           k=1
@@ -4046,7 +4046,7 @@ module MAPL_IOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),r4_2,size(A,1),size(a,2),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),r4_2,size(A,1),size(a,2),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R4_2  = A
 
@@ -4082,7 +4082,7 @@ module MAPL_IOMod
          write (UNIT, IOSTAT=status) VAR
          _VERIFY(STATUS)
       end if
-    
+
       deallocate(VAR)
 
    end if
@@ -4100,8 +4100,8 @@ module MAPL_IOMod
   if (mod(iowrite_counter,72.d0)==0) then
     if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Write Bandwidth (MB per second): ', peak_iowrite_bandwidth, bwidth, mean_iowrite_bandwidth/iowrite_counter
   endif
-#endif 
-    
+#endif
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_2d
 
@@ -4127,7 +4127,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_3d
-  
+
 !---------------------------
   subroutine MAPL_VarWrite_R4_4d(UNIT, GRID, A, ARRDES, RC)
 
@@ -4150,7 +4150,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_4d
-  
+
 !---------------------------
   subroutine MAPL_VarWrite_R8_1d(UNIT, GRID, A, MASK, arrdes, writeFCtrl, RC)
 
@@ -4191,12 +4191,12 @@ module MAPL_IOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: recl
-    logical                               :: useWriteFCtrl 
+    logical                               :: useWriteFCtrl
 
     integer :: mpistatus(MPI_STATUS_SIZE)
 
     if(present(writeFCtrl)) then
-       useWriteFCtrl = writeFCtrl 
+       useWriteFCtrl = writeFCtrl
     else
        useWriteFCtrl = .true.
     end if
@@ -4232,7 +4232,7 @@ module MAPL_IOMod
        last  = first + Rsize - 1
 
 #ifdef DEBUG_MPIIO
-	if (mypeWr <= nwrts-1) write(*,'(5i)') mypeWr, IM_WORLD, first, last, Rsize
+   if (mypeWr <= nwrts-1) write(*,'(5i)') mypeWr, IM_WORLD, first, last, Rsize
 #endif
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
@@ -4273,7 +4273,7 @@ module MAPL_IOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -4364,9 +4364,9 @@ module MAPL_IOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -4378,9 +4378,9 @@ module MAPL_IOMod
        enddo
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
@@ -4443,7 +4443,7 @@ module MAPL_IOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),R8_1,size(A),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),R8_1,size(A),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R8_1  = A
 
@@ -4468,11 +4468,11 @@ module MAPL_IOMod
        write (UNIT, IOSTAT=status) VAR
        _VERIFY(STATUS)
     end if
-    
+
     deallocate(VAR)
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_1d
 
@@ -4536,9 +4536,9 @@ module MAPL_IOMod
 ! write Fortran control
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(arrdes%offset<=0) then
-                offset = 4 
+                offset = 4
              else
-                offset = arrdes%offset 
+                offset = arrdes%offset
              endif
 
              recl = IM_WORLD*JM_WORLD*8
@@ -4614,7 +4614,7 @@ module MAPL_IOMod
             0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
 
-       if(myiorank==0) then 
+       if(myiorank==0) then
 
           jprev = 0
           k=1
@@ -4641,7 +4641,7 @@ module MAPL_IOMod
           recl = IM_WORLD*JM_WORLD*8
           if (mypeWr==0) then
 #ifdef DEBUG_MPIIO
-		print*, offset, recl, offset + IM_WORLD*JM_WORLD*8 + 8
+      print*, offset, recl, offset + IM_WORLD*JM_WORLD*8 + 8
 #endif
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
              _VERIFY(STATUS)
@@ -4653,9 +4653,9 @@ module MAPL_IOMod
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*8
           call MPI_FILE_WRITE_AT_ALL(UNIT, offset, VAR, IM_WORLD*jsize, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
           _VERIFY(STATUS)
-          offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8 
+          offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8
 
-          offset = offset + IM_WORLD*JM_WORLD*8 
+          offset = offset + IM_WORLD*JM_WORLD*8
           if (mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
              _VERIFY(STATUS)
@@ -4693,7 +4693,7 @@ module MAPL_IOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),r8_2,size(A,1),size(a,2),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),r8_2,size(A,1),size(a,2),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R8_2  = A
 
@@ -4723,7 +4723,7 @@ module MAPL_IOMod
          write (UNIT, IOSTAT=status) VAR
          _VERIFY(STATUS)
       end if
-    
+
       deallocate(VAR)
 
     end if
@@ -4741,8 +4741,8 @@ module MAPL_IOMod
   if (mod(iowrite_counter,72.d0)==0) then
   if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Write Bandwidth (MB per second): ', peak_iowrite_bandwidth, bwidth, mean_iowrite_bandwidth/iowrite_counter
   endif
-#endif 
-    
+#endif
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_2d
 
@@ -4768,7 +4768,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_3d
-  
+
 !---------------------------
   subroutine MAPL_VarWrite_R8_4d(UNIT, GRID, A, ARRDES, RC)
 
@@ -4791,7 +4791,7 @@ module MAPL_IOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_4d
-  
+
 !---------------------------
 !---------------------------
 !---------------------------
@@ -4964,7 +4964,7 @@ module MAPL_IOMod
            end do
 
            call FREE_FILE ( Unit )
- 
+
     ! --------------------------------------------------------------------------
     !  Reset the time on all fields
     ! --------------------------------------------------------------------------
@@ -4975,7 +4975,7 @@ module MAPL_IOMod
               call MAPL_FieldSetTime (  NEXT(I), AFTER , rc=STATUS )
               _VERIFY(STATUS)
            end do
-   
+
         endif
 
         deallocate(NEXT)
@@ -5015,7 +5015,7 @@ module MAPL_IOMod
 
         _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_GetClimMonths
-    
+
   subroutine MAPL_Skip(UNIT, LAYOUT, COUNT, RC)
 
     integer                     , intent(IN   ) :: UNIT
@@ -5047,7 +5047,7 @@ module MAPL_IOMod
           _VERIFY(STATUS)
        end do
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Skip
 
@@ -5075,7 +5075,7 @@ module MAPL_IOMod
           _VERIFY(STATUS)
        end do
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Backspace
 
@@ -5093,7 +5093,7 @@ module MAPL_IOMod
        rewind(unit=UNIT, IOSTAT=status)
        _VERIFY(STATUS)
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Rewind
 
@@ -5118,7 +5118,7 @@ module MAPL_IOMod
     integer                               :: de, deId
     integer                               :: nDEs
     integer                               :: sendcount
-    
+
     integer                               :: I
     integer                               :: I1, IN
     integer, allocatable                  :: var(:)
@@ -5186,7 +5186,7 @@ module MAPL_IOMod
        allocate(VAR(0), stat=status)
        _VERIFY(STATUS)
     end if
-    
+
     displs(0) = 0
     do I = 0,nDEs-1
        de = I
@@ -5237,7 +5237,7 @@ module MAPL_IOMod
     end if
 
 ! clean up
-    
+
     deallocate(var)
     deallocate (recvcounts, displs)
     deallocate (AU)
@@ -5300,7 +5300,7 @@ module MAPL_IOMod
        end do
     end do
     _RETURN(ESMF_SUCCESS)
-    
+
     !    MORE HERE
   end subroutine MAPL_VarWriteNCpar_R8_4d
 !---------------------------
@@ -5346,7 +5346,7 @@ module MAPL_IOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R4_3d(formatter, name, A, ARRDES, RC)
-  
+
     type (Netcdf4_Fileformatter)          , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:,:)
@@ -5411,7 +5411,7 @@ module MAPL_IOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R8_3d(formatter, name, A, ARRDES, RC)
-  
+
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:,:)
@@ -5466,7 +5466,7 @@ module MAPL_IOMod
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
           _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
           _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-       
+
           ref = ArrayReference(A)
           _ASSERT( size(a,1) == in-i1+1, "size not match")
           _ASSERT( size(a,2) == jn-j1+1, "size not match")
@@ -5611,7 +5611,7 @@ module MAPL_IOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
-  
+
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:)
@@ -5632,7 +5632,7 @@ module MAPL_IOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: sendcounts(:), displs(:)
 
-    logical :: AM_READER 
+    logical :: AM_READER
 
     AM_READER = .false.
     if (present(arrdes)) then
@@ -5642,7 +5642,7 @@ module MAPL_IOMod
     else
        AM_READER = .true.
     end if
-      
+
     if (present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
@@ -5690,12 +5690,12 @@ module MAPL_IOMod
           cnt(2) = jsize
           cnt(3) = 1
           cnt(4) = 1
-    
+
           if(arrdes%read_restart_by_face) then
              start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
           endif
 
-          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)   
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error reading variable ',status
              print*, NF_STRERROR(status)
@@ -5748,8 +5748,8 @@ module MAPL_IOMod
        cnt(2) = size(a,2)
        cnt(3) = 1
        cnt(4) = 1
- 
-       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status) 
+
+       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
        if(status /= nf_noerr) then
           print*,'Error reading variable ',status
           print*, NF_STRERROR(status)
@@ -5879,7 +5879,7 @@ module MAPL_IOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -5970,9 +5970,9 @@ module MAPL_IOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -6029,7 +6029,7 @@ module MAPL_IOMod
     else
 
 ! Comments
-! This routine is used to write PREF to moist_import_checkpoint 
+! This routine is used to write PREF to moist_import_checkpoint
 
        start(1) = 1
        start(2) = 1
@@ -6075,7 +6075,7 @@ module MAPL_IOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R4_1d
 
@@ -6195,7 +6195,7 @@ module MAPL_IOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -6286,9 +6286,9 @@ module MAPL_IOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -6323,7 +6323,7 @@ module MAPL_IOMod
           cnt(4) = 1
 !          print*,'start values are ',start
 !          print*,'count values are ',cnt
- 
+
           call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error writing variable ', status
@@ -6345,7 +6345,7 @@ module MAPL_IOMod
     else
 
 ! Comments
-! This routine is used to write PREF to moist_import_checkpoint 
+! This routine is used to write PREF to moist_import_checkpoint
 
        start(1) = 1
        start(2) = 1
@@ -6392,7 +6392,7 @@ module MAPL_IOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R8_1d
 
@@ -6544,7 +6544,7 @@ module MAPL_IOMod
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
        _VERIFY(STATUS)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -6687,7 +6687,7 @@ module MAPL_IOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R4_1d
 
@@ -6837,7 +6837,7 @@ module MAPL_IOMod
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
        _VERIFY(STATUS)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -6979,7 +6979,7 @@ module MAPL_IOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R8_1d
 
@@ -7123,8 +7123,10 @@ module MAPL_IOMod
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
-             print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             write(*,'("Error writing variable ", a, " to file ", a, ", returned with value ", i0)') trim(name), trim(formatter%filename), status
+             !print*,'Error writing variable ',status
+             write(*, '("Netcdf error string = ", a)') NF_STRERROR(status)
+             !print*, NF_STRERROR(status)
              _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
@@ -7149,7 +7151,7 @@ module MAPL_IOMod
        cnt(3) = 1
        cnt(4) = 1
 
-       call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status) 
+       call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
        if(status /= nf_noerr) then
           print*,'Error writing variable ',status
           print*, NF_STRERROR(status)
@@ -7164,7 +7166,7 @@ module MAPL_IOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, RC)
-  
+
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
@@ -7241,12 +7243,12 @@ module MAPL_IOMod
           cnt(2) = jsize
           cnt(3) = 1
           cnt(4) = 1
-         
+
           if(arrdes%read_restart_by_face) then
              start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
           endif
 
-          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status) 
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
                   print*,'Error reading variable ',status
                   print*, NF_STRERROR(status)
@@ -7299,7 +7301,7 @@ module MAPL_IOMod
        cnt(3) = 1
        cnt(4) = 1
 
-       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status) 
+       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
        if(status /= nf_noerr) then
                print*,'Error reading variable ',status
                print*, NF_STRERROR(status)
@@ -7399,20 +7401,20 @@ module MAPL_IOMod
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
-        
+
     enddo
 
     if(associated(MASK)) then
        DEALOC_(MASK)
     end if
- 
+
     if (arrdes%readers_comm/=MPI_COMM_NULL) then
        call formatter%close()
        _VERIFY(STATUS)
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     end if
-  
+
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BundleReadNCPar
@@ -7466,7 +7468,7 @@ module MAPL_IOMod
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
     logical, pointer                     :: DOIT(:)
-    
+
     integer                            :: ind
     logical                            :: skipReading
     integer                            :: RST
@@ -7476,7 +7478,7 @@ module MAPL_IOMod
     type (ESMF_FieldBundle)            :: bundle_read
     integer                            :: nBundle
     logical                            :: tile
- 
+
     integer                            :: nVarFile, ncid
     character(len=ESMF_MAXSTR), pointer :: VarNamesFile(:) => null()
     type(ESMF_VM)                      :: VM
@@ -7484,8 +7486,8 @@ module MAPL_IOMod
     integer                            :: dna
     logical                            :: bootstrapable_
     logical                            :: isPresent
-    character(len=:), allocatable      :: fname_by_face 
-    ! get a list of variables in the file so we can skip if the 
+    character(len=:), allocatable      :: fname_by_face
+    ! get a list of variables in the file so we can skip if the
     ! variable in the state is not in the file and it is bootstrapable
     ! will just let root do this since everybody will need it
     ! and avoid complications with doing later on when only readers_comm has opened file
@@ -7524,7 +7526,7 @@ module MAPL_IOMod
        call MAPL_CommsBcast(vm, VarNamesFile(i), N=ESMF_MAXSTR, ROOT=MAPL_Root, rc=status)
        _VERIFY(STATUS)
     end do
-    
+
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
 
@@ -7611,11 +7613,11 @@ module MAPL_IOMod
                foundInFile = .false.
                do k=1,nVarFile
                   if (trim(FieldName) == trim(VarNamesFile(k))) then
-                     FoundInFile = .true. 
+                     FoundInFile = .true.
                      exit
-                  end if          
+                  end if
                end do
-               
+
                if (foundInFile) then
                   new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
                   _VERIFY(STATUS)
@@ -7662,7 +7664,7 @@ module MAPL_IOMod
                 skipReading = (DNA /= 0)
              end if
              if (skipReading) cycle
-            
+
              ! now check if the field is in the list of available fields
              ! ---------------------------------------------------------
              foundInFile = .false.
@@ -7890,7 +7892,7 @@ module MAPL_IOMod
 
     if (nVars == 0) then
        _ASSERT(.false., "The bundle you are trying to write is empty")
-    endif 
+    endif
 
     ! first we need to prep the netcdf file for writing
     allocate(LOCATION(nVars), stat=STATUS)
@@ -7924,7 +7926,7 @@ module MAPL_IOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_3d,3)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,3)
           endif
@@ -7934,7 +7936,7 @@ module MAPL_IOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_2d,2)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_2d,2)
           endif
@@ -7944,7 +7946,7 @@ module MAPL_IOMod
              _VERIFY(STATUS)
              JM_WORLD = max(JM_WORLD,size(var_2d,2))
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status)
              _VERIFY(STATUS)
              JM_WORLD = max(JM_WORLD,size(var_2d,2))
           endif
@@ -7954,7 +7956,7 @@ module MAPL_IOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_1d)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_1d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_1d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_1d)
           endif
@@ -7965,7 +7967,7 @@ module MAPL_IOMod
              UNGRID_DIMS(I,1) = size(var_3d,2)
              UNGRID_DIMS(I,2) = size(var_3d,3)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,2)
              UNGRID_DIMS(I,2) = size(var8_3d,3)
@@ -8013,26 +8015,26 @@ module MAPL_IOMod
     n_unique_ungrid_dims = 0
     if (ungrid_dim_max_size /= 0) then
 
-       n_unique_ungrid_dims = 0 
+       n_unique_ungrid_dims = 0
        do i = 1,ungrid_dim_max_size
           if (any(ungrid_dims == i)) n_unique_ungrid_dims = n_unique_ungrid_dims + 1
        end do
- 
+
        allocate(unique_ungrid_dims(n_unique_ungrid_dims),stat=status)
        _VERIFY(STATUS)
        allocate(unique_ungrid_dim_name(n_unique_ungrid_dims),stat=status)
        _VERIFY(STATUS)
        allocate(ungriddim(n_unique_ungrid_dims),stat=status)
        _VERIFY(STATUS)
- 
-       n_unique_ungrid_dims = 0 
+
+       n_unique_ungrid_dims = 0
        do i = 1,ungrid_dim_max_size
           if (any(ungrid_dims == i)) then
              n_unique_ungrid_dims = n_unique_ungrid_dims + 1
              unique_ungrid_dims(n_unique_ungrid_dims) = i
           end if
        end do
- 
+
     endif
 
     deallocate(DIMS)
@@ -8081,7 +8083,7 @@ module MAPL_IOMod
           call cf%add_variable('lon',var,rc=status)
           _VERIFY(status)
           deallocate(var,coordinate_data)
-          
+
           if (isCubed) then
              x0=1.0d0
              x1=dble(arrdes%JM_WORLD)
@@ -8095,7 +8097,7 @@ module MAPL_IOMod
              end if
           endif
           lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
-          
+
           if (arrdes%write_restart_by_face) then
              call cf%add_dimension('lat',arrdes%im_world,rc=status)
              _VERIFY(status)
@@ -8188,7 +8190,7 @@ module MAPL_IOMod
              unique_ungrid_dim_name(i)=ungrid_dim_name
              call cf%add_dimension(trim(ungrid_dim_name),unique_ungrid_dims(i),rc=status)
              _VERIFY(status)
-          end do 
+          end do
        endif
 
        ! Time variable
@@ -8438,7 +8440,7 @@ module MAPL_IOMod
              call formatter%write(cf,rc=status)
              _VERIFY(STATUS)
           end if
-       endif ! write_restart_by_oserver 
+       endif ! write_restart_by_oserver
 
     endif !am writer or write_restart_by_oserver
 
@@ -8466,10 +8468,10 @@ module MAPL_IOMod
 
        call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        _VERIFY(STATUS)
-       
+
     enddo
 
-    
+
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage()
        call oClients%post_wait()
@@ -8504,11 +8506,11 @@ module MAPL_IOMod
 
        fvar = Variable(type=vtype,dimensions=dims)
        call fvar%add_attribute('units',trim(units))
-       call fvar%add_attribute('long_name',trim(long_name)) 
+       call fvar%add_attribute('long_name',trim(long_name))
        call cf%add_variable(trim(vname),fvar,rc=status)
        _VERIFY(status)
-       
-       end subroutine add_fvar 
+
+       end subroutine add_fvar
 
   end subroutine MAPL_BundleWriteNCPar
 
@@ -8576,7 +8578,7 @@ module MAPL_IOMod
 
     DO I = 1, ITEMCOUNT
 
-    
+
        IF (DOIT     (I)) then
 
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
@@ -8632,7 +8634,7 @@ module MAPL_IOMod
              if (skipWriting) cycle
 
              call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS) 
+             _VERIFY(STATUS)
              if (isPresent) then
                 call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
                 _VERIFY(STATUS)
@@ -8708,7 +8710,7 @@ module MAPL_IOMod
    end if
    ! Attempt to identify as fortran binary
    cwrd = transfer(TwoWords(1:4), irec)
-   ! check if divisible by 4 
+   ! check if divisible by 4
    irec = cwrd/4
    filetype = irec
    if (cwrd /= 4*irec) then
@@ -8733,7 +8735,7 @@ module MAPL_IOMod
     type (ESMF_Grid)                          :: grid
     integer, optional,          intent(IN   ) :: mask(:)
     integer, optional,          intent(  OUT) :: rc
-    
+
 ! Local variables
 
     integer                               :: status
@@ -8758,8 +8760,8 @@ module MAPL_IOMod
     logical                               :: use_shmem
 
 ! Works only on 1D and 2D arrays
-! Note: for tile variables the gridRank is 1 
-! and the case RANK_=2 needs additional attention 
+! Note: for tile variables the gridRank is 1
+! and the case RANK_=2 needs additional attention
 
 ! use_shmem controls communication (bcastToNodes+local copy vs scatterv)
     use_shmem = .true.
@@ -8770,7 +8772,7 @@ module MAPL_IOMod
 ! Optional change of source PE. Default=MAPL_Root
 
     srcPE = MAPL_Root
- 
+
 ! Initialize
     alloc_var = .true.
 
@@ -8825,7 +8827,7 @@ module MAPL_IOMod
 
     recvcount = sendcounts(deId)
 
-! Put VAR together at the srcPE 
+! Put VAR together at the srcPE
 
     if (deId == srcPE) then
 
@@ -8840,9 +8842,9 @@ module MAPL_IOMod
        end do
 
        myglob => global_array
-       
+
 ! Fill the VAR vector
-       
+
        if (present(mask)) then
           allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
           _VERIFY(STATUS)
@@ -8853,7 +8855,7 @@ module MAPL_IOMod
              if(K == deId) then
                 II = KK
                 VAR(II) = MYGLOB(I)
-                KK = KK + 1 
+                KK = KK + 1
              end if
           end do
 
@@ -8930,7 +8932,7 @@ module MAPL_IOMod
   _RETURN(ESMF_SUCCESS)
 
   contains
- 
+
       subroutine modify_grid_dimensions(rc)
          integer, optional, intent(out) :: rc
          integer :: status
@@ -9029,7 +9031,7 @@ module MAPL_IOMod
   vars => cf%get_variables()
   iter = vars%begin()
   do while(iter/=vars%end())
-     
+
      name =>  iter%key()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) nvars=nvars+1
@@ -9057,7 +9059,7 @@ module MAPL_IOMod
   vars => cf%get_variables()
   iter = vars%begin()
   do while(iter/=vars%end())
-     
+
      name =>  iter%key()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
@@ -9090,7 +9092,7 @@ module MAPL_IOMod
   vars => cf%get_variables()
   iter = vars%begin()
   do while(iter/=vars%end())
-     
+
      name => iter%key()
      var => iter%value()
      dimsize => dims%at(trim(name))
@@ -9123,12 +9125,12 @@ module MAPL_IOMod
   integer, intent(out), optional :: rc
 
   integer :: status
-  
+
   class(Variable), pointer :: var
   type(Attribute), pointer :: attr
   class(*), pointer :: units
   integer :: year,month,day,hour,min,sec
- 
+
   var => cf%get_variable('time',rc=status)
   _VERIFY(status)
   attr => var%get_attribute('units')

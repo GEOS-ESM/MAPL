@@ -29,7 +29,7 @@ module pFIO_NetCDF4_FileFormatterMod
       logical :: parallel = .false.
       integer :: comm = -1
       integer :: info = -1
-      !character(len=4096) :: filename
+      character(len=4096) :: filename ! Sourish Basu: really helpful for meaningful error messages
    contains
       procedure :: create
       procedure :: create_par
@@ -155,6 +155,9 @@ contains
       else
          mode_=NF90_CLOBBER
       end if
+
+      this%filename = trim(file) ! Sourish Basu
+
       !$omp critical
       status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
@@ -163,7 +166,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine create
-
 
    subroutine create_par(this, file, unusable, mode, comm, info, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
@@ -197,6 +199,8 @@ contains
          info_ = MPI_INFO_NULL
       end if
 
+      this%filename = trim(file) ! Sourish Basu
+
       this%parallel = .true.
       this%comm = comm_
       this%info = info_
@@ -213,7 +217,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine create_par
-
 
    subroutine open(this, file, mode, unusable, comm, info, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
@@ -247,7 +250,7 @@ contains
          this%info = MPI_INFO_NULL
       end if
 
-      !this%filename = trim(file)
+      this%filename = trim(file) ! Sourish Basu
 
       if (this%parallel) then
          !$omp critical
@@ -280,7 +283,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine close
-
 
    subroutine write(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
@@ -334,10 +336,10 @@ contains
          dim_name => iter%key()
          dim_len => iter%value()
          select case (dim_len)
-         case (pFIO_UNLIMITED)
-            nf90_len = NF90_UNLIMITED
-         case default
-            nf90_len = dim_len
+            case (pFIO_UNLIMITED)
+               nf90_len = NF90_UNLIMITED
+            case default
+               nf90_len = dim_len
          end select
          !$omp critical
          status = nf90_def_dim(this%ncid, dim_name, nf90_len, dimid)
