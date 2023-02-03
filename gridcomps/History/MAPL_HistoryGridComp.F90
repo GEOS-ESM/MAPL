@@ -2442,7 +2442,7 @@ ENDDO PARSER
          write (*,'(A)',ADVANCE='NO') '      Fields: '
          do m=1,list(n)%field_set%nfields
             if( trim(list(n)%field_set%fields(3,m)).ne.BLANK ) then
-               write (*,'(A,X)',ADVANCE='NO') trim(list(n)%field_set%fields(3,m))
+               write (*,'(A,1X)',ADVANCE='NO') trim(list(n)%field_set%fields(3,m))
             endif
          enddo
          ! Now advance the write
@@ -3682,7 +3682,7 @@ ENDDO PARSER
    integer                        :: DIMS(3)
    integer                        :: IM,JM,LM
 
-   character*3                    :: months(12)
+   character(len=3)               :: months(12)
    data months /'JAN','FEB','MAR','APR','MAY','JUN', &
                 'JUL','AUG','SEP','OCT','NOV','DEC'/
 
@@ -3939,12 +3939,12 @@ ENDDO PARSER
     integer                           :: YY,MM,DD,H,M,S
     integer                           :: noffset
 
-    character*4 year
-    character*2 month
-    character*2 day
-    character*2 hour
-    character*2 minute
-    character*2 second
+    character(len=4) :: year
+    character(len=2) :: month
+    character(len=2) :: day
+    character(len=2) :: hour
+    character(len=2) :: minute
+    character(len=2) :: second
 
     integer                    :: STATUS
 
@@ -4535,12 +4535,12 @@ ENDDO PARSER
            ExtraFields,ExtraGridComp,ExpState,rc)
 
   integer,intent(in)::nfield
-  character*(*),     intent(inout) :: fields(:,:)
-  character*(*),     intent(inout) :: tmpfields(:)
+  character(len=*),  intent(inout) :: fields(:,:)
+  character(len=*),  intent(inout) :: tmpfields(:)
   logical,           intent(inout) :: rewrite(:)
   integer,           intent(inout) :: nPExtraFields
-  character*(*), pointer, intent(inout) :: ExtraFields(:)
-  character*(*), pointer, intent(inout) :: ExtraGridComp(:)
+  character(len=*), pointer, intent(inout) :: ExtraFields(:)
+  character(len=*), pointer, intent(inout) :: ExtraGridComp(:)
   type(ESMF_State),  intent(inout) :: ExpState
   integer, optional, intent(out  ) :: rc
 
@@ -4797,7 +4797,7 @@ ENDDO PARSER
   subroutine MAPL_RunExpression(state,fields,tmpfields,rewrite,nfield,rc)
 
   type (ESMF_State),  intent(in)    :: state
-  character*(*), intent(in):: fields(:,:),tmpfields(:)
+  character(len=*), intent(in):: fields(:,:),tmpfields(:)
   logical, intent(inout) :: rewrite(:)
   integer, intent(in):: nfield
   integer, optional, intent(out) :: rc
