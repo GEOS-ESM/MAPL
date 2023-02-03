@@ -3276,7 +3276,7 @@ ENDDO PARSER
                                 importState=INTSTATE%CIM(n), &
                                 exportState=INTSTATE%GIM(n), &
                                 clock=CLOCK,           &
-                                userRC)
+                                userRC=STATUS)
           _VERIFY(STATUS)
        end if
     end do
