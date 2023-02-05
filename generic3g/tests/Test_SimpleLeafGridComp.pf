@@ -7,6 +7,7 @@ module Test_SimpleLeafGridComp
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use esmf
+   use nuopc
    use pFunit
    use yaFyaml
    use scratchpad
@@ -14,11 +15,11 @@ module Test_SimpleLeafGridComp
 
 contains
 
-   subroutine setup(outer_gc, rc)
+   subroutine setup(outer_gc, config, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
+      type(GenericConfig), intent(in) :: config
       integer, intent(out) :: rc
       
-      type(GenericConfig) :: config
       integer :: status, userRC
 
       outer_gc = create_grid_comp('A', user_setservices('libsimple_leaf_gridcomp'), config, rc=status)
@@ -50,10 +51,11 @@ contains
    subroutine test_wasrun_1(this)
       class(MpiTestMethod), intent(inout) :: this
 
+      type(GenericConfig) :: config
       integer :: status, userRC
       type(ESMF_GridComp) :: outer_gc
 
-      call setup(outer_gc, status)
+      call setup(outer_gc, config, status)
       @assert_that('DSO problem', status, is(0))
 
       call ESMF_GridCompRun(outer_gc, userRC=userRC, phase=1, rc=status)
@@ -80,8 +82,9 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
+      type(GenericConfig) :: config
 
-      call setup(outer_gc, status)
+      call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
       call ESMF_GridCompRun(outer_gc, phase=2, rc=status)
@@ -99,8 +102,9 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
+      type(GenericConfig) :: config
 
-      call setup(outer_gc, status)
+      call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
       call ESMF_GridCompInitialize(outer_gc, phase=GENERIC_INIT_USER, rc=status)
@@ -119,8 +123,9 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
+      type(GenericConfig) :: config
 
-      call setup(outer_gc, status)
+      call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
       call ESMF_GridCompFinalize(outer_gc, rc=status)
@@ -128,13 +133,41 @@ contains
       @assertEqual("wasFinal_A", log)
 
 
-      ! Node - do not need to call teardown, as we are
+      ! Note - do not need to call teardown, as we are
       ! finalizing ourselves.  But .. we do need to check that the
       ! user_gc has been finalized, and that the various internal states
       ! have been freed.
 
       if(.false.) print*,shape(this)
    end subroutine test_wasfinal
+
+   @test(npes=[0])
+   subroutine test_full_run_sequence(this)
+      use scratchpad
+      use iso_fortran_env
+      class(MpiTestMethod), intent(inout) :: this
+      type(GenericConfig) :: config
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+      type(Parser) :: p
+
+!!$      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', rc=status)
+!!$      @assert_that(status, is(0))
+
+      p = Parser()
+      config = GenericConfig(yaml_cfg=p%load_from_file('./configs/leaf_A.yaml', rc=status))
+      @assert_that(status, is(0))
+      
+
+      call setup(outer_gc, config, status)
+      @assert_that(status, is(0))
+
+
+
+      if(.false.) print*,shape(this)
+   end subroutine test_full_run_sequence
+
    
 
 end module Test_SimpleLeafGridComp

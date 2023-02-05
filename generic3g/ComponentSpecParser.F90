@@ -6,7 +6,11 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ChildSpecMap
    use mapl3g_UserSetServices
    use mapl_ErrorHandling
+   use mapl3g_VariableSpec
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_VariableSpecVector
    use yaFyaml
+   use esmf
    implicit none
    private
 
@@ -29,7 +33,7 @@ contains
 
       integer :: status
 
-!!$      spec%states_spec = process_states_spec(config%of('states'), _RC)
+      spec%var_specs = process_var_specs(config%of('states'), _RC)
 !!$      spec%connections_spec = process_connections_spec(config%of('connections'), _RC)
 !!$      spec%children_spec = process_children_spec(config%of('children'), _RC)
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
@@ -39,6 +43,54 @@ contains
    end function parse_component_spec
 
 
+   function process_var_specs(config, rc) result(var_specs)
+      type(VariableSpecVector) :: var_specs
+      class(YAML_Node), intent(in) :: config
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      
+      if (config%has('import')) then
+         call process_state_specs(var_specs, config%of('import'), ESMF_STATEINTENT_IMPORT, _RC)
+      end if
+      if (config%has('export')) then
+         call process_state_specs(var_specs, config%of('export'), ESMF_STATEINTENT_EXPORT, _RC)
+      end if
+      if (config%has('internal')) then
+         call process_state_specs(var_specs, config%of('internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   contains
+
+      subroutine process_state_specs(var_specs, config, state_intent, rc)
+         type(VariableSpecVector), intent(inout) :: var_specs
+         class(YAML_Node), target, intent(in) :: config
+         type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+         integer, optional, intent(out) :: rc
+
+         type(VariableSpec) :: var_spec
+         class(NodeIterator), allocatable :: iter, e
+         character(:), pointer :: short_name
+         class(YAML_Node), pointer :: attributes
+
+         allocate(e, source=config%end())
+         allocate(iter, source=config%begin())
+         do while (iter /= e)
+            short_name => to_string(iter%first())
+            attributes => iter%second()
+            var_spec = VariableSpec(state_intent, short_name=short_name, &
+                 standard_name=to_string(attributes%of('standard_name')), &
+                 units=to_string(attributes%of('units')))
+            call var_specs%push_back(var_spec)
+            call iter%next()
+         end do
+
+         _RETURN(_SUCCESS)
+      end subroutine process_state_specs
+   end function process_var_specs
+
+   
    type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
       class(YAML_Node), intent(in) :: config
       integer, optional, intent(out) :: rc
@@ -60,7 +112,7 @@ contains
    end function parse_ChildSpec
 
    type(DSOSetServices) function parse_setservices(config, rc) result(user_ss)
-      class(YAML_Node), intent(in) :: config
+      class(YAML_Node), target, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: sharedObj, userRoutine
@@ -102,8 +154,8 @@ contains
       end if
       _ASSERT(config%is_mapping(), 'children spec must be mapping of names to child specs')
 
-      associate (b => config%begin(), e => config%end())
-        iter = b
+      associate (e => config%end())
+        allocate(iter, source=config%begin())
         do while (iter /= e)
            child_name => to_string(iter%first(), _RC)
            subcfg => iter%second()
@@ -138,8 +190,8 @@ contains
       end if
       _ASSERT(config%is_mapping(), 'children spec must be mapping of names to child specs')
 
-      associate (b => config%begin(), e => config%end())
-        iter = b
+      associate (e => config%end())
+        allocate(iter, source=config%begin())
         do while (iter /= e)
            counter = counter + 1
            child_name => to_string(iter%first(), _RC)

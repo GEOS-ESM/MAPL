@@ -4,8 +4,10 @@ module mapl3g_StateSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_StateItemSpecMap
+   use mapl3g_VariableSpec
    use mapl_ErrorHandling
    use ESMF
+   use mapl_KeywordEnforcer
    implicit none
    private
 
@@ -15,6 +17,7 @@ module mapl3g_StateSpec
       type(ESMF_State) :: payload
       type(StateItemSpecMap) :: item_specs
    contains
+      procedure :: initialize
       procedure :: add_item
       procedure :: get_item
 
@@ -32,6 +35,20 @@ module mapl3g_StateSpec
 
 contains
 
+   ! Nothing defined at this time.
+   subroutine initialize(this, geom_base, var_spec, unusable, rc)
+      class(StateSpec), intent(inout) :: this
+      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(VariableSpec), intent(in) :: var_spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: units
+      integer :: status
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize
 
    subroutine add_item(this, name, item)
       class(StateSpec), target, intent(inout) :: this

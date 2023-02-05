@@ -3,7 +3,9 @@
 module MockItemSpecMod
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
+   use mapl3g_VariableSpec
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
    implicit none
    private
@@ -16,6 +18,7 @@ module MockItemSpecMod
       character(len=:), allocatable :: name
       character(len=:), allocatable :: subtype
    contains
+      procedure :: initialize
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -40,6 +43,21 @@ module MockItemSpecMod
    end interface MockActionSpec
 
 contains
+
+   ! Nothing defined at this time.
+   subroutine initialize(this, geom_base, var_spec, unusable, rc)
+      class(MockItemSpec), intent(inout) :: this
+      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(VariableSpec), intent(in) :: var_spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: units
+      integer :: status
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize
 
    function new_MockItemSpec(name, subtype) result(spec)
       type(MockItemSpec) :: spec

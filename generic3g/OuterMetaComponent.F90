@@ -3,8 +3,11 @@
 module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
+   use mapl3g_StateItemSpecTypeId
    use mapl3g_ExtraDimsSpec
    use mapl3g_FieldSpec
+!!$   use mapl3g_BundleSpec
+   use mapl3g_StateSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
    use mapl3g_GenericConfig
@@ -94,10 +97,6 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
-      ! Specs
-      procedure :: add_state_item_spec
-      procedure :: add_connection
-
       procedure :: traverse
 
       procedure :: set_geom_base
@@ -106,6 +105,8 @@ module mapl3g_OuterMetaComponent
       procedure :: is_root
       procedure :: get_registry
       procedure :: get_subregistries
+
+      procedure :: get_component_spec
 
    end type OuterMetaComponent
 
@@ -453,20 +454,36 @@ contains
          type(VirtualConnectionPt) :: virtual_pt
          type(ExtraDimsSpec) :: extra_dims
 
-         type(FieldSpec) :: field_spec
+         _ASSERT(var_spec%type_id /= MAPL_TYPE_ID_INVALID, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
+         item_spec = make_item_spec(var_spec%type_id)
+         call item_spec%initialize(geom_base, var_spec, _RC)
 
-         ! class(AbstractItemSpec), allocatable :: item_spec
-         ! item_spec = classify(var_spec, _RC)
-         ! call item_spec%initialize(geom_base, var_spec, _RC)
-         call field_spec%initialize(geom_base, var_spec, _RC)
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
          call registry%add_item_spec(virtual_pt, item_spec)
          
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
       end subroutine advertise_variable
+
+
+      function make_item_spec(type_id) result(item_spec)
+         class(AbstractStateItemSpec), allocatable :: item_spec
+         type(StateItemSpecTypeId), intent(in) :: type_id
+         
+        if (type_id == MAPL_TYPE_ID_FIELD) then
+           allocate(FieldSpec::item_spec)
+!!$        else if (type_id == MAPL_TYPE_ID_BUNDLE) then
+!!$           allocate(BundleSpec::item_spec)
+        else if (type_id == MAPL_TYPE_ID_STATE) then
+           allocate(StateSpec::item_spec)
+        else
+           _FAIL('Invalid state item spec type.')
+        end if
+
+     end function make_item_spec
          
    end subroutine initialize_advertise
+
 
    recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -784,42 +801,11 @@ contains
 !!$   end subroutine validate_user_short_name
 
 
-   subroutine add_state_item_spec(this, state_intent, short_name, spec, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      character(*), intent(in) :: state_intent
-      character(*), intent(in) :: short_name
-      class(AbstractStateItemSpec), intent(in) :: spec
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      _ASSERT(count(state_intent == ['import  ' ,'export  ', 'internal']) == 1, 'invalid state intent')
-      _ASSERT(is_valid_name(short_name), 'Short name <' // short_name //'> does not conform to GEOS standards.')
-
-      associate (conn_pt => VirtualConnectionPt(state_intent=state_intent, short_name=short_name))
-        call this%component_spec%add_state_item_spec(conn_pt, spec)
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine add_state_item_spec
-
-   subroutine add_connection(this, connection, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ConnectionSpec), intent(in) :: connection
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _ASSERT(is_valid(connection),'unsupported connection type')
-      call this%component_spec%add_connection(connection)
-      _RETURN(_SUCCESS)
-   end subroutine add_connection
-
    pure logical function is_root(this)
       class(OuterMetaComponent), intent(in) :: this
       is_root = this%is_root_
    end function is_root
+
 
    subroutine set_geom_base(this, geom_base)
       class(OuterMetaComponent), intent(inout) :: this
@@ -868,4 +854,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_subregistries
 
+   function get_component_spec(this) result(component_spec)
+      type(ComponentSpec), pointer :: component_spec
+      class(OuterMetaComponent), target, intent(in) :: this
+      component_spec => this%component_spec
+   end function get_component_spec
 end module mapl3g_OuterMetaComponent

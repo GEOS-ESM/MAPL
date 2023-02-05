@@ -20,6 +20,8 @@ module mapl3g_Generic
    use :: mapl3g_InnerMetaComponent, only: get_inner_meta
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
+   use :: mapl3g_ComponentSpec, only: ComponentSpec
+   use :: mapl3g_VariableSpec, only: VariableSpec
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_AbstractStateItemSpec
@@ -30,6 +32,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_Clock
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
+   use :: esmf, only: ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    implicit none
@@ -221,18 +224,21 @@ contains
    end subroutine gridcomp_set_entry_point
 
 
-   subroutine add_import_spec(gridcomp, short_name, spec, unusable, rc)
+   subroutine add_import_spec(gridcomp, unusable, short_name, standard_name, units, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      character(len=*), intent(in) :: short_name
-      class(AbstractStateItemSpec), intent(in) :: spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), intent(in) :: short_name
+      character(len=*), intent(in) :: standard_name
+      character(len=*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_state_item_spec('import', short_name, spec, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_IMPORT, short_name=short_name, standard_name=standard_name))
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_import_spec
@@ -260,34 +266,41 @@ contains
 !!$      _RETURN(ESMF_SUCCESS)
 !!$   end subroutine add_import_field_spec
 
-   subroutine add_export_spec(gridcomp, short_name, spec, unusable, rc)
+   subroutine add_export_spec(gridcomp, unusable, short_name, standard_name, units, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      character(len=*), intent(in) :: short_name
-      class(AbstractStateItemSpec), intent(in) :: spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), intent(in) :: short_name
+      character(len=*), intent(in) :: standard_name
+      character(len=*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_state_item_spec('export', short_name, spec, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_EXPORT, short_name=short_name, standard_name=standard_name))
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_export_spec
 
-   subroutine add_internal_spec(gridcomp, short_name, spec, unusable, rc)
+   subroutine add_internal_spec(gridcomp, unusable, short_name, standard_name, units, rc)
+      use mapl3g_VirtualConnectionPt, only: ESMF_STATEINTENT_INTERNAL
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      character(len=*), intent(in) :: short_name
-      class(AbstractStateItemSpec), intent(in) :: spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), intent(in) :: short_name
+      character(len=*), intent(in) :: standard_name
+      character(len=*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_state_item_spec('internal', short_name, spec, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name=short_name, standard_name=standard_name))
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_internal_spec
