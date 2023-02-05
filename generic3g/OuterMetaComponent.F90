@@ -5,6 +5,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VariableSpec
    use mapl3g_StateItemSpecTypeId
    use mapl3g_ExtraDimsSpec
+   use mapl3g_InvalidSpec
    use mapl3g_FieldSpec
 !!$   use mapl3g_BundleSpec
    use mapl3g_StateSpec
@@ -455,7 +456,7 @@ contains
          type(ExtraDimsSpec) :: extra_dims
 
          _ASSERT(var_spec%type_id /= MAPL_TYPE_ID_INVALID, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
-         item_spec = make_item_spec(var_spec%type_id)
+         item_spec = create_item_spec(var_spec%type_id)
          call item_spec%initialize(geom_base, var_spec, _RC)
 
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
@@ -466,7 +467,7 @@ contains
       end subroutine advertise_variable
 
 
-      function make_item_spec(type_id) result(item_spec)
+      function create_item_spec(type_id) result(item_spec)
          class(AbstractStateItemSpec), allocatable :: item_spec
          type(StateItemSpecTypeId), intent(in) :: type_id
          
@@ -477,13 +478,14 @@ contains
         else if (type_id == MAPL_TYPE_ID_STATE) then
            allocate(StateSpec::item_spec)
         else
-           _FAIL('Invalid state item spec type.')
+           ! We return an invalid item that will throw exceptions when
+           ! used.
+           allocate(InvalidSpec::item_spec)
         end if
 
-     end function make_item_spec
+     end function create_item_spec
          
    end subroutine initialize_advertise
-
 
    recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this

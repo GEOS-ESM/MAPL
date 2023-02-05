@@ -298,6 +298,7 @@ contains
 !!$      call ESMF_StateAdd(state, this%payload, short_name, _RC)
 !!$
 
+      _RETURN(_SUCCESS)
    end subroutine add_to_state
 
    function make_extension(this, src_spec, rc) result(action_spec)
