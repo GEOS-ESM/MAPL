@@ -14,6 +14,7 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
    use :: mapl3g_GenericConfig
+   use :: mapl3g_GenericPhases
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
@@ -25,21 +26,6 @@ module mapl3g_GenericGridComp
    public :: create_grid_comp
 
    
-   ! Named constants
-   public :: GENERIC_INIT_GRID
-   public :: GENERIC_INIT_ADVERTISE
-   public :: GENERIC_INIT_REALIZE
-   public :: GENERIC_INIT_USER
-
-   enum, bind(c)
-      !!!! IMPORTANT: USER phase must be "1" !!!!
-      enumerator :: GENERIC_INIT_USER = 1
-      enumerator :: GENERIC_INIT_GRID
-      enumerator :: GENERIC_INIT_ADVERTISE
-      enumerator :: GENERIC_INIT_REALIZE
-   end enum
-
-
    interface create_grid_comp
       module procedure create_grid_comp_primary
    end interface create_grid_comp

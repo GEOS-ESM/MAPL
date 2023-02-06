@@ -6,8 +6,12 @@
 module SimpleParentGridComp
    use mapl_ErrorHandling
    use mapl3g_OuterMetaComponent
+   use mapl3g_GenericConfig
+   use mapl3g_Generic
+   use mapl3g_UserSetServices
    use scratchpad
    use esmf
+   use yafyaml
    implicit none
    private
 
@@ -21,11 +25,23 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      type(GenericConfig) :: config_A, config_B
+      type(Parser) :: p
+      
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run_extra, phase_name='extra', _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, finalize, _RC)
+
+      p = Parser()
+      config_A = GenericConfig(yaml_cfg=p%load_from_file('./configs/leaf_A.yaml', rc=status))
+      _ASSERT(status == 0, 'bad config')
+      config_B = GenericConfig(yaml_cfg=p%load_from_file('./configs/leaf_B.yaml', rc=status))
+      _ASSERT(status == 0, 'bad config')
+      
+      call MAPL_add_child(gc, 'CHILD_A', user_setservices('libsimple_leaf_gridcomp'), config_A, _RC)
+      call MAPL_add_child(gc, 'CHILD_B', user_setservices('libsimple_leaf_gridcomp'), config_B, _RC)
       
       _RETURN(ESMF_SUCCESS)
    end subroutine setservices

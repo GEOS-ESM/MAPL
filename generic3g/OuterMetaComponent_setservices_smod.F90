@@ -6,6 +6,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_UserSetServices, only: user_setservices
    use mapl3g_ComponentSpecParser
+   use mapl3g_HierarchicalRegistry
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
@@ -51,6 +52,9 @@ contains
 
       ! 4) Process generic specs
       call process_generic_specs(this, _RC)
+
+      this%registry = HierarchicalRegistry(this%get_name())
+
 
 !!$    call after(this, _RC)
       

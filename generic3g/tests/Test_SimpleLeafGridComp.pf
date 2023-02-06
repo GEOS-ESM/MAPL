@@ -1,7 +1,8 @@
 module Test_SimpleLeafGridComp
    use mapl3g_GenericConfig
+   use mapl3g_Generic
+   use mapl3g_GenericPhases
    use mapl3g_UserSetServices
-   use mapl3g_GenericGridComp, only: GENERIC_INIT_USER
    use mapl3g_GenericGridComp, only: create_grid_comp
    use mapl3g_GenericGridComp, only: setServices
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
@@ -145,9 +146,6 @@ contains
    subroutine test_full_run_sequence(this)
       use scratchpad
       use iso_fortran_env
-      use mapl3g_GenericGridComp, only: GENERIC_INIT_GRID
-      use mapl3g_GenericGridComp, only: GENERIC_INIT_ADVERTISE
-      use mapl3g_GenericGridComp, only: GENERIC_INIT_USER
       class(MpiTestMethod), intent(inout) :: this
       type(GenericConfig) :: config
 
@@ -157,36 +155,50 @@ contains
 
       type(ESMF_Clock) :: clock
       type(ESMF_State) :: importState, exportState
+      integer :: i
+      type(ESMF_Field) :: f
+      type(ESMF_Grid) :: grid
 
-!!$      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', rc=status)
-!!$      @assert_that(status, is(0))
+      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', rc=status)
+      @assert_that(status, is(0))
 
       p = Parser()
       config = GenericConfig(yaml_cfg=p%load_from_file('./configs/leaf_A.yaml', rc=status))
       @assert_that(status, is(0))
-      
 
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
-      call ESMF_GridCompInitialize(outer_gc, &
-           importState=importState, exportState=exportState, clock=clock, &
-           phase=GENERIC_INIT_GRID, userRC=userRC, rc=status)
-      @assert_that(userRC, is(0))
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', rc=status)
       @assert_that(status, is(0))
-      
-      call ESMF_GridCompInitialize(outer_gc, &
-           importState=importState, exportState=exportState, clock=clock, &
-           phase=GENERIC_INIT_ADVERTISE, userRC=userRC, rc=status)
-      @assert_that(userRC, is(0))
+      call MAPL_GridCompSetGeomBase(outer_gc, grid, rc=status)
       @assert_that(status, is(0))
 
-      call ESMF_GridCompInitialize(outer_gc, &
-           importState=importState, exportState=exportState, clock=clock, &
-           phase=GENERIC_INIT_USER, userRC=userRC, rc=status)
-      @assert_that(userRC, is(0))
+      importState = ESMF_StateCreate(rc=status)
+      @assert_that(status, is(0))
+      exportState = ESMF_StateCreate(rc=status)
       @assert_that(status, is(0))
 
+      associate (phases => [ &
+           GENERIC_INIT_GRID, &
+           GENERIC_INIT_ADVERTISE, &
+           GENERIC_INIT_USER ])
+
+        do i = 1, size(phases)
+           call ESMF_GridCompInitialize(outer_gc, &
+           importState=importState, exportState=exportState, clock=clock, &
+           phase=phases(i), userRC=userRC, rc=status)
+           @assert_that(userRC, is(0))
+           @assert_that(status, is(0))
+        end do
+
+      end associate
+
+      call ESMF_StateGet(importState, 'I_1', f, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(exportState, 'E_1', f, rc=status)
+      @assert_that(status, is(0))
 
       if(.false.) print*,shape(this)
    end subroutine test_full_run_sequence

@@ -9,6 +9,7 @@ set (test_srcs
   
 #  Test_AddVarSpec.pf
   Test_SimpleLeafGridComp.pf
+  Test_SimpleParentGridComp.pf
   Test_Traverse.pf
   Test_RunChild.pf
 

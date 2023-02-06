@@ -13,6 +13,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VariableSpecVector
    use mapl3g_GenericConfig
    use mapl3g_ComponentSpec
+   use mapl3g_GenericPhases
    use mapl3g_ChildComponent
    use mapl3g_Validation, only: is_valid_name
 !!$   use mapl3g_CouplerComponentVector
@@ -57,7 +58,6 @@ module mapl3g_OuterMetaComponent
 
       class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
 
-      type(VariableSpecVector)                    :: variable_specs
       type(ComponentSpec)                         :: component_spec
       type(OuterMetaComponent), pointer           :: parent_private_state
       type(HierarchicalRegistry) :: registry
@@ -205,8 +205,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ChildComponent), pointer :: child_ptr
+      
+      child_ptr => this%children%at(child_name, rc=status)
+      _ASSERT(associated(child_ptr), 'Child not found: <'//child_name//'>.')
 
-      child_component = this%children%at(child_name, _RC)
+      child_component = child_ptr
 
       _RETURN(_SUCCESS)
    end function get_child_by_name
@@ -221,9 +225,12 @@ contains
 
       integer :: status
       type(ChildComponent) :: child
+      integer :: phase_idx
 
       child = this%get_child(child_name, _RC)
-      call child%run(clock, phase_name=get_default_phase_name(ESMF_METHOD_RUN, phase_name), _RC)
+      phase_idx = get_phase_index(this%get_phases(ESMF_METHOD_RUN), phase_name=phase_name, _RC)
+      _ASSERT(phase_idx /= -1,'No such run phase: <'//phase_name//'>.')
+      call child%run(clock, phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
@@ -236,14 +243,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
 
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
-           child => iter%second()
-           call child%run(clock, phase_name=phase_name, _RC)
+           call this%run_child(iter%first(), clock, phase_name=phase_name, _RC)
            call iter%next()
         end do
       end associate
@@ -365,7 +370,7 @@ contains
 
       call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
       call apply_to_children(this, set_child_geom, _RC)
-      call apply_to_children(this, clock, phase_name=PHASE_NAME, _RC)
+      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GRID, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -401,7 +406,7 @@ contains
       call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
-      call apply_to_children(this, clock, PHASE_NAME, _RC)
+      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
 !!$      call apply_to_children(this, clock, PHASE_NAME, _RC)
 !!$      call self_wire(...)
@@ -429,8 +434,8 @@ contains
          type(VariableSpecVectorIterator) :: iter
          type(VariableSpec), pointer :: var_spec
 
-         associate (e => this%variable_specs%end())
-           iter = this%variable_specs%begin()
+         associate (e => this%component_spec%var_specs%end())
+           iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
               call advertise_variable (var_spec, this%registry, this%geom_base, _RC)
@@ -458,9 +463,22 @@ contains
          _ASSERT(var_spec%type_id /= MAPL_TYPE_ID_INVALID, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
          item_spec = create_item_spec(var_spec%type_id)
          call item_spec%initialize(geom_base, var_spec, _RC)
+         call item_spec%create(_RC)
 
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
          call registry%add_item_spec(virtual_pt, item_spec)
+         
+         associate (state_intent => var_spec%state_intent)
+           if (state_intent == ESMF_STATEINTENT_IMPORT) then
+              call item_spec%add_to_state(importState, var_spec%short_name, _RC)
+           else if (state_intent == ESMF_STATEINTENT_EXPORT) then
+              call item_spec%add_to_state(exportState, var_spec%short_name, _RC)
+           else if (state_intent == ESMF_STATEINTENT_INTERNAL) then
+              call item_spec%add_to_state(exportState, var_spec%short_name, _RC)
+           else
+              _FAIL('Incorrect specification of state intent for <'//var_spec%short_name//'>.')
+           end if
+         end associate
          
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
@@ -533,10 +551,10 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine exec_user_init_phase
 
-   recursive subroutine apply_to_children_simple(this, clock, phase_name, rc)
+   recursive subroutine apply_to_children_simple(this, clock, phase_idx, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
-      character(*), intent(in) :: phase_name
+      integer :: phase_idx
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -547,7 +565,7 @@ contains
         iter = b
         do while (iter /= e)
            child => iter%second()
-           call child%initialize(clock, phase_name=phase_name, _RC)
+           call child%initialize(clock, phase_idx=phase_idx, _RC)
            call iter%next()
         end do
       end associate
@@ -593,7 +611,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
       call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
-      call apply_to_children(this, clock, phase_name=PHASE_NAME, _RC)
+      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

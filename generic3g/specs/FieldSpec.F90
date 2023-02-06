@@ -119,7 +119,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       this%payload = ESMF_FieldEmptyCreate(_RC)
       call MAPL_FieldEmptySet(this%payload, this%geom_base, _RC)
 
@@ -292,11 +292,8 @@ contains
       type(ESMF_Field) :: alias
       integer :: status
 
-      _FAIL('unimplemented')
-
-!!$      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
-!!$      call ESMF_StateAdd(state, this%payload, short_name, _RC)
-!!$
+      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+      call ESMF_StateAdd(state, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
