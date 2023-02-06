@@ -22,6 +22,7 @@ type is (T) ;\
       call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, _RC) ;\
    end if
 
+
 #ifdef SET_VALS
 #  undef SET_VALS
 #endif
@@ -166,8 +167,9 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-         if (present(rc)) rc = ESMF_FAILURE
-         return
+         write(*,*) "Label '" // label // "' not present and default not present. " !wdb DEBUG2 / DEBUG2
+!         if (present(rc)) rc = ESMF_FAILURE !wdb original
+!         return !wdb original
       end if
 
       select type(val)
@@ -341,3 +343,7 @@ contains
    end function intrinsic_to_string
 
 end module MAPL_ResourceMod
+!   call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, rc = status)
+!   if (status /= ESMF_SUCCESS) then 
+!      write(*,*) "label '" // actual_label // "' not found."
+!   end if
