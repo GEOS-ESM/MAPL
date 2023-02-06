@@ -522,13 +522,14 @@ contains
       init_phases => this%phases_map%at(ESMF_METHOD_INITIALIZE, _RC)
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(init_phases, phase_name=phase_name, rc=status))
-        if (status == _SUCCESS) then
+        if (phase /= -1) then
            call ESMF_GridCompInitialize(this%user_gridcomp, &
                 importState=importState, exportState=exportState, &
                 clock=clock, phase=phase, userRC=userRC, _RC)
            _VERIFY(userRC)
         end if
       end associate
+
       _RETURN(ESMF_SUCCESS)
    end subroutine exec_user_init_phase
 

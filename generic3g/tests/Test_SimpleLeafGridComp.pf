@@ -145,12 +145,18 @@ contains
    subroutine test_full_run_sequence(this)
       use scratchpad
       use iso_fortran_env
+      use mapl3g_GenericGridComp, only: GENERIC_INIT_GRID
+      use mapl3g_GenericGridComp, only: GENERIC_INIT_ADVERTISE
+      use mapl3g_GenericGridComp, only: GENERIC_INIT_USER
       class(MpiTestMethod), intent(inout) :: this
       type(GenericConfig) :: config
 
-      integer :: status
+      integer :: status, userrc
       type(ESMF_GridComp) :: outer_gc
       type(Parser) :: p
+
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: importState, exportState
 
 !!$      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', rc=status)
 !!$      @assert_that(status, is(0))
@@ -163,6 +169,23 @@ contains
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
+      call ESMF_GridCompInitialize(outer_gc, &
+           importState=importState, exportState=exportState, clock=clock, &
+           phase=GENERIC_INIT_GRID, userRC=userRC, rc=status)
+      @assert_that(userRC, is(0))
+      @assert_that(status, is(0))
+      
+      call ESMF_GridCompInitialize(outer_gc, &
+           importState=importState, exportState=exportState, clock=clock, &
+           phase=GENERIC_INIT_ADVERTISE, userRC=userRC, rc=status)
+      @assert_that(userRC, is(0))
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompInitialize(outer_gc, &
+           importState=importState, exportState=exportState, clock=clock, &
+           phase=GENERIC_INIT_USER, userRC=userRC, rc=status)
+      @assert_that(userRC, is(0))
+      @assert_that(status, is(0))
 
 
       if(.false.) print*,shape(this)
