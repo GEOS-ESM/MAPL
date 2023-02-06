@@ -167,9 +167,9 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-         write(*,*) "Label '" // label // "' not present and default not present. " !wdb DEBUG2 / DEBUG2
-!         if (present(rc)) rc = ESMF_FAILURE !wdb original
-!         return !wdb original
+!         write(*,*) "Label '" // label // "' not present and default not present. " !wdb DEBUG2 / DEBUG2
+         if (present(rc)) rc = ESMF_FAILURE !wdb original
+         return !wdb original
       end if
 
       select type(val)
