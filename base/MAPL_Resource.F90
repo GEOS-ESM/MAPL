@@ -257,6 +257,7 @@ contains
 
       character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
       type(StringVector), pointer, save :: already_printed_labels => null()
+      integer :: status
 
       if (.not. associated(already_printed_labels)) then
          allocate(already_printed_labels)
@@ -266,7 +267,7 @@ contains
       if (.not. vector_contains_str(already_printed_labels, trim(label))) then
          call already_printed_labels%push_back(trim(label))
       else
-         return
+         _RETURN(_SUCCESS)
       end if
 
       select type(val)
