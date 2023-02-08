@@ -19,7 +19,8 @@ type is (T) ;\
          _FAIL("Type of 'default' does not match type of 'VAL'.") ;\
       end select ;\
    else ;\
-      call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, _RC) ;\
+      call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, rc = status) ;\
+      _VERIFY(status) ;\
    end if
 
 
@@ -37,7 +38,8 @@ type is (T) ;\
          _FAIL("Type of 'default' does not match type of 'VALS'.") ;\
       end select ;\
    else ;\
-      call ESMF_ConfigGetAttribute(config, valuelist = VALS, count = count, label = actual_label, _RC) ;\
+      call ESMF_ConfigGetAttribute(config, valuelist = VALS, count = count, label = actual_label, rc = status) ;\
+      _VERIFY(status) ;\
    end if
 
 #ifdef SET_STRINGS
@@ -131,12 +133,12 @@ contains
       do i = 1, size(labels_to_try)
          actual_label = trim(labels_to_try(i))
          if (len_trim(actual_label) == 0 ) cycle
-         call ESMF_ConfigFindLabel(config, label = actual_label, isPresent = label_is_present, _RC)
+         call ESMF_ConfigFindLabel(config, label = actual_label, isPresent = label_is_present, rc = status)
+         _VERIFY(status)
          if (label_is_present) exit
       end do
 
       _RETURN(_SUCCESS)
-
    end subroutine get_actual_label
 
    ! Find value of scalar variable in config
@@ -162,7 +164,8 @@ contains
          _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
-      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
+      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, rc = status)
+      _VERIFY(status)
 
       ! No default and not in config, error
       ! label or default must be present
@@ -182,7 +185,8 @@ contains
          _FAIL( "Unupported type")
       end select
 
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
+      _VERIFY(status)  
 
       ! Can set printrc to negative to not print at all
       if (MAPL_AM_I_Root() .and. printrc >= 0) then
@@ -191,7 +195,8 @@ contains
          else
             label_to_print = trim(label)
          end if
-         call print_resource(printrc, label_to_print, val, default=default, _RC)
+         call print_resource(printrc, label_to_print, val, default=default, rc = status)
+         _VERIFY(status)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -221,7 +226,8 @@ contains
       end if
 
       _ASSERT(present(component_name), "Component name is necessary but not present.")
-      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
+      call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, rc = status)
+      _VERIFY(status)
 
       ! No default and not in config, error
       ! label or default must be present
@@ -266,7 +272,7 @@ contains
       if (.not. vector_contains_str(already_printed_labels, trim(label))) then
          call already_printed_labels%push_back(trim(label))
       else
-         _RETURN(_SUCCESS)
+         return
       end if
 
       select type(val)
@@ -291,8 +297,6 @@ contains
       else
          print output_format, trim(label), trim(val_str)
       end if
-
-      _RETURN(_SUCCESS)
 
    end subroutine print_resource
 
@@ -343,7 +347,3 @@ contains
    end function intrinsic_to_string
 
 end module MAPL_ResourceMod
-!   call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, rc = status)
-!   if (status /= ESMF_SUCCESS) then 
-!      write(*,*) "label '" // actual_label // "' not found."
-!   end if

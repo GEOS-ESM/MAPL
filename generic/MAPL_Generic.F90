@@ -8295,8 +8295,9 @@ contains
       integer :: status
 
       call MAPL_GetResource_config_scalar(state%cf, val, label, default = default, component_name = state%compname, rc = status) 
-
-      rc = status
+         _VERIFY(status)
+      
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
 
@@ -8312,8 +8313,9 @@ contains
       integer :: status
 
       call MAPL_GetResource_config_scalar(config, val, label, default = default, rc = status)
-
-      rc = status
+      _VERIFY(status)
+      
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
@@ -8327,8 +8329,9 @@ contains
       integer :: status
 
       call MAPL_GetResource_config_array(state%cf, vals, label, default = default, component_name = state%compname, rc = status)
-
-      rc = status
+      _VERIFY(status)
+      
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResource_array
 
