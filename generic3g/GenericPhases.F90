@@ -3,10 +3,10 @@ module mapl3g_GenericPhases
    private
    
    ! Named constants
+   public :: GENERIC_INIT_USER
    public :: GENERIC_INIT_GRID
    public :: GENERIC_INIT_ADVERTISE
    public :: GENERIC_INIT_REALIZE
-   public :: GENERIC_INIT_USER
 
    enum, bind(c)
       !!!! IMPORTANT: USER phase must be "1" !!!!

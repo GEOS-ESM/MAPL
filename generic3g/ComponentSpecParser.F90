@@ -34,8 +34,8 @@ contains
       integer :: status
 
       spec%var_specs = process_var_specs(config%of('states'), _RC)
-!!$      spec%connections_spec = process_connections_spec(config%of('connections'), _RC)
 !!$      spec%children_spec = process_children_spec(config%of('children'), _RC)
+!!$      spec%connections_spec = process_connections_spec(config%of('connections'), _RC)
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
 

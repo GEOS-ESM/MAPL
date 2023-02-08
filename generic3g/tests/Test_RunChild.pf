@@ -28,10 +28,10 @@ contains
       associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
         parent_gc = create_grid_comp('parent', ss_parent, config, rc=status)
       end associate
+
       @assert_that(status, is(0))
       parent_meta => get_outer_meta(parent_gc, rc=status)
       @assert_that(status, is(0))
-      user_gc = parent_meta%get_gridcomp()
 
       associate (ss_leaf => user_setservices('libsimple_leaf_gridcomp'))
         call parent_meta%add_child('child_1', ss_leaf, config, rc=status)
@@ -42,15 +42,18 @@ contains
 
       call ESMF_GridCompSetServices(parent_gc, setServices, rc=status)
       @assert_that(status, is(0))
-      call clear_log()
 
+      user_gc = parent_meta%get_user_gridcomp()
+
+      call clear_log()
       rc = ESMF_SUCCESS
    end subroutine setup
 
    subroutine teardown(this)
       class(MpiTestMethod), intent(inout) :: this
-
-      call ESMF_GridCompDestroy(parent_gc)
+      integer :: status
+      call ESMF_GridCompDestroy(parent_gc, rc=status)
+      @assert_that(status, is(0))
    end subroutine teardown
       
 
@@ -106,8 +109,9 @@ contains
       @assertEqual("wasInit :: wasInit_child_1 :: wasInit_child_2", log)
 
       call teardown(this)
-      
+
    end subroutine test_init_children
+
 
    @test(npes=[0])
    subroutine test_finalize_children(this)

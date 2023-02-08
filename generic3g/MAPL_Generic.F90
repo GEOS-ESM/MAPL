@@ -146,7 +146,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       call outer_meta%run_child(child_name, clock, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)

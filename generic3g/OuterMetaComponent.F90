@@ -69,7 +69,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: get_phases
 !!$      procedure :: get_gridcomp
-!!$      procedure :: get_user_gridcomp
+      procedure :: get_user_gridcomp
       procedure :: set_user_setServices
       procedure :: set_entry_point
 
@@ -102,6 +102,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: set_geom_base
       procedure :: get_name
+      procedure :: get_inner_name
       procedure :: get_gridcomp
       procedure :: is_root
       procedure :: get_registry
@@ -174,13 +175,15 @@ contains
 
 
    ! Keep the constructor simple
-   type(OuterMetaComponent) function new_outer_meta(gridcomp, set_services, config) result(outer_meta)
+   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gridcomp, set_services, config) result(outer_meta)
       type(ESMF_GridComp), intent(in) :: gridcomp
+      type(ESMF_GridComp), intent(in) :: user_gridcomp
       class(AbstractUserSetServices), intent(in) :: set_services
       type(GenericConfig), intent(in) :: config
 
       outer_meta%self_gridcomp = gridcomp
       outer_meta%user_setservices = set_services
+      outer_meta%user_gridcomp = user_gridcomp
       outer_meta%config = config
 
       !TODO: this may be able to move outside of constructor
@@ -228,8 +231,13 @@ contains
       integer :: phase_idx
 
       child = this%get_child(child_name, _RC)
-      phase_idx = get_phase_index(this%get_phases(ESMF_METHOD_RUN), phase_name=phase_name, _RC)
-      _ASSERT(phase_idx /= -1,'No such run phase: <'//phase_name//'>.')
+
+      phase_idx = GENERIC_INIT_USER
+      if (present(phase_Name)) then
+         phase_idx = get_phase_index(this%get_phases(ESMF_METHOD_RUN), phase_name=phase_name, _RC)
+        _ASSERT(phase_idx /= -1,'No such run phase: <'//phase_name//'>.')
+     end if
+
       call child%run(clock, phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
@@ -245,6 +253,7 @@ contains
       integer :: status
       type(ChildComponentMapIterator) :: iter
 
+      _HERE
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
@@ -321,12 +330,13 @@ contains
 !!$      
 !!$   end function get_gridcomp
 !!$
-!!$   type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
-!!$      class(OuterMetaComponent), intent(in) :: this
-!!$
-!!$      gridcomp = this%user_gridcomp
-!!$      
-!!$   end function get_user_gridcomp
+   type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
+      class(OuterMetaComponent), intent(in) :: this
+
+      gridcomp = this%user_gridcomp
+      
+   end function get_user_gridcomp
+
 
    subroutine set_esmf_config(this, config)
       class(OuterMetaComponent), intent(inout) :: this
@@ -629,6 +639,7 @@ contains
 
       integer :: status, userRC
       
+      _HERE
       associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name=phase_name, rc=status))
         if (status == _SUCCESS) then
            call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
@@ -644,6 +655,7 @@ contains
 
       _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
 
+      _HERE
       select case (phase_name)
       case ('GENERIC::INIT_GRID')
          call this%initialize_geom_base(importState, exportState, clock, _RC)
@@ -654,7 +666,7 @@ contains
       case default
          _FAIL('unsupported initialize phase: '// phase_name)
       end select
-
+      _HERE
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 
@@ -758,6 +770,20 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function get_name
 
+
+   function get_inner_name(this, rc) result(inner_name)
+      character(:), allocatable :: inner_name
+      class(OuterMetaComponent), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=ESMF_MAXSTR) :: buffer
+
+      call ESMF_GridCompGet(this%user_gridcomp, name=buffer, _RC)
+      inner_name=trim(buffer)
+
+      _RETURN(ESMF_SUCCESS)
+   end function get_inner_name
 
 
 
@@ -880,4 +906,5 @@ contains
       class(OuterMetaComponent), target, intent(in) :: this
       component_spec => this%component_spec
    end function get_component_spec
+
 end module mapl3g_OuterMetaComponent
