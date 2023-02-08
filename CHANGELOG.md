@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
 - Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
   provides a convenient local solar hour angle diagnostic which will be used to detect local
   solar noon via the `EXAMPLE OF USE` in the subroutine header. See `DESCRIPTION` in code
@@ -27,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
   and are now explicitly named and commented on at the head of the module. This is a structural
   zero-diff change.
+- Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
+  The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
+  most of the functionality is in MAPL_ResourceMod now.
+- Update "build like UFS" CI test
 
 ### Fixed
 
