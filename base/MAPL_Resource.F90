@@ -167,9 +167,8 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-!         write(*,*) "Label '" // label // "' not present and default not present. " !wdb DEBUG2 / DEBUG2
-         if (present(rc)) rc = ESMF_FAILURE !wdb original
-         return !wdb original
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
 
       select type(val)
@@ -221,7 +220,7 @@ contains
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      _ASSERT(present(component_name), "Component name is present but not present.")
+      _ASSERT(present(component_name), "Component name is necessary but not present.")
       call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
 
       ! No default and not in config, error
