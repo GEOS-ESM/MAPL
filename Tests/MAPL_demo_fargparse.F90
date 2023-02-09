@@ -13,7 +13,7 @@ program main
 
       implicit none
 
-      type(MAPL_FargparseCLI) :: cli
+      type(FargparseCLI_Type) :: cli
       type(MAPL_CapOptions)   :: cap_options
       integer :: status
 
@@ -38,10 +38,7 @@ program main
          ! Read and parse the command line, and set parameters
          ! If you have extra options you make a procedure as seen below and add arguments
          ! there and pass in here
-         cli = MAPL_FargparseCLI(extra=extra_options)
-
-         ! This does the casting of arguments into cap_options for CAP
-         cap_options = MAPL_CapOptions(cli, _RC)
+         cap_options = FargparseCLI(extra=extra_options)
 
          write(*,*) "done with MAPL_FargparseCLI"
          write(*,*) "  cap_options%with_esmf_moab = ", cap_options%with_esmf_moab

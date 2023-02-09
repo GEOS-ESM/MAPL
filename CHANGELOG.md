@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`
   - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
 - Updated CI to use Baselibs 7
+- Update executables using FLAP to use fArgParse
 
 ### Fixed
 

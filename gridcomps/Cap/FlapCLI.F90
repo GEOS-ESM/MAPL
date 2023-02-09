@@ -12,6 +12,7 @@ module MAPL_FlapCLIMod
    private
 
    public :: FlapCLI
+   public :: FlapCLI_Type ! Must be public so users can pass in extra options
 
    type :: FlapCLI_Type
      type(command_line_interface) :: cli_options

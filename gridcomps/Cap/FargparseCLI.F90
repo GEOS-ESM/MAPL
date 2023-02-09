@@ -13,6 +13,7 @@ module MAPL_FargparseCLIMod
    private
 
    public :: FargparseCLI
+   public :: FargparseCLI_Type ! Must be public so users can pass in extra options
 
    type :: FargparseCLI_Type
      type(ArgParser) :: parser

@@ -83,9 +83,7 @@ program main
 !------------------------------------------------------------------------------
 
       ! Read and parse the command line, and set parameters
-      cap_options = FlapCLI( &
-           description = 'pfio demo', &
-           authors     = 'GMAO')
+      cap_options = FargparseCLI()
 
       ! Initialize MPI if MPI_Init has not been called
       call initialize_mpi(MPI_COMM_WORLD)
