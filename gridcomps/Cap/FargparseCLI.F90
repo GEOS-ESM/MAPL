@@ -33,7 +33,7 @@ module MAPL_FargparseCLIMod
    end interface
 contains
 
-   function FargparseCLI(unusable, dummy, extra, rc) result (cap_options)
+   function FargparseCLI(unusable, extra, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
       procedure(I_extraoptions), optional :: extra
@@ -56,7 +56,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(dummy)
    end function FargparseCLI
 
    ! Static method
