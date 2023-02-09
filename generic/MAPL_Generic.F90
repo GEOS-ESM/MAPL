@@ -8292,11 +8292,17 @@ contains
       class(*), optional, intent(in) :: default
       integer, optional, intent(out) :: rc
 
+      logical :: value_is_set
       integer :: status
 
-      call MAPL_GetResource_config_scalar(state%cf, val, label, default = default, component_name = state%compname, rc = status) 
+      call MAPL_GetResource_config_scalar(state%cf, val, label, value_is_set, &
+         default = default, component_name = state%compname, rc = status) 
          _VERIFY(status)
-      
+
+      if(.not. value_is_set) then
+         _RETURN(ESMF_FAILURE)
+      end if
+
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
@@ -8311,11 +8317,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: value_is_set
 
-      call MAPL_GetResource_config_scalar(config, val, label, default = default, rc = status)
+      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
       _VERIFY(status)
       
-      _RETURN(_SUCCESS)
+      if(value_is_set) then
+         _RETURN(_SUCCESS)
+      else
+         _RETURN(ESMF_FAILURE)
+      end if
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
@@ -8326,11 +8337,16 @@ contains
       class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
+      logical :: value_is_set
       integer :: status
-
-      call MAPL_GetResource_config_array(state%cf, vals, label, default = default, component_name = state%compname, rc = status)
+      
+      call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, default = default, component_name = state%compname, rc = status)
       _VERIFY(status)
       
+      if(.not. value_is_set) then
+         _RETURN(ESMF_FAILURE)
+      end if
+
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResource_array

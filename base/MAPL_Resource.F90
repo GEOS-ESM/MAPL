@@ -142,10 +142,11 @@ contains
    end subroutine get_actual_label
 
    ! Find value of scalar variable in config
-   subroutine MAPL_GetResource_config_scalar(config, val, label, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: val
       character(len=*), intent(in) :: label
+      logical , intent(out) :: value_is_set
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
       character(len=*), optional, intent(in) :: component_name
@@ -157,6 +158,8 @@ contains
       character(len=:), allocatable :: actual_label
 
       _UNUSED_DUMMY(unusable)
+
+      value_is_set = .FALSE.
 
       default_is_present = present(default)
 
@@ -170,7 +173,6 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-         if (present(rc)) rc = ESMF_FAILURE
          return
       end if
 
@@ -184,6 +186,8 @@ contains
       class default
          _FAIL( "Unupported type")
       end select
+      
+      value_is_set = .TRUE.
 
       call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
       _VERIFY(status)  
@@ -204,10 +208,11 @@ contains
    end subroutine MAPL_GetResource_config_scalar
 
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, vals, label, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_array(config, vals, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      character(len=*), intent(in) :: label
+      logical, intent(out) :: value_is_set
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
       character(len=*), optional, intent(in) :: component_name
@@ -218,6 +223,8 @@ contains
       logical :: label_is_present, default_is_present
 
       _UNUSED_DUMMY(unusable)
+
+      value_is_set = .FALSE.
 
       default_is_present = present(default)
 
@@ -232,7 +239,6 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-         if (present(rc)) rc = ESMF_FAILURE
          return
       end if
 
@@ -248,6 +254,8 @@ contains
       class default
          _FAIL( "Unsupported type")
       end select
+
+      value_is_set = .TRUE.
 
       _RETURN(ESMF_SUCCESS)
 
