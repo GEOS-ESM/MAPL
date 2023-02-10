@@ -301,6 +301,8 @@ contains
          print output_format, trim(label), trim(val_str)
       end if
 
+      _RETURN(_SUCCESS)
+
    end subroutine print_resource
 
    logical function vector_contains_str(vector, string)

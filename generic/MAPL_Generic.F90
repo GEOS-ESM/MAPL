@@ -8296,12 +8296,14 @@ contains
       integer :: status
 
       call MAPL_GetResource_config_scalar(state%cf, val, label, value_is_set, &
-         default = default, component_name = state%compname, _RC)
+         default = default, component_name = state%compname, rc = status)
 
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
+
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
@@ -8319,12 +8321,14 @@ contains
       integer :: status
       logical :: value_is_set
 
-      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, _RC)
+      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
       
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
+
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
@@ -8341,12 +8345,14 @@ contains
       integer :: status
       
       call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
-         default = default, component_name = state%compname, _RC)
+         default = default, component_name = state%compname, rc = status)
       
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
+      
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
