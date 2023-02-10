@@ -11,7 +11,6 @@ module mapl3g_ChildComponent
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State)    :: import_state
       type(ESMF_State)    :: export_state
-      type(ESMF_State)    :: internal_state
 !!$      type(CouplerComponentVector) :: couplers
    contains
       procedure, private :: run_self

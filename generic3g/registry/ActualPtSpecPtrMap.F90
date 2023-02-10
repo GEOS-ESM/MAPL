@@ -6,7 +6,6 @@ module mapl3g_ActualPtSpecPtrMap
 #define Key ActualConnectionPt
 #define Key_LT(a,b) (a < b)
 #define T StateItemSpecPtr
-#define T_polymorphic
 
 #define Map ActualPtSpecPtrMap
 #define MapIterator ActualPtSpecPtrMapIterator
