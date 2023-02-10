@@ -169,6 +169,7 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
+         value_is_set = .FALSE.
          return
       end if
 
@@ -232,6 +233,7 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
+         value_is_set = .FALSE.
          return
       end if
 

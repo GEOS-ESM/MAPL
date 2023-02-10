@@ -8299,7 +8299,8 @@ contains
          default = default, component_name = state%compname, _RC)
 
       if(.not. value_is_set) then
-         _RETURN(ESMF_FAILURE)
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
 
       _RETURN(_SUCCESS)
@@ -8320,11 +8321,12 @@ contains
 
       call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, _RC)
       
-      if(value_is_set) then
-         _RETURN(_SUCCESS)
-      else
-         _RETURN(ESMF_FAILURE)
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
+
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
@@ -8342,7 +8344,8 @@ contains
          default = default, component_name = state%compname, _RC)
       
       if(.not. value_is_set) then
-         _RETURN(ESMF_FAILURE)
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
 
       _RETURN(_SUCCESS)
