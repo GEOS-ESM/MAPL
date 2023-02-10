@@ -32,12 +32,21 @@ module MAPL_FargparseCLIMod
          integer, optional, intent(out) :: rc
       end subroutine
    end interface
+
+   abstract interface
+      subroutine I_castextras(cli, rc)
+         import FargparseCLI_Type
+         type(FargparseCLI_type), intent(inout) :: cli
+         integer, optional, intent(out) :: rc
+      end subroutine
+   end interface
 contains
 
-   function FargparseCLI(unusable, extra, rc) result (cap_options)
+   function FargparseCLI(unusable, extra_options, cast_extras, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
-      procedure(I_extraoptions), optional :: extra
+      procedure(I_extraoptions), optional :: extra_options
+      procedure(I_castextras), optional :: cast_extras
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -47,13 +56,17 @@ contains
 
       call fargparse_cli%add_command_line_options(fargparse_cli%parser, _RC)
 
-      if (present(extra)) then
-         call extra(fargparse_cli%parser, _RC)
+      if (present(extra_options)) then
+         call extra_options(fargparse_cli%parser, _RC)
       end if
 
       fargparse_cli%options = fargparse_cli%parser%parse_args()
 
       call fargparse_cli%fill_cap_options(cap_options, _RC)
+
+      if (present(cast_extras)) then
+         call cast_extras(fargparse_cli, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

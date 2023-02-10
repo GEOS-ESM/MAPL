@@ -2,32 +2,26 @@
 !># Standalone Program for Testing fargparse
 !
 !------------------------------------------------------------------------------
-#define I_AM_MAIN
+
+! We use a module here because we need two levels of contains
+
 #include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
+module main_mod
 
-program main
-      use MAPL
-      use mpi
-      use fargparse
+   use MAPL
+   use mpi
+   use fargparse
 
-      implicit none
-
-      type(FargparseCLI_Type) :: cli
-      type(MAPL_CapOptions)   :: cap_options
-      integer :: status
-
-!------------------------------------------------------------------------------
-
-      call run(_RC)
+   implicit none
 
    contains
 
-#undef I_AM_MAIN
-#include "MAPL_ErrLog.h"
       subroutine run(rc)
 
          integer, intent(out), optional :: rc
+
+         type(FargparseCLI_Type) :: cli
+         type(MAPL_CapOptions)   :: cap_options
 
          integer :: status
          character(len=:), allocatable :: input_file
@@ -36,9 +30,10 @@ program main
          _VERIFY(status)
 
          ! Read and parse the command line, and set parameters
-         ! If you have extra options you make a procedure as seen below and add arguments
-         ! there and pass in here
-         cap_options = FargparseCLI(extra=extra_options)
+         ! If you have extra options, you need to make two procedures as seen below:
+         ! 1. a procedure to declare the options
+         ! 2. a procedure to cast the options
+         cap_options = FargparseCLI(extra_options=extra_options, cast_extras=cast_extras)
 
          write(*,*) "done with MAPL_FargparseCLI"
          write(*,*) "  cap_options%with_esmf_moab = ", cap_options%with_esmf_moab
@@ -47,31 +42,62 @@ program main
          write(*,*) "  cap_options%npes_output_server = ", cap_options%npes_output_server
          write(*,*) "  cap_options%nodes_output_server = ", cap_options%nodes_output_server
          write(*,*) "  cap_options%egress_file = ", cap_options%egress_file
-
-         ! For our extra options we have to explicitly cast them
-         call cast(cli%options%at('file'), input_file, _RC)
-
          write(*,*) ""
          write(*,*) "Extra arguments"
          write(*,*) "  input file = ", input_file
 
          _RETURN(_SUCCESS)
 
+         contains
+
+            subroutine extra_options(parser, rc)
+               type (ArgParser), intent(inout) :: parser
+               integer, intent(out), optional :: rc
+
+               call parser%add_argument('-f', '--file', &
+                  help='A file to read', &
+                  type='string', &
+                  default='default.config', &
+                  action='store')
+
+               !_RETURN(_SUCCESS)
+               if (present(rc)) rc = 0
+
+            end subroutine extra_options
+
+            subroutine cast_extras(cli, rc)
+               type(FargparseCLI_Type), intent(inout) :: cli
+               integer, intent(out), optional :: rc
+
+               class(*), pointer :: option
+
+               option => cli%options%at('file')
+               if (associated(option)) then
+                  call cast(option, input_file, _RC)
+               end if
+
+               !_RETURN(_SUCCESS)
+               if (present(rc)) rc = 0
+
+            end subroutine cast_extras
+
       end subroutine run
 
-      subroutine extra_options(parser, rc)
-         type (ArgParser), intent(inout) :: parser
-         integer, intent(out), optional :: rc
+end module main_mod
 
-         call parser%add_argument('-f', '--file', &
-              help='A file to read', &
-              type='string', &
-              default='default.config', &
-              action='store')
+#define I_AM_MAIN
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 
-         !_RETURN(_SUCCESS)
-         if (present(rc)) rc = 0
+program main
+      use main_mod
 
-      end subroutine extra_options
+      implicit none
+
+      integer :: status
+
+!------------------------------------------------------------------------------
+
+      call run(_RC)
 
 end program main
