@@ -1653,6 +1653,8 @@ contains
                     DEFER=.true., _RC       )
             end if
          end if
+         
+         call ESMF_AttributeSet(export,'POSITIVE',trim(positive),_RC)
          _RETURN(ESMF_SUCCESS)
       end subroutine create_export_state_variables
 
@@ -1724,7 +1726,8 @@ contains
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
       logical :: use_threads
-
+      character(len=ESMF_MAXSTR) :: compToWrite
+      type(ESMF_State), pointer :: internal
 
       !=============================================================================
 
@@ -1808,8 +1811,14 @@ contains
 
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
+      call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
+      if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
+         !print*, 'attempting capture before run is called, for: ', trim(comp_name)
+         call capture('before', GC, import, export, clock, _RC)
+      end if
+
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
-         call omp_driver(GC, import, export, clock, _RC)  ! compnent threaded with OpenMP
+         call omp_driver(GC, import, export, clock, _RC)  ! component threaded with OpenMP
       else
          call func_ptr (GC, &
               importState=IMPORT, &
@@ -1819,7 +1828,11 @@ contains
          _VERIFY(userRC)
 
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+      end if
 
+      if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
+         !print*, 'attempting capture after run is called, for: ', trim(comp_name)
+         call capture('after', GC, import, export, clock, _RC)
       end if
 
       call lgr%debug('Finished %a', stage_description)
@@ -1844,6 +1857,56 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GenericWrapper
+
+   subroutine capture(POS, GC, IMPORT, EXPORT, CLOCK, RC)
+     character(len=*),    intent(IN   ) :: POS    ! Before or after
+     type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
+     type(ESMF_State),    intent(INOUT) :: IMPORT ! Import state
+     type(ESMF_State),    intent(INOUT) :: EXPORT ! Export state
+     !type(ESMF_STATE),    intent(INOUT) :: INTERNAL
+     type(ESMF_Clock),    intent(INOUT) :: CLOCK  ! The clock
+     integer, optional,   intent(  OUT) :: RC     ! Error code:
+     
+     type (MAPL_MetaComp),pointer :: STATE
+     integer :: status
+     character(len=ESMF_MAXSTR) :: FILENAME, comp_name
+     character(len=4) :: FILETYPE
+     logical :: fileExists
+     type(ESMF_State), pointer :: internal
+     integer :: hdr
+      
+     call ESMF_GridCompGet( GC, NAME=comp_name, RC=status )
+     _VERIFY(status)
+     call MAPL_InternalStateGet ( GC, STATE, RC=status)
+     _VERIFY(status)
+     
+     FILETYPE = 'pnc4'
+     FILENAME = trim(comp_name)//"_"
+
+     inquire(file=trim(FILENAME)//"import_"//trim(POS), exist=fileExists)
+     if (.not. fileExists) then
+        call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS), &
+             FILETYPE, STATE, .false., rc=status)
+        _VERIFY(status)
+     end if
+      
+     inquire(file=trim(FILENAME)//"export_"//trim(POS), exist=fileExists)
+     if (.not. fileExists) then
+        call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS), &
+             FILETYPE, STATE, .false., RC=status)
+        _VERIFY(status)
+     end if
+
+     inquire(file=trim(FILENAME)//"internal_"//trim(POS), exist=fileExists)
+     if (.not. fileExists) then
+        call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", RC=status)
+        _VERIFY(status)
+        internal => state%get_internal_state()
+        call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS), &
+             FILETYPE, STATE, hdr/=0, oClients = o_Clients, rc=status)
+        _VERIFY(status)
+     end if
+   end subroutine capture
 
    !=============================================================================
 
@@ -1970,13 +2033,7 @@ contains
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
-      type(ESMF_State), pointer :: child_internal_state
-      
-      character(len=ESMF_MAXSTR)       :: FILENAME, FILETYPE
-      character(len=ESMF_MAXSTR) :: resolution, config, compiler
-      integer :: numFlags
-      character(len=ESMF_MAXSTR), allocatable :: flags(:)
-      character(len=ESMF_MAXSTR) :: maplVers, compVers
+
       !=============================================================================
 
       ! Begin...
@@ -1997,11 +2054,6 @@ contains
 
       call MAPL_InternalStateGet ( GC, STATE, RC=status)
       _VERIFY(status)
-
-      !FILETYPE = ESMF_UtilStringLowerCase(FILETYPE,rc=status)
-      FILETYPE = 'pnc4'
-      FILENAME = trim(comp_name)//"_"
-      allocate(flags(1))
 
 !@ call MAPL_TimerOn (STATE,"GenRunTot")
 
@@ -2028,41 +2080,7 @@ contains
 
                call MAPL_TimerOn (STATE,trim(CHILD_NAME))
                child_import_state => STATE%get_child_import_state(i)
-               child_export_state => STATE%get_child_export_state(i)
-	       child_internal_state => STATE%get_child_internal_state(i)               
-
-	       if (trim(comp_name) == 'GWD') then
-	       call MAPL_ESMFStateWriteToFile(child_internal_state, CLOCK, trim(FILENAME)//"internal_before", &
-                    FILETYPE, STATE, .false., rc=status)
-               _VERIFY(status)
-               end if
-
-	       if (trim(comp_name) == 'GWD') then
-               print *, '******************'
-	       print *, 'Entering to write', comp_name, ' import before to file'
-               print*, '******************' 
-               call MAPL_ESMFStateWriteToFile(child_import_state, CLOCK, trim(FILENAME)//"import_before", &
-                    FILETYPE, STATE, .false., RC=status)
-               _VERIFY(status)
-               end if
-
-	       resolution = "c12"
-               config = "sample config"
-               compiler = "Intel"
-               numFlags = 1
-               flags(1) = "sample flag"
-	       maplVers = "version number"
-               compVers = "component version"
-
-!	       call MAPL_AddDatabaseAttributes(trim(FILENAME)//"import_before", comp_name, PHASE, &
-!		    trim(resolution), trim(config), trim(compiler), numFlags, flags, trim(maplVers), trim(compVers), RC=status)
-!	       _VERIFY(status)
-	       
-
-!               call MAPL_ESMFStateWriteToFile(child_export_state, CLOCK, trim(FILENAME)//"export_before", &
-!                    FILETYPE, STATE, .false., RC=status )
-!               _VERIFY(status)
-
+               child_export_state => STATE%get_child_export_state(i)               
 
                call ESMF_GridCompRun (gridcomp, &
                     importState=child_import_state, &
@@ -2070,20 +2088,6 @@ contains
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_RUN(PHASE), &
                     userRC=userRC, _RC )
                _VERIFY(userRC)
-
-                if (trim(comp_name) == 'GWD') then
-                call MAPL_ESMFStateWriteToFile(child_internal_state, CLOCK, trim(FILENAME)//"internal_after", &
-                    FILETYPE, STATE, .false., RC=status )
-               _VERIFY(status)
-
-                call MAPL_ESMFStateWriteToFile(child_import_state, CLOCK, trim(FILENAME)//"import_after", &
-                    FILETYPE, STATE, .false., RC=status )
-               _VERIFY(status)
-               end if
-
-!                call MAPL_ESMFStateWriteToFile(child_export_state, CLOCK, trim(FILENAME)//"export_after", &
-!                    FILETYPE, STATE, .false., RC=status )
-!               _VERIFY(status)
 
                 call MAPL_TimerOff(STATE,trim(CHILD_NAME))
             end if
