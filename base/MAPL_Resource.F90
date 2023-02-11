@@ -60,7 +60,8 @@ module MAPL_ResourceMod
    !BOP
    ! !MODULE: MAPL_ResourceMod
    !
-   ! !DESCRIPTION:  MAPL\_ResourceMod ...
+   ! !DESCRIPTION:  MAPL\_ResourceMod provides subroutines get scalar and array
+   ! resources from ESMF_Config objects.
 
    ! !USES:
 
@@ -256,6 +257,9 @@ contains
 
    end subroutine MAPL_GetResource_config_array
 
+   ! Print the resource value according to the value of printrc
+   ! printrc = 0 - Only print non-default values
+   ! printrc = 1 - Print all values
    subroutine print_resource(printrc, label, val, default, rc)
       integer, intent(in) :: printrc
       character(len=*), intent(in) :: label
@@ -305,6 +309,7 @@ contains
 
    end subroutine print_resource
 
+   ! Check if vector contains string
    logical function vector_contains_str(vector, string)
       type(StringVector), intent(in) :: vector
       character(len=*), intent(in) :: string
@@ -324,6 +329,7 @@ contains
 
    end function vector_contains_str
 
+   ! Convert val to string according to str_format
    function intrinsic_to_string(val, str_format, rc) result(formatted_str)
       class(*), intent(in) :: val
       character(len=*), intent(in) :: str_format
