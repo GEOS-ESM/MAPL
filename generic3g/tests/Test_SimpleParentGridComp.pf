@@ -5,6 +5,7 @@ module Test_SimpleParentGridComp
    use mapl3g_UserSetServices
    use mapl3g_GenericGridComp, only: create_grid_comp
    use mapl3g_GenericGridComp, only: setServices
+   use mapl3g_ChildComponent
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use esmf
@@ -13,27 +14,56 @@ module Test_SimpleParentGridComp
    use yaFyaml
    implicit none
 
+   type :: States_T
+      type(ESMF_State) :: import_state
+      type(ESMF_State) :: export_state
+   end type States_T
+
 contains
 
-   subroutine setup(outer_gc, config, rc)
+   ! This macro should only be used as safety for "unexpected" exceptions.
+#define _VERIFY(status) if(status /= 0) then; rc=status;print*,'ERROR AT: ',__FILE__,__LINE__, status; return; endif
+#define _RC rc=status); _VERIFY(status
+   subroutine setup(outer_gc, states, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
-      type(GenericConfig), intent(in) :: config
+      type(States_T), intent(out) :: states
       integer, intent(out) :: rc
       
       integer :: status, userRC
+      type(ESMF_Grid) :: grid
+      type(ESMF_Clock) :: clock
+      type(Parser) :: p
+      type(GenericConfig) :: config
+      integer :: i
 
-      outer_gc = create_grid_comp('P', user_setservices('libsimple_parent_gridcomp'), config, rc=status)
+      rc = 0
+      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', _RC)
+
+      p = Parser()
+      config = GenericConfig(yaml_cfg=p%load_from_file('./configs/parent.yaml', rc=status))
       @assert_that(status, is(0))
 
-      call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, rc=status)
-      if (status /= 0) then
-         rc = status
-         return
-      end if
-      if (userRC /= 0) then
-         rc = userRC
-         return
-      end if
+      outer_gc = create_grid_comp('P', user_setservices('libsimple_parent_gridcomp'), config, _RC)
+      call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, _RC)
+      _VERIFY(userRC)
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      call MAPL_GridCompSetGeomBase(outer_gc, grid, _RC)
+
+      associate (import => states%import_state, export => states%export_state)
+        import = ESMF_StateCreate(_RC)
+        export = ESMF_StateCreate(_RC)
+
+        do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+           associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+             call ESMF_GridCompInitialize(outer_gc, &
+                  importState=import, exportState=export, clock=clock, &
+                  phase=phase, userRC=userRC, _RC)
+             _VERIFY(userRC)
+           end associate
+        end do
+
+      end associate
+
       rc = 0
 
    end subroutine setup
@@ -41,74 +71,55 @@ contains
 
    subroutine tearDown(outer_gc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
-
    end subroutine tearDown
 
+
    @test(npes=[0])
-   subroutine test_full_run_sequence(this)
-      use scratchpad
-      use iso_fortran_env
-      use mapl3g_ChildComponent
+   subroutine test_import_items_created(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(GenericConfig) :: config
 
-      integer :: status, userrc
+      integer :: status
       type(ESMF_GridComp) :: outer_gc
-      type(Parser) :: p
 
-      type(ESMF_Clock) :: clock
-      type(ESMF_State) :: importState, exportState
-      integer :: i
       type(ESMF_Field) :: f
-      type(ESMF_Grid) :: grid
       type(OuterMetaComponent), pointer :: outer_meta
       type(ChildComponent) :: child_comp
-      type(ESMF_FieldStatus_Flag) :: field_status
+      type(States_T) :: states
 
-      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', rc=status)
+      call setup(outer_gc, states, status)
       @assert_that(status, is(0))
-
-      p = Parser()
-      config = GenericConfig(yaml_cfg=p%load_from_file('./configs/parent.yaml', rc=status))
-      @assert_that(status, is(0))
-
-      call setup(outer_gc, config, status)
-      @assert_that(status, is(0))
-
-      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', rc=status)
-      @assert_that(status, is(0))
-      call MAPL_GridCompSetGeomBase(outer_gc, grid, rc=status)
-      @assert_that(status, is(0))
-
-      importState = ESMF_StateCreate(rc=status)
-      @assert_that(status, is(0))
-      exportState = ESMF_StateCreate(rc=status)
-      @assert_that(status, is(0))
-      associate (phases => [ &
-           GENERIC_INIT_GRID, &
-           GENERIC_INIT_ADVERTISE, &
-           GENERIC_INIT_REALIZE, &
-           GENERIC_INIT_USER ])
-
-        do i = 1, size(phases)
-           call ESMF_GridCompInitialize(outer_gc, &
-           importState=importState, exportState=exportState, clock=clock, &
-           phase=phases(i), userRC=userRC, rc=status)
-           @assert_that(userRC, is(0))
-           @assert_that(status, is(0))
-        end do
-
-      end associate
-
       outer_meta => get_outer_meta(outer_gc, rc=status)
       @assert_that(status, is(0))
 
       child_comp = outer_meta%get_child('CHILD_A', rc=status)
       @assert_that(status, is(0))
 
-      call ESMF_StateValidate(child_comp%import_state, rc=status)
+      call ESMF_StateGet(child_comp%import_state, 'I_1', f, rc=status)
       @assert_that(status, is(0))
-      call ESMF_StateValidate(child_comp%export_state, rc=status)
+
+   end subroutine test_import_items_created
+
+
+   @test(npes=[0])
+   subroutine test_complete_items(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      type(ESMF_Field) :: f
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ChildComponent) :: child_comp
+      type(ESMF_FieldStatus_Flag) :: field_status
+
+      type(States_T) :: states
+
+      call setup(outer_gc, states, status)
+      @assert_that(status, is(0))
+      outer_meta => get_outer_meta(outer_gc, rc=status)
+      @assert_that(status, is(0))
+
+      child_comp = outer_meta%get_child('CHILD_A', rc=status)
       @assert_that(status, is(0))
 
       call ESMF_StateGet(child_comp%import_state, 'I_1', f, rc=status)
@@ -122,6 +133,7 @@ contains
       call ESMF_FieldGet(f, status=field_status, rc=status)
       @assert_that(status, is(0))
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+
 
       child_comp = outer_meta%get_child('CHILD_B', rc=status)
       @assert_that(status, is(0))
@@ -145,6 +157,6 @@ contains
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
 
       if(.false.) print*,shape(this)
-   end subroutine test_full_run_sequence
+   end subroutine test_complete_items
 
 end module Test_SimpleParentGridComp

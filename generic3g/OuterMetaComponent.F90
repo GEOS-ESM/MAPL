@@ -26,6 +26,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VirtualConnectionPt
    use mapl3g_ConnectionPt
    use mapl3g_ConnectionSpec
+   use mapl3g_ConnectionSpecVector
    use mapl3g_HierarchicalRegistry
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_ErrorHandling
@@ -516,20 +517,16 @@ contains
         integer, optional, intent(out) :: rc
 
         integer :: status
+        type(ConnectionSpecVectorIterator) :: iter
 
-        type(VirtualConnectionPt) :: pt_a
-        type(VirtualConnectionPt) :: pt_b
-        type(ConnectionSpec) :: conn
+        associate (e => this%component_spec%connections%end())
+          iter = this%component_spec%connections%begin()
+          do while (iter /= e)
+             call this%registry%add_connection(iter%of(), _RC)
+             call iter%next()
+          end do
+        end associate
 
-        if (this%get_inner_name() == 'P') then
-           pt_a = VirtualConnectionPt(state_intent='export', short_name='E_1')
-           pt_b = VirtualConnectionPt(state_intent='import', short_name='E_1')
-           
-           conn = ConnectionSpec(ConnectionPt('CHILD_A',pt_a), ConnectionPt('CHILD_B', pt_b))
-           call this%registry%add_connection(conn, _RC)
-        end if
-        
-        
         _RETURN(_SUCCESS)
      end subroutine process_connections
   end subroutine initialize_advertise
@@ -665,7 +662,6 @@ contains
 
       integer :: status, userRC
       
-      _HERE
       associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name=phase_name, rc=status))
         if (status == _SUCCESS) then
            call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
@@ -681,7 +677,6 @@ contains
 
       _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
 
-      _HERE
       select case (phase_name)
       case ('GENERIC::INIT_GRID')
          call this%initialize_geom_base(importState, exportState, clock, _RC)
@@ -692,7 +687,7 @@ contains
       case default
          _FAIL('unsupported initialize phase: '// phase_name)
       end select
-      _HERE
+
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 

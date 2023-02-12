@@ -179,21 +179,15 @@ contains
       exportState = ESMF_StateCreate(rc=status)
       @assert_that(status, is(0))
 
-      associate (phases => [ &
-           GENERIC_INIT_GRID, &
-           GENERIC_INIT_ADVERTISE, &
-           GENERIC_INIT_REALIZE, &
-           GENERIC_INIT_USER ])
-
-        do i = 1, size(phases)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
            call ESMF_GridCompInitialize(outer_gc, &
-           importState=importState, exportState=exportState, clock=clock, &
-           phase=phases(i), userRC=userRC, rc=status)
-           @assert_that(userRC, is(0))
-           @assert_that(status, is(0))
-        end do
-
-      end associate
+                importState=importState, exportState=exportState, clock=clock, &
+                phase=phase, userRC=userRC, rc=status)
+         end associate
+         @assert_that(userRC, is(0))
+         @assert_that(status, is(0))
+      end do
 
       call ESMF_StateGet(importState, 'I_1', f, rc=status)
       @assert_that(status, is(0))

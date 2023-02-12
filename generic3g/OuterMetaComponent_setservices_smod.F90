@@ -43,7 +43,6 @@ contains
 
       if (this%config%has_yaml()) then
          this%component_spec = parse_component_spec(this%config%yaml_cfg, _RC)
-!!$         call parse_config(this, this%config%yaml_cfg, _RC)
       end if
 
       call process_user_gridcomp(this, _RC)
