@@ -416,22 +416,22 @@ contains
       type(HierarchicalRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
-      type(ActualConnectionPt) :: vpt_1, vpt_2, vpt_3
-           vpt_1 = new_a_pt('internal', 'A')
-           vpt_2 = new_a_pt('export', 'A')
-           vpt_3 = new_a_pt('import', 'A')
+      type(ActualConnectionPt) :: apt_1, apt_2, apt_3
+           apt_1 = new_a_pt('internal', 'A')
+           apt_2 = new_a_pt('export', 'A')
+           apt_3 = new_a_pt('import', 'A')
 
-        call r%add_item_spec(vpt_1, MockItemSpec('A1'))
-        call r%add_item_spec(vpt_2, MockItemSpec('A2'))
-        call r%add_item_spec(vpt_3, MockItemSpec('A3'))
+        call r%add_item_spec(apt_1, MockItemSpec('A1'))
+        call r%add_item_spec(apt_2, MockItemSpec('A2'))
+        call r%add_item_spec(apt_3, MockItemSpec('A3'))
 
-        spec => r%get_item_spec(vpt_1)
+        spec => r%get_item_spec(apt_1)
         @assert_that(spec%is_active(), is(true()))
         
-        spec => r%get_item_spec(vpt_2)
+        spec => r%get_item_spec(apt_2)
         @assert_that(spec%is_active(), is(false()))
         
-        spec => r%get_item_spec(vpt_3)
+        spec => r%get_item_spec(apt_3)
         @assert_that(spec%is_active(), is(false()))
         
    end subroutine test_internal_activation
@@ -505,12 +505,12 @@ contains
 
         !-------------------------------------------
         !
-        !                  sib*
-        !              A   --->     B
-        !                          / \  
-        !                         /   \      i2i (implicit)
-        !                        /     \
-        !                       C       D
+        !                  sib*                              |
+        !              A   --->     B                        |
+        !                          / \                       |
+        !                         /   \      i2i (implicit)  |
+        !                        /     \                     |
+        !                       C       D                    |
         !
         !-------------------------------------------
 

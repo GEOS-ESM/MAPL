@@ -19,7 +19,7 @@ module mapl3g_FieldSpec
       private
 
       character(:), allocatable :: units
-      type(ESMF_typekind_flag) :: typekind
+      type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(ESMF_GeomBase) :: geom_base
       type(ExtraDimsSpec) :: extra_dims
 !!$      type(FrequencySpec) :: freq_spec
@@ -39,6 +39,8 @@ module mapl3g_FieldSpec
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+
+      procedure :: check_complete
    end type FieldSpec
 
    interface FieldSpec
@@ -183,12 +185,14 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
       
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      if (fstatus == ESMF_FIELDSTATUS_EMPTY) then
+      if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
 
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
               ungriddedLBound= this%extra_dims%get_lbounds(),  &
               ungriddedUBound= this%extra_dims%get_ubounds(),  &
               _RC)
+      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+      _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
          call this%set_allocated()
       end if
@@ -291,6 +295,7 @@ contains
 
       type(ESMF_Field) :: alias
       integer :: status
+      type(ESMF_FieldStatus_Flag) :: fstatus
 
       alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
       call ESMF_StateAdd(state, [alias], _RC)
@@ -304,5 +309,17 @@ contains
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc 
    end function make_extension
+
+   logical function check_complete(this, rc)
+      class(FieldSpec), intent(in) :: this
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: fstatus
+
+      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+      check_complete = (fstatus == ESMF_FIELDSTATUS_COMPLETE)
+
+   end function check_complete
 
 end module mapl3g_FieldSpec

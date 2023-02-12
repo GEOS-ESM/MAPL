@@ -48,6 +48,7 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(ESMF_GeomBase), allocatable            :: geom_base
+      type(ESMF_State)                            :: esmf_internalState
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
       logical                                     :: is_root_ = .false.
@@ -160,8 +161,8 @@ module mapl3g_OuterMetaComponent
    abstract interface
       subroutine I_child_op(this, child_meta, rc)
          import OuterMetaComponent
-         class(OuterMetaComponent), intent(inout) :: this
-         type(OuterMetaComponent), intent(inout) :: child_meta
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(OuterMetaComponent), target, intent(inout) :: child_meta
          integer, optional, intent(out) :: rc
       end subroutine I_child_Op
    end interface
@@ -253,7 +254,6 @@ contains
       integer :: status
       type(ChildComponentMapIterator) :: iter
 
-      _HERE
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
@@ -386,8 +386,8 @@ contains
    contains
 
       subroutine set_child_geom(this, child_meta, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         type(OuterMetaComponent), intent(inout) ::  child_meta
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(OuterMetaComponent), target, intent(inout) ::  child_meta
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -418,15 +418,20 @@ contains
       call apply_to_children(this, add_subregistry, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
-!!$      call apply_to_children(this, clock, PHASE_NAME, _RC)
-!!$      call self_wire(...)
+      call process_connections(this, _RC)
+
+!!$      call this%registry%add_to_states(&
+!!$           importState=importState, &
+!!$           exportState=exportState, &
+!!$           internalState=this%esmf_internalState, _RC)
+
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains
 
       subroutine add_subregistry(this, child_meta, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         type(OuterMetaComponent), intent(inout) ::  child_meta
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(OuterMetaComponent), target, intent(inout) ::  child_meta
          integer, optional, intent(out) :: rc
 
          call this%registry%add_subregistry(child_meta%get_registry())
@@ -478,17 +483,6 @@ contains
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
          call registry%add_item_spec(virtual_pt, item_spec)
          
-         associate (state_intent => var_spec%state_intent)
-           if (state_intent == ESMF_STATEINTENT_IMPORT) then
-              call item_spec%add_to_state(importState, var_spec%short_name, _RC)
-           else if (state_intent == ESMF_STATEINTENT_EXPORT) then
-              call item_spec%add_to_state(exportState, var_spec%short_name, _RC)
-           else if (state_intent == ESMF_STATEINTENT_INTERNAL) then
-              call item_spec%add_to_state(exportState, var_spec%short_name, _RC)
-           else
-              _FAIL('Incorrect specification of state intent for <'//var_spec%short_name//'>.')
-           end if
-         end associate
          
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
@@ -512,8 +506,33 @@ contains
         end if
 
      end function create_item_spec
-         
-   end subroutine initialize_advertise
+
+
+     subroutine process_connections(this, rc)
+        use mapl3g_VirtualConnectionPt
+        use mapl3g_ConnectionSpec
+        use mapl3g_ConnectionPt
+        class(OuterMetaComponent), intent(inout) :: this
+        integer, optional, intent(out) :: rc
+
+        integer :: status
+
+        type(VirtualConnectionPt) :: pt_a
+        type(VirtualConnectionPt) :: pt_b
+        type(ConnectionSpec) :: conn
+
+        if (this%get_inner_name() == 'P') then
+           pt_a = VirtualConnectionPt(state_intent='export', short_name='E_1')
+           pt_b = VirtualConnectionPt(state_intent='import', short_name='E_1')
+           
+           conn = ConnectionSpec(ConnectionPt('CHILD_A',pt_a), ConnectionPt('CHILD_B', pt_b))
+           call this%registry%add_connection(conn, _RC)
+        end if
+        
+        
+        _RETURN(_SUCCESS)
+     end subroutine process_connections
+  end subroutine initialize_advertise
 
    recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -525,10 +544,17 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-!!$      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-!!$
-!!$      call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
-!!$      call apply_to_children(this, set_child_grid, _RC)
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
+
+      call this%registry%add_to_states(&
+           importState=importState, &
+           exportState=exportState, &
+           internalState=this%esmf_internalState, _RC)
+
+      call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
+
+      call this%registry%allocate(_RC)
 
       _RETURN(ESMF_SUCCESS)
    contains

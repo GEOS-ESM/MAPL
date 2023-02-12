@@ -63,6 +63,7 @@ contains
       type(ESMF_Grid) :: grid
       type(OuterMetaComponent), pointer :: outer_meta
       type(ChildComponent) :: child_comp
+      type(ESMF_FieldStatus_Flag) :: field_status
 
       call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', rc=status)
       @assert_that(status, is(0))
@@ -86,6 +87,7 @@ contains
       associate (phases => [ &
            GENERIC_INIT_GRID, &
            GENERIC_INIT_ADVERTISE, &
+           GENERIC_INIT_REALIZE, &
            GENERIC_INIT_USER ])
 
         do i = 1, size(phases)
@@ -111,9 +113,36 @@ contains
 
       call ESMF_StateGet(child_comp%import_state, 'I_1', f, rc=status)
       @assert_that(status, is(0))
+      call ESMF_FieldGet(f, status=field_status, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(field_status /= ESMF_FIELDSTATUS_COMPLETE, is(true()))
 
       call ESMF_StateGet(child_comp%export_state, 'E_1', f, rc=status)
       @assert_that(status, is(0))
+      call ESMF_FieldGet(f, status=field_status, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+
+      child_comp = outer_meta%get_child('CHILD_B', rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_StateValidate(child_comp%import_state, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_StateValidate(child_comp%export_state, rc=status)
+      @assert_that(status, is(0))
+
+
+      call ESMF_StateGet(child_comp%export_state, 'I_1', f, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldGet(f, status=field_status, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(field_status /= ESMF_FIELDSTATUS_COMPLETE, is(true()))
+
+      call ESMF_StateGet(child_comp%import_state, 'E_1', f, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldGet(f, status=field_status, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
 
       if(.false.) print*,shape(this)
    end subroutine test_full_run_sequence

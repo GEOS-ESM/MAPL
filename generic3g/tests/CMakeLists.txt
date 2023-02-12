@@ -54,3 +54,5 @@ add_dependencies(build-tests MAPL.generic3g.tests)
 file(COPY configs DESTINATION .)
 
 
+add_executable(repro_alias.x repro_alias.F90)
+target_link_libraries (repro_alias.x PUBLIC esmf)

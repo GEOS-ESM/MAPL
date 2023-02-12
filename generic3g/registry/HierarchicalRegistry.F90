@@ -45,6 +45,8 @@ module mapl3g_HierarchicalRegistry
       generic :: has_item_spec => has_item_spec_actual, has_item_spec_virtual
       procedure :: has_subregistry
 
+      procedure :: add_to_states
+
       procedure :: add_subregistry
       procedure :: get_subregistry_comp
       procedure :: get_subregistry_conn
@@ -72,8 +74,11 @@ module mapl3g_HierarchicalRegistry
       procedure :: connect_sibling
       procedure :: connect_export2export
 
+      procedure :: allocate
+
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
+      procedure :: report
    end type HierarchicalRegistry
 
    interface HierarchicalRegistry
@@ -137,7 +142,7 @@ contains
 
    function get_actual_pt_SpecPtrs(this, virtual_pt, rc) result(specs)
       type(StateItemSpecPtr), allocatable :: specs(:)
-      class(HierarchicalRegistry), intent(in) :: this
+      class(HierarchicalRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
       
@@ -147,6 +152,7 @@ contains
       type(ActualConnectionPt), pointer :: actual_pt
 
       actual_pts => this%actual_pts_map%at(virtual_pt, _RC)
+
       associate ( n => actual_pts%size() )
         allocate(specs(n))
         do i = 1, n
@@ -281,7 +287,7 @@ contains
 
 
    subroutine add_subregistry(this, subregistry, rc)
-      class(HierarchicalRegistry), intent(inout) :: this
+      class(HierarchicalRegistry), target, intent(inout) :: this
       class(HierarchicalRegistry), target :: subregistry
       integer, optional, intent(out) :: rc
 
@@ -318,7 +324,7 @@ contains
       
       wrap => this%subregistries%at(comp_name,_RC)
       _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
-      
+
       select type (q => wrap%registry)
       type is (HierarchicalRegistry)
          subregistry => q
@@ -381,8 +387,8 @@ contains
    end subroutine add_connection
 
    subroutine connect_sibling(this, src_registry, connection, unusable, rc)
-      class(HierarchicalRegistry), intent(in) :: this
-      type(HierarchicalRegistry), intent(in) :: src_registry
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(HierarchicalRegistry), target, intent(in) :: src_registry
       type(ConnectionSpec), intent(in) :: connection
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -579,7 +585,6 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      type(ActualPtSpecPtrMapIterator) :: actual_iter
       type(ActualPtVec_MapIterator) :: virtual_iter
       type(ActualConnectionPt), pointer :: actual_pt
 
@@ -635,6 +640,8 @@ contains
          integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
          
+         type(ActualPtSpecPtrMapIterator) :: actual_iter
+
          associate (e => this%actual_specs_map%end())
            actual_iter = this%actual_specs_map%begin()
            do while (actual_iter /= e)
@@ -647,5 +654,96 @@ contains
       end subroutine write_actual_pts
       
    end subroutine write_formatted
+
+   subroutine allocate(this, rc)
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(AbstractStateItemSpec), pointer :: item_spec
+
+      do i = 1, this%local_specs%size()
+         item_spec => this%local_specs%of(i)
+         if (item_spec%is_active()) then
+            call item_spec%allocate(_RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine allocate
+
+   subroutine add_to_states(this, unusable, importState, exportState, internalState, rc)
+      use esmf
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_State), intent(inout) :: importState, exportState, internalState
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      type(ActualPtSpecPtrMapIterator) :: actual_iter
+      type(ActualConnectionPt), pointer :: actual_pt
+      type(StateItemSpecPtr), pointer :: item_spec_ptr
+      class(AbstractStateItemSpec), pointer :: item_spec
+      character(:), allocatable :: name
+
+      associate (e => this%actual_specs_map%end())
+
+        actual_iter = this%actual_specs_map%begin()
+        do while (actual_iter /= e)
+
+           actual_pt => actual_iter%first()
+           name = actual_pt%get_esmf_name()
+
+           item_spec_ptr =>  actual_iter%second()
+           item_spec => item_spec_ptr%ptr
+
+           select case (actual_pt%get_state_intent())
+           case ('import')
+              call item_spec%add_to_state(importState, name, _RC)
+           case ('export')
+              call item_spec%add_to_state(exportState, name, _RC)
+           case ('internal')
+              call item_spec%add_to_state(internalState, name, _RC)
+           case default
+              _FAIL('Incorrect specification of state intent for <'//actual_pt%get_esmf_name()//'>.')
+           end select
+
+           call actual_iter%next()
+        end do
+      end associate
+      
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_to_states
+
+   subroutine report(this, rc)
+      use mapl3g_FieldSpec
+      class(HierarchicalRegistry), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ActualPtSpecPtrMapIterator) :: actual_iter
+      type(ActualConnectionPt), pointer :: actual_pt
+      type(StateItemSpecPtr), pointer :: item_spec_ptr
+      class(AbstractStateItemSpec), pointer :: item_spec
+
+      associate (e => this%actual_specs_map%end())
+        actual_iter = this%actual_specs_map%begin()
+        do while (actual_iter /= e)
+           actual_pt => actual_iter%first()
+           item_spec_ptr =>  actual_iter%second()
+           item_spec => item_spec_ptr%ptr
+
+           select type (item_spec)
+           type is (FieldSpec)
+              print*, this%name, '::',actual_pt, '; complete? ', item_spec%check_complete()
+           end select
+           call actual_iter%next()
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine report
 
 end module mapl3g_HierarchicalRegistry
