@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added test cases 28 and 29 to ExtData testing framework
+
 ### Changed
 
 ### Fixed
