@@ -1,20 +1,23 @@
-module pFIO_DownbitMod
+#include "MAPL_Generic.h"
+module MAPL_DownbitMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc, c_ptr
+   use mpi
+   use MAPL_ExceptionHandling
 
    implicit none
    private
 
-   public :: pFIO_DownBit
+   public :: DownBit
 
-   interface pFIO_DownBit
-      module procedure pFIO_DownBit1D
-      module procedure pFIO_DownBit2D
-      module procedure pFIO_DownBit3D
-   end interface pFIO_DownBit
+   interface DownBit
+      module procedure DownBit1D
+      module procedure DownBit2D
+      module procedure DownBit3D
+   end interface DownBit
 
 contains
 
-   subroutine pFIO_DownBit3D ( x, xr, nbits_to_keep, undef, flops, rc )
+   subroutine DownBit3D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
      implicit NONE
 
@@ -27,6 +30,7 @@ contains
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
                                             !  based algorithm
+     integer, optional, intent(in) :: mpi_comm
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -55,13 +59,13 @@ contains
    integer :: k
 
    do k = lbound(x,3), ubound(x,3)
-      call pFIO_DownBit2D ( x(:,:,k), xr(:,:,k), nbits_to_keep, &
-                                 undef=undef, flops=flops, rc=rc )
+      call DownBit2D ( x(:,:,k), xr(:,:,k), nbits_to_keep, &
+                                 undef=undef, flops=flops, mpi_comm=mpi_comm, rc=rc )
    end do
 
-   end subroutine pFIO_DownBit3D
+   end subroutine DownBit3D
 
-   subroutine pFIO_DownBit2D ( x, xr, nbits_to_keep, undef, flops, rc )
+   subroutine DownBit2D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
      implicit NONE
 
@@ -73,6 +77,7 @@ contains
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
                                             !  based algorithm
+     integer, optional, intent(in) :: mpi_comm
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -114,13 +119,20 @@ contains
 !
 !EOP
 !------------------------------------------------------------------------------
-    integer   :: E, xbits, has_undef
+    integer   :: E, xbits, has_undef, passed_minmax
     real    :: scale, xmin, xmax, tol, undef_
     logical   :: shave_mantissa
-    integer, external :: pFIO_ShaveMantissa32
+    integer, external :: MAPL_ShaveMantissa32
+    real :: min_value, max_value
+    integer :: useable_mpi_comm,status
 
     rc = 0
 
+    if (present(mpi_comm)) then
+       useable_mpi_comm = mpi_comm
+    else
+       useable_mpi_comm = MPI_COMM_NULL
+    end if
 !   Defaults for optinal arguments
 !   ------------------------------
     if ( present(undef) ) then
@@ -143,7 +155,9 @@ contains
 
        xr = x   ! compiled r8 this will convert to r4.
        xbits = 24 - nbits_to_keep
-       rc = pFIO_ShaveMantissa32 ( xr, xr, size(x), xbits, has_undef, undef_, size(x) )
+       call compute_min_max(xr,min_value,max_value,undef_,useable_mpi_comm,_RC)
+       if (useable_mpi_comm/=MPI_COMM_NULL) passed_minmax = 1
+       rc = MAPL_ShaveMantissa32 ( xr, xr, size(x), xbits, has_undef, undef_, size(x), passed_minmax, min_value, max_value )
        return
 
 !   Slow, flops in FORTRAN (GRIB inspired)
@@ -180,9 +194,9 @@ contains
 
     end if
 
-   end subroutine pFIO_DownBit2D
+   end subroutine DownBit2D
 
-   subroutine pFIO_DownBit1D ( x, xr, nbits_to_keep, undef, flops, rc )
+   subroutine DownBit1D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
      implicit NONE
 !
 ! !INPUT PARAMETERS:
@@ -192,6 +206,7 @@ contains
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
                                             !  based algorithm
+     integer, optional, intent(in) :: mpi_comm
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -208,8 +223,38 @@ contains
      xr_ptr = c_loc(xr(1))
      call c_f_pointer(xr_ptr, xr_tmp,[size(x),1])
 
-     call pFIO_Downbit2d(x_tmp(:,:), xr_tmp(:,:), nbits_to_keep, undef=undef, flops=flops, rc=rc)
+     call Downbit2d(x_tmp(:,:), xr_tmp(:,:), nbits_to_keep, undef=undef, flops=flops, mpi_comm=mpi_comm, rc=rc)
 
-   end subroutine pFIO_Downbit1D
+   end subroutine Downbit1D
 
-end module pFIO_DownbitMod
+   subroutine compute_min_max(array,min_value,max_value,undef_value,mpi_comm,rc)
+      real, intent(in)  :: array(:,:)
+      real, intent(out) :: min_value
+      real, intent(out) :: max_value
+      real, intent(in ) :: undef_value
+      integer, intent(in ) :: mpi_comm
+      integer, optional, intent(out) :: rc
+
+      real :: local_min_value, local_max_value
+      logical, allocatable :: undef_mask(:,:)
+      integer :: status
+
+      allocate(undef_mask(size(array,1),size(array,2)))
+      undef_mask = .false.
+      where(array /= undef_value) undef_mask = .true.
+
+      local_min_value = minval(array,mask=undef_mask)
+      local_max_value = maxval(array,mask=undef_mask)
+      if (mpi_comm /= MPI_COMM_NULL) then
+         call MPI_AllReduce(local_min_value,min_value,1,MPI_FLOAT,MPI_MIN,mpi_comm,status)
+         _VERIFY(status)
+         call MPI_AllReduce(local_max_value,max_value,1,MPI_FLOAT,MPI_MAX,mpi_comm,status)
+         _VERIFY(status)
+      else
+         min_value = local_min_value
+         max_value = local_max_value
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine 
+
+end module MAPL_DownbitMod
