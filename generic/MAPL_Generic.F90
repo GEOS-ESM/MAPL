@@ -4942,6 +4942,7 @@ end subroutine MAPL_AddDatabaseAttributes
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
+      print*, 'adjusted name: ', trim(shared_object_library_to_load)
       call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
            sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
       _VERIFY(userRC)

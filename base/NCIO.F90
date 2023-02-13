@@ -3999,6 +3999,8 @@ module NCIOMod
     logical                            :: isPresent
     character(len=ESMF_MAXSTR)         :: positive
     logical                            :: flip
+    integer :: fieldIsValid
+    type(ESMF_Array) :: array
 
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
@@ -4083,7 +4085,11 @@ module NCIOMod
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
              _VERIFY(STATUS)
-
+             call ESMF_FieldGet(field,array=array,rc=FieldIsValid)
+             
+             if (MAPL_AM_I_ROOT()) print*, "field: ", trim(ITEMNAMES(I)), fieldIsValid
+             if (fieldIsValid == 0) then
+              
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
                 call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
@@ -4115,6 +4121,7 @@ module NCIOMod
              end if
              call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
              _VERIFY(STATUS)
+             end if
 
           end IF
        END IF

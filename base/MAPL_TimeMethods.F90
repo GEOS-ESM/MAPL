@@ -32,6 +32,8 @@ module MAPL_TimeDataMod
   interface timeData
      module procedure new_time_data
   end interface timeData
+
+  public parse_time_string
 contains
 
   function new_time_data(clock,ntime,frequency,offset,funits,integer_time,rc) result(tData)
