@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
   `regrid_method: identity`
 - Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
+- Fixed error handling for refactored MAPL_GetResource
 
 ### Removed
 
