@@ -1,4 +1,8 @@
 target_sources(MAPL.generic3g PRIVATE
+  VariableSpec.F90
+  StateItemSpecTypeId.F90
+  VariableSpecVector.F90
+
   #  HorizontalStaggerLoc.F90
 
   UngriddedDimSpec.F90
@@ -11,6 +15,7 @@ target_sources(MAPL.generic3g PRIVATE
   
   AbstractStateItemSpec.F90
   StateItemSpecMap.F90
+  InvalidSpec.F90
   FieldSpec.F90
 #  FieldSpecVector.F90
 #  ServiceProviderSpec.F90

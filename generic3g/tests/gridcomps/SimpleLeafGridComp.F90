@@ -48,9 +48,7 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-
       call append_message(gc, 'wasRun_extra')
-      
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_extra
@@ -61,7 +59,6 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
-
 
       call append_message(gc, 'wasInit')
       

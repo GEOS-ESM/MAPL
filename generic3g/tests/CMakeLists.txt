@@ -9,6 +9,7 @@ set (test_srcs
   
 #  Test_AddVarSpec.pf
   Test_SimpleLeafGridComp.pf
+  Test_SimpleParentGridComp.pf
   Test_Traverse.pf
   Test_RunChild.pf
 
@@ -41,3 +42,14 @@ endif ()
 set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
 
 add_dependencies(build-tests MAPL.generic3g.tests)
+
+#add_custom_target(copy ALL COMMENT "Copying files: ${GLOBPAT}")
+#add_target_d
+#add_custom_command(
+#  TARGET copy
+#  COMMAND ${CMAKE_COMMAND} -E copy configs .)
+#  )
+
+
+file(COPY configs DESTINATION .)
+

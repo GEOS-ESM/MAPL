@@ -55,7 +55,7 @@
     _DECLARE_WRAPPER(T);                                        \
     type(PrivateWrapper) :: w;                                  \
     call MAPL_UserCompGetInternalState(gc, name, w, status);         \
-    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not fouund for this gridcomp."); \
+    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr;                         \
   end block
 
@@ -66,7 +66,7 @@
     _DECLARE_WRAPPER(T);                                         \
     type(PrivateWrapper) :: w;                                   \
     call MAPL_UserCompGetInternalState(gc, name, w, rc=status);         \
-    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not fouund for this gridcomp."); \
+    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr; \
   end block
   

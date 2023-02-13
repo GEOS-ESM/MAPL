@@ -1650,7 +1650,6 @@ contains
               clock=CLOCK, PHASE=PHASE_, &
               userRC=userRC, _RC )
          _VERIFY(userRC)
-
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
 
       end if

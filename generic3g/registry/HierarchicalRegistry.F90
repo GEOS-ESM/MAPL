@@ -35,14 +35,22 @@ module mapl3g_HierarchicalRegistry
       type(RegistryPtrMap) :: subregistries
    contains
 
+      ! getters
       procedure :: get_name
-      ! Getters for actual pt
       procedure :: get_item_spec
-      procedure :: get_item_SpecPtr
-
       procedure :: get_actual_pts
       procedure :: get_actual_pt_SpecPtrs
+      procedure :: has_item_spec_actual
+      procedure :: has_item_spec_virtual
+      generic :: has_item_spec => has_item_spec_actual, has_item_spec_virtual
+      procedure :: has_subregistry
 
+      procedure :: add_to_states
+
+      procedure :: add_subregistry
+      procedure :: get_subregistry_comp
+      procedure :: get_subregistry_conn
+      generic :: get_subregistry => get_subregistry_comp, get_subregistry_conn
       procedure :: add_item_spec_virtual
       procedure :: add_item_spec_virtual_override
       procedure :: add_item_spec_actual
@@ -55,11 +63,6 @@ module mapl3g_HierarchicalRegistry
 
       procedure :: add_extension
 
-      procedure :: has_item_spec_actual
-      procedure :: has_item_spec_virtual
-      generic :: has_item_spec => has_item_spec_actual, has_item_spec_virtual
-      procedure :: set_active
-
       procedure :: propagate_unsatisfied_imports_all
       procedure :: propagate_unsatisfied_imports_child
       procedure :: propagate_unsatisfied_imports_virtual_pt
@@ -67,18 +70,15 @@ module mapl3g_HierarchicalRegistry
       generic :: propagate_unsatisfied_imports => propagate_unsatisfied_imports_child
       generic :: propagate_unsatisfied_imports => propagate_unsatisfied_imports_virtual_pt
 
-      procedure :: add_subregistry
-      procedure :: get_subregistry_comp
-      procedure :: get_subregistry_conn
-      generic :: get_subregistry => get_subregistry_comp, get_subregistry_conn
-      procedure :: has_subregistry
-
       procedure :: add_connection
       procedure :: connect_sibling
       procedure :: connect_export2export
 
+      procedure :: allocate
+
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
+      procedure :: report
    end type HierarchicalRegistry
 
    interface HierarchicalRegistry
@@ -140,26 +140,9 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_spec
 
-   ! A virtual pt might be associated with multiple specs, so we need
-   ! a getter that returns wrapped pointers that can be used in
-   ! containers.
-   function get_item_SpecPtr(this, actual_pt, rc) result(spec_ptr)
-      class(StateItemSpecPtr), pointer :: spec_ptr
-      class(HierarchicalRegistry), intent(in) :: this
-      type(ActualConnectionPt), intent(in) :: actual_pt
-      integer, optional, intent(out) :: rc
-      
-      integer :: status
-
-      spec_ptr => this%actual_specs_map%at(actual_pt, _RC)
-
-      _RETURN(_SUCCESS)
-   end function get_item_SpecPtr
-
-
    function get_actual_pt_SpecPtrs(this, virtual_pt, rc) result(specs)
       type(StateItemSpecPtr), allocatable :: specs(:)
-      class(HierarchicalRegistry), intent(in) :: this
+      class(HierarchicalRegistry), target, intent(in) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       integer, optional, intent(out) :: rc
       
@@ -169,6 +152,7 @@ contains
       type(ActualConnectionPt), pointer :: actual_pt
 
       actual_pts => this%actual_pts_map%at(virtual_pt, _RC)
+
       associate ( n => actual_pts%size() )
         allocate(specs(n))
         do i = 1, n
@@ -301,31 +285,9 @@ contains
       has_item_spec = (this%actual_pts_map%count(virtual_pt) > 0)
    end function has_item_spec_virtual
 
-   subroutine set_active(this, actual_pt, unusable, require_inactive, rc)
-      class(HierarchicalRegistry), intent(inout) :: this
-      type(ActualConnectionPt), intent(in) :: actual_pt
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(in) :: require_inactive
-      integer, optional, intent(out) :: rc
-
-      class(AbstractStateItemSpec), pointer :: spec
-
-      spec => this%get_item_spec(actual_pt)
-      _ASSERT(associated(spec), 'unknown connection point')
-
-      if (opt(require_inactive)) then
-         _ASSERT(.not. spec%is_active(), 'Exected inactive pt to activate.')
-      end if
-
-      call spec%set_active()
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine set_active
-
 
    subroutine add_subregistry(this, subregistry, rc)
-      class(HierarchicalRegistry), intent(inout) :: this
+      class(HierarchicalRegistry), target, intent(inout) :: this
       class(HierarchicalRegistry), target :: subregistry
       integer, optional, intent(out) :: rc
 
@@ -362,7 +324,7 @@ contains
       
       wrap => this%subregistries%at(comp_name,_RC)
       _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
-      
+
       select type (q => wrap%registry)
       type is (HierarchicalRegistry)
          subregistry => q
@@ -425,8 +387,8 @@ contains
    end subroutine add_connection
 
    subroutine connect_sibling(this, src_registry, connection, unusable, rc)
-      class(HierarchicalRegistry), intent(in) :: this
-      type(HierarchicalRegistry), intent(in) :: src_registry
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(HierarchicalRegistry), target, intent(in) :: src_registry
       type(ConnectionSpec), intent(in) :: connection
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -585,12 +547,11 @@ contains
          if (actual_pt%is_import() .and. .not. item%is_active()) then
             call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_r%get_name())), _RC)
          end if
+
       end do
       _RETURN(_SUCCESS)
 
    end subroutine propagate_unsatisfied_imports_virtual_pt
-
-
 
    logical function opt(arg)
       logical, optional, intent(in) :: arg
@@ -623,50 +584,165 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      type(ActualPtSpecPtrMapIterator) :: actual_iter
       type(ActualPtVec_MapIterator) :: virtual_iter
       type(ActualConnectionPt), pointer :: actual_pt
-
-      type(HierarchicalRegistry), target :: copy
-
-      copy = this
 
       write(unit,*,iostat=iostat,iomsg=iomsg) new_line('a')
       if (iostat /= 0) return
 
-      write(unit,'(a,a,a,i0,a,i0,a,i0,a)',iostat=iostat,iomsg=iomsg) &
-           'HierarchicalRegistry(name=', copy%name, &
-           ', n_local=', copy%local_specs%size(), &
-           ', n_actual=', copy%actual_specs_map%size(), &
-           ', n_virtual=', copy%actual_pts_map%size(), ')'// new_line('a')
-      if (iostat /= 0) return
-      write(unit,*,iostat=iostat,iomsg=iomsg) '   actuals: '// new_line('a')
+      call write_header(this, iostat=iostat, iomsg=iomsg)
       if (iostat /= 0) return
 
-      associate (e => copy%actual_specs_map%end())
-        actual_iter = copy%actual_specs_map%begin()
+      call write_virtual_pts(this, iostat=iostat, iomsg=iomsg)
+      if (iostat /= 0) return
+
+      call write_actual_pts(this, iostat=iostat, iomsg=iomsg)
+      if (iostat /= 0) return
+
+   contains
+      
+      subroutine write_header(this, iostat, iomsg)
+         class(HierarchicalRegistry), intent(in) :: this
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+         
+         write(unit,'(a,a,a,i0,a,i0,a,i0,a)',iostat=iostat,iomsg=iomsg) &
+              'HierarchicalRegistry(name=', this%name, &
+              ', n_local=', this%local_specs%size(), &
+              ', n_actual=', this%actual_specs_map%size(), &
+              ', n_virtual=', this%actual_pts_map%size(), ')'// new_line('a')
+         if (iostat /= 0) return
+         write(unit,*,iostat=iostat,iomsg=iomsg) '   actuals: '// new_line('a')
+      end subroutine write_header
+
+      subroutine write_virtual_pts(this, iostat, iomsg)
+         class(HierarchicalRegistry), target, intent(in) :: this
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+
+         write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
+         if (iostat /= 0) return
+         associate (e => this%actual_pts_map%end())
+           virtual_iter = this%actual_pts_map%begin()
+           do while (virtual_iter /= e)
+              associate (virtual_pt => virtual_iter%first())
+                write(unit,*,iostat=iostat,iomsg=iomsg)'        ',virtual_pt,  new_line('a')
+                if (iostat /= 0) return
+              end associate
+              call virtual_iter%next()
+           end do
+         end associate
+      end subroutine write_virtual_pts
+
+      subroutine write_actual_pts(this, iostat, iomsg)
+         class(HierarchicalRegistry), target, intent(in) :: this
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+         
+         type(ActualPtSpecPtrMapIterator) :: actual_iter
+
+         associate (e => this%actual_specs_map%end())
+           actual_iter = this%actual_specs_map%begin()
+           do while (actual_iter /= e)
+              actual_pt => actual_iter%first()
+              write(unit,*,iostat=iostat,iomsg=iomsg)'        ',actual_pt, new_line('a')
+              if (iostat /= 0) return
+              call actual_iter%next()
+           end do
+         end associate
+      end subroutine write_actual_pts
+      
+   end subroutine write_formatted
+
+   subroutine allocate(this, rc)
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(AbstractStateItemSpec), pointer :: item_spec
+
+      do i = 1, this%local_specs%size()
+         item_spec => this%local_specs%of(i)
+         if (item_spec%is_active()) then
+            call item_spec%allocate(_RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine allocate
+
+   subroutine add_to_states(this, unusable, importState, exportState, internalState, rc)
+      use esmf
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_State), intent(inout) :: importState, exportState, internalState
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      type(ActualPtSpecPtrMapIterator) :: actual_iter
+      type(ActualConnectionPt), pointer :: actual_pt
+      type(StateItemSpecPtr), pointer :: item_spec_ptr
+      class(AbstractStateItemSpec), pointer :: item_spec
+      character(:), allocatable :: name
+
+      associate (e => this%actual_specs_map%end())
+
+        actual_iter = this%actual_specs_map%begin()
         do while (actual_iter /= e)
+
            actual_pt => actual_iter%first()
-           write(unit,*,iostat=iostat,iomsg=iomsg)'        ',actual_pt, new_line('a')
-           if (iostat /= 0) return
+           name = actual_pt%get_esmf_name()
+
+           item_spec_ptr =>  actual_iter%second()
+           item_spec => item_spec_ptr%ptr
+
+           select case (actual_pt%get_state_intent())
+           case ('import')
+              call item_spec%add_to_state(importState, name, _RC)
+           case ('export')
+              call item_spec%add_to_state(exportState, name, _RC)
+           case ('internal')
+              call item_spec%add_to_state(internalState, name, _RC)
+           case default
+              _FAIL('Incorrect specification of state intent for <'//actual_pt%get_esmf_name()//'>.')
+           end select
+
            call actual_iter%next()
         end do
       end associate
       
-      write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
-      if (iostat /= 0) return
-      associate (e => copy%actual_pts_map%end())
-        virtual_iter = copy%actual_pts_map%begin()
-        do while (virtual_iter /= e)
-           associate (virtual_pt => virtual_iter%first())
-             write(unit,*,iostat=iostat,iomsg=iomsg)'        ',virtual_pt,  new_line('a')
-             if (iostat /= 0) return
-           end associate
-           call virtual_iter%next()
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_to_states
+
+   subroutine report(this, rc)
+      use mapl3g_FieldSpec
+      class(HierarchicalRegistry), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ActualPtSpecPtrMapIterator) :: actual_iter
+      type(ActualConnectionPt), pointer :: actual_pt
+      type(StateItemSpecPtr), pointer :: item_spec_ptr
+      class(AbstractStateItemSpec), pointer :: item_spec
+
+      associate (e => this%actual_specs_map%end())
+        actual_iter = this%actual_specs_map%begin()
+        do while (actual_iter /= e)
+           actual_pt => actual_iter%first()
+           item_spec_ptr =>  actual_iter%second()
+           item_spec => item_spec_ptr%ptr
+
+           select type (item_spec)
+           type is (FieldSpec)
+              print*, this%name, '::',actual_pt, '; complete? ', item_spec%check_complete()
+           end select
+           call actual_iter%next()
         end do
       end associate
 
-   end subroutine write_formatted
+      _RETURN(_SUCCESS)
+   end subroutine report
 
-      
 end module mapl3g_HierarchicalRegistry

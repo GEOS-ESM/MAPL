@@ -6,12 +6,14 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_UserSetServices, only: user_setservices
    use mapl3g_ComponentSpecParser
+   use mapl3g_HierarchicalRegistry
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
    use yafyaml
    implicit none
+
 
 contains
 
@@ -35,22 +37,23 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      class(YAML_Node), pointer :: child_config, children_config
-      character(:), pointer :: name
 
 !!$      call before(this, _RC)
 !!$
 
       if (this%config%has_yaml()) then
          this%component_spec = parse_component_spec(this%config%yaml_cfg, _RC)
-!!$         call parse_config(this, this%config%yaml_cfg, _RC)
       end if
 
       call process_user_gridcomp(this, _RC)
+      call add_children_from_config(this, _RC)
+
       call process_children(this, _RC)
 
       ! 4) Process generic specs
       call process_generic_specs(this, _RC)
+
+      this%registry = HierarchicalRegistry(this%get_inner_name())
 
 !!$    call after(this, _RC)
       
@@ -59,31 +62,105 @@ contains
    contains
 
 
-      subroutine add_children_from_config(children_config, rc)
-         class(YAML_Node), intent(in) :: children_config
+      subroutine add_children_from_config(this, rc)
+         type(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
+
+         class(YAML_Node), pointer :: config
+         class(YAML_Node), pointer :: child_spec
+         class(YAML_Node), pointer :: children_spec
+         logical :: return
 
          class(NodeIterator), allocatable :: iter
          integer :: status
-         class(AbstractUserSetServices), allocatable :: setservices
+         logical :: found
 
-         associate (b => children_config%begin(), e => children_config%end() )
+         if (.not. this%config%has_yaml()) then
+            _RETURN(_SUCCESS)
+         end if
+         
+         config => this%config%yaml_cfg
+
+         if (.not. config%has('children')) then
+            _RETURN(_SUCCESS)
+         end if
+
+         children_spec => config%at('children', found=found, _RC)
+         if (.not. found) return
+         _ASSERT(children_spec%is_sequence(), 'Children in config should be specified as a sequence.')
+
+         associate (e => children_spec%end() )
 
            ! ifort 2022.0 polymorphic assign fails for the line below.
-           allocate(iter, source=b)
+           allocate(iter, source=children_spec%begin())
 
            do while (iter /= e)
-              name => to_string(iter%first(), _RC)
-              child_config => iter%second()
-              !TODO: get setservices from config
-              call this%add_child(name, setservices, GenericConfig(yaml_cfg=child_config), _RC)
+              child_spec => iter%at(_RC)
+              call add_child_from_config(this, child_spec, _RC)
               call iter%next()
            end do
-
          end associate
+         _RETURN(_SUCCESS)
+      end subroutine add_children_from_config
+
+      subroutine add_child_from_config(this, child_spec, rc)
+         use yafyaml, only: Parser
+         type(OuterMetaComponent), target, intent(inout) :: this
+         class(YAML_Node), intent(in) :: child_spec
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+         class(AbstractUserSetServices), allocatable :: setservices
+         character(:), allocatable :: name
+
+         character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
+         character(*), parameter :: userProcedure_keys(*) = [character(len=10) :: 'SetServices', 'setServices', 'setservices']
+         integer :: i
+         character(:), allocatable :: dso_key, userProcedure_key, try_key
+         logical :: dso_found, userProcedure_found
+         character(:), allocatable :: sharedObj, userProcedure, config_file
+         type(Parser) :: p
+         type(GenericConfig) :: generic_config
+
+         call child_spec%get(name, 'name', _RC)
+
+         dso_found = .false.
+         ! Ensure precisely one name is used for dso
+         do i = 1, size(dso_keys)
+            try_key = trim(dso_keys(i))
+            if (child_spec%has(try_key)) then
+               _ASSERT(.not. dso_found, 'multiple specifications for dso in config for child <'//name//'>.')
+               dso_found = .true.
+               dso_key = try_key
+            end if
+         end do
+         _ASSERT(dso_found, 'Must specify a dso for config of child <'//name//'>.')
+         call child_spec%get(sharedObj, dso_key, _RC)
+
+         userProcedure_found = .false.
+         do i = 1, size(userProcedure_keys)
+            try_key = userProcedure_keys(i)
+            if (child_spec%has(try_key)) then
+               _ASSERT(.not. userProcedure_found, 'multiple specifications for dso in config for child <'//name//'>.')
+               userProcedure_found = .true.
+               userProcedure_key = try_key
+            end if
+         end do
+         userProcedure = 'setservices_'         
+         if (userProcedure_found) then
+            call child_spec%get(userProcedure, userProcedure_key, _RC)
+         end if
+
+         if (child_spec%has('config_file')) then
+            call child_spec%get(config_file, 'config_file', _RC)
+            p = Parser()
+            generic_config = GenericConfig(yaml_cfg=p%load_from_file(config_file))
+         end if
+
+         call this%add_child(name, user_setservices(sharedObj, userProcedure), generic_config, _RC)
 
          _RETURN(ESMF_SUCCESS)
-      end subroutine add_children_from_config
+      end subroutine add_child_from_config
 
       ! Step 2.
       subroutine process_user_gridcomp(this, rc)
@@ -92,8 +169,7 @@ contains
          
          integer :: status
 
-         this%user_gridcomp = create_user_gridcomp(this, _RC)
-!!$         call this%user_setServices%run(this%user_gridcomp, _RC)
+         call attach_inner_meta(this%user_gridcomp, this%self_gridcomp, _RC)
          call this%user_setServices%run(this%user_gridcomp, _RC)
 
          _RETURN(ESMF_SUCCESS)
@@ -133,24 +209,6 @@ contains
       end subroutine process_generic_specs
 
    end subroutine SetServices_
-
-   function create_user_gridcomp(this, unusable, rc) result(user_gridcomp)
-      type(ESMF_GridComp) :: user_gridcomp
-      class(OuterMetaComponent), intent(in) :: this
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      character(:), allocatable :: name
-      integer :: status
-
-
-      name = this%get_name()
-      user_gridcomp = ESMF_GridCompCreate(name=name, _RC)
-      call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function create_user_gridcomp
 
 
    module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)

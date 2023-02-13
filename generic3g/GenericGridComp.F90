@@ -14,6 +14,7 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
    use :: mapl3g_GenericConfig
+   use :: mapl3g_GenericPhases
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
@@ -25,21 +26,6 @@ module mapl3g_GenericGridComp
    public :: create_grid_comp
 
    
-   ! Named constants
-   public :: GENERIC_INIT_GRID
-   public :: GENERIC_INIT_ADVERTISE
-   public :: GENERIC_INIT_REALIZE
-   public :: GENERIC_INIT_USER
-
-   enum, bind(c)
-      !!!! IMPORTANT: USER phase must be "1" !!!!
-      enumerator :: GENERIC_INIT_USER = 1
-      enumerator :: GENERIC_INIT_GRID
-      enumerator :: GENERIC_INIT_ADVERTISE
-      enumerator :: GENERIC_INIT_REALIZE
-   end enum
-
-
    interface create_grid_comp
       module procedure create_grid_comp_primary
    end interface create_grid_comp
@@ -102,22 +88,24 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
-      
+
+      type(ESMF_GridComp) :: user_gridcomp
       type(OuterMetaComponent), pointer :: outer_meta
       type(OuterMetaComponent) :: outer_meta_tmp
       integer :: status
 
-      gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+      gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
+      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-#ifdef __GFORTRAN__
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(gridcomp, user_gridcomp, set_services, config)
+#else
       ! GFortran 12. cannot directly assign to outer_meta.  But the
       ! assignment works for an object without the POINTER attribute.
       ! An internal procedure is a workaround, but ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, set_services, config))
-#else
-      outer_meta = OuterMetaComponent(gridcomp, set_services, config)
+      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gridcomp, set_services, config))
 #endif
 
       _RETURN(ESMF_SUCCESS)
@@ -133,23 +121,6 @@ contains
 #endif
    end function create_grid_comp_primary
 
-
-
-   ! Create ESMF GridComp, attach an internal state for meta, and a config.
-   type(ESMF_GridComp) function make_basic_gridcomp(name, unusable, petlist, rc) result(gridcomp)
-      character(len=*), intent(in) :: name
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
-      call attach_outer_meta(gridcomp, _RC)
-      
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function make_basic_gridcomp
 
 
    ! Generic initialize phases are always executed.  User component can specify
@@ -170,7 +141,7 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
       case (GENERIC_INIT_GRID)
-         call outer_meta%initialize_grid(importState, exportState, clock, _RC)
+         call outer_meta%initialize_geom_base(importState, exportState, clock, _RC)
       case (GENERIC_INIT_ADVERTISE)
          call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
@@ -260,5 +231,16 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
+
+   ! Parent components name their children, but such names should
+   ! apply to the (inner) user grid comp.  The MAPL wrapper gridcomp,
+   ! has a different name derived from that name.
+   ! "A" -->   "[A]"
+   function outer_name(inner_name)
+      character(:), allocatable :: outer_name
+      character(*), intent(in) :: inner_name
+
+      outer_name = "[" // inner_name // "]"
+   end function outer_name
 
 end module mapl3g_GenericGridComp
