@@ -597,8 +597,8 @@ contains
 
        integer, pointer :: g_1d(:), l_1d(:), g_2d(:,:), l_2d(:,:), g_3d(:,:,:), l_3d(:,:,:)
        integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
-       integer :: msize_word, d_rank, request_id
-       integer :: s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
+       integer :: d_rank, request_id
+       integer(kind=INT64) :: msize_word, s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
        type (StringAttributeMap) :: vars_map
        type (StringAttributeMapIterator) :: var_iter
        type (IntegerMessageMap) :: msg_map
@@ -607,6 +607,7 @@ contains
        class (*), pointer :: x_ptr(:)
        integer , allocatable :: buffer_v(:)
        type (Attribute), pointer :: attr_ptr
+       type (Attribute) :: attr_tmp
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
@@ -664,11 +665,13 @@ contains
                type is (CollectiveStageDataMessage)
                   var_iter = vars_map%find(i_to_string(q%request_id))
                   if (var_iter == vars_map%end()) then
-                     msize_word = word_size(q%type_kind)*product(q%global_count)
+                     msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
                      allocate(buffer_v(msize_word), source = -1)
-                     call vars_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
-                     var_iter = vars_map%find(i_to_string(q%request_id))
+                     attr_tmp = Attribute(buffer_v)
                      deallocate(buffer_v)
+                     call vars_map%insert(i_to_string(q%request_id),attr_tmp)
+                     call attr_tmp%destroy() 
+                     var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
                   attr_ptr => var_iter%value()
