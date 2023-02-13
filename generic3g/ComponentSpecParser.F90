@@ -134,28 +134,66 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(:), allocatable :: short_name
-         character(:), allocatable :: src_comp
-         character(:), allocatable :: dst_comp
-         type(VirtualConnectionPt) :: src_pt, dst_pt
-         
-         _ASSERT(config%has('name'),'Connection must specify a name.')
-         _ASSERT(config%has('src_comp'), 'Connection must specify a src component')
-         _ASSERT(config%has('dst_comp'), 'Connection must specify a dst component')
+         character(:), allocatable :: src_name, dst_name
+         character(:), allocatable :: src_comp, dst_comp
 
-         call config%get(short_name, 'name', _RC)
-         call config%get(src_comp, 'src_comp', _RC)
-         call config%get(dst_comp, 'dst_comp', _RC)
-         
-         src_pt = VirtualConnectionPt(state_intent='export', short_name=short_name)
-         dst_pt = VirtualConnectionPt(state_intent='import', short_name=short_name)
+         call get_names(config, src_name, dst_name, _RC)
+         call get_comps(config, src_comp, dst_comp, _RC)
 
-         connection = ConnectionSpec( &
-              ConnectionPt(src_comp, src_pt), &
-              ConnectionPt(dst_comp, dst_pt))
+         associate ( &
+              src_pt => VirtualConnectionPt(state_intent='export', short_name=src_name), &
+              dst_pt => VirtualConnectionPt(state_intent='import', short_name=dst_name) )
+
+           connection = ConnectionSpec( &
+                ConnectionPt(src_comp, src_pt), &
+                ConnectionPt(dst_comp, dst_pt))
+         end associate
 
          _RETURN(_SUCCESS)
       end function process_connection
+
+      subroutine get_names(config, src_name, dst_name, rc)
+         class(YAML_Node), intent(in) :: config
+         character(:), allocatable :: src_name
+         character(:), allocatable :: dst_name
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         associate (provides_names => &
+              config%has('name') .or. &
+              (config%has('src_name') .and. config%has('dst_name')) &
+              )
+           _ASSERT(provides_names, "Must specify 'name' or 'src_name' .and. 'dst_name' in connection.")
+         end associate
+
+         if (config%has('name')) then ! replicate for src and dst
+            call config%get(src_name, 'name', _RC)
+            dst_name = src_name
+            _RETURN(_SUCCESS)
+         end if
+
+         call config%get(src_name, 'src_name', _RC)
+         call config%get(dst_name, 'dst_name', _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine get_names
+
+      subroutine get_comps(config, src_comp, dst_comp, rc)
+         class(YAML_Node), intent(in) :: config
+         character(:), allocatable :: src_comp
+         character(:), allocatable :: dst_comp
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         
+         _ASSERT(config%has('src_comp'), 'Connection must specify a src component')
+         _ASSERT(config%has('dst_comp'), 'Connection must specify a dst component')
+         call config%get(src_comp, 'src_comp', _RC)
+         call config%get(dst_comp, 'dst_comp', _RC)
+         _RETURN(_SUCCESS)
+      end subroutine get_comps
+
 
    end function process_connections_spec
 

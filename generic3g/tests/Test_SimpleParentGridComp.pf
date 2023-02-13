@@ -83,7 +83,6 @@ contains
 
       type(ESMF_Field) :: f
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ChildComponent) :: child_comp
       type(States_T) :: states
 
       call setup(outer_gc, states, status)
@@ -91,14 +90,63 @@ contains
       outer_meta => get_outer_meta(outer_gc, rc=status)
       @assert_that(status, is(0))
 
-      child_comp = outer_meta%get_child('CHILD_A', rc=status)
+      call check('child_A', 'import', ['I_A1'], rc=status)
+      @assert_that(status, is(0))
+      call check('child_A', 'export', ['E_A1'], rc=status)
+      @assert_that(status, is(0))
+      call check('child_B', 'import', ['I_B1'], rc=status)
+      @assert_that(status, is(0))
+      call check('child_B', 'export', ['E_B1'], rc=status)
       @assert_that(status, is(0))
 
-      call ESMF_StateGet(child_comp%import_state, 'I_1', f, rc=status)
-      @assert_that(status, is(0))
+   contains
+
+      subroutine check(child_name, state_intent, expected_items, rc)
+         character(*), intent(in) :: child_name
+         character(*), intent(in) :: state_intent
+
+         character(*), intent(in) :: expected_items(:)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_State) :: state
+         type(ChildComponent) :: child_comp
+         integer :: i
+
+         rc = -1
+         child_comp = outer_meta%get_child(child_name, rc=status)
+         @assert_that('child <'//child_name//'> not found.', status, is(0))
+         call get_state(child_comp, state_intent, state, rc=status)
+         @assert_that('invalid state intent', status, is(0))
+
+         do i = 1, size(expected_items)
+            call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
+            @assert_that('Item <'//trim(expected_items(i))//'> not found in child <'//child_name//'>.', status, is(0))
+         end do
+
+         rc = 0
+      end subroutine check
 
    end subroutine test_import_items_created
 
+   subroutine get_state(child_comp, state_intent, state, rc)
+      type (ChildComponent), intent(in) :: child_comp
+      character(*), intent(in) :: state_intent
+      type(ESMF_State), intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      rc = -1
+      select case (state_intent)
+      case ('import')
+         state = child_comp%import_state
+      case ('export')
+         state = child_comp%export_state
+!!$      case ('internal')
+!!$         ???
+      case default
+         @assertTrue(1==2, 'unknown state intent: <'//state_intent//'>.')
+      end select
+      rc = 0
+   end subroutine get_state
 
    @test(npes=[0])
    subroutine test_complete_items(this)
@@ -109,8 +157,6 @@ contains
 
       type(ESMF_Field) :: f
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ChildComponent) :: child_comp
-      type(ESMF_FieldStatus_Flag) :: field_status
 
       type(States_T) :: states
 
@@ -119,44 +165,50 @@ contains
       outer_meta => get_outer_meta(outer_gc, rc=status)
       @assert_that(status, is(0))
 
-      child_comp = outer_meta%get_child('CHILD_A', rc=status)
+      call check('child_A', 'import', 'I_A1', ESMF_FIELDSTATUS_GRIDSET, rc=status)
+      @assert_that(status, is(0))
+      call check('child_A', 'export', 'E_A1', ESMF_FIELDSTATUS_COMPLETE, rc=status)
       @assert_that(status, is(0))
 
-      call ESMF_StateGet(child_comp%import_state, 'I_1', f, rc=status)
+      call check('child_B', 'import', 'I_B1', ESMF_FIELDSTATUS_COMPLETE, rc=status)
       @assert_that(status, is(0))
-      call ESMF_FieldGet(f, status=field_status, rc=status)
+      call check('child_B', 'export', 'E_B1', ESMF_FIELDSTATUS_GRIDSET, rc=status)
       @assert_that(status, is(0))
-      @assert_that(field_status /= ESMF_FIELDSTATUS_COMPLETE, is(true()))
-
-      call ESMF_StateGet(child_comp%export_state, 'E_1', f, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldGet(f, status=field_status, rc=status)
-      @assert_that(status, is(0))
-      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
-
-
-      child_comp = outer_meta%get_child('CHILD_B', rc=status)
-      @assert_that(status, is(0))
-
-      call ESMF_StateValidate(child_comp%import_state, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_StateValidate(child_comp%export_state, rc=status)
-      @assert_that(status, is(0))
-
-
-      call ESMF_StateGet(child_comp%export_state, 'I_1', f, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldGet(f, status=field_status, rc=status)
-      @assert_that(status, is(0))
-      @assert_that(field_status /= ESMF_FIELDSTATUS_COMPLETE, is(true()))
-
-      call ESMF_StateGet(child_comp%import_state, 'E_1', f, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldGet(f, status=field_status, rc=status)
-      @assert_that(status, is(0))
-      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
 
       if(.false.) print*,shape(this)
+   contains
+
+      subroutine check(child_name, state_intent, item, expected_status, rc)
+         character(*), intent(in) :: child_name
+         character(*), intent(in) :: state_intent
+
+         character(*), intent(in) :: item
+         type(ESMF_FieldStatus_Flag), intent(in) :: expected_status
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_State) :: state
+         type(ChildComponent) :: child_comp
+         type(ESMF_FieldStatus_Flag) :: field_status
+
+         rc = -1
+         child_comp = outer_meta%get_child(child_name, rc=status)
+         @assert_that('child <'//child_name//'> not found.', status, is(0))
+         call get_state(child_comp, state_intent, state, rc=status)
+         @assert_that('invalid state intent', status, is(0))
+
+         call ESMF_StateGet(state, item, f, rc=status)
+         @assert_that('Item <'//item//'> not found in child <'//child_name//'>.', status, is(0))
+
+         call ESMF_FieldGet(f, status=field_status, rc=status)
+         @assert_that('FieldGet failed? ', status, is(0))
+
+         @assert_that(expected_status == field_status, is(true()))
+
+         rc = 0
+      end subroutine check
+      
    end subroutine test_complete_items
+
+
 
 end module Test_SimpleParentGridComp
