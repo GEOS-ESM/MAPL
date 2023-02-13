@@ -547,12 +547,11 @@ contains
          if (actual_pt%is_import() .and. .not. item%is_active()) then
             call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_r%get_name())), _RC)
          end if
+
       end do
       _RETURN(_SUCCESS)
 
    end subroutine propagate_unsatisfied_imports_virtual_pt
-
-
 
    logical function opt(arg)
       logical, optional, intent(in) :: arg

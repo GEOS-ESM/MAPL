@@ -499,6 +499,35 @@ contains
       
    end subroutine test_propagate_import
 
+   @test
+   subroutine test_do_not_propagate_import()
+      type(HierarchicalRegistry), target :: r_parent
+      type(HierarchicalRegistry), target :: r_child, other_child
+
+      integer :: status
+      type(VirtualConnectionPt) :: c_pt, e_pt
+      
+      
+      r_parent = HierarchicalRegistry('parent')
+      r_child = HierarchicalRegistry('child')
+      other_child = HierarchicalRegistry('other')
+      call r_parent%add_subregistry(r_child)
+      call r_parent%add_subregistry(other_child)
+
+      c_pt = new_v_pt('import', 'T')
+      e_pt = new_v_pt('export', 'T')
+
+      call r_child%add_item_spec(c_pt, MockItemSpec('T_child'))
+      call other_child%add_item_spec(e_pt, MockItemSpec('T_child'))
+      call r_parent%add_connection(ConnectionSpec(CP('other', e_pt), CP('child', c_pt)))
+      call r_parent%propagate_unsatisfied_imports(rc=status)
+
+
+      @assert_that(status, is(0))
+      @assert_that(r_parent%has_item_spec(new_v_pt('import', 'T')), is(false()))
+      
+   end subroutine test_do_not_propagate_import
+
    ! If a parent has two children that both need the same import (as
    ! determined by short name), then extensions must be used to
    ! represent both.

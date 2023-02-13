@@ -420,6 +420,7 @@ contains
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
 
       call process_connections(this, _RC)
+      call this%registry%propagate_unsatisfied_imports(_RC)
 
 !!$      call this%registry%add_to_states(&
 !!$           importState=importState, &

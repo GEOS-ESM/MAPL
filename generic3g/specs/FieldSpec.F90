@@ -214,6 +214,7 @@ contains
       class is (FieldSpec)
          ! ok
          this%payload = src_spec%payload
+         call this%set_active()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
