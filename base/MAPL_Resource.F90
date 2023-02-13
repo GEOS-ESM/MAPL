@@ -22,6 +22,7 @@ type is (T) ;\
       call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, _RC) ;\
    end if
 
+
 #ifdef SET_VALS
 #  undef SET_VALS
 #endif
@@ -59,7 +60,8 @@ module MAPL_ResourceMod
    !BOP
    ! !MODULE: MAPL_ResourceMod
    !
-   ! !DESCRIPTION:  MAPL\_ResourceMod ...
+   ! !DESCRIPTION:  MAPL\_ResourceMod provides subroutines get scalar and array
+   ! resources from ESMF_Config objects.
 
    ! !USES:
 
@@ -135,14 +137,14 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-
    end subroutine get_actual_label
 
    ! Find value of scalar variable in config
-   subroutine MAPL_GetResource_config_scalar(config, val, label, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: val
       character(len=*), intent(in) :: label
+      logical , intent(out) :: value_is_set
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
       character(len=*), optional, intent(in) :: component_name
@@ -155,6 +157,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+      value_is_set = .FALSE.
+
       default_is_present = present(default)
 
       if (default_is_present) then
@@ -166,7 +170,7 @@ contains
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-         if (present(rc)) rc = ESMF_FAILURE
+         value_is_set = .FALSE.
          return
       end if
 
@@ -180,8 +184,10 @@ contains
       class default
          _FAIL( "Unupported type")
       end select
+      
+      value_is_set = .TRUE.
 
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)  
 
       ! Can set printrc to negative to not print at all
       if (MAPL_AM_I_Root() .and. printrc >= 0) then
@@ -198,10 +204,11 @@ contains
    end subroutine MAPL_GetResource_config_scalar
 
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, vals, label, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_array(config, vals, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      character(len=*), intent(in) :: label
+      logical, intent(out) :: value_is_set
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
       character(len=*), optional, intent(in) :: component_name
@@ -213,19 +220,21 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+      value_is_set = .FALSE.
+
       default_is_present = present(default)
 
       if (default_is_present) then
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      _ASSERT(present(component_name), "Component name is present but not present.")
+      _ASSERT(present(component_name), "Component name is necessary but not present.")
       call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
 
       ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
-         if (present(rc)) rc = ESMF_FAILURE
+         value_is_set = .FALSE.
          return
       end if
 
@@ -242,10 +251,15 @@ contains
          _FAIL( "Unsupported type")
       end select
 
+      value_is_set = .TRUE.
+
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GetResource_config_array
 
+   ! Print the resource value according to the value of printrc
+   ! printrc = 0 - Only print non-default values
+   ! printrc = 1 - Print all values
    subroutine print_resource(printrc, label, val, default, rc)
       integer, intent(in) :: printrc
       character(len=*), intent(in) :: label
@@ -255,6 +269,7 @@ contains
 
       character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
       type(StringVector), pointer, save :: already_printed_labels => null()
+      integer :: status
 
       if (.not. associated(already_printed_labels)) then
          allocate(already_printed_labels)
@@ -294,6 +309,7 @@ contains
 
    end subroutine print_resource
 
+   ! Check if vector contains string
    logical function vector_contains_str(vector, string)
       type(StringVector), intent(in) :: vector
       character(len=*), intent(in) :: string
@@ -313,6 +329,7 @@ contains
 
    end function vector_contains_str
 
+   ! Convert val to string according to str_format
    function intrinsic_to_string(val, str_format, rc) result(formatted_str)
       class(*), intent(in) :: val
       character(len=*), intent(in) :: str_format
