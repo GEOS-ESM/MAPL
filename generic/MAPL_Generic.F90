@@ -2115,8 +2115,11 @@ contains
          type (MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
          type (ESMF_VM) :: vm
          character(1) :: empty(0)
+         class(Logger), pointer :: lgr
 
          call ESMF_VmGetCurrent(vm, _RC)
+
+         lgr => logging%get_logger('MAPL.profiler')
 
          ! Generate stats _across_ processes covered by this timer
          ! Requires consistent call trees for now.
@@ -2161,12 +2164,12 @@ contains
             call reporter%add_column(n_cyc_multi)
 
             report = reporter%generate_report(state%t_profiler)
-            write(OUTPUT_UNIT,*)''
-            write(OUTPUT_UNIT,*)'Times for component <' // trim(comp_name) // '>'
+            call lgr%info('')
+            call lgr%info('Times for component <%a~>', trim(comp_name))
             do i = 1, size(report)
-               write(OUTPUT_UNIT,'(a)')report(i)
+               call lgr%info('%a', report(i))
             end do
-            write(OUTPUT_UNIT,*)''
+            call lgr%info('')
          end if
 
          _RETURN(ESMF_SUCCESS)
@@ -3918,7 +3921,7 @@ contains
          if(.not.MAPL_SunOrbitCreated(STATE%ORBIT)) then
 
             call ESMF_GridGet(STATE%GRID%ESMFGRID,name=gname,_RC)
-            FIX_SUN = (index(gname,"DP")>0) 
+            FIX_SUN = (index(gname,"DP")>0)
 
             ! create the orbit object
             STATE%ORBIT = MAPL_SunOrbitCreateFromConfig (STATE%CF, STATE%CLOCK, FIX_SUN, _RC)

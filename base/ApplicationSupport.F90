@@ -26,7 +26,7 @@ module MAPL_ApplicationSupport
 
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
-     
+
       _UNUSED_DUMMY(unusable)
 
       call initialize_profiler(comm=comm_world, enable_global_timeprof=enable_global_timeprof, enable_global_memprof=enable_global_memprof, _RC)
@@ -55,6 +55,8 @@ module MAPL_ApplicationSupport
       integer, optional, intent(out) :: rc
 
       integer :: comm_world,status
+
+      _UNUSED_DUMMY(unusable)
 
       if (present(comm)) then
          comm_world = comm
@@ -136,7 +138,7 @@ module MAPL_ApplicationSupport
 
          if (rank == 0) then
             lgr => logging%get_logger('MAPL')
-            call lgr%warning('No configure file specified for logging layer.  Using defaults.')            
+            call lgr%warning('No configure file specified for logging layer.  Using defaults.')
          end if
 
       end if
