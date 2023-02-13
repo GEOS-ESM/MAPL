@@ -1640,9 +1640,6 @@ contains
 
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
-      if (method == ESMF_METHOD_RUN) then
-         call capture('before',  GC, import, export, _RC)
-      end if
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
          call omp_driver(GC, import, export, clock, _RC)  ! compnent threaded with OpenMP
       else
@@ -1654,9 +1651,6 @@ contains
          _VERIFY(userRC)
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
 
-      end if
-      if (method == ESMF_METHOD_RUN) then
-         call capture('after',  GC, import, export, _RC)
       end if
 
       call lgr%debug('Finished %a', stage_description)
