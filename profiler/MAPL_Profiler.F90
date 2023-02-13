@@ -41,9 +41,6 @@ module mapl_Profiler
    use mapl_SeparatorColumn
    use mapl_GlobalProfilers
 
-   use pflogger, only: logging
-   use pflogger, only: Logger
-
    implicit none
 
 contains
@@ -92,6 +89,9 @@ contains
       use mapl_KeywordEnforcerMod
       use mapl_ErrorHandlingMod
       use mpi
+      use pflogger, only: logging
+      use pflogger, only: Logger
+
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
