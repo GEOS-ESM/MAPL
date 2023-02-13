@@ -75,8 +75,8 @@ Option = Enum(value = 'Option', names = {
         'SHORT_NAME': ('short_name', mangle_name, True),
         'NAME': ('short_name', mangle_name, True),
         'DIMS': ('dims', DIMS_EMIT, True),
-        'LONG_NAME': ('long_name', string_emit, True),
-        'LONG NAME': ('long_name', string_emit, True),
+        'LONG_NAME': ('long_name', mangle_name, True),
+        'LONG NAME': ('long_name', mangle_name, True),
         'UNITS': ('units', string_emit, True),
 # OPTIONAL
         'ADD2EXPORT': ('add2export', ADD2EXPORT_EMIT),

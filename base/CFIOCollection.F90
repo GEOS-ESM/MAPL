@@ -127,6 +127,8 @@ contains
        
     end if
 
+    _RETURN(_SUCCESS)
+
   end function find
 
   subroutine unfind(this)

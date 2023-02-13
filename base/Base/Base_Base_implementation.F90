@@ -3689,6 +3689,7 @@ contains
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
+    character(len=ESMF_MAXSTR) :: longName
 
     ! get ptr
     ! loop over 3-d or 4-d dim
@@ -3828,9 +3829,46 @@ contains
     deallocate(gridToFieldMap)
     deallocate(splitNameArray)
     ! fields SHOULD be deallocated by the caller!!!
+
+!ALT: check if we need to expand "%d" in the long name
+!    Note that at this point the original, and each of the split fields
+!    have the same long name. We check the original.
+
+    call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=longName, _RC)
+    if (index(longName, "%d") /= 0) then
+       call expandBinNumber(fields, _RC)
+    end if
+
+
     _RETURN(ESMF_SUCCESS)
 
   contains
+    subroutine expandBinNumber(fields, rc)
+      type(ESMF_Field) :: fields(:)
+      integer, optional :: rc
+
+      integer :: i, tlen, i1, i2
+      character(len=ESMF_MAXSTR) :: longName
+      character(len=3) :: tmp
+      character(len=ESMF_MAXSTR) :: newLongName
+
+      do i = 1, size(fields)
+         call ESMF_AttributeGet(fields(i), NAME='LONG_NAME', VALUE=longName, _RC)
+         i1 = index(longName, "%d")
+         _ASSERT(i1>0, "Nothing to expand")
+         i2 = i1 + 2 ! size of "%d"
+         tlen = len_trim(longName)
+         _ASSERT(tlen + 1 <= len(longName),'LONG_NAME would exceed MAX length after expansion')
+         write(tmp,'(i3.3)') i
+         newLongName = longName(1:i1-1)//tmp//trim(longName(i2:tlen))
+         ! remove old attribute
+         call ESMF_AttributeRemove(fields(i), NAME='LONG_NAME', _RC)
+         ! save the new one
+         call ESMF_AttributeSet(fields(i), NAME='LONG_NAME', VALUE=newLongName, _RC)
+      end do
+    _RETURN(ESMF_SUCCESS)
+    end subroutine expandBinNumber
+
     subroutine genAlias(name, n, splitNameArray, aliasName, rc)
       integer :: n
       character(len=*) :: name
@@ -3886,6 +3924,7 @@ contains
       deallocate(tmp)
       ! if the user did no supply enough separated alias field names,
       ! append 00i to the original field name
+      if (n==1) nn=0
       do i=nn+1,n
          write(splitNameArray(i),'(A,I3.3)') trim(name), i
       end do

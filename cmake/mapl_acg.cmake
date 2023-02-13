@@ -44,7 +44,26 @@ function (mapl_acg target specs_file)
       list (APPEND options ${flag} ${ARGS_${opt}})
     elseif (${opt} IN_LIST ARGS_KEYWORDS_MISSING_VALUES)
       string (REPLACE "{component}" component_name fname ${default})
-      list (APPEND generated "${component_name}_${fname}${suffix_for_generated_include_files}")
+
+      # What the ACG does is take the specs_file and then removes the extension and then
+      # it removes both "_Registry" and "_StateSpecs" from the resulting string. We need to do the
+      # same here in CMake.
+      #   Example: ${specs_file1} = GEOS_MyGridComp_Registry.rc
+      #            ${specs_file2} = GEOS_MyGridComp_StateSpecs.rc
+      #
+      #   ${specs_file1} -> GEOS_MyGridComp_Registry.rc -> GEOS_MyGridComp_Registry -> GEOS_MyGridComp
+      #   ${specs_file2} -> GEOS_MyGridComp_StateSpecs.rc -> GEOS_MyGridComp_StateSpecs -> GEOS_MyGridComp
+
+      # First get the filename without the extension
+      get_filename_component (specs_file_no_ext ${specs_file} NAME_WE)
+
+      # Now remove the _Registry and _StateSpecs
+      string (REPLACE "_Registry" "" specs_file_base ${specs_file_no_ext})
+      string (REPLACE "_StateSpecs" "" specs_file_base ${specs_file_base})
+
+      # Now we let CMake know the generated file will be named off of the specs_file_base
+      list (APPEND generated "${specs_file_base}_${fname}${suffix_for_generated_include_files}")
+
       list (APPEND options ${flag})
     endif ()
 

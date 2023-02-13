@@ -23,15 +23,13 @@ module ExtDataDriverMod
       character(:), allocatable :: name
       type(ServerManager) :: cap_server
       type (ESMF_LogKind_Flag) :: esmf_logging_mode = ESMF_LOGKIND_NONE
-      type(MpiServer), pointer :: i_server=>null()
-      type(MpiServer), pointer :: o_server=>null()
-      type(DirectoryService) :: directory_service
       type (MAPL_CapOptions) :: cap_options
       type(SplitCommunicator) :: split_comm
 
    contains
       procedure :: run
       procedure :: initialize_io_clients_servers
+      procedure :: finalize_io_clients_servers
       procedure :: initialize_mpi
    end type ExtDataDriver
 
@@ -60,7 +58,7 @@ contains
          driver%cap_options = MAPL_CapOptions()
       endif
       call driver%initialize_mpi()
-      call MAPL_Initialize(rc=status)
+      call MAPL_Initialize(comm=MPI_COMM_WORLD,rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end function newExtDataDriver
@@ -86,7 +84,7 @@ contains
       character(len=:), pointer :: cname
       type(StringVector) :: cases
       type(StringVectorIterator) :: iter  
-      type(SplitCommunicator) :: split_comm 
+      type(SplitCommunicator) :: split_comm
 
       CommCap = MPI_COMM_WORLD
 
@@ -136,11 +134,8 @@ contains
             call iter%next()
          enddo
 
-         call this%cap_server%finalize()
       end select
 
-      call MPI_Barrier(CommCap,status)
-      _VERIFY(STATUS) 
 !  Finalize framework
 !  ------------------
 
@@ -151,7 +146,8 @@ contains
         open(99,file='egress',form='formatted')
         close(99)
      end if
-    
+   
+      call this%finalize_io_clients_servers()
       call MAPL_Finalize(rc=status)
       _VERIFY(status) 
       call mpi_finalize(status)
@@ -172,18 +168,41 @@ contains
      integer :: status
 
      _UNUSED_DUMMY(unusable)
-     
+
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &
          nodes_output_server=this%cap_options%nodes_output_server, &
          npes_input_server=this%cap_options%npes_input_server, &
          npes_output_server=this%cap_options%npes_output_server, &
-         rc=status)
+         oserver_type=this%cap_options%oserver_type, &
+         npes_backend_pernode=this%cap_options%npes_backend_pernode, &
+         isolate_nodes = this%cap_options%isolate_nodes, &
+         fast_oclient  = this%cap_options%fast_oclient, &
+         with_profiler = this%cap_options%with_io_profiler, &
+         rc=status) 
      _VERIFY(status)
      _RETURN(_SUCCESS)
 
    end subroutine initialize_io_clients_servers
+
+   subroutine finalize_io_clients_servers(this, unusable, rc)
+     class (ExtDataDriver), target, intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+     type(SplitCommunicator) :: split_comm
+
+     _UNUSED_DUMMY(unusable)
+     call this%cap_server%get_splitcomm(split_comm)
+     select case(split_comm%get_name())
+     case('model')
+        call i_Clients%terminate()
+        call o_Clients%terminate()
+     end select
+     call this%cap_server%finalize()
+     _RETURN(_SUCCESS)
+
+   end subroutine finalize_io_clients_servers
 
    subroutine initialize_mpi(this, unusable, rc) 
       class (ExtDataDriver), intent(inout) :: this
