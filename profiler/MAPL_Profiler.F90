@@ -8,7 +8,7 @@ module mapl_Profiler
    use mapl_MeterNodeVector
    use mapl_MeterNode
    use mapl_BaseProfiler
-   
+
    use mapl_AdvancedMeter
    use mapl_MpiTimerGauge
    use mapl_FortranTimerGauge
@@ -41,9 +41,12 @@ module mapl_Profiler
    use mapl_SeparatorColumn
    use mapl_GlobalProfilers
 
+   use pflogger, only: logging
+   use pflogger, only: Logger
+
    implicit none
 
-contains 
+contains
 
    subroutine initialize(comm, unusable, enable_global_timeprof, enable_global_memprof, rc)
       use mapl_ErrorHandlingMod
@@ -101,6 +104,7 @@ contains
       character(1) :: empty(0)
       class (BaseProfiler), pointer :: t_p
       class (BaseProfiler), pointer :: m_p
+      type(Logger), pointer :: lgr
 
       if (present(comm)) then
          world_comm = comm
@@ -119,22 +123,23 @@ contains
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(50, separator= " "))
          call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
-         
+
          inclusive = MultiColumn(['Inclusive'], separator='=')
          call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
          call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
          call reporter%add_column(inclusive)
-         
+
          exclusive = MultiColumn(['Exclusive'], separator='=')
          call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
          call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
          call reporter%add_column(exclusive)
-         
+
          if (my_rank == 0) then
             report_lines = reporter%generate_report(t_p)
-            write(*,'(a,1x,i0)')'Report on process: ', my_rank
+            lgr => logging%get_logger('MAPL.profiler')
+            call lgr%info('Report on process: %i0', my_rank)
             do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
+               call lgr%info('%a', report_lines(i))
             end do
          end if
       end if
@@ -143,22 +148,23 @@ contains
       if (m_p%get_num_meters() > 0) then
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(50, separator= " "))
-         
+
          inclusive = MultiColumn(['Inclusive'], separator='=')
          call inclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, InclusiveColumn(), separator='-'))
 !!$      call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn()), separator='-'))
          call reporter%add_column(inclusive)
-         
+
          exclusive = MultiColumn(['Exclusive'], separator='=')
          call exclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, ExclusiveColumn(), separator='-'))
          call exclusive%add_column(FormattedTextColumn(' MEM (KB)','(-3p,f15.3, 0p)', 15, ExclusiveColumn(), separator='-'))
 !!$      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
          call reporter%add_column(exclusive)
-         
+
          if (my_rank == 0) then
             report_lines = reporter%generate_report(m_p)
+            lgr => logging%get_logger('MAPL.profiler')
             do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
+               call lgr%info('%a', report_lines(i))
             end do
          end if
       end if
@@ -169,8 +175,5 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine report_global_profiler
-
-
-
 
 end module mapl_Profiler
