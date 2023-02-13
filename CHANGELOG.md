@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix bug in ExtData2G when used in "Replay" in the GEOSgcm
+
 ### Removed
 
 ### Deprecated
