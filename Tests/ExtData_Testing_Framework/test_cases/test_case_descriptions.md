@@ -32,3 +32,5 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 25. Test reading edge variable
 26. Test reading edge + center variables
 27. Case with a "gap" in the data
+28. "Replay" type run, update every time
+29. "Replay" type run, update once a day with offset
