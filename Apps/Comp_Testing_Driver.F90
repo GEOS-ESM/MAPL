@@ -10,7 +10,6 @@ program comp_testing_driver
   use MAPL_CapGridCompMod
   use MAPL_TimeDataMod
   use MAPL_GridManagerMod
-  !use GEOS_GwdGridCompMod, only : GwdSetServices => SetServices
 
   implicit none
 
@@ -23,25 +22,31 @@ program comp_testing_driver
       type(ESMF_VM) :: vm
       character(len=ESMF_MAXSTR) :: filename, compName
       type(ESMF_Config) :: config
+      class(BaseProfiler), pointer :: t_p
 
       ! initialize
       call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_MULTI, vm=vm, _RC)
       call ESMF_VMGet(vm, localPET=myPET, petCount=nPET, _RC)
       call MAPL_Initialize(_RC)
       call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN, _RC) ! need in order to set time
+      t_p => get_global_time_profiler()
+      call t_p%start('Comp_Testing_Driver.x')
 
       ! get rc filename and components to run
       call get_command_argument(1, filename)
       config = ESMF_ConfigCreate(_RC)
       call ESMF_ConfigLoadFile(config, filename, _RC)
       call ESMF_ConfigFindLabel(config, label="COMPONENT_TO_RUN:", _RC)
+      
+      call ESMF_ConfigGetAttribute(config, value=compName, _RC)
       compStatus = 0
-      !do while (compStatus == 0)
-         call ESMF_ConfigGetAttribute(config, value=compName, rc=compStatus)
+      do while (compStatus == 0)
          call driver_component(filename, compName, _RC)
-      !end do
+         call ESMF_ConfigGetAttribute(config, value=compName, rc=compStatus)
+      end do
 
       ! finalize
+      call t_p%stop('Comp_Testing_Driver.x')
       call MAPL_Finalize(_RC)
       call ESMF_Finalize (_RC)
   end subroutine main
@@ -49,33 +54,30 @@ program comp_testing_driver
   subroutine driver_component(filename, compName, rc)
     character(len=*), intent(in) :: filename, compName
     integer, intent(out) :: rc
-    integer :: status, root_id, GWD
-    character(len=ESMF_MAXSTR) :: time, startTime
+    integer :: status, root_id, GWD, userRC, RUN_DT
+    character(len=ESMF_MAXSTR) :: time, startTime, sharedObj
     type(ESMF_Clock) :: clock
     type (MAPL_MetaComp), pointer :: state
     type(ESMF_Time), allocatable :: timeSeries(:)
     type(ESMF_TimeInterval) :: timeInterval
-    type(ESMF_GridComp) :: GC
+    type(ESMF_GridComp) :: temp_GC, GC, child_GC
     type(ESMF_State) :: import, export
     type(ESMF_Config) :: config
     type(ESMF_Time) :: esmf_startTime
     type(ESMF_Grid) :: grid
-    type (MAPL_MetaComp), pointer :: metacomp
     procedure(), pointer :: root_set_services
-    character(len=ESMF_MAXSTR) :: GC_name
     type (MAPL_MetaComp), pointer :: maplobj
    
-    print*, trim(compName)
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
 
-    ! any additional attributes, possibly load these in main and pass as input, depending on how many there are
+    ! any additional attributes
     call ESMF_ConfigGetAttribute(config, value=startTime, label="START_TIME:", _RC)
     call ESMF_ConfigGetAttribute(config, value=time, label="TIME:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
     
     ! Create a clock, set current time to required time consistent with checkpoints used 
-    ! (we probably could pull this time straight from the checkpoint)
-    call ESMF_TimeIntervalSet(timeInterval, h=6, m=0, s=0, _RC)
+    call ESMF_TimeIntervalSet(timeInterval, s=RUN_DT, _RC)
     startTime = trim(startTime)
     esmf_startTime = parse_time_string(startTime, _RC)
     clock = ESMF_ClockCreate(timeInterval, esmf_startTime, _RC)
@@ -86,27 +88,31 @@ program comp_testing_driver
     grid=grid_manager%make_grid(config, _RC)
 
     ! Add component to be tested as the “child” via MAPL_AddChild
-    !call MAPL_Set(metacomp, CF=config, _RC)
-    !root_id = MAPL_AddChild(metacomp, name=compName, userRoutine="comp_test", _RC)
-    !allocate(MAPLOBJ)
-    !call MAPL_Set(MAPLOBJ, CF=config, RC=STATUS)
-    GC_name = trim(compName)
-    GC = ESMF_GridCompCreate(name=GC_name, _RC)
+    temp_GC = ESMF_GridCompCreate(name=compName, _RC)
     maplobj => null()
-    call MAPL_InternalStateCreate(gc, maplobj, _RC)
-    call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
-    call MAPL_Set(MAPLOBJ, CF=config, _RC)
-    root_id = MAPL_AddChild(MAPLOBJ, name=GC_name, userRoutine="setservices_", sharedObj="libGEOSgwd_GridComp", _RC)  ! add grid as well? need sharedObj?
-    !GWD = MAPL_AddChild(GC, NAME='GWD', SS=MAPL_GenericSetServices, RC=STATUS)
+    call MAPL_InternalStateCreate(temp_GC, maplobj, _RC)
+    call MAPL_InternalStateRetrieve(temp_GC, maplobj, _RC)
+    call MAPL_Set(maplobj, CF=config, _RC)
+
+    ! get DSO from component name
+    sharedObj = "libGEOS"//ESMF_UtilStringLowerCase(trim(compName))//"_GridComp.so"
+    root_id = MAPL_AddChild(maplobj, grid=grid, name=compName, userRoutine="setservices_", sharedObj=sharedObj, _RC) 
     
     ! Set grid in child
-    ! set coords? attributes?
+    GC = maplobj%get_child_gridcomp(root_id)
+    import = maplobj%get_child_import_state(root_id)
+    export = maplobj%get_child_export_state(root_id)
+    call ESMF_GridCompSet(GC, grid=grid, _RC)
     
     ! Will probably have to do something to force the right exports to get allocated when we run 
     ! genericinitialize, one idea is to use the checkpoint itself, examine, what variables are in
     ! the checkpoint for the export and ensure those variables are allocated in the genericinitialize, somehow...
-
-    !call MAPL_GenericInitialize(GC, import, export, clock, _RC)
+        
+    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
+    !call ESMF_ClockAdvance ( clock = clock, _RC)
+    call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
+    !call ESMF_ClockAdvance ( clock = clock, _RC)
+    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
     !call MAPL_GenericRunChildren(GC, import, export, clock, _RC)
     !call MAPL_GenericFinalize(GC, import, export, clock, _RC)
 
