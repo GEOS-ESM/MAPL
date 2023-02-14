@@ -929,16 +929,10 @@ contains
          MYGRID%JM = COUNTS(2)
          MYGRID%LM = COUNTS(3)
 
-         print*, "IM: ", MYGRID%IM
-         print*, "JM: ", MYGRID%JM
-
          call MAPL_GridGet(MYGRID%ESMFGRID, globalCellCountPerDim=COUNTS, _RC)
 
          MYGRID%IM_WORLD = COUNTS(1)
          MYGRID%JM_WORLD = COUNTS(2)
-
-         print*, "IM_WORLD: ", MYGRID%IM_WORLD
-         print*, "JM_WORLD: ", MYGRID%JM_WORLD
 
          allocate(minindex(dimCount,ndes), maxindex(dimCount,ndes), __STAT__)
 
@@ -1819,7 +1813,6 @@ contains
 
       call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-         !print*, 'attempting capture before run is called, for: ', trim(comp_name)
          call capture('before', GC, import, export, clock, _RC)
       end if
 
@@ -1837,7 +1830,6 @@ contains
       end if
 
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-         !print*, 'attempting capture after run is called, for: ', trim(comp_name)
          call capture('after', GC, import, export, clock, _RC)
       end if
 

@@ -365,9 +365,6 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
         allocate(deToTileMap(deCount),__STAT__)
         allocate(oldMinIndex(2,deCount),oldMaxIndex(2,deCount),__STAT__)
-        print*, "oldMaxIndex dim 1: ", size(oldMaxIndex, dim=1), "dim 2: ", size(oldMaxIndex, dim=2)
-        print*, "oldMinIndex dim 1: ", size(oldMinIndex, dim=1), "dim 2: ", size(oldMinIndex, dim=2)
-        print*, "deToTileMap size: ", size(deToTileMap)
         call ESMF_DistGridGet(distGrid,MaxIndexPDe=oldMaxIndex,MinIndexPDe=oldMinIndex, &
                               deToTileMap=deToTileMap,_RC)
         do i=1,deCount
