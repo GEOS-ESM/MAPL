@@ -18,7 +18,7 @@ program comp_testing_driver
   CONTAINS
     
     subroutine main()
-      integer :: status, compStatus, rc, myPET, nPET, numArgs
+      integer :: status, compStatus, rc, myPET, nPET
       type(ESMF_VM) :: vm
       character(len=ESMF_MAXSTR) :: filename, compName
       type(ESMF_Config) :: config
@@ -54,18 +54,15 @@ program comp_testing_driver
   subroutine driver_component(filename, compName, rc)
     character(len=*), intent(in) :: filename, compName
     integer, intent(out) :: rc
-    integer :: status, root_id, GWD, userRC, RUN_DT
+    integer :: status, root_id, userRC, RUN_DT
     character(len=ESMF_MAXSTR) :: time, startTime, sharedObj
     type(ESMF_Clock) :: clock
-    type (MAPL_MetaComp), pointer :: state
-    type(ESMF_Time), allocatable :: timeSeries(:)
     type(ESMF_TimeInterval) :: timeInterval
-    type(ESMF_GridComp) :: temp_GC, GC, child_GC
+    type(ESMF_GridComp) :: temp_GC, GC
     type(ESMF_State) :: import, export
     type(ESMF_Config) :: config
     type(ESMF_Time) :: esmf_startTime
     type(ESMF_Grid) :: grid
-    procedure(), pointer :: root_set_services
     type (MAPL_MetaComp), pointer :: maplobj
    
     config = ESMF_ConfigCreate(_RC)
@@ -109,12 +106,8 @@ program comp_testing_driver
     ! the checkpoint for the export and ensure those variables are allocated in the genericinitialize, somehow...
         
     call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
-    !call ESMF_ClockAdvance ( clock = clock, _RC)
     call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
-    !call ESMF_ClockAdvance ( clock = clock, _RC)
     call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
-    !call MAPL_GenericRunChildren(GC, import, export, clock, _RC)
-    !call MAPL_GenericFinalize(GC, import, export, clock, _RC)
 
     _RETURN(_SUCCESS)
   end subroutine driver_component
