@@ -930,10 +930,16 @@ contains
          MYGRID%JM = COUNTS(2)
          MYGRID%LM = COUNTS(3)
 
+         print*, "IM: ", MYGRID%IM
+         print*, "JM: ", MYGRID%JM
+
          call MAPL_GridGet(MYGRID%ESMFGRID, globalCellCountPerDim=COUNTS, _RC)
 
          MYGRID%IM_WORLD = COUNTS(1)
          MYGRID%JM_WORLD = COUNTS(2)
+
+         print*, "IM_WORLD: ", MYGRID%IM_WORLD
+         print*, "JM_WORLD: ", MYGRID%JM_WORLD
 
          allocate(minindex(dimCount,ndes), maxindex(dimCount,ndes), __STAT__)
 
@@ -4942,7 +4948,6 @@ end subroutine MAPL_AddDatabaseAttributes
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
-      print*, 'adjusted name: ', trim(shared_object_library_to_load)
       call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
            sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
       _VERIFY(userRC)
