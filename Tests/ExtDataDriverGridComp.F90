@@ -638,6 +638,7 @@ contains
           call cap%run_one_step(status)
           _VERIFY(status)
        enddo
+       if (mapl_am_i_root()) write(*,*)"Rewinding Clock"
        call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_REVERSE,_RC)
        do n=1,cap%nsteps
           call ESMF_ClockAdvance(cap%clock,rc=status)
@@ -710,7 +711,7 @@ contains
     end if
     call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
     if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent
-1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2,2x,f5.1,'%Memory Committed')
+1000 format(1x,'TestDriver Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2,2x,f5.1,'%Memory Committed')
 
 
     _RETURN(ESMF_SUCCESS)

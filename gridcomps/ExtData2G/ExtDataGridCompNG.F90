@@ -550,7 +550,7 @@ CONTAINS
    type(DerivedExport), pointer      :: derivedItem
    integer                           :: i
 
-   type(ESMF_Time)                   :: time, current_time
+   type(ESMF_Time)                   :: use_time, current_time
    type(MAPL_MetaComp), pointer      :: MAPLSTATE
 
    logical                           :: doUpdate_
@@ -631,19 +631,19 @@ CONTAINS
 
       call MAPL_TimerOn(MAPLSTATE,"--CheckUpd")
 
-      call item%update_freq%check_update(do_pointer_update(i),time,current_time,.not.hasRun,_RC)
+      call item%update_freq%check_update(do_pointer_update(i),use_time,current_time,.not.hasRun,_RC)
       adjusted_time = item%update_freq%get_adjusted_time(current_time)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
       !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
       call item%modelGridFields%comp1%reset()
-      call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
+      call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
       if (item%vartype == MAPL_VectorField) then
-         call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
+         call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
       call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
       call IOBundle_Add_Entry(IOBundles,item,idx)
-      useTime(i)=time
+      useTime(i)=use_time
 
    end do READ_LOOP
 
@@ -737,7 +737,7 @@ CONTAINS
 
       derivedItem => self%derived%item(i)
 
-      call derivedItem%update_freq%check_update(doUpdate_,time,current_time,.not.hasRun,_RC)
+      call derivedItem%update_freq%check_update(doUpdate_,use_time,current_time,.not.hasRun,_RC)
 
       if (doUpdate_) then
 
