@@ -89,7 +89,8 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta, child_meta
       type(ChildComponent) :: child
       character(:), allocatable :: expected
-      
+      type(ESMF_GridComp) :: child_outer_gc
+
       call clear_log()
       
       associate ( &
@@ -108,7 +109,9 @@ contains
 
         child = outer_meta%get_child('AB', rc=status)
         @assert_that(status, is(0))
-        child_meta => get_outer_meta(child%gridcomp)
+        child_outer_gc = child%get_outer_gridcomp()
+        child_meta => get_outer_meta(child_outer_gc, rc=status)
+        @assert_that(status, is(0))
 
         call child_meta%add_child('ABD', ss_leaf, config, rc=status)
         @assert_that(status, is(0))
@@ -117,7 +120,9 @@ contains
       
         child = outer_meta%get_child('AC', rc=status)
         @assert_that(status, is(0))
-        child_meta => get_outer_meta(child%gridcomp)
+        child_outer_gc = child%get_outer_gridcomp()
+        child_meta => get_outer_meta(child_outer_gc, rc=status)
+        @assert_that(status, is(0))
 
         call child_meta%add_child('ACF', ss_leaf, config, rc=status)
         @assert_that(status, is(0))

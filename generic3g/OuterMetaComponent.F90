@@ -82,6 +82,7 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_user
       procedure :: initialize_geom_base
       procedure :: initialize_advertise
+      procedure :: initialize_post_advertise
       procedure :: initialize_realize
 
       procedure :: run
@@ -108,9 +109,9 @@ module mapl3g_OuterMetaComponent
       procedure :: get_gridcomp
       procedure :: is_root
       procedure :: get_registry
-      procedure :: get_subregistries
 
       procedure :: get_component_spec
+      procedure :: get_internal_state
 
    end type OuterMetaComponent
 
@@ -422,11 +423,6 @@ contains
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
 
-!!$      call this%registry%add_to_states(&
-!!$           importState=importState, &
-!!$           exportState=exportState, &
-!!$           internalState=this%esmf_internalState, _RC)
-
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains
@@ -532,6 +528,31 @@ contains
      end subroutine process_connections
   end subroutine initialize_advertise
 
+  recursive subroutine initialize_post_advertise(this, importState, exportState, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
+
+      call this%registry%add_to_states(&
+           importState=importState, &
+           exportState=exportState, &
+           internalState=this%esmf_internalState, _RC)
+
+      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
+      
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize_post_advertise
+
+
+
    recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
@@ -544,17 +565,13 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
 
-      call this%registry%add_to_states(&
-           importState=importState, &
-           exportState=exportState, &
-           internalState=this%esmf_internalState, _RC)
-
       call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
 
       call this%registry%allocate(_RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    contains
 
    end subroutine initialize_realize
@@ -583,6 +600,7 @@ contains
       end associate
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine exec_user_init_phase
 
    recursive subroutine apply_to_children_simple(this, clock, phase_idx, rc)
@@ -618,12 +636,14 @@ contains
       type(ChildComponentMapIterator) :: iter
       type(ChildComponent), pointer :: child
       type(OuterMetaComponent), pointer :: child_meta
+      type(ESMF_GridComp) :: child_outer_gc
 
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
            child => iter%second()
-           child_meta => get_outer_meta(child%gridcomp, _RC)
+           child_outer_gc = child%get_outer_gridcomp()
+           child_meta => get_outer_meta(child_outer_gc, _RC)
            call oper(this, child_meta, _RC)
            call iter%next()
         end do
@@ -828,6 +848,7 @@ contains
       type(ChildComponentMapIterator) :: iter
       type(ChildComponent), pointer :: child
       class(OuterMetaComponent), pointer :: child_meta
+      type(ESMF_GridComp) :: child_outer_gc
 
       if (present(pre)) then
          call pre(this, _RC)
@@ -837,7 +858,8 @@ contains
         iter = b
         do while (iter /= e)
            child => iter%second()
-           child_meta => get_outer_meta(child%gridcomp, _RC)
+           child_outer_gc = child%get_outer_gridcomp()
+           child_meta => get_outer_meta(child_outer_gc, _RC)
            call child_meta%traverse(pre=pre, post=post, _RC)
            call iter%next()
         end do
@@ -891,42 +913,20 @@ contains
       r => this%registry
    end function get_registry
 
-   subroutine get_subregistries(this, subregistries, rc)
-      use mapl3g_RegistryPtrMap
-      use mapl3g_RegistryPtr
-      class(OuterMetaComponent), intent(in) :: this
-      type(RegistryPtrMap), intent(out) :: subregistries
-      integer, optional, intent(out) :: rc
-
-      type(ChildComponentMapIterator) :: iter
-      character(:), pointer :: name
-      type(ChildComponent), pointer :: child
-      type(Outermetacomponent), pointer :: child_meta
-      type(RegistryPtr) :: wrap
-      
-      associate (e => this%children%end())
-        iter = this%children%begin()
-
-        do while (iter /= e)
-           name => iter%first()
-           child => iter%second()
-           child_meta => get_outer_meta(child%gridcomp)
-           wrap%registry => child_meta%get_registry()
-
-           call subregistries%insert(name, wrap)
-
-           call iter%next()
-        end do
-
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine get_subregistries
 
    function get_component_spec(this) result(component_spec)
       type(ComponentSpec), pointer :: component_spec
       class(OuterMetaComponent), target, intent(in) :: this
       component_spec => this%component_spec
    end function get_component_spec
+
+
+   function get_internal_state(this) result(internal_state)
+      type(ESMF_State) :: internal_state
+      class(OuterMetaComponent), intent(in) :: this
+
+      internal_state = this%esmf_internalState
+
+   end function get_internal_state
 
 end module mapl3g_OuterMetaComponent

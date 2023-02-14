@@ -82,4 +82,53 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine finalize_self
 
+   module function get_state_string_intent(this, state_intent, rc) result(state)
+      type(ESMF_State) :: state
+      class(ChildComponent), intent(inout) :: this
+      character(*), intent(in) :: state_intent
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      select case (state_intent)
+      case ('import')
+         state = this%import_state
+      case ('export')
+         state = this%export_state
+      case ('internal')
+         outer_meta => get_outer_meta(this%gridcomp, _RC)
+         state = outer_meta%get_internal_state()
+      case default
+         _FAIL('Unsupported state intent: <'//state_intent//'>.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_state_string_intent
+
+   module function get_state_esmf_intent(this, state_intent, rc) result(state)
+      use mapl3g_VirtualConnectionPt, only: ESMF_STATEINTENT_INTERNAL
+      type(ESMF_State) :: state
+      class(ChildComponent), intent(inout) :: this
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: string_intent
+
+      if (state_intent == ESMF_STATEINTENT_IMPORT) then
+         string_intent = 'import'
+      else if (state_intent == ESMF_STATEINTENT_EXPORT) then
+         string_intent = 'export'
+      else if (state_intent == ESMF_STATEINTENT_INTERNAL) then
+         string_intent = 'internal'
+      else
+         string_intent = '<unknown>'
+      end if
+
+      state = this%get_state(string_intent, _RC)
+      
+      _RETURN(_SUCCESS)
+   end function get_state_esmf_intent
+
 end submodule ChildComponent_run_smod

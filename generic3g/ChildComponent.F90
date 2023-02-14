@@ -5,13 +5,11 @@ module mapl3g_ChildComponent
 
    public :: ChildComponent
 
-   ! This is a _struct_ not a class: components are intentionally
-   ! PUBLIC
    type :: ChildComponent
+      private
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State)    :: import_state
       type(ESMF_State)    :: export_state
-!!$      type(CouplerComponentVector) :: couplers
    contains
       procedure, private :: run_self
       procedure, private :: initialize_self
@@ -19,6 +17,13 @@ module mapl3g_ChildComponent
       generic :: run => run_self
       generic :: initialize => initialize_self
       generic :: finalize => finalize_self
+
+      procedure :: get_state_string_intent
+      procedure :: get_state_esmf_intent
+      generic :: get_state => get_state_string_intent
+      generic :: get_state => get_state_esmf_intent
+
+      procedure :: get_outer_gridcomp
 
    end type ChildComponent
 
@@ -56,6 +61,22 @@ module mapl3g_ChildComponent
          integer, optional, intent(out) :: rc
       end subroutine finalize_self
 
+      module function get_state_string_intent(this, state_intent, rc) result(state)
+         use esmf, only: ESMF_State
+         type(ESMF_State) :: state
+         class(ChildComponent), intent(inout) :: this
+         character(*), intent(in) :: state_intent
+         integer, optional, intent(out) :: rc
+      end function
+
+      module function get_state_esmf_intent(this, state_intent, rc) result(state)
+         use esmf, only: ESMF_State, ESMF_StateIntent_Flag
+         type(ESMF_State) :: state
+         class(ChildComponent), intent(inout) :: this
+         type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+         integer, optional, intent(out) :: rc
+      end function
+
    end interface
 
 contains
@@ -69,5 +90,12 @@ contains
       child%export_state = ESMF_StateCreate()
       
    end function new_ChildComponent
+
+   function get_outer_gridcomp(this) result(gridcomp)
+      use esmf, only: ESMF_GridComp
+      type(ESMF_GridComp) :: gridcomp
+      class(ChildComponent), intent(in) :: this
+      gridcomp = this%gridcomp
+   end function get_outer_gridcomp
 
 end module mapl3g_ChildComponent
