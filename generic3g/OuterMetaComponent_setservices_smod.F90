@@ -45,6 +45,7 @@ contains
          this%component_spec = parse_component_spec(this%config%yaml_cfg, _RC)
       end if
 
+      this%esmf_internalState = ESMF_StateCreate(_RC)
       call process_user_gridcomp(this, _RC)
       call add_children_from_config(this, _RC)
 
@@ -183,12 +184,14 @@ contains
          type(ChildComponentMapIterator), allocatable :: iter
          integer :: status
          type(ChildComponent), pointer :: child_comp
+         type(ESMF_GridComp) :: child_outer_gc
 
          associate ( b => this%children%begin(), e => this%children%end() )
            iter = b
            do while (iter /= e)
               child_comp => iter%second()
-              call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
+              child_outer_gc = child_comp%get_outer_gridcomp()
+              call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
               call iter%next()
            end do
          end associate

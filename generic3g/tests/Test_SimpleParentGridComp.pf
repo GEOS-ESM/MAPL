@@ -94,9 +94,13 @@ contains
       @assert_that(status, is(0))
       call check('child_A', 'export', ['E_A1'], rc=status)
       @assert_that(status, is(0))
+      call check('child_A', 'internal', ['Z_A1'], rc=status)
+      @assert_that(status, is(0))
       call check('child_B', 'import', ['I_B1'], rc=status)
       @assert_that(status, is(0))
       call check('child_B', 'export', ['E_B1'], rc=status)
+      @assert_that(status, is(0))
+      call check('child_B', 'internal', ['Z_B1'], rc=status)
       @assert_that(status, is(0))
 
    contains
@@ -115,7 +119,7 @@ contains
          rc = -1
          child_comp = outer_meta%get_child(child_name, rc=status)
          @assert_that('child <'//child_name//'> not found.', status, is(0))
-         call get_state(child_comp, state_intent, state, rc=status)
+         state = child_comp%get_state(state_intent, rc=status)
          @assert_that('invalid state intent', status, is(0))
 
          do i = 1, size(expected_items)
@@ -127,26 +131,6 @@ contains
       end subroutine check
 
    end subroutine test_import_items_created
-
-   subroutine get_state(child_comp, state_intent, state, rc)
-      type (ChildComponent), intent(in) :: child_comp
-      character(*), intent(in) :: state_intent
-      type(ESMF_State), intent(out) :: state
-      integer, optional, intent(out) :: rc
-
-      rc = -1
-      select case (state_intent)
-      case ('import')
-         state = child_comp%import_state
-      case ('export')
-         state = child_comp%export_state
-!!$      case ('internal')
-!!$         ???
-      case default
-         @assertTrue(1==2, 'unknown state intent: <'//state_intent//'>.')
-      end select
-      rc = 0
-   end subroutine get_state
 
    @test(npes=[0])
    subroutine test_complete_items(this)
@@ -193,8 +177,7 @@ contains
          rc = -1
          child_comp = outer_meta%get_child(child_name, rc=status)
          @assert_that('child <'//child_name//'> not found.', status, is(0))
-         call get_state(child_comp, state_intent, state, rc=status)
-         @assert_that('invalid state intent', status, is(0))
+         state = child_comp%get_state(state_intent, rc=status)
 
          call ESMF_StateGet(state, item, f, rc=status)
          @assert_that('Item <'//item//'> not found in child <'//child_name//'>.', status, is(0))
