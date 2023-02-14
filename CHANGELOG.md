@@ -9,17 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added test cases 28 and 29 to ExtData testing framework
-
 ### Changed
 
 ### Fixed
 
-- Fix bug in ExtData2G when used in "Replay" in the GEOSgcm
-
 ### Removed
 
 ### Deprecated
+
+## [2.34.3] - 2023-02-14
+
+### Added
+
+- Added test cases 28 and 29 to ExtData testing framework
+
+### Fixed
+
+- Fix bug in ExtData2G when used in "Replay" in the GEOSgcm
 
 ## [2.34.2] - 2023-01-19
 
