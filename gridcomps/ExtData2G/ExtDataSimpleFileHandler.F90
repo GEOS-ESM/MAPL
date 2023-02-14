@@ -13,7 +13,6 @@ module MAPL_ExtdataSimpleFileHandler
    use MAPL_StringTemplate
    use MAPL_ExtDataBracket
    use MAPL_ExtDataConstants
-   use MAPL_CommsMod
 
    implicit none
    private
