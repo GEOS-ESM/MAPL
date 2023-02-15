@@ -53,6 +53,8 @@ module MAPL_CubedSphereGridFactoryMod
       real :: stretch_factor = MAPL_UNDEFINED_REAL
       real :: target_lon = MAPL_UNDEFINED_REAL
       real :: target_lat = MAPL_UNDEFINED_REAL
+      real :: target_lon_degrees = MAPL_UNDEFINED_REAL
+      real :: target_lat_degrees = MAPL_UNDEFINED_REAL
       logical :: stretched_cube = .false.
 
       ! For halo
@@ -339,6 +341,8 @@ contains
          select type(q=>attr_val)
          type is (real(kind=REAL32))
             this%target_lat = q(1)
+         type is (real(kind=REAL64))
+            this%target_lat = q(1)
          class default
             _FAIL('unsupport subclass for stretch params')
          end select
@@ -346,6 +350,8 @@ contains
          attr_val => attr%get_values()
          select type(q=>attr_val)
          type is (real(kind=REAL32))
+            this%target_lon = q(1)
+         type is (real(kind=REAL64))
             this%target_lon = q(1)
          class default
             _FAIL('unsupport subclass for stretch params')
@@ -640,6 +646,8 @@ contains
          _ASSERT(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
          _ASSERT(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
          this%stretched_cube = .true.
+         this%target_lon_degrees = this%target_lon
+         this%target_lat_degrees = this%target_lat
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0
       end if
@@ -1071,8 +1079,8 @@ contains
 
       if (this%stretched_cube) then
          call metadata%add_attribute('stretch_factor',this%stretch_factor)
-         call metadata%add_attribute('target_lon',this%target_lon*180.0/MAPL_PI)
-         call metadata%add_attribute('target_lat',this%target_lat*180.0/MAPL_PI)
+         call metadata%add_attribute('target_lon',this%target_lon_degrees)
+         call metadata%add_attribute('target_lat',this%target_lat_degrees)
       end if
 
    end subroutine append_metadata

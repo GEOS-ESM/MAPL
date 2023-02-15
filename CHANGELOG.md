@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in CubedSphereGridFactory when constructing a grid from a file
+
 ### Removed
 
 ### Deprecated
