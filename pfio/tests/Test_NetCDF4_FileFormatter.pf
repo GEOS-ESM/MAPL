@@ -137,4 +137,42 @@ contains
 
    end subroutine test_write_read_variable_attribute
 
+   @test
+   subroutine test_add_variable()
+      type (NetCDF4_FileFormatter) :: formatter
+      type (FileMetadata) :: cf_expected
+      type (FileMetadata) :: cf_found
+      type (Variable) :: v,v1
+      integer :: status
+
+!      call cf_expected%add_dimension('x',1)
+!      call cf_expected%add_dimension('y',2)
+
+!      v = Variable(type=pFIO_INT32, dimensions='x,y')
+!      call v%add_attribute('attr', [1.,2.,3.])
+!      call cf_expected%add_variable('var', v)
+!
+      call formatter%create('test.nc', rc=status)
+!      @assertEqual(NF90_NOERR, status)
+!      call formatter%write(cf_expected, rc=status)
+!      @assertEqual(0, NF90_NOERR)
+!
+!      v1 = Variable(type=pFIO_INT32, dimensions='x,y')
+!      call cf_expected%add_variable('new_var', v1)
+!
+!      call formatter%add_variable(cf_expected,'new_var', rc=status)
+!
+      call formatter%close(rc=status)
+!      @assertEqual(0, NF90_NOERR)
+!
+!      call formatter%open('test.nc4', mode=NF90_NOWRITE, rc=status)
+!      @assertEqual(0, NF90_NOERR)
+!      cf_found = formatter%read(rc=status)
+!      call formatter%close(rc=status)
+!      @assertEqual(0, NF90_NOERR)
+!
+!      @assertTrue(cf_expected == cf_found)
+
+   end subroutine test_add_variable
+
 end module Test_NetCDF4_FileFormatter
