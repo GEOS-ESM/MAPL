@@ -3258,6 +3258,12 @@ module NCIOMod
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
 
+    ! Hack for fixing checkpoint target lat and lon (ewl)
+    integer :: IU_GEOS, IOS, N
+    character(len=ESMF_MAXSTR) :: LINE, SUBSTRS(500)
+    character(len=ESMF_MAXSTR) :: target_lon_deg_str, target_lat_deg_str
+    real(KIND=ESMF_KIND_R4) :: target_lon_deg, target_lat_deg
+
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
 
@@ -3279,6 +3285,27 @@ module NCIOMod
        is_stretched = .false.
     end if
 
+    ! Hack for fixing checkpoint global attribute (ewl)
+    if ( is_stretched ) then
+       target_lon_deg_str = ''
+       target_lat_deg_str = ''
+       open( iu_geos, file='GCHP.rc', STATUS='OLD', IOSTAT=IOS )
+       do
+          read( iu_geos, '(a)', IOSTAT=IOS ) line
+          line = ADJUSTL( ADJUSTR( line ) )
+          if ( INDEX( line, 'TARGET_LON' ) > 0 ) THEN
+             target_lon_deg_str = line(INDEX(line,':')+2:len(trim(line)))
+             read( target_lon_deg_str, '(f5.6)' ) target_lon_deg
+          endif
+          if ( INDEX( line, 'TARGET_LAT' ) > 0 ) THEN
+             target_lat_deg_str = line(INDEX(line,':')+2:len(trim(line)))
+             read( target_lat_deg_str, '(f4.6)' ) target_lat_deg
+          endif
+          if ( ( LEN(TRIM(target_lon_deg_str)) > 0 ) .AND. &
+               ( LEN(TRIM(target_lat_deg_str)) > 0 ) ) EXIT
+       enddo
+       close( iu_geos )
+    endif
 
     ! verify that file is compatible with fields in bundle we are reading
 
@@ -3462,8 +3489,10 @@ module NCIOMod
              x0=1.0d0
              x1=dble(arrdes%IM_WORLD)
              if (is_stretched) then
-                call cf%add_attribute('TARGET_LON',target_lon)
-                call cf%add_attribute('TARGET_LAT',target_lat)
+                !call cf%add_attribute('TARGET_LON',target_lon)
+                !call cf%add_attribute('TARGET_LAT',target_lat)
+                call cf%add_attribute('TARGET_LON',target_lon_deg)
+                call cf%add_attribute('TARGET_LAT',target_lat_deg)
                 call cf%add_attribute('STRETCH_FACTOR',stretch_factor)
              end if
           else
