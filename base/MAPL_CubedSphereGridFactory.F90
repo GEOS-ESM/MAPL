@@ -235,9 +235,9 @@ contains
                 this%target_lat/=MAPL_UNDEFINED_REAL) then
                call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon,rc=status)
+               call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon_degrees,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat,rc=status)
+               call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat_degrees,rc=status)
                _VERIFY(status)
             end if
          else
