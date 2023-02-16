@@ -853,7 +853,7 @@ contains
       logical                          :: isCreated
       logical                          :: gridIsPresent
       logical :: is_associated
-      character(len=ESMF_MAXSTR)       :: positive
+      character(len=ESMF_MAXSTR)       :: positive, compToWrite, forceRestart
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
@@ -871,6 +871,13 @@ contains
       ! Retrieve the pointer to the internal state.
       ! -------------------------------------------
       call MAPL_InternalStateGet ( GC, STATE, _RC)
+
+
+      call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
+      call MAPL_GetResource(STATE, forceRestart, label='FORCE_RESTART:', default='')
+      if (comp_name == compToWrite .and. forceRestart == "T") then
+         call ESMF_AttributeSet(import, name="toRestart", value=0, _RC)
+      end if
 
       ! Start my timer
       !---------------
@@ -1813,7 +1820,7 @@ contains
 
       call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-         call capture('before', GC, import, export, clock, _RC)
+          call capture('before', GC, import, export, clock, _RC)
       end if
 
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
@@ -1861,7 +1868,6 @@ contains
      type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
      type(ESMF_State),    intent(INOUT) :: IMPORT ! Import state
      type(ESMF_State),    intent(INOUT) :: EXPORT ! Export state
-     !type(ESMF_STATE),    intent(INOUT) :: INTERNAL
      type(ESMF_Clock),    intent(INOUT) :: CLOCK  ! The clock
      integer, optional,   intent(  OUT) :: RC     ! Error code:
      
@@ -1873,36 +1879,31 @@ contains
      type(ESMF_State), pointer :: internal
      integer :: hdr
       
-     call ESMF_GridCompGet( GC, NAME=comp_name, RC=status )
-     _VERIFY(status)
-     call MAPL_InternalStateGet ( GC, STATE, RC=status)
-     _VERIFY(status)
+     call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
+     call MAPL_InternalStateGet ( GC, STATE, _RC)
      
      FILETYPE = 'pnc4'
      FILENAME = trim(comp_name)//"_"
 
      inquire(file=trim(FILENAME)//"import_"//trim(POS), exist=fileExists)
      if (.not. fileExists) then
+        call ESMF_AttributeSet(import, name="toRestart", value=0, _RC)
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS), &
-             FILETYPE, STATE, .false., rc=status)
-        _VERIFY(status)
+             FILETYPE, STATE, .false., _RC)
      end if
       
      inquire(file=trim(FILENAME)//"export_"//trim(POS), exist=fileExists)
      if (.not. fileExists) then
         call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS), &
-             FILETYPE, STATE, .false., RC=status)
-        _VERIFY(status)
+             FILETYPE, STATE, .false., _RC)
      end if
 
      inquire(file=trim(FILENAME)//"internal_"//trim(POS), exist=fileExists)
      if (.not. fileExists) then
-        call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", RC=status)
-        _VERIFY(status)
+        call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         internal => state%get_internal_state()
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS), &
-             FILETYPE, STATE, hdr/=0, oClients = o_Clients, rc=status)
-        _VERIFY(status)
+             FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
      end if
    end subroutine capture
 
@@ -2341,6 +2342,30 @@ end subroutine MAPL_AddDatabaseAttributes
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
+                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+            _VERIFY(status)
+         endif
+
+         ! Checkpoint the export state if required.
+         !----------------------------------------
+
+         call       MAPL_GetResource( STATE, FILENAME, LABEL="EXPORT_CHECKPOINT_FILE:",                  RC=status )
+         if(status==ESMF_SUCCESS) then
+            call    MAPL_GetResource( STATE, FILETYPE, LABEL="EXPORT_CHECKPOINT_TYPE:",                  RC=status )
+            if ( status/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
+               call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=status )
+               _VERIFY(status)
+            end if
+            FILETYPE = ESMF_UtilStringLowerCase(FILETYPE,rc=status)
+            _VERIFY(status)
+#ifndef H5_HAVE_PARALLEL
+            nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
+            if(FILETYPE=='pnc4' .and. nwrgt1) then
+               print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
+               _FAIL('needs informative message')
+            endif
+#endif
+            call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
                  FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
             _VERIFY(status)
          endif

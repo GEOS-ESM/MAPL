@@ -2974,6 +2974,12 @@ module NCIOMod
              end if
              skipReading = (RST == MAPL_RestartSkip .or.   &
                             RST == MAPL_RestartSkipInitial)
+
+             call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+             if (isPresent) then
+                skipReading = .false.
+             end if
+
              if (skipReading) cycle
              bootstrapable_ = bootstrapable .and. (RST == MAPL_RestartOptional)
 
@@ -2997,6 +3003,12 @@ module NCIOMod
                   RST = MAPL_RestartOptional
                end if
                skipReading = (RST == MAPL_RestartSkip)
+
+               call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+               if (isPresent) then
+                  skipReading = .false.
+               end if
+
                if (skipReading) cycle
 
                ind= index(FieldName, '::')
@@ -3054,6 +3066,12 @@ module NCIOMod
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
+
+             call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+             if (isPresent) then
+                skipReading = .false.
+             end if
+
              if (skipReading) cycle
              call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
              _VERIFY(STATUS)
@@ -3062,6 +3080,12 @@ module NCIOMod
                 _VERIFY(STATUS)
                 skipReading = (DNA /= 0)
              end if
+
+             call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+             if (isPresent) then
+                skipReading = .false.
+             end if
+
              if (skipReading) cycle
 
              ! now check if the field is in the list of available fields
@@ -4047,6 +4071,12 @@ module NCIOMod
              else
                 skipWriting = .true.
              end if
+
+             call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+             if (isPresent) then
+                skipWriting = .false.
+             end if
+
              if (skipWriting) cycle
              call ESMF_FieldBundleGet(bundle, fieldCount=nBundle, rc=STATUS)
              _VERIFY(STATUS)
@@ -4085,6 +4115,12 @@ module NCIOMod
              else
                 skipWriting = .true.
              end if
+
+             call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+             if (isPresent) then
+                skipWriting = .false.
+             end if
+
              if (skipWriting) cycle
 
              call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
@@ -4094,6 +4130,12 @@ module NCIOMod
                 _VERIFY(STATUS)
                 skipWriting = (dna /= 0)
              endif
+
+             call ESMF_AttributeGet(state, name='toRestart', isPresent=isPresent, _RC)
+             if (isPresent) then
+                skipWriting = .false.
+              end if
+
              if (skipWriting) cycle
 
              if (flip) then
