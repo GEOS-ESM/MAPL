@@ -6,12 +6,15 @@ MAPL_PI     = 3.14159265358979323846
 MAPL_DEGREES_TO_RADIANS = MAPL_PI / 180.0
 MAPL_RADIANS_TO_DEGREES = 180.0 / MAPL_PI
 
+MAPL_UNDEF   = 1.0e15
 
 MAPL_PSDRY   = 98305.0                # dry surface pressure [Pa]
 MAPL_SECONDS_PER_SIDEREAL_DAY = 86164.0 #s
 MAPL_GRAV    = 9.80665                # m^2/s
 MAPL_RADIUS  = 6371.0E3               # m
 MAPL_OMEGA   = 2.0*MAPL_PI/MAPL_SECONDS_PER_SIDEREAL_DAY    # 1/s
+MAPL_RUNIV   = 8314.47                # J/(Kmole K)
+MAPL_H2OMW   = 18.015                 # kg/Kmole
 MAPL_EARTH_ECCENTRICITY = 8.1819190842622E-2 # --
 MAPL_EARTH_SEMIMAJOR_AXIS = 6378137 # m
 MAPL_KM_PER_DEG = (1.0/(MAPL_RADIUS/1000.)) * MAPL_RADIANS_TO_DEGREES
@@ -48,9 +51,7 @@ MAPL_CELSIUS_TO_KELVIN = 273.15      # K
 
 MAPL_STFBOL  = 5.6734E-8              # W/(m^2 K^4)
 MAPL_AVOGAD  = 6.023E26               # 1/kmol
-MAPL_RUNIV   = 8314.47                # J/(Kmole K)
 
-MAPL_H2OMW   = 18.015                 # kg/Kmole
 MAPL_O3MW    = 47.9982                # kg/Kmole
 MAPL_ALHL    = 2.4665E6               # J/kg @15C
 MAPL_ALHF    = 3.3370E5               # J/kg
