@@ -2,6 +2,7 @@
 
 program comp_testing_driver
   use ESMF
+  use NetCDF
   use ESMFL_Mod
   use MAPL
   use MPI
@@ -54,8 +55,8 @@ program comp_testing_driver
   subroutine driver_component(filename, compName, rc)
     character(len=*), intent(in) :: filename, compName
     integer, intent(out) :: rc
-    integer :: status, root_id, userRC, RUN_DT
-    character(len=ESMF_MAXSTR) :: time, startTime, sharedObj
+    integer :: status, root_id, userRC, RUN_DT, i, ncid
+    character(len=ESMF_MAXSTR) :: time, startTime, sharedObj, exportCheckpoint, variable
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: timeInterval
     type(ESMF_GridComp) :: temp_GC, GC
@@ -64,6 +65,7 @@ program comp_testing_driver
     type(ESMF_Time) :: esmf_startTime
     type(ESMF_Grid) :: grid
     type (MAPL_MetaComp), pointer :: maplobj
+    type(ESMF_Field) :: field
    
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
@@ -104,10 +106,31 @@ program comp_testing_driver
     ! Will probably have to do something to force the right exports to get allocated when we run 
     ! genericinitialize, one idea is to use the checkpoint itself, examine, what variables are in
     ! the checkpoint for the export and ensure those variables are allocated in the genericinitialize, somehow...
+
+    exportCheckpoint = ESMF_UtilStringLowerCase(trim(compName))//"_export_checkpoint"
+    status = nf90_open(exportCheckpoint, nf90_nowrite, ncid)
+    _VERIFY(status)
+    status = nf90_inquire_variable(ncid, 1, variable)
+    _VERIFY(status)
+
+    i = 2
+    do while (status == 0)
+       ! field = ESMF_FieldEmptyCreate(name=variable, _RC) ! attributes don't exist with empty field that MAPL_AllocateCoupling needs
+       !call ESMF_StateGet(export, variable, field, _RC)   ! field doesn't exist in child export state
+       ! perhaps:
+       ! 1. get data values of lat, lon from checkpoint 
+       ! 2. make a grid based on those coords
+       ! 3. create a field based on that grid
+       ! but would it still be missing attributes?
+       print*, i
+       call MAPL_AllocateCoupling(field, _RC)
+       status = nf90_inquire_variable(ncid, i, variable)
+       i = i + 1
+    end do
         
-    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
-    call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
-    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
+    !call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
+    !call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
+    !call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
 
     _RETURN(_SUCCESS)
   end subroutine driver_component
