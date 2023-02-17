@@ -156,12 +156,14 @@ contains
       @assertEqual(NF90_NOERR, status)
       call formatter%write(cf_expected, rc=status)
       @assertEqual(0, NF90_NOERR)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
 
+      call formatter%open('test.nc', mode=NF90_WRITE, rc=status)
+      @assertEqual(NF90_NOERR, status)
       v1 = Variable(type=pFIO_INT32, dimensions='x,y')
       call cf_expected%add_variable('new_var', v1)
-
       call formatter%add_variable(cf_expected,'new_var', rc=status)
-
       call formatter%close(rc=status)
       @assertEqual(0, NF90_NOERR)
 

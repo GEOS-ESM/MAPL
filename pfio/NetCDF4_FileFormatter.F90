@@ -665,8 +665,12 @@ contains
       !integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
       integer:: status
- 
+
+      status=nf90_redef(this%ncid) 
+      _VERIFY(status)
       call this%def_variables(cf, varname=varname, _RC)
+      status=nf90_enddef(this%ncid) 
+      _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
@@ -732,7 +736,6 @@ contains
             idim = idim + 1
          end do
          _VERIFY(status)
-
          !$omp critical
          status = nf90_def_var(this%ncid, var_name, xtype, dimids, varid)
          !$omp end critical
