@@ -54,3 +54,23 @@ if (precision MATCHES "r8")
     target_compile_options (${lib} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${flag}>)
   endforeach ()
 endif ()
+
+if (USE_F2PY)
+  if (precision STREQUAL "r4")
+    find_package(F2PY2)
+    if (F2PY2_FOUND)
+      esma_add_f2py2_module(ShaveMantissa_
+        SOURCES ShaveMantissa_py.F90 ShaveMantissa.c
+        DESTINATION lib/Python/${this}
+        INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}
+        )
+      add_dependencies(ShaveMantissa_ ${this})
+
+      # Install the Python files
+      install (
+        FILES shavemantissa.py
+        DESTINATION lib/Python/${this}
+        )
+      endif ()
+  endif ()
+endif ()

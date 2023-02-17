@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for more details. Provides the TRUE local solar hour angle (i.e., with equation of time
   included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
   optional argument.
+- Add `shavemantissa` f2py code. This is used by AeroApps.
+  - NOTE: If you do not have a need for this code, build with `-DUSE_F2PY=OFF`. Note that even if you try to build the f2py code, it might fail anyway due to issues with the Python stack on the machine. ESMA_cmake has code that "tests" if f2py works. If it doesn't, it should failover gracefully.
 
 ### Changed
 
@@ -30,13 +32,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
   and are now explicitly named and commented on at the head of the module. This is a structural
   zero-diff change.
+- Created `MAPL.profiler` logger and moved throughput, per-component, and global timers to use it
 - Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
   The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
   most of the functionality is in MAPL_ResourceMod now.
 - Update "build like UFS" CI test
+- Converted the History Gridded Component to use `_RC` and `_STAT` macros
 
 ### Fixed
 
+- Changed the type of output counters to INT64 for large file. 
+- Tested optional arguments arrdes in MAPL_WriteVars
 - Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
 - Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
@@ -47,6 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.34.3] - 2023-02-14
+
+### Added
+
+- Added test cases 28 and 29 to ExtData testing framework
+
+### Fixed
+
+- Fix bug in ExtData2G when used in "Replay" in the GEOSgcm
 
 ## [2.34.2] - 2023-01-19
 
