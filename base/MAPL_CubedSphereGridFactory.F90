@@ -1078,9 +1078,9 @@ contains
       call metadata%add_variable('corner_lats',v)
 
       if (this%stretched_cube) then
-         call metadata%add_attribute('stretch_factor',this%stretch_factor)
-         call metadata%add_attribute('target_lon',this%target_lon_degrees)
-         call metadata%add_attribute('target_lat',this%target_lat_degrees)
+         call metadata%add_attribute('STRETCH_FACTOR',this%stretch_factor)
+         call metadata%add_attribute('TARGET_LON',this%target_lon_degrees)
+         call metadata%add_attribute('TARGET_LAT',this%target_lat_degrees)
       end if
 
    end subroutine append_metadata
