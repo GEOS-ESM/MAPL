@@ -10,25 +10,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added config array overload to `MAPL_GetResource`
 
-- Added `MAPL_find_bounds => find_bounds` and `MAPL_Interval => Interval` to `MAPL.F90` for use when doing component level OpenMP
-- Added requirement for ESMF 8.4.0 in `find_package()` call
-- Modified Apps/MAPL_GridCompSpecs_ACG.py to use the * capability for `LONG_NAME` like `SHORT_NAME`
-- Added CMake code to apply stricter debug flags when building MAPL as Debug
+- Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
+- Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
+  provides a convenient local solar hour angle diagnostic which will be used to detect local
+  solar noon via the `EXAMPLE OF USE` in the subroutine header. See `DESCRIPTION` in code
+  for more details. Provides the TRUE local solar hour angle (i.e., with equation of time
+  included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
+  optional argument.
 
 ### Changed
 
-- Update `components.yaml`
-  - ESMA_cmake v3.22.0 (defines stricter debug flags for Intel)
-- Reduced amount of CI tests to reduce cost
-- Added `message` to label enforcer (requires v3)
+- Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
+  respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
+  more accurately reflect what the RegridMethods functions do.
+- Changed call to `MAPL_SunOrbitCreate()` inside `MAPL_Generic.F90` to call to new function
+  `MAPL_SunOrbitCreateFromConfig()`, the latter which get the orbital parameters from the MAPL
+  state's Config. In this way no default orbital parameter values need appear in `MAPL_Generic.F90`.
+  Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
+  and are now explicitly named and commented on at the head of the module. This is a structural
+  zero-diff change.
+- Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
+  The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
+  most of the functionality is in MAPL_ResourceMod now.
+- Update "build like UFS" CI test
 
 ### Fixed
 
-- Fixed procedure "find" in CFIOCollection.F90 that was missing a `_RETURN(_SUCCESS)` at the end
+- Added the correct values to halo corner of LatLon grid
+- Fixed range in halo of LatLonGridFactory
+- Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
+  `regrid_method: identity`
+- Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
+- Fixed error handling for refactored MAPL_GetResource
 
 ### Removed
 
 ### Deprecated
+
+## [2.34.2] - 2023-01-19
+
+### Fixed
+
+- Fixed bug with ExtDataDriver.x when enabling oserver on dedicated resources
+
+## [2.34.1] - 2023-01-13
+
+### Fixed
+
+- Fixed bug when writing 4D fields to checkpoint files with the PFIO server via the WRITE_RESTART_BY_OSERVER option
+
+## [2.34.0] - 2023-01-05
+
+### Added
+
+- Added `MAPL_find_bounds => find_bounds` and `MAPL_Interval => Interval` to `MAPL.F90` for use when doing component level OpenMP
+- Added requirement for ESMF 8.4.0 in `find_package()` call
+- Modified Apps/MAPL_GridCompSpecs_ACG.py to use the * capability for `LONG_NAME` like `SHORT_NAME`
+- Added CMake code to apply stricter debug flags when building MAPL as Debug
+- Added subroutine MAPL_MethodAdd to MAPL_Generic.F90
+- Added subroutines get_callbacks and copy_callbacks to OpenMP_Support.F90
+  - These added subroutines are to support "callback" procedures when inside OpenMP parallel region for mini states for component level threading.
+- Added ability to expand "%d" in the long name when we split fields for History
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v3.24.0 (defines stricter debug flags for Intel, preliminary support for `ifx`)
+- Reduced amount of CI tests to reduce cost
+- Added `message` to label enforcer (requires v3)
+- Fixed the naming convention of the split field name (#1874)
+  - NOTE: This could change the name of any field in HISTORY using field splitting. The data will be the same, but the name will be
+    different.
+
+### Fixed
+
+- Fixed procedure "find" in CFIOCollection.F90 that was missing a `_RETURN(_SUCCESS)` at the end
 
 ## [2.33.0] - 2022-12-08
 
@@ -131,7 +187,6 @@ Add an option to set_grid to set GridType explicitly.
 
 - Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
 - Fix handling of return macros for programs and subroutines (#1194)
-- Fixed the naming convention of the split field name (#1874)
 
 ### Added
 
