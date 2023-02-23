@@ -9,10 +9,16 @@ module MAPL_SphericalGeometry
 implicit none
 private
 public get_points_in_spherical_domain
-public get_area_great_circles
+public get_area_spherical_polygon
 contains
 
- function get_area_great_circles(p1,p4,p2,p3) result(area)
+ ! get area of spherical rectangle given the four corners
+ ! p4 ------ p3
+ !    |    |
+ !    |    |
+ !    |    |
+ ! p1 ------ p2
+ function get_area_spherical_polygon(p1,p4,p2,p3) result(area)
     real(real64) :: area
     real(real64), intent(in) :: p1(2),p2(2),p3(2),p4(2)
     
@@ -41,7 +47,7 @@ contains
 
     area = ang1 + ang2 + ang3 + ang4 - 2.0d0*MAPL_PI_R8
 
- end function get_area_great_circles
+ end function get_area_spherical_polygon
 
  subroutine get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,lons,lats,ii,jj,rc)
     real(real64), intent(in) :: center_lats(:,:),center_lons(:,:)

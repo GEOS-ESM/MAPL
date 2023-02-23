@@ -55,10 +55,11 @@
     integer                           :: npts, tmp, mpiC
     integer                           :: IG, JG
     logical                           :: do_schmidt
-    real(ESMF_KIND_R8)                :: target_lon, target_lat, stretch_fac
+    real(ESMF_KIND_R8)                :: target_lon, target_lat, stretch_factor
     type(ESMF_Config)                 :: CF
     integer                           :: status,error_code
     real(ESMF_KIND_R8), pointer :: center_lons(:,:),center_lats(:,:),corner_lons(:,:),corner_lats(:,:)
+    type(ESMF_CubedSphereTransform_Args) :: transformArgument
 
     call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,rc=status)
     _VERIFY(status)
@@ -83,7 +84,7 @@
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute(CF, do_schmidt, Label='DO_SCHMIDT:',Default=.false.,rc=status)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(CF, stretch_fac, Label='STRETCH_FAC:',rc=status)
+    call ESMF_ConfigGetAttribute(CF, stretch_factor, Label='STRETCH_FAC:',rc=status)
     if (status /=0) then 
        if (do_schmidt) then
           write(*,*)"Asking for stretch grid without supplying stretch factor"
@@ -112,7 +113,12 @@
     enddo
 
     if (do_schmidt) then
- 
+       transformArgument%stretch_factor = stretch_factor
+       transformArgument%target_lon = target_lon * MAPL_PI_R8/180.0d0
+       transformArgument%target_lat = target_lat * MAPL_PI_R8/180.0d0 
+       dstgrid = ESMF_GridCreateCubedSphere(im_world,ims,jms,name="cubed_sphere", &
+       staggerLocList = [ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], &
+       coordSys=ESMF_COORDSYS_SPH_RAD, transformArgs=transformArgument,  _RC)
     else
        dstgrid = ESMF_GridCreateCubedSphere(im_world,ims,jms,name="cubed_sphere", &
        staggerLocList = [ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], &
@@ -198,7 +204,7 @@
             SCRIP_CornerLon(k,n) = node_xy(1,hull(k))*(180._8/MAPL_PI_R8)
             SCRIP_CornerLat(k,n) = node_xy(2,hull(k))*(180._8/MAPL_PI_R8) 
           enddo
-          SCRIP_Area(n) = get_area_great_circles(grid_global(i  ,j  ,1:2,myTile+1), grid_global(i,j+1  ,1:2,myTile+1),   &
+          SCRIP_Area(n) = get_area_spherical_polygon(grid_global(i  ,j  ,1:2,myTile+1), grid_global(i,j+1  ,1:2,myTile+1),   &
                             grid_global(i+1,j,1:2,myTile+1), grid_global(i+1,j+1,1:2,myTile+1))
           n=n+1
        enddo
