@@ -226,7 +226,7 @@ contains
 
       integer :: status
       integer :: i, j, ij(4)
-      integer :: nlat, nlon, LDT
+      integer :: Xdim, Ydim
       
       integer :: IM, JM
       integer :: IM_WORLD, JM_WORLD
@@ -240,6 +240,7 @@ contains
          lon_center_name = "lons"
          lat_center_name = "lats"
       else
+         ! keywords in netCDF
          lon_center_name = "lon_centers"
          lat_center_name = "lat_centers"
       end if
@@ -248,14 +249,14 @@ contains
       !!write(6,*) 'i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
 
       !- shared mem case in MPI
-      nlon=this%im_world
-      nlat=this%jm_world
-      call MAPL_AllocateShared(centers,[nlon,nlat],transroot=.true.,_RC)
+      Xdim=this%im_world
+      Ydim=this%jm_world
+      call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
       ! do longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers, nlon, nlat)
+          call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers, Xdim, Ydim)
            centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
@@ -263,14 +264,12 @@ contains
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=fptr, rc=status)
-       !
        !!write(6,*) 'shape(fptr),shape(centers)', shape(fptr),shape(centers)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
-
        ! do latitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          call get_v2d_netcdf(this%grid_file_name, lat_center_name, centers, nlon, nlat)
+          call get_v2d_netcdf(this%grid_file_name, lat_center_name, centers, Xdim, Ydim)
            centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
@@ -480,7 +479,7 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR) :: tmp
       type(ESMF_VM) :: VM
-      integer :: nlat, nlon, ntime
+      integer :: Xdim, Ydim, ntime
 
       _UNUSED_DUMMY(unusable)
 
@@ -494,9 +493,9 @@ contains
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDSPEC:', _RC)
       this%grid_file_name = trim(tmp)
-      call get_ncfile_dimension(this%grid_file_name, nlat, nlon, ntime)   ! xdim, ydim, tdim
-      this%im_world = nlon
-      this%jm_world = nlat
+      call get_ncfile_dimension(this%grid_file_name, Xdim, Ydim, ntime)   ! xdim, ydim, tdim
+      this%im_world = Xdim
+      this%jm_world = Ydim
       
       !! otherwise get from config
       !call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
@@ -1195,7 +1194,7 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
 
-  subroutine get_ncfile_dimension(filename, nlat, nlon, tdim)
+  subroutine get_ncfile_dimension(filename, nlon, nlat, tdim)
     use netcdf
     implicit none
     !
@@ -1219,13 +1218,12 @@ contains
   end subroutine get_ncfile_dimension
 
   
-subroutine get_v2d_netcdf(filename, name, array, idim, jdim)
+subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
   use netcdf
   implicit none
   character(len=*), intent(in) :: name, filename
-  integer, intent(in) :: idim, jdim
-  !  real, dimension(jdim,idim), intent(out) :: array
-  real, dimension(idim,jdim), intent(out) :: array
+  integer, intent(in) :: Xdim, Ydim
+  real, dimension(Xdim,Ydim), intent(out) :: array
   integer :: ncid
   !
   integer :: iret, varid
