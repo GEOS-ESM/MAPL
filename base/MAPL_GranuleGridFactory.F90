@@ -247,6 +247,7 @@ contains
       ! do longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers, nlon, nlat)
+           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
 
