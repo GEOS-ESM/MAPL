@@ -116,6 +116,7 @@ contains
    !---------------
    subroutine initialize_prototypes(this, unusable, rc)
       use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
+      use MAPL_GranuleGridFactoryMod, only: GranuleGridFactory
       use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
       use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
       use MAPL_LlcGridFactoryMod, only: LlcGridFactory
@@ -127,6 +128,7 @@ contains
 
       integer :: status
       type (LatLonGridFactory) :: latlon_factory
+      type (GranuleGridFactory) :: granule_factory
       type (CubedSphereGridFactory) :: cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
@@ -144,6 +146,7 @@ contains
       ! intialized check prevents adding same items twice
       if (.not. initialized) then
          call this%prototypes%insert('LatLon', latlon_factory)
+         call this%prototypes%insert('Granule', granule_factory)
          call this%prototypes%insert('Cubed-Sphere', cubed_factory)
          call this%prototypes%insert('Tripolar',  tripolar_factory)
          call this%prototypes%insert('llc',  llc_factory)

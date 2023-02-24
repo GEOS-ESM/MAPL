@@ -30,7 +30,7 @@ set (srcs
   MAPL_CFIO.F90                         MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
-  MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
+  MAPL_LatLonGridFactory.F90            MAPL_TransposeRegridder.F90         MAPL_GranuleGridFactory.F90
   MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
   MAPL_LlcGridFactory.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
