@@ -24,6 +24,8 @@ module MAPL_GranuleGridFactoryMod
 
    public :: GranuleGridFactory
 
+   integer, parameter :: NUM_DIM = 2
+   
    type, extends(AbstractGridFactory) :: GranuleGridFactory
       private
       character(len=:), allocatable :: grid_name
@@ -254,6 +256,9 @@ contains
       ! do longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers, nlon, nlat)
+          !write(6,*) 'centers:', centers(:,:)
+
+          stop -2
        end if
        call MAPL_SyncSharedMemory(_RC)
 
