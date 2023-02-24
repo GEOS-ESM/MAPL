@@ -86,6 +86,13 @@ module MAPL_GranuleGridFactoryMod
       module procedure GranuleGridFactory_from_parameters
    end interface GranuleGridFactory
 
+   interface set_with_default
+      module procedure set_with_default_integer
+      module procedure set_with_default_real
+      module procedure set_with_default_real64
+      module procedure set_with_default_character
+      module procedure set_with_default_bounds
+   end interface set_with_default
    
 contains
 
@@ -716,6 +723,73 @@ contains
       end subroutine verify
 
    end subroutine check_and_fill_consistency
+
+   
+   elemental subroutine set_with_default_integer(to, from, default)
+      integer, intent(out) :: to
+      integer, optional, intent(in) :: from
+      integer, intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_integer
+
+   elemental subroutine set_with_default_real64(to, from, default)
+      real(REAL64), intent(out) :: to
+      real(REAL64), optional, intent(in) :: from
+      real(REAL64), intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_real64
+
+   elemental subroutine set_with_default_real(to, from, default)
+      real, intent(out) :: to
+      real, optional, intent(in) :: from
+      real, intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_real
+
+   subroutine set_with_default_character(to, from, default)
+      character(len=:), allocatable, intent(out) :: to
+      character(len=*), optional, intent(in) :: from
+      character(len=*), intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_character
+
+
+   elemental subroutine set_with_default_bounds(to, from, default)
+      type (RealMinMax), intent(out) :: to
+      type (RealMinMax), optional, intent(in) :: from
+      type (RealMinMax), intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_bounds
 
    
    ! MAPL uses values in lon_array and lat_array only to determine the
