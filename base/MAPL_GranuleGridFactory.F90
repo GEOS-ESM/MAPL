@@ -5,17 +5,7 @@
 ! This module generates ESMF_Grids for logically-rectangular grid based on observation (netCDF)
 ! Spacing between lats (lons) needs not be constant (imhomogenous)
 ! LatLon concepts such as corners, pole and dataline are eliminated
-! Haven't tested Procedures: initialize_from_file_metadata, initialize_from_esmf_distGrid
-! Ingredients:
-!   - read nc
-!     - assign im_world, ims [same for j]
-!     - read nc variables and fills into ESMF_GRID pointer (data)
-!       - use shared memory based on local [i1:in, j1:jn] block
-!     - add meta_data to prepare for pfio write in HistoryGridComp
-! Inperfection:
-!  - hard coded nc dimension names "lon, lon_centers", etc.
-!  - code is busy doing small utitity function checks
-!
+
 module MAPL_GranuleGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
@@ -33,8 +23,6 @@ module MAPL_GranuleGridFactoryMod
    private
 
    public :: GranuleGridFactory
-
-!   integer, parameter :: NUM_DIM = 2
 
    type, extends(AbstractGridFactory) :: GranuleGridFactory
       private
@@ -1150,7 +1138,7 @@ contains
     iret = nf90_inquire_dimension(ncid, dimid, len=nlat)
     !
     iret = nf90_close(ncid)
-    write(6,*) "nlat, nlon, tdim = ", nlat, nlon, tdim
+    !!write(6,*) "nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
   
