@@ -42,8 +42,8 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "new_overload.macro"
 
-      procedure :: ___SUB(get_var,chars ,0)
-      procedure :: ___SUB(get_var,chars,1)
+      procedure :: ___SUB(get_var,string ,0)
+      procedure :: ___SUB(get_var,string,1)
 
       procedure :: ___SUB(get_var,int32,0)
       procedure :: ___SUB(get_var,int32,1)
@@ -66,8 +66,8 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,3)
       procedure :: ___SUB(get_var,real64,4)
 
-      procedure :: ___SUB(put_var,chars,0)
-      procedure :: ___SUB(put_var,chars,1)
+      procedure :: ___SUB(put_var,string,0)
+      procedure :: ___SUB(put_var,string,1)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
@@ -90,8 +90,8 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,4)
 
 
-      generic :: get_var => ___SUB(get_var,chars ,0)
-      generic :: get_var => ___SUB(get_var,chars ,1)
+      generic :: get_var => ___SUB(get_var,string,0)
+      generic :: get_var => ___SUB(get_var,string,1)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
@@ -113,8 +113,8 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,3)
       generic :: get_var => ___SUB(get_var,real64,4)
 
-      generic :: put_var => ___SUB(put_var,chars ,0)
-      generic :: put_var => ___SUB(put_var,chars ,1)
+      generic :: put_var => ___SUB(put_var,string,0)
+      generic :: put_var => ___SUB(put_var,string,1)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
@@ -1300,8 +1300,6 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #undef _VARTYPE
-
-#undef _TYPE
 
    ! Kludge to support parallel write with UNLIMITED dimension
    integer function inq_dim(this, dim_name, unusable, rc) result(length)
