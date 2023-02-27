@@ -8336,7 +8336,6 @@ contains
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
-   subroutine MAPL_GetResourceFromMAPL_array
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
    subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
