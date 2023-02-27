@@ -37,7 +37,7 @@ program comp_testing_driver
       call get_command_argument(1, filename)
       config = ESMF_ConfigCreate(_RC)
       call ESMF_ConfigLoadFile(config, filename, _RC)
-      call ESMF_ConfigFindLabel(config, label="COMPONENT_TO_RUN:", _RC)
+      call ESMF_ConfigFindLabel(config, label="COMPONENT_TO_RECORD:", _RC)
       
       call ESMF_ConfigGetAttribute(config, value=compName, _RC)
       compStatus = 0
@@ -55,7 +55,7 @@ program comp_testing_driver
   subroutine driver_component(filename, compName, rc)
     character(len=*), intent(in) :: filename, compName
     integer, intent(out) :: rc
-    integer :: status, root_id, userRC, RUN_DT, i, ncid
+    integer :: status, root_id, userRC, RUN_DT, i, ncid, attrStatus
     character(len=ESMF_MAXSTR) :: time, startTime, sharedObj, exportCheckpoint, variable
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: timeInterval
@@ -72,7 +72,6 @@ program comp_testing_driver
 
     ! any additional attributes
     call ESMF_ConfigGetAttribute(config, value=startTime, label="START_TIME:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=time, label="TIME:", _RC)
     call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
     
     ! Create a clock, set current time to required time consistent with checkpoints used 
@@ -93,9 +92,14 @@ program comp_testing_driver
     call MAPL_InternalStateRetrieve(temp_GC, maplobj, _RC)
     call MAPL_Set(maplobj, CF=config, _RC)
 
-    ! get DSO from component name
-    sharedObj = "libGEOS"//ESMF_UtilStringLowerCase(trim(compName))//"_GridComp.so"
-    root_id = MAPL_AddChild(maplobj, grid=grid, name=compName, userRoutine="setservices_", sharedObj=sharedObj, _RC) 
+    call ESMF_ConfigFindLabel(config, label="LIBRARY_FILE:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=sharedObj, _RC)
+    !attrStatus = 0
+    !do while (attrStatus == 0)
+    !   call ESMF_ConfigGetAttribute(config, value=sharedObj, rc=attrStatus)
+    !end do
+
+    root_id = MAPL_AddChild(maplobj, name=compName, userRoutine="setservices_", sharedObj=sharedObj, _RC) 
     
     ! Set grid in child
     GC = maplobj%get_child_gridcomp(root_id)
@@ -106,8 +110,17 @@ program comp_testing_driver
     ! Will probably have to do something to force the right exports to get allocated when we run 
     ! genericinitialize, one idea is to use the checkpoint itself, examine, what variables are in
     ! the checkpoint for the export and ensure those variables are allocated in the genericinitialize, somehow...
+        
+    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
 
-    exportCheckpoint = ESMF_UtilStringLowerCase(trim(compName))//"_export_checkpoint"
+    call ESMF_ConfigFindLabel(config, label="EXPORT_CHECKPOINT:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=exportCheckpoint, _RC)
+
+    !attrStatus = 0
+    !do while (attrStatus == 0)
+    !   call ESMF_ConfigGetAttribute(config, value=exportCheckpoint, rc=attrStatus)
+    !end do
+
     status = nf90_open(exportCheckpoint, nf90_nowrite, ncid)
     _VERIFY(status)
     status = nf90_inquire_variable(ncid, 1, variable)
@@ -115,22 +128,20 @@ program comp_testing_driver
 
     i = 2
     do while (status == 0)
-       ! field = ESMF_FieldEmptyCreate(name=variable, _RC) ! attributes don't exist with empty field that MAPL_AllocateCoupling needs
-       !call ESMF_StateGet(export, variable, field, _RC)   ! field doesn't exist in child export state
-       ! perhaps:
-       ! 1. get data values of lat, lon from checkpoint 
-       ! 2. make a grid based on those coords
-       ! 3. create a field based on that grid
-       ! but would it still be missing attributes?
-       print*, i
+       if (trim(variable) == "lon" .or. trim(variable) == "lat" .or. trim(variable) == "lev" .or. trim(variable) == "time") then
+          status = nf90_inquire_variable(ncid, i, variable)
+          i = i + 1
+          cycle
+       end if
+
+       call ESMF_StateGet(export, variable, field, _RC)
        call MAPL_AllocateCoupling(field, _RC)
        status = nf90_inquire_variable(ncid, i, variable)
        i = i + 1
     end do
-        
-    !call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
-    !call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
-    !call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
+
+    call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
+    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
 
     _RETURN(_SUCCESS)
   end subroutine driver_component
