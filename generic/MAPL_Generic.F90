@@ -126,6 +126,7 @@ module MAPL_GenericMod
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    use MAPL_StringTemplate
+   use MAPL_TimeDataMod, only: parse_time_string
    use mpi
    use netcdf
    use pFlogger, only: logging, Logger
@@ -854,10 +855,11 @@ contains
       logical                          :: isCreated
       logical                          :: gridIsPresent
       logical :: is_associated
-      character(len=ESMF_MAXSTR)       :: positive, compToWrite, forceRestart
+      character(len=ESMF_MAXSTR)       :: positive, compToWrite
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
+      logical :: isTestFramework, isTestFrameworkDriver
       !=============================================================================
 
       ! Begin...
@@ -875,9 +877,10 @@ contains
 
 
       call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
-      call MAPL_GetResource(STATE, forceRestart, label='FORCE_RESTART:', default='')
-      if (comp_name == compToWrite .and. forceRestart == "T") then
-         call ESMF_AttributeSet(import, name="toRestart", value=0, _RC)
+      call MAPL_GetResource(STATE, isTestFramework, label='TEST_FRAMEWORK:', default=.false.)
+      call MAPL_GetResource(STATE, isTestFrameworkDriver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
+      if (comp_name == compToWrite .and. (isTestFramework .or. isTestFrameworkDriver)) then
+         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
       end if
 
       ! Start my timer
@@ -1733,9 +1736,11 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads
+      logical :: use_threads, isTestFramework, isTestFrameworkDriver
       character(len=ESMF_MAXSTR) :: compToWrite
       type(ESMF_State), pointer :: internal
+      integer :: hdr, yy, mm, dd, h, m, s, label_yy, label_mm, label_dd, label_h, label_m, label_s
+     type(ESMF_Time) :: currTime
 
       !=============================================================================
 
@@ -1820,8 +1825,15 @@ contains
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
       call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
+      call MAPL_GetResource(STATE, isTestFramework, label='TEST_FRAMEWORK:', default=.false.)
+      call MAPL_GetResource(STATE, isTestFrameworkDriver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
+
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-          call capture('before', GC, import, export, clock, _RC)
+         if (isTestFramework) then
+            call capture('before', GC, import, export, clock, _RC)
+         else if (isTestFrameworkDriver) then
+             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+         end if
       end if
 
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
@@ -1838,7 +1850,11 @@ contains
       end if
 
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-         call capture('after', GC, import, export, clock, _RC)
+         if (isTestFramework) then
+            call capture('after', GC, import, export, clock, _RC)
+         else if (isTestFrameworkDriver) then
+            call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+         end if
       end if
 
       call lgr%debug('Finished %a', stage_description)
@@ -1874,33 +1890,39 @@ contains
      
      type (MAPL_MetaComp),pointer :: STATE
      integer :: status
-     character(len=ESMF_MAXSTR) :: FILENAME, comp_name
+     character(len=ESMF_MAXSTR) :: FILENAME, comp_name, timeLabel
      character(len=4) :: FILETYPE
      logical :: fileExists
      type(ESMF_State), pointer :: internal
      integer :: hdr
+     type(ESMF_Time) :: startTime, currTime, targetTime
       
      call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
      call MAPL_InternalStateGet ( GC, STATE, _RC)
+
+     call ESMF_ClockGet(clock, startTime=startTime, currTime=currTime, _RC)
+
+     call MAPL_GetResource(STATE, timeLabel, label='TARGET_TIME:', default='')
+     if (timeLabel == '') then
+        targetTime = startTime
+     else
+        targetTime = parse_time_string(timeLabel, _RC)
+     end if
      
      FILETYPE = 'pnc4'
      FILENAME = trim(comp_name)//"_"
 
-     inquire(file=trim(FILENAME)//"import_"//trim(POS), exist=fileExists)
-     if (.not. fileExists) then
-        call ESMF_AttributeSet(import, name="toRestart", value=0, _RC)
+     if (currTime == targetTime) then
+        call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS), &
              FILETYPE, STATE, .false., _RC)
-     end if
       
-     inquire(file=trim(FILENAME)//"export_"//trim(POS), exist=fileExists)
-     if (.not. fileExists) then
-        call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS), &
-             FILETYPE, STATE, .false., _RC)
-     end if
-
-     inquire(file=trim(FILENAME)//"internal_"//trim(POS), exist=fileExists)
-     if (.not. fileExists) then
+        if (pos == "after") then
+           call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS), &
+                FILETYPE, STATE, .false., _RC)
+        end if
+ 
         call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         internal => state%get_internal_state()
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS), &
