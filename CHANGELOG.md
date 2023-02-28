@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added subroutines to read char type in Netcdf
+- Added a subroutine add_variable to Netcdf4_Fileformatter
 - Add a function to get the area of a spherical polygon to the spherical geometry module
 - Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
 - Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
