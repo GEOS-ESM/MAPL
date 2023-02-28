@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.35.0] - 2023-03-01
+
+### Added
+
 - Added subroutines to read char type in Netcdf
 - Added a subroutine add_variable to Netcdf4_Fileformatter
 - Add a function to get the area of a spherical polygon to the spherical geometry module
@@ -24,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed set_grid method so users have a chance to specify the grid type 
+- Changed set_grid method so users have a chance to specify the grid type
 - Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
   respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
   more accurately reflect what the RegridMethods functions do.
@@ -43,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Changed the type of output counters to INT64 for large file. 
+- Changed the type of output counters to INT64 for large file.
 - Tested optional arguments arrdes in MAPL_WriteVars
 - Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
@@ -51,10 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `regrid_method: identity`
 - Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
 - Fixed error handling for refactored MAPL_GetResource
-
-### Removed
-
-### Deprecated
 
 ## [2.34.3] - 2023-02-14
 
