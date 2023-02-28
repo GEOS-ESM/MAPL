@@ -10,8 +10,6 @@ endif()
 
 set (srcs
   # pFIO Files
-  pFIO_ShaveMantissa.c
-  DownBit.F90
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90
@@ -132,7 +130,8 @@ endforeach()
 ecbuild_add_executable (
    TARGET pfio_open_close.x
    SOURCES pfio_open_close.F90
-   LIBS ${this} )
+   LIBS ${this})
+
 set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 ecbuild_add_executable (
