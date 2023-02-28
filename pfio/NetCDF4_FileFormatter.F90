@@ -43,7 +43,7 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "new_overload.macro"
 
-      procedure :: ___SUB(get_var,string ,0)
+      procedure :: ___SUB(get_var,string,0)
       procedure :: ___SUB(get_var,string,1)
 
       procedure :: ___SUB(get_var,int32,0)
