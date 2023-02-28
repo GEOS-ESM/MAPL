@@ -56,6 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added subroutines to read char type in Netcdf
+- Added a subroutine add_variable to Netcdf4_Fileformatter
 - Add a function to get the area of a spherical polygon to the spherical geometry module
 - Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
 - Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
@@ -69,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed set_grid method so users have a chance to specify the grid type 
 - Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
   respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
   more accurately reflect what the RegridMethods functions do.

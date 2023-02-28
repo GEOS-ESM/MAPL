@@ -39,8 +39,13 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: close
       procedure :: read
       procedure :: write
+      procedure :: add_variable
 
 #include "new_overload.macro"
+
+      procedure :: ___SUB(get_var,string,0)
+      procedure :: ___SUB(get_var,string,1)
+
       procedure :: ___SUB(get_var,int32,0)
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
@@ -62,6 +67,8 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,3)
       procedure :: ___SUB(get_var,real64,4)
 
+      procedure :: ___SUB(put_var,string,0)
+      procedure :: ___SUB(put_var,string,1)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
@@ -84,6 +91,8 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,4)
 
 
+      generic :: get_var => ___SUB(get_var,string,0)
+      generic :: get_var => ___SUB(get_var,string,1)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
@@ -105,6 +114,8 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,3)
       generic :: get_var => ___SUB(get_var,real64,4)
 
+      generic :: put_var => ___SUB(put_var,string,0)
+      generic :: put_var => ___SUB(put_var,string,1)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
@@ -656,12 +667,31 @@ contains
 
    end subroutine put_var_attributes
 
+   subroutine add_variable(this, cf, varname, unusable, rc)
+      class (NetCDF4_FileFormatter), intent(inout) :: this
+      type (FileMetadata), target, intent(in) :: cf
+      character(*), intent(in) :: varname
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      !integer, optional, intent(in) :: chunksizes(:)
+      integer, optional, intent(out) :: rc
+      integer:: status
 
-   subroutine def_variables(this, cf, unusable, rc)
+      status=nf90_redef(this%ncid) 
+      _VERIFY(status)
+      call this%def_variables(cf, varname=varname, _RC)
+      status=nf90_enddef(this%ncid) 
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine add_variable
+
+   subroutine def_variables(this, cf, unusable, varname, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       !integer, optional, intent(in) :: chunksizes(:)
+      character(*), optional,intent(in) :: varname
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -693,6 +723,12 @@ contains
       var_iter = order%begin()
       do while (var_iter /= order%end())
          var_name => var_iter%get()
+         if ( present (varname)) then
+           if (var_name /= varname) then
+             call var_iter%next()
+             cycle
+           endif
+         endif
          var => vars%at(var_name)
          xtype = get_xtype(var%get_type(),rc=status)
          _VERIFY(status)
@@ -710,7 +746,6 @@ contains
             idim = idim + 1
          end do
          _VERIFY(status)
-
          !$omp critical
          status = nf90_def_var(this%ncid, var_name, xtype, dimids, varid)
          !$omp end critical
@@ -1279,9 +1314,17 @@ contains
 #  undef _RANK
 #undef _VARTYPE
 
-
-#undef _TYPE
-
+   ! string
+#define _VARTYPE 0
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 1
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#undef _VARTYPE
 
    ! Kludge to support parallel write with UNLIMITED dimension
    integer function inq_dim(this, dim_name, unusable, rc) result(length)

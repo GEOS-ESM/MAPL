@@ -1540,20 +1540,33 @@ contains
      type(ExternalGridFactory) :: external_grid_factory
      type(ESMF_Info)           :: infoh
      integer                   :: status
+     character(len=ESMF_MAXSTR):: grid_type_
+
 
      _UNUSED_DUMMY(unusable)
 
      external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
      mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
+     call ESMF_ConfigGetAttribute(this%cf_root, value = grid_type_, Label="GridType:", default="", _RC)
      if (present(grid_type)) then
+        if(grid_type_ /= "") then
+          _ASSERT(grid_type_ == grid_type, "The grid types don't match")
+        endif
         if (grid_manager%is_valid_prototype(grid_type)) then
            call ESMF_InfoGetFromHost(mapl_grid, infoh, _RC)
            call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
         end if
-     end if
+     else if (grid_type_ /= "") then
+        if (grid_manager%is_valid_prototype(grid_type_)) then
+           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type_, _RC)
+        else
+           _RETURN(_FAILURE)
+        end if
+     endif
+     
      call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)
