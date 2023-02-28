@@ -2,11 +2,12 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
+! Swath: (misisng time and long-axes for scan)
 ! This module generates ESMF_Grids for logically-rectangular grid based on observation (netCDF)
 ! Spacing between lats (lons) needs not be constant (imhomogenous)
 ! LatLon concepts such as corners, pole and dataline are eliminated
 
-module MAPL_GranuleGridFactoryMod
+module MAPL_SwathGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
@@ -22,11 +23,11 @@ module MAPL_GranuleGridFactoryMod
    implicit none
    private
 
-   public :: GranuleGridFactory
+   public :: SwathGridFactory
 
    integer, parameter :: NUM_DIM = 2
    
-   type, extends(AbstractGridFactory) :: GranuleGridFactory
+   type, extends(AbstractGridFactory) :: SwathGridFactory
       private
       character(len=:), allocatable :: grid_name
       character(len=:), allocatable :: grid_file_name      
@@ -80,13 +81,13 @@ module MAPL_GranuleGridFactoryMod
       procedure :: generate_file_reference3D
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
-   end type GranuleGridFactory
+   end type SwathGridFactory
 
-   character(len=*), parameter :: MOD_NAME = 'MAPL_GranuleGridFactory::'
+   character(len=*), parameter :: MOD_NAME = 'MAPL_SwathGridFactory::'
 
-   interface GranuleGridFactory
-      module procedure GranuleGridFactory_from_parameters
-   end interface GranuleGridFactory
+   interface SwathGridFactory
+      module procedure SwathGridFactory_from_parameters
+   end interface SwathGridFactory
 
    interface set_with_default
       module procedure set_with_default_integer
@@ -99,9 +100,9 @@ module MAPL_GranuleGridFactoryMod
 contains
 
 
-   function GranuleGridFactory_from_parameters(unusable, grid_name, &
+   function SwathGridFactory_from_parameters(unusable, grid_name, &
         & im_world, jm_world, lm, nx, ny, ims, jms, rc) result(factory)
-      type (GranuleGridFactory) :: factory
+      type (SwathGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: grid_name
 
@@ -122,7 +123,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      STOP 'Stop:  GranuleGridFactory_from_parameters is not tested'
+      STOP 'Stop:  SwathGridFactory_from_parameters is not tested'
       
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
       call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
@@ -144,12 +145,12 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end function GranuleGridFactory_from_parameters
+   end function SwathGridFactory_from_parameters
 
 
    function make_new_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -169,7 +170,7 @@ contains
 
    function create_basic_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -212,7 +213,7 @@ contains
 
    subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -294,7 +295,7 @@ contains
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
-      class (GranuleGridFactory), intent(inout)  :: this
+      class (SwathGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: force_file_coordinates
@@ -470,7 +471,7 @@ contains
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: prefix  ! effectively optional due to overload without this argument
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -644,17 +645,17 @@ contains
 
    function to_string(this) result(string)
       character(len=:), allocatable :: string
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
 
       _UNUSED_DUMMY(this)
-      string = 'GranuleGridFactory'
+      string = 'SwathGridFactory'
 
    end function to_string
 
    
    subroutine check_and_fill_consistency(this, unusable, rc)
       use MAPL_BaseMod, only: MAPL_DecomposeDim
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -801,7 +802,7 @@ contains
    subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)
       use MAPL_ConfigMod
       use MAPL_Constants, only: PI => MAPL_PI_R8
-      class (GranuleGridFactory), intent(inout)  :: this
+      class (SwathGridFactory), intent(inout)  :: this
       type (ESMF_DistGrid), intent(in) :: dist_grid
       type (ESMF_LocalArray), intent(in) :: lon_array
       type (ESMF_LocalArray), intent(in) :: lat_array
@@ -908,7 +909,7 @@ contains
    end subroutine initialize_from_esmf_distGrid
 
    function decomps_are_equal(this,a) result(equal)
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
       logical :: equal
 
@@ -916,7 +917,7 @@ contains
          class default
          equal = .false.
          return
-      class is (GranuleGridFactory)
+      class is (SwathGridFactory)
          equal = .true.
 
 
@@ -933,7 +934,7 @@ contains
 
 
    function physical_params_are_equal(this, a) result(equal)
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
       logical :: equal
 
@@ -941,7 +942,7 @@ contains
          class default
          equal = .false.
          return
-      class is (GranuleGridFactory)
+      class is (SwathGridFactory)
          equal = .true.
 
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
@@ -955,14 +956,14 @@ contains
    end function physical_params_are_equal
 
    logical function equals(a, b)
-      class (GranuleGridFactory), intent(in) :: a
+      class (SwathGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
 
       select type (b)
          class default
          equals = .false.
          return
-      class is (GranuleGridFactory)
+      class is (SwathGridFactory)
          equals = .true.
 
          equals = (a%lm == b%lm)
@@ -981,7 +982,7 @@ contains
 
    function generate_grid_name(this) result(name)
       character(len=:), allocatable :: name
-      class (GranuleGridFactory), intent(in) :: this
+      class (SwathGridFactory), intent(in) :: this
 
       character(len=4) :: im_string, jm_string
 
@@ -995,7 +996,7 @@ contains
 
    
    function check_decomposition(this,unusable,rc) result(can_decomp)
-      class (GranuleGridFactory), target, intent(inout) :: this
+      class (SwathGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       logical :: can_decomp
@@ -1016,7 +1017,7 @@ contains
    
    subroutine generate_newnxy(this,unusable,rc)
       use MAPL_BaseMod, only: MAPL_DecomposeDim
-      class (GranuleGridFactory), target, intent(inout) :: this
+      class (SwathGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: n
@@ -1059,27 +1060,27 @@ contains
    end function generate_new_decomp
 
    subroutine init_halo(this, unusable, rc)
-      class (GranuleGridFactory), target, intent(inout) :: this
+      class (SwathGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      STOP 'Stop: subroutine init_halo is not needed for GranuleGridFactory'
+      STOP 'Stop: subroutine init_halo is not needed for SwathGridFactory'
    end subroutine init_halo
 
    subroutine halo(this, array, unusable, halo_width, rc)
       use MAPL_CommsMod
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
       real(kind=REAL32), intent(inout) :: array(:,:)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: halo_width
       integer, optional, intent(out) :: rc
-      STOP 'Stop: subroutine halo is not needed for GranuleGridFactory'
+      STOP 'Stop: subroutine halo is not needed for SwathGridFactory'
    end subroutine halo
 
 
 
    subroutine append_metadata(this, metadata)
       use MAPL_Constants
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v
@@ -1104,7 +1105,7 @@ contains
 
    
    function get_grid_vars(this) result(vars)
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
@@ -1114,7 +1115,7 @@ contains
    end function get_grid_vars
 
    function get_file_format_vars(this) result(vars)
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
@@ -1124,7 +1125,7 @@ contains
    end function get_file_format_vars
 
    subroutine append_variable_metadata(this,var)
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(var)
@@ -1132,7 +1133,7 @@ contains
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
-      class(GranuleGridFactory), intent(inout) :: this
+      class(SwathGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
@@ -1158,7 +1159,7 @@ contains
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
       use esmf
-      class (GranuleGridFactory), intent(inout) :: this
+      class (SwathGridFactory), intent(inout) :: this
       type(ESMF_Grid), intent(inout)      :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
@@ -1178,7 +1179,7 @@ contains
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
       type(ArrayReference) :: ref
-      class(GranuleGridFactory), intent(inout) :: this
+      class(SwathGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
@@ -1187,7 +1188,7 @@ contains
    function generate_file_reference3D(this,fpointer,metaData) result(ref)
       use pFIO
       type(ArrayReference) :: ref
-      class(GranuleGridFactory), intent(inout) :: this
+      class(SwathGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
       type(FileMetaData), intent(in), optional :: metaData
       _UNUSED_DUMMY(this)
@@ -1254,4 +1255,4 @@ subroutine cknc(status)
   end if
 end subroutine cknc
 
-end module MAPL_GranuleGridFactoryMod
+end module MAPL_SwathGridFactoryMod
