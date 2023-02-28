@@ -35,10 +35,9 @@ module MAPL_SwathGridFactoryMod
       integer :: im_world = MAPL_UNDEFINED_INTEGER
       integer :: jm_world = MAPL_UNDEFINED_INTEGER
       integer :: lm = MAPL_UNDEFINED_INTEGER
-      real(kind=REAL64), allocatable :: lon_centers(:)
-      real(kind=REAL64), allocatable :: lat_centers(:)
-      real(kind=REAL64), allocatable :: lon_centers_degrees(:)
-      real(kind=REAL64), allocatable :: lat_centers_degrees(:)
+      ! prepare to delete
+      !real(kind=REAL64), allocatable :: lon_centers(:)
+      !real(kind=REAL64), allocatable :: lat_centers(:)
       logical :: force_decomposition = .false.
 
       ! Domain decomposition:
@@ -375,79 +374,80 @@ contains
             end if
          end if
 
-        ! TODO: check radians vs degrees.  Assume degrees for now.
+         ! TODO: check radians vs degrees.  Assume degrees for now.
 
-
-        ! TODO: modify CoordinateVariable so that get_coordinate_data() is overloaded
-        ! for different types (as subroutine) to avoid casting here.
-        ! TODO: add get_coordinate_variable() interface to avoid the need to cast
-        v => file_metadata%get_coordinate_variable(lon_name, rc=status)
-        _VERIFY(status)
-        ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr),'coordinate data not allocated')
-        select type (ptr)
-        type is (real(kind=REAL64))
-           this%lon_centers = ptr
-        type is (real(kind=REAL32))
-           this%lon_centers = ptr
-        class default
-           _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
-        end select
-
-        if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
-           where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
-        end if
-
-
-        v => file_metadata%get_coordinate_variable(lat_name, rc=status)
-        _VERIFY(status)
-        ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr),'coordinate data not allocated')
-        select type (ptr)
-        type is (real(kind=REAL64))
-           this%lat_centers = ptr
-        type is (real(kind=REAL32))
-           this%lat_centers = ptr
-        class default
-           _FAIL('unsupported type of data; must be REAL32 or REAL64')
-        end select
-
-
-        ! Check: is this a "mis-specified" pole-centered grid?
-        if (size(this%lat_centers) >= 4) then
-           ! Assume lbound=1 and ubound=size for now
-           i_min = 1 !lbound(this%lat_centers)
-           i_max = size(this%lat_centers) !ubound(this%lat_centers)
-           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&
-                    (size(this%lat_centers)-3)
-           is_valid = .True.
-           ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
-           do i=(i_min+1),(i_max-2)
-              d_lat_temp = this%lat_centers(i+1) - this%lat_centers(i)
-              is_valid = (is_valid.and.(abs((d_lat_temp/d_lat)-1.0) < 1.0e-5))
-              if (.not. is_valid) then
-                 exit
-              end if
-           end do
-           if (is_valid) then
-              ! Should the southernmost point actually be at the pole?
-              extrap_lat = this%lat_centers(i_min+1) - d_lat
-              if (extrap_lat <= ((d_lat/20.0)-90.0)) then
-                 this%lat_centers(i_min) = -90.0
-              end if
-              ! Should the northernmost point actually be at the pole?
-              extrap_lat = this%lat_centers(i_max-1) + d_lat
-              if (extrap_lat >= (90.0-(d_lat/20.0))) then
-                 this%lat_centers(i_max) =  90.0
-              end if
-           end if
-        end if
-
-        if (use_file_coords) then
-           this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
-           this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
-        end if
-
+!        28-Feb-2023 disable array retrieval from metadata in Swath
+!         
+!        ! TODO: modify CoordinateVariable so that get_coordinate_data() is overloaded
+!        ! for different types (as subroutine) to avoid casting here.
+!        ! TODO: add get_coordinate_variable() interface to avoid the need to cast
+!        v => file_metadata%get_coordinate_variable(lon_name, rc=status)
+!        _VERIFY(status)
+!        ptr => v%get_coordinate_data()
+!        _ASSERT(associated(ptr),'coordinate data not allocated')
+!        select type (ptr)
+!        type is (real(kind=REAL64))
+!           this%lon_centers = ptr
+!        type is (real(kind=REAL32))
+!           this%lon_centers = ptr
+!        class default
+!           _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
+!        end select
+!
+!        if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
+!           where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
+!        end if
+!
+!
+!        v => file_metadata%get_coordinate_variable(lat_name, rc=status)
+!        _VERIFY(status)
+!        ptr => v%get_coordinate_data()
+!        _ASSERT(associated(ptr),'coordinate data not allocated')
+!        select type (ptr)
+!        type is (real(kind=REAL64))
+!           this%lat_centers = ptr
+!        type is (real(kind=REAL32))
+!           this%lat_centers = ptr
+!        class default
+!           _FAIL('unsupported type of data; must be REAL32 or REAL64')
+!        end select
+!
+!
+!        ! Check: is this a "mis-specified" pole-centered grid?
+!        if (size(this%lat_centers) >= 4) then
+!           ! Assume lbound=1 and ubound=size for now
+!           i_min = 1 !lbound(this%lat_centers)
+!           i_max = size(this%lat_centers) !ubound(this%lat_centers)
+!           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&
+!                    (size(this%lat_centers)-3)
+!           is_valid = .True.
+!           ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
+!           do i=(i_min+1),(i_max-2)
+!              d_lat_temp = this%lat_centers(i+1) - this%lat_centers(i)
+!              is_valid = (is_valid.and.(abs((d_lat_temp/d_lat)-1.0) < 1.0e-5))
+!              if (.not. is_valid) then
+!                 exit
+!              end if
+!           end do
+!           if (is_valid) then
+!              ! Should the southernmost point actually be at the pole?
+!              extrap_lat = this%lat_centers(i_min+1) - d_lat
+!              if (extrap_lat <= ((d_lat/20.0)-90.0)) then
+!                 this%lat_centers(i_min) = -90.0
+!              end if
+!              ! Should the northernmost point actually be at the pole?
+!              extrap_lat = this%lat_centers(i_max-1) + d_lat
+!              if (extrap_lat >= (90.0-(d_lat/20.0))) then
+!                 this%lat_centers(i_max) =  90.0
+!              end if
+!           end if
+!        end if
+!
+!        if (use_file_coords) then
+!           this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+!           this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+!        end if
+!         
     end associate
 
     call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
@@ -948,9 +948,10 @@ contains
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
          if (.not. equal) return
 
-         equal = &
-              & all(a%lon_centers == this%lon_centers) .and. &
-              & all(a%lat_centers == this%lat_centers)
+         !-- prepare to delete it
+         !equal = &
+         !     & all(a%lon_centers == this%lon_centers) .and. &
+         !     & all(a%lat_centers == this%lat_centers)
       end select
 
    end function physical_params_are_equal
