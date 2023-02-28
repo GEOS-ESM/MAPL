@@ -1561,12 +1561,13 @@ contains
         end if
      else if (grid_type_ /= "") then
         if (grid_manager%is_valid_prototype(grid_type_)) then
-           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type_, _RC)
+           call ESMF_InfoGetFromHost(mapl_grid, infoh, _RC)
+           call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
         end if
      endif
-     
+
      call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)
