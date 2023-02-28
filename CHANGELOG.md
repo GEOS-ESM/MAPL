@@ -55,6 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.34.4] - 2023-02-28
+
+### Added
+
+- Added SwathGridFactory as an extension for AbstractGridFactory
+
 ## [2.34.3] - 2023-02-14
 
 ### Added
