@@ -139,8 +139,7 @@ contains
 !      call set_with_default(factory%lat_range, lat_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
 !      call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
-      call factory%check_and_fill_consistency(rc=status)
-      _VERIFY(status)
+      call factory%check_and_fill_consistency(_RC)
 
       _RETURN(_SUCCESS)
 
@@ -156,12 +155,8 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-      grid = this%create_basic_grid(rc=status)
-      _VERIFY(status)
-
-      call this%add_horz_coordinates_from_file(grid, rc=status)
-      _VERIFY(status)
-
+      grid = this%create_basic_grid(_RC)
+      call this%add_horz_coordinates_from_file(grid,_RC)
       _RETURN(_SUCCESS)
 
    end function make_new_grid
@@ -185,22 +180,17 @@ contains
            & coordDep1=[1,2], &
            & coordDep2=[1,2], &
            & coordSys=ESMF_COORDSYS_SPH_RAD, &
-           & rc=status)
-      _VERIFY(status)
+           & _RC)
       
       ! Allocate coords at default stagger location
-      call ESMF_GridAddCoord(grid, rc=status)
-      _VERIFY(status)
-      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
-      _VERIFY(status)
+      call ESMF_GridAddCoord(grid, _RC)
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         _VERIFY(status)
+         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', rc=status)   ! grid=ESMF_grid
-      _VERIFY(status)
+      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)   ! grid=ESMF_grid
 
       call ESMF_AttributeSet(grid, 'Global', .false., rc=status)
 
@@ -331,14 +321,12 @@ contains
          lon_name = 'lon'
          hasLon = file_metadata%has_dimension(lon_name)
          if (hasLon) then
-            im = file_metadata%get_dimension(lon_name, rc=status)
-            _VERIFY(status)
+            im = file_metadata%get_dimension(lon_name, _RC)
          else
             lon_name = 'longitude'
             hasLongitude = file_metadata%has_dimension(lon_name)
             if (hasLongitude) then
-               im = file_metadata%get_dimension(lon_name, rc=status)
-               _VERIFY(status)
+               im = file_metadata%get_dimension(lon_name, _RC)
             else
                _FAIL('no longitude coordinate')
             end if
@@ -346,14 +334,12 @@ contains
          lat_name = 'lat'
          hasLat = file_metadata%has_dimension(lat_name)
          if (hasLat) then
-            jm = file_metadata%get_dimension(lat_name, rc=status)
-            _VERIFY(status)
+            jm = file_metadata%get_dimension(lat_name, _RC)
          else
             lat_name = 'latitude'
             hasLatitude = file_metadata%has_dimension(lat_name)
             if (hasLatitude) then
-               jm = file_metadata%get_dimension(lat_name, rc=status)
-               _VERIFY(status)
+               jm = file_metadata%get_dimension(lat_name, _RC)
             else
                _FAIL('no latitude coordinate')
             end if
