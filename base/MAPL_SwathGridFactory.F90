@@ -45,10 +45,6 @@ module MAPL_SwathGridFactoryMod
       integer :: ny = MAPL_UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
-      ! Grid conventions:
-      ! Regional vs global: ?? not needed
-      type (RealMinMax) :: lon_range = RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL)
-      type (RealMinMax) :: lat_range = RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL)
       ! Used for halo
       type (ESMF_DELayout) :: layout
       logical :: initialized_from_metadata = .false.
@@ -134,10 +130,6 @@ contains
       ! default is unallocated
       if (present(ims)) factory%ims = ims
       if (present(jms)) factory%jms = jms
-
-!      call set_with_default(factory%lon_range, lon_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
-!      call set_with_default(factory%lat_range, lat_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
-!      call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
       call factory%check_and_fill_consistency(_RC)
 
@@ -226,17 +218,11 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-      if (this%initialized_from_metadata) then
-         lon_center_name = "lons"
-         lat_center_name = "lats"
-      else
-         ! keywords in netCDF
-         lon_center_name = "lon_centers"
-         lat_center_name = "lat_centers"
-      end if
+      ! keywords in netCDF
+      lon_center_name = "lon_centers"
+      lat_center_name = "lat_centers"      
       
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-      !!write(6,*) 'i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
 
       !- shared mem case in MPI
       Xdim=this%im_world
@@ -254,7 +240,6 @@ contains
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=fptr, rc=status)
-       !!write(6,*) 'shape(fptr),shape(centers)', shape(fptr),shape(centers)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
        ! do latitudes
@@ -306,7 +291,7 @@ contains
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
       logical :: is_valid, use_file_coords, compute_lons, compute_lats
 
-      write(6,*) 'nail inside    subroutine initialize_from_file_metadata'
+      STOP 'not tested:  subroutine initialize_from_file_metadata'
       _UNUSED_DUMMY(unusable)
 
       if (present(force_file_coordinates)) then
@@ -349,14 +334,12 @@ contains
          lev_name = 'lev'
          hasLev = file_metadata%has_dimension(lev_name)
          if (hasLev) then
-            lm = file_metadata%get_dimension(lev_name,rc=status)
-            _VERIFY(status)
+            lm = file_metadata%get_dimension(lev_name,_RC)
          else
             lev_name = 'levels'
             hasLevel = file_metadata%has_dimension(lev_name)
             if (hasLevel) then
-               lm = file_metadata%get_dimension(lev_name,rc=status)
-               _VERIFY(status)
+               lm = file_metadata%get_dimension(lev_name,_RC)
             end if
          end if
 
@@ -367,8 +350,7 @@ contains
 !        ! TODO: modify CoordinateVariable so that get_coordinate_data() is overloaded
 !        ! for different types (as subroutine) to avoid casting here.
 !        ! TODO: add get_coordinate_variable() interface to avoid the need to cast
-!        v => file_metadata%get_coordinate_variable(lon_name, rc=status)
-!        _VERIFY(status)
+!        v => file_metadata%get_coordinate_variable(lon_name,_RC)
 !        ptr => v%get_coordinate_data()
 !        _ASSERT(associated(ptr),'coordinate data not allocated')
 !        select type (ptr)
@@ -385,8 +367,7 @@ contains
 !        end if
 !
 !
-!        v => file_metadata%get_coordinate_variable(lat_name, rc=status)
-!        _VERIFY(status)
+!        v => file_metadata%get_coordinate_variable(lat_name,_RC)
 !        ptr => v%get_coordinate_data()
 !        _ASSERT(associated(ptr),'coordinate data not allocated')
 !        select type (ptr)
@@ -436,8 +417,7 @@ contains
 !         
     end associate
 
-    call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
-    _VERIFY(status)
+    call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
 
     ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
     ! of 2.  Required for ESMF_FieldRegrid().
@@ -446,8 +426,7 @@ contains
     call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
     call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
 
-    call this%check_and_fill_consistency(rc=status)
-    _VERIFY(status)
+    call this%check_and_fill_consistency(_RC)
 
     _RETURN(_SUCCESS)
 
@@ -470,8 +449,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_VmGetCurrent(VM, rc=status)
-      _VERIFY(status)
+      call ESMF_VmGetCurrent(VM, _RC)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
@@ -483,33 +461,21 @@ contains
       call get_ncfile_dimension(this%grid_file_name, Xdim, Ydim, ntime)   ! xdim, ydim, tdim
       this%im_world = Xdim
       this%jm_world = Ydim
-      
-      !! otherwise get from config
-      !call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
-      !call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)      
-      !write(6,*) 'this%im_world', this%im_world
-      !write(6,*) 'this%jm_world', this%jm_world      
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%ims, trim(tmp),this%nx, rc=status)
-         _VERIFY(status)
+         call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)
       else
-         call get_multi_integer(this%ims, 'IMS:', rc=status)
-         _VERIFY(status)
+         call get_multi_integer(this%ims, 'IMS:', _RC)
       endif
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%jms, trim(tmp),this%ny, rc=status)
-         _VERIFY(status)
+         call get_ims_from_file(this%jms, trim(tmp),this%ny, _RC)
       else
-         call get_multi_integer(this%jms, 'JMS:', rc=status)
-         _VERIFY(status)
+         call get_multi_integer(this%jms, 'JMS:', _RC)
       endif
       ! ims is set at here
-      call this%check_and_fill_consistency(rc=status); _VERIFY(status)
-      !write(6,*) 'this%ims', this%ims
-      !write(6,*) 'this%jms', this%jms
+      call this%check_and_fill_consistency(_RC)
       
       _RETURN(_SUCCESS)
 
@@ -526,8 +492,7 @@ contains
          integer :: status
          logical :: isPresent
 
-         call ESMF_ConfigFindLabel(config, label=prefix//label, isPresent=isPresent, rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config, label=prefix//label, isPresent=isPresent, _RC)
          
          if (.not. isPresent) then
             _RETURN(_SUCCESS)
@@ -547,12 +512,10 @@ contains
          ! Second pass: allocate and fill
          allocate(values(n), stat=status) ! no point in checking status
          _VERIFY(status)
-         call ESMF_ConfigFindLabel(config, label=prefix//label,rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config, label=prefix//label,_RC)
          do i = 1, n
-            call ESMF_ConfigGetAttribute(config, values(i), rc=status)
-            write(6,*) 'values(i)=', values(i) 
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, values(i), _RC)
+!            write(6,*) 'values(i)=', values(i) 
          end do
          
          _RETURN(_SUCCESS)
@@ -573,27 +536,19 @@ contains
          allocate(values(n), stat=status) ! no point in checking status
          _VERIFY(status)
 
-         if ( .not. FileExists) then
-             print*, file_name // "   not found"
-             _RETURN(_FAILURE)
-
-         elseif (MAPL_AM_I_Root(VM)) then
-
+         _ASSERT(FileExists, "File <"//trim(file_name)//"> not found")
+         if (MAPL_AM_I_Root(VM)) then
             open(newunit=UNIT, file=trim(file_name), form="formatted", iostat=status )
             _VERIFY(STATUS)
             read(UNIT,*) total
-            if (total /= n) then
-                print*, file_name // " n is different from ", total
-                _RETURN(_FAILURE)
-            endif
+            _ASSERT(total == n, trim(file_name) // " n is different from total")
             do i = 1,total
                 read(UNIT,*) values(i)
             enddo
             close(UNIT)
          endif
 
-         call MAPL_CommsBcast(VM, values, n=N, ROOT=MAPL_Root, rc=status)
-         _VERIFY(STATUS)
+         call MAPL_CommsBcast(VM, values, n=N, ROOT=MAPL_Root, _RC)
          _RETURN(_SUCCESS)
 
       end subroutine get_ims_from_file
@@ -608,17 +563,14 @@ contains
          integer :: status
          logical :: isPresent
 
-         call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,_RC)
          if (.not. isPresent) then
             _RETURN(_SUCCESS)
          end if
 
          ! Must be 2 values: min and max
-         call ESMF_ConfigGetAttribute(config, range%min, rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigGetAttribute(config, range%max, rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigGetAttribute(config, range%min, _RC)
+         call ESMF_ConfigGetAttribute(config, range%max, _RC)
 
          _RETURN(_SUCCESS)
 
@@ -661,11 +613,9 @@ contains
       call verify(this%ny, this%jm_world, this%jms, rc=status)
 
       if (.not.this%force_decomposition) then
-         verify_decomp = this%check_decomposition(rc=status)
-         _VERIFY(status)
+         verify_decomp = this%check_decomposition(_RC)
          if ( (.not.verify_decomp) ) then
-            call this%generate_newnxy(rc=status)
-            _VERIFY(status)
+            call this%generate_newnxy(_RC)
          end if
       end if
 
@@ -810,7 +760,7 @@ contains
 
       real, parameter :: tiny = 1.e-4
 
-      stop 'nail: not implemented:   subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)'
+      stop 'not implemented:   subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)'
       
       _UNUSED_DUMMY(unusable)
 
@@ -818,21 +768,15 @@ contains
       allocate(max_index(dim_count, tile_count))
       call ESMF_DistGridGet(dist_grid, maxindexPTile=max_index)
 
-      config = MAPL_ConfigCreate(rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigSetAttribute(config, max_index(1,1), 'IM_WORLD:', rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', rc=status)
-      _VERIFY(status)
+      config = MAPL_ConfigCreate(_RC)
+      call MAPL_ConfigSetAttribute(config, max_index(1,1), 'IM_WORLD:', _RC)
+      call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', _RC)
+      call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', _RC)
 
       lon => null()
       lat => null()
-      call ESMF_LocalArrayGet(lon_array, farrayPtr=lon, rc=status)
-      _VERIFY(status)
-      call ESMF_LocalArrayGet(lat_array, farrayPtr=lat, rc=status)
-      _VERIFY(status)
+      call ESMF_LocalArrayGet(lon_array, farrayPtr=lon, _RC)
+      call ESMF_LocalArrayGet(lat_array, farrayPtr=lat, _RC)
 
 
       !if (abs(lat(1) + PI/2) < tiny) then
@@ -873,10 +817,8 @@ contains
       !call MAPL_ConfigSetAttribute(config, pole, 'POLE:')
       !call MAPL_ConfigSetAttribute(config, dateline, 'DATELINE:')
 
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-      call ESMF_VMGet(vm, PETcount=nPet, rc=status)
-      _VERIFY(status)
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, PETcount=nPet, _RC)
 
       nx_guess = nint(sqrt(real(nPet)))
       do nx = nx_guess,1,-1
@@ -888,9 +830,7 @@ contains
          end if
       enddo
 
-      call this%initialize(config, rc=status)
-      _VERIFY(status)
-
+      call this%initialize(config, _RC)
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -973,10 +913,8 @@ contains
 
       character(len=4) :: im_string, jm_string
 
-      write(im_string,'(i4.4)') this%im_world
-      write(jm_string,'(i4.4)') this%jm_world
-
-      !      name = this%dateline // im_string // 'x' // jm_string
+      !@bena-nasa Is there a problem that this grid name may overlap our names for LatLon? Maybe we need something like "swath" as a prefix or suffix? And maybe even the filename that provided the geolocations?
+      
       name = im_string // 'x' // jm_string
 
    end function generate_grid_name
@@ -1133,8 +1071,7 @@ contains
 
       _UNUSED_DUMMY(this)
 
-      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
-      _VERIFY(status)
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,_RC)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       allocate(local_start,source=[i1,j1])
       allocate(global_start,source=[1,1])
@@ -1191,18 +1128,28 @@ contains
     integer  :: ncid , iret, dimid
     !
     iret = nf90_open(trim(fileName), NF90_NOWRITE, ncid)
+    !_VERIFY(iret)
     !
     iret = nf90_inq_dimid(ncid, "time", dimid)
+    !_VERIFY(iret)
     iret = nf90_inquire_dimension(ncid, dimid, len=tdim)
+    !_VERIFY(iret)
     !
     iret = nf90_inq_dimid(ncid, "lon", dimid)
+    !_VERIFY(iret)
     iret = nf90_inquire_dimension(ncid, dimid, len=nlon)
+    !_VERIFY(iret)
     !
     iret = nf90_inq_dimid(ncid, "lat", dimid)
+    !_VERIFY(iret)
     iret = nf90_inquire_dimension(ncid, dimid, len=nlat)
+    !_VERIFY(iret)
     !
     iret = nf90_close(ncid)
-    !!write(6,*) "nlat, nlon, tdim = ", nlat, nlon, tdim
+    !_VERIFY(iret)
+    if (iret .NE. 0) then
+       write(6,*) "get_ncfile_dimension error:  nlat, nlon, tdim = ", nlat, nlon, tdim
+    endif
   end subroutine get_ncfile_dimension
 
   
@@ -1217,9 +1164,21 @@ subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
   integer :: iret, varid
   real    :: scale_factor, add_offset
   !
+  !_ASSERT(nf90_open(trim(fileName),NF90_NOWRITE,ncid)==0, "nf90_open() error")
+  !_ASSERT(nf90_inq_varid(ncid,name,varid)==0, "nf90_inq_varid() error")
+  !_ASSERT(nf90_get_var(ncid,varid,array)==0, "nf90_get_var  () error" )
+
+!  iret = nf90_open(trim(fileName),NF90_NOWRITE,ncid)
+!  _ASSERT(iret==0, "nf90_open() error")
+!  iret = nf90_inq_varid(ncid,name,varid)
+!  _ASSERT(iret==0, "nf90_inq_varid() error")
+!  iret = nf90_get_var(ncid,varid,array)
+!  _ASSERT(iret==0, "nf90_get_var  () error" )
+!  
   call cknc (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid)  )
   call cknc (  nf90_inq_varid (ncid,  name,  varid) )
   call cknc (  nf90_get_var   (ncid, varid,  array) )
+
   !
   iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
   if(iret .eq. 0) array = array * scale_factor
