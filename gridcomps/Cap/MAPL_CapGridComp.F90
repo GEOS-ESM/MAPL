@@ -1348,7 +1348,7 @@ contains
                                       LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
                                       mem_committed_percent,mem_used_percent
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
-                2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
+                2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':',i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
 
         _RETURN(_SUCCESS)
@@ -1453,19 +1453,32 @@ contains
      type(ESMF_Grid)           :: mapl_grid
      type(ExternalGridFactory) :: external_grid_factory
      integer                   :: status
+     character(len=ESMF_MAXSTR):: grid_type_
+
 
      _UNUSED_DUMMY(unusable)
 
      external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
      mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
+     call ESMF_ConfigGetAttribute(this%cf_root, value = grid_type_, Label="GridType:", default="", _RC)
      if (present(grid_type)) then
+        if(grid_type_ /= "") then
+          _ASSERT(grid_type_ == grid_type, "The grid types don't match")
+        endif
         if (grid_manager%is_valid_prototype(grid_type)) then
            call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
         end if
-     end if
+     else if (grid_type_ /= "") then
+        if (grid_manager%is_valid_prototype(grid_type_)) then
+           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type_, _RC)
+        else
+           _RETURN(_FAILURE)
+        end if
+     endif
+     
      call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)

@@ -156,10 +156,13 @@ contains
 
       integer, pointer :: data(:)
       integer :: n_words
+      integer(kind=INT64) :: big_n
       
       tag = make_tag(request_id)
 
-      n_words = product(local_reference%shape) * word_size(local_reference%type_kind)
+      big_n   = product(int(local_reference%shape, INT64)) * word_size(local_reference%type_kind)
+      _ASSERT( big_n < huge(0), "Increase the number of processors to decrease the local size of data to be sent")
+      n_words = big_n
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)

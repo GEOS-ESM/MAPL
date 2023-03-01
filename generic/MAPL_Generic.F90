@@ -134,6 +134,7 @@ module MAPL_GenericMod
    use MaplShared, only: SYSTEM_DSO_EXTENSION, adjust_dso_name, is_valid_dso_name, is_supported_dso_name
    use MaplShared, only: get_file_extension
    use MAPL_RunEntryPoint
+   use MAPL_ResourceMod
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
    use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -2277,9 +2278,12 @@ contains
          type (MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
          type (ESMF_VM) :: vm
          character(1) :: empty(0)
+         class(Logger), pointer :: lgr
 
          call ESMF_VmGetCurrent(vm, rc=status)
          _VERIFY(status)
+
+         lgr => logging%get_logger('MAPL.profiler')
 
          ! Generate stats _across_ processes covered by this timer
          ! Requires consistent call trees for now.
@@ -2325,12 +2329,12 @@ contains
 
 
             report = reporter%generate_report(state%t_profiler)
-            write(OUTPUT_UNIT,*)''
-            write(OUTPUT_UNIT,*)'Times for component <' // trim(comp_name) // '>'
+            call lgr%info('')
+            call lgr%info('Times for component <%a~>', trim(comp_name))
             do i = 1, size(report)
-               write(OUTPUT_UNIT,'(a)')report(i)
+               call lgr%info('%a', report(i))
             end do
-            write(OUTPUT_UNIT,*)''
+            call lgr%info('')
          end if
 
          _RETURN(ESMF_SUCCESS)
@@ -4031,20 +4035,9 @@ contains
       character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateGet"
       integer                               :: status
 
-      real                                  :: ECC
-      real                                  :: OB
-      real                                  :: PER
-      integer                               :: EQNX
       logical                               :: FIX_SUN
       character(len=ESMF_MAXSTR)            :: gname
 
-      logical :: EOT, ORBIT_ANAL2B
-      integer :: ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
-           ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS
-      real :: ORB2B_YEARLEN, &
-           ORB2B_ECC_REF, ORB2B_ECC_RATE, &
-           ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
-           ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE
       type(MaplGrid), pointer :: temp_grid
 
       if(present(IM)) then
@@ -4088,142 +4081,15 @@ contains
          CF=STATE%CF
       endif
 
-      ! pmn: There is one orbit is per STATE, so, for example, the MAPL states of the
-      ! solar and land gridded components can potentially have independent solar orbits.
-      ! Usually these "independent orbits" will be IDENTICAL because the configuration
-      ! resources such as "ECCENTRICITY:" or "EOT:" will not be qualified by the name
-      ! of the gridded component. But for example, if the resource file specifies
-      !   "EOT: .FALSE."
-      ! but
-      !   "SOLAR_EOT: .TRUE."
-      ! then only SOLAR will have an EOT correction. The same goes for the new orbital
-      ! system choice ORBIT_ANAL2B.
-      !   A state's orbit is actually created in this routine by requesting the ORBIT
-      ! object. If its not already created then it will be made below. GridComps that
-      ! don't needed an orbit and dont request one will not have one.
-
       if(present(ORBIT)) then
 
          if(.not.MAPL_SunOrbitCreated(STATE%ORBIT)) then
 
-            call ESMF_GridGet(STATE%GRID%ESMFGRID,name=gname,rc=status)
-            _VERIFY(status)
-            if (index(gname,"DP")>0) then
-               FIX_SUN=.true.
-            else
-               FIX_SUN=.false.
-            end if
-
-            ! Fixed parameters of standard orbital system (tabularized intercalation cycle)
-            ! -----------------------------------------------------------------------------
-
-            call MAPL_GetResource(STATE, ECC, Label="ECCENTRICITY:", default=0.0167, &
-                 RC=status)
-            _VERIFY(status)
-
-            call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:", default=23.45, &
-                 RC=status)
-            _VERIFY(status)
-
-            call MAPL_GetResource(STATE, PER, Label="PERIHELION:", default=102.0, &
-                 RC=status)
-            _VERIFY(status)
-
-            call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:", default=80, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Apply Equation of Time correction?
-            ! ----------------------------------
-            call MAPL_GetResource(STATE, EOT, Label="EOT:", default=.FALSE., &
-                 RC=status)
-            _VERIFY(status)
-
-            ! New orbital system (analytic two-body) allows some time-varying
-            ! behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.
-            ! ---------------------------------------------------------------
-
-            call MAPL_GetResource(STATE, &
-                 ORBIT_ANAL2B, Label="ORBIT_ANAL2B:", default=.FALSE., &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Fixed anomalistic year length in mean solar days
-            call MAPL_GetResource(STATE, &
-                 ORB2B_YEARLEN, Label="ORB2B_YEARLEN:", default=365.2596, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Reference date and time for orbital parameters
-            ! (defaults to J2000 = 01Jan2000 12:00:00 TT = 11:58:56 UTC)
-            call MAPL_GetResource(STATE, &
-                 ORB2B_REF_YYYYMMDD, Label="ORB2B_REF_YYYYMMDD:", default=20000101, &
-                 RC=status)
-            _VERIFY(status)
-            call MAPL_GetResource(STATE, &
-                 ORB2B_REF_HHMMSS, Label="ORB2B_REF_HHMMSS:", default=115856, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Orbital eccentricity at reference date
-            call MAPL_GetResource(STATE, &
-                 ORB2B_ECC_REF, Label="ORB2B_ECC_REF:", default=0.016710, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Rate of change of orbital eccentricity per Julian century
-            call MAPL_GetResource(STATE, &
-                 ORB2B_ECC_RATE, Label="ORB2B_ECC_RATE:", default=-4.2e-5, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Earth's obliquity (axial tilt) at reference date [degrees]
-            call MAPL_GetResource(STATE, &
-                 ORB2B_OBQ_REF, Label="ORB2B_OBQ_REF:", default=23.44, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Rate of change of obliquity [degrees per Julian century]
-            call MAPL_GetResource(STATE, &
-                 ORB2B_OBQ_RATE, Label="ORB2B_OBQ_RATE:", default=-1.3e-2, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Longitude of perihelion at reference date [degrees]
-            !   (from March equinox to perihelion in direction of earth's motion)
-            call MAPL_GetResource(STATE, &
-                 ORB2B_LAMBDAP_REF, Label="ORB2B_LAMBDAP_REF:", default=282.947, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! Rate of change of LAMBDAP [degrees per Julian century]
-            !   (Combines both equatorial and ecliptic precession)
-            call MAPL_GetResource(STATE, &
-                 ORB2B_LAMBDAP_RATE, Label="ORB2B_LAMBDAP_RATE:", default=1.7195, &
-                 RC=status)
-            _VERIFY(status)
-
-            ! March Equinox date and time
-            ! (defaults to March 20, 2000 at 07:35:00 UTC)
-            call MAPL_GetResource(STATE, &
-                 ORB2B_EQUINOX_YYYYMMDD, Label="ORB2B_EQUINOX_YYYYMMDD:", default=20000320, &
-                 RC=status)
-            _VERIFY(status)
-            call MAPL_GetResource(STATE, &
-                 ORB2B_EQUINOX_HHMMSS, Label="ORB2B_EQUINOX_HHMMSS:", default=073500, &
-                 RC=status)
-            _VERIFY(status)
+            call ESMF_GridGet(STATE%GRID%ESMFGRID,name=gname,_RC)
+            FIX_SUN = (index(gname,"DP")>0)
 
             ! create the orbit object
-            STATE%ORBIT = MAPL_SunOrbitCreate(STATE%CLOCK, ECC, OB, PER, EQNX, &
-                 EOT, ORBIT_ANAL2B, ORB2B_YEARLEN, &
-                 ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
-                 ORB2B_ECC_REF, ORB2B_ECC_RATE, &
-                 ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
-                 ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE, &
-                 ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS, &
-                 FIX_SUN=FIX_SUN,RC=status)
-            _VERIFY(status)
+            STATE%ORBIT = MAPL_SunOrbitCreateFromConfig (STATE%CF, STATE%CLOCK, FIX_SUN, _RC)
 
          end if
          ORBIT=STATE%ORBIT
@@ -8422,22 +8288,8 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_GenericConnCheck
 
-
-   ! MAPL searches for labels with certain prefixes as well as just the label itself
-   pure function get_labels_with_prefix(component_name, label) result(labels_with_prefix)
-      character(len=*), intent(in) :: component_name, label
-      character(len=ESMF_MAXSTR) :: labels_with_prefix(4), component_type
-
-      component_type = component_name(index(component_name, ":") + 1:)
-
-      ! The order to search for labels in resource files
-      labels_with_prefix(1) = trim(component_name)//"_"//trim(label)
-      labels_with_prefix(2) = trim(component_type)//"_"//trim(label)
-      labels_with_prefix(3) = trim(label)
-      labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
-   end function get_labels_with_prefix
-
-
+   ! This is a pass-through routine. It maintains the interface for
+   ! MAPL_GetResource as-is instead of moving this subroutine to another module.
    subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, default, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
@@ -8445,47 +8297,25 @@ contains
       class(*), optional, intent(in) :: default
       integer, optional, intent(out) :: rc
 
-      character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
-      character(len=:), allocatable :: label_to_use
-      integer :: i, status
-      logical :: label_is_present, default_is_present
+      logical :: value_is_set
+      integer :: status
 
-      default_is_present = present(default)
+      call MAPL_GetResource_config_scalar(state%cf, val, label, value_is_set, &
+         default = default, component_name = state%compname, rc = status)
 
-      if (default_is_present) then
-         _ASSERT(same_type_as(val, default), "Value and default must have same type")
-      end if
-
-      label_is_present = .false.
-      labels_to_try = get_labels_with_prefix(state%compname, label)
-
-      do i = 1, size(labels_to_try)
-         label_to_use = trim(labels_to_try(i))
-         call ESMF_ConfigFindLabel(state%cf, label = label_to_use, isPresent = label_is_present, rc = status)
-         _VERIFY(status)
-
-         if (label_is_present) then
-            exit
-         end if
-      end do
-
-      if (.not. label_is_present .and. .not. default_is_present) then
+      if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
 
-      if (label_is_present) then
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc = status)
-         _VERIFY(status)
-      else
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc = status)
-         _VERIFY(status)
-      end if
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
 
+   ! This is a pass-through routine. It maintains the interface for
+   ! MAPL_GetResource as-is instead of moving this subroutine to another module.
    subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
@@ -8493,102 +8323,24 @@ contains
       class(*), optional, intent(in) :: default
       integer, optional, intent(out) :: rc
 
-      integer :: status, printrc
-      logical :: default_is_present, label_is_present
-      character(len=:), allocatable :: label_to_print
+      integer :: status
+      logical :: value_is_set
 
-      default_is_present = present(default)
-
-      if (default_is_present) then
-         _ASSERT(same_type_as(val, default), "Value and default must have same type")
+      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
+      
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
 
-      call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, rc = status)
-
-      select type(val)
-      type is(integer(int32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int32))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
-         end if
-      type is(integer(int64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int64))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
-         end if
-      type is(real(real32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(real(real32))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
-         end if
-      type is (real(real64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(real(real64))
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
-         end if
-      type is(character(len=*))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(character(len=*))
-               val = trim(default)
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
-         end if
-      type is(logical)
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(logical)
-               val = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
-         end if
-         class default
-         _FAIL( "Unupported type")
-      end select
-
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
       _VERIFY(status)
 
-      ! Can set printrc to negative to not print at all
-      if (MAPL_AM_I_Root() .and. printrc >= 0) then
-         if (label_is_present) then
-            label_to_print = label
-         else
-            label_to_print = trim(label)
-         end if
-         call print_resource(printrc, label_to_print, val, default=default,rc=status)
-         _VERIFY(status)
-      end if
-
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
-
+   ! This is a pass-through routine. It maintains the interface for
+   ! MAPL_GetResource as-is instead of moving this subroutine to another module.
    subroutine MAPL_GetResource_array(state, vals, label, default, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
@@ -8596,241 +8348,22 @@ contains
       class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
-      character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
-      character(len=:), allocatable :: label_to_use
-      integer :: i, status, count
-      logical :: label_is_present, default_is_present
-
-      default_is_present = present(default)
-
-      if (default_is_present) then
-         _ASSERT(same_type_as(vals, default), "Value and default must have same type")
-      end if
-
-      labels_to_try = get_labels_with_prefix(state%compname, label)
-      label_is_present = .false.
-
-      ! Try out the label variations to see which one exists in the ESMF_Config
-      do i = 1, size(labels_to_try)
-         label_to_use = trim(labels_to_try(i))
-
-         call ESMF_ConfigFindLabel(state%cf, label = label_to_use, isPresent = label_is_present, rc = status)
-         _VERIFY(status)
-
-         if (label_is_present) then
-            exit
-         end if
-      end do
-
-      ! No default and not in config, error
-      if (.not. label_is_present .and. .not. default_is_present) then
+      logical :: value_is_set
+      integer :: status
+      
+      call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
+         default = default, component_name = state%compname, rc = status)
+      
+      if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
+      
+      _VERIFY(status)
 
-      count = size(vals)
-
-      select type(vals)
-      type is(integer(int32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int32))
-               if (.not. label_is_present) vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
-         end if
-      type is(integer(int64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(int64))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
-         end if
-      type is(real(real32))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(real32))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
-         end if
-      type is (real(real64))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(integer(real64))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
-         end if
-      type is(character(len=*))
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(character(*))
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
-         end if
-      type is(logical)
-         if (default_is_present .and. .not. label_is_present) then
-            select type(default)
-            type is(logical)
-               vals = default
-            end select
-         else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
-         end if
-         class default
-         _FAIL( "Unsupported type")
-      end select
-
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResource_array
-
-
-   subroutine print_resource(printrc, label, val, default, rc)
-      integer, intent(in) :: printrc
-      character(len=*), intent(in) :: label
-      class(*), intent(in) :: val
-      class(*), optional, intent(in) :: default
-      integer, optional, intent(out) :: rc
-
-      character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
-      type(StringVector), pointer, save :: already_printed_labels => null()
-
-      if (.not. associated(already_printed_labels)) then
-         allocate(already_printed_labels)
-      end if
-
-      ! Do not print label more than once
-      if (.not. vector_contains_str(already_printed_labels, trim(label))) then
-         call already_printed_labels%push_back(trim(label))
-      else
-         return
-      end if
-
-      select type(val)
-      type is(integer(int32))
-         type_str = "'Integer*4 '"
-         type_format = '(i0.1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(integer(int64))
-         type_str = "'Integer*8 '"
-         type_format = '(i0.1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(real(real32))
-         type_str = "'Real*4 '"
-         type_format = '(f0.6)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(real(real64))
-         type_str = "'Real*8 '"
-         type_format = '(f0.6)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(logical)
-         type_str = "'Logical '"
-         type_format = '(l1)'
-         val_str = intrinsic_to_string(val, type_format)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, type_format)
-         end if
-      type is(character(len=*))
-         type_str = "'Character '"
-         val_str = trim(val)
-         if (present(default)) then
-            default_str = intrinsic_to_string(default, 'a')
-         end if
-         class default
-         _FAIL("Unsupported type")
-      end select
-
-      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
-
-      ! printrc = 0 - Only print non-default values
-      ! printrc = 1 - Print all values
-      if (present(default)) then
-         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
-            print output_format, trim(label), trim(val_str)
-         end if
-      else
-         print output_format, trim(label), trim(val_str)
-      end if
-
-   contains
-
-      logical function vector_contains_str(vector, string)
-         type(StringVector), intent(in) :: vector
-         character(len=*), intent(in) :: string
-         type(StringVectorIterator) :: iter
-
-         iter = vector%begin()
-
-         vector_contains_str = .false.
-
-         if (vector%size() /= 0) then
-            do while (iter /= vector%end())
-               if (trim(string) == iter%get()) then
-                  vector_contains_str = .true.
-                  return
-               end if
-               call iter%next()
-            end do
-         end if
-
-      end function vector_contains_str
-
-   end subroutine print_resource
-
-
-   function intrinsic_to_string(val, str_format, rc) result(formatted_str)
-      class(*), intent(in) :: val
-      character(len=*), intent(in) :: str_format
-      character(len=256) :: formatted_str
-      integer, optional, intent(out) :: rc
-
-      select type(val)
-      type is(integer(int32))
-         write(formatted_str, str_format) val
-      type is(integer(int64))
-         write(formatted_str, str_format) val
-      type is(real(real32))
-         write(formatted_str, str_format) val
-      type is(real(real64))
-         write(formatted_str, str_format) val
-      type is(logical)
-         write(formatted_str, str_format) val
-      type is(character(len=*))
-         formatted_str = trim(val)
-         class default
-         _FAIL( "Unsupported type in intrinsic_to_string")
-      end select
-
-   end function intrinsic_to_string
-
-
 
    integer function MAPL_GetNumSubtiles(STATE, RC)
       type (MAPL_MetaComp),       intent(INOUT)    :: STATE
