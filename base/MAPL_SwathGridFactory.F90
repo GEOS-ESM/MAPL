@@ -1122,83 +1122,59 @@ contains
   subroutine get_ncfile_dimension(filename, nlon, nlat, tdim)
     use netcdf
     implicit none
-    !
     character(len=*), intent(in) :: filename
     integer, intent(out) :: nlat, nlon, tdim
-    integer  :: ncid , iret, dimid
+    integer :: ncid , dimid
+    integer :: rc, status
+
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_inq_dimid(ncid, "time", dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
     !
-    iret = nf90_open(trim(fileName), NF90_NOWRITE, ncid)
-    !_VERIFY(iret)
+    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
     !
-    iret = nf90_inq_dimid(ncid, "time", dimid)
-    !_VERIFY(iret)
-    iret = nf90_inquire_dimension(ncid, dimid, len=tdim)
-    !_VERIFY(iret)
-    !
-    iret = nf90_inq_dimid(ncid, "lon", dimid)
-    !_VERIFY(iret)
-    iret = nf90_inquire_dimension(ncid, dimid, len=nlon)
-    !_VERIFY(iret)
-    !
-    iret = nf90_inq_dimid(ncid, "lat", dimid)
-    !_VERIFY(iret)
-    iret = nf90_inquire_dimension(ncid, dimid, len=nlat)
-    !_VERIFY(iret)
-    !
-    iret = nf90_close(ncid)
-    !_VERIFY(iret)
-    if (iret .NE. 0) then
-       write(6,*) "get_ncfile_dimension error:  nlat, nlon, tdim = ", nlat, nlon, tdim
-    endif
+    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+    call check_nc_status(nf90_close(ncid), _RC)
+    !! debug summary
+    !! write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
   
-subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
-  use netcdf
-  implicit none
-  character(len=*), intent(in) :: name, filename
-  integer, intent(in) :: Xdim, Ydim
-  real, dimension(Xdim,Ydim), intent(out) :: array
-  integer :: ncid
-  !
-  integer :: iret, varid
-  real    :: scale_factor, add_offset
-  !
-  !_ASSERT(nf90_open(trim(fileName),NF90_NOWRITE,ncid)==0, "nf90_open() error")
-  !_ASSERT(nf90_inq_varid(ncid,name,varid)==0, "nf90_inq_varid() error")
-  !_ASSERT(nf90_get_var(ncid,varid,array)==0, "nf90_get_var  () error" )
-
-!  iret = nf90_open(trim(fileName),NF90_NOWRITE,ncid)
-!  _ASSERT(iret==0, "nf90_open() error")
-!  iret = nf90_inq_varid(ncid,name,varid)
-!  _ASSERT(iret==0, "nf90_inq_varid() error")
-!  iret = nf90_get_var(ncid,varid,array)
-!  _ASSERT(iret==0, "nf90_get_var  () error" )
-!  
-  call cknc (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid)  )
-  call cknc (  nf90_inq_varid (ncid,  name,  varid) )
-  call cknc (  nf90_get_var   (ncid, varid,  array) )
-
-  !
-  iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
-  if(iret .eq. 0) array = array * scale_factor
-  !
-  iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
-  if(iret .eq. 0) array = array + add_offset
-  !
-  iret = nf90_close(ncid)
-  !
-end subroutine get_v2d_netcdf
+  subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: name, filename
+    integer, intent(in) :: Xdim, Ydim
+    real, dimension(Xdim,Ydim), intent(out) :: array
+    integer :: ncid, varid
+    real    :: scale_factor, add_offset
+    integer :: rc, status, iret
+    
+    call check_nc_status (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC )
+    call check_nc_status (  nf90_inq_varid (ncid,  name,  varid), _RC )
+    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
+    
+    iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
+    if(iret .eq. 0) array = array * scale_factor
+    !
+    iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
+    if(iret .eq. 0) array = array + add_offset
+    !
+    iret = nf90_close(ncid)
+  end subroutine get_v2d_netcdf
 
 
-subroutine cknc(status)
-  use netcdf
-  implicit none
-  integer, intent (in) :: status
-  if(status /= nf90_noerr) then
-     write(6, '(2x,a)')  trim(nf90_strerror(status))
-     stop 2
-  end if
-end subroutine cknc
-
+  subroutine check_nc_status(status, rc)
+    use netcdf
+    implicit none
+    integer, intent (in) :: status
+    integer, intent (out), optional :: rc
+    if(status /= nf90_noerr) then
+       print *, 'netCDF error: '//trim(nf90_strerror(status))
+    endif
+    if(present(rc))  rc=status-nf90_noerr
+  end subroutine check_nc_status
+  
 end module MAPL_SwathGridFactoryMod
