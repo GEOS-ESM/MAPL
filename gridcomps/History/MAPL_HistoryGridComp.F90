@@ -1520,9 +1520,10 @@ ENDDO PARSER
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),rc=status )
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
+          _VERIFY(localStatus)
 
           if( STATUS/= ESMF_SUCCESS ) then
              stateListAvail(n) = .false.
@@ -2232,12 +2233,12 @@ ENDDO PARSER
                                              exportState=INTSTATE%GIM(n), &
                                              clock=CLOCK,           &
                                              userRC=STATUS)
-               _VERIFY(STATUS)
                if (status == ESMF_RC_FILE_READ) then
                   list(n)%partial = .true.
                   STATUS = ESMF_SUCCESS
                   call WRITE_PARALLEL("DEBUG: no cpl restart found, producing partial month")
                end if
+               _VERIFY(STATUS)
             end if
          end if
       end if
@@ -3202,7 +3203,7 @@ ENDDO PARSER
 ! Retrieve the pointer to the state
 !----------------------------------
 
-    call ESMF_GridCompGetInternalState(gc, wrap, status)
+    call ESMF_GridCompGetInternalState(gc, wrap, _RC)
     IntState => wrap%ptr
 
 ! the collections
@@ -4890,6 +4891,7 @@ ENDDO PARSER
     else
        call ESMF_StateGet(state,trim(name),field,rc=status)
         _ASSERT(status==ESMF_SUCCESS,'Field '//trim(name)//' not found')
+        _VERIFY(STATUS)
     end if
 
     _RETURN(ESMF_SUCCESS)
