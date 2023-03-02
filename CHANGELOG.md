@@ -64,6 +64,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.35.1] - 2023-03-01
+
+### Fixed
+
+- Fix issue when running with monthly history collections
+
 ## [2.35.0] - 2023-03-01
 
 ### Added
