@@ -1461,7 +1461,7 @@ contains
      external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
      mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
-     call ESMF_ConfigGetAttribute(this%cf_root, value = grid_type_, Label="GridType:", default="", _RC)
+     call ESMF_ConfigGetAttribute(this%config, value = grid_type_, Label="GridType:", default="", _RC)
      if (present(grid_type)) then
         if(grid_type_ /= "") then
           _ASSERT(grid_type_ == grid_type, "The grid types don't match")
