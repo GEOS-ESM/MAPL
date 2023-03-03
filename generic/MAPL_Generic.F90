@@ -1913,6 +1913,7 @@ contains
 
      if (currTime == targetTime) then
         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+        call ESMF_AttributeSet(import, name="MAPL_SubsetCapture", value=.true., _RC)
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS), &
              FILETYPE, STATE, .false., _RC)
