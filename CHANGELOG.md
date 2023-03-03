@@ -11,9 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated ExtData test case2 to handle a wider range of test times for more robust testing
+
 ### Fixed
 
+- Fixed bug in climatology hanlding of data in ExtDataV2 that occured depending on the start date of the appliction relative to the length of the application run time
+
 ### Removed
+
+- Removed test case 2 for ExtDataV1 as there as an apparent bug in climatologies that has been fixed for ExtDataV2 but there appears to be a different but in ExtDataV1 that causes the extended case 2 to fail
 
 ### Deprecated
 
