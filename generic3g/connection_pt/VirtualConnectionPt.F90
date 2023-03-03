@@ -52,7 +52,7 @@ contains
       type(VirtualConnectionPt) :: v_pt
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
-      
+
       v_pt%state_intent = state_intent
       v_pt%short_name = short_name
       
@@ -83,6 +83,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_VirtualPt_string_intent
 
+   ! Virtual points override any existing comp name.
    function add_comp_name(this, comp_name) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
       class(VirtualConnectionPt), intent(in) :: this
@@ -115,9 +116,8 @@ contains
       character(:), allocatable :: name
       class(VirtualConnectionPt), intent(in) :: this
 
-      name = ''
-      if (allocated(this%comp_name)) name = this%comp_name // '::'
-      name = name // this%short_name
+      name = this%short_name
+      if (allocated(this%comp_name)) name = this%comp_name // '::' // name
       
    end function get_esmf_name
       

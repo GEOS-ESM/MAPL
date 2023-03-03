@@ -81,9 +81,9 @@ contains
       integer :: status
       type(ESMF_GridComp) :: outer_gc
 
-      type(ESMF_Field) :: f
       type(OuterMetaComponent), pointer :: outer_meta
       type(States_T) :: states
+      type(ESMF_Field) :: f
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
@@ -92,7 +92,7 @@ contains
 
       call check('child_A', 'import', ['I_A1'], rc=status)
       @assert_that(status, is(0))
-      call check('child_A', 'export', ['E_A1'], rc=status)
+      call check('child_A', 'export', ['E_A1', 'Z_A1'], rc=status)
       @assert_that(status, is(0))
       call check('child_A', 'internal', ['Z_A1'], rc=status)
       @assert_that(status, is(0))
@@ -103,6 +103,10 @@ contains
       call check('child_B', 'internal', ['Z_B1'], rc=status)
       @assert_that(status, is(0))
 
+!!$      ! Parent
+!!$      call ESMF_StateGet(states%export_state, 'P_Z_A1', f, rc=status)
+!!$      @assert_that(status, is(0))
+
    contains
 
       subroutine check(child_name, state_intent, expected_items, rc)
@@ -112,6 +116,7 @@ contains
          character(*), intent(in) :: expected_items(:)
          integer, optional, intent(out) :: rc
 
+         type(ESMF_Field) :: f
          type(ESMF_State) :: state
          type(ChildComponent) :: child_comp
          integer :: i
@@ -201,14 +206,14 @@ contains
       type(ESMF_GridComp) :: outer_gc
 
       type(ESMF_Field) :: f
-      type(OuterMetaComponent), pointer :: outer_meta
+!!$      type(OuterMetaComponent), pointer :: outer_meta
 
       type(States_T) :: states
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
-      outer_meta => get_outer_meta(outer_gc, rc=status)
-      @assert_that(status, is(0))
+!!$      outer_meta => get_outer_meta(outer_gc, rc=status)
+!!$      @assert_that(status, is(0))
 
       ! Child A import is unsatisfied, so it should propagate up
       call ESMF_StateGet(states%import_state, 'child_A::I_A1(0)', f, rc=status)
