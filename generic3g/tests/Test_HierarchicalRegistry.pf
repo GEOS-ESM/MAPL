@@ -262,9 +262,10 @@ contains
       if (.not. check(r, vpt_2, ['AE1'])) return
 
       ! Internal is always active, so this export should be as well:
-      associate (a_pt => extend(ActualConnectionPt(vpt_2)))
+      associate (a_pt => ActualConnectionPt(vpt_2))
         @assert_that('expected a_pt not found', r%has_item_spec(a_pt), is(true()))
-        spec => r%get_item_spec(extend(ActualConnectionPt(vpt_2)))
+        spec => r%get_item_spec(ActualConnectionPt(vpt_2))
+        @assert_that(associated(spec), is(true()))
         @assert_that(spec%is_active(), is(true()))
       end associate
 
@@ -295,7 +296,7 @@ contains
       ! E-to-E with rename
       call r%add_connection(ConnectionSpec(CP('A',vpt_1), CP('R',vpt_2)), rc=status)
 
-      @assert_that(r%has_item_spec(extend(ActualConnectionPt(vpt_2%add_comp_name('A')))), is(true()))
+      @assert_that(r%has_item_spec(ActualConnectionPt(vpt_2%add_comp_name('A'))), is(true()))
 
    end subroutine test_e2e_preserve_actual_pt
 
@@ -379,11 +380,12 @@ contains
         !              |              V
         !          A  vpt_1           vpt_4  C
         !
-        !-------------------------------------------
+      !-------------------------------------------
       e2e = ConnectionSpec(CP('A',vpt_1), CP('P',vpt_2))
       sib = ConnectionSpec(CP('P',vpt_2), CP('B', vpt_4))
 
       spec => r_A%get_item_spec(ActualConnectionPt(vpt_1)) ! ultimate export
+
       @assert_that(spec%is_active(), is(false()))
 
       call r_P%add_connection(e2e)
@@ -391,20 +393,30 @@ contains
       if (.not. check(r_P, vpt_2, ['name:A1'])) return
       call r_B%propagate_unsatisfied_imports()
 
+      call r_P%propagate_exports()
+
       ! 1 => A, 2 => A, 3 => C, 4 => D
 
       call r%add_connection(sib)
 
       spec => r_A%get_item_spec(ActualConnectionPt(vpt_1))
+      @assert_that(associated(spec),is(true()))
       @assert_that('vpt_1', spec%is_active(), is(true()))
-      
-      spec => r_P%get_item_spec(extend(ActualConnectionPt(vpt_2%add_comp_name('A'))))
+
+      spec => r_P%get_item_spec(ActualConnectionPt(vpt_2%add_comp_name('A')))
+      @assert_that(associated(spec),is(true()))
+      @assert_that(spec%is_active(), is(true()))
+
+      spec => r_P%get_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A')))
+      @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
 
       spec => r_B%get_item_spec(extend(ActualConnectionPt(vpt_4%add_comp_name('C'))))
+      @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
       
       spec => r_C%get_item_spec(ActualConnectionPt(vpt_4))
+      @assert_that(associated(spec),is(true()))
       @assert_that('vpt_4', spec%is_active(), is(true()))
       
    end subroutine test_sibling_activation

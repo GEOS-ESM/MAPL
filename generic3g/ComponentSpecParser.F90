@@ -41,7 +41,7 @@ contains
       end if
 
       if (config%has('connections')) then
-         spec%connections = process_connections_spec(config%of('connections'), _RC)
+         spec%connections = process_connections(config%of('connections'), _RC)
       end if
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
@@ -102,8 +102,7 @@ contains
    end function process_var_specs
 
 
-   function process_connections_spec(config, rc) result(connections)
-      type(ConnectionSpecVector) :: connections
+   type(ConnectionSpecVector) function process_connections(config, rc) result(connections)
       class(YAML_Node), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
@@ -136,17 +135,20 @@ contains
          integer :: status
          character(:), allocatable :: src_name, dst_name
          character(:), allocatable :: src_comp, dst_comp
+         character(:), allocatable :: src_intent, dst_intent
 
          call get_names(config, src_name, dst_name, _RC)
          call get_comps(config, src_comp, dst_comp, _RC)
+         call get_intents(config, src_intent, dst_intent, _RC)
 
          associate ( &
-              src_pt => VirtualConnectionPt(state_intent='export', short_name=src_name), &
-              dst_pt => VirtualConnectionPt(state_intent='import', short_name=dst_name) )
+              src_pt => VirtualConnectionPt(state_intent=src_intent, short_name=src_name), &
+              dst_pt => VirtualConnectionPt(state_intent=dst_intent, short_name=dst_name) )
 
            connection = ConnectionSpec( &
                 ConnectionPt(src_comp, src_pt), &
                 ConnectionPt(dst_comp, dst_pt))
+
          end associate
 
          _RETURN(_SUCCESS)
@@ -194,8 +196,29 @@ contains
          _RETURN(_SUCCESS)
       end subroutine get_comps
 
+      subroutine get_intents(config, src_intent, dst_intent, rc)
+         class(YAML_Node), intent(in) :: config
+         character(:), allocatable :: src_intent
+         character(:), allocatable :: dst_intent
+         integer, optional, intent(out) :: rc
 
-   end function process_connections_spec
+         integer :: status
+
+         ! defaults
+         src_intent = 'export'
+         dst_intent = 'import'
+
+         if (config%has('src_intent')) then
+            call config%get(src_intent,'src_intent', _RC)
+         end if
+         if (config%has('dst_intent')) then
+            call config%get(dst_intent,'dst_intent', _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine get_intents
+
+   end function process_connections
 
    
    type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
