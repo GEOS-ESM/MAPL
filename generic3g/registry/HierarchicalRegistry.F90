@@ -705,7 +705,6 @@ contains
 
            actual_pt => actual_iter%first()
            name = actual_pt%get_esmf_name()
-           _HERE, mode, ' add to states: ', this%name, ' :: ', actual_pt, actual_pt%get_esmf_name()
            item_spec_ptr =>  actual_iter%second()
            item_spec => item_spec_ptr%ptr
 
@@ -723,7 +722,6 @@ contains
 
              call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
              call item_spec%add_to_state(state, name, _RC)
-             _HERE,'added.'
            end associate filter
 
            call actual_iter%next()

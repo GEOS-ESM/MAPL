@@ -194,6 +194,33 @@ contains
       !TODO: this may be able to move outside of constructor
       call initialize_phases_map(outer_meta%phases_map)
 
+      call create_user_states(outer_meta)
+
+   contains
+
+      ! This procedure violates GEOS policy on providing a traceback
+      ! for failure conditions.  But failure in ESMF_StateCreate()
+      ! should be all-but-impossible and the usual error handling
+      ! would induce tedious changes in the design. (Function ->
+      ! Subroutine)
+      subroutine create_user_states(this)
+         type(OuterMetaComponent), intent(inout) :: this
+         type(ESMF_State) :: importState, exportState, internalState
+
+         integer :: status
+
+         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, rc=status)
+         if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user importState.'
+         
+         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, rc=status)
+         if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user exportState'
+
+         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, rc=status)
+         if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user internalState.'
+
+         this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
+      end subroutine create_user_states
+      
    end function new_outer_meta
 
    subroutine initialize_meta(this, gridcomp)
@@ -425,8 +452,6 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
 
-      call create_user_states(this%user_states, _RC)
-
       call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
@@ -438,22 +463,6 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains
-
-      subroutine create_user_states(user_states, rc)
-         type(MultiState), intent(out) :: user_states
-         integer, optional, intent(out) :: rc
-
-         type(ESMF_State) :: importState, exportState, internalState
-         integer :: status
-
-         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, _RC)
-         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
-         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, _RC)
-
-         this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
-
-         _RETURN(_SUCCESS)
-      end subroutine create_user_states
 
       subroutine add_subregistry(this, child_meta, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -479,7 +488,6 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              _HERE, 'advertising variable: ', var_spec%short_name
               call advertise_variable (var_spec, this%registry, this%geom_base, _RC)
               call iter%next()
            end do
@@ -508,9 +516,7 @@ contains
          call item_spec%create(_RC)
 
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
-         _HERE, 'adding to registry variable: ', var_spec%short_name, ' ', this%get_name()
          call registry%add_item_spec(virtual_pt, item_spec)
-!!$         _HERE, registry
          
          
          _RETURN(_SUCCESS)

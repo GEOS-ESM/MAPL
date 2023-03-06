@@ -56,7 +56,6 @@ contains
 
         do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
            associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
-             print*,__FILE__,__LINE__, phase
              call ESMF_GridCompInitialize(outer_gc, &
                   importState=import, exportState=export, clock=clock, &
                   phase=phase, userRC=userRC, _RC)
@@ -132,13 +131,10 @@ contains
          @assert_that('child <'//child_name//'> not found.', status, is(0))
          child_gc = child_comp%get_outer_gridcomp()
          child_meta => get_outer_meta(child_gc, rc=status)
-         print*,__FILE__,__LINE__, child_meta%get_registry()
          states = child_meta%get_user_states()
-         print*,'state_intent: ', state_intent
          call states%get_state(state, state_intent, _RC)
          
          do i = 1, size(expected_items)
-            print*,__FILE__,__LINE__, i, trim(expected_items(i))
             call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
             @assert_that('Item <'//trim(expected_items(i))//'> not found in child <'//child_name//'>.', status, is(0))
          end do
