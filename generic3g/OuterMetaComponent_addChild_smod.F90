@@ -25,11 +25,11 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
       child_gc = create_grid_comp(child_name, setservices, config, _RC)
-
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
-
       child_comp = ChildComponent(child_gc, MultiState(importState=importState, exportState=exportState))
+
+      _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
       call this%children%insert(child_name, child_comp)
 
       _RETURN(ESMF_SUCCESS)

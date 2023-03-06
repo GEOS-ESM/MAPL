@@ -67,13 +67,13 @@ module mapl3g_ChildComponent
 
 contains
 
-   function new_ChildComponent(gridcomp, multi_state) result(child)
+   function new_ChildComponent(gridcomp, states) result(child)
       type(ChildComponent) :: child
       type(ESMF_GridComp), intent(in) :: gridcomp
-      type(MultiState), intent(in) :: multi_state
+      type(MultiState), intent(in) :: states
 
       child%gridcomp = gridcomp
-      child%states = multi_state
+      child%states = states
 
    end function new_ChildComponent
 
