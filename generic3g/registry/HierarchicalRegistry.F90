@@ -682,11 +682,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine add_to_states(this, unusable, importState, exportState, internalState, rc)
+   subroutine add_to_states(this, multi_state, mode, rc)
       use esmf
+      use mapl3g_MultiState
       class(HierarchicalRegistry), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_State), intent(inout) :: importState, exportState, internalState
+      type(MultiState), intent(inout) :: multi_state
+      character(*), intent(in) :: mode
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -695,6 +696,7 @@ contains
       type(StateItemSpecPtr), pointer :: item_spec_ptr
       class(AbstractStateItemSpec), pointer :: item_spec
       character(:), allocatable :: name
+      type(ESMF_State) :: state
 
       associate (e => this%actual_specs_map%end())
 
@@ -703,27 +705,32 @@ contains
 
            actual_pt => actual_iter%first()
            name = actual_pt%get_esmf_name()
-
+           _HERE, mode, ' add to states: ', this%name, ' :: ', actual_pt, actual_pt%get_esmf_name()
            item_spec_ptr =>  actual_iter%second()
            item_spec => item_spec_ptr%ptr
 
-           select case (actual_pt%get_state_intent())
-           case ('import')
-              call item_spec%add_to_state(importState, name, _RC)
-           case ('export')
-              call item_spec%add_to_state(exportState, name, _RC)
-           case ('internal')
-              call item_spec%add_to_state(internalState, name, _RC)
-           case default
-              _FAIL('Incorrect specification of state intent for <'//actual_pt%get_esmf_name()//'>.')
-           end select
+           filter: associate (state_intent => actual_pt%get_state_intent())
+
+             select case (mode)
+             case ('user') ! only add undecorated items
+                if (actual_pt%is_extension()) exit
+                if (actual_pt%get_comp_name() /= '') exit
+             case ('outer') ! do not add internal items
+                if (state_intent == 'internal') exit
+             case default
+                _FAIL("unknown mode.  Must be 'user', or 'outer'.")
+             end select
+
+             call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+             call item_spec%add_to_state(state, name, _RC)
+             _HERE,'added.'
+           end associate filter
 
            call actual_iter%next()
         end do
       end associate
       
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
    end subroutine add_to_states
 
    subroutine report(this, rc)

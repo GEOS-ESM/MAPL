@@ -7,6 +7,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ExtraDimsSpec
    use mapl3g_InvalidSpec
    use mapl3g_FieldSpec
+   use mapl3g_MultiState
 !!$   use mapl3g_BundleSpec
    use mapl3g_StateSpec
    use mapl3g_VirtualConnectionPt
@@ -49,7 +50,7 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(ESMF_GeomBase), allocatable            :: geom_base
-      type(ESMF_State)                            :: esmf_internalState
+      type(MultiState)                            :: user_states
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
       logical                                     :: is_root_ = .false.
@@ -72,6 +73,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_phases
 !!$      procedure :: get_gridcomp
       procedure :: get_user_gridcomp
+      procedure :: get_user_states
       procedure :: set_user_setServices
       procedure :: set_entry_point
 
@@ -339,6 +341,13 @@ contains
       
    end function get_user_gridcomp
 
+   type(MultiState) function get_user_states(this) result(states)
+      class(OuterMetaComponent), intent(in) :: this
+
+      states = this%user_states
+      
+   end function get_user_states
+
 
    subroutine set_esmf_config(this, config)
       class(OuterMetaComponent), intent(inout) :: this
@@ -380,7 +389,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GRID'
 
-      call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call apply_to_children(this, set_child_geom, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GRID, _RC)
 
@@ -415,7 +424,10 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-      call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+
+      call create_user_states(this%user_states, _RC)
+
+      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
@@ -426,6 +438,22 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains
+
+      subroutine create_user_states(user_states, rc)
+         type(MultiState), intent(out) :: user_states
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_State) :: importState, exportState, internalState
+         integer :: status
+
+         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, _RC)
+         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
+         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, _RC)
+
+         this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
+
+         _RETURN(_SUCCESS)
+      end subroutine create_user_states
 
       subroutine add_subregistry(this, child_meta, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -451,6 +479,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
+              _HERE, 'advertising variable: ', var_spec%short_name
               call advertise_variable (var_spec, this%registry, this%geom_base, _RC)
               call iter%next()
            end do
@@ -479,7 +508,9 @@ contains
          call item_spec%create(_RC)
 
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
+         _HERE, 'adding to registry variable: ', var_spec%short_name, ' ', this%get_name()
          call registry%add_item_spec(virtual_pt, item_spec)
+!!$         _HERE, registry
          
          
          _RETURN(_SUCCESS)
@@ -539,11 +570,12 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
+      type(MultiState) :: outer_states
 
-      call this%registry%add_to_states(&
-           importState=importState, &
-           exportState=exportState, &
-           internalState=this%esmf_internalState, _RC)
+      call this%registry%add_to_states(this%user_states, mode='user', _RC)
+
+      outer_states = MultiState(importState=importState, exportState=exportState)
+      call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_POST_ADVERTISE, _RC)
       
@@ -565,7 +597,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
 
-      call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
 
       call this%registry%allocate(_RC)
@@ -576,10 +608,8 @@ contains
 
    end subroutine initialize_realize
 
-   subroutine exec_user_init_phase(this, importState, exportState, clock, phase_name, unusable, rc)
+   subroutine exec_user_init_phase(this, clock, phase_name, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_State), intent(inout) :: importState
-      type(ESMF_State), intent(inout) :: exportState
       type(ESMF_Clock), intent(inout) :: clock
       character(*), intent(in) :: phase_name
       class(KE), optional, intent(in) :: unusable
@@ -592,10 +622,15 @@ contains
       ! User gridcomp may not have any given phase; not an error condition if not found.
       associate (phase => get_phase_index(init_phases, phase_name=phase_name, rc=status))
         if (phase /= -1) then
-           call ESMF_GridCompInitialize(this%user_gridcomp, &
-                importState=importState, exportState=exportState, &
-                clock=clock, phase=phase, userRC=userRC, _RC)
-           _VERIFY(userRC)
+           associate ( &
+                importState => this%user_states%importState, &
+                exportState => this%user_states%exportState)
+
+             call ESMF_GridCompInitialize(this%user_gridcomp, &
+                  importState=importState, exportState=exportState, &
+                  clock=clock, phase=phase, userRC=userRC, _RC)
+             _VERIFY(userRC)
+           end associate
         end if
       end associate
 
@@ -664,7 +699,7 @@ contains
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
-      call exec_user_init_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_USER, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -685,9 +720,15 @@ contains
       
       associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name=phase_name, rc=status))
         if (status == _SUCCESS) then
-           call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
-                clock=clock, userRC=userRC, phase=phase, _RC)
-           _VERIFY(userRC)
+           associate ( &
+                user_import => this%user_states%importState, &
+                user_export => this%user_states%exportState)
+
+             call ESMF_GridCompInitialize(this%user_gridcomp, &
+                  importState=user_import, exportState=user_export, &
+                  clock=clock, userRC=userRC, phase=phase, _RC)
+             _VERIFY(userRC)
+           end associate
         end if
       end associate
 
@@ -755,9 +796,13 @@ contains
       type(ChildComponentMapIterator) :: iter
       integer :: status, userRC
 
-      call ESMF_GridCompFinalize(this%user_gridcomp, importState=importState, exportState=exportState, &
-           clock=clock, userRC=userRC, _RC)
-      _VERIFY(userRC)
+      associate ( &
+           importState => this%user_states%importState, &
+           exportState => this%user_states%exportState)
+        call ESMF_GridCompFinalize(this%user_gridcomp, importState=importState, exportState=exportState, &
+             clock=clock, userRC=userRC, _RC)
+        _VERIFY(userRC)
+      end associate
 
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
@@ -921,11 +966,12 @@ contains
    end function get_component_spec
 
 
+   !TODO: put "user" in procedure name
    function get_internal_state(this) result(internal_state)
       type(ESMF_State) :: internal_state
       class(OuterMetaComponent), intent(in) :: this
 
-      internal_state = this%esmf_internalState
+      internal_state = this%user_states%internalState
 
    end function get_internal_state
 

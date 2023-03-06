@@ -45,7 +45,6 @@ contains
          this%component_spec = parse_component_spec(this%config%yaml_cfg, _RC)
       end if
 
-      this%esmf_internalState = ESMF_StateCreate(_RC)
       call process_user_gridcomp(this, _RC)
       call add_children_from_config(this, _RC)
 
