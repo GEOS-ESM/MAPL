@@ -37,7 +37,7 @@ project_github: https://github.com/GEOS-ESM/MAPL
 project_website: https://github.com/GEOS-ESM/MAPL
 summary: MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)
 author: The MAPL Developers
-github: https://github.com/mathomp4
+github: https://github.com/GEOS-ESM
 email: matthew.thompson@nasa.gov
 print_creation_date: true
 sort: type-alpha
