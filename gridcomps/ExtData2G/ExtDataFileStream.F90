@@ -115,9 +115,25 @@ contains
          allocate(data_set%valid_range(2))
          data_set%valid_range(1)=string_to_esmf_time(range_str(:idx-1))
          data_set%valid_range(2)=string_to_esmf_time(range_str(idx+1:))
-         call ESMF_TimeGet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,_RC)
-         call ESMF_TimeGet(data_set%valid_range(1),yy=iyy,_RC)
-         call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,_RC)
+
+         last_token = index(data_set%file_template,'%',back=.true.)
+         if (last_token.gt.0) then
+            call ESMF_TimeGet(data_set%valid_range(1), yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,_RC)
+            token = data_set%file_template(last_token+1:last_token+2)
+            select case(token)
+            case("y4")
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,_RC)
+            case("m2")
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,_RC)
+            case("d2")
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,_RC)
+            case("h2")
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,_RC)
+            case("n2")
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
+            end select
+         end if
+
       end if
       data_set%collection_id = MAPL_DataAddCollection(data_set%file_template)
 
