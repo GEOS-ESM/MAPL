@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.35.2] - 2023-03-03
+## [2.35.2] - 2023-03-06
 
 ### Changed
 
@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed bug in climatology hanlding of data in ExtDataV2 that occurred depending on the start date of the application relative to the length of the application run time
+- Fixed set_grid. The cf_root is not created when it is called. Instead, use config from CAP.rc
 
 ### Removed
 
