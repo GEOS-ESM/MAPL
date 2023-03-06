@@ -21,6 +21,8 @@ module mapl3g_VirtualConnectionPt
    contains
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: get_comp_name
+
       procedure :: add_comp_name
 
       procedure :: is_import
@@ -120,6 +122,13 @@ contains
       if (allocated(this%comp_name)) name = this%comp_name // '::' // name
       
    end function get_esmf_name
+      
+   function get_comp_name(this) result(name)
+      character(:), allocatable :: name
+      class(VirtualConnectionPt), intent(in) :: this
+      name = ''
+      if (allocated(this%comp_name)) name = this%comp_name
+   end function get_comp_name
       
 
    logical function less_than(lhs, rhs)

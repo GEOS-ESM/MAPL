@@ -5,6 +5,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_addChild_smod
    use mapl3g_GenericGridComp
    use mapl3g_ChildComponent
    use mapl3g_Validation
+   use esmf
    implicit none
    
 contains
@@ -18,12 +19,17 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: child_gc
+      type(ESMF_State) :: importState, exportState
       type(ChildComponent) :: child_comp
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
       child_gc = create_grid_comp(child_name, setservices, config, _RC)
-      child_comp = ChildComponent(child_gc)
+
+      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, _RC)
+      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
+
+      child_comp = ChildComponent(child_gc, MultiState(importState=importState, exportState=exportState))
       call this%children%insert(child_name, child_comp)
 
       _RETURN(ESMF_SUCCESS)

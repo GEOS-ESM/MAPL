@@ -24,6 +24,7 @@ set(srcs
 #  GenericCouplerComponent.F90
 #  CouplerComponentVector.F90
 
+  MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
   OuterMetaComponent_setservices_smod.F90

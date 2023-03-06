@@ -8,6 +8,7 @@ module Test_SimpleParentGridComp
    use mapl3g_ChildComponent
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
+   use mapl3g_MultiState
    use esmf
    use nuopc
    use pFunit
@@ -55,6 +56,7 @@ contains
 
         do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
            associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+             print*,__FILE__,__LINE__, phase
              call ESMF_GridCompInitialize(outer_gc, &
                   importState=import, exportState=export, clock=clock, &
                   phase=phase, userRC=userRC, _RC)
@@ -75,7 +77,7 @@ contains
 
 
    @test(npes=[0])
-   subroutine test_import_items_created(this)
+   subroutine test_state_items_created(this)
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -87,15 +89,16 @@ contains
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
+
       outer_meta => get_outer_meta(outer_gc, rc=status)
       @assert_that(status, is(0))
 
       call check('child_A', 'import', ['I_A1'], rc=status)
-      @assert_that(status, is(0))
+      @assert_that('I_A1', status, is(0))
       call check('child_A', 'export', ['E_A1', 'Z_A1'], rc=status)
-      @assert_that(status, is(0))
+      @assert_that('Export: Z_A1', status, is(0))
       call check('child_A', 'internal', ['Z_A1'], rc=status)
-      @assert_that(status, is(0))
+      @assert_that('Internal: Z_A1', status, is(0))
       call check('child_B', 'import', ['I_B1'], rc=status)
       @assert_that(status, is(0))
       call check('child_B', 'export', ['E_B1'], rc=status)
@@ -119,15 +122,23 @@ contains
          type(ESMF_Field) :: f
          type(ESMF_State) :: state
          type(ChildComponent) :: child_comp
+         type(MultiState) :: states
          integer :: i
-
+         type(OuterMetaComponent), pointer :: child_meta
+         type(ESMF_GridComp) :: child_gc
+         
          rc = -1
          child_comp = outer_meta%get_child(child_name, rc=status)
          @assert_that('child <'//child_name//'> not found.', status, is(0))
-         state = child_comp%get_state(state_intent, rc=status)
-         @assert_that('invalid state intent', status, is(0))
-
+         child_gc = child_comp%get_outer_gridcomp()
+         child_meta => get_outer_meta(child_gc, rc=status)
+         print*,__FILE__,__LINE__, child_meta%get_registry()
+         states = child_meta%get_user_states()
+         print*,'state_intent: ', state_intent
+         call states%get_state(state, state_intent, _RC)
+         
          do i = 1, size(expected_items)
+            print*,__FILE__,__LINE__, i, trim(expected_items(i))
             call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
             @assert_that('Item <'//trim(expected_items(i))//'> not found in child <'//child_name//'>.', status, is(0))
          end do
@@ -135,10 +146,10 @@ contains
          rc = 0
       end subroutine check
 
-   end subroutine test_import_items_created
+   end subroutine test_state_items_created
 
    @test(npes=[0])
-   subroutine test_complete_items(this)
+   subroutine test_state_items_complete(this)
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -175,6 +186,7 @@ contains
          type(ESMF_FieldStatus_Flag), intent(in) :: expected_status
          integer, optional, intent(out) :: rc
 
+         type(MultiState) :: states
          type(ESMF_State) :: state
          type(ChildComponent) :: child_comp
          type(ESMF_FieldStatus_Flag) :: field_status
@@ -182,8 +194,11 @@ contains
          rc = -1
          child_comp = outer_meta%get_child(child_name, rc=status)
          @assert_that('child <'//child_name//'> not found.', status, is(0))
-         state = child_comp%get_state(state_intent, rc=status)
+         states = child_comp%get_states()
 
+         call states%get_state(state, state_intent, rc=status)
+         @assert_that(status, is(0))
+         
          call ESMF_StateGet(state, item, f, rc=status)
          @assert_that('Item <'//item//'> not found in child <'//child_name//'>.', status, is(0))
 
@@ -195,7 +210,7 @@ contains
          rc = 0
       end subroutine check
       
-   end subroutine test_complete_items
+   end subroutine test_state_items_complete
 
 
    @test(npes=[0])

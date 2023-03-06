@@ -27,6 +27,7 @@ module mapl3g_ActualConnectionPt
 
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: get_comp_name
       procedure :: add_comp_name
 
       procedure :: is_import
@@ -198,5 +199,11 @@ contains
            this%get_state_intent(), this%get_esmf_name()
    end subroutine write_formatted
 
+   function get_comp_name(this) result(name)
+      character(:), allocatable :: name
+      class(ActualConnectionPt), intent(in) :: this
+      name = this%v_pt%get_comp_name()
+   end function get_comp_name
+      
 
 end module mapl3g_ActualConnectionPt
