@@ -107,7 +107,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: set_geom_base
       procedure :: get_name
-      procedure :: get_inner_name
+      procedure :: get_user_gridcomp_name
       procedure :: get_gridcomp
       procedure :: is_root
       procedure :: get_registry
@@ -459,6 +459,7 @@ contains
 
       call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
+      call this%registry%propagate_exports(_RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -864,7 +865,7 @@ contains
    end function get_name
 
 
-   function get_inner_name(this, rc) result(inner_name)
+   function get_user_gridcomp_name(this, rc) result(inner_name)
       character(:), allocatable :: inner_name
       class(OuterMetaComponent), intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -876,8 +877,7 @@ contains
       inner_name=trim(buffer)
 
       _RETURN(ESMF_SUCCESS)
-   end function get_inner_name
-
+   end function get_user_gridcomp_name
 
 
    recursive subroutine traverse(this, unusable, pre, post, rc)

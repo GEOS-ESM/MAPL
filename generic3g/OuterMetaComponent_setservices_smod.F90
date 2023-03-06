@@ -53,7 +53,7 @@ contains
       ! 4) Process generic specs
       call process_generic_specs(this, _RC)
 
-      this%registry = HierarchicalRegistry(this%get_inner_name())
+      this%registry = HierarchicalRegistry(this%get_user_gridcomp_name())
 
 !!$    call after(this, _RC)
       
