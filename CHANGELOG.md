@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed set_grid. The cf_root is not created when it is called. Instead, use config from CAP.rc  
+
 ### Removed
 
 ### Deprecated
