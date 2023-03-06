@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed set_grid. The grid_type comes from CAP.rc becasue the root gc is not created
+
 ### Removed
 
 ### Deprecated
