@@ -21,6 +21,7 @@ module mapl3g_VirtualConnectionPt
    contains
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: get_full_name
       procedure :: get_comp_name
 
       procedure :: add_comp_name
@@ -119,9 +120,18 @@ contains
       class(VirtualConnectionPt), intent(in) :: this
 
       name = this%short_name
-      if (allocated(this%comp_name)) name = this%comp_name // '::' // name
       
    end function get_esmf_name
+      
+   ! Important that name is different if either comp_name or short_name differ
+   function get_full_name(this) result(name)
+      character(:), allocatable :: name
+      class(VirtualConnectionPt), intent(in) :: this
+
+      name = this%short_name
+      if (allocated(this%comp_name)) name = this%comp_name // '/' // name
+      
+   end function get_full_name
       
    function get_comp_name(this) result(name)
       character(:), allocatable :: name
@@ -142,7 +152,7 @@ contains
       if (rhs%state_intent < lhs%state_intent) return
 
       ! If intents are tied:
-      less_than = lhs%get_esmf_name() < rhs%get_esmf_name()
+      less_than = lhs%get_full_name() < rhs%get_full_name()
       
    end function less_than
 

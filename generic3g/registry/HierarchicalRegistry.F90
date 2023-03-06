@@ -329,7 +329,7 @@ contains
          subregistry => this
          _RETURN(_SUCCESS)
       end if
-      
+
       wrap => this%subregistries%at(comp_name,_RC)
       _ASSERT(associated(wrap%registry), 'null pointer encountered for subregistry.')
 
@@ -696,7 +696,7 @@ contains
       type(StateItemSpecPtr), pointer :: item_spec_ptr
       class(AbstractStateItemSpec), pointer :: item_spec
       character(:), allocatable :: name
-      type(ESMF_State) :: state
+      type(ESMF_State) :: state, substate
 
       associate (e => this%actual_specs_map%end())
 
@@ -704,7 +704,6 @@ contains
         do while (actual_iter /= e)
 
            actual_pt => actual_iter%first()
-           name = actual_pt%get_esmf_name()
            item_spec_ptr =>  actual_iter%second()
            item_spec => item_spec_ptr%ptr
 
@@ -721,7 +720,10 @@ contains
              end select
 
              call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
-             call item_spec%add_to_state(state, name, _RC)
+             call get_substate(actual_pt, state=state, substate=substate, _RC)
+             name = actual_pt%get_esmf_name()
+
+             call item_spec%add_to_state(substate, name, _RC)
            end associate filter
 
            call actual_iter%next()
@@ -729,6 +731,42 @@ contains
       end associate
       
       _RETURN(_SUCCESS)
+
+   contains
+
+      subroutine get_substate(actual_pt, unusable, state, substate, rc)
+         type(ActualConnectionPt), intent(in) :: actual_pt
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         type(ESMF_State), intent(inout) :: state
+         type(ESMF_State), intent(out) :: substate
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_StateItem_Flag) :: itemType
+         character(:), allocatable :: comp_name, substate_name
+
+         comp_name = actual_pt%get_comp_name()
+         if (comp_name == '') then ! no substate
+            substate = state
+            _RETURN(_SUCCESS)
+         end if
+
+         substate_name = '[' // comp_name // ']'
+         call ESMF_StateGet(state, substate_name, itemType, _RC)
+         
+         if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New substate
+            substate = ESMF_StateCreate(name=substate_name, _RC)
+            call ESMF_StateAdd(state, [substate], _RC)
+            _RETURN(_SUCCESS)
+         end if
+         
+         _ASSERT(itemType == ESMF_STATEITEM_STATE, 'incorrect object in state')
+         
+         ! Substate exists so ...
+         call ESMF_StateGet(state, substate_name, substate, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine get_substate
    end subroutine add_to_states
 
    subroutine report(this, rc)

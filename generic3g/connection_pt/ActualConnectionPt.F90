@@ -27,6 +27,7 @@ module mapl3g_ActualConnectionPt
 
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: get_full_name
       procedure :: get_comp_name
       procedure :: add_comp_name
 
@@ -124,6 +125,16 @@ contains
            name = name // this%get_extension_string()
    end function get_esmf_name
 
+   ! Important that name is different if either comp_name or short_name differ
+   function get_full_name(this) result(name)
+      character(:), allocatable :: name
+      class(ActualConnectionPt), intent(in) :: this
+
+      name = this%v_pt%get_full_name()
+      if (this%is_extension()) &
+           name = name // this%get_extension_string()
+   end function get_full_name
+
    function get_extension_string(this) result(s)
       class(ActualConnectionPt), intent(in) :: this
       character(:), allocatable :: s
@@ -196,7 +207,7 @@ contains
       character(*), intent(inout) :: iomsg
 
       write(unit, '("Actual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
-           this%get_state_intent(), this%get_esmf_name()
+           this%get_state_intent(), this%get_full_name()
    end subroutine write_formatted
 
    function get_comp_name(this) result(name)
