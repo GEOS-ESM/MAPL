@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Orbits_Swath &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>Orbits_Swath
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">65 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NominalOrbitsMod.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_nominalorbitsmod.f90.html'>MAPL_NominalOrbitsMod.F90</a></li>
+              <li><a href='../module/mapl_nominalorbitsmod.html'>MAPL_NominalOrbitsMod</a></li>
+          <li class="active">Orbits_Swath</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/orbits_swath.html#src">Orbits_Swath</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine Orbits_Swath(slons, slats, Sat_name, nymd, nhms, deltat, SwathWidth, rc, wrap)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-slons"></span>
+              real(kind=dp),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>slons</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-slats"></span>
+              real(kind=dp),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>slats</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sat_name"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Sat_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nymd~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nymd</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nhms~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nhms</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deltat"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deltat</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-swathwidth"></span>
+              real(kind=dp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SwathWidth</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1315"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-wrap~2"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>wrap</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~orbits_swath~~CallsGraph Pages: 1 -->
+<svg id="procorbits_swathCallsGraph" width="595pt" height="365pt"
+ viewBox="0.00 0.00 595.00 365.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~orbits_swath~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 361)">
+<title>proc~~orbits_swath~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-361 591,-361 591,4 -4,4"/>
+<!-- proc~orbits_swath -->
+<g id="proc~~orbits_swath~~CallsGraph_node1" class="node">
+<title>proc~orbits_swath</title>
+<polygon fill="none" stroke="black" points="82,-295 0,-295 0,-271 82,-271 82,-295"/>
+<text text-anchor="middle" x="41" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50">Orbits_Swath</text>
+</g>
+<!-- proc~orbits_track -->
+<g id="proc~~orbits_swath~~CallsGraph_node2" class="node">
+<title>proc~orbits_track</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node2"><a xlink:href=".././proc/orbits_track.html" xlink:title="Orbits_Track">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-295 118,-295 118,-271 195,-271 195,-295"/>
+<text text-anchor="middle" x="156.5" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Orbits_Track</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~orbits_track -->
+<g id="proc~~orbits_swath~~CallsGraph_edge1" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~orbits_track</title>
+<path fill="none" stroke="#ff0000" d="M82.02,-283C90.27,-283 99.05,-283 107.56,-283"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.75,-286.5 117.75,-283 107.75,-279.5 107.75,-286.5"/>
+</g>
+<!-- proc~find_sweeppoints -->
+<g id="proc~~orbits_swath~~CallsGraph_node3" class="node">
+<title>proc~find_sweeppoints</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node3"><a xlink:href=".././proc/find_sweeppoints.html" xlink:title="find_sweeppoints">
+<polygon fill="#d9534f" stroke="#d9534f" points="335.5,-129 231.5,-129 231.5,-105 335.5,-105 335.5,-129"/>
+<text text-anchor="middle" x="283.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_sweeppoints</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~find_sweeppoints -->
+<g id="proc~~orbits_swath~~CallsGraph_edge2" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~find_sweeppoints</title>
+<path fill="none" stroke="#ff0000" d="M59.68,-270.79C101.66,-241.82 207.44,-168.81 256.62,-134.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.87,-137.56 265.11,-129 254.9,-131.8 258.87,-137.56"/>
+</g>
+<!-- proc~satname2int -->
+<g id="proc~~orbits_swath~~CallsGraph_node4" class="node">
+<title>proc~satname2int</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node4"><a xlink:href=".././proc/satname2int.html" xlink:title="satname2int">
+<polygon fill="#d9534f" stroke="#d9534f" points="323,-357 244,-357 244,-333 323,-333 323,-357"/>
+<text text-anchor="middle" x="283.5" y="-342.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">satname2int</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~satname2int -->
+<g id="proc~~orbits_swath~~CallsGraph_edge3" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~satname2int</title>
+<path fill="none" stroke="#ff0000" d="M82.18,-294.31C93.73,-297.5 106.35,-300.94 118,-304 156.95,-314.23 201.27,-325.24 234.08,-333.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.33,-336.69 243.87,-335.67 234.99,-329.89 233.33,-336.69"/>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~satname2int -->
+<g id="proc~~orbits_swath~~CallsGraph_edge4" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~satname2int</title>
+<path fill="none" stroke="#ff0000" d="M177.74,-295.17C192.31,-303.71 212.56,-315.14 231,-324 234.52,-325.69 238.22,-327.37 241.94,-329.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.61,-332.25 251.19,-332.94 243.36,-325.81 240.61,-332.25"/>
+</g>
+<!-- proc~get_time~2 -->
+<g id="proc~~orbits_swath~~CallsGraph_node5" class="node">
+<title>proc~get_time~2</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node5"><a xlink:href=".././proc/get_time~2.html" xlink:title="get_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="313,-315 254,-315 254,-291 313,-291 313,-315"/>
+<text text-anchor="middle" x="283.5" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_time</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~get_time~2 -->
+<g id="proc~~orbits_swath~~CallsGraph_edge5" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~get_time~2</title>
+<path fill="none" stroke="#ff0000" d="M195,-289C210.31,-291.45 228.02,-294.28 243.48,-296.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.34,-300.28 253.77,-298.4 244.44,-293.37 243.34,-300.28"/>
+</g>
+<!-- proc~built_vecsize -->
+<g id="proc~~orbits_swath~~CallsGraph_node7" class="node">
+<title>proc~built_vecsize</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node7"><a xlink:href=".././proc/built_vecsize.html" xlink:title="built_vecsize">
+<polygon fill="#d9534f" stroke="#d9534f" points="452,-276 372,-276 372,-252 452,-252 452,-276"/>
+<text text-anchor="middle" x="412" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">built_vecsize</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~built_vecsize -->
+<g id="proc~~orbits_swath~~CallsGraph_edge7" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~built_vecsize</title>
+<path fill="none" stroke="#ff0000" d="M195.18,-280.18C239.47,-276.86 313.12,-271.34 361.86,-267.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="362.15,-271.17 371.86,-266.93 361.63,-264.19 362.15,-271.17"/>
+</g>
+<!-- proc~find_waypointslat -->
+<g id="proc~~orbits_swath~~CallsGraph_node9" class="node">
+<title>proc~find_waypointslat</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node9"><a xlink:href=".././proc/find_waypointslat.html" xlink:title="find_waypointslat">
+<polygon fill="#d9534f" stroke="#d9534f" points="336,-235 231,-235 231,-211 336,-211 336,-235"/>
+<text text-anchor="middle" x="283.5" y="-220.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_waypointslat</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~find_waypointslat -->
+<g id="proc~~orbits_swath~~CallsGraph_edge6" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~find_waypointslat</title>
+<path fill="none" stroke="#ff0000" d="M182.8,-270.86C201.6,-261.83 227.48,-249.41 248.15,-239.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.74,-242.61 257.24,-235.12 246.71,-236.3 249.74,-242.61"/>
+</g>
+<!-- interface~linspace -->
+<g id="proc~~orbits_swath~~CallsGraph_node6" class="node">
+<title>interface~linspace</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node6"><a xlink:href=".././interface/linspace.html" xlink:title="linspace">
+<polygon fill="#a7506f" stroke="#a7506f" points="440.5,-66 383.5,-66 383.5,-42 440.5,-42 440.5,-66"/>
+<text text-anchor="middle" x="412" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">linspace</text>
+</a>
+</g>
+</g>
+<!-- proc~find_sweeppoints&#45;&gt;interface~linspace -->
+<g id="proc~~orbits_swath~~CallsGraph_edge8" class="edge">
+<title>proc~find_sweeppoints&#45;&gt;interface~linspace</title>
+<path fill="none" stroke="#00ff00" d="M308.89,-104.85C328.4,-95.14 355.97,-81.41 377.55,-70.66"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="379.29,-73.7 386.68,-66.11 376.17,-67.43 379.29,-73.7"/>
+</g>
+<!-- proc~get_azimuth -->
+<g id="proc~~orbits_swath~~CallsGraph_node8" class="node">
+<title>proc~get_azimuth</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node8"><a xlink:href=".././proc/get_azimuth.html" xlink:title="get_azimuth">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="451,-150 373,-150 373,-126 451,-126 451,-150"/>
+<text text-anchor="middle" x="412" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_azimuth</text>
+</a>
+</g>
+</g>
+<!-- proc~find_sweeppoints&#45;&gt;proc~get_azimuth -->
+<g id="proc~~orbits_swath~~CallsGraph_edge9" class="edge">
+<title>proc~find_sweeppoints&#45;&gt;proc~get_azimuth</title>
+<path fill="none" stroke="#00ff00" d="M335.59,-125.48C344.66,-126.99 354.07,-128.55 363.05,-130.04"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="362.52,-133.5 372.95,-131.68 363.66,-126.59 362.52,-133.5"/>
+</g>
+<!-- proc~get_reckon -->
+<g id="proc~~orbits_swath~~CallsGraph_node10" class="node">
+<title>proc~get_reckon</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node10"><a xlink:href=".././proc/get_reckon.html" xlink:title="get_reckon">
+<polygon fill="#d9534f" stroke="#d9534f" points="447.5,-108 376.5,-108 376.5,-84 447.5,-84 447.5,-108"/>
+<text text-anchor="middle" x="412" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_reckon</text>
+</a>
+</g>
+</g>
+<!-- proc~find_sweeppoints&#45;&gt;proc~get_reckon -->
+<g id="proc~~orbits_swath~~CallsGraph_edge10" class="edge">
+<title>proc~find_sweeppoints&#45;&gt;proc~get_reckon</title>
+<path fill="none" stroke="#00ff00" d="M335.59,-108.52C345.77,-106.83 356.38,-105.07 366.32,-103.42"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="367.1,-106.83 376.4,-101.74 365.96,-99.93 367.1,-106.83"/>
+</g>
+<!-- proc~ods_julian -->
+<g id="proc~~orbits_swath~~CallsGraph_node11" class="node">
+<title>proc~ods_julian</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node11"><a xlink:href=".././proc/ods_julian.html" xlink:title="ODS_Julian">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="447,-318 377,-318 377,-294 447,-294 447,-318"/>
+<text text-anchor="middle" x="412" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ODS_Julian</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time~2&#45;&gt;proc~ods_julian -->
+<g id="proc~~orbits_swath~~CallsGraph_edge11" class="edge">
+<title>proc~get_time~2&#45;&gt;proc~ods_julian</title>
+<path fill="none" stroke="#ff0000" d="M313.2,-303.68C328.93,-304.05 348.76,-304.52 366.44,-304.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="366.48,-308.45 376.56,-305.18 366.65,-301.45 366.48,-308.45"/>
+</g>
+<!-- proc~linspace2 -->
+<g id="proc~~orbits_swath~~CallsGraph_node13" class="node">
+<title>proc~linspace2</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node13"><a xlink:href=".././proc/linspace2.html" xlink:title="linspace2">
+<polygon fill="#d9534f" stroke="#d9534f" points="569.5,-66 505.5,-66 505.5,-42 569.5,-42 569.5,-66"/>
+<text text-anchor="middle" x="537.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">linspace2</text>
+</a>
+</g>
+</g>
+<!-- interface~linspace&#45;&gt;proc~linspace2 -->
+<g id="proc~~orbits_swath~~CallsGraph_edge13" class="edge">
+<title>interface~linspace&#45;&gt;proc~linspace2</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M440.72,-54C456.77,-54 477.28,-54 495.2,-54"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="495.4,-57.5 505.4,-54 495.4,-50.5 495.4,-57.5"/>
+</g>
+<!-- proc~linspace1 -->
+<g id="proc~~orbits_swath~~CallsGraph_node14" class="node">
+<title>proc~linspace1</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node14"><a xlink:href=".././proc/linspace1.html" xlink:title="linspace1">
+<polygon fill="#d9534f" stroke="#d9534f" points="569.5,-24 505.5,-24 505.5,0 569.5,0 569.5,-24"/>
+<text text-anchor="middle" x="537.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">linspace1</text>
+</a>
+</g>
+</g>
+<!-- interface~linspace&#45;&gt;proc~linspace1 -->
+<g id="proc~~orbits_swath~~CallsGraph_edge12" class="edge">
+<title>interface~linspace&#45;&gt;proc~linspace1</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M440.72,-44.57C456.92,-39.06 477.66,-32.01 495.7,-25.87"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="497.06,-29.11 505.4,-22.58 494.81,-22.48 497.06,-29.11"/>
+</g>
+<!-- proc~rad2deg -->
+<g id="proc~~orbits_swath~~CallsGraph_node12" class="node">
+<title>proc~rad2deg</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node12"><a xlink:href=".././proc/rad2deg.html" xlink:title="rad2deg">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="566.5,-150 508.5,-150 508.5,-126 566.5,-126 566.5,-150"/>
+<text text-anchor="middle" x="537.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rad2deg</text>
+</a>
+</g>
+</g>
+<!-- proc~get_azimuth&#45;&gt;proc~rad2deg -->
+<g id="proc~~orbits_swath~~CallsGraph_edge15" class="edge">
+<title>proc~get_azimuth&#45;&gt;proc~rad2deg</title>
+<path fill="none" stroke="#00ffff" d="M451.06,-138C465.89,-138 482.87,-138 497.76,-138"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="498.17,-141.5 508.17,-138 498.17,-134.5 498.17,-141.5"/>
+</g>
+<!-- proc~deg2rad -->
+<g id="proc~~orbits_swath~~CallsGraph_node15" class="node">
+<title>proc~deg2rad</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node15"><a xlink:href=".././proc/deg2rad.html" xlink:title="deg2rad">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="566.5,-108 508.5,-108 508.5,-84 566.5,-84 566.5,-108"/>
+<text text-anchor="middle" x="537.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deg2rad</text>
+</a>
+</g>
+</g>
+<!-- proc~get_azimuth&#45;&gt;proc~deg2rad -->
+<g id="proc~~orbits_swath~~CallsGraph_edge14" class="edge">
+<title>proc~get_azimuth&#45;&gt;proc~deg2rad</title>
+<path fill="none" stroke="#00ffff" d="M448.39,-125.96C464.09,-120.62 482.59,-114.33 498.58,-108.9"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="499.82,-112.17 508.16,-105.64 497.56,-105.55 499.82,-112.17"/>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~built_vecsize -->
+<g id="proc~~orbits_swath~~CallsGraph_edge16" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~built_vecsize</title>
+<path fill="none" stroke="#0000ff" d="M321.77,-235.08C334.91,-239.34 349.85,-244.18 363.71,-248.67"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="362.97,-252.11 373.56,-251.87 365.13,-245.45 362.97,-252.11"/>
+</g>
+<!-- proc~built_vec -->
+<g id="proc~~orbits_swath~~CallsGraph_node16" class="node">
+<title>proc~built_vec</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node16"><a xlink:href=".././proc/built_vec.html" xlink:title="built_vec">
+<polygon fill="#d9534f" stroke="#d9534f" points="442,-192 382,-192 382,-168 442,-168 442,-192"/>
+<text text-anchor="middle" x="412" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">built_vec</text>
+</a>
+</g>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~built_vec -->
+<g id="proc~~orbits_swath~~CallsGraph_edge17" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~built_vec</title>
+<path fill="none" stroke="#0000ff" d="M320.07,-210.91C336.17,-205.44 355.25,-198.95 371.76,-193.34"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="373.32,-196.5 381.66,-189.97 371.07,-189.88 373.32,-196.5"/>
+</g>
+<!-- proc~get_latlon -->
+<g id="proc~~orbits_swath~~CallsGraph_node17" class="node">
+<title>proc~get_latlon</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node17"><a xlink:href=".././proc/get_latlon.html" xlink:title="get_latlon">
+<polygon fill="#d9534f" stroke="#d9534f" points="444.5,-234 379.5,-234 379.5,-210 444.5,-210 444.5,-234"/>
+<text text-anchor="middle" x="412" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_latlon</text>
+</a>
+</g>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~get_latlon -->
+<g id="proc~~orbits_swath~~CallsGraph_edge18" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~get_latlon</title>
+<path fill="none" stroke="#0000ff" d="M336.32,-222.59C347.27,-222.5 358.69,-222.41 369.22,-222.33"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="369.42,-225.83 379.39,-222.25 369.36,-218.83 369.42,-225.83"/>
+</g>
+<!-- proc~get_reckon&#45;&gt;proc~rad2deg -->
+<g id="proc~~orbits_swath~~CallsGraph_edge20" class="edge">
+<title>proc~get_reckon&#45;&gt;proc~rad2deg</title>
+<path fill="none" stroke="#ff00ff" d="M447.73,-107.81C463.56,-113.2 482.35,-119.58 498.55,-125.1"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="497.67,-128.49 508.26,-128.4 499.92,-121.86 497.67,-128.49"/>
+</g>
+<!-- proc~get_reckon&#45;&gt;proc~deg2rad -->
+<g id="proc~~orbits_swath~~CallsGraph_edge19" class="edge">
+<title>proc~get_reckon&#45;&gt;proc~deg2rad</title>
+<path fill="none" stroke="#ff00ff" d="M447.73,-96C463.41,-96 482,-96 498.1,-96"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="498.26,-99.5 508.26,-96 498.26,-92.5 498.26,-99.5"/>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~rad2deg -->
+<g id="proc~~orbits_swath~~CallsGraph_edge23" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~rad2deg</title>
+<path fill="none" stroke="#ff00da" d="M438.62,-209.96C443.27,-207.3 447.93,-204.28 452,-201 471.15,-185.58 468.21,-173.59 488,-159 491.45,-156.46 495.25,-154.14 499.17,-152.06"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="500.9,-155.11 508.39,-147.62 497.86,-148.81 500.9,-155.11"/>
+</g>
+<!-- proc~get_estimateeci -->
+<g id="proc~~orbits_swath~~CallsGraph_node18" class="node">
+<title>proc~get_estimateeci</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node18"><a xlink:href=".././proc/get_estimateeci.html" xlink:title="get_estimateECI">
+<polygon fill="#d9534f" stroke="#d9534f" points="587,-318 488,-318 488,-294 587,-294 587,-318"/>
+<text text-anchor="middle" x="537.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_estimateECI</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~get_estimateeci -->
+<g id="proc~~orbits_swath~~CallsGraph_edge21" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~get_estimateeci</title>
+<path fill="none" stroke="#ff00da" d="M438.62,-234.04C443.27,-236.7 447.93,-239.72 452,-243 471.15,-258.42 468.21,-270.41 488,-285 489.86,-286.37 491.82,-287.68 493.85,-288.91"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="492.59,-292.21 503.04,-293.92 495.93,-286.06 492.59,-292.21"/>
+</g>
+<!-- proc~get_fraction -->
+<g id="proc~~orbits_swath~~CallsGraph_node19" class="node">
+<title>proc~get_fraction</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node19"><a xlink:href=".././proc/get_fraction.html" xlink:title="get_fraction">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="575.5,-276 499.5,-276 499.5,-252 575.5,-252 575.5,-276"/>
+<text text-anchor="middle" x="537.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_fraction</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~get_fraction -->
+<g id="proc~~orbits_swath~~CallsGraph_edge22" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~get_fraction</title>
+<path fill="none" stroke="#ff00da" d="M444.8,-232.82C458.87,-237.6 475.68,-243.32 491.04,-248.54"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="490.29,-251.98 500.88,-251.89 492.54,-245.35 490.29,-251.98"/>
+</g>
+<!-- proc~ecef2lla -->
+<g id="proc~~orbits_swath~~CallsGraph_node20" class="node">
+<title>proc~ecef2lla</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node20"><a xlink:href=".././proc/ecef2lla.html" xlink:title="ECEF2LLA">
+<polygon fill="#d9534f" stroke="#d9534f" points="570.5,-234 504.5,-234 504.5,-210 570.5,-210 570.5,-234"/>
+<text text-anchor="middle" x="537.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ECEF2LLA</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~ecef2lla -->
+<g id="proc~~orbits_swath~~CallsGraph_edge24" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~ecef2lla</title>
+<path fill="none" stroke="#ff00da" d="M444.8,-222C459.81,-222 477.94,-222 494.09,-222"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="494.37,-225.5 504.37,-222 494.37,-218.5 494.37,-225.5"/>
+</g>
+<!-- proc~eci2ecef -->
+<g id="proc~~orbits_swath~~CallsGraph_node21" class="node">
+<title>proc~eci2ecef</title>
+<g id="a_proc~~orbits_swath~~CallsGraph_node21"><a xlink:href=".././proc/eci2ecef.html" xlink:title="ECI2ECEF">
+<polygon fill="#d9534f" stroke="#d9534f" points="569.5,-192 505.5,-192 505.5,-168 569.5,-168 569.5,-192"/>
+<text text-anchor="middle" x="537.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ECI2ECEF</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~eci2ecef -->
+<g id="proc~~orbits_swath~~CallsGraph_edge25" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~eci2ecef</title>
+<path fill="none" stroke="#ff00da" d="M444.8,-211.18C460.19,-205.95 478.85,-199.6 495.32,-194.01"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="496.89,-197.17 505.23,-190.63 494.64,-190.54 496.89,-197.17"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~orbits_swath~~CalledByGraph Pages: 1 -->
+<svg id="procorbits_swathCalledByGraph" width="307pt" height="74pt"
+ viewBox="0.00 0.00 307.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~orbits_swath~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~orbits_swath~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 303,-70 303,4 -4,4"/>
+<!-- proc~orbits_swath -->
+<g id="proc~~orbits_swath~~CalledByGraph_node1" class="node">
+<title>proc~orbits_swath</title>
+<polygon fill="none" stroke="black" points="299,-45 217,-45 217,-21 299,-21 299,-45"/>
+<text text-anchor="middle" x="258" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">Orbits_Swath</text>
+</g>
+<!-- proc~domasking_ -->
+<g id="proc~~orbits_swath~~CalledByGraph_node2" class="node">
+<title>proc~domasking_</title>
+<g id="a_proc~~orbits_swath~~CalledByGraph_node2"><a xlink:href=".././proc/domasking_.html" xlink:title="DoMasking_">
+<polygon fill="#d9534f" stroke="#d9534f" points="173.5,-66 97.5,-66 97.5,-42 173.5,-42 173.5,-66"/>
+<text text-anchor="middle" x="135.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DoMasking_</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orbits_swath -->
+<g id="proc~~orbits_swath~~CalledByGraph_edge1" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orbits_swath</title>
+<path fill="none" stroke="#ff0000" d="M173.64,-47.53C184.12,-45.7 195.7,-43.68 206.82,-41.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.59,-45.16 216.85,-40 206.39,-38.27 207.59,-45.16"/>
+</g>
+<!-- proc~domasking_cs -->
+<g id="proc~~orbits_swath~~CalledByGraph_node3" class="node">
+<title>proc~domasking_cs</title>
+<g id="a_proc~~orbits_swath~~CalledByGraph_node3"><a xlink:href=".././proc/domasking_cs.html" xlink:title="DoMasking_CS">
+<polygon fill="#d9534f" stroke="#d9534f" points="181,-24 90,-24 90,0 181,0 181,-24"/>
+<text text-anchor="middle" x="135.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DoMasking_CS</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_cs&#45;&gt;proc~orbits_swath -->
+<g id="proc~~orbits_swath~~CalledByGraph_edge2" class="edge">
+<title>proc~domasking_cs&#45;&gt;proc~orbits_swath</title>
+<path fill="none" stroke="#ff0000" d="M181.03,-19.76C189.41,-21.22 198.23,-22.76 206.78,-24.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.19,-27.7 216.64,-25.97 207.39,-20.8 206.19,-27.7"/>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~orbits_swath~~CalledByGraph_node4" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~orbits_swath~~CalledByGraph_node4"><a xlink:href=".././proc/run_~3.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-45 0,-45 0,-21 54,-21 54,-45"/>
+<text text-anchor="middle" x="27" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~domasking_ -->
+<g id="proc~~orbits_swath~~CalledByGraph_edge3" class="edge">
+<title>proc~run_~3&#45;&gt;proc~domasking_</title>
+<path fill="none" stroke="#ff0000" d="M54.05,-38.14C64.15,-40.13 76.03,-42.47 87.52,-44.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="86.97,-48.19 97.45,-46.7 88.32,-41.33 86.97,-48.19"/>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~domasking_cs -->
+<g id="proc~~orbits_swath~~CalledByGraph_edge4" class="edge">
+<title>proc~run_~3&#45;&gt;proc~domasking_cs</title>
+<path fill="none" stroke="#00ffff" d="M54.05,-27.86C61.84,-26.33 70.68,-24.58 79.59,-22.83"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="80.49,-26.22 89.62,-20.85 79.13,-19.35 80.49,-26.22"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/orbits_swath.html#src">Orbits_Swath</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">SUBROUTINE </span><span class="n">Orbits_Swath</span><span class="w"> </span><span class="p">(</span><span class="n">slons</span><span class="p">,</span><span class="w"> </span><span class="n">slats</span><span class="p">,</span><span class="w"> </span><span class="n">Sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">deltat</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                           </span><span class="n">SwathWidth</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">)</span><span class="w"></span>
+<span class="c">! SUBROUTINE Orbits_Swath (slons, slats, Sat_name, nymd, nhms, deltat, SwathWidth, wrapon, rc)</span>
+
+<span class="w">      </span><span class="k">IMPLICIT NONE</span><span class="w"></span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w">    </span><span class="k">pointer</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">slons</span><span class="p">(:,:)</span><span class="w">      </span><span class="c">!Track longitude [degree]</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w">    </span><span class="k">pointer</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">slats</span><span class="p">(:,:)</span><span class="w">      </span><span class="c">!Track latitude  [degree]</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">Sat_name</span><span class="w">        </span><span class="c">!Satellite name Aqua etc ...</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">         </span><span class="c">!Beginning/ending date: YYYYMMDD</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">nhms</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">         </span><span class="c">!Beginning/ending time: HHMMSS</span>
+<span class="w">      </span><span class="kt">REAL</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(:)</span><span class="w">   </span><span class="c">!Right, left swath [km]</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">deltat</span><span class="w">          </span><span class="c">! Time step [secs]</span>
+<span class="w">      </span><span class="kt">LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span><span class="w">       </span><span class="c">! if true then wrap to -180 to 180</span>
+
+<span class="w">      </span><span class="c">!LOGICAL                      :: wrapon       ! if true then wrap to -180 to 180</span>
+
+
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="c">!     Other parameters!</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w">    </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:)</span><span class="w">      </span><span class="c">!Ground Track longitude [degree]</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w">    </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(:)</span><span class="w">      </span><span class="c">!Ground Track latitude  [degree]</span>
+<span class="w">      </span><span class="kt">REAL</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w">    </span><span class="k">DIMENSION</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="k">ALLOCATABLE</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">latlonshift</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">temp1</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">iii</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">      </span><span class="c">!this is used for the number of swaths</span>
+<span class="w">                                            </span><span class="c">!here is 3 indicating mid left right</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">Sat</span><span class="w">          </span><span class="c">! Satellite number</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">ierr1</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">logical</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">wrapon</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">wrap</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">wrapon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wrap</span><span class="w"></span>
+<span class="w">      </span><span class="k">else                 </span>
+<span class="k">           </span><span class="n">wrapon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! Initiate error code to 0</span>
+<span class="w">      </span><span class="k">CALL </span><span class="n">Orbits_Track</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">Sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">deltat</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="c">!rc will return 3</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      CALL </span><span class="n">satname2int</span><span class="p">(</span><span class="n">Sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">Sat</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w">  </span><span class="c">! name to sat number rc will return 99</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="c">!     Check if the Swath width is given correctly</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">0.</span><span class="nb">AND</span><span class="p">.</span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="w"></span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      else if</span><span class="w"> </span><span class="p">(</span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">0.</span><span class="nb">AND</span><span class="p">.</span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">temp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">temp1</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         end if</span>
+<span class="k">      else if</span><span class="w"> </span><span class="p">(</span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">&lt;</span><span class="mf">0.</span><span class="nb">AND</span><span class="p">.</span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">temp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">temp1</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         end if</span>
+<span class="k">      end if</span><span class="w"></span>
+
+<span class="c">!     2- Find sweep points</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">latlonshift</span><span class="p">))</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">latlonshift</span><span class="p">)</span><span class="w"> </span><span class="c">! this is main</span>
+<span class="w">      </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">latlonshift</span><span class="p">(</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ierr1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! either is ok size of lat or lon</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">ierr1</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="c">!</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">      endif</span>
+<span class="k">      </span><span class="n">latlonshift</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="c">!CALL find_sweeppoints(iii,lat_l(1:las),lon_l(1:los), real(swath(1),dp),  &amp;</span>
+<span class="w">      </span><span class="c">!                  real(swath(2),dp), latlonshift)</span>
+<span class="w">      </span><span class="k">CALL </span><span class="n">find_sweeppoints</span><span class="p">(</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">wrapon</span><span class="p">,</span><span class="w"> </span><span class="n">latlonshift</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">slats</span><span class="p">(</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">lats</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ierr1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! either is ok size of lat or lon</span>
+<span class="w">      </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">slons</span><span class="p">(</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">lons</span><span class="p">)),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ierr1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! either is ok size of lat or lon</span>
+
+<span class="w">      </span><span class="n">slats</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lats</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">latlonshift</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">slons</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lons</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">latlonshift</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">iii</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">slats</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lats</span><span class="p">))</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">lats</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lats</span><span class="p">))</span><span class="w">  </span><span class="c">! slats(1:3, :) 1- right 2- original ground track 3-left</span>
+<span class="w">      </span><span class="n">slons</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lons</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lons</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">SIZE</span><span class="p">(</span><span class="n">lons</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">latlonshift</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ierr1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ierr1</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="c">!</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      endif       </span>
+
+<span class="k">  END SUBROUTINE </span><span class="n">Orbits_Swath</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

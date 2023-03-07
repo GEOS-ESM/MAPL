@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ExtDataLgr.F90 &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>ExtDataLgr.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for source files.">5 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataLgr.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+          <li class="active">ExtDataLgr.F90</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#mods-0">Modules</a>
+        </h3>
+      </div>
+      <div id="mods-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/mapl_extdatalogger.html">MAPL_ExtDataLogger</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/extdatalgr.f90.html#src">ExtDataLgr.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">This file depends on</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~extdatalgr.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefileextdatalgrf90EfferentGraph" width="428pt" height="74pt"
+ viewBox="0.00 0.00 428.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~extdatalgr.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 424,-70 424,4 -4,4"/>
+<!-- sourcefile~extdatalgr.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~extdatalgr.f90</title>
+<polygon fill="none" stroke="black" points="420,-45 327,-45 327,-21 420,-21 420,-45"/>
+<text text-anchor="middle" x="373.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataLgr.F90</text>
+</g>
+<!-- sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~pflogger_stub.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/pflogger_stub.f90.html" xlink:title="pflogger_stub.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="291,-45 183,-45 183,-21 291,-21 291,-45"/>
+<text text-anchor="middle" x="237" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger_stub.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatalgr.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~extdatalgr.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326.96,-33C318.75,-33 310.05,-33 301.43,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="301.39,-29.5 291.39,-33 301.39,-36.5 301.39,-29.5"/>
+</g>
+<!-- sourcefile~pfl_keywordenforcer.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~pfl_keywordenforcer.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/pfl_keywordenforcer.f90.html" xlink:title="PFL_KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="147,-66 0,-66 0,-42 147,-42 147,-66"/>
+<text text-anchor="middle" x="73.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~pfl_keywordenforcer.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~pfl_keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M182.67,-39.93C174.48,-41 165.87,-42.12 157.22,-43.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.55,-39.8 147.08,-44.56 157.45,-46.74 156.55,-39.8"/>
+</g>
+<!-- sourcefile~wraparray.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~wraparray.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/wraparray.f90.html" xlink:title="WrapArray.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="119,-24 28,-24 28,0 119,0 119,-24"/>
+<text text-anchor="middle" x="73.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WrapArray.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~wraparray.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~pflogger_stub.f90&#45;&gt;sourcefile~wraparray.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M182.67,-26.07C165.47,-23.83 146.38,-21.35 129.09,-19.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="129.51,-15.62 119.14,-17.8 128.6,-22.56 129.51,-15.62"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Files dependent on this one</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~extdatalgr.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileextdatalgrf90AfferentGraph" width="641pt" height="107pt"
+ viewBox="0.00 0.00 641.00 106.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph" class="graph" transform="scale(1.35 1.35) rotate(0) translate(4 140)">
+<title>sourcefile~~extdatalgr.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-140 859,-140 859,4 -4,4"/>
+<!-- sourcefile~extdatalgr.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~extdatalgr.f90</title>
+<polygon fill="none" stroke="black" points="93,-84 0,-84 0,-60 93,-60 93,-84"/>
+<text text-anchor="middle" x="46.5" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataLgr.F90</text>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276,-84 129,-84 129,-60 276,-60 276,-84"/>
+<text text-anchor="middle" x="202.5" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdatalgr.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~extdatalgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M128.56,-72C120.14,-72 111.66,-72 103.51,-72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.41,-68.5 93.41,-72 103.41,-75.5 103.41,-68.5"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="466,-105 322,-105 322,-81 466,-81 466,-105"/>
+<text text-anchor="middle" x="394" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M321.9,-85.12C310.36,-83.84 298.33,-82.51 286.54,-81.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.59,-77.69 276.26,-80.06 285.82,-84.64 286.59,-77.69"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="476,-63 312,-63 312,-39 476,-39 476,-63"/>
+<text text-anchor="middle" x="394" y="-48.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~extdatagridcompng.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M311.81,-60C303.29,-60.94 294.62,-61.9 286.09,-62.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="285.7,-59.37 276.14,-63.95 286.47,-66.33 285.7,-59.37"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="623.5,-105 533.5,-105 533.5,-81 623.5,-81 623.5,-105"/>
+<text text-anchor="middle" x="578.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M533.32,-93C516.16,-93 495.95,-93 476.35,-93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.18,-89.5 466.18,-93 476.18,-96.5 476.18,-89.5"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="822.5,-43 713.5,-43 713.5,-19 822.5,-19 822.5,-43"/>
+<text text-anchor="middle" x="768" y="-28.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M713.31,-33.89C654.05,-37.07 557.64,-42.26 486.43,-46.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="485.91,-42.61 476.11,-46.64 486.29,-49.6 485.91,-42.61"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="645,-24 512,-24 512,0 645,0 645,-24"/>
+<text text-anchor="middle" x="578.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M713.27,-25.56C695.21,-23.73 674.71,-21.65 655.28,-19.68"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="655.53,-16.19 645.23,-18.66 654.83,-23.15 655.53,-16.19"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M521.25,-24.02C502.26,-28.08 480.88,-32.65 461.19,-36.86"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="460.42,-33.44 451.37,-38.95 461.88,-40.29 460.42,-33.44"/>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mapl_gridcomps.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/mapl_gridcomps.f90.html" xlink:title="MAPL_GridComps.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="832,-136 704,-136 704,-112 832,-112 832,-136"/>
+<text text-anchor="middle" x="768" y="-121.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridComps.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M703.78,-113.55C681.02,-109.78 655.56,-105.58 633.65,-101.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="633.96,-98.46 623.52,-100.28 632.82,-105.36 633.96,-98.46"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~extdatalgr.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="855,-94 681,-94 681,-70 855,-70 855,-94"/>
+<text text-anchor="middle" x="768" y="-79.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~extdatalgr.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M680.93,-87.05C664.97,-87.99 648.72,-88.94 634.03,-89.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="633.41,-86.33 623.63,-90.41 633.82,-93.32 633.41,-86.33"/>
+</g>
+</g>
+</svg>
+</div><script>var pansourcefileextdatalgrf90AfferentGraph = svgPanZoom('#sourcefileextdatalgrf90AfferentGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+<br>
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#mods-1">Modules</a>
+        </h3>
+      </div>
+      <div id="mods-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/mapl_extdatalogger.html">MAPL_ExtDataLogger</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/extdatalgr.f90.html#src">ExtDataLgr.F90</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+      <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">MAPL_ExtDataLogger</span><span class="w"></span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">pFlogger</span><span class="w"></span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extdata_lgr</span><span class="w"></span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">class</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">extdata_lgr</span><span class="w"></span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">end module </span><span class="n">MAPL_ExtDataLogger</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

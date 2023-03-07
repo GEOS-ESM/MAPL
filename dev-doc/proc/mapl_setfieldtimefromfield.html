@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SetFieldTimeFromField &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SetFieldTimeFromField
+      <small>Module Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">14 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Base_Base_implementation.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/base_base_implementation.f90.html'>Base_Base_implementation.F90</a></li>
+              <li><a href='../module/base_implementation.html'>Base_Implementation</a></li>
+          <li class="active">MAPL_SetFieldTimeFromField</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_setfieldtimefromfield.html#src">MAPL_SetFieldTimeFromField</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module subroutine MAPL_SetFieldTimeFromField(FIELD, TIME, RC)  
+    <a href='../interface/mapl_setfieldtimefromfield.html'><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~26"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FIELD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~22"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TIME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~432"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_setfieldtimefromfield~~CallsGraph Pages: 1 -->
+<svg id="procmapl_setfieldtimefromfieldCallsGraph" width="581pt" height="158pt"
+ viewBox="0.00 0.00 581.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~mapl_setfieldtimefromfield~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 577,-154 577,4 -4,4"/>
+<!-- proc~mapl_setfieldtimefromfield -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node1" class="node">
+<title>proc~mapl_setfieldtimefromfield</title>
+<polygon fill="none" stroke="black" points="166,-87 0,-87 0,-63 166,-63 166,-87"/>
+<text text-anchor="middle" x="83" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SetFieldTimeFromField</text>
+</g>
+<!-- proc~esmf_timeget -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node2" class="node">
+<title>proc~esmf_timeget</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="302,-150 211,-150 211,-126 302,-126 302,-150"/>
+<text text-anchor="middle" x="256.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setfieldtimefromfield&#45;&gt;proc~esmf_timeget -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_setfieldtimefromfield&#45;&gt;proc~esmf_timeget</title>
+<path fill="none" stroke="#ff0000" d="M117.07,-87.15C144.44,-97.2 183.5,-111.55 213.16,-122.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.23,-125.83 222.83,-126 214.65,-119.26 212.23,-125.83"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="294.5,-108 218.5,-108 218.5,-84 294.5,-84 294.5,-108"/>
+<text text-anchor="middle" x="256.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setfieldtimefromfield&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_setfieldtimefromfield&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M166.23,-85.07C180.61,-86.83 195.13,-88.61 208.15,-90.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="207.89,-93.7 218.24,-91.44 208.74,-86.75 207.89,-93.7"/>
+</g>
+<!-- proc~esmf_attributeset -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node4" class="node">
+<title>proc~esmf_attributeset</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeset.html" xlink:title="ESMF_AttributeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="311,-66 202,-66 202,-42 311,-42 311,-66"/>
+<text text-anchor="middle" x="256.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setfieldtimefromfield&#45;&gt;proc~esmf_attributeset -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_setfieldtimefromfield&#45;&gt;proc~esmf_attributeset</title>
+<path fill="none" stroke="#ff0000" d="M166.23,-64.93C174.79,-63.88 183.39,-62.83 191.7,-61.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.17,-65.28 201.67,-60.59 191.32,-58.33 192.17,-65.28"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node5"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="297.5,-24 215.5,-24 215.5,0 297.5,0 297.5,-24"/>
+<text text-anchor="middle" x="256.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setfieldtimefromfield&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_setfieldtimefromfield&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M117.07,-62.85C144.44,-52.8 183.5,-38.45 213.16,-27.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.65,-30.74 222.83,-24 212.23,-24.17 214.65,-30.74"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node6" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node6"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="480,-87 347,-87 347,-63 480,-63 480,-87"/>
+<text text-anchor="middle" x="413.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M294.63,-90.97C307.36,-89.24 322.11,-87.25 336.78,-85.26"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="337.46,-88.7 346.9,-83.89 336.52,-81.76 337.46,-88.7"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M288.38,-24.01C295.8,-26.92 303.69,-30.05 311,-33 332.03,-41.48 355.42,-51.14 374.45,-59.06"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="373.11,-62.29 383.68,-62.91 375.8,-55.83 373.11,-62.29"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node7" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node7"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="471,-24 356,-24 356,0 471,0 471,-24"/>
+<text text-anchor="middle" x="413.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7f00ff" d="M297.82,-12C312.45,-12 329.4,-12 345.71,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="345.75,-15.5 355.75,-12 345.75,-8.5 345.75,-15.5"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_node8" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CallsGraph_node8"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="573,-87 516,-87 516,-63 573,-63 573,-87"/>
+<text text-anchor="middle" x="544.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mapl_setfieldtimefromfield~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#ff0000" d="M480.13,-75C488.88,-75 497.59,-75 505.63,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.77,-78.5 515.77,-75 505.77,-71.5 505.77,-78.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_setfieldtimefromfield~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_setfieldtimefromfieldCalledByGraph" width="641pt" height="51pt"
+ viewBox="0.00 0.00 641.00 50.62" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph" class="graph" transform="scale(1.46 1.46) rotate(0) translate(4 70)">
+<title>proc~~mapl_setfieldtimefromfield~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 933,-70 933,4 -4,4"/>
+<!-- proc~mapl_setfieldtimefromfield -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_node1" class="node">
+<title>proc~mapl_setfieldtimefromfield</title>
+<polygon fill="none" stroke="black" points="929,-45 763,-45 763,-21 929,-21 929,-45"/>
+<text text-anchor="middle" x="846" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_SetFieldTimeFromField</text>
+</g>
+<!-- interface~mapl_setfieldtimefromfield -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_node2" class="node">
+<title>interface~mapl_setfieldtimefromfield</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CalledByGraph_node2"><a xlink:href=".././interface/mapl_setfieldtimefromfield.html" xlink:title="MAPL_SetFieldTimeFromField">
+<polygon fill="#a7506f" stroke="#a7506f" points="727,-45 561,-45 561,-21 727,-21 727,-45"/>
+<text text-anchor="middle" x="644" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SetFieldTimeFromField</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_setfieldtimefromfield&#45;&gt;proc~mapl_setfieldtimefromfield -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_setfieldtimefromfield&#45;&gt;proc~mapl_setfieldtimefromfield</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M727.21,-33C735.56,-33 744.08,-33 752.53,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="752.78,-36.5 762.78,-33 752.78,-29.5 752.78,-36.5"/>
+</g>
+<!-- interface~mapl_fieldsettime -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_node3" class="node">
+<title>interface~mapl_fieldsettime</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CalledByGraph_node3"><a xlink:href=".././interface/mapl_fieldsettime.html" xlink:title="MAPL_FieldSetTime">
+<polygon fill="#a7506f" stroke="#a7506f" points="525,-45 410,-45 410,-21 525,-21 525,-45"/>
+<text text-anchor="middle" x="467.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldSetTime</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldsettime&#45;&gt;interface~mapl_setfieldtimefromfield -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_edge2" class="edge">
+<title>interface~mapl_fieldsettime&#45;&gt;interface~mapl_setfieldtimefromfield</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M525.16,-33C533.38,-33 542.02,-33 550.73,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="550.96,-36.5 560.96,-33 550.96,-29.5 550.96,-36.5"/>
+</g>
+<!-- proc~mapl_setfieldtimefromstate -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_node4" class="node">
+<title>proc~mapl_setfieldtimefromstate</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_setfieldtimefromstate.html" xlink:title="MAPL_SetFieldTimeFromState">
+<polygon fill="#d9534f" stroke="#d9534f" points="374,-66 205,-66 205,-42 374,-42 374,-66"/>
+<text text-anchor="middle" x="289.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SetFieldTimeFromState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setfieldtimefromstate&#45;&gt;interface~mapl_fieldsettime -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_setfieldtimefromstate&#45;&gt;interface~mapl_fieldsettime</title>
+<path fill="none" stroke="#ff0000" d="M374.12,-44.02C382.76,-42.99 391.45,-41.95 399.87,-40.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="400.46,-44.4 409.98,-39.74 399.63,-37.45 400.46,-44.4"/>
+</g>
+<!-- proc~mapl_climupdate -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_node5" class="node">
+<title>proc~mapl_climupdate</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_climupdate.html" xlink:title="MAPL_ClimUpdate">
+<polygon fill="#d9534f" stroke="#d9534f" points="344,-24 235,-24 235,0 344,0 344,-24"/>
+<text text-anchor="middle" x="289.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ClimUpdate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_climupdate&#45;&gt;interface~mapl_fieldsettime -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_climupdate&#45;&gt;interface~mapl_fieldsettime</title>
+<path fill="none" stroke="#ff0000" d="M344.26,-18.41C361.75,-20.5 381.37,-22.84 399.69,-25.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.37,-28.51 409.71,-26.22 400.2,-21.56 399.37,-28.51"/>
+</g>
+<!-- interface~mapl_setfieldtimefromstate -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_node6" class="node">
+<title>interface~mapl_setfieldtimefromstate</title>
+<g id="a_proc~~mapl_setfieldtimefromfield~~CalledByGraph_node6"><a xlink:href=".././interface/mapl_setfieldtimefromstate.html" xlink:title="MAPL_SetFieldTimeFromState">
+<polygon fill="#a7506f" stroke="#a7506f" points="169,-66 0,-66 0,-42 169,-42 169,-66"/>
+<text text-anchor="middle" x="84.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SetFieldTimeFromState</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_setfieldtimefromstate&#45;&gt;proc~mapl_setfieldtimefromstate -->
+<g id="proc~~mapl_setfieldtimefromfield~~CalledByGraph_edge5" class="edge">
+<title>interface~mapl_setfieldtimefromstate&#45;&gt;proc~mapl_setfieldtimefromstate</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M169.24,-54C177.72,-54 186.37,-54 194.94,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="194.95,-57.5 204.95,-54 194.95,-50.5 194.95,-57.5"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_setfieldtimefromfieldCalledByGraph = svgPanZoom('#procmapl_setfieldtimefromfieldCalledByGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_setfieldtimefromfield.html#src">MAPL_SetFieldTimeFromField</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">module subroutine  </span><span class="n">MAPL_SetFieldTimeFromField</span><span class="w"> </span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="nb">TIME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FIELD</span><span class="p">),</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TIME</span><span class="p">),</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">TIME</span><span class="w"> </span><span class="c">!ALT: IN</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="k">parameter</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot; MAPL_SetFieldTimeFromField&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                                </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">TIMESTAMP</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="w">          </span><span class="p">(</span><span class="nb">TIME</span><span class="p">,</span><span class="w">  </span><span class="n">timeString</span><span class="o">=</span><span class="n">TIMESTAMP</span><span class="p">,</span><span class="w">             </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;TimeStamp&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">TIMESTAMP</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine  </span><span class="n">MAPL_SetFieldTimeFromField</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

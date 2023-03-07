@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_global_time_profiler &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_global_time_profiler
+      <small>Function</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">4 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/TimeProfiler.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/timeprofiler.f90.html'>TimeProfiler.F90</a></li>
+              <li><a href='../module/mapl_timeprofiler_private.html'>mapl_TimeProfiler_private</a></li>
+          <li class="active">get_global_time_profiler</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_global_time_profiler.html#src">get_global_time_profiler</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function get_global_time_profiler() result(time_profiler)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-time_profiler"></span>
+          type(<a href='../type/timeprofiler.html'>TimeProfiler</a>), pointer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_global_time_profiler~~CalledByGraph Pages: 1 -->
+<svg id="procget_global_time_profilerCalledByGraph" width="498pt" height="680pt"
+ viewBox="0.00 0.00 498.00 680.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_global_time_profiler~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 676)">
+<title>proc~~get_global_time_profiler~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-676 494,-676 494,4 -4,4"/>
+<!-- proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node1" class="node">
+<title>proc~get_global_time_profiler</title>
+<polygon fill="none" stroke="black" points="490,-339 349,-339 349,-315 490,-315 490,-339"/>
+<text text-anchor="middle" x="419.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_global_time_profiler</text>
+</g>
+<!-- proc~finalize_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node2" class="node">
+<title>proc~finalize_global_time_profiler</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node2"><a xlink:href=".././proc/finalize_global_time_profiler.html" xlink:title="finalize_global_time_profiler">
+<polygon fill="#d9534f" stroke="#d9534f" points="310,-672 148,-672 148,-648 310,-648 310,-672"/>
+<text text-anchor="middle" x="229" y="-657.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_global_time_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge12" class="edge">
+<title>proc~finalize_global_time_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M300.23,-647.97C304.85,-645.49 309.18,-642.53 313,-639 399.39,-559.12 415.06,-406.06 417.89,-349.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="421.39,-349.16 418.3,-339.02 414.39,-348.87 421.39,-349.16"/>
+</g>
+<!-- proc~initialize_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node3" class="node">
+<title>proc~initialize_global_time_profiler</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node3"><a xlink:href=".././proc/initialize_global_time_profiler.html" xlink:title="initialize_global_time_profiler">
+<polygon fill="#d9534f" stroke="#d9534f" points="313,-630 145,-630 145,-606 313,-606 313,-630"/>
+<text text-anchor="middle" x="229" y="-615.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_global_time_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge13" class="edge">
+<title>proc~initialize_global_time_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M299.65,-605.97C304.46,-603.5 308.99,-600.54 313,-597 389.11,-529.83 410.78,-400.9 416.55,-349.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="420.04,-349.46 417.57,-339.15 413.08,-348.74 420.04,-349.46"/>
+</g>
+<!-- proc~mapl_genericfinalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node4" class="node">
+<title>proc~mapl_genericfinalize</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_genericfinalize.html" xlink:title="MAPL_GenericFinalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="293,-588 165,-588 165,-564 293,-564 293,-588"/>
+<text text-anchor="middle" x="229" y="-573.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericFinalize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericfinalize&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge14" class="edge">
+<title>proc~mapl_genericfinalize&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M293.21,-566.48C300.36,-563.59 307.17,-559.84 313,-555 379.05,-500.2 405.89,-394.93 414.78,-349.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="418.26,-349.58 416.62,-339.12 411.37,-348.32 418.26,-349.58"/>
+</g>
+<!-- proc~mapl_genericwrapper -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node5" class="node">
+<title>proc~mapl_genericwrapper</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_genericwrapper.html" xlink:title="MAPL_GenericWrapper">
+<polygon fill="#d9534f" stroke="#d9534f" points="296,-546 162,-546 162,-522 296,-522 296,-546"/>
+<text text-anchor="middle" x="229" y="-531.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericWrapper</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericwrapper&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_genericwrapper&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M296.21,-522.63C302.2,-520.04 307.92,-516.87 313,-513 369.25,-470.12 400.21,-388.04 412.37,-348.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="415.73,-349.81 415.24,-339.23 409.03,-347.81 415.73,-349.81"/>
+</g>
+<!-- proc~run_gc~2 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node6" class="node">
+<title>proc~run_gc~2</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node6"><a xlink:href=".././proc/run_gc~2.html" xlink:title="run_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="256,-504 202,-504 202,-480 256,-480 256,-504"/>
+<text text-anchor="middle" x="229" y="-489.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~run_gc~2&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge3" class="edge">
+<title>proc~run_gc~2&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M256.18,-489.98C273.53,-487.6 296.12,-482.38 313,-471 359.61,-439.58 393.13,-380.4 408.71,-348.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="412,-349.8 413.14,-339.26 405.68,-346.79 412,-349.8"/>
+</g>
+<!-- proc~mapl_genericrefresh -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node7" class="node">
+<title>proc~mapl_genericrefresh</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node7"><a xlink:href=".././proc/mapl_genericrefresh.html" xlink:title="MAPL_GenericRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="293,-444 165,-444 165,-420 293,-420 293,-444"/>
+<text text-anchor="middle" x="229" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M290.49,-419.93C298.25,-417.45 305.94,-414.5 313,-411 346.71,-394.3 379.66,-365.47 399.53,-346.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="402.04,-348.76 406.72,-339.26 397.13,-343.77 402.04,-348.76"/>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;proc~mapl_genericrefresh -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge22" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;proc~mapl_genericrefresh</title>
+<path fill="none" stroke="#1fff00" d="M200.23,-444.01C190.18,-452.97 199.77,-462 229,-462 247.27,-462 257.86,-458.47 260.79,-453.64"/>
+<polygon fill="#1fff00" stroke="#1fff00" points="264.1,-452.51 257.77,-444.01 257.42,-454.6 264.1,-452.51"/>
+</g>
+<!-- proc~finalize_gc~2 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node8" class="node">
+<title>proc~finalize_gc~2</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node8"><a xlink:href=".././proc/finalize_gc~2.html" xlink:title="finalize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="263.5,-402 194.5,-402 194.5,-378 263.5,-378 263.5,-402"/>
+<text text-anchor="middle" x="229" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_gc~2&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge5" class="edge">
+<title>proc~finalize_gc~2&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M263.8,-382.51C278.98,-378.88 297.02,-374.18 313,-369 336.21,-361.48 361.63,-351.42 381.71,-343.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="383.25,-346.17 391.1,-339.06 380.52,-339.72 383.25,-346.17"/>
+</g>
+<!-- proc~initialize_gc~2 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node9" class="node">
+<title>proc~initialize_gc~2</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node9"><a xlink:href=".././proc/initialize_gc~2.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="266.5,-360 191.5,-360 191.5,-336 266.5,-336 266.5,-360"/>
+<text text-anchor="middle" x="229" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc~2&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize_gc~2&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M266.79,-343.9C287.32,-341.61 313.73,-338.67 338.74,-335.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="339.43,-339.33 348.99,-334.74 338.66,-332.37 339.43,-339.33"/>
+</g>
+<!-- proc~addchildfrommeta -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node10" class="node">
+<title>proc~addchildfrommeta</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node10"><a xlink:href=".././proc/addchildfrommeta.html" xlink:title="AddChildFromMeta">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="285,-318 173,-318 173,-294 285,-294 285,-318"/>
+<text text-anchor="middle" x="229" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddChildFromMeta</text>
+</a>
+</g>
+</g>
+<!-- proc~addchildfrommeta&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge6" class="edge">
+<title>proc~addchildfrommeta&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M285.03,-312.13C301.9,-314.01 320.81,-316.12 338.97,-318.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="338.64,-321.63 348.97,-319.25 339.42,-314.67 338.64,-321.63"/>
+</g>
+<!-- proc~report_global_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node11" class="node">
+<title>proc~report_global_profiler</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node11"><a xlink:href=".././proc/report_global_profiler.html" xlink:title="report_global_profiler">
+<polygon fill="#d9534f" stroke="#d9534f" points="292.5,-234 165.5,-234 165.5,-210 292.5,-210 292.5,-234"/>
+<text text-anchor="middle" x="229" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">report_global_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~report_global_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge7" class="edge">
+<title>proc~report_global_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M290.49,-234.07C298.25,-236.55 305.94,-239.5 313,-243 346.71,-259.7 379.66,-288.53 399.53,-307.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="397.13,-310.23 406.72,-314.74 402.04,-305.24 397.13,-310.23"/>
+</g>
+<!-- proc~start_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node12" class="node">
+<title>proc~start_global_time_profiler</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node12"><a xlink:href=".././proc/start_global_time_profiler.html" xlink:title="start_global_time_profiler">
+<polygon fill="#d9534f" stroke="#d9534f" points="303,-150 155,-150 155,-126 303,-126 303,-150"/>
+<text text-anchor="middle" x="229" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">start_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~start_global_time_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge8" class="edge">
+<title>proc~start_global_time_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M297.29,-150.15C302.86,-152.59 308.19,-155.5 313,-159 364.96,-196.8 397.22,-268.74 410.9,-304.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="407.69,-306.4 414.4,-314.6 414.27,-304.01 407.69,-306.4"/>
+</g>
+<!-- proc~stop_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node13" class="node">
+<title>proc~stop_global_time_profiler</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node13"><a xlink:href=".././proc/stop_global_time_profiler.html" xlink:title="stop_global_time_profiler">
+<polygon fill="#d9534f" stroke="#d9534f" points="302,-192 156,-192 156,-168 302,-168 302,-192"/>
+<text text-anchor="middle" x="229" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">stop_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~stop_global_time_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge9" class="edge">
+<title>proc~stop_global_time_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M294.66,-192.03C301.1,-194.49 307.34,-197.44 313,-201 355.76,-227.86 389.82,-277.8 406.78,-306.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="403.79,-307.9 411.86,-314.77 409.83,-304.37 403.79,-307.9"/>
+</g>
+<!-- proc~addchildfromdsometa -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node14" class="node">
+<title>proc~addchildfromdsometa</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node14"><a xlink:href=".././proc/addchildfromdsometa.html" xlink:title="AddChildFromDSOMeta">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="297,-276 161,-276 161,-252 297,-252 297,-276"/>
+<text text-anchor="middle" x="229" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddChildFromDSOMeta</text>
+</a>
+</g>
+</g>
+<!-- proc~addchildfromdsometa&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge10" class="edge">
+<title>proc~addchildfromdsometa&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M282.1,-276.07C292.41,-278.77 303.1,-281.79 313,-285 336.21,-292.52 361.63,-302.58 381.71,-310.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="380.52,-314.28 391.1,-314.94 383.25,-307.83 380.52,-314.28"/>
+</g>
+<!-- proc~initialize_gc -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node15" class="node">
+<title>proc~initialize_gc</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node15"><a xlink:href=".././proc/initialize_gc.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="266.5,-108 191.5,-108 191.5,-84 266.5,-84 266.5,-108"/>
+<text text-anchor="middle" x="229" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge11" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M266.5,-98.49C282.2,-101.16 299.9,-106.48 313,-117 374.75,-166.58 403.51,-261.7 413.81,-304.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="410.46,-305.84 416.09,-314.81 417.28,-304.28 410.46,-305.84"/>
+</g>
+<!-- proc~model_finalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node16" class="node">
+<title>proc~model_finalize</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node16"><a xlink:href=".././proc/model_finalize.html" xlink:title="model_finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="274,-66 184,-66 184,-42 274,-42 274,-66"/>
+<text text-anchor="middle" x="229" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">model_finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~model_finalize&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge15" class="edge">
+<title>proc~model_finalize&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M274.07,-57.44C287.81,-60.41 302.19,-65.69 313,-75 384.68,-136.74 408.71,-255.25 415.82,-304.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="412.4,-305.35 417.19,-314.8 419.33,-304.42 412.4,-305.35"/>
+</g>
+<!-- proc~mapl_genericrecord -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node17" class="node">
+<title>proc~mapl_genericrecord</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node17"><a xlink:href=".././proc/mapl_genericrecord.html" xlink:title="MAPL_GenericRecord">
+<polygon fill="#d9534f" stroke="#d9534f" points="292,-24 166,-24 166,0 292,0 292,-24"/>
+<text text-anchor="middle" x="229" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRecord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrecord&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge16" class="edge">
+<title>proc~mapl_genericrecord&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M292.38,-20.51C299.93,-23.55 307.06,-27.61 313,-33 394.89,-107.33 413.26,-249.83 417.35,-304.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="413.86,-304.99 418,-314.74 420.84,-304.53 413.86,-304.99"/>
+</g>
+<!-- proc~finalize~4 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node18" class="node">
+<title>proc~finalize~4</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node18"><a xlink:href=".././proc/finalize~4.html" xlink:title="finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="81.5,-672 27.5,-672 27.5,-648 81.5,-648 81.5,-672"/>
+<text text-anchor="middle" x="54.5" y="-657.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~4&#45;&gt;proc~finalize_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge17" class="edge">
+<title>proc~finalize~4&#45;&gt;proc~finalize_global_time_profiler</title>
+<path fill="none" stroke="#ff0000" d="M81.7,-660C96.93,-660 117.11,-660 137.61,-660"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.68,-663.5 147.68,-660 137.68,-656.5 137.68,-663.5"/>
+</g>
+<!-- proc~finalize_~2 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node19" class="node">
+<title>proc~finalize_~2</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node19"><a xlink:href=".././proc/finalize_~2.html" xlink:title="Finalize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="83.5,-588 25.5,-588 25.5,-564 83.5,-564 83.5,-588"/>
+<text text-anchor="middle" x="54.5" y="-573.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize_</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_~2&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge20" class="edge">
+<title>proc~finalize_~2&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#ffbf00" d="M83.6,-576C102.9,-576 129.47,-576 154.56,-576"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="154.82,-579.5 164.82,-576 154.82,-572.5 154.82,-579.5"/>
+</g>
+<!-- proc~finalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node20" class="node">
+<title>proc~finalize</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node20"><a xlink:href=".././proc/finalize.html" xlink:title="Finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="81.5,-546 27.5,-546 27.5,-522 81.5,-522 81.5,-546"/>
+<text text-anchor="middle" x="54.5" y="-531.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge19" class="edge">
+<title>proc~finalize&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#ffbf00" d="M81.7,-540.38C104.73,-545.99 139.11,-554.36 168.75,-561.57"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="168.05,-565.01 178.6,-563.97 169.71,-558.21 168.05,-565.01"/>
+</g>
+<!-- proc~finalize_~3 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node21" class="node">
+<title>proc~finalize_~3</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node21"><a xlink:href=".././proc/finalize_~3.html" xlink:title="Finalize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="83.5,-504 25.5,-504 25.5,-480 83.5,-480 83.5,-504"/>
+<text text-anchor="middle" x="54.5" y="-489.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Finalize_</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_~3&#45;&gt;proc~mapl_genericfinalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge21" class="edge">
+<title>proc~finalize_~3&#45;&gt;proc~mapl_genericfinalize</title>
+<path fill="none" stroke="#ffbf00" d="M83.75,-500.16C92.31,-503.38 101.44,-507.62 109,-513 129.04,-527.25 124.1,-542.05 145,-555 148.22,-557 151.62,-558.8 155.14,-560.44"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="154.09,-563.79 164.67,-564.38 156.77,-557.33 154.09,-563.79"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node22" class="node">
+<title>proc~initialize~6</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node22"><a xlink:href=".././proc/initialize~6.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="83,-630 26,-630 26,-606 83,-606 83,-630"/>
+<text text-anchor="middle" x="54.5" y="-615.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~6&#45;&gt;proc~initialize_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge18" class="edge">
+<title>proc~initialize~6&#45;&gt;proc~initialize_global_time_profiler</title>
+<path fill="none" stroke="#ff5f00" d="M83.22,-618C97.5,-618 115.85,-618 134.65,-618"/>
+<polygon fill="#ff5f00" stroke="#ff5f00" points="134.81,-621.5 144.81,-618 134.81,-614.5 134.81,-621.5"/>
+</g>
+<!-- proc~addchildfromgc -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node23" class="node">
+<title>proc~addchildfromgc</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node23"><a xlink:href=".././proc/addchildfromgc.html" xlink:title="AddChildFromGC">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="105.5,-339 3.5,-339 3.5,-315 105.5,-315 105.5,-339"/>
+<text text-anchor="middle" x="54.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddChildFromGC</text>
+</a>
+</g>
+</g>
+<!-- proc~addchildfromgc&#45;&gt;proc~addchildfrommeta -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge23" class="edge">
+<title>proc~addchildfromgc&#45;&gt;proc~addchildfrommeta</title>
+<path fill="none" stroke="#00ffff" d="M105.86,-320.87C123.64,-318.7 143.91,-316.24 162.75,-313.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="163.24,-317.41 172.75,-312.73 162.4,-310.46 163.24,-317.41"/>
+</g>
+<!-- interface~mapl_addchild -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node24" class="node">
+<title>interface~mapl_addchild</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node24"><a xlink:href=".././interface/mapl_addchild.html" xlink:title="MAPL_AddChild">
+<polygon fill="#a7506f" stroke="#a7506f" points="101.5,-297 7.5,-297 7.5,-273 101.5,-273 101.5,-297"/>
+<text text-anchor="middle" x="54.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddChild</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addchild&#45;&gt;proc~addchildfrommeta -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge24" class="edge">
+<title>interface~mapl_addchild&#45;&gt;proc~addchildfrommeta</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M101.73,-290.63C120.42,-292.9 142.34,-295.57 162.63,-298.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="162.39,-301.54 172.74,-299.27 163.24,-294.59 162.39,-301.54"/>
+</g>
+<!-- interface~mapl_addchild&#45;&gt;proc~addchildfromdsometa -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge29" class="edge">
+<title>interface~mapl_addchild&#45;&gt;proc~addchildfromdsometa</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M101.73,-279.37C116.77,-277.54 133.9,-275.46 150.58,-273.43"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="151.38,-276.85 160.89,-272.17 150.54,-269.9 151.38,-276.85"/>
+</g>
+<!-- proc~mapl_finalize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node25" class="node">
+<title>proc~mapl_finalize</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node25"><a xlink:href=".././proc/mapl_finalize.html" xlink:title="MAPL_Finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="97.5,-203 11.5,-203 11.5,-179 97.5,-179 97.5,-203"/>
+<text text-anchor="middle" x="54.5" y="-188.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_finalize&#45;&gt;proc~report_global_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge25" class="edge">
+<title>proc~mapl_finalize&#45;&gt;proc~report_global_profiler</title>
+<path fill="none" stroke="#009fff" d="M97.7,-198.58C115.1,-201.71 135.78,-205.43 155.48,-208.97"/>
+<polygon fill="#009fff" stroke="#009fff" points="154.9,-212.42 165.36,-210.74 156.14,-205.53 154.9,-212.42"/>
+</g>
+<!-- proc~mapl_finalize&#45;&gt;proc~stop_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge27" class="edge">
+<title>proc~mapl_finalize&#45;&gt;proc~stop_global_time_profiler</title>
+<path fill="none" stroke="#1f00ff" d="M97.7,-188.31C112.24,-187.38 129.06,-186.31 145.68,-185.25"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="146.23,-188.72 155.98,-184.59 145.78,-181.74 146.23,-188.72"/>
+</g>
+<!-- proc~mapl_initialize -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node26" class="node">
+<title>proc~mapl_initialize</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node26"><a xlink:href=".././proc/mapl_initialize.html" xlink:title="MAPL_Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="100,-150 9,-150 9,-126 100,-126 100,-150"/>
+<text text-anchor="middle" x="54.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_initialize&#45;&gt;proc~start_global_time_profiler -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge26" class="edge">
+<title>proc~mapl_initialize&#45;&gt;proc~start_global_time_profiler</title>
+<path fill="none" stroke="#003fff" d="M100.37,-138C114.05,-138 129.54,-138 144.9,-138"/>
+<polygon fill="#003fff" stroke="#003fff" points="144.96,-141.5 154.96,-138 144.96,-134.5 144.96,-141.5"/>
+</g>
+<!-- proc~addchildfromdso -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_node27" class="node">
+<title>proc~addchildfromdso</title>
+<g id="a_proc~~get_global_time_profiler~~CalledByGraph_node27"><a xlink:href=".././proc/addchildfromdso.html" xlink:title="AddChildFromDSO">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="109,-255 0,-255 0,-231 109,-231 109,-255"/>
+<text text-anchor="middle" x="54.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddChildFromDSO</text>
+</a>
+</g>
+</g>
+<!-- proc~addchildfromdso&#45;&gt;proc~addchildfromdsometa -->
+<g id="proc~~get_global_time_profiler~~CalledByGraph_edge28" class="edge">
+<title>proc~addchildfromdso&#45;&gt;proc~addchildfromdsometa</title>
+<path fill="none" stroke="#7f00ff" d="M109.13,-249.53C122.27,-251.13 136.58,-252.87 150.58,-254.58"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="150.35,-258.07 160.7,-255.81 151.2,-251.12 150.35,-258.07"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_global_time_profiler.html#src">get_global_time_profiler</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_global_time_profiler</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">time_profiler</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_profiler</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">time_profiler</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">global_time_profiler</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">end function </span><span class="n">get_global_time_profiler</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

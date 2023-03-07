@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ESMFL_ClockSet &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>ESMFL_ClockSet
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">44 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CapGridComp.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_capgridcomp.f90.html'>MAPL_CapGridComp.F90</a></li>
+              <li><a href='../module/mapl_capgridcompmod.html'>MAPL_CapGridCompMod</a></li>
+          <li class="active">ESMFL_ClockSet</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/esmfl_clockset.html#src">ESMFL_ClockSet</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine ESMFL_ClockSet(clock, currTime, rc)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~58"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-currtime~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>currTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1604"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmfl_clockset~~CallsGraph Pages: 1 -->
+<svg id="procesmfl_clocksetCallsGraph" width="641pt" height="377pt"
+ viewBox="0.00 0.00 641.00 376.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmfl_clockset~~CallsGraph" class="graph" transform="scale(1.18 1.18) rotate(0) translate(4 440)">
+<title>proc~~esmfl_clockset~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-440 751,-440 751,4 -4,4"/>
+<!-- proc~esmfl_clockset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node1" class="node">
+<title>proc~esmfl_clockset</title>
+<polygon fill="none" stroke="black" points="99,-234 0,-234 0,-210 99,-210 99,-234"/>
+<text text-anchor="middle" x="49.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMFL_ClockSet</text>
+</g>
+<!-- proc~esmf_clockstoptimeenable -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node2" class="node">
+<title>proc~esmf_clockstoptimeenable</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockstoptimeenable.html" xlink:title="ESMF_ClockStopTimeEnable">
+<polygon fill="#d9534f" stroke="#d9534f" points="299.5,-436 136.5,-436 136.5,-412 299.5,-412 299.5,-436"/>
+<text text-anchor="middle" x="218" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockStopTimeEnable</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_clockstoptimeenable -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge11" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_clockstoptimeenable</title>
+<path fill="none" stroke="#ff0000" d="M52.88,-234.28C59.69,-266.15 82.28,-352.22 135,-398 139.23,-401.67 143.98,-404.83 149,-407.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.76,-410.82 158.3,-411.95 150.77,-404.5 147.76,-410.82"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="452,-419 370,-419 370,-395 452,-395 452,-419"/>
+<text text-anchor="middle" x="411" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~mapl_return -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge1" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M53.75,-234.05C62.03,-262.21 86.74,-332.38 135,-365 170.73,-389.15 290.43,-400.04 359.57,-404.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="359.6,-407.93 369.79,-405.05 360.03,-400.95 359.6,-407.93"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="449,-293 373,-293 373,-269 449,-269 449,-293"/>
+<text text-anchor="middle" x="411" y="-278.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~mapl_verify -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge3" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M61.65,-234.16C76.6,-249.47 104.78,-274.97 135,-285 211.58,-310.41 306.88,-300.53 362.82,-290.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="363.57,-294.3 372.8,-289.09 362.34,-287.41 363.57,-294.3"/>
+</g>
+<!-- proc~esmf_alarmget -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node5" class="node">
+<title>proc~esmf_alarmget</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_alarmget.html" xlink:title="ESMF_AlarmGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="266.5,-276 169.5,-276 169.5,-252 266.5,-252 266.5,-276"/>
+<text text-anchor="middle" x="218" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AlarmGet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_alarmget -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge4" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_alarmget</title>
+<path fill="none" stroke="#ff0000" d="M98.21,-234.04C117.28,-238.85 139.42,-244.43 159.38,-249.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.73,-252.91 169.28,-251.96 160.44,-246.12 158.73,-252.91"/>
+</g>
+<!-- proc~esmf_clockget -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node6" class="node">
+<title>proc~esmf_clockget</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="265,-234 171,-234 171,-210 265,-210 265,-234"/>
+<text text-anchor="middle" x="218" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_clockget -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge2" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_clockget</title>
+<path fill="none" stroke="#ff0000" d="M99.11,-222C118.4,-222 140.71,-222 160.69,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.91,-225.5 170.91,-222 160.91,-218.5 160.91,-225.5"/>
+</g>
+<!-- proc~esmf_timeintervalset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node7" class="node">
+<title>proc~esmf_timeintervalset</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="283,-192 153,-192 153,-168 283,-168 283,-192"/>
+<text text-anchor="middle" x="218" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_timeintervalset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge5" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_timeintervalset</title>
+<path fill="none" stroke="#ff0000" d="M98.21,-209.96C117.28,-205.15 139.42,-199.57 159.38,-194.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.44,-197.88 169.28,-192.04 158.73,-191.09 160.44,-197.88"/>
+</g>
+<!-- proc~esmf_clockgetalarmlist -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node8" class="node">
+<title>proc~esmf_clockgetalarmlist</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockgetalarmlist.html" xlink:title="ESMF_ClockGetAlarmList">
+<polygon fill="#d9534f" stroke="#d9534f" points="290.5,-150 145.5,-150 145.5,-126 290.5,-126 290.5,-150"/>
+<text text-anchor="middle" x="218" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGetAlarmList</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_clockgetalarmlist -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge6" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_clockgetalarmlist</title>
+<path fill="none" stroke="#ff0000" d="M63.2,-209.99C78.88,-195.79 106.93,-172.41 135,-159 139.33,-156.93 143.89,-155.05 148.55,-153.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.87,-156.59 158.22,-150.06 147.62,-149.96 149.87,-156.59"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node9"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="257.5,-356 178.5,-356 178.5,-332 257.5,-332 257.5,-356"/>
+<text text-anchor="middle" x="218" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;interface~mapl_assert -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge7" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M58.03,-234.22C71.17,-254.55 100.23,-295.31 135,-318 145.16,-324.63 157.13,-329.67 168.74,-333.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="167.78,-336.83 178.36,-336.36 169.8,-330.12 167.78,-336.83"/>
+</g>
+<!-- proc~esmf_alarmset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node10" class="node">
+<title>proc~esmf_alarmset</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_alarmset.html" xlink:title="ESMF_AlarmSet">
+<polygon fill="#d9534f" stroke="#d9534f" points="266,-108 170,-108 170,-84 266,-84 266,-108"/>
+<text text-anchor="middle" x="218" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AlarmSet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_alarmset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge8" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_alarmset</title>
+<path fill="none" stroke="#ff0000" d="M56.81,-209.81C68.88,-187.73 97.42,-141.19 135,-117 142.54,-112.15 151.15,-108.41 159.88,-105.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.14,-108.82 169.75,-102.65 159.17,-102.1 161.14,-108.82"/>
+</g>
+<!-- proc~esmf_clockstoptimedisable -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node11" class="node">
+<title>proc~esmf_clockstoptimedisable</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockstoptimedisable.html" xlink:title="ESMF_ClockStopTimeDisable">
+<polygon fill="#d9534f" stroke="#d9534f" points="301,-66 135,-66 135,-42 301,-42 301,-66"/>
+<text text-anchor="middle" x="218" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockStopTimeDisable</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_clockstoptimedisable -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge9" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_clockstoptimedisable</title>
+<path fill="none" stroke="#ff0000" d="M53.87,-209.94C62.42,-181.7 87.66,-110.98 135,-75 137.05,-73.44 139.2,-72 141.43,-70.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.11,-73.74 150.38,-66.03 139.89,-67.52 143.11,-73.74"/>
+</g>
+<!-- proc~esmf_clockset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node12" class="node">
+<title>proc~esmf_clockset</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockset.html" xlink:title="ESMF_ClockSet">
+<polygon fill="#d9534f" stroke="#d9534f" points="264.5,-24 171.5,-24 171.5,0 264.5,0 264.5,-24"/>
+<text text-anchor="middle" x="218" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockSet</text>
+</a>
+</g>
+</g>
+<!-- proc~esmfl_clockset&#45;&gt;proc~esmf_clockset -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge10" class="edge">
+<title>proc~esmfl_clockset&#45;&gt;proc~esmf_clockset</title>
+<path fill="none" stroke="#ff0000" d="M52.27,-209.64C57.78,-175.84 77.85,-81.19 135,-33 142.67,-26.53 152.08,-22.02 161.75,-18.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="162.76,-22.24 171.46,-16.18 160.89,-15.49 162.76,-22.24"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node13"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="645,-408 530,-408 530,-384 645,-384 645,-408"/>
+<text text-anchor="middle" x="587.5" y="-393.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff8b00" d="M452.03,-404.48C472.11,-403.21 496.95,-401.65 519.8,-400.2"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="520.03,-403.7 529.79,-399.57 519.59,-396.71 520.03,-403.7"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node15" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node15"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="654,-356 521,-356 521,-332 654,-332 654,-356"/>
+<text text-anchor="middle" x="587.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff8b00" d="M452.04,-396.36C462.82,-393.26 474.42,-389.7 485,-386 507.02,-378.3 531.18,-368.37 550.39,-360.1"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="551.9,-363.26 559.68,-356.07 549.11,-356.84 551.9,-363.26"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#e7ff00" d="M449.02,-290.78C460.62,-294.08 473.42,-297.95 485,-302 507.02,-309.7 531.18,-319.63 550.39,-327.9"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="549.11,-331.16 559.68,-331.93 551.9,-324.74 549.11,-331.16"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node14" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node14"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="485,-377 337,-377 337,-353 485,-353 485,-377"/>
+<text text-anchor="middle" x="411" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M257.65,-348.25C277.49,-350.43 302.48,-353.18 326.44,-355.81"/>
+<polygon fill="#002eff" stroke="#002eff" points="326.31,-359.32 336.63,-356.93 327.07,-352.36 326.31,-359.32"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node16"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="478,-335 344,-335 344,-311 478,-311 478,-335"/>
+<text text-anchor="middle" x="411" y="-320.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M257.65,-339.75C279.5,-337.35 307.58,-334.26 333.67,-331.39"/>
+<polygon fill="#002eff" stroke="#002eff" points="334.38,-334.84 343.94,-330.26 333.62,-327.88 334.38,-334.84"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7fff00" d="M479.97,-377.07C493.08,-379.4 506.81,-381.84 519.88,-384.17"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="519.27,-387.61 529.73,-385.92 520.5,-380.72 519.27,-387.61"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M485.25,-356.19C493.76,-355.16 502.46,-354.11 511,-353.09"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="511.43,-356.56 520.94,-351.89 510.59,-349.61 511.43,-356.56"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~esmfl_clockset~~CallsGraph_node17" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~esmfl_clockset~~CallsGraph_node17"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="747,-356 690,-356 690,-332 747,-332 747,-356"/>
+<text text-anchor="middle" x="718.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#00ffff" d="M654.13,-344C662.88,-344 671.59,-344 679.63,-344"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="679.77,-347.5 689.77,-344 679.77,-340.5 679.77,-347.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~esmfl_clockset~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M478.47,-331C488.98,-332.26 499.92,-333.58 510.62,-334.87"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="510.45,-338.37 520.79,-336.09 511.28,-331.42 510.45,-338.37"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocesmfl_clocksetCallsGraph = svgPanZoom('#procesmfl_clocksetCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmfl_clockset~~CalledByGraph Pages: 1 -->
+<svg id="procesmfl_clocksetCalledByGraph" width="352pt" height="32pt"
+ viewBox="0.00 0.00 352.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmfl_clockset~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~esmfl_clockset~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 348,-28 348,4 -4,4"/>
+<!-- proc~esmfl_clockset -->
+<g id="proc~~esmfl_clockset~~CalledByGraph_node1" class="node">
+<title>proc~esmfl_clockset</title>
+<polygon fill="none" stroke="black" points="344,-24 245,-24 245,0 344,0 344,-24"/>
+<text text-anchor="middle" x="294.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ESMFL_ClockSet</text>
+</g>
+<!-- proc~perpetual_clock -->
+<g id="proc~~esmfl_clockset~~CalledByGraph_node2" class="node">
+<title>proc~perpetual_clock</title>
+<g id="a_proc~~esmfl_clockset~~CalledByGraph_node2"><a xlink:href=".././proc/perpetual_clock.html" xlink:title="Perpetual_Clock">
+<polygon fill="#d9534f" stroke="#d9534f" points="209,-24 111,-24 111,0 209,0 209,-24"/>
+<text text-anchor="middle" x="160" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Perpetual_Clock</text>
+</a>
+</g>
+</g>
+<!-- proc~perpetual_clock&#45;&gt;proc~esmfl_clockset -->
+<g id="proc~~esmfl_clockset~~CalledByGraph_edge1" class="edge">
+<title>proc~perpetual_clock&#45;&gt;proc~esmfl_clockset</title>
+<path fill="none" stroke="#ff0000" d="M209.21,-12C217.42,-12 226.02,-12 234.47,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.66,-15.5 244.66,-12 234.66,-8.5 234.66,-15.5"/>
+</g>
+<!-- proc~initialize_gc~2 -->
+<g id="proc~~esmfl_clockset~~CalledByGraph_node3" class="node">
+<title>proc~initialize_gc~2</title>
+<g id="a_proc~~esmfl_clockset~~CalledByGraph_node3"><a xlink:href=".././proc/initialize_gc~2.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="75,-24 0,-24 0,0 75,0 75,-24"/>
+<text text-anchor="middle" x="37.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc~2&#45;&gt;proc~perpetual_clock -->
+<g id="proc~~esmfl_clockset~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize_gc~2&#45;&gt;proc~perpetual_clock</title>
+<path fill="none" stroke="#ff0000" d="M75.31,-12C83.37,-12 92.09,-12 100.76,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.86,-15.5 110.86,-12 100.86,-8.5 100.86,-15.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/esmfl_clockset.html#src">ESMFL_ClockSet</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">ESMFL_ClockSet</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c">! Args</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! ErrLog vars</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                                </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! Local Vars</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">targetTime</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="nb">cTime</span>
+<span class="nb">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">zero</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">delt</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                        </span><span class="kd">::</span><span class="w"> </span><span class="n">ringTime</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">ringInterval</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Alarm</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">AlarmList</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">                                </span><span class="kd">::</span><span class="w"> </span><span class="n">ringing</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                                </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                                </span><span class="kd">::</span><span class="w"> </span><span class="n">nalarms</span><span class="w"></span>
+
+
+<span class="w">    </span><span class="n">targetTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currTime</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! get the CurrentTime from the clock</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">alarmCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nalarms</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="nb">cTime</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">delt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">targetTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">cTime</span>
+
+<span class="nb">    </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! Get the list of current alarms in the clock</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">alarmList</span><span class="p">(</span><span class="n">nalarms</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockGetAlarmList</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">alarmListFlag</span><span class="o">=</span><span class="n">ESMF_ALARMLIST_ALL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">alarmList</span><span class="o">=</span><span class="n">alarmList</span><span class="p">,</span><span class="w"> </span><span class="n">alarmCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nalarms</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! Loop over all alarms</span>
+<span class="w">    </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nalarms</span><span class="w"></span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_AlarmGet</span><span class="p">(</span><span class="n">alarmList</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">ringTime</span><span class="o">=</span><span class="n">ringTime</span><span class="p">,</span><span class="w"> </span><span class="n">ringInterval</span><span class="o">=</span><span class="n">ringInterval</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">            </span><span class="n">ringing</span><span class="o">=</span><span class="n">ringing</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">       </span><span class="c">! skip alarms with zero ringing interval</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ringInterval</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+
+<span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="n">delt</span><span class="p">,</span><span class="n">ringInterval</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">zero</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Time-shift should be a multiple of ringing interval.&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="n">ringTime</span><span class="o">=</span><span class="n">ringTime</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">delt</span><span class="w"></span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_AlarmSet</span><span class="p">(</span><span class="n">alarmList</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">ringTime</span><span class="o">=</span><span class="n">ringTime</span><span class="p">,</span><span class="w"> </span><span class="n">ringing</span><span class="o">=</span><span class="n">ringing</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">END DO</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! Protection in case we reset the clock outside of StopTime</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockStopTimeDisable</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockSet</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">targetTime</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! We do not need the protection anymore</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockStopTimeEnable</span><span class="p">(</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">! clean-up</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">alarmList</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">ESMFL_ClockSet</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_ExtDataVerticalInterpolate &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_ExtDataVerticalInterpolate
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">74 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
+              <li><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+          <li class="active">MAPL_ExtDataVerticalInterpolate</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_extdataverticalinterpolate.html#src">MAPL_ExtDataVerticalInterpolate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_ExtDataVerticalInterpolate(ExtState, item, filec, current_time, rc)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-extstate"></span>
+              type(<a href='../type/mapl_extdata_state~2.html'>MAPL_ExtData_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ExtState</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~62"></span>
+              type(<a href='../type/primaryexport~2.html'>PrimaryExport</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>item</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filec~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-current_time~9"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>current_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1577"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_extdataverticalinterpolate~~CallsGraph Pages: 1 -->
+<svg id="procmapl_extdataverticalinterpolateCallsGraph" width="641pt" height="331pt"
+ viewBox="0.00 0.00 641.00 331.25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph" class="graph" transform="scale(1.9 1.9) rotate(0) translate(4 626.46)">
+<title>proc~~mapl_extdataverticalinterpolate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-626.46 1216,-626.46 1216,4 -4,4"/>
+<!-- proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node1" class="node">
+<title>proc~mapl_extdataverticalinterpolate</title>
+<polygon fill="none" stroke="black" points="187,-186.46 0,-186.46 0,-162.46 187,-162.46 187,-186.46"/>
+<text text-anchor="middle" x="93.5" y="-172.06" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataVerticalInterpolate</text>
+</g>
+<!-- proc~mapl_extdataflipvertical -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node2" class="node">
+<title>proc~mapl_extdataflipvertical</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node2"><a xlink:href=".././proc/mapl_extdataflipvertical.html" xlink:title="MAPL_ExtDataFlipVertical">
+<polygon fill="#d9534f" stroke="#d9534f" points="578.5,-165.46 431.5,-165.46 431.5,-141.46 578.5,-141.46 578.5,-165.46"/>
+<text text-anchor="middle" x="505" y="-151.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataFlipVertical</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdataflipvertical -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdataflipvertical</title>
+<path fill="none" stroke="#ff0000" d="M187.17,-169.71C257.52,-166.1 353.39,-161.19 421.2,-157.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="421.6,-161.19 431.41,-157.19 421.25,-154.2 421.6,-161.19"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="914,-231.46 838,-231.46 838,-207.46 914,-207.46 914,-231.46"/>
+<text text-anchor="middle" x="876" y="-217.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M113.01,-162.42C195.29,-110.52 534.07,85.7 766,-43.46 825.83,-76.78 856.98,-158 869,-197.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="865.67,-198.44 871.83,-207.06 872.39,-196.48 865.67,-198.44"/>
+</g>
+<!-- proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node4" class="node">
+<title>proc~mapl_extdatagetbracket</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node4"><a xlink:href=".././proc/mapl_extdatagetbracket.html" xlink:title="MAPL_ExtDataGetBracket">
+<polygon fill="#d9534f" stroke="#d9534f" points="766,-211.46 618,-211.46 618,-187.46 766,-187.46 766,-211.46"/>
+<text text-anchor="middle" x="692" y="-197.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGetBracket</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdatagetbracket</title>
+<path fill="none" stroke="#ff0000" d="M187.05,-178.34C302.24,-183.17 497.25,-191.34 607.87,-195.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="607.84,-199.48 617.98,-196.4 608.14,-192.49 607.84,-199.48"/>
+</g>
+<!-- proc~vertinterpolation_presskappa -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node5" class="node">
+<title>proc~vertinterpolation_presskappa</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node5"><a xlink:href=".././proc/vertinterpolation_presskappa.html" xlink:title="vertInterpolation_pressKappa">
+<polygon fill="#d9534f" stroke="#d9534f" points="392,-384.46 223,-384.46 223,-360.46 392,-360.46 392,-384.46"/>
+<text text-anchor="middle" x="307.5" y="-370.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vertInterpolation_pressKappa</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~vertinterpolation_presskappa -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~vertinterpolation_presskappa</title>
+<path fill="none" stroke="#ff0000" d="M107.44,-186.55C143.07,-219.83 242.82,-312.99 286.07,-353.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.76,-356.02 293.46,-360.28 288.54,-350.9 283.76,-356.02"/>
+</g>
+<!-- proc~mapl_extdatafillfield -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node6" class="node">
+<title>proc~mapl_extdatafillfield</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node6"><a xlink:href=".././proc/mapl_extdatafillfield.html" xlink:title="MAPL_ExtDataFillField">
+<polygon fill="#d9534f" stroke="#d9534f" points="568.5,-107.46 441.5,-107.46 441.5,-83.46 568.5,-83.46 568.5,-107.46"/>
+<text text-anchor="middle" x="505" y="-93.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataFillField</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdatafillfield -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_extdatafillfield</title>
+<path fill="none" stroke="#ff0000" d="M157.14,-162.38C231.01,-148.13 353.57,-124.48 431.49,-109.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="432.55,-112.81 441.7,-107.48 431.22,-105.94 432.55,-112.81"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node7"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="917,-448.46 835,-448.46 835,-424.46 917,-424.46 917,-448.46"/>
+<text text-anchor="middle" x="876" y="-434.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M98.96,-186.6C112.57,-222.3 156.75,-328.49 223,-393.46 297.58,-466.61 327.5,-479.93 428,-508.46 572.55,-549.51 634.97,-590.01 766,-516.46 792.79,-501.43 777.57,-476.09 802,-457.46 808.78,-452.29 816.8,-448.39 824.99,-445.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="826.14,-448.76 834.63,-442.42 824.04,-442.08 826.14,-448.76"/>
+</g>
+<!-- proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M578.56,-155.32C631.17,-157.91 703.71,-164.02 766,-178.46 791.16,-184.3 818.36,-194.52 839.29,-203.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="838.16,-206.62 848.73,-207.34 840.92,-200.19 838.16,-206.62"/>
+</g>
+<!-- proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_extdatagetbracket -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_extdatagetbracket</title>
+<path fill="none" stroke="#ff0000" d="M554.61,-165.55C578.61,-171.52 607.75,-178.76 632.92,-185.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="632.17,-188.44 642.72,-187.46 633.86,-181.65 632.17,-188.44"/>
+</g>
+<!-- proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_extdataflipvertical&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M518.05,-165.54C534.72,-182.89 564.7,-216.54 582,-250.46 608.45,-302.35 575.82,-336.3 618,-376.46 647.29,-404.36 758.42,-422.31 824.57,-430.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="824.43,-434.28 834.78,-432.05 825.3,-427.34 824.43,-434.28"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node8" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="734.5,-131.46 649.5,-131.46 649.5,-107.46 734.5,-107.46 734.5,-131.46"/>
+<text text-anchor="middle" x="692" y="-117.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~mapl_extdataflipvertical&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_extdataflipvertical&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M571.48,-141.43C593.73,-137.34 618.25,-132.83 639.27,-128.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="640.08,-132.38 649.28,-127.13 638.81,-125.5 640.08,-132.38"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1119,-469.46 986,-469.46 986,-445.46 1119,-445.46 1119,-469.46"/>
+<text text-anchor="middle" x="1052.5" y="-455.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ffff00" d="M891.82,-231.62C907.41,-244.85 932.12,-267.12 950,-289.46 988.98,-338.17 1024.11,-403.12 1040.97,-436.18"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1037.97,-438.01 1045.6,-445.37 1044.22,-434.86 1037.97,-438.01"/>
+</g>
+<!-- proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" d="M766.24,-207.51C786.91,-209.78 808.85,-212.19 827.57,-214.25"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="827.29,-217.74 837.61,-215.36 828.05,-210.78 827.29,-217.74"/>
+</g>
+<!-- proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_extdatagetbracket&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M699.96,-211.58C713.34,-235.02 743.31,-288.32 766,-334.46 783.38,-369.82 772.29,-389.6 802,-415.46 808.65,-421.25 816.8,-425.45 825.22,-428.49"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="824.19,-431.84 834.77,-431.46 826.26,-425.15 824.19,-431.84"/>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge15" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M315.91,-360.3C332.36,-334.59 374.7,-275.07 428,-250.46 463.59,-234.04 720.18,-224.26 827.75,-220.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="828.1,-224.34 837.98,-220.53 827.88,-217.34 828.1,-224.34"/>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge21" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M317.32,-384.78C335.11,-408.5 377.91,-460.05 428,-481.46 497.12,-511.01 696.75,-523.7 766,-494.46 787.14,-485.54 782.32,-469.25 802,-457.46 809.08,-453.23 817.06,-449.8 825.07,-447.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="826.3,-450.34 834.81,-444.02 824.22,-443.65 826.3,-450.34"/>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge14" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#00ffff" d="M340.18,-360.39C364.11,-351.51 397.87,-339.46 428,-330.46 495.55,-310.31 530.58,-340.69 582,-292.46 620.75,-256.11 588.07,-222.36 618,-178.46 629.36,-161.81 646.79,-147.47 661.77,-137.1"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="663.85,-139.92 670.24,-131.47 659.97,-134.09 663.85,-139.92"/>
+</g>
+<!-- proc~esmf_utilstringlowercase -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node9" class="node">
+<title>proc~esmf_utilstringlowercase</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_utilstringlowercase.html" xlink:title="ESMF_UtilStringLowerCase">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="582,-283.46 428,-283.46 428,-259.46 582,-259.46 582,-283.46"/>
+<text text-anchor="middle" x="505" y="-269.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UtilStringLowerCase</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~esmf_utilstringlowercase -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge17" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~esmf_utilstringlowercase</title>
+<path fill="none" stroke="#00ffff" d="M325.2,-360.23C347.67,-344.19 389.31,-315.92 428,-297.46 436.05,-293.63 444.82,-290.08 453.44,-286.93"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="454.81,-290.16 463.08,-283.53 452.48,-283.55 454.81,-290.16"/>
+</g>
+<!-- proc~esmf_attributeget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node10" class="node">
+<title>proc~esmf_attributeget</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="747.5,-485.46 636.5,-485.46 636.5,-461.46 747.5,-461.46 747.5,-485.46"/>
+<text text-anchor="middle" x="692" y="-471.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~esmf_attributeget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge16" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~esmf_attributeget</title>
+<path fill="none" stroke="#00ffff" d="M320.77,-384.67C341.05,-403.95 383.75,-440.88 428,-456.46 492.67,-479.24 571.74,-481.18 626.19,-478.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="626.59,-482.35 636.41,-478.37 626.25,-475.36 626.59,-482.35"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node12" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node12"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="549,-447.46 461,-447.46 461,-423.46 549,-423.46 549,-447.46"/>
+<text text-anchor="middle" x="505" y="-433.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge18" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#00ffff" d="M340.76,-384.48C364.69,-393.22 398.2,-405.12 428,-414.46 435.44,-416.8 443.33,-419.13 451.1,-421.35"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="450.27,-424.75 460.84,-424.09 452.17,-418.01 450.27,-424.75"/>
+</g>
+<!-- proc~searchverticallocations -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node13" class="node">
+<title>proc~searchverticallocations</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node13"><a xlink:href=".././proc/searchverticallocations.html" xlink:title="searchVerticalLocations">
+<polygon fill="#d9534f" stroke="#d9534f" points="574.5,-405.46 435.5,-405.46 435.5,-381.46 574.5,-381.46 574.5,-405.46"/>
+<text text-anchor="middle" x="505" y="-391.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">searchVerticalLocations</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~searchverticallocations -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge19" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~searchverticallocations</title>
+<path fill="none" stroke="#00ffff" d="M392.26,-381.46C403.18,-382.63 414.33,-383.83 425.16,-385"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="425.12,-388.51 435.43,-386.1 425.86,-381.55 425.12,-388.51"/>
+</g>
+<!-- proc~interpval -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node14" class="node">
+<title>proc~interpval</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node14"><a xlink:href=".././proc/interpval.html" xlink:title="interpVal">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="535,-363.46 475,-363.46 475,-339.46 535,-339.46 535,-363.46"/>
+<text text-anchor="middle" x="505" y="-349.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">interpVal</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~interpval -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge20" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~interpval</title>
+<path fill="none" stroke="#00ffff" d="M392.26,-363.47C417.44,-360.76 443.88,-357.92 464.72,-355.68"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="465.2,-359.15 474.77,-354.6 464.45,-352.19 465.2,-359.15"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node15" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node15"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="731.5,-622.46 652.5,-622.46 652.5,-598.46 731.5,-598.46 731.5,-622.46"/>
+<text text-anchor="middle" x="692" y="-608.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge22" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffff" d="M314.47,-384.56C329.45,-413.64 371.46,-487.96 428,-527.46 493.77,-573.42 586.12,-594.77 642.08,-604.04"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="641.66,-607.52 652.09,-605.64 642.76,-600.61 641.66,-607.52"/>
+</g>
+<!-- proc~mapl_extdatafillfield&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_extdatafillfield&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M531.72,-83.42C580.45,-62.49 688.31,-25.27 766,-65.46 820.28,-93.55 853.34,-162.5 867.28,-197.83"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="864.03,-199.13 870.85,-207.24 870.57,-196.65 864.03,-199.13"/>
+</g>
+<!-- proc~mapl_extdatafillfield&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_extdatafillfield&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M568.59,-87.1C636.21,-79.6 738.07,-73.24 766,-98.46 818.61,-145.99 756.22,-361.33 802,-415.46 808,-422.56 816.24,-427.35 825.02,-430.55"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="824.09,-433.93 834.68,-433.44 826.1,-427.22 824.09,-433.93"/>
+</g>
+<!-- proc~mapl_extdatafillfield&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_extdatafillfield&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#0000ff" d="M568.63,-103.59C591.62,-106.57 617.36,-109.91 639.28,-112.75"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="639.01,-116.25 649.38,-114.07 639.91,-109.31 639.01,-116.25"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M917.03,-441.28C934.42,-443.37 955.39,-445.9 975.54,-448.32"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="975.32,-451.82 985.66,-449.54 976.15,-444.87 975.32,-451.82"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node16" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node16"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1110,-521.46 995,-521.46 995,-497.46 1110,-497.46 1110,-521.46"/>
+<text text-anchor="middle" x="1052.5" y="-507.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00ff" d="M917.02,-446.05C927.91,-449.17 939.57,-453.01 950,-457.46 967.03,-464.75 969.61,-469.83 986,-478.46 995.43,-483.44 1005.8,-488.51 1015.45,-493.08"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="1014.25,-496.39 1024.79,-497.46 1017.22,-490.05 1014.25,-496.39"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node17" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node17"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1212,-469.46 1155,-469.46 1155,-445.46 1212,-445.46 1212,-469.46"/>
+<text text-anchor="middle" x="1183.5" y="-455.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#00ff00" d="M1119.13,-457.46C1127.88,-457.46 1136.59,-457.46 1144.63,-457.46"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1144.77,-460.96 1154.77,-457.46 1144.77,-453.96 1144.77,-460.96"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffa9" d="M549.34,-431.32C561.21,-428.26 573.21,-423.1 582,-414.46 622.32,-374.84 577.44,-331.85 618,-292.46 666.8,-245.07 700.63,-272.26 766,-253.46 786.44,-247.59 808.89,-240.66 828.08,-234.6"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="829.32,-237.88 837.79,-231.52 827.2,-231.21 829.32,-237.88"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" d="M549.05,-435.58C617.64,-435.77 751.39,-436.13 824.43,-436.33"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="824.74,-439.83 834.75,-436.36 824.76,-432.83 824.74,-439.83"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~esmf_attributeget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~esmf_attributeget</title>
+<path fill="none" stroke="#00ffa9" d="M549.37,-444.37C572.28,-449.08 600.86,-454.95 626.33,-460.18"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="625.79,-463.64 636.29,-462.23 627.2,-456.79 625.79,-463.64"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node19" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node19"><a xlink:href=".././proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="744,-367.46 640,-367.46 640,-343.46 744,-343.46 744,-367.46"/>
+<text text-anchor="middle" x="692" y="-353.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#00ffa9" d="M549.17,-425.36C560.05,-422.32 571.59,-418.66 582,-414.46 610.82,-402.86 641.8,-385.58 663.34,-372.71"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="665.21,-375.67 671.96,-367.5 661.59,-369.68 665.21,-375.67"/>
+</g>
+<!-- proc~esmf_gridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node21" class="node">
+<title>proc~esmf_gridget</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="920,-322.46 832,-322.46 832,-298.46 920,-298.46 920,-322.46"/>
+<text text-anchor="middle" x="876" y="-308.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~esmf_gridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~esmf_gridget</title>
+<path fill="none" stroke="#00ffa9" d="M549.02,-430.44C560.75,-427.35 572.75,-422.39 582,-414.46 611.6,-389.09 586.28,-357.14 618,-334.46 677.55,-291.9 765.73,-293.88 821.76,-300.89"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="821.46,-304.38 831.84,-302.25 822.4,-297.45 821.46,-304.38"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node18"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="950,-532.46 802,-532.46 802,-508.46 950,-508.46 950,-532.46"/>
+<text text-anchor="middle" x="876" y="-518.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge35" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M731.06,-598.44C742.47,-594.42 754.91,-589.64 766,-584.46 795.06,-570.91 826.46,-551.97 848.06,-538.22"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="850.16,-541.03 856.68,-532.67 846.38,-535.14 850.16,-541.03"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node20" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node20"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="943,-490.46 809,-490.46 809,-466.46 943,-466.46 943,-490.46"/>
+<text text-anchor="middle" x="876" y="-476.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge34" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M731.51,-603.2C743.73,-599.32 756.51,-593.42 766,-584.46 795.85,-556.31 771.3,-526.67 802,-499.46 803.36,-498.26 804.78,-497.13 806.25,-496.06"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="808.49,-498.8 815.22,-490.61 804.86,-492.81 808.49,-498.8"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cbff00" d="M922.03,-508.37C931.34,-505.63 941.04,-502.6 950,-499.46 972.02,-491.77 996.18,-481.84 1015.39,-473.56"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="1016.9,-476.72 1024.68,-469.53 1014.11,-470.3 1016.9,-476.72"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cbff00" d="M950.25,-515.85C961.67,-515.13 973.43,-514.39 984.7,-513.68"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="985.13,-517.16 994.89,-513.03 984.69,-510.17 985.13,-517.16"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff66" d="M709.15,-343.4C741.13,-319.5 812.66,-266.05 850.48,-237.79"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="852.97,-240.3 858.88,-231.51 848.78,-234.69 852.97,-240.3"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M736.44,-367.6C746.51,-371.31 756.94,-375.91 766,-381.46 784.77,-392.96 782.88,-404.56 802,-415.46 809.17,-419.55 817.19,-422.9 825.22,-425.62"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="824.38,-429.02 834.97,-428.63 826.45,-422.33 824.38,-429.02"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~esmf_gridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~esmf_gridget</title>
+<path fill="none" stroke="#00ff66" d="M741.77,-343.41C766.59,-337.27 796.8,-329.8 822.17,-323.53"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="823.12,-326.9 831.99,-321.1 821.44,-320.1 823.12,-326.9"/>
+</g>
+<!-- proc~esmf_distgridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node22" class="node">
+<title>proc~esmf_distgridget</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node22"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="930,-364.46 822,-364.46 822,-340.46 930,-340.46 930,-364.46"/>
+<text text-anchor="middle" x="876" y="-350.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~esmf_distgridget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~esmf_distgridget</title>
+<path fill="none" stroke="#00ff66" d="M744.18,-354.62C765.15,-354.28 789.63,-353.87 811.7,-353.51"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="812.05,-357 821.99,-353.34 811.93,-350 812.05,-357"/>
+</g>
+<!-- proc~esmf_delayoutget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_node23" class="node">
+<title>proc~esmf_delayoutget</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CallsGraph_node23"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="934,-406.46 818,-406.46 818,-382.46 934,-382.46 934,-406.46"/>
+<text text-anchor="middle" x="876" y="-392.06" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~esmf_delayoutget -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~esmf_delayoutget</title>
+<path fill="none" stroke="#00ff66" d="M744.18,-366.43C764.24,-370.73 787.51,-375.72 808.82,-380.28"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="808.27,-383.74 818.78,-382.42 809.73,-376.9 808.27,-383.74"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M943.47,-470.47C953.98,-469.2 964.92,-467.88 975.62,-466.6"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="976.28,-470.04 985.79,-465.37 975.45,-463.09 976.28,-470.04"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_extdataverticalinterpolateCallsGraph = svgPanZoom('#procmapl_extdataverticalinterpolateCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_extdataverticalinterpolate~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_extdataverticalinterpolateCalledByGraph" width="285pt" height="32pt"
+ viewBox="0.00 0.00 285.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_extdataverticalinterpolate~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~mapl_extdataverticalinterpolate~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 281,-28 281,4 -4,4"/>
+<!-- proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CalledByGraph_node1" class="node">
+<title>proc~mapl_extdataverticalinterpolate</title>
+<polygon fill="none" stroke="black" points="277,-24 90,-24 90,0 277,0 277,-24"/>
+<text text-anchor="middle" x="183.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ExtDataVerticalInterpolate</text>
+</g>
+<!-- proc~run_~4 -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CalledByGraph_node2" class="node">
+<title>proc~run_~4</title>
+<g id="a_proc~~mapl_extdataverticalinterpolate~~CalledByGraph_node2"><a xlink:href=".././proc/run_~4.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~4&#45;&gt;proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~mapl_extdataverticalinterpolate~~CalledByGraph_edge1" class="edge">
+<title>proc~run_~4&#45;&gt;proc~mapl_extdataverticalinterpolate</title>
+<path fill="none" stroke="#ff0000" d="M54.21,-12C61.73,-12 70.43,-12 79.67,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.89,-15.5 89.89,-12 79.89,-8.5 79.89,-15.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_extdataverticalinterpolate.html#src">MAPL_ExtDataVerticalInterpolate</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_ExtDataVerticalInterpolate</span><span class="p">(</span><span class="n">ExtState</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">current_time</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ExtState</span><span class="w"></span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span><span class="w"></span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">filec</span><span class="w"></span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">     </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">current_time</span><span class="w"></span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">id_ps</span><span class="w"></span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">newfield</span><span class="p">,</span><span class="n">psF</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">do_VertInterp</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">importVDir</span><span class="p">)</span><span class="o">/=</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">fileVDir</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">MAPL_ExtDataFlipVertical</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_fieldItem</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">getRL</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">Field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="n">id_ps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExtState</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">get_item_index</span><span class="p">(</span><span class="s2">&quot;PS&quot;</span><span class="p">,</span><span class="n">current_time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">ExtState</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">id_ps</span><span class="p">),</span><span class="n">filec</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">psF</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">vertInterpolation_pressKappa</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">newfield</span><span class="p">,</span><span class="n">psF</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">levs</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_VectorField</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">           </span><span class="n">id_ps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExtState</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">get_item_index</span><span class="p">(</span><span class="s2">&quot;PS&quot;</span><span class="p">,</span><span class="n">current_time</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">ExtState</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">id_ps</span><span class="p">),</span><span class="n">filec</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">psF</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">getRL</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">Field</span><span class="p">,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">vertInterpolation_pressKappa</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">newfield</span><span class="p">,</span><span class="n">psF</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">levs</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">getRL</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">Field</span><span class="p">,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">vertInterpolation_pressKappa</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">newfield</span><span class="p">,</span><span class="n">psF</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">levs</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">     else if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">do_Fill</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_fieldItem</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">getRL</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">Field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataFillField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">newfield</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_VectorField</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">getRL</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">Field</span><span class="p">,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataFillField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">newfield</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">getRL</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataGetBracket</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">Field</span><span class="p">,</span><span class="n">vcomp</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_ExtDataFillField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">newfield</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">     else</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">importVDir</span><span class="p">)</span><span class="o">/=</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">fileVDir</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">MAPL_ExtDataFlipVertical</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">filec</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">     end if</span>
+
+<span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_ExtDataVerticalInterpolate</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

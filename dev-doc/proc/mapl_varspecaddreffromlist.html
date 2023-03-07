@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_VarSpecAddRefFromList &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_VarSpecAddRefFromList
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">15 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/VarSpec.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/varspec.f90.html'>VarSpec.F90</a></li>
+              <li><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
+          <li class="active">MAPL_VarSpecAddRefFromList</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_varspecaddreffromlist.html#src">MAPL_VarSpecAddRefFromList</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_VarSpecAddRefFromList(SPEC, ITEM, RC)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~8"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>SPEC</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-item~6"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ITEM</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~297"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_varspecaddreffromlist~~CallsGraph Pages: 1 -->
+<svg id="procmapl_varspecaddreffromlistCallsGraph" width="641pt" height="124pt"
+ viewBox="0.00 0.00 641.00 123.95" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph" class="graph" transform="scale(1.82 1.82) rotate(0) translate(4 221.27)">
+<title>proc~~mapl_varspecaddreffromlist~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-221.27 1161,-221.27 1161,4 -4,4"/>
+<!-- proc~mapl_varspecaddreffromlist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node1" class="node">
+<title>proc~mapl_varspecaddreffromlist</title>
+<polygon fill="none" stroke="black" points="172,-86.94 0,-86.94 0,-62.94 172,-62.94 172,-86.94"/>
+<text text-anchor="middle" x="86" y="-72.54" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VarSpecAddRefFromList</text>
+</g>
+<!-- proc~mapl_varspecaddreffromitem -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node2" class="node">
+<title>proc~mapl_varspecaddreffromitem</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node2"><a xlink:href=".././proc/mapl_varspecaddreffromitem.html" xlink:title="MAPL_VarSpecAddRefFromItem">
+<polygon fill="#d9534f" stroke="#d9534f" points="386,-86.94 208,-86.94 208,-62.94 386,-62.94 386,-86.94"/>
+<text text-anchor="middle" x="297" y="-72.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecAddRefFromItem</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspecaddreffromlist&#45;&gt;proc~mapl_varspecaddreffromitem -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_varspecaddreffromlist&#45;&gt;proc~mapl_varspecaddreffromitem</title>
+<path fill="none" stroke="#ff0000" d="M172.01,-74.94C180.46,-74.94 189.08,-74.94 197.65,-74.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.67,-78.44 207.67,-74.94 197.67,-71.44 197.67,-78.44"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="892,-24.94 816,-24.94 816,-0.94 892,-0.94 892,-24.94"/>
+<text text-anchor="middle" x="854" y="-10.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspecaddreffromlist&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_varspecaddreffromlist&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M134.04,-62.92C198.5,-47.05 318.13,-19.74 422,-7.94 498.43,0.75 518.09,-4.05 595,-2.94 675.88,-1.77 696.28,2.35 777,-2.94 786.36,-3.55 796.33,-4.58 805.86,-5.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="805.62,-9.26 815.99,-7.08 806.52,-2.32 805.62,-9.26"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node4"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="895,-128.94 813,-128.94 813,-104.94 895,-104.94 895,-128.94"/>
+<text text-anchor="middle" x="854" y="-114.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspecaddreffromlist&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_varspecaddreffromlist&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M120.27,-87.01C200.54,-115.29 411.72,-184.64 595,-200.94 675.57,-208.1 703.06,-233.75 777,-200.94 805.99,-188.07 828.62,-158.07 841.4,-137.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="844.42,-139.39 846.56,-129.01 838.42,-135.79 844.42,-139.39"/>
+</g>
+<!-- proc~mapl_varspecaddreffromitem&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_varspecaddreffromitem&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M328.07,-62.8C352.88,-53.27 389.2,-40.4 422,-32.94 558.48,-1.89 725.35,-5.51 805.53,-9.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="805.62,-13.24 815.8,-10.3 806.01,-6.25 805.62,-13.24"/>
+</g>
+<!-- proc~mapl_varspecaddreffromitem&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_varspecaddreffromitem&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M318.4,-87.16C342.44,-101.13 383.95,-123.87 422,-137.94 496.21,-165.37 516.44,-170.54 595,-179.94 675.32,-189.55 700.91,-207.37 777,-179.94 800.67,-171.4 822.19,-151.94 836.23,-136.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="839.17,-138.86 843.24,-129.07 833.96,-134.18 839.17,-138.86"/>
+</g>
+<!-- interface~mapl_varspecgetindex -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node5" class="node">
+<title>interface~mapl_varspecgetindex</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node5"><a xlink:href=".././interface/mapl_varspecgetindex.html" xlink:title="MAPL_VarSpecGetIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="559,-128.94 422,-128.94 422,-104.94 559,-104.94 559,-128.94"/>
+<text text-anchor="middle" x="490.5" y="-114.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspecaddreffromitem&#45;&gt;interface~mapl_varspecgetindex -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_varspecaddreffromitem&#45;&gt;interface~mapl_varspecgetindex</title>
+<path fill="none" stroke="#ff0000" d="M352.88,-86.97C375.31,-91.89 401.43,-97.62 424.79,-102.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="424.1,-106.17 434.62,-104.9 425.6,-99.34 424.1,-106.17"/>
+</g>
+<!-- interface~mapl_varspecprint -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node8" class="node">
+<title>interface~mapl_varspecprint</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node8"><a xlink:href=".././interface/mapl_varspecprint.html" xlink:title="MAPL_VarSpecPrint">
+<polygon fill="#a7506f" stroke="#a7506f" points="547.5,-65.94 433.5,-65.94 433.5,-41.94 547.5,-41.94 547.5,-65.94"/>
+<text text-anchor="middle" x="490.5" y="-51.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecPrint</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_varspecaddreffromitem&#45;&gt;interface~mapl_varspecprint -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_varspecaddreffromitem&#45;&gt;interface~mapl_varspecprint</title>
+<path fill="none" stroke="#ff0000" d="M386.18,-65.27C398.56,-63.91 411.1,-62.53 422.98,-61.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="423.67,-64.68 433.23,-60.11 422.91,-57.72 423.67,-64.68"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node7"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1064,-55.94 931,-55.94 931,-31.94 1064,-31.94 1064,-55.94"/>
+<text text-anchor="middle" x="997.5" y="-41.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M892.18,-21.08C904.3,-23.74 918.14,-26.77 931.68,-29.74"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="930.95,-33.16 941.46,-31.88 932.44,-26.32 930.95,-33.16"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node6"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1055,-128.94 940,-128.94 940,-104.94 1055,-104.94 1055,-128.94"/>
+<text text-anchor="middle" x="997.5" y="-114.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M895.17,-116.94C905.91,-116.94 917.82,-116.94 929.59,-116.94"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="929.86,-120.44 939.86,-116.94 929.86,-113.44 929.86,-120.44"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M878.37,-104.88C901.72,-92.84 937.81,-74.21 963.96,-60.72"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="965.82,-63.7 973.1,-56.01 962.61,-57.48 965.82,-63.7"/>
+</g>
+<!-- proc~mapl_varspecgetindexbyname -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node9" class="node">
+<title>proc~mapl_varspecgetindexbyname</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node9"><a xlink:href=".././proc/mapl_varspecgetindexbyname.html" xlink:title="MAPL_VarSpecGetIndexByName">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="777,-170.94 595,-170.94 595,-146.94 777,-146.94 777,-170.94"/>
+<text text-anchor="middle" x="686" y="-156.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetIndexByName</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexbyname -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexbyname</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M546.95,-128.97C569.62,-133.89 596.01,-139.62 619.62,-144.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="619.03,-148.2 629.54,-146.9 620.51,-141.36 619.03,-148.2"/>
+</g>
+<!-- proc~mapl_varspecgetindexofitem -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node12" class="node">
+<title>proc~mapl_varspecgetindexofitem</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node12"><a xlink:href=".././proc/mapl_varspecgetindexofitem.html" xlink:title="MAPL_VarSpecGetIndexOfItem">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="772.5,-128.94 599.5,-128.94 599.5,-104.94 772.5,-104.94 772.5,-128.94"/>
+<text text-anchor="middle" x="686" y="-114.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetIndexOfItem</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexofitem -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_varspecgetindex&#45;&gt;proc~mapl_varspecgetindexofitem</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M559.18,-116.94C568.9,-116.94 579.06,-116.94 589.21,-116.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="589.33,-120.44 599.33,-116.94 589.33,-113.44 589.33,-120.44"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node13" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node13"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1157,-55.94 1100,-55.94 1100,-31.94 1157,-31.94 1157,-55.94"/>
+<text text-anchor="middle" x="1128.5" y="-41.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#00ffff" d="M1064.13,-43.94C1072.88,-43.94 1081.59,-43.94 1089.63,-43.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1089.77,-47.44 1099.77,-43.94 1089.77,-40.44 1089.77,-47.44"/>
+</g>
+<!-- proc~mapl_varspecprintmany -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node10" class="node">
+<title>proc~mapl_varspecprintmany</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node10"><a xlink:href=".././proc/mapl_varspecprintmany.html" xlink:title="MAPL_VarSpecPrintMany">
+<polygon fill="#d9534f" stroke="#d9534f" points="757,-44.94 615,-44.94 615,-20.94 757,-20.94 757,-44.94"/>
+<text text-anchor="middle" x="686" y="-30.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecPrintMany</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecprint&#45;&gt;proc~mapl_varspecprintmany -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_varspecprint&#45;&gt;proc~mapl_varspecprintmany</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M545.66,-41.93C564.02,-39.36 584.94,-36.92 604.89,-34.97"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="605.28,-38.45 614.9,-34.03 604.62,-31.48 605.28,-38.45"/>
+</g>
+<!-- proc~mapl_varspecprintone -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_node11" class="node">
+<title>proc~mapl_varspecprintone</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CallsGraph_node11"><a xlink:href=".././proc/mapl_varspecprintone.html" xlink:title="MAPL_VarSpecPrintOne">
+<polygon fill="#d9534f" stroke="#d9534f" points="754,-86.94 618,-86.94 618,-62.94 754,-62.94 754,-86.94"/>
+<text text-anchor="middle" x="686" y="-72.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecPrintOne</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecprint&#45;&gt;proc~mapl_varspecprintone -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_varspecprint&#45;&gt;proc~mapl_varspecprintone</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M547.73,-60.04C566.44,-62.07 587.62,-64.37 607.64,-66.54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="607.35,-70.03 617.67,-67.63 608.11,-63.07 607.35,-70.03"/>
+</g>
+<!-- proc~mapl_varspecgetindexbyname&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_varspecgetindexbyname&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M740.39,-146.85C752.45,-144.02 765.18,-140.95 777,-137.94 785.48,-135.78 794.47,-133.38 803.18,-131.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="804.13,-134.38 812.85,-128.36 802.28,-127.63 804.13,-134.38"/>
+</g>
+<!-- proc~mapl_varspecprintmany&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_varspecprintmany&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#cbff00" d="M757.4,-24.45C773.77,-22.48 790.81,-20.43 805.89,-18.61"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="806.48,-22.07 815.99,-17.4 805.64,-15.12 806.48,-22.07"/>
+</g>
+<!-- proc~mapl_varspecprintmany&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_varspecprintmany&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#cbff00" d="M754.56,-45.07C762.31,-47.51 769.96,-50.44 777,-53.94 799.02,-64.86 820.22,-83.32 834.61,-97.45"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="832.34,-100.13 841.87,-104.77 837.32,-95.2 832.34,-100.13"/>
+</g>
+<!-- proc~mapl_varspecprintmany&#45;&gt;interface~mapl_varspecprint -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_varspecprintmany&#45;&gt;interface~mapl_varspecprint</title>
+<path fill="none" stroke="#cbff00" d="M630.63,-44.97C607.99,-48.13 581.49,-51.11 557.73,-53.19"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="557.4,-49.71 547.73,-54.03 557.99,-56.68 557.4,-49.71"/>
+</g>
+<!-- proc~mapl_varspecprintone&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_varspecprintone&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M740.39,-87.02C752.45,-89.85 765.18,-92.93 777,-95.94 785.48,-98.1 794.47,-100.49 803.18,-102.86"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="802.28,-106.24 812.85,-105.52 804.13,-99.49 802.28,-106.24"/>
+</g>
+<!-- proc~mapl_varspecgetindexofitem&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_varspecaddreffromlist~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_varspecgetindexofitem&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M772.92,-116.94C783.03,-116.94 793.09,-116.94 802.49,-116.94"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="802.79,-120.44 812.79,-116.94 802.79,-113.44 802.79,-120.44"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_varspecaddreffromlistCallsGraph = svgPanZoom('#procmapl_varspecaddreffromlistCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_varspecaddreffromlist~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_varspecaddreffromlistCalledByGraph" width="641pt" height="321pt"
+ viewBox="0.00 0.00 641.00 320.86" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph" class="graph" transform="scale(1.4 1.4) rotate(0) translate(4 445)">
+<title>proc~~mapl_varspecaddreffromlist~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-445 893,-445 893,4 -4,4"/>
+<!-- proc~mapl_varspecaddreffromlist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node1" class="node">
+<title>proc~mapl_varspecaddreffromlist</title>
+<polygon fill="none" stroke="black" points="889,-138 717,-138 717,-114 889,-114 889,-138"/>
+<text text-anchor="middle" x="803" y="-123.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_VarSpecAddRefFromList</text>
+</g>
+<!-- interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node2" class="node">
+<title>interface~mapl_varspecaddreftolist</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node2"><a xlink:href=".././interface/mapl_varspecaddreftolist.html" xlink:title="MAPL_VarSpecAddRefToList">
+<polygon fill="#a7506f" stroke="#a7506f" points="681,-138 524,-138 524,-114 681,-114 681,-138"/>
+<text text-anchor="middle" x="602.5" y="-123.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecAddRefToList</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecaddreftolist&#45;&gt;proc~mapl_varspecaddreffromlist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_varspecaddreftolist&#45;&gt;proc~mapl_varspecaddreffromlist</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M681.1,-126C689.54,-126 698.2,-126 706.82,-126"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="706.9,-129.5 716.9,-126 706.9,-122.5 706.9,-129.5"/>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmall -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node3" class="node">
+<title>proc~mapl_stateaddexportspecfrmall</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_stateaddexportspecfrmall.html" xlink:title="MAPL_StateAddExportSpecFrmAll">
+<polygon fill="#d9534f" stroke="#d9534f" points="482.5,-284 293.5,-284 293.5,-260 482.5,-260 482.5,-284"/>
+<text text-anchor="middle" x="388" y="-269.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddExportSpecFrmAll</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateaddexportspecfrmall&#45;&gt;interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_stateaddexportspecfrmall&#45;&gt;interface~mapl_varspecaddreftolist</title>
+<path fill="none" stroke="#ff0000" d="M415.02,-259.81C435.46,-249.83 464.33,-234.81 488,-219 522.52,-195.93 559.09,-164.54 581.11,-144.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="583.47,-147.36 588.53,-138.06 578.77,-142.17 583.47,-147.36"/>
+</g>
+<!-- proc~mapl_stateaddinternalspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node4" class="node">
+<title>proc~mapl_stateaddinternalspec</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_stateaddinternalspec.html" xlink:title="MAPL_StateAddInternalSpec">
+<polygon fill="#d9534f" stroke="#d9534f" points="469,-168 307,-168 307,-144 469,-144 469,-168"/>
+<text text-anchor="middle" x="388" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddInternalSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateaddinternalspec&#45;&gt;interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_stateaddinternalspec&#45;&gt;interface~mapl_varspecaddreftolist</title>
+<path fill="none" stroke="#ff0000" d="M469.03,-144.7C483.56,-142.65 498.79,-140.5 513.54,-138.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="514.24,-141.85 523.65,-136.99 513.26,-134.92 514.24,-141.85"/>
+</g>
+<!-- proc~mapl_genericspecenum -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node5" class="node">
+<title>proc~mapl_genericspecenum</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_genericspecenum.html" xlink:title="MAPL_GenericSpecEnum">
+<polygon fill="#d9534f" stroke="#d9534f" points="460.5,-108 315.5,-108 315.5,-84 460.5,-84 460.5,-108"/>
+<text text-anchor="middle" x="388" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericSpecEnum</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericspecenum&#45;&gt;interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_genericspecenum&#45;&gt;interface~mapl_varspecaddreftolist</title>
+<path fill="none" stroke="#ff0000" d="M460.65,-106.11C477.67,-108.52 496.02,-111.11 513.67,-113.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="513.58,-117.12 523.97,-115.05 514.56,-110.19 513.58,-117.12"/>
+</g>
+<!-- proc~mapl_genericspecenum&#45;&gt;proc~mapl_genericspecenum -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge10" class="edge">
+<title>proc~mapl_genericspecenum&#45;&gt;proc~mapl_genericspecenum</title>
+<path fill="none" stroke="#00ff00" d="M354.6,-108.01C342.94,-116.97 354.07,-126 388,-126 409.21,-126 421.51,-122.47 424.9,-117.64"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="428.11,-116.21 421.4,-108.01 421.53,-118.61 428.11,-116.21"/>
+</g>
+<!-- proc~mapl_stateaddimportspecfrmchld -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node6" class="node">
+<title>proc~mapl_stateaddimportspecfrmchld</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node6"><a xlink:href=".././proc/mapl_stateaddimportspecfrmchld.html" xlink:title="MAPL_StateAddImportSpecFrmChld">
+<polygon fill="#d9534f" stroke="#d9534f" points="488,-210 288,-210 288,-186 488,-186 488,-210"/>
+<text text-anchor="middle" x="388" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddImportSpecFrmChld</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateaddimportspecfrmchld&#45;&gt;interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge5" class="edge">
+<title>proc~mapl_stateaddimportspecfrmchld&#45;&gt;interface~mapl_varspecaddreftolist</title>
+<path fill="none" stroke="#ff0000" d="M455.29,-185.99C466.32,-183.41 477.56,-180.41 488,-177 516.39,-167.73 547.22,-153.6 569.57,-142.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="571.22,-145.65 578.6,-138.04 568.09,-139.39 571.22,-145.65"/>
+</g>
+<!-- proc~mapl_setvarspecforcc -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node7" class="node">
+<title>proc~mapl_setvarspecforcc</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node7"><a xlink:href=".././proc/mapl_setvarspecforcc.html" xlink:title="MAPL_SetVarSpecForCC">
+<polygon fill="#d9534f" stroke="#d9534f" points="457.5,-66 318.5,-66 318.5,-42 457.5,-42 457.5,-66"/>
+<text text-anchor="middle" x="388" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SetVarSpecForCC</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setvarspecforcc&#45;&gt;interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge6" class="edge">
+<title>proc~mapl_setvarspecforcc&#45;&gt;interface~mapl_varspecaddreftolist</title>
+<path fill="none" stroke="#ff0000" d="M455.29,-66.01C466.32,-68.59 477.56,-71.59 488,-75 516.39,-84.27 547.22,-98.4 569.57,-109.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.09,-112.61 578.6,-113.96 571.22,-106.35 568.09,-112.61"/>
+</g>
+<!-- proc~mapl_wirecomponent -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node8" class="node">
+<title>proc~mapl_wirecomponent</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node8"><a xlink:href=".././proc/mapl_wirecomponent.html" xlink:title="MAPL_WireComponent">
+<polygon fill="#d9534f" stroke="#d9534f" points="454.5,-24 321.5,-24 321.5,0 454.5,0 454.5,-24"/>
+<text text-anchor="middle" x="388" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_WireComponent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecaddreftolist -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;interface~mapl_varspecaddreftolist</title>
+<path fill="none" stroke="#ff0000" d="M454.64,-21.3C466.08,-24.21 477.63,-28.02 488,-33 526.25,-51.37 562.77,-85.2 583.62,-106.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="581.13,-109.06 590.57,-113.87 586.19,-104.22 581.13,-109.06"/>
+</g>
+<!-- interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node9" class="node">
+<title>interface~mapl_addexportspec</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node9"><a xlink:href=".././interface/mapl_addexportspec.html" xlink:title="MAPL_AddExportSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="248.5,-315 121.5,-315 121.5,-291 248.5,-291 248.5,-315"/>
+<text text-anchor="middle" x="185" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddExportSpec</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmall -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_addexportspec&#45;&gt;proc~mapl_stateaddexportspecfrmall</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M248.77,-293.32C264.75,-290.85 282.23,-288.16 299.21,-285.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.79,-288.99 309.14,-284.01 298.72,-282.07 299.79,-288.99"/>
+</g>
+<!-- interface~mapl_addinternalspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node10" class="node">
+<title>interface~mapl_addinternalspec</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node10"><a xlink:href=".././interface/mapl_addinternalspec.html" xlink:title="MAPL_AddInternalSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="252,-158 118,-158 118,-134 252,-134 252,-158"/>
+<text text-anchor="middle" x="185" y="-143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddInternalSpec</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addinternalspec&#45;&gt;proc~mapl_stateaddinternalspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge9" class="edge">
+<title>interface~mapl_addinternalspec&#45;&gt;proc~mapl_stateaddinternalspec</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M252.09,-149.29C266.32,-150 281.59,-150.76 296.56,-151.5"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="296.69,-155.01 306.85,-152.01 297.04,-148.02 296.69,-155.01"/>
+</g>
+<!-- interface~mapl_addimportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node11" class="node">
+<title>interface~mapl_addimportspec</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node11"><a xlink:href=".././interface/mapl_addimportspec.html" xlink:title="MAPL_AddImportSpec">
+<polygon fill="#a7506f" stroke="#a7506f" points="249,-210 121,-210 121,-186 249,-186 249,-210"/>
+<text text-anchor="middle" x="185" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddImportSpec</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addimportspec&#45;&gt;proc~mapl_stateaddimportspecfrmchld -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge11" class="edge">
+<title>interface~mapl_addimportspec&#45;&gt;proc~mapl_stateaddimportspecfrmchld</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M249.05,-198C258.19,-198 267.81,-198 277.55,-198"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="277.73,-201.5 287.73,-198 277.73,-194.5 277.73,-201.5"/>
+</g>
+<!-- proc~setservices -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node12" class="node">
+<title>proc~setservices</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node12"><a xlink:href=".././proc/setservices.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="77,-441 5,-441 5,-417 77,-417 77,-441"/>
+<text text-anchor="middle" x="41" y="-426.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge12" class="edge">
+<title>proc~setservices&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M68.12,-416.82C72.9,-414.17 77.73,-411.19 82,-408 115.94,-382.64 148.93,-345.79 167.81,-323.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.68,-325.18 174.33,-315.24 165.28,-320.73 170.68,-325.18"/>
+</g>
+<!-- proc~setservices~4 -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node13" class="node">
+<title>proc~setservices~4</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node13"><a xlink:href=".././proc/setservices~4.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="77,-399 5,-399 5,-375 77,-375 77,-399"/>
+<text text-anchor="middle" x="41" y="-384.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~4&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge13" class="edge">
+<title>proc~setservices~4&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M65.84,-374.83C71.19,-372 76.82,-368.95 82,-366 107.83,-351.27 136.59,-333.36 156.98,-320.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.89,-323.34 165.44,-315.01 155.12,-317.44 158.89,-323.34"/>
+</g>
+<!-- proc~setservices~3 -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node14" class="node">
+<title>proc~setservices~3</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node14"><a xlink:href=".././proc/setservices~3.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="77,-357 5,-357 5,-333 77,-333 77,-357"/>
+<text text-anchor="middle" x="41" y="-342.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~3&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge15" class="edge">
+<title>proc~setservices~3&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M77.1,-334.62C94.09,-329.59 114.79,-323.47 133.44,-317.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.67,-321.24 143.27,-315.05 132.68,-314.53 134.67,-321.24"/>
+</g>
+<!-- proc~addnewspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node15" class="node">
+<title>proc~addnewspec</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node15"><a xlink:href=".././proc/addnewspec.html" xlink:title="addNewSpec">
+<polygon fill="#d9534f" stroke="#d9534f" points="82,-231 0,-231 0,-207 82,-207 82,-231"/>
+<text text-anchor="middle" x="41" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">addNewSpec</text>
+</a>
+</g>
+</g>
+<!-- proc~addnewspec&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge14" class="edge">
+<title>proc~addnewspec&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M65.84,-231.17C71.19,-234 76.82,-237.05 82,-240 107.83,-254.73 136.59,-272.64 156.98,-285.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.12,-288.56 165.44,-290.99 158.89,-282.66 155.12,-288.56"/>
+</g>
+<!-- proc~addnewspec&#45;&gt;interface~mapl_addimportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge20" class="edge">
+<title>proc~addnewspec&#45;&gt;interface~mapl_addimportspec</title>
+<path fill="none" stroke="#0000ff" d="M82.31,-213.04C91.2,-211.72 100.88,-210.29 110.61,-208.85"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="111.37,-212.28 120.75,-207.35 110.35,-205.35 111.37,-212.28"/>
+</g>
+<!-- proc~setservices~5 -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node16" class="node">
+<title>proc~setservices~5</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node16"><a xlink:href=".././proc/setservices~5.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="77,-315 5,-315 5,-291 77,-291 77,-315"/>
+<text text-anchor="middle" x="41" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~5&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge16" class="edge">
+<title>proc~setservices~5&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M77.1,-303C87.56,-303 99.43,-303 111.36,-303"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="111.37,-306.5 121.37,-303 111.37,-299.5 111.37,-306.5"/>
+</g>
+<!-- proc~setservices~10 -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node17" class="node">
+<title>proc~setservices~10</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node17"><a xlink:href=".././proc/setservices~10.html" xlink:title="SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="78.5,-273 3.5,-273 3.5,-249 78.5,-249 78.5,-273"/>
+<text text-anchor="middle" x="41" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~10&#45;&gt;interface~mapl_addexportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge17" class="edge">
+<title>proc~setservices~10&#45;&gt;interface~mapl_addexportspec</title>
+<path fill="none" stroke="#ff0000" d="M78.57,-271.82C95.28,-276.76 115.35,-282.69 133.47,-288.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.72,-291.48 143.3,-290.96 134.7,-284.77 132.72,-291.48"/>
+</g>
+<!-- proc~setservices~8 -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node18" class="node">
+<title>proc~setservices~8</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node18"><a xlink:href=".././proc/setservices~8.html" xlink:title="SetServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="78.5,-147 3.5,-147 3.5,-123 78.5,-123 78.5,-147"/>
+<text text-anchor="middle" x="41" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~8&#45;&gt;interface~mapl_addinternalspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge18" class="edge">
+<title>proc~setservices~8&#45;&gt;interface~mapl_addinternalspec</title>
+<path fill="none" stroke="#00ff00" d="M78.57,-137.83C87.57,-138.53 97.54,-139.3 107.66,-140.09"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="107.55,-143.59 117.79,-140.87 108.09,-136.61 107.55,-143.59"/>
+</g>
+<!-- proc~setservices~2 -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_node19" class="node">
+<title>proc~setservices~2</title>
+<g id="a_proc~~mapl_varspecaddreffromlist~~CalledByGraph_node19"><a xlink:href=".././proc/setservices~2.html" xlink:title="setservices">
+<polygon fill="#d9534f" stroke="#d9534f" points="77,-189 5,-189 5,-165 77,-165 77,-189"/>
+<text text-anchor="middle" x="41" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setservices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~2&#45;&gt;interface~mapl_addimportspec -->
+<g id="proc~~mapl_varspecaddreffromlist~~CalledByGraph_edge19" class="edge">
+<title>proc~setservices~2&#45;&gt;interface~mapl_addimportspec</title>
+<path fill="none" stroke="#0000ff" d="M77.1,-182.19C87.33,-183.7 98.9,-185.42 110.57,-187.14"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="110.4,-190.65 120.81,-188.65 111.43,-183.73 110.4,-190.65"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_varspecaddreffromlistCalledByGraph = svgPanZoom('#procmapl_varspecaddreffromlistCalledByGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_varspecaddreffromlist.html#src">MAPL_VarSpecAddRefFromList</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_VarSpecAddRefFromList</span><span class="p">(</span><span class="n">SPEC</span><span class="p">,</span><span class="n">ITEM</span><span class="p">,</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">SPEC</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">ITEM</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w"></span>
+
+
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">integer </span><span class="n">I</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">ITEM</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_VarSpecAddRefFromItem</span><span class="p">(</span><span class="n">SPEC</span><span class="p">,</span><span class="n">ITEM</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">STATUS</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_DuplicateEntry</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">END IF</span>
+<span class="k">      enddo</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_VarSpecAddRefFromList</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

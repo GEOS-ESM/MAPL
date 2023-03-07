@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MyGridCreate_ &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MyGridCreate_
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">70 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/utCFIO_Array.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/utcfio_array.f90.html'>utCFIO_Array.F90</a></li>
+              <li><a href='../program/utcfio.html'>utCFIO</a></li>
+          <li class="active">MyGridCreate_</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mygridcreate_~4.html#src">MyGridCreate_</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2> subroutine MyGridCreate_(VM, grid2d, grid3d, rc)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vm~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_vm.html'>ESMF_VM</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VM</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid2d"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid2d</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid3d"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid3d</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1475"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mygridcreate_~4~~CallsGraph Pages: 1 -->
+<svg id="procmygridcreate_4CallsGraph" width="641pt" height="451pt"
+ viewBox="0.00 0.00 641.00 450.72" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mygridcreate_~4~~CallsGraph" class="graph" transform="scale(1.04 1.04) rotate(0) translate(4 465)">
+<title>proc~~mygridcreate_~4~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-465 663,-465 663,4 -4,4"/>
+<!-- proc~mygridcreate_~4 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node1" class="node">
+<title>proc~mygridcreate_~4</title>
+<polygon fill="none" stroke="black" points="91,-297 0,-297 0,-273 91,-273 91,-297"/>
+<text text-anchor="middle" x="45.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50">MyGridCreate_</text>
+</g>
+<!-- mapl_get_local_dims -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node2" class="node">
+<title>mapl_get_local_dims</title>
+<polygon fill="#777777" stroke="#777777" points="273.5,-461 149.5,-461 149.5,-437 273.5,-437 273.5,-461"/>
+<text text-anchor="middle" x="211.5" y="-446.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_get_local_dims</text>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;mapl_get_local_dims -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge1" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;mapl_get_local_dims</title>
+<path fill="none" stroke="#ff0000" d="M49.75,-297.15C57.82,-324.91 81.49,-393.24 127,-428 131.05,-431.1 135.51,-433.74 140.19,-436"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.85,-439.23 149.42,-439.88 141.56,-432.78 138.85,-439.23"/>
+</g>
+<!-- mapl_verify -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node3" class="node">
+<title>mapl_verify</title>
+<polygon fill="#777777" stroke="#777777" points="441,-295 366,-295 366,-271 441,-271 441,-295"/>
+<text text-anchor="middle" x="403.5" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_verify</text>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;mapl_verify -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge2" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M57,-297.15C71.11,-312.45 97.81,-337.93 127,-348 198.01,-372.48 223.69,-368.32 296,-348 328.11,-338.97 360.13,-317.29 380.55,-301.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="382.91,-304.02 388.55,-295.05 378.55,-298.55 382.91,-304.02"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node4" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node4"><a xlink:href=".././interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="262.5,-419 160.5,-419 160.5,-395 262.5,-395 262.5,-419"/>
+<text text-anchor="middle" x="211.5" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge3" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M53.51,-297.25C65.8,-317.62 93.14,-358.46 127,-381 134.25,-385.83 142.45,-389.8 150.81,-393.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.67,-396.37 160.27,-396.43 152.03,-389.77 149.67,-396.37"/>
+</g>
+<!-- proc~esmf_delayoutcreate -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node5" class="node">
+<title>proc~esmf_delayoutcreate</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_delayoutcreate.html" xlink:title="ESMF_DELayoutCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="278,-339 145,-339 145,-315 278,-315 278,-339"/>
+<text text-anchor="middle" x="211.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;proc~esmf_delayoutcreate -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge4" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;proc~esmf_delayoutcreate</title>
+<path fill="none" stroke="#ff0000" d="M91.19,-296.73C102.84,-299.77 115.39,-303.02 127,-306 135.22,-308.11 143.9,-310.31 152.44,-312.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="151.8,-315.92 162.35,-314.97 153.51,-309.13 151.8,-315.92"/>
+</g>
+<!-- esmf_gridcreatehorzlatlonuni -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node6" class="node">
+<title>esmf_gridcreatehorzlatlonuni</title>
+<polygon fill="#777777" stroke="#777777" points="296,-297 127,-297 127,-273 296,-273 296,-297"/>
+<text text-anchor="middle" x="211.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_gridcreatehorzlatlonuni</text>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;esmf_gridcreatehorzlatlonuni -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge5" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;esmf_gridcreatehorzlatlonuni</title>
+<path fill="none" stroke="#ff0000" d="M91.31,-285C99.38,-285 108.05,-285 116.9,-285"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="116.95,-288.5 126.95,-285 116.95,-281.5 116.95,-288.5"/>
+</g>
+<!-- esmf_griddistribute -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node7" class="node">
+<title>esmf_griddistribute</title>
+<polygon fill="#777777" stroke="#777777" points="269,-255 154,-255 154,-231 269,-231 269,-255"/>
+<text text-anchor="middle" x="211.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_griddistribute</text>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;esmf_griddistribute -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge6" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;esmf_griddistribute</title>
+<path fill="none" stroke="#ff0000" d="M91.19,-273.27C102.84,-270.23 115.39,-266.98 127,-264 135.22,-261.89 143.9,-259.69 152.44,-257.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.51,-260.87 162.35,-255.03 151.8,-254.08 153.51,-260.87"/>
+</g>
+<!-- esmf_gridaddvertheight -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node8" class="node">
+<title>esmf_gridaddvertheight</title>
+<polygon fill="#777777" stroke="#777777" points="281.5,-213 141.5,-213 141.5,-189 281.5,-189 281.5,-213"/>
+<text text-anchor="middle" x="211.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_gridaddvertheight</text>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;esmf_gridaddvertheight -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge7" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;esmf_gridaddvertheight</title>
+<path fill="none" stroke="#ff0000" d="M58.48,-272.94C73.3,-258.69 99.9,-235.26 127,-222 131.11,-219.99 135.44,-218.15 139.87,-216.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.37,-219.67 149.68,-213.1 139.08,-213.06 141.37,-219.67"/>
+</g>
+<!-- proc~mapl_gridgetlatlons -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node9" class="node">
+<title>proc~mapl_gridgetlatlons</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node9"><a xlink:href=".././proc/mapl_gridgetlatlons.html" xlink:title="MAPL_GridGetLatLons">
+<polygon fill="#d9534f" stroke="#d9534f" points="276,-171 147,-171 147,-147 276,-147 276,-171"/>
+<text text-anchor="middle" x="211.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGetLatLons</text>
+</a>
+</g>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;proc~mapl_gridgetlatlons -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge8" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;proc~mapl_gridgetlatlons</title>
+<path fill="none" stroke="#ff0000" d="M52.34,-272.79C63.57,-250.69 90.34,-204.1 127,-180 130.28,-177.84 133.76,-175.91 137.38,-174.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.75,-177.39 146.58,-170.26 136.01,-170.95 138.75,-177.39"/>
+</g>
+<!-- mapl_return -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node10" class="node">
+<title>mapl_return</title>
+<polygon fill="#777777" stroke="#777777" points="250,-129 173,-129 173,-105 250,-105 250,-129"/>
+<text text-anchor="middle" x="211.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_return</text>
+</g>
+<!-- proc~mygridcreate_~4&#45;&gt;mapl_return -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge9" class="edge">
+<title>proc~mygridcreate_~4&#45;&gt;mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M49.53,-272.94C57.26,-244.69 80.5,-173.95 127,-138 137.26,-130.06 150.17,-125.1 162.74,-122"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.64,-125.38 172.7,-119.89 162.19,-118.53 163.64,-125.38"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node11" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node11"><a xlink:href=".././proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="475,-398 332,-398 332,-374 475,-374 475,-398"/>
+<text text-anchor="middle" x="403.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M262.92,-401.43C280.98,-399.43 301.81,-397.13 321.79,-394.92"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="322.26,-398.39 331.82,-393.81 321.49,-391.43 322.26,-398.39"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node13" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node13"><a xlink:href=".././proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="466,-440 341,-440 341,-416 466,-416 466,-440"/>
+<text text-anchor="middle" x="403.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M262.92,-412.57C283.7,-414.87 308.17,-417.57 330.76,-420.07"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="330.67,-423.58 340.99,-421.2 331.44,-416.62 330.67,-423.58"/>
+</g>
+<!-- proc~mapl_gridgetlatlons&#45;&gt;mapl_verify -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_gridgetlatlons&#45;&gt;mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M276.12,-169.13C283.23,-171.93 290.05,-175.48 296,-180 321.69,-199.49 309.16,-220.23 332,-243 341.28,-252.25 353.13,-260.06 364.46,-266.26"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="362.89,-269.39 373.38,-270.88 366.11,-263.17 362.89,-269.39"/>
+</g>
+<!-- esmf_arraygetdata -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node12" class="node">
+<title>esmf_arraygetdata</title>
+<polygon fill="#777777" stroke="#777777" points="460.5,-108 346.5,-108 346.5,-84 460.5,-84 460.5,-108"/>
+<text text-anchor="middle" x="403.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_arraygetdata</text>
+</g>
+<!-- proc~mapl_gridgetlatlons&#45;&gt;esmf_arraygetdata -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridgetlatlons&#45;&gt;esmf_arraygetdata</title>
+<path fill="none" stroke="#aa00ff" d="M269.79,-146.88C278.7,-144.34 287.7,-141.39 296,-138 313.15,-131.01 315,-124.36 332,-117 336.64,-114.99 341.53,-113.1 346.49,-111.34"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="347.69,-114.63 356.05,-108.12 345.45,-107.99 347.69,-114.63"/>
+</g>
+<!-- proc~esmf_gridgetcoord -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node14" class="node">
+<title>proc~esmf_gridgetcoord</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node14"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html" xlink:title="ESMF_GridGetCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="463.5,-234 343.5,-234 343.5,-210 463.5,-210 463.5,-234"/>
+<text text-anchor="middle" x="403.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridgetlatlons&#45;&gt;proc~esmf_gridgetcoord -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_gridgetlatlons&#45;&gt;proc~esmf_gridgetcoord</title>
+<path fill="none" stroke="#aa00ff" d="M269.79,-171.12C278.7,-173.66 287.7,-176.61 296,-180 313.15,-186.99 315,-193.64 332,-201 336.64,-203.01 341.53,-204.9 346.49,-206.66"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="345.45,-210.01 356.05,-209.88 347.69,-203.37 345.45,-210.01"/>
+</g>
+<!-- proc~esmf_gridget -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node15" class="node">
+<title>proc~esmf_gridget</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="447.5,-192 359.5,-192 359.5,-168 447.5,-168 447.5,-192"/>
+<text text-anchor="middle" x="403.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridgetlatlons&#45;&gt;proc~esmf_gridget -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_gridgetlatlons&#45;&gt;proc~esmf_gridget</title>
+<path fill="none" stroke="#aa00ff" d="M276.03,-166.02C299.79,-168.65 326.52,-171.6 349.26,-174.12"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="349.07,-177.62 359.4,-175.24 349.84,-170.66 349.07,-177.62"/>
+</g>
+<!-- interface~arraygather -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node16" class="node">
+<title>interface~arraygather</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node16"><a xlink:href=".././interface/arraygather.html" xlink:title="ArrayGather">
+<polygon fill="#a7506f" stroke="#a7506f" points="443,-150 364,-150 364,-126 443,-126 443,-150"/>
+<text text-anchor="middle" x="403.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGather</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridgetlatlons&#45;&gt;interface~arraygather -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_gridgetlatlons&#45;&gt;interface~arraygather</title>
+<path fill="none" stroke="#aa00ff" d="M276.03,-151.98C301.4,-149.17 330.15,-146 353.82,-143.38"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="354.41,-146.84 363.97,-142.26 353.65,-139.88 354.41,-146.84"/>
+</g>
+<!-- interface~mapl_am_i_rank -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node17" class="node">
+<title>interface~mapl_am_i_rank</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node17"><a xlink:href=".././interface/mapl_am_i_rank.html" xlink:title="MAPL_Am_I_Rank">
+<polygon fill="#a7506f" stroke="#a7506f" points="637,-419 533,-419 533,-395 637,-395 637,-419"/>
+<text text-anchor="middle" x="585" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Rank</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_am_i_root_layout&#45;&gt;interface~mapl_am_i_rank -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_am_i_root_layout&#45;&gt;interface~mapl_am_i_rank</title>
+<path fill="none" stroke="#ff0000" d="M475.19,-394.27C490.81,-396.1 507.24,-398.02 522.47,-399.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="522.45,-403.32 532.79,-401.01 523.26,-396.37 522.45,-403.32"/>
+</g>
+<!-- proc~mapl_am_i_root_vm&#45;&gt;interface~mapl_am_i_rank -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_am_i_root_vm&#45;&gt;interface~mapl_am_i_rank</title>
+<path fill="none" stroke="#00ff00" d="M466.02,-420.8C484.43,-418.65 504.61,-416.29 522.99,-414.14"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="523.46,-417.61 532.99,-412.97 522.65,-410.65 523.46,-417.61"/>
+</g>
+<!-- proc~arraygather_i4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node18" class="node">
+<title>proc~arraygather_i4_1</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node18"><a xlink:href=".././proc/arraygather_i4_1.html" xlink:title="ArrayGather_I4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="638,-234 532,-234 532,-210 638,-210 638,-234"/>
+<text text-anchor="middle" x="585" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGather_I4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygather_i4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge19" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygather_i4_1</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.19,-145.25C454.04,-148.39 465.47,-152.81 475,-159 495.62,-172.39 490.32,-187.71 511,-201 514.56,-203.29 518.37,-205.33 522.31,-207.15"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="521.13,-210.45 531.71,-211.03 523.8,-203.98 521.13,-210.45"/>
+</g>
+<!-- proc~arraygather_r8_2 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node19" class="node">
+<title>proc~arraygather_r8_2</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node19"><a xlink:href=".././proc/arraygather_r8_2.html" xlink:title="ArrayGather_R8_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="640,-192 530,-192 530,-168 640,-168 640,-192"/>
+<text text-anchor="middle" x="585" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGather_R8_2</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygather_r8_2 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge21" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygather_r8_2</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.01,-147.01C466.21,-152.44 496.28,-159.48 522.69,-165.65"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="522.08,-169.11 532.61,-167.98 523.67,-162.29 522.08,-169.11"/>
+</g>
+<!-- proc~arraygather_r8_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node20" class="node">
+<title>proc~arraygather_r8_1</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node20"><a xlink:href=".././proc/arraygather_r8_1.html" xlink:title="ArrayGather_R8_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="640,-150 530,-150 530,-126 640,-126 640,-150"/>
+<text text-anchor="middle" x="585" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGather_R8_1</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygather_r8_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge22" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygather_r8_1</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.01,-138C465.38,-138 494.14,-138 519.84,-138"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="519.89,-141.5 529.89,-138 519.89,-134.5 519.89,-141.5"/>
+</g>
+<!-- proc~arraygather_r4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node21" class="node">
+<title>proc~arraygather_r4_1</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node21"><a xlink:href=".././proc/arraygather_r4_1.html" xlink:title="ArrayGather_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="640,-108 530,-108 530,-84 640,-84 640,-108"/>
+<text text-anchor="middle" x="585" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGather_R4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygather_r4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge20" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygather_r4_1</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.01,-128.99C466.21,-123.56 496.28,-116.52 522.69,-110.35"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="523.67,-113.71 532.61,-108.02 522.08,-106.89 523.67,-113.71"/>
+</g>
+<!-- proc~arraygather_r4_2 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node22" class="node">
+<title>proc~arraygather_r4_2</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node22"><a xlink:href=".././proc/arraygather_r4_2.html" xlink:title="ArrayGather_R4_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="640,-66 530,-66 530,-42 640,-42 640,-66"/>
+<text text-anchor="middle" x="585" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGather_R4_2</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygather_r4_2 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge23" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygather_r4_2</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.19,-130.75C454.04,-127.61 465.47,-123.19 475,-117 495.62,-103.61 490.32,-88.29 511,-75 513.97,-73.09 517.13,-71.35 520.39,-69.76"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="522.01,-72.87 529.8,-65.69 519.23,-66.45 522.01,-72.87"/>
+</g>
+<!-- proc~arraygatherrcvcnt_i4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node23" class="node">
+<title>proc~arraygatherrcvcnt_i4_1</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node23"><a xlink:href=".././proc/arraygatherrcvcnt_i4_1.html" xlink:title="ArrayGatherRcvCnt_I4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="656.5,-24 513.5,-24 513.5,0 656.5,0 656.5,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGatherRcvCnt_I4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygatherrcvcnt_i4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge24" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygatherrcvcnt_i4_1</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.06,-132.91C454.4,-129.83 466.13,-124.9 475,-117 505.33,-89.98 480.54,-59.87 511,-33 512.36,-31.8 513.78,-30.67 515.26,-29.6"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="517.5,-32.34 524.24,-24.17 513.87,-26.35 517.5,-32.34"/>
+</g>
+<!-- proc~arraygatherrcvcnt_r4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_node24" class="node">
+<title>proc~arraygatherrcvcnt_r4_1</title>
+<g id="a_proc~~mygridcreate_~4~~CallsGraph_node24"><a xlink:href=".././proc/arraygatherrcvcnt_r4_1.html" xlink:title="ArrayGatherRcvCnt_R4_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="659,-276 511,-276 511,-252 659,-252 659,-276"/>
+<text text-anchor="middle" x="585" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ArrayGatherRcvCnt_R4_1</text>
+</a>
+</g>
+</g>
+<!-- interface~arraygather&#45;&gt;proc~arraygatherrcvcnt_r4_1 -->
+<g id="proc~~mygridcreate_~4~~CallsGraph_edge25" class="edge">
+<title>interface~arraygather&#45;&gt;proc~arraygatherrcvcnt_r4_1</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M443.06,-143.09C454.4,-146.17 466.13,-151.1 475,-159 505.33,-186.02 480.54,-216.13 511,-243 512.36,-244.2 513.78,-245.33 515.26,-246.4"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="513.87,-249.65 524.24,-251.83 517.5,-243.66 513.87,-249.65"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmygridcreate_4CallsGraph = svgPanZoom('#procmygridcreate_4CallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mygridcreate_~4~~CalledByGraph Pages: 1 -->
+<svg id="procmygridcreate_4CalledByGraph" width="289pt" height="32pt"
+ viewBox="0.00 0.00 289.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mygridcreate_~4~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~mygridcreate_~4~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 285,-28 285,4 -4,4"/>
+<!-- proc~mygridcreate_~4 -->
+<g id="proc~~mygridcreate_~4~~CalledByGraph_node1" class="node">
+<title>proc~mygridcreate_~4</title>
+<polygon fill="none" stroke="black" points="281,-24 190,-24 190,0 281,0 281,-24"/>
+<text text-anchor="middle" x="235.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MyGridCreate_</text>
+</g>
+<!-- proc~test_main~2 -->
+<g id="proc~~mygridcreate_~4~~CalledByGraph_node2" class="node">
+<title>proc~test_main~2</title>
+<g id="a_proc~~mygridcreate_~4~~CalledByGraph_node2"><a xlink:href=".././proc/test_main~2.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="154,-24 90,-24 90,0 154,0 154,-24"/>
+<text text-anchor="middle" x="122" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~2&#45;&gt;proc~mygridcreate_~4 -->
+<g id="proc~~mygridcreate_~4~~CalledByGraph_edge1" class="edge">
+<title>proc~test_main~2&#45;&gt;proc~mygridcreate_~4</title>
+<path fill="none" stroke="#ff0000" d="M154.06,-12C162.03,-12 170.83,-12 179.61,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.86,-15.5 189.86,-12 179.86,-8.5 179.86,-15.5"/>
+</g>
+<!-- program~utcfio -->
+<g id="proc~~mygridcreate_~4~~CalledByGraph_node3" class="node">
+<title>program~utcfio</title>
+<g id="a_proc~~mygridcreate_~4~~CalledByGraph_node3"><a xlink:href=".././program/utcfio.html" xlink:title="utCFIO">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
+</a>
+</g>
+</g>
+<!-- program~utcfio&#45;&gt;proc~test_main~2 -->
+<g id="proc~~mygridcreate_~4~~CalledByGraph_edge2" class="edge">
+<title>program~utcfio&#45;&gt;proc~test_main~2</title>
+<path fill="none" stroke="#ff0000" d="M54.4,-12C62.27,-12 71.08,-12 79.66,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.92,-15.5 89.92,-12 79.92,-8.5 79.92,-15.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mygridcreate_~4.html#src">MyGridCreate_</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">MyGridCreate_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">grid2d</span><span class="p">,</span><span class="w"> </span><span class="n">grid3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GRID</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">grid2d</span><span class="p">,</span><span class="w"> </span><span class="n">grid3d</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="c">! Local vars</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s1">&#39;MyGridCreate&#39;</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">LM</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">L</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">NY</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">IMXY</span><span class="p">(:),</span><span class="w"> </span><span class="n">JMXY</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">gridname</span><span class="w"></span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">deltaX</span><span class="p">,</span><span class="w"> </span><span class="n">deltaY</span><span class="p">,</span><span class="w"> </span><span class="n">deltaZ</span><span class="w"></span>
+<span class="w">    </span><span class="kt">real</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">LON0</span><span class="p">,</span><span class="w"> </span><span class="n">LAT0</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pi</span><span class="p">,</span><span class="w"> </span><span class="n">d2r</span><span class="w"></span>
+
+<span class="c">! grid create</span>
+
+<span class="w">    </span><span class="n">lm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KM_WORLD</span><span class="w">   </span><span class="c">! no. vertical layers</span>
+<span class="w">    </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="w">    </span><span class="n">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+
+<span class="w">     </span><span class="n">pi</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">atan</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="n">d2r</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">pi</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">18</span><span class="mf">0.</span><span class="w"></span>
+<span class="w">    </span><span class="n">LON0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">180</span><span class="w">  </span><span class="o">*</span><span class="w"> </span><span class="n">d2r</span><span class="w"></span>
+<span class="w">    </span><span class="n">LAT0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">9</span><span class="mf">0.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">d2r</span><span class="w"></span>
+
+<span class="c">! Get the IMXY vector</span>
+<span class="c">! -------------------</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">imxy</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="c">! Get the JMXY vector</span>
+<span class="c">! -------------------</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">jmxy</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">ny</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">deltaX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="n">pi</span><span class="o">/</span><span class="n">IM_WORLD</span><span class="w"></span>
+<span class="w">    </span><span class="n">deltaY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pi</span><span class="o">/</span><span class="p">(</span><span class="n">JM_WORLD</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">deltaZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
+
+<span class="c">! Define South-West Corner of First Grid-Box</span>
+<span class="c">! ------------------------------------------</span>
+<span class="w">    </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LON0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">deltaX</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span>
+<span class="w">    </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LAT0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">deltaY</span><span class="o">/</span><span class="mi">2</span><span class="w"></span>
+<span class="w">    </span><span class="n">minCoord</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deltaZ</span><span class="o">/</span><span class="mf">2.</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">layout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_DELayoutCreate</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">deCountList</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">NY</span><span class="o">/</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">MAPL_Am_I_Root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;            Testing CFIO Read Array&#39;</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;            -----------------------&#39;</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Decomposition Information:&#39;</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;   X AXIS: nx, imxy = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;   Y AXIS: ny, jmxy = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;   Z AXIS: nz       = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; (not decomposed)&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="k">end if</span><span class="w"></span>
+
+<span class="c">!   2D grid</span>
+<span class="c">!   -------</span>
+<span class="w">    </span><span class="n">grid2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateHorzLatLonUni</span><span class="p">(</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">counts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="o">/</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">minGlobalCoordPerDim</span><span class="o">=</span><span class="n">minCoord</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">deltaPerDim</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">deltaX</span><span class="p">,</span><span class="w"> </span><span class="n">deltaY</span><span class="w"> </span><span class="o">/</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">horzStagger</span><span class="o">=</span><span class="n">ESMF_Grid_Horz_Stagger_A</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">periodic</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">ESMF_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_FALSE</span><span class="o">/</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Grid2d&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridDistribute</span><span class="p">(</span><span class="n">grid2d</span><span class="p">,</span><span class="w">               </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">deLayout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span><span class="w">                        </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">countsPerDEDim1</span><span class="o">=</span><span class="n">imxy</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">countsPerDEDim2</span><span class="o">=</span><span class="n">jmxy</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="c">!   3D Grid</span>
+<span class="c">!   -------</span>
+<span class="w">    </span><span class="n">grid3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateHorzLatLonUni</span><span class="p">(</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">counts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="o">/</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">minGlobalCoordPerDim</span><span class="o">=</span><span class="n">minCoord</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">deltaPerDim</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">deltaX</span><span class="p">,</span><span class="w"> </span><span class="n">deltaY</span><span class="w"> </span><span class="o">/</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">horzStagger</span><span class="o">=</span><span class="n">ESMF_Grid_Horz_Stagger_A</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">periodic</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">ESMF_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_FALSE</span><span class="o">/</span><span class="p">),</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Grid3d&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridAddVertHeight</span><span class="p">(</span><span class="n">grid3d</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">delta</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="p">(</span><span class="n">deltaZ</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="p">),</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridDistribute</span><span class="p">(</span><span class="n">grid3d</span><span class="p">,</span><span class="w">               </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">deLayout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span><span class="w">                        </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">countsPerDEDim1</span><span class="o">=</span><span class="n">imxy</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">countsPerDEDim2</span><span class="o">=</span><span class="n">jmxy</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridGetLatLons</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">grid3d</span><span class="p">,</span><span class="w"> </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">MAPL_Am_I_Root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Grid points:&#39;</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;  - Longitudes: &#39;</span><span class="w"></span>
+<span class="w">       </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="n">lons</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;  - Latitudes:&#39;</span><span class="w"></span>
+<span class="w">       </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="n">lats</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="mi">100</span><span class="w">    </span><span class="k">format</span><span class="p">((</span><span class="w"> </span><span class="s1">&#39;   &#39;</span><span class="p">,</span><span class="mi">8</span><span class="n">F8</span><span class="p">.</span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    deallocate</span><span class="p">(</span><span class="n">imxy</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">jmxy</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MyGridCreate_</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

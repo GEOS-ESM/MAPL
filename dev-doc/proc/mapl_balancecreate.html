@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_BalanceCreate &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_BalanceCreate
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">94 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_LoadBalance.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_loadbalance.f90.html'>MAPL_LoadBalance.F90</a></li>
+              <li><a href='../module/mapl_loadbalancemod.html'>MAPL_LoadBalanceMod</a></li>
+          <li class="active">MAPL_BalanceCreate</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_balancecreate.html#src">MAPL_BalanceCreate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_BalanceCreate(OrgLen, Comm, MaxPasses, BalCond, Handle, BalLen, BufLen, rc)  
+</h2>
+    
+
+    <p>! Get Communicator parameters
+!----------------------------</p>
+<p>! Allocate temporary space
+!-------------------------</p>
+<p>! Initialize global lists of work load and corresponding rank
+!------------------------------------------------------------</p>
+<p>! Done with balancing strategy. Prepare optional Outputs.
+!--------------------------------------------------------</p>
+<p>! Save the Strategy
+!------------------</p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-orglen"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>OrgLen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-maxpasses"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MaxPasses</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-balcond"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BalCond</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-handle"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Handle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ballen"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BalLen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buflen"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BufLen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1241"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_balancecreate~~CallsGraph Pages: 1 -->
+<svg id="procmapl_balancecreateCallsGraph" width="641pt" height="209pt"
+ viewBox="0.00 0.00 641.00 209.49" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_balancecreate~~CallsGraph" class="graph" transform="scale(1.12 1.12) rotate(0) translate(4 230)">
+<title>proc~~mapl_balancecreate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-230 712,-230 712,4 -4,4"/>
+<!-- proc~mapl_balancecreate -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node1" class="node">
+<title>proc~mapl_balancecreate</title>
+<polygon fill="none" stroke="black" points="125,-126 0,-126 0,-102 125,-102 125,-126"/>
+<text text-anchor="middle" x="62.5" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_BalanceCreate</text>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node2" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="262,-226 161,-226 161,-202 262,-202 262,-226"/>
+<text text-anchor="middle" x="211.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;mpi_comm_rank -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M77.82,-126.07C96.36,-141.41 129.98,-168.27 161,-188 165.99,-191.17 171.4,-194.3 176.75,-197.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.15,-200.35 185.62,-201.96 178.44,-194.17 175.15,-200.35"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node3"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="251,-146 172,-146 172,-122 251,-122 251,-146"/>
+<text text-anchor="middle" x="211.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M125.42,-122.42C137.55,-124.08 150.12,-125.79 161.76,-127.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.32,-130.84 171.7,-128.72 162.27,-123.91 161.32,-130.84"/>
+</g>
+<!-- mpi_allgather -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node4" class="node">
+<title>mpi_allgather</title>
+<polygon fill="#777777" stroke="#777777" points="254.5,-66 168.5,-66 168.5,-42 254.5,-42 254.5,-66"/>
+<text text-anchor="middle" x="211.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_allgather</text>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;mpi_allgather -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;mpi_allgather</title>
+<path fill="none" stroke="#ff0000" d="M93.25,-101.86C115.76,-92.67 146.89,-79.96 171.41,-69.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.86,-73.14 180.8,-66.12 170.22,-66.66 172.86,-73.14"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="410,-209 334,-209 334,-185 410,-185 410,-209"/>
+<text text-anchor="middle" x="372" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M88.24,-126.03C107.65,-135.07 135.55,-147.19 161,-155 215.79,-171.81 280.73,-183.61 323.74,-190.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323.23,-193.79 333.65,-191.85 324.29,-186.87 323.23,-193.79"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node6" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="260,-24 163,-24 163,0 260,0 260,-24"/>
+<text text-anchor="middle" x="211.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;mpi_comm_size -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#ff0000" d="M75.53,-101.99C93.1,-84.93 127.36,-53.5 161,-33 163.59,-31.42 166.31,-29.91 169.1,-28.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.64,-31.61 178.13,-24.12 167.6,-25.3 170.64,-31.61"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node7"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="413,-83 331,-83 331,-59 413,-59 413,-83"/>
+<text text-anchor="middle" x="372" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_balancecreate&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_balancecreate&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M125.36,-105.35C182.86,-97.31 267.45,-85.48 320.85,-78.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="321.35,-81.48 330.77,-76.63 320.38,-74.54 321.35,-81.48"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node8" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node8"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="439,-167 305,-167 305,-143 439,-143 439,-167"/>
+<text text-anchor="middle" x="372" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M251.27,-139.14C264.38,-140.87 279.5,-142.88 294.5,-144.86"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="294.46,-148.39 304.83,-146.23 295.38,-141.45 294.46,-148.39"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node9" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node9"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="446,-125 298,-125 298,-101 446,-101 446,-125"/>
+<text text-anchor="middle" x="372" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M251.27,-128.86C262.41,-127.39 275,-125.72 287.74,-124.03"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="288.5,-127.46 297.95,-122.68 287.58,-120.52 288.5,-127.46"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="615,-156 482,-156 482,-132 615,-132 615,-156"/>
+<text text-anchor="middle" x="548.5" y="-141.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M410.19,-186.5C421.69,-183.2 434.38,-179.5 446,-176 463.75,-170.65 483.17,-164.58 500.23,-159.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="501.5,-162.44 509.97,-156.08 499.38,-155.77 501.5,-162.44"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node10"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="606,-104 491,-104 491,-80 606,-80 606,-104"/>
+<text text-anchor="middle" x="548.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00ff" d="M413.03,-75.82C433.11,-78.23 457.95,-81.22 480.8,-83.97"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="480.44,-87.46 490.79,-85.18 481.28,-80.51 480.44,-87.46"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M413.02,-80.58C423.91,-83.71 435.57,-87.54 446,-92 463.03,-99.28 465.61,-104.36 482,-113 491.43,-117.97 501.8,-123.05 511.45,-127.62"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="510.25,-130.92 520.79,-131.99 513.22,-124.58 510.25,-130.92"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0000" d="M439.47,-150.81C449.98,-150.15 460.92,-149.46 471.62,-148.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="472.03,-152.26 481.79,-148.14 471.59,-145.28 472.03,-152.26"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7fff00" d="M446.25,-104.19C457.67,-102.81 469.43,-101.4 480.7,-100.04"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="481.38,-103.48 490.89,-98.81 480.54,-96.53 481.38,-103.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M440.97,-125.07C451.01,-126.86 461.42,-128.71 471.62,-130.52"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="471.27,-134.01 481.72,-132.31 472.49,-127.12 471.27,-134.01"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_node12" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_balancecreate~~CallsGraph_node12"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="708,-156 651,-156 651,-132 708,-132 708,-156"/>
+<text text-anchor="middle" x="679.5" y="-141.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mapl_balancecreate~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#7f00ff" d="M615.13,-144C623.88,-144 632.59,-144 640.63,-144"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="640.77,-147.5 650.77,-144 640.77,-140.5 640.77,-147.5"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_balancecreateCallsGraph = svgPanZoom('#procmapl_balancecreateCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_balancecreate.html#src">MAPL_BalanceCreate</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_BalanceCreate</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="w"> </span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MaxPasses</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                                </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">OrgLen</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">Comm</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxPasses</span><span class="w"></span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Handle</span><span class="p">,</span><span class="w"> </span><span class="n">BalLen</span><span class="p">,</span><span class="w"> </span><span class="n">BufLen</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond_</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxPasses_</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Balance</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">J</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WORK</span><span class="p">(:),</span><span class="w"> </span><span class="n">RANK</span><span class="p">(:),</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span><span class="w"> </span>
+
+<span class="c">!!! This routine creates a balancing strategy over an MPI communicator (Comm)</span>
+<span class="c">!!!  given the work in the local rank (OrgLen). The startegy can be committed</span>
+<span class="c">!!!  and used later through Handle. If a handle is not requested, the latest</span>
+<span class="c">!!!  non-committed strategy is kept at Handle=0, which will be the default strategy</span>
+<span class="c">!!!  for the other methods. The number of passes may be optionally controlled</span>
+<span class="c">!!!  with an upper limit (MaxPasses) or a limiting criterion (BalCond).</span>
+<span class="c">!!!  The amount of work resulting for the local rank can be returned (BalLen).</span>
+<span class="c">!!!</span>
+<span class="c">!!! NOTE: As there may be more than one communicator, Comm is required. This</span>
+<span class="c">!!!  will most likely be the communicator from the ESMF VM.</span>
+
+<span class="c">!!! Defaults of optional Inputs</span>
+<span class="c">!!!----------------------------</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalCond</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BalCond</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="w"></span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MaxPasses</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MaxPasses</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="w"></span>
+<span class="w">    </span><span class="k">end if</span><span class="w"></span>
+
+<span class="c">!!! Get Communicator parameters</span>
+<span class="c">!!!----------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!!! Allocate temporary space</span>
+<span class="c">!!!-------------------------</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">MaxPasses_</span><span class="p">),</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!!! Initialize global lists of work load and corresponding rank</span>
+<span class="c">!!!------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_AllGather</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                       </span><span class="n">Work</span><span class="w">  </span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="n">Comm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">forall</span><span class="w"> </span><span class="p">(</span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="n">NPES</span><span class="p">)</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">CreateStrategy</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond_</span><span class="p">,</span><span class="w"> </span><span class="n">Kpass</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="p">,</span><span class="w"> </span><span class="n">NOP</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!!! Done with balancing strategy. Prepare optional Outputs.</span>
+<span class="c">!!!--------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       do </span><span class="n">Balance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">MAX_NUM_STRATEGIES</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">       enddo</span>
+
+<span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Balance</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">MAX_NUM_STRATEGIES</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="n">Handle</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Balance</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">Balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">           </span><span class="k">deallocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalLen</span><span class="p">))</span><span class="w"> </span><span class="n">BalLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyNewWork</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BufLen</span><span class="p">))</span><span class="w"> </span><span class="n">BufLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyBufSize</span><span class="w"></span>
+<span class="w"> </span>
+<span class="c">!!! Save the Strategy</span>
+<span class="c">!!!------------------</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">BALANCED_LENGTH</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">MyNewWork</span><span class="w"></span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">BUFFER_LENGTH</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">MyBufSize</span><span class="w"></span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">UNBALANCED_LENGTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span><span class="w"></span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">PASSES</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span><span class="w"></span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">COMM</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">Comm</span><span class="w"></span>
+<span class="w">    </span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="w">               </span><span class="o">=</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:</span><span class="n">KPASS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">LDB_SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">contains</span>
+
+<span class="k">    subroutine </span><span class="n">CreateStrategy</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">BalCond</span><span class="p">,</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="p">,</span><span class="w"> </span><span class="n">NOP</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Work</span><span class="p">(:),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MyPE</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">BalCond</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">KPASS</span><span class="p">,</span><span class="w"> </span><span class="n">MyNewWork</span><span class="p">,</span><span class="w"> </span><span class="n">MyBufSize</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">JSPARD</span><span class="p">,</span><span class="w"> </span><span class="nb">LEN</span><span class="p">,</span><span class="w"> </span><span class="n">MaxPasses</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">MEAN</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">NPES</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">MaxPasses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">NOP</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!!! Loop over passes until either MaxPasses or BalanceCondition is met</span>
+<span class="c">!!!-------------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="n">KPASS</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="n">MEAN</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">MyNewWork</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span><span class="w"></span>
+<span class="w">      </span><span class="n">MyBufSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrgLen</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">PASSES</span><span class="p">:</span><span class="w"> </span><span class="k">do while</span><span class="p">(</span><span class="n">KPASS</span><span class="o">&lt;</span><span class="n">MaxPasses</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!!! Sort latest work-load and rank lists in ascending order of work</span>
+<span class="c">!!!----------------------------------------------------------------</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_Sort</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!!! Check for balance condition on the ratio of max minus min work</span>
+<span class="c">!!!  to the ideal average work</span>
+<span class="c">!!!---------------------------------------------------------------</span>
+
+<span class="w">         </span><span class="k">if</span><span class="p">((</span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">MEAN</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BalCond</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span><span class="w"></span>
+
+<span class="c">!!! Fold the sorted work list and compute the transfers needed</span>
+<span class="c">!!!  to balance the &quot;least with the greatest&quot;.</span>
+<span class="c">!!!-----------------------------------------------------------</span>
+
+<span class="w">         </span><span class="n">KPASS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+
+<span class="w">         </span><span class="n">FOLD</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NPES</span><span class="o">/</span><span class="mi">2</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">! Js partner in the fold has &gt;= the work as J</span>
+<span class="w">            </span><span class="n">JSPARD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NPES</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">J</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">! Half the difference will be sent to J (can be zero)</span>
+<span class="w">            </span><span class="nb">LEN</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">! New lengths that obtain after completion of this pass</span>
+<span class="w">            </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">LEN</span>
+<span class="nb">            </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">LEN</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">! A negative length means J receives from partner</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MyPE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="nb">LEN</span>
+<span class="nb">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="c">! Partners rank</span>
+<span class="w">               </span><span class="n">MyNewWork</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="n">MyBufSize</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MyBufSize</span><span class="p">,</span><span class="n">MyNewWork</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">endif</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">! If I am the partner, I will send to J</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">Rank</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MyPE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LEN</span>
+<span class="nb">               </span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w">  </span><span class="c">! Js rank</span>
+<span class="w">               </span><span class="n">MyNewWork</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">JSPARD</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="n">MyBufSize</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MyBufSize</span><span class="p">,</span><span class="n">MyNewWork</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">endif</span>
+
+<span class="k">         enddo </span><span class="n">FOLD</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">enddo </span><span class="n">PASSES</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">CreateStrategy</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_BalanceCreate</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

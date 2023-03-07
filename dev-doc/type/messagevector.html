@@ -1,0 +1,4043 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MessageVector &ndash; MAPL </title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MessageVector
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title="<p> 0.4% of total for derived types.</p>Including implementation: 535 statements,  0.4% of total for derived types.">52 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MessageVector.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/messagevector.f90.html'>MessageVector.F90</a></li>
+              <li><a href='../module/pfio_messagevectormod.html'>pFIO_MessageVectorMod</a></li>
+          <li class="active">MessageVector</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../type/messagevector.html#variable-vsize~43">vsize</a>
+            <a class="list-group-item" href="../type/messagevector.html#variable-elements~82">elements</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#cons-0">Constructor</a>
+        </h3>
+      </div>
+      <div id="cons-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../type/messagevector.html#interface-messagevector">MessageVector</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#boundprocs-0">Type-Bound Procedures</a>
+        </h3>
+      </div>
+      <div id="boundprocs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at~214">at</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at~215">at</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at_32~42">at_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at_size_kind~43">at_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-back~49">back</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-begin~51">begin</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-capacity~211">capacity</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-clear~69">clear</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-downsize~43">downsize</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-empty~70">empty</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-end~51">end</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-erase~48">erase</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-front~43">front</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get~140">get</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get~141">get</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get_32~42">get_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get_size_kind~42">get_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-grow_to~43">grow_to</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert~128">insert</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert~129">insert</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert_32~42">insert_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert_size_kind~42">insert_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-of~63">of</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-pop_back~43">pop_back</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-push_back~43">push_back</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-rbegin~21">rbegin</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-rend~21">rend</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve~85">reserve</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve~86">reserve</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve_32~42">reserve_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve_size_kind~43">reserve_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reset~49">reset</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize~85">resize</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize~86">resize</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize_32~42">resize_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize_size~42">resize_size</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set~104">set</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set~105">set</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set_32~42">set_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set_capacity~43">set_capacity</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set_size_kind~43">set_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-shrink_to_fit~43">shrink_to_fit</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-size~71">size</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-swap~44">swap</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-v_erase_one~20">v_erase_one</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-v_erase_range~20">v_erase_range</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2>type, public :: MessageVector</h2>
+    
+<br>    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Inherits</h3>
+      </div>
+      <div class="panel-body">
+    <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~messagevector~~InheritsGraph Pages: 1 -->
+<svg id="typemessagevectorInheritsGraph" width="414pt" height="32pt"
+ viewBox="0.00 0.00 414.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~messagevector~~InheritsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>type~~messagevector~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 410,-28 410,4 -4,4"/>
+<!-- type~messagevector -->
+<g id="type~~messagevector~~InheritsGraph_node1" class="node">
+<title>type~messagevector</title>
+<polygon fill="none" stroke="black" points="406,-24 313,-24 313,0 406,0 406,-24"/>
+<text text-anchor="middle" x="359.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MessageVector</text>
+</g>
+<!-- type~v_wrapper~8 -->
+<g id="type~~messagevector~~InheritsGraph_node2" class="node">
+<title>type~v_wrapper~8</title>
+<g id="a_type~~messagevector~~InheritsGraph_node2"><a xlink:href=".././type/v_wrapper~8.html" xlink:title="v_Wrapper">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="231,-24 161,-24 161,0 231,0 231,-24"/>
+<text text-anchor="middle" x="196" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">v_Wrapper</text>
+</a>
+</g>
+</g>
+<!-- type~messagevector&#45;&gt;type~v_wrapper~8 -->
+<g id="type~~messagevector~~InheritsGraph_edge1" class="edge">
+<title>type~messagevector&#45;&gt;type~v_wrapper~8</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.65,-12C290.27,-12 263.46,-12 241.29,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="241.15,-8.5 231.15,-12 241.15,-15.5 241.15,-8.5"/>
+<text text-anchor="middle" x="272" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~abstractmessage -->
+<g id="type~~messagevector~~InheritsGraph_node3" class="node">
+<title>type~abstractmessage</title>
+<g id="a_type~~messagevector~~InheritsGraph_node3"><a xlink:href=".././type/abstractmessage.html" xlink:title="AbstractMessage">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="103,-24 0,-24 0,0 103,0 103,-24"/>
+<text text-anchor="middle" x="51.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMessage</text>
+</a>
+</g>
+</g>
+<!-- type~v_wrapper~8&#45;&gt;type~abstractmessage -->
+<g id="type~~messagevector~~InheritsGraph_edge2" class="edge">
+<title>type~v_wrapper~8&#45;&gt;type~abstractmessage</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M160.87,-12C146.55,-12 129.45,-12 113.12,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.08,-8.5 103.08,-12 113.08,-15.5 113.08,-8.5"/>
+<text text-anchor="middle" x="132" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a derived type to the parent type which it
+    extends. Dashed arrows point from a derived type to the other
+    types it contains as a components, with a label listing the name(s) of
+    said component(s). Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Inherited by</h3>
+      </div>
+      <div class="panel-body">
+     <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~messagevector~~InheritedByGraph Pages: 1 -->
+<svg id="typemessagevectorInheritedByGraph" width="641pt" height="124pt"
+ viewBox="0.00 0.00 641.00 123.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~messagevector~~InheritedByGraph" class="graph" transform="scale(1.46 1.46) rotate(0) translate(4 177)">
+<title>type~~messagevector~~InheritedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-177 935,-177 935,4 -4,4"/>
+<!-- type~messagevector -->
+<g id="type~~messagevector~~InheritedByGraph_node1" class="node">
+<title>type~messagevector</title>
+<polygon fill="none" stroke="black" points="93,-66 0,-66 0,-42 93,-42 93,-66"/>
+<text text-anchor="middle" x="46.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MessageVector</text>
+</g>
+<!-- type~serverthread -->
+<g id="type~~messagevector~~InheritedByGraph_node2" class="node">
+<title>type~serverthread</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node2"><a xlink:href=".././type/serverthread.html" xlink:title="ServerThread">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="325,-108 240,-108 240,-84 325,-84 325,-108"/>
+<text text-anchor="middle" x="282.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread</text>
+</a>
+</g>
+</g>
+<!-- type~serverthread&#45;&gt;type~messagevector -->
+<g id="type~~messagevector~~InheritedByGraph_edge1" class="edge">
+<title>type~serverthread&#45;&gt;type~messagevector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.7,-89.78C205.11,-84.48 154.75,-76.41 111,-68 108.39,-67.5 105.72,-66.97 103.02,-66.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.72,-63 93.22,-64.39 102.3,-69.85 103.72,-63"/>
+<text text-anchor="middle" x="150.5" y="-83.4" font-family="Helvetica,sans-Serif" font-size="9.50">request_backlog</text>
+</g>
+<!-- type~forwarddataandmessage -->
+<g id="type~~messagevector~~InheritedByGraph_node3" class="node">
+<title>type~forwarddataandmessage</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node3"><a xlink:href=".././type/forwarddataandmessage.html" xlink:title="ForwardDataAndMessage">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="357,-66 208,-66 208,-42 357,-42 357,-66"/>
+<text text-anchor="middle" x="282.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ForwardDataAndMessage</text>
+</a>
+</g>
+</g>
+<!-- type~forwarddataandmessage&#45;&gt;type~messagevector -->
+<g id="type~~messagevector~~InheritedByGraph_edge2" class="edge">
+<title>type~forwarddataandmessage&#45;&gt;type~messagevector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M207.78,-54C174.08,-54 134.8,-54 103.57,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.3,-50.5 93.3,-54 103.3,-57.5 103.3,-50.5"/>
+<text text-anchor="middle" x="150.5" y="-56.4" font-family="Helvetica,sans-Serif" font-size="9.50">msg_vec</text>
+</g>
+<!-- type~mocksocket -->
+<g id="type~~messagevector~~InheritedByGraph_node4" class="node">
+<title>type~mocksocket</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node4"><a xlink:href=".././type/mocksocket.html" xlink:title="MockSocket">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="320.5,-24 244.5,-24 244.5,0 320.5,0 320.5,-24"/>
+<text text-anchor="middle" x="282.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockSocket</text>
+</a>
+</g>
+</g>
+<!-- type~mocksocket&#45;&gt;type~messagevector -->
+<g id="type~~messagevector~~InheritedByGraph_edge3" class="edge">
+<title>type~mocksocket&#45;&gt;type~messagevector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M244.48,-17.49C209.87,-22.76 156.81,-31.2 111,-40 108.39,-40.5 105.72,-41.03 103.02,-41.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.3,-38.15 93.22,-43.61 103.72,-45 102.3,-38.15"/>
+<text text-anchor="middle" x="150.5" y="-42.4" font-family="Helvetica,sans-Serif" font-size="9.50">messages</text>
+</g>
+<!-- type~v_wrapper~13 -->
+<g id="type~~messagevector~~InheritedByGraph_node5" class="node">
+<title>type~v_wrapper~13</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node5"><a xlink:href=".././type/v_wrapper~13.html" xlink:title="v_Wrapper">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="514.5,-131 444.5,-131 444.5,-107 514.5,-107 514.5,-131"/>
+<text text-anchor="middle" x="479.5" y="-116.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">v_Wrapper</text>
+</a>
+</g>
+</g>
+<!-- type~v_wrapper~13&#45;&gt;type~serverthread -->
+<g id="type~~messagevector~~InheritedByGraph_edge4" class="edge">
+<title>type~v_wrapper~13&#45;&gt;type~serverthread</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M444.09,-114.94C413.96,-111.39 369.76,-106.17 335.36,-102.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.36,-98.59 325.02,-100.9 334.54,-105.54 335.36,-98.59"/>
+<text text-anchor="middle" x="390" y="-112.4" font-family="Helvetica,sans-Serif" font-size="9.50">item</text>
+</g>
+<!-- type~mockhandle -->
+<g id="type~~messagevector~~InheritedByGraph_node6" class="node">
+<title>type~mockhandle</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node6"><a xlink:href=".././type/mockhandle.html" xlink:title="MockHandle">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="519,-24 440,-24 440,0 519,0 519,-24"/>
+<text text-anchor="middle" x="479.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockHandle</text>
+</a>
+</g>
+</g>
+<!-- type~mockhandle&#45;&gt;type~mocksocket -->
+<g id="type~~messagevector~~InheritedByGraph_edge6" class="edge">
+<title>type~mockhandle&#45;&gt;type~mocksocket</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M439.97,-12C408.59,-12 364.15,-12 330.64,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="330.62,-8.5 320.62,-12 330.62,-15.5 330.62,-8.5"/>
+<text text-anchor="middle" x="390" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">owner</text>
+</g>
+<!-- type~mockserverthread -->
+<g id="type~~messagevector~~InheritedByGraph_node7" class="node">
+<title>type~mockserverthread</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node7"><a xlink:href=".././type/mockserverthread.html" xlink:title="MockServerThread">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="536,-89 423,-89 423,-65 536,-65 536,-89"/>
+<text text-anchor="middle" x="479.5" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockServerThread</text>
+</a>
+</g>
+</g>
+<!-- type~mockserverthread&#45;&gt;type~serverthread -->
+<g id="type~~messagevector~~InheritedByGraph_edge5" class="edge">
+<title>type~mockserverthread&#45;&gt;type~serverthread</title>
+<path fill="none" stroke="#ff0000" d="M422.88,-82.42C395.33,-85.1 362.27,-88.32 335.27,-90.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="334.85,-87.48 325.24,-91.93 335.53,-94.45 334.85,-87.48"/>
+</g>
+<!-- type~serverthreadvector -->
+<g id="type~~messagevector~~InheritedByGraph_node8" class="node">
+<title>type~serverthreadvector</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node8"><a xlink:href=".././type/serverthreadvector.html" xlink:title="ServerThreadVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="760.5,-173 641.5,-173 641.5,-149 760.5,-149 760.5,-173"/>
+<text text-anchor="middle" x="701" y="-158.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector</text>
+</a>
+</g>
+</g>
+<!-- type~serverthreadvector&#45;&gt;type~v_wrapper~13 -->
+<g id="type~~messagevector~~InheritedByGraph_edge7" class="edge">
+<title>type~serverthreadvector&#45;&gt;type~v_wrapper~13</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M641.47,-149.8C604.75,-142.77 558.18,-133.86 524.59,-127.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="525.08,-123.97 514.6,-125.53 523.77,-130.84 525.08,-123.97"/>
+<text text-anchor="middle" x="577" y="-143.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~serverthreadvectoriterator -->
+<g id="type~~messagevector~~InheritedByGraph_node9" class="node">
+<title>type~serverthreadvectoriterator</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node9"><a xlink:href=".././type/serverthreadvectoriterator.html" xlink:title="ServerThreadVectorIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="780.5,-131 621.5,-131 621.5,-107 780.5,-107 780.5,-131"/>
+<text text-anchor="middle" x="701" y="-116.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVectorIterator</text>
+</a>
+</g>
+</g>
+<!-- type~serverthreadvectoriterator&#45;&gt;type~v_wrapper~13 -->
+<g id="type~~messagevector~~InheritedByGraph_edge8" class="edge">
+<title>type~serverthreadvectoriterator&#45;&gt;type~v_wrapper~13</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.38,-119C588.87,-119 552.39,-119 524.7,-119"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="524.55,-115.5 514.55,-119 524.55,-122.5 524.55,-115.5"/>
+<text text-anchor="middle" x="577" y="-121.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~serverthreadvectorriterator -->
+<g id="type~~messagevector~~InheritedByGraph_node10" class="node">
+<title>type~serverthreadvectorriterator</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node10"><a xlink:href=".././type/serverthreadvectorriterator.html" xlink:title="ServerThreadVectorRIterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="784,-89 618,-89 618,-65 784,-65 784,-89"/>
+<text text-anchor="middle" x="701" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVectorRIterator</text>
+</a>
+</g>
+</g>
+<!-- type~serverthreadvectorriterator&#45;&gt;type~v_wrapper~13 -->
+<g id="type~~messagevector~~InheritedByGraph_edge9" class="edge">
+<title>type~serverthreadvectorriterator&#45;&gt;type~v_wrapper~13</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M637.1,-89.04C601.21,-95.9 557.08,-104.35 524.83,-110.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="523.96,-107.12 514.8,-112.44 525.28,-114 523.96,-107.12"/>
+<text text-anchor="middle" x="577" y="-106.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+<!-- type~baseserver -->
+<g id="type~~messagevector~~InheritedByGraph_node11" class="node">
+<title>type~baseserver</title>
+<g id="a_type~~messagevector~~InheritedByGraph_node11"><a xlink:href=".././type/baseserver.html" xlink:title="BaseServer">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="931,-173 857,-173 857,-149 931,-149 931,-173"/>
+<text text-anchor="middle" x="894" y="-158.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer</text>
+</a>
+</g>
+</g>
+<!-- type~baseserver&#45;&gt;type~serverthreadvector -->
+<g id="type~~messagevector~~InheritedByGraph_edge10" class="edge">
+<title>type~baseserver&#45;&gt;type~serverthreadvector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M856.62,-161C832.42,-161 799.86,-161 770.86,-161"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="770.77,-157.5 760.77,-161 770.77,-164.5 770.77,-157.5"/>
+<text text-anchor="middle" x="820.5" y="-163.4" font-family="Helvetica,sans-Serif" font-size="9.50">threads</text>
+</g>
+</g>
+</svg>
+</div><script>var pantypemessagevectorInheritedByGraph = svgPanZoom('#typemessagevectorInheritedByGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a derived type to the parent type which it
+    extends. Dashed arrows point from a derived type to the other
+    types it contains as a components, with a label listing the name(s) of
+    said component(s). Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../type/messagevector.html#variable-vsize~43">vsize</a>
+            <a class="list-group-item" href="../type/messagevector.html#variable-elements~82">elements</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#cons-1">Constructor</a>
+        </h3>
+      </div>
+      <div id="cons-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../type/messagevector.html#interface-messagevector">MessageVector</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#boundprocs-1">Type-Bound Procedures</a>
+        </h3>
+      </div>
+      <div id="boundprocs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at~214">at</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at~215">at</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at_32~42">at_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-at_size_kind~43">at_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-back~49">back</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-begin~51">begin</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-capacity~211">capacity</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-clear~69">clear</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-downsize~43">downsize</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-empty~70">empty</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-end~51">end</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-erase~48">erase</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-front~43">front</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get~140">get</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get~141">get</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get_32~42">get_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-get_size_kind~42">get_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-grow_to~43">grow_to</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert~128">insert</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert~129">insert</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert_32~42">insert_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-insert_size_kind~42">insert_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-of~63">of</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-pop_back~43">pop_back</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-push_back~43">push_back</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-rbegin~21">rbegin</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-rend~21">rend</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve~85">reserve</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve~86">reserve</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve_32~42">reserve_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reserve_size_kind~43">reserve_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-reset~49">reset</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize~85">resize</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize~86">resize</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize_32~42">resize_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-resize_size~42">resize_size</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set~104">set</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set~105">set</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set_32~42">set_32</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set_capacity~43">set_capacity</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-set_size_kind~43">set_size_kind</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-shrink_to_fit~43">shrink_to_fit</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-size~71">size</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-swap~44">swap</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-v_erase_one~20">v_erase_one</a>
+            <a class="list-group-item" href="../type/messagevector.html#boundprocedure-v_erase_range~20">v_erase_range</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+    <h2>Components</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vsize~43"></span>
+              integer(kind=SIZE_KIND),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vsize</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-elements~82"></span>
+              type(<a href='../type/v_wrapper~8.html'>v_Wrapper</a>),
+            </td>
+              <td>private,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>elements</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+      <section>
+        <h2>Constructor</h2>
+            <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-messagevector"></span>
+      <h3>public        interface <a href='../interface/messagevector.html'>MessageVector</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function <a href='../proc/v_new_empty~20.html'>v_new_empty</a>() result(v)  
+
+    </h3>
+    
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+    <h4>
+    Return Value
+    <small>type(<a href='../type/messagevector.html'>MessageVector</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+      </section>
+      <br>
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at~214"></span><h3>generic, public :: <strong>at</strong>  => <a href='../type/messagevector.html#boundprocedure-at_size_kind~43'>at_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_at_size_kind~20.html'>v_at_size_kind</a>(this, i, unused, rc) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at~215"></span><h3>generic, public :: <strong>at</strong>  => <a href='../type/messagevector.html#boundprocedure-at_32~42'>at_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_at_32~20.html'>v_at_32</a>(this, i, unused, rc) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at_32~42"></span><h3>procedure, public :: <strong>at_32</strong>  => <a href='../proc/v_at_32~20.html'>v_at_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_at_32~20.html'>v_at_32</a>(this, i, unused, rc) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-at_size_kind~43"></span><h3>procedure, public :: <strong>at_size_kind</strong>  => <a href='../proc/v_at_size_kind~20.html'>v_at_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_at_size_kind~20.html'>v_at_size_kind</a>(this, i, unused, rc) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-back~49"></span><h3>procedure, public :: <strong>back</strong>  => <a href='../proc/v_back~20.html'>v_back</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_back~20.html'>v_back</a>(this) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-begin~51"></span><h3>procedure, public :: <strong>begin</strong>  => <a href='../proc/v_begin~20.html'>v_begin</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_begin~20.html'>v_begin</a>(this) result(iter)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-capacity~211"></span><h3>procedure, public :: <strong>capacity</strong>  => <a href='../proc/v_capacity~20.html'>v_capacity</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private pure function <a href='../proc/v_capacity~20.html'>v_capacity</a>(this) result(capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=SIZE_KIND)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-clear~69"></span><h3>procedure, public :: <strong>clear</strong>  => <a href='../proc/v_clear~20.html'>v_clear</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_clear~20.html'>v_clear</a>(this)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-downsize~43"></span><h3>procedure, private :: <strong>downsize</strong>  => <a href='../proc/v_downsize~20.html'>v_downsize</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_downsize~20.html'>v_downsize</a>(this, newsize)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newsize</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-empty~70"></span><h3>procedure, public :: <strong>empty</strong>  => <a href='../proc/v_empty~20.html'>v_empty</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private pure function <a href='../proc/v_empty~20.html'>v_empty</a>(this) result(empty)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-end~51"></span><h3>procedure, public :: <strong>end</strong>  => <a href='../proc/v_end~20.html'>v_end</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_end~20.html'>v_end</a>(this) result(iter)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erase~48"></span><h3>generic, public :: <strong>erase</strong>  => <a href='../type/messagevector.html#boundprocedure-v_erase_one~20'>v_erase_one</a>, <a href='../type/messagevector.html#boundprocedure-v_erase_range~20'>v_erase_range</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_erase_one~20.html'>v_erase_one</a>(this, position)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>position</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_erase_range~20.html'>v_erase_range</a>(this, first, last)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-front~43"></span><h3>procedure, public :: <strong>front</strong>  => <a href='../proc/v_front~20.html'>v_front</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_front~20.html'>v_front</a>(this) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get~140"></span><h3>generic, public :: <strong>get</strong>  => <a href='../type/messagevector.html#boundprocedure-get_size_kind~42'>get_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_get_size_kind~20.html'>v_get_size_kind</a>(this, i) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), allocatable</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get~141"></span><h3>generic, public :: <strong>get</strong>  => <a href='../type/messagevector.html#boundprocedure-get_32~42'>get_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_get_32~20.html'>v_get_32</a>(this, i) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), allocatable</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_32~42"></span><h3>procedure, public :: <strong>get_32</strong>  => <a href='../proc/v_get_32~20.html'>v_get_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_get_32~20.html'>v_get_32</a>(this, i) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), allocatable</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_size_kind~42"></span><h3>procedure, public :: <strong>get_size_kind</strong>  => <a href='../proc/v_get_size_kind~20.html'>v_get_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_get_size_kind~20.html'>v_get_size_kind</a>(this, i) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), allocatable</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-grow_to~43"></span><h3>procedure, private :: <strong>grow_to</strong>  => <a href='../proc/v_grow_to~20.html'>v_grow_to</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_grow_to~20.html'>v_grow_to</a>(this, capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>capacity</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~128"></span><h3>generic, public :: <strong>insert</strong>  => <a href='../type/messagevector.html#boundprocedure-insert_size_kind~42'>insert_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_insert_size_kind~20.html'>v_insert_size_kind</a>(this, index, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert~129"></span><h3>generic, public :: <strong>insert</strong>  => <a href='../type/messagevector.html#boundprocedure-insert_32~42'>insert_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_insert_32~20.html'>v_insert_32</a>(this, index, value)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert_32~42"></span><h3>procedure, public :: <strong>insert_32</strong>  => <a href='../proc/v_insert_32~20.html'>v_insert_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_insert_32~20.html'>v_insert_32</a>(this, index, value)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-insert_size_kind~42"></span><h3>procedure, public :: <strong>insert_size_kind</strong>  => <a href='../proc/v_insert_size_kind~20.html'>v_insert_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_insert_size_kind~20.html'>v_insert_size_kind</a>(this, index, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-of~63"></span><h3>procedure, public :: <strong>of</strong>  => <a href='../proc/v_of~20.html'>v_of</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_of~20.html'>v_of</a>(this, i) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>class(<a href='../type/abstractmessage.html'>AbstractMessage</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-pop_back~43"></span><h3>procedure, public :: <strong>pop_back</strong>  => <a href='../proc/v_pop_back~20.html'>v_pop_back</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_pop_back~20.html'>v_pop_back</a>(this)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-push_back~43"></span><h3>procedure, public :: <strong>push_back</strong>  => <a href='../proc/v_push_back~20.html'>v_push_back</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_push_back~20.html'>v_push_back</a>(this, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rbegin~21"></span><h3>procedure, public :: <strong>rbegin</strong>  => <a href='../proc/v_rbegin~20.html'>v_rbegin</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_rbegin~20.html'>v_rbegin</a>(this) result(iter)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/messagevectorriterator.html'>MessageVectorRIterator</a>)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rend~21"></span><h3>procedure, public :: <strong>rend</strong>  => <a href='../proc/v_rend~20.html'>v_rend</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/v_rend~20.html'>v_rend</a>(this) result(iter)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/messagevectorriterator.html'>MessageVectorRIterator</a>)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve~85"></span><h3>generic, public :: <strong>reserve</strong>  => <a href='../type/messagevector.html#boundprocedure-reserve_size_kind~43'>reserve_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_reserve_size_kind~20.html'>v_reserve_size_kind</a>(this, capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>capacity</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve~86"></span><h3>generic, public :: <strong>reserve</strong>  => <a href='../type/messagevector.html#boundprocedure-reserve_32~42'>reserve_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_reserve_32~20.html'>v_reserve_32</a>(this, capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>capacity</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve_32~42"></span><h3>procedure, public :: <strong>reserve_32</strong>  => <a href='../proc/v_reserve_32~20.html'>v_reserve_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_reserve_32~20.html'>v_reserve_32</a>(this, capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>capacity</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reserve_size_kind~43"></span><h3>procedure, public :: <strong>reserve_size_kind</strong>  => <a href='../proc/v_reserve_size_kind~20.html'>v_reserve_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_reserve_size_kind~20.html'>v_reserve_size_kind</a>(this, capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>capacity</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-reset~49"></span><h3>procedure, public :: <strong>reset</strong>  => <a href='../proc/v_reset~20.html'>v_reset</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_reset~20.html'>v_reset</a>(this)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize~85"></span><h3>generic, public :: <strong>resize</strong>  => <a href='../type/messagevector.html#boundprocedure-resize_size~42'>resize_size</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_resize_size~20.html'>v_resize_size</a>(this, newsize, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newsize</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize~86"></span><h3>generic, public :: <strong>resize</strong>  => <a href='../type/messagevector.html#boundprocedure-resize_32~42'>resize_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_resize_32~20.html'>v_resize_32</a>(this, newsize, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newsize</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize_32~42"></span><h3>procedure, public :: <strong>resize_32</strong>  => <a href='../proc/v_resize_32~20.html'>v_resize_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_resize_32~20.html'>v_resize_32</a>(this, newsize, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newsize</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-resize_size~42"></span><h3>procedure, public :: <strong>resize_size</strong>  => <a href='../proc/v_resize_size~20.html'>v_resize_size</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_resize_size~20.html'>v_resize_size</a>(this, newsize, value, unused, rc)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newsize</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/keywordenforcer~18.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set~104"></span><h3>generic, public :: <strong>set</strong>  => <a href='../type/messagevector.html#boundprocedure-set_size_kind~43'>set_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_set_size_kind~20.html'>v_set_size_kind</a>(this, i, value)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set~105"></span><h3>generic, public :: <strong>set</strong>  => <a href='../type/messagevector.html#boundprocedure-set_32~42'>set_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_set_32~20.html'>v_set_32</a>(this, i, value)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_32~42"></span><h3>procedure, public :: <strong>set_32</strong>  => <a href='../proc/v_set_32~20.html'>v_set_32</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_set_32~20.html'>v_set_32</a>(this, i, value)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_capacity~43"></span><h3>procedure, private :: <strong>set_capacity</strong>  => <a href='../proc/v_set_capacity~20.html'>v_set_capacity</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_set_capacity~20.html'>v_set_capacity</a>(this, capacity)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>capacity</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-set_size_kind~43"></span><h3>procedure, public :: <strong>set_size_kind</strong>  => <a href='../proc/v_set_size_kind~20.html'>v_set_size_kind</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_set_size_kind~20.html'>v_set_size_kind</a>(this, i, value)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/abstractmessage.html'>AbstractMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-shrink_to_fit~43"></span><h3>procedure, public :: <strong>shrink_to_fit</strong>  => <a href='../proc/v_shrink_to_fit~20.html'>v_shrink_to_fit</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_shrink_to_fit~20.html'>v_shrink_to_fit</a>(this)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-size~71"></span><h3>procedure, public :: <strong>size</strong>  => <a href='../proc/v_size~20.html'>v_size</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private pure function <a href='../proc/v_size~20.html'>v_size</a>(this) result(res)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=SIZE_KIND)</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-swap~44"></span><h3>procedure, public :: <strong>swap</strong>  => <a href='../proc/v_swap~20.html'>v_swap</a>         
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_swap~20.html'>v_swap</a>(this, other)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>other</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-v_erase_one~20"></span><h3>procedure, public :: <strong>v_erase_one</strong>          
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_erase_one~20.html'>v_erase_one</a>(this, position)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>position</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-v_erase_range~20"></span><h3>procedure, public :: <strong>v_erase_range</strong>          
+    </h3></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/v_erase_range~20.html'>v_erase_range</a>(this, first, last)  
+</h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/messagevector.html'>MessageVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/messagevectoriterator.html'>MessageVectorIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+      </section>
+
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:17:57.559635           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
