@@ -40,11 +40,11 @@ program comp_testing_driver
       call ESMF_ConfigFindLabel(config, label="COMPONENT_TO_RECORD:", _RC)
       
       call ESMF_ConfigGetAttribute(config, value=compName, _RC)
-      compStatus = 0
-      do while (compStatus == 0)
+      !compStatus = 0
+      !do while (compStatus == 0)
          call driver_component(filename, compName, _RC)
-         call ESMF_ConfigGetAttribute(config, value=compName, rc=compStatus)
-      end do
+         !call ESMF_ConfigGetAttribute(config, value=compName, rc=compStatus)
+      !end do
 
       ! finalize
       call t_p%stop('Comp_Testing_Driver.x')
@@ -55,37 +55,39 @@ program comp_testing_driver
   subroutine driver_component(filename, compName, rc)
     character(len=*), intent(in) :: filename, compName
     integer, intent(out) :: rc
-    integer :: status, root_id, userRC, RUN_DT, i, ncid, attrStatus
-    character(len=ESMF_MAXSTR) :: time, startTime, sharedObj, exportCheckpoint, variable
+    integer :: status, root_id, userRC, RUN_DT, i, ncid, varid, tsteps, NX, NY
+    character(len=ESMF_MAXSTR) :: time, startTime, sharedObj, exportCheckpoint, variable, restartFile
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: timeInterval
     type(ESMF_GridComp) :: temp_GC, GC
     type(ESMF_State) :: import, export
     type(ESMF_Config) :: config
-    type(ESMF_Time) :: esmf_startTime
+    type(ESMF_Time), allocatable :: esmf_startTime(:)
     type(ESMF_Grid) :: grid
-    type (MAPL_MetaComp), pointer :: maplobj
-    type(ESMF_Field) :: field
+    type(MAPL_MetaComp), pointer :: maplobj
+    type(ESMF_Field) :: field, lons_field, lats_field
+    real(kind=ESMF_KIND_R8), pointer :: lons_field_ptr(:,:), lats_field_ptr(:,:), grid_lons(:,:), grid_lats(:,:)
+    type(NetCDF4_fileFormatter) :: formatter
+    type(FileMetadata) :: basic_metadata
+    type(FileMetadataUtils) :: metadata
+    logical :: subset
    
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
-
-    ! any additional attributes
-    call ESMF_ConfigGetAttribute(config, value=startTime, label="START_TIME:", _RC)
     call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=restartFile, label="RESTART_FILE:", _RC)
     
     ! Create a clock, set current time to required time consistent with checkpoints used 
+    call formatter%open(restartFile, pFIO_Read, _RC)
     call ESMF_TimeIntervalSet(timeInterval, s=RUN_DT, _RC)
-    startTime = trim(startTime)
-    esmf_startTime = parse_time_string(startTime, _RC)
-    clock = ESMF_ClockCreate(timeInterval, esmf_startTime, _RC)
+    basic_metadata=formatter%read(_RC)
+    call metadata%create(basic_metadata,trim(restartFile))
+    call metadata%get_time_info(timeVector=esmf_startTime,_RC)
+    clock = ESMF_ClockCreate(timeInterval, esmf_startTime(1), _RC)
+    call formatter%close(_RC)
     
-    ! Create a grid (since the MAPL components do not do this other than GCM) we must do it here, 
-    ! note for the vision of using a grid that is only a subset of columns we will have to see if we can 
-    ! use an existing grid factory, or might require new factory
     grid=grid_manager%make_grid(config, _RC)
 
-    ! Add component to be tested as the “child” via MAPL_AddChild
     temp_GC = ESMF_GridCompCreate(name=compName, _RC)
     maplobj => null()
     call MAPL_InternalStateCreate(temp_GC, maplobj, _RC)
@@ -101,16 +103,23 @@ program comp_testing_driver
 
     root_id = MAPL_AddChild(maplobj, name=compName, userRoutine="setservices_", sharedObj=sharedObj, _RC) 
     
-    ! Set grid in child
     GC = maplobj%get_child_gridcomp(root_id)
     import = maplobj%get_child_import_state(root_id)
     export = maplobj%get_child_export_state(root_id)
-    call ESMF_GridCompSet(GC, grid=grid, _RC)
+
+    call ESMF_ConfigGetAttribute(config, value=subset, label="SUBSET:", default=.false., _RC)
+    call ESMF_ConfigGetAttribute(config, value=NX, label = "NX:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=NY, label = "NX:", _RC)
+    if (subset .and. NX*NY == 1) then
+       call formatter%open(restartFile, pFIO_Read, _RC)
+       call ESMF_GridGetCoord(grid, coordDim=1, farrayPtr=lons_field_ptr, _RC)
+       call ESMF_GridGetCoord(grid, coordDim=2, farrayPtr=lats_field_ptr, _RC)
+       call formatter%get_var("lons", lons_field_ptr)
+       call formatter%get_var("lats", lats_field_ptr)
+       call ESMF_GridCompSet(GC, grid=grid, _RC)
+       call formatter%close(_RC)
+    end if
     
-    ! Will probably have to do something to force the right exports to get allocated when we run 
-    ! genericinitialize, one idea is to use the checkpoint itself, examine, what variables are in
-    ! the checkpoint for the export and ensure those variables are allocated in the genericinitialize, somehow...
-        
     call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
 
     call ESMF_ConfigFindLabel(config, label="EXPORT_CHECKPOINT:", _RC)
