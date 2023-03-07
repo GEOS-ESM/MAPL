@@ -56,7 +56,7 @@ type is(T) ;\
          if(default_is_present) then ;\
             select type(default) ;\
             type is(T) ;\
-               value_is_default = (VAL == default) ;\
+               value_is_default = are_equal(VAL, default) ;\
             class default ;\
                _FAIL(MISMATCH_MESSAGE) ;\
             end select ;\
@@ -83,7 +83,7 @@ type is(T) ;\
          if(default_is_present) then ;\
             select type(default) ;\
             type is(T) ;\
-               value_is_default = all(VAL == default) ;\
+               value_is_default = all(are_equal(VAL, default)) ;\
             class default ;\
                _FAIL(MISMATCH_MESSAGE) ;\
             end select ;\
@@ -99,7 +99,15 @@ type is(T) ;\
       else ;\
          do_print = .FALSE. ;\
       end if
+!=============================================================================
 
+#ifdef ARE_EQUAL_FUNCTION
+#  undef ARE_EQUAL_FUNCTION
+#endif
+
+#define ARE_EQUAL_FUNCTION(T) (a, b) result(res) ; T, intent(in) :: a, b ; logical :: res ; res = (a == b)
+
+!=============================================================================
 !END FPP macros for repeated (type-dependent) code
 !=============================================================================
 
@@ -145,6 +153,15 @@ module MAPL_ResourceMod
    character(len=*), parameter :: TYPE_REAL64 = "'Real*8 '"
    character(len=*), parameter :: TYPE_LOGICAL =  "'Logical '"
    character(len=*), parameter :: TYPE_CHARACTER = "'Character '"
+
+   interface are_equal
+      module procedure :: are_equivalent
+      module procedure :: are_equal_int32
+      module procedure :: are_equal_int64
+      module procedure :: are_equal_real32
+      module procedure :: are_equal_real64
+      module procedure :: are_equal_character
+   end interface are_equal
 
 contains
 
@@ -550,6 +567,19 @@ contains
       end do
          
    end function compare_all
+
+   pure elemental function are_equivalent(a, b) result(res)
+      logical, intent(in) :: a
+      logical, intent(in) :: b
+      logical :: res
+      res = a .eqv. b
+   end function are_equivalent
+
+   pure elemental function are_equal_int32 ARE_EQUAL_FUNCTION(integer(int32)) ; end function are_equal_int32
+   pure elemental function are_equal_int64 ARE_EQUAL_FUNCTION(integer(int64)) ; end function are_equal_int64
+   pure elemental function are_equal_real32 ARE_EQUAL_FUNCTION(real(real32)) ; end function are_equal_real32
+   pure elemental function are_equal_real64 ARE_EQUAL_FUNCTION(real(real64)) ; end function are_equal_real64
+   pure elemental function are_equal_character ARE_EQUAL_FUNCTION(character(len=*)) ; end function are_equal_character
 
 !   pure function concat_strings(strings, join_string)
 !      character(len=*), dimension(:), intent(in) :: strings
