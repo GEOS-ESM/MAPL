@@ -465,7 +465,10 @@ module NCIOMod
           _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-
+                if (trim(name) == "lons" .or. trim(name) == "lats") then
+                   print*, 'it is a tiled variable...', trim(name)
+                   print*, vr8_2d
+                end if
                 if (arrdes%write_restart_by_oserver) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
@@ -3260,7 +3263,7 @@ module NCIOMod
     integer                            :: i,j,l
     type(ESMF_Field)                   :: field
     type(ESMF_Array)                   :: array
-    type(ESMF_Grid)                    :: grid, temp_grid
+    type(ESMF_Grid)                    :: grid
     character(len=ESMF_MAXSTR)         :: FieldName
     type(ESMF_Time)                       :: currentTime
     character(len=ESMF_MAXSTR)            :: TimeString, TimeUnits
@@ -3316,7 +3319,7 @@ module NCIOMod
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
     type(ESMF_Field) :: lons_field, lats_field
-    logical :: isSubset
+    logical :: isGridCapture
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
@@ -3856,14 +3859,14 @@ module NCIOMod
 
        enddo
 
-       call ESMF_AttributeGet(bundle, name='MAPL_SubsetCapture', isPresent=isPresent, _RC)
+       call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
        if (isPresent) then
-          call ESMF_AttributeGet(bundle, name='MAPL_SubsetCapture', value=isSubset, _RC)
+          call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', value=isGridCapture, _RC)
        else
-          isSubset = .false.
+          isGridCapture = .false.
        end if
  
-       if (isSubset) then
+       if (isGridCapture) then
           call add_fvar(cf, 'lons', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lons', _RC)
           call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lats', _RC) 
        end if
@@ -3947,23 +3950,22 @@ module NCIOMod
        if (isPresent) then
          call ESMF_AttributeGet(field,name="FLIPPED",value=fieldName,rc=status)
          if (status == _SUCCESS) then
-            !call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
-            !_VERIFY(status)
+            call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
+            _VERIFY(status)
          end if
        end if
        
     enddo
 
-    call ESMF_AttributeGet(bundle, name='MAPL_SubsetCapture', isPresent=isPresent, _RC)
+    call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
     if (isPresent) then
-       call ESMF_AttributeGet(bundle, name='MAPL_SubsetCapture', value=isSubset, _RC)
+       call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', value=isGridCapture, _RC)
     else
-       isSubset = .false.
+       isGridCapture = .false.
     end if
     
-    if (isSubset) then
+    if (isGridCapture) then
        call ESMF_GridGet(arrdes%grid, name=fieldname, _RC)
-       if (mapl_am_i_root()) print*, trim(fieldname)
        lons_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lons', _RC)
        lats_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lats', _RC)
 
@@ -3977,6 +3979,9 @@ module NCIOMod
        
        lons_field_ptr = grid_lons
        lats_field_ptr = grid_lats
+
+       call ESMF_AttributeSet(lons_field, name="DIMS", value=MAPL_DimsHorzOnly, _RC)
+       call ESMF_AttributeSet(lats_field, name="DIMS", value=MAPL_DimsHorzOnly, _RC)
 
        call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
@@ -4053,7 +4058,7 @@ module NCIOMod
     logical                            :: isPresent
     character(len=ESMF_MAXSTR)         :: positive
     logical                            :: flip
-    logical                            :: isTestFramework, isSubsetCapture
+    logical                            :: isTestFramework, isGridCapture
     integer :: fieldIsValid
     type(ESMF_Array) :: array
 
@@ -4207,10 +4212,10 @@ module NCIOMod
     deallocate(ITEMTYPES)
     deallocate(DOIT     )
 
-    call ESMF_AttributeGet(state, name='MAPL_SubsetCapture', isPresent=isPresent, _RC)
+    call ESMF_AttributeGet(state, name='MAPL_GridCapture', isPresent=isPresent, _RC)
     if (isPresent) then
-       call ESMF_AttributeGet(state, name='MAPL_SubsetCapture', value=isSubsetCapture, _RC)
-       call ESMF_AttributeSet(bundle_write, name="MAPL_SubsetCapture", value=isSubsetCapture, _RC)
+       call ESMF_AttributeGet(state, name='MAPL_GridCapture', value=isGridCapture, _RC)
+       call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
  
     call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)

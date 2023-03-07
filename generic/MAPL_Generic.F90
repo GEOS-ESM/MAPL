@@ -1735,7 +1735,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads, isTestFramework, isTestFrameworkDriver
+      logical :: use_threads, isTestFramework, isTestFrameworkDriver, isGridCapture
       character(len=ESMF_MAXSTR) :: compToWrite
       type(ESMF_State), pointer :: internal
       integer :: hdr, yy, mm, dd, h, m, s, label_yy, label_mm, label_dd, label_h, label_m, label_s
@@ -1826,12 +1826,14 @@ contains
       call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
       call MAPL_GetResource(STATE, isTestFramework, label='TEST_FRAMEWORK:', default=.false.)
       call MAPL_GetResource(STATE, isTestFrameworkDriver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
+      call MAPL_GetResource(STATE, isGridCapture, label='GRID_CAPTURE:', default=.false.)
 
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
          if (isTestFramework) then
             call capture('before', GC, import, export, clock, _RC)
          else if (isTestFrameworkDriver) then
-             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+            call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+            call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
          end if
       end if
 
@@ -1853,6 +1855,7 @@ contains
             call capture('after', GC, import, export, clock, _RC)
          else if (isTestFrameworkDriver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+            call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
          end if
       end if
 
@@ -1913,7 +1916,7 @@ contains
 
      if (currTime == targetTime) then
         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
-        call ESMF_AttributeSet(import, name="MAPL_SubsetCapture", value=.true., _RC)
+        call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=.true., _RC)
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS), &
              FILETYPE, STATE, .false., _RC)
