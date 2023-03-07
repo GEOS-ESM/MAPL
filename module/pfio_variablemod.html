@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>pFIO_VariableMod &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>pFIO_VariableMod 
+    <small>Module</small>
+    
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for modules and submodules.">350 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Variable.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/variable.f90.html'>Variable.F90</a></li>
+          <li class="active">pFIO_VariableMod</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#variable-variable_serialize_type">Variable_SERIALIZE_TYPE</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#inters-0">Interfaces</a>
+        </h3>
+      </div>
+      <div id="inters-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#interface-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#types-0">Derived Types</a>
+        </h3>
+      </div>
+      <div id="types-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#type-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#subs-0">Subroutines</a>
+        </h3>
+      </div>
+      <div id="subs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-variable_deserialize">Variable_deserialize</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/pfio_stringvectorutilmod.html'>pFIO_StringVectorUtilMod</a></li>
+                <li><a href='../module/pfio_unlimitedentitymod.html'>pFIO_UnlimitedEntityMod</a></li>
+                <li><a href='../module/pfio_attributemod.html'>pFIO_AttributeMod</a></li>
+                <li><a href='../module/pfio_constantsmod.html'>pFIO_ConstantsMod</a></li>
+                <li>gFTL_StringVector</li>
+                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
+                <li><a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a></li>
+                <li><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+                <li><a href='../module/pfio_utilitiesmod.html'>pFIO_UtilitiesMod</a></li>
+                <li><a href='../module/pfio_stringattributemapmod.html'>pFIO_StringAttributeMapMod</a></li>
+                <li><a href='../module/pfio_stringattributemaputilmod.html'>pFIO_StringAttributeMapUtilMod</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~pfio_variablemod~~UsesGraph Pages: 1 -->
+<svg id="modulepfio_variablemodUsesGraph" width="641pt" height="162pt"
+ viewBox="0.00 0.00 641.00 162.43" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~pfio_variablemod~~UsesGraph" class="graph" transform="scale(2.34 2.34) rotate(0) translate(4 375.59)">
+<title>module~~pfio_variablemod~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-375.59 1494,-375.59 1494,4 -4,4"/>
+<!-- module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node1" class="node">
+<title>module~pfio_variablemod</title>
+<polygon fill="none" stroke="black" points="1490,-106 1382,-106 1382,-82 1490,-82 1490,-106"/>
+<text text-anchor="middle" x="1436" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_VariableMod</text>
+</g>
+<!-- module~pfio_stringvectorutilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node2" class="node">
+<title>module~pfio_stringvectorutilmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node2"><a xlink:href=".././module/pfio_stringvectorutilmod.html" xlink:title="pFIO_StringVectorUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1120.5,-298 973.5,-298 973.5,-274 1120.5,-274 1120.5,-298"/>
+<text text-anchor="middle" x="1047" y="-283.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVectorUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_stringvectorutilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge1" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_stringvectorutilmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-286C1211.33,-304.67 1158.18,-304.2 1116.61,-299.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1116.95,-295.83 1106.58,-298.02 1116.05,-302.77 1116.95,-295.83"/>
+</g>
+<!-- module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node3" class="node">
+<title>module~pfio_constantsmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node3"><a xlink:href=".././module/pfio_constantsmod.html" xlink:title="pFIO_ConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="448,-135 331,-135 331,-111 448,-111 448,-135"/>
+<text text-anchor="middle" x="389.5" y="-120.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge2" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1428.56,-106.18C1408.75,-142.17 1344.65,-247.89 1256.5,-286"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-286C1202.59,-308.45 1185.06,-272.45 1129,-265 873.33,-231.03 807.45,-239.73 551.5,-208"/>
+</g>
+<!-- module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node4" class="node">
+<title>module~pfio_attributemod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node4"><a xlink:href=".././module/pfio_attributemod.html" xlink:title="pFIO_AttributeMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="929,-161 819,-161 819,-137 929,-137 929,-161"/>
+<text text-anchor="middle" x="874" y="-146.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AttributeMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge3" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1381.89,-94.2C1346.39,-94.28 1298.64,-94.3 1256.5,-94"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-94C1125.66,-93.07 1090.3,-79 965,-109 944.09,-114.01 922.02,-123.74 904.96,-132.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="903.3,-129.27 896.04,-136.99 906.53,-135.48 903.3,-129.27"/>
+</g>
+<!-- module~pfio_unlimitedentitymod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node5" class="node">
+<title>module~pfio_unlimitedentitymod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node5"><a xlink:href=".././module/pfio_unlimitedentitymod.html" xlink:title="pFIO_UnlimitedEntityMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="783,-142 638,-142 638,-118 783,-118 783,-142"/>
+<text text-anchor="middle" x="710.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_unlimitedentitymod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge4" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_unlimitedentitymod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-52C822.17,-63.64 768.73,-93.43 737.85,-112.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="735.97,-109.69 729.39,-118 739.71,-115.61 735.97,-109.69"/>
+</g>
+<!-- gFTL_StringVector -->
+<g id="module~~pfio_variablemod~~UsesGraph_node6" class="node">
+<title>gFTL_StringVector</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="928.5,-336 819.5,-336 819.5,-312 928.5,-312 928.5,-336"/>
+<text text-anchor="middle" x="874" y="-321.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringVector</text>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;gFTL_StringVector -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge5" class="edge">
+<title>module~pfio_variablemod&#45;&gt;gFTL_StringVector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-286C1164.45,-324.94 1145.38,-352.11 1048,-364"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1046,-364C998.48,-369.8 944.93,-353.44 910.62,-339.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="911.63,-336.55 901.05,-336.02 908.99,-343.04 911.63,-336.55"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_node7" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node7"><a xlink:href=".././module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="463,-231 316,-231 316,-207 463,-207 463,-231"/>
+<text text-anchor="middle" x="389.5" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge6" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1046,-364C945.5,-376.26 915.73,-374.9 819,-345 766.52,-328.78 765.69,-292.99 711.5,-284"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_node8" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node8"><a xlink:href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="436.5,-24 342.5,-24 342.5,0 436.5,0 436.5,-24"/>
+<text text-anchor="middle" x="389.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge7" class="edge">
+<title>module~pfio_variablemod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1422.76,-81.95C1406.72,-67.08 1376.96,-42.59 1346,-33 1276.77,-11.55 891.79,-48.15 875,-52"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-52C802.14,-63.46 783.14,-56.46 711.5,-52"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M709.5,-52C637.2,-47.5 622.04,-28.47 551.5,-12"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.5,-12C516.05,-4.19 477.55,-3.97 446.82,-5.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="446.45,-2.33 436.71,-6.51 446.93,-9.31 446.45,-2.33"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node9" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node9"><a xlink:href=".././module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1335,-66 1176,-66 1176,-42 1335,-42 1335,-66"/>
+<text text-anchor="middle" x="1255.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge8" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1381.93,-82.11C1362.5,-77.75 1340.31,-72.78 1320.06,-68.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1320.82,-64.83 1310.29,-66.05 1319.29,-71.66 1320.82,-64.83"/>
+</g>
+<!-- module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node10" class="node">
+<title>module~pfio_utilitiesmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node10"><a xlink:href=".././module/pfio_utilitiesmod.html" xlink:title="pFIO_UtilitiesMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="602,-64 499,-64 499,-40 602,-40 602,-64"/>
+<text text-anchor="middle" x="550.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge9" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M709.5,-52C677.42,-50 641.6,-49.83 612.19,-50.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="612.01,-46.74 602.07,-50.4 612.13,-53.74 612.01,-46.74"/>
+</g>
+<!-- module~pfio_stringattributemapmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node11" class="node">
+<title>module~pfio_stringattributemapmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node11"><a xlink:href=".././module/pfio_stringattributemapmod.html" xlink:title="pFIO_StringAttributeMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1129,-142 965,-142 965,-118 1129,-118 1129,-142"/>
+<text text-anchor="middle" x="1047" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringAttributeMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_stringattributemapmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge10" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_stringattributemapmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-94C1201.55,-93.62 1142.08,-105.3 1100.61,-115.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1099.58,-112.11 1090.73,-117.93 1101.28,-118.9 1099.58,-112.11"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node12" class="node">
+<title>module~pfio_stringattributemaputilmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node12"><a xlink:href=".././module/pfio_stringattributemaputilmod.html" xlink:title="pFIO_StringAttributeMapUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1346,-146 1165,-146 1165,-122 1346,-122 1346,-146"/>
+<text text-anchor="middle" x="1255.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringAttributeMapUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_stringattributemaputilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge11" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_stringattributemaputilmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1381.93,-105.89C1362.5,-110.25 1340.31,-115.22 1320.06,-119.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1319.29,-116.34 1310.29,-121.95 1320.82,-123.17 1319.29,-116.34"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge12" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1030.82,-273.84C1000.86,-249.83 933.91,-196.2 898.31,-167.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="900.38,-164.85 890.39,-161.33 896,-170.31 900.38,-164.85"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;gFTL_StringVector -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge15" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;gFTL_StringVector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M991.89,-298.02C975.04,-301.77 956.31,-305.93 938.86,-309.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="937.76,-306.47 928.75,-312.05 939.27,-313.3 937.76,-306.47"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge14" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-284C801.74,-275.41 782.37,-295.39 711.5,-284"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge13" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M973.13,-286.81C942.76,-286.72 907.15,-286.05 875,-284"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-284C730.17,-274.9 607.27,-127.54 566.14,-72.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="568.79,-70.2 560.05,-64.22 563.15,-74.35 568.79,-70.2"/>
+</g>
+<!-- module~pfio_attributemod&#45;&gt;module~pfio_unlimitedentitymod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge16" class="edge">
+<title>module~pfio_attributemod&#45;&gt;module~pfio_unlimitedentitymod</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M818.77,-142.62C810.54,-141.65 801.89,-140.63 793.23,-139.62"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="793.42,-136.11 783.08,-138.42 792.6,-143.07 793.42,-136.11"/>
+</g>
+<!-- module~pfio_attributemod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge17" class="edge">
+<title>module~pfio_attributemod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M847.08,-161.13C793.38,-185.28 665.47,-237.76 551.5,-246"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge21" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M672.2,-142.03C661.02,-146.04 648.85,-150.83 638,-156 597.51,-175.31 596.02,-213.52 551.5,-208"/>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M549.5,-208C495.5,-201.31 441.52,-164.51 412.43,-141.58"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="414.55,-138.79 404.57,-135.23 410.16,-144.24 414.55,-138.79"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge20" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M661.1,-142.16C652.81,-145.7 644.71,-150.23 638,-156 612.66,-177.78 626.28,-199.04 602,-222 583.95,-239.08 576.29,-244.21 551.5,-246"/>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M549.5,-246C512.33,-248.69 470.83,-241.28 439.55,-233.55"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="440.33,-230.14 429.78,-231.04 438.59,-236.92 440.33,-230.14"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge19" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M695.64,-117.9C681.12,-105.15 657.73,-84.41 638,-66 621.68,-50.78 620.84,-42.96 602,-31 581.75,-18.15 574.85,-17.45 551.5,-12"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge18" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M672.2,-117.97C661.02,-113.96 648.85,-109.17 638,-104 617.05,-94.01 594.62,-80.43 577.85,-69.66"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="579.45,-66.53 569.16,-64 575.63,-72.39 579.45,-66.53"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node13" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node13"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-251 0,-251 0,-227 101,-227 101,-251"/>
+<text text-anchor="middle" x="50.5" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge22" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M315.79,-223.32C254.77,-226.94 168.65,-232.05 111.5,-235.44"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="110.95,-231.97 101.18,-236.05 111.37,-238.95 110.95,-231.97"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node14" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node14"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="280,-211 137,-211 137,-187 280,-187 280,-211"/>
+<text text-anchor="middle" x="208.5" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge23" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M315.95,-210.89C307.45,-209.94 298.74,-208.97 290.15,-208.01"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="290.45,-204.52 280.12,-206.89 289.67,-211.48 290.45,-204.52"/>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge27" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M522.53,-64.04C496.26,-75.77 456.14,-93.69 427.02,-106.69"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="425.31,-103.62 417.6,-110.9 428.16,-110.02 425.31,-103.62"/>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge26" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M538.08,-64.25C521.58,-81.93 490.08,-115.6 463,-144 444.91,-162.98 424.1,-184.47 409.42,-199.57"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="406.82,-197.23 402.36,-206.84 411.84,-202.11 406.82,-197.23"/>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge25" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M501.79,-40C484.35,-35.61 464.46,-30.61 446.37,-26.06"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="447.08,-22.63 436.53,-23.58 445.38,-29.41 447.08,-22.63"/>
+</g>
+<!-- iso_c_binding -->
+<g id="module~~pfio_variablemod~~UsesGraph_node15" class="node">
+<title>iso_c_binding</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node15"><a xlink:href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fC_005fBINDING.html#ISO_005fC_005fBINDING" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="431.5,-66 347.5,-66 347.5,-42 431.5,-42 431.5,-66"/>
+<text text-anchor="middle" x="389.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;iso_c_binding -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge24" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M498.75,-52.64C480.59,-52.87 460.11,-53.12 441.89,-53.35"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="441.7,-49.86 431.74,-53.48 441.79,-56.86 441.7,-49.86"/>
+</g>
+<!-- module~pfio_stringattributemapmod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge28" class="edge">
+<title>module~pfio_stringattributemapmod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#e700ff" stroke-dasharray="5,2" d="M964.76,-139.03C956.18,-139.98 947.55,-140.94 939.2,-141.87"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="938.74,-138.4 929.19,-142.98 939.51,-145.35 938.74,-138.4"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge29" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M1178.01,-146.03C1161.87,-148.1 1144.9,-149.93 1129,-151 1056.28,-155.9 1037.88,-151.81 965,-151 956.69,-150.91 947.94,-150.77 939.31,-150.6"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="939.32,-147.1 929.25,-150.4 939.18,-154.1 939.32,-147.1"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge31" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M1217.64,-146.1C1103.88,-183.19 762.86,-292.25 711.5,-284"/>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M709.5,-284C638.25,-272.18 623.68,-243.51 551.5,-246"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge30" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M1200.98,-122C1178.8,-117.38 1152.75,-112.4 1129,-109 912.15,-78 855.38,-93.07 638,-66 629.65,-64.96 620.86,-63.71 612.22,-62.4"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="612.6,-58.92 602.18,-60.84 611.52,-65.84 612.6,-58.92"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_stringattributemapmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge32" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_stringattributemapmod</title>
+<path fill="none" stroke="#ff008b" stroke-dasharray="5,2" d="M1164.83,-132.26C1156.39,-132.1 1147.83,-131.93 1139.38,-131.77"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="1139.21,-128.27 1129.15,-131.57 1139.08,-135.26 1139.21,-128.27"/>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge33" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M160.69,-211C144.26,-215.21 125.62,-219.99 108.45,-224.4"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="107.36,-221.06 98.54,-226.94 109.1,-227.84 107.36,-221.06"/>
+</g>
+<!-- mpi -->
+<g id="module~~pfio_variablemod~~UsesGraph_node16" class="node">
+<title>mpi</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node16"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-209 23.5,-209 23.5,-185 77.5,-185 77.5,-209"/>
+<text text-anchor="middle" x="50.5" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge34" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M136.8,-198.09C119.81,-197.88 102.34,-197.65 87.68,-197.46"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="87.59,-193.96 77.55,-197.33 87.5,-200.96 87.59,-193.96"/>
+</g>
+</g>
+</svg>
+</div><script>var panmodulepfio_variablemodUsesGraph = svgPanZoom('#modulepfio_variablemodUsesGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+          </li>
+      </ul>
+    </div>
+
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Used by</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~pfio_variablemod~~UsedByGraph Pages: 1 -->
+<svg id="modulepfio_variablemodUsedByGraph" width="339pt" height="452pt"
+ viewBox="0.00 0.00 339.00 452.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~pfio_variablemod~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 448)">
+<title>module~~pfio_variablemod~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-448 335,-448 335,4 -4,4"/>
+<!-- module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node1" class="node">
+<title>module~pfio_variablemod</title>
+<polygon fill="none" stroke="black" points="108,-234 0,-234 0,-210 108,-210 108,-234"/>
+<text text-anchor="middle" x="54" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_VariableMod</text>
+</g>
+<!-- module~test_filemetadata -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node2" class="node">
+<title>module~test_filemetadata</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node2"><a xlink:href=".././module/test_filemetadata.html" xlink:title="Test_FileMetadata">
+<polygon fill="#337ab7" stroke="#337ab7" points="290.5,-444 184.5,-444 184.5,-420 290.5,-420 290.5,-444"/>
+<text text-anchor="middle" x="237.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FileMetadata</text>
+</a>
+</g>
+</g>
+<!-- module~test_filemetadata&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge11" class="edge">
+<title>module~test_filemetadata&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M184.35,-428.57C170.08,-425.52 155.42,-420.18 144,-411 90.25,-367.8 67.25,-284.52 58.97,-244.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="62.36,-243.61 57.01,-234.46 55.49,-244.94 62.36,-243.61"/>
+</g>
+<!-- module~test_coordinatevariable -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node3" class="node">
+<title>module~test_coordinatevariable</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node3"><a xlink:href=".././module/test_coordinatevariable.html" xlink:title="Test_CoordinateVariable">
+<polygon fill="#337ab7" stroke="#337ab7" points="308,-402 167,-402 167,-378 308,-378 308,-402"/>
+<text text-anchor="middle" x="237.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CoordinateVariable</text>
+</a>
+</g>
+</g>
+<!-- module~test_coordinatevariable&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge1" class="edge">
+<title>module~test_coordinatevariable&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M166.65,-380.62C158.58,-377.7 150.81,-373.91 144,-369 99.89,-337.19 73.48,-276.16 61.92,-243.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.23,-242.49 58.68,-234.16 58.6,-244.75 65.23,-242.49"/>
+</g>
+<!-- module~pfio_stringvariablemaputilmod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node4" class="node">
+<title>module~pfio_stringvariablemaputilmod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node4"><a xlink:href=".././module/pfio_stringvariablemaputilmod.html" xlink:title="pFIO_StringVariableMapUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="327,-360 148,-360 148,-336 327,-336 327,-360"/>
+<text text-anchor="middle" x="237.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_stringvariablemaputilmod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge3" class="edge">
+<title>module~pfio_stringvariablemaputilmod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.57,-335.86C156.07,-333.42 149.77,-330.5 144,-327 109.55,-306.09 81.87,-267.18 66.99,-243.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="69.89,-241.07 61.75,-234.29 63.88,-244.67 69.89,-241.07"/>
+</g>
+<!-- module~pfio_filemetadatamod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node5" class="node">
+<title>module~pfio_filemetadatamod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node5"><a xlink:href=".././module/pfio_filemetadatamod.html" xlink:title="pFIO_FileMetadataMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="304,-318 171,-318 171,-294 304,-294 304,-318"/>
+<text text-anchor="middle" x="237.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_filemetadatamod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge5" class="edge">
+<title>module~pfio_filemetadatamod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.76,-294.45C161.59,-291.88 152.42,-288.76 144,-285 118.74,-273.73 93.33,-254.81 76.16,-240.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="78.33,-237.89 68.43,-234.11 73.82,-243.24 78.33,-237.89"/>
+</g>
+<!-- module~pfio_netcdf4_fileformattermod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node6" class="node">
+<title>module~pfio_netcdf4_fileformattermod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node6"><a xlink:href=".././module/pfio_netcdf4_fileformattermod.html" xlink:title="pFIO_NetCDF4_FileFormatterMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="331,-276 144,-276 144,-252 331,-252 331,-276"/>
+<text text-anchor="middle" x="237.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_netcdf4_fileformattermod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge4" class="edge">
+<title>module~pfio_netcdf4_fileformattermod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M183.17,-251.97C170.33,-249.06 156.67,-245.93 144,-243 134.82,-240.87 125.11,-238.6 115.61,-236.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="116.35,-232.95 105.81,-234.07 114.75,-239.77 116.35,-232.95"/>
+</g>
+<!-- module~pfio_coordinatevariablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node7" class="node">
+<title>module~pfio_coordinatevariablemod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node7"><a xlink:href=".././module/pfio_coordinatevariablemod.html" xlink:title="pFIO_CoordinateVariableMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="321,-234 154,-234 154,-210 321,-210 321,-234"/>
+<text text-anchor="middle" x="237.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CoordinateVariableMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_coordinatevariablemod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge2" class="edge">
+<title>module~pfio_coordinatevariablemod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M153.98,-222C142.08,-222 129.99,-222 118.53,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.22,-218.5 108.22,-222 118.22,-225.5 118.22,-218.5"/>
+</g>
+<!-- module~pfio_stringvariablemapmod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node8" class="node">
+<title>module~pfio_stringvariablemapmod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node8"><a xlink:href=".././module/pfio_stringvariablemapmod.html" xlink:title="pFIO_StringVariableMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="318.5,-192 156.5,-192 156.5,-168 318.5,-168 318.5,-192"/>
+<text text-anchor="middle" x="237.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_stringvariablemapmod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge6" class="edge">
+<title>module~pfio_stringvariablemapmod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M183.17,-192.03C170.33,-194.94 156.67,-198.07 144,-201 134.82,-203.13 125.11,-205.4 115.61,-207.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.75,-204.23 105.81,-209.93 116.35,-211.05 114.75,-204.23"/>
+</g>
+<!-- module~pfio -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node9" class="node">
+<title>module~pfio</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node9"><a xlink:href=".././module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="264.5,-150 210.5,-150 210.5,-126 264.5,-126 264.5,-150"/>
+<text text-anchor="middle" x="237.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~pfio&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge7" class="edge">
+<title>module~pfio&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M210.11,-141.18C191.11,-144.13 165.21,-149.54 144,-159 118.74,-170.27 93.33,-189.19 76.16,-203.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="73.82,-200.76 68.43,-209.89 78.33,-206.11 73.82,-200.76"/>
+</g>
+<!-- module~test_variable -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node10" class="node">
+<title>module~test_variable</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node10"><a xlink:href=".././module/test_variable.html" xlink:title="Test_Variable">
+<polygon fill="#337ab7" stroke="#337ab7" points="278.5,-108 196.5,-108 196.5,-84 278.5,-84 278.5,-108"/>
+<text text-anchor="middle" x="237.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Variable</text>
+</a>
+</g>
+</g>
+<!-- module~test_variable&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge8" class="edge">
+<title>module~test_variable&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.13,-99.45C179.09,-102.31 159.63,-107.52 144,-117 109.55,-137.91 81.87,-176.82 66.99,-200.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.88,-199.33 61.75,-209.71 69.89,-202.93 63.88,-199.33"/>
+</g>
+<!-- module~test_netcdf4_fileformatter -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node11" class="node">
+<title>module~test_netcdf4_fileformatter</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node11"><a xlink:href=".././module/test_netcdf4_fileformatter.html" xlink:title="Test_NetCDF4_FileFormatter">
+<polygon fill="#337ab7" stroke="#337ab7" points="318,-66 157,-66 157,-42 318,-42 318,-66"/>
+<text text-anchor="middle" x="237.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_NetCDF4_FileFormatter</text>
+</a>
+</g>
+</g>
+<!-- module~test_netcdf4_fileformatter&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge9" class="edge">
+<title>module~test_netcdf4_fileformatter&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.63,-66.19C154.09,-68.62 148.81,-71.53 144,-75 99.89,-106.81 73.48,-167.84 61.92,-200.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.6,-199.25 58.68,-209.84 65.23,-201.51 58.6,-199.25"/>
+</g>
+<!-- module~test_serverthread -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node12" class="node">
+<title>module~test_serverthread</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node12"><a xlink:href=".././module/test_serverthread.html" xlink:title="Test_ServerThread">
+<polygon fill="#337ab7" stroke="#337ab7" points="293,-24 182,-24 182,0 293,0 293,-24"/>
+<text text-anchor="middle" x="237.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ServerThread</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge10" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.94,-15.97C168.45,-19.09 154.78,-24.33 144,-33 90.25,-76.2 67.25,-159.48 58.97,-199.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="55.49,-199.06 57.01,-209.54 62.36,-200.39 55.49,-199.06"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+          </li>
+      </ul>
+    </div>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#variable-variable_serialize_type">Variable_SERIALIZE_TYPE</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#inters-1">Interfaces</a>
+        </h3>
+      </div>
+      <div id="inters-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#interface-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#types-1">Derived Types</a>
+        </h3>
+      </div>
+      <div id="types-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#type-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#subs-1">Subroutines</a>
+        </h3>
+      </div>
+      <div id="subs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-variable_deserialize">Variable_deserialize</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    <section>
+    <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-variable_serialize_type"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>Variable_SERIALIZE_TYPE</strong></td>
+<td> =</td>
+                <td>100</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+    <section>
+   <h2>Interfaces</h2>
+       <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-variable"></span>
+      <h3>public        interface <a href='../interface/variable.html'>Variable</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function new_Variable(unusable, type, dimensions, chunksizes, const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>type</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimensions</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>chunksizes</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>const_value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflation</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_algorithm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_level</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/variable.html'>Variable</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+    </section>
+  <br>
+
+    
+    <section>
+     <h2>Derived Types</h2>
+       <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="type-variable"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/variable.html'>Variable</a>
+        
+      </h3>
+    </div>
+    <div class="panel-body">
+      
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong>new_Variable</strong>
+                    (unusable, type, dimensions, chunksizes, const_value, deflation, quantize_algorithm, quantize_level, rc)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute~5'>add_attribute</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-add_attribute_0d~2'>add_attribute_0d</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute~6'>add_attribute</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-add_attribute_1d~2'>add_attribute_1d</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute_0d~2'>add_attribute_0d</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute_1d~2'>add_attribute_1d</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_const_value'>add_const_value</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-equal~13'>equal</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_attribute~2'>get_attribute</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_attributes~2'>get_attributes</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_chunksizes'>get_chunksizes</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_const_value'>get_const_value</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_deflation'>get_deflation</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_dimensions~2'>get_dimensions</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_ith_dimension'>get_ith_dimension</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_quantize_algorithm'>get_quantize_algorithm</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_quantize_level'>get_quantize_level</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_type'>get_type</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-is_attribute_present'>is_attribute_present</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-not_equal~2'>not_equal</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-operator%28SLASH%3D%29~87'>operator(/=)</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-not_equal~2'>not_equal</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-operator%28%3D%3D%29~117'>operator(==)</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-equal~13'>equal</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-serialize~25'>serialize</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+    </section>
+  <br>
+    
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-variable_deserialize"></span><h3>public  subroutine <a href='../proc/variable_deserialize.html'>Variable_deserialize</a>(buffer, var, rc)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+    </section>
+    <br>
+
+
+
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:11:37.575470           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

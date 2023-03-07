@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_LocStreamCreateXform &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_LocStreamCreateXform
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.4% of total for procedures.">186 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_LocStreamMod.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_locstreammod.f90.html'>MAPL_LocStreamMod.F90</a></li>
+              <li><a href='../module/mapl_locstreammod.html'>MAPL_LocStreamMod</a></li>
+          <li class="active">MAPL_LocStreamCreateXform</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_locstreamcreatexform.html#src">MAPL_LocStreamCreateXform</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_LocStreamCreateXform(Xform, LocStreamOut, LocStreamIn, NAME, MASK_OUT, UseFCollect, RC)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xform~2"></span>
+              type(<a href='../type/mapl_locstreamxform.html'>MAPL_LocStreamXform</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Xform</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-locstreamout"></span>
+              type(<a href='../type/mapl_locstream.html'>MAPL_LocStream</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LocStreamOut</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-locstreamin"></span>
+              type(<a href='../type/mapl_locstream.html'>MAPL_LocStream</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LocStreamIn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~16"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mask_out"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MASK_OUT</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-usefcollect"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UseFCollect</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~125"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_locstreamcreatexform~~CallsGraph Pages: 1 -->
+<svg id="procmapl_locstreamcreatexformCallsGraph" width="522pt" height="532pt"
+ viewBox="0.00 0.00 522.00 532.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 528)">
+<title>proc~~mapl_locstreamcreatexform~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-528 518,-528 518,4 -4,4"/>
+<!-- proc~mapl_locstreamcreatexform -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node1" class="node">
+<title>proc~mapl_locstreamcreatexform</title>
+<polygon fill="none" stroke="black" points="172,-276 0,-276 0,-252 172,-252 172,-276"/>
+<text text-anchor="middle" x="86" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_LocStreamCreateXform</text>
+</g>
+<!-- mpi_gather -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node2" class="node">
+<title>mpi_gather</title>
+<polygon fill="#777777" stroke="#777777" points="313,-524 240,-524 240,-500 313,-500 313,-524"/>
+<text text-anchor="middle" x="276.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_gather</text>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;mpi_gather -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;mpi_gather</title>
+<path fill="none" stroke="#ff0000" d="M89.96,-276.19C99.78,-314.03 134.89,-430.49 208,-491 214.45,-496.34 222.26,-500.33 230.25,-503.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="229.4,-506.7 239.99,-506.45 231.55,-500.04 229.4,-506.7"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="314.5,-318 238.5,-318 238.5,-294 314.5,-294 314.5,-318"/>
+<text text-anchor="middle" x="276.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M141.02,-276.04C168.61,-282.18 201.86,-289.59 228.4,-295.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.69,-298.93 238.21,-297.69 229.21,-292.1 227.69,-298.93"/>
+</g>
+<!-- proc~mapl_hashcreate -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node4" class="node">
+<title>proc~mapl_hashcreate</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node4"><a xlink:href=".././proc/mapl_hashcreate.html" xlink:title="MAPL_HashCreate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="331,-440 222,-440 222,-416 331,-416 331,-440"/>
+<text text-anchor="middle" x="276.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HashCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_hashcreate -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_hashcreate</title>
+<path fill="none" stroke="#ff0000" d="M94.59,-276.08C111.73,-302.45 156,-365.71 208,-402 213.27,-405.68 219.13,-408.93 225.14,-411.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.06,-415.12 234.63,-415.9 226.86,-408.7 224.06,-415.12"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node5"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="487,-442 408,-442 408,-418 487,-418 487,-442"/>
+<text text-anchor="middle" x="447.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M97.34,-276.1C116.75,-298.03 160.94,-344.35 208,-369 224.82,-377.81 333.26,-403.79 397.98,-418.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="397.44,-422.32 407.97,-421.17 399.02,-415.5 397.44,-422.32"/>
+</g>
+<!-- proc~mapl_hashdestroy -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node6" class="node">
+<title>proc~mapl_hashdestroy</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node6"><a xlink:href=".././proc/mapl_hashdestroy.html" xlink:title="MAPL_HashDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="333.5,-360 219.5,-360 219.5,-336 333.5,-336 333.5,-360"/>
+<text text-anchor="middle" x="276.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HashDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_hashdestroy -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_hashdestroy</title>
+<path fill="none" stroke="#ff0000" d="M107.45,-276.09C131.08,-289.71 171.43,-311.93 208,-327 212.77,-328.97 217.8,-330.85 222.86,-332.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="222.01,-336.04 232.6,-335.92 224.24,-329.41 222.01,-336.04"/>
+</g>
+<!-- proc~mapl_hashincrement -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node7" class="node">
+<title>proc~mapl_hashincrement</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node7"><a xlink:href=".././proc/mapl_hashincrement.html" xlink:title="MAPL_HashIncrement">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="340,-482 213,-482 213,-458 340,-458 340,-482"/>
+<text text-anchor="middle" x="276.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HashIncrement</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_hashincrement -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_hashincrement</title>
+<path fill="none" stroke="#ff0000" d="M91.45,-276C104.23,-308.84 144.29,-400.91 208,-449 210.06,-450.55 212.23,-451.99 214.49,-453.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.05,-456.52 223.54,-457.97 216.24,-450.29 213.05,-456.52"/>
+</g>
+<!-- proc~esmf_vmgetcurrent -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node8" class="node">
+<title>proc~esmf_vmgetcurrent</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="337,-276 216,-276 216,-252 337,-252 337,-276"/>
+<text text-anchor="middle" x="276.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~esmf_vmgetcurrent -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~esmf_vmgetcurrent</title>
+<path fill="none" stroke="#ff0000" d="M172.15,-264C183.32,-264 194.65,-264 205.53,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.79,-267.5 215.79,-264 205.79,-260.5 205.79,-267.5"/>
+</g>
+<!-- proc~esmf_vmget -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node9" class="node">
+<title>proc~esmf_vmget</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="317.5,-234 235.5,-234 235.5,-210 317.5,-210 317.5,-234"/>
+<text text-anchor="middle" x="276.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~esmf_vmget -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~esmf_vmget</title>
+<path fill="none" stroke="#ff0000" d="M141.02,-251.96C167.52,-246.06 199.26,-238.99 225.24,-233.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.26,-236.56 235.26,-230.97 224.74,-229.72 226.26,-236.56"/>
+</g>
+<!-- interface~mapl_commsallgather -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node10" class="node">
+<title>interface~mapl_commsallgather</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node10"><a xlink:href=".././interface/mapl_commsallgather.html" xlink:title="MAPL_CommsAllGather">
+<polygon fill="#a7506f" stroke="#a7506f" points="345,-192 208,-192 208,-168 345,-168 345,-192"/>
+<text text-anchor="middle" x="276.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsAllGather</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;interface~mapl_commsallgather -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;interface~mapl_commsallgather</title>
+<path fill="none" stroke="#ff0000" d="M107.45,-251.91C131.08,-238.29 171.43,-216.07 208,-201 212.77,-199.03 217.8,-197.15 222.86,-195.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.24,-198.59 232.6,-192.08 222.01,-191.96 224.24,-198.59"/>
+</g>
+<!-- interface~esmfl_fcollect -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node11" class="node">
+<title>interface~esmfl_fcollect</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node11"><a xlink:href=".././interface/esmfl_fcollect.html" xlink:title="ESMFL_FCOLLECT">
+<polygon fill="#a7506f" stroke="#a7506f" points="330,-150 223,-150 223,-126 330,-126 330,-150"/>
+<text text-anchor="middle" x="276.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_FCOLLECT</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;interface~esmfl_fcollect -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;interface~esmfl_fcollect</title>
+<path fill="none" stroke="#ff0000" d="M97.77,-251.79C117.54,-230.1 161.83,-184.71 208,-159 211.4,-157.11 215,-155.36 218.68,-153.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.99,-157 227.98,-150.04 217.4,-150.49 219.99,-157"/>
+</g>
+<!-- allsenders -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node12" class="node">
+<title>allsenders</title>
+<polygon fill="#777777" stroke="#777777" points="310,-108 243,-108 243,-84 310,-84 310,-108"/>
+<text text-anchor="middle" x="276.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">allsenders</text>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;allsenders -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;allsenders</title>
+<path fill="none" stroke="#ff0000" d="M93.72,-251.69C109.71,-223.55 152.86,-154.07 208,-117 215.55,-111.93 224.38,-108.03 233.13,-105.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.35,-108.34 242.89,-102.07 232.3,-101.65 234.35,-108.34"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node13"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="317.5,-66 235.5,-66 235.5,-42 317.5,-42 317.5,-66"/>
+<text text-anchor="middle" x="276.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M91.37,-251.74C103.96,-218.2 143.56,-124.14 208,-75 213.38,-70.9 219.57,-67.59 225.97,-64.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="227.24,-68.19 235.43,-61.46 224.84,-61.61 227.24,-68.19"/>
+</g>
+<!-- proc~esmf_vmbarrier -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node14" class="node">
+<title>proc~esmf_vmbarrier</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node14"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmbarrier.html" xlink:title="ESMF_VMBarrier">
+<polygon fill="#d9534f" stroke="#d9534f" points="326.5,-24 226.5,-24 226.5,0 326.5,0 326.5,-24"/>
+<text text-anchor="middle" x="276.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMBarrier</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_locstreamcreatexform&#45;&gt;proc~esmf_vmbarrier -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_locstreamcreatexform&#45;&gt;proc~esmf_vmbarrier</title>
+<path fill="none" stroke="#ff0000" d="M89.83,-251.86C99.35,-213.66 133.93,-94.75 208,-33 210.85,-30.62 213.98,-28.51 217.27,-26.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.85,-29.76 226.29,-22.22 215.77,-23.47 218.85,-29.76"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node15" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_locstreamcreatexform~~CallsGraph_node15"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="514,-192 381,-192 381,-168 514,-168 514,-192"/>
+<text text-anchor="middle" x="447.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff7500" d="M314.67,-298.06C324.95,-294.91 335.8,-290.66 345,-285 381.37,-262.6 413.83,-224.21 431.77,-200.57"/>
+<polygon fill="#ff7500" stroke="#ff7500" points="434.76,-202.42 437.92,-192.3 429.15,-198.24 434.76,-202.42"/>
+</g>
+<!-- destroyhash -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_node16" class="node">
+<title>destroyhash</title>
+<polygon fill="#777777" stroke="#777777" points="486,-360 409,-360 409,-336 486,-336 486,-360"/>
+<text text-anchor="middle" x="447.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">destroyhash</text>
+</g>
+<!-- proc~mapl_hashdestroy&#45;&gt;destroyhash -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_hashdestroy&#45;&gt;destroyhash</title>
+<path fill="none" stroke="#27ff00" d="M333.77,-348C354.79,-348 378.43,-348 398.62,-348"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="398.83,-351.5 408.83,-348 398.83,-344.5 398.83,-351.5"/>
+</g>
+<!-- proc~mapl_hashincrement&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_hashincrement&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff4e" d="M328.21,-458C350.38,-452.75 376.27,-446.62 398.17,-441.44"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="399,-444.84 407.92,-439.13 397.38,-438.03 399,-444.84"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_locstreamcreatexform~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00eb" d="M317.84,-62.94C327.16,-65.97 336.74,-69.92 345,-75 381.37,-97.4 413.83,-135.79 431.77,-159.43"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="429.15,-161.76 437.92,-167.7 434.76,-157.58 429.15,-161.76"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_locstreamcreatexform.html#src">MAPL_LocStreamCreateXform</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">MAPL_LocStreamCreateXform</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Xform</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamOut</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="n">MASK_OUT</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">     </span><span class="n">UseFCollect</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_LocStreamXform</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Xform</span><span class="w"></span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_LocStream</span><span class="p">),</span><span class="w">      </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LocStreamOut</span><span class="w"></span>
+<span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_LocStream</span><span class="p">),</span><span class="w">      </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="w"></span>
+<span class="w">  </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">          </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NAME</span><span class="w"></span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MASK_OUT</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UseFCollect</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span>
+
+<span class="c">! Local variables</span>
+
+
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="w"></span>
+<span class="w">  </span><span class="kt">logical</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">DONE</span><span class="p">(</span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_local</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">ISDONE</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">  </span><span class="kt">logical</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">dn</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">NDES</span><span class="p">,</span><span class="w"> </span><span class="n">hash</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">GLOBAL_IdByPe</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="nb">null</span><span class="p">()</span><span class="w"> </span><span class="c">! All Location Ids in PE   order</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">First</span><span class="p">,</span><span class="w"> </span><span class="n">Last</span><span class="w"></span>
+<span class="w">  </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">IsNeeded</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">PELens</span><span class="p">(:),</span><span class="w"> </span><span class="n">Begs</span><span class="p">(:),</span><span class="w"> </span><span class="n">Ends</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">NumSenders</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">myId</span><span class="w"></span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">MyLen</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="cp">#if defined(ONE_SIDED_COMM)</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">SizeOfReal</span><span class="w"></span>
+<span class="cp">#endif</span>
+
+<span class="c">! Both streams must be subsets of same parent.</span>
+<span class="c">! The parent stream is usually an exchange grid.</span>
+<span class="c">!-----------------------------------------------</span>
+
+<span class="w">  </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">PTR</span><span class="p">%</span><span class="n">ROOTNAME</span><span class="p">)</span><span class="o">==</span><span class="nb">trim</span><span class="p">(</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">PTR</span><span class="p">%</span><span class="n">ROOTNAME</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">XFORM</span><span class="p">%</span><span class="n">Ptr</span><span class="p">,</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">InputStream</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="w"></span>
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">OutputStream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocStreamOut</span><span class="w"></span>
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Name</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">NAME</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">do_not_use_fcollect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"> </span><span class="c">! defaults to FCOLLECT for now</span>
+<span class="cp">#ifdef DO_NOT_USE_FCOLLECT</span>
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">do_not_use_fcollect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="cp">#endif</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UseFCollect</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">     </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">do_not_use_fcollect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">UseFCollect</span><span class="w"></span>
+<span class="w">  </span><span class="k">end if</span><span class="w"></span>
+
+<span class="c">! We have to fill all output locations where mask is true</span>
+<span class="c">!--------------------------------------------------------</span>
+
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">MASK_OUT</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">     </span><span class="n">DONE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">MASK_OUT</span><span class="w"></span>
+<span class="w">  </span><span class="k">else</span>
+<span class="k">     </span><span class="n">DONE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="k">end if</span>
+
+<span class="k">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">DONE</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">IndexOut</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="nb">count</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">IndexIn</span><span class="w"> </span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="nb">count</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">MM</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
+<span class="w">    </span><span class="n">Hash</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashCreate</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">do </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_local</span><span class="w"></span>
+<span class="w">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashIncrement</span><span class="p">(</span><span class="n">Hash</span><span class="p">,</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Local_Id</span><span class="p">(</span><span class="n">M</span><span class="p">))</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">N</span><span class="o">==</span><span class="n">M</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="k">    do </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_local</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="n">DONE</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">       </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashIncrement</span><span class="p">(</span><span class="n">Hash</span><span class="p">,</span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Local_Id</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w"></span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="n">m</span><span class="o">&lt;=</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_local</span><span class="p">)</span><span class="w"> </span><span class="k">then  </span>
+<span class="k">         </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">IndexOut</span><span class="p">(</span><span class="n">MM</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span><span class="w"></span>
+<span class="w">         </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">IndexIn</span><span class="w"> </span><span class="p">(</span><span class="n">MM</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="w"></span>
+<span class="w">         </span><span class="n">DONE</span><span class="w">  </span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span><span class="w"></span>
+<span class="w">         </span><span class="n">MM</span><span class="o">=</span><span class="n">MM</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">    end do</span>
+<span class="k">    call </span><span class="n">MAPL_HashDestroy</span><span class="p">(</span><span class="n">Hash</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">LastLocal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MM</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+
+<span class="c">! Otherwise, assume nothing and do a full collect.</span>
+<span class="c">!-------------------------------------------------</span>
+
+<span class="w">  </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">petCount</span><span class="o">=</span><span class="n">nDEs</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">       </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">allocate</span><span class="p">(</span><span class="n">IsDone</span><span class="p">(</span><span class="n">NDES</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="n">dn</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">done</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">call </span><span class="n">MAPL_CommsAllGather</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">dn</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                           </span><span class="n">isdone</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">isdone</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">deallocate</span><span class="p">(</span><span class="n">IsDone</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">NEED_COMM</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Local</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">     if</span><span class="w"> </span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">do_not_use_fcollect</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">     allocate</span><span class="p">(</span><span class="n">PELens</span><span class="p">(</span><span class="n">NDES</span><span class="p">),</span><span class="n">Begs</span><span class="p">(</span><span class="n">NDES</span><span class="p">),</span><span class="n">Ends</span><span class="p">(</span><span class="n">NDES</span><span class="p">),</span><span class="n">IsNeeded</span><span class="p">(</span><span class="n">Ndes</span><span class="p">))</span><span class="w"></span>
+<span class="cp">#if defined(ONE_SIDED_COMM)</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Buff</span><span class="p">(</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_LOCAL</span><span class="p">))</span><span class="w"></span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="nb">Len</span><span class="p">(</span><span class="n">NDES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">CALL </span><span class="n">MPI_TYPE_GET_EXTENT</span><span class="p">(</span><span class="n">MPI_REAL</span><span class="p">,</span><span class="w"> </span><span class="n">lb</span><span class="p">,</span><span class="w"> </span><span class="n">SizeOfReal</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">mpi_Win_Create</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Buff</span><span class="p">,</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_LOCAL</span><span class="o">*</span><span class="n">SizeOfReal</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">          </span><span class="n">SizeOfReal</span><span class="p">,</span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Comm</span><span class="p">,</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Window</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="cp">#endif</span>
+
+<span class="w">     </span><span class="n">MyLen</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_LOCAL</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_CommsAllGather</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">MyLen</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                                 </span><span class="n">PELens</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="n">Begs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">     </span><span class="n">Ends</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PELens</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">        </span><span class="n">Begs</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ends</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">Ends</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ends</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PELens</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">end do</span>
+
+<span class="k">     </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">Ends</span><span class="p">(</span><span class="n">NDES</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_GLOBAL</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">endif</span>
+
+<span class="k">     allocate</span><span class="p">(</span><span class="n">GLOBAL_IdByPe</span><span class="p">(</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_GLOBAL</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">! Collect all tile ides in the input stream&#39;s pe order</span>
+<span class="c">!-----------------------------------------------------</span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">ESMFL_FCOLLECT</span><span class="p">(</span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">TILEGRID</span><span class="p">,</span><span class="w"> </span><span class="n">GLOBAL_IdByPe</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">          </span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">LOCAL_ID</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">! Make a Hash of the tile locations by input order</span>
+<span class="c">!-------------------------------------------------</span>
+
+<span class="w">     </span><span class="n">Hash</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashCreate</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamIn</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_global</span><span class="w"></span>
+<span class="w">        </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashIncrement</span><span class="p">(</span><span class="n">Hash</span><span class="p">,</span><span class="n">Global_IdByPe</span><span class="p">(</span><span class="n">M</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">N</span><span class="o">==</span><span class="n">M</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">enddo</span>
+
+<span class="k">     if</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">do_not_use_fcollect</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
+<span class="c">! Find out which processors have output tiles we need</span>
+<span class="c">!----------------------------------------------------</span>
+<span class="w">     </span>
+<span class="w">     </span><span class="n">IsNeeded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_local</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">DONE</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashIncrement</span><span class="p">(</span><span class="n">Hash</span><span class="p">,</span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Local_Id</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w"></span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">ndes</span><span class="w"></span>
+<span class="w">              </span><span class="k">if</span><span class="p">(</span><span class="n">M</span><span class="o">&gt;=</span><span class="n">Begs</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">M</span><span class="o">&lt;=</span><span class="n">Ends</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 </span><span class="n">IsNeeded</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">                 </span><span class="k">exit</span>
+<span class="k">              end if</span>
+<span class="k">           enddo</span>
+<span class="k">        end if</span>
+<span class="k">     end do</span><span class="w"></span>
+
+<span class="c">! Allocate my senders and their size in the Xform.</span>
+<span class="c">!  Note that fullinput has all tiles from all of those</span>
+<span class="c">!  pes that have tiles we need.</span>
+<span class="c">!-----------------------------------------------------</span>
+
+<span class="w">     </span><span class="n">NumSenders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">IsNeeded</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">senders</span><span class="p">(</span><span class="n">NumSenders</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="w">    </span><span class="nb">len</span><span class="p">(</span><span class="n">NumSenders</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="n">First</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">     </span><span class="n">Last</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">Isneeded</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">           </span><span class="n">Last</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Last</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PELens</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="n">Global_IdByPe</span><span class="p">(</span><span class="n">First</span><span class="p">:</span><span class="n">Last</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                 </span><span class="o">=</span><span class="w"> </span><span class="n">Global_IdByPe</span><span class="p">(</span><span class="n">Begs</span><span class="p">(</span><span class="n">i</span><span class="p">):</span><span class="n">Ends</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+<span class="w">           </span><span class="n">First</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">First</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PELens</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">senders</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">           </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="w">    </span><span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PELens</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">     end do</span>
+
+<span class="k">     deallocate</span><span class="p">(</span><span class="n">PELens</span><span class="p">,</span><span class="n">Begs</span><span class="p">,</span><span class="n">Ends</span><span class="p">,</span><span class="n">IsNeeded</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">InputLen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Last</span><span class="w"> </span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">ESMF_VmGet</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">localPet</span><span class="o">=</span><span class="n">MYID</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">myId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myid</span><span class="w"></span>
+
+<span class="cp">#if defined(TWO_SIDED_COMM)</span>
+<span class="w">     </span><span class="k">block</span>
+<span class="k">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">allSenders</span><span class="p">(:,:)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NumReceivers</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
+<span class="cp">#if 0</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">allSenders</span><span class="p">(</span><span class="n">ndes</span><span class="p">,</span><span class="n">ndes</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="n">allSenders</span><span class="p">(:,</span><span class="n">myId</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">allSenders</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">M</span><span class="p">,</span><span class="n">myId</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">senders</span><span class="w"></span>
+<span class="w">     </span>
+<span class="w">     </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">allSenders</span><span class="p">(:,</span><span class="n">I</span><span class="p">),</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">ndes</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">end do</span>
+<span class="k">     </span><span class="n">NumReceivers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">allSenders</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">myId</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">receivers</span><span class="p">(</span><span class="n">NumReceivers</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">myId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span><span class="w"> </span><span class="c">! skip myself</span>
+<span class="w">        </span><span class="k">do </span><span class="n">K</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">           </span><span class="k">if</span><span class="p">(</span><span class="n">allSenders</span><span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span><span class="w"> </span><span class="c">!senders are packed. we have reached end ...</span>
+<span class="w">           </span><span class="k">if</span><span class="p">(</span><span class="n">allSenders</span><span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">myId</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">              </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">receivers</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">              </span><span class="k">exit</span>
+<span class="k">           end if</span>
+<span class="k">        end do</span>
+<span class="k">     end do</span>
+<span class="k">     </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">NumReceivers</span><span class="o">==</span><span class="n">M</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">deallocate</span><span class="p">(</span><span class="n">allSenders</span><span class="p">)</span><span class="w"></span>
+<span class="cp">#else</span>
+<span class="w">     </span><span class="k">allocate</span><span class="p">(</span><span class="n">allSenders</span><span class="p">(</span><span class="n">ndes</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">block</span>
+<span class="k">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lNumReceivers</span><span class="w"></span>
+
+<span class="w">       </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">          </span><span class="n">lNumReceivers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">lNumReceivers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">senders</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">MPI_GATHER</span><span class="p">(</span><span class="w">  </span><span class="n">lNumReceivers</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">               </span><span class="n">allSenders</span><span class="p">(:,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">               </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Comm</span><span class="p">,</span><span class="w">  </span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">enddo</span>
+<span class="k">     end block</span>
+<span class="k">     call </span><span class="n">ESMF_VMBarrier</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span>
+<span class="w">     </span><span class="n">NumReceivers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">        </span><span class="n">NumReceivers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NumReceivers</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">allSenders</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">end do</span>
+<span class="k">     allocate</span><span class="p">(</span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">receivers</span><span class="p">(</span><span class="n">NumReceivers</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span>
+<span class="w">     </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NDES</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">myId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span><span class="w"> </span><span class="c">! skip myself</span>
+<span class="w">        </span><span class="k">do </span><span class="n">K</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">allSenders</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">           </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">receivers</span><span class="p">(</span><span class="n">M</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="k">end do</span>
+<span class="k">     end do</span>
+
+<span class="k">     </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">NumReceivers</span><span class="o">==</span><span class="n">M</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">deallocate</span><span class="p">(</span><span class="n">allSenders</span><span class="p">)</span><span class="w"></span>
+<span class="cp">#endif</span>
+<span class="w">     </span><span class="k">end block</span><span class="w"></span>
+<span class="cp">#endif</span>
+
+<span class="c">! Put the tiles we being brought over into a hash table</span>
+<span class="c">!------------------------------------------------------</span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_HashDestroy</span><span class="p">(</span><span class="n">Hash</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="n">Hash</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashCreate</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">do </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">InputLen</span><span class="w"></span>
+<span class="w">        </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashIncrement</span><span class="p">(</span><span class="n">Hash</span><span class="p">,</span><span class="n">Global_IdByPe</span><span class="p">(</span><span class="n">M</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">N</span><span class="o">==</span><span class="n">M</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">enddo</span><span class="w"></span>
+
+<span class="c">! Pick out the ones we need fromthose brought over</span>
+<span class="c">!-------------------------------------------------</span>
+<span class="w">     </span><span class="k">endif</span>
+
+<span class="k">     do </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">NT_local</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">DONE</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_HashIncrement</span><span class="p">(</span><span class="n">Hash</span><span class="p">,</span><span class="n">LocStreamOut</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">Local_Id</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w"></span>
+<span class="w">           </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">IndexOut</span><span class="p">(</span><span class="n">MM</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span><span class="w"></span>
+<span class="w">           </span><span class="n">Xform</span><span class="p">%</span><span class="n">Ptr</span><span class="p">%</span><span class="n">IndexIn</span><span class="w"> </span><span class="p">(</span><span class="n">MM</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="w"></span>
+<span class="w">           </span><span class="n">DONE</span><span class="w">  </span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span><span class="w"></span>
+<span class="w">           </span><span class="n">MM</span><span class="o">=</span><span class="n">MM</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">     end do</span>
+
+<span class="k">     call </span><span class="n">MAPL_HashDestroy</span><span class="p">(</span><span class="n">Hash</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">deallocate</span><span class="p">(</span><span class="n">GLOBAL_IdByPe</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">end if </span><span class="n">NEED_COMM</span><span class="w"></span>
+
+<span class="c">! Make sure that did it</span>
+<span class="c">!----------------------</span>
+
+<span class="w">  </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">DONE</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="k">end subroutine </span><span class="n">MAPL_LocStreamCreateXform</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:11:37.575470           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

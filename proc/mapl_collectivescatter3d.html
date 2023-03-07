@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CollectiveScatter3D &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CollectiveScatter3D
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">54 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Comms.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_comms.f90.html'>MAPL_Comms.F90</a></li>
+              <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+          <li class="active">MAPL_CollectiveScatter3D</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_collectivescatter3d.html#src">MAPL_CollectiveScatter3D</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CollectiveScatter3D(Grid, GlobArray, LocArray, hw, rc)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-globarray~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GlobArray</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-locarray~2"></span>
+              real,
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>LocArray</strong>(:,:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hw~3"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hw</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1085"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_collectivescatter3d~~CallsGraph Pages: 1 -->
+<svg id="procmapl_collectivescatter3dCallsGraph" width="641pt" height="436pt"
+ viewBox="0.00 0.00 641.00 435.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph" class="graph" transform="scale(1.26 1.26) rotate(0) translate(4 544.32)">
+<title>proc~~mapl_collectivescatter3d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-544.32 803,-544.32 803,4 -4,4"/>
+<!-- proc~mapl_collectivescatter3d -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node1" class="node">
+<title>proc~mapl_collectivescatter3d</title>
+<polygon fill="none" stroke="black" points="152,-272.32 0,-272.32 0,-248.32 152,-248.32 152,-272.32"/>
+<text text-anchor="middle" x="76" y="-257.92" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CollectiveScatter3D</text>
+</g>
+<!-- proc~esmf_vmgetcurrent -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node2" class="node">
+<title>proc~esmf_vmgetcurrent</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="486,-540.32 365,-540.32 365,-516.32 486,-516.32 486,-540.32"/>
+<text text-anchor="middle" x="425.5" y="-525.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~esmf_vmgetcurrent -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~esmf_vmgetcurrent</title>
+<path fill="none" stroke="#ff0000" d="M80.14,-272.34C89.85,-307.08 122.74,-408.4 188,-460.32 235.8,-498.35 303.97,-515.11 354.85,-522.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="354.41,-525.97 364.79,-523.85 355.35,-519.03 354.41,-525.97"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="614,-179.32 538,-179.32 538,-155.32 614,-155.32 614,-179.32"/>
+<text text-anchor="middle" x="576" y="-164.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M82.49,-248.03C96.26,-218.43 134.99,-142.27 188,-97.32 254.12,-41.24 280.33,-33.98 365,-15.32 417.52,-3.74 439.35,11.43 486,-15.32 535.05,-43.44 559.67,-110.21 569.57,-145.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="566.21,-146.14 572.17,-154.89 572.97,-144.33 566.21,-146.14"/>
+</g>
+<!-- proc~esmf_vmget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node4" class="node">
+<title>proc~esmf_vmget</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="466.5,-498.32 384.5,-498.32 384.5,-474.32 466.5,-474.32 466.5,-498.32"/>
+<text text-anchor="middle" x="425.5" y="-483.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~esmf_vmget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~esmf_vmget</title>
+<path fill="none" stroke="#ff0000" d="M81.95,-272.4C94.79,-302.17 132.05,-379.49 188,-419.32 243.94,-459.15 323,-475.38 374.01,-481.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="373.79,-485.44 384.13,-483.16 374.63,-478.49 373.79,-485.44"/>
+</g>
+<!-- proc~mapl_createrequest -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node5" class="node">
+<title>proc~mapl_createrequest</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node5"><a xlink:href=".././proc/mapl_createrequest.html" xlink:title="MAPL_CreateRequest">
+<polygon fill="#d9534f" stroke="#d9534f" points="320.5,-372.32 196.5,-372.32 196.5,-348.32 320.5,-348.32 320.5,-372.32"/>
+<text text-anchor="middle" x="258.5" y="-357.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CreateRequest</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_createrequest -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_createrequest</title>
+<path fill="none" stroke="#ff0000" d="M98.77,-272.38C130.62,-290.02 190.06,-322.96 226.48,-343.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.21,-346.43 235.65,-348.21 228.6,-340.31 225.21,-346.43"/>
+</g>
+<!-- proc~mapl_roundrobinpelist -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node6" class="node">
+<title>proc~mapl_roundrobinpelist</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node6"><a xlink:href=".././proc/mapl_roundrobinpelist.html" xlink:title="MAPL_RoundRobinPEList">
+<polygon fill="#d9534f" stroke="#d9534f" points="329,-232.32 188,-232.32 188,-208.32 329,-208.32 329,-232.32"/>
+<text text-anchor="middle" x="258.5" y="-217.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RoundRobinPEList</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_roundrobinpelist -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_roundrobinpelist</title>
+<path fill="none" stroke="#ff0000" d="M131.16,-248.32C150.7,-243.99 172.95,-239.06 193.27,-234.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="194.06,-237.96 203.07,-232.38 192.55,-231.13 194.06,-237.96"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node7"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="465,-456.32 386,-456.32 386,-432.32 465,-432.32 465,-456.32"/>
+<text text-anchor="middle" x="425.5" y="-441.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M84.56,-272.37C100.53,-296.83 140.2,-352.38 188,-381.32 246.83,-416.94 325.8,-432.7 375.93,-439.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="375.5,-442.95 385.87,-440.75 376.4,-436.01 375.5,-442.95"/>
+</g>
+<!-- interface~mapl_arrayiscatter -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node8" class="node">
+<title>interface~mapl_arrayiscatter</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node8"><a xlink:href=".././interface/mapl_arrayiscatter.html" xlink:title="MAPL_ArrayIScatter">
+<polygon fill="#a7506f" stroke="#a7506f" points="317,-190.32 200,-190.32 200,-166.32 317,-166.32 317,-190.32"/>
+<text text-anchor="middle" x="258.5" y="-175.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ArrayIScatter</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;interface~mapl_arrayiscatter -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;interface~mapl_arrayiscatter</title>
+<path fill="none" stroke="#ff0000" d="M96.03,-248.25C117.67,-234.91 154.35,-213.46 188,-199.32 192.74,-197.32 197.74,-195.43 202.79,-193.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="204.15,-196.9 212.52,-190.4 201.93,-190.26 204.15,-196.9"/>
+</g>
+<!-- proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node9" class="node">
+<title>proc~mapl_collectivewait</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node9"><a xlink:href=".././proc/mapl_collectivewait.html" xlink:title="MAPL_CollectiveWait">
+<polygon fill="#d9534f" stroke="#d9534f" points="319.5,-130.32 197.5,-130.32 197.5,-106.32 319.5,-106.32 319.5,-130.32"/>
+<text text-anchor="middle" x="258.5" y="-115.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CollectiveWait</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_collectivewait -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_collectivewait</title>
+<path fill="none" stroke="#ff0000" d="M88.19,-248.21C107.35,-227.88 148.27,-186.27 188,-157.32 199.12,-149.22 212.08,-141.53 223.78,-135.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.65,-138.12 232.84,-130.33 222.36,-131.94 225.65,-138.12"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node10" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node10"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="466.5,-250.32 384.5,-250.32 384.5,-226.32 466.5,-226.32 466.5,-250.32"/>
+<text text-anchor="middle" x="425.5" y="-235.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_collectivescatter3d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M152.4,-255.54C219.63,-251.29 316.14,-245.18 374.33,-241.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="374.62,-244.98 384.38,-240.86 374.18,-238 374.62,-244.98"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="799,-199.32 666,-199.32 666,-175.32 799,-175.32 799,-199.32"/>
+<text text-anchor="middle" x="732.5" y="-184.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ffaa00" d="M614.01,-172.11C626.63,-173.74 641.24,-175.63 655.77,-177.52"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="655.43,-181 665.8,-178.81 656.33,-174.06 655.43,-181"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~esmf_vmgetcurrent -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~esmf_vmgetcurrent</title>
+<path fill="none" stroke="#00ff00" d="M265.02,-372.51C278.26,-400.41 314.5,-469.42 365,-507.32 367.03,-508.84 369.18,-510.26 371.42,-511.59"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="369.87,-514.73 380.35,-516.22 373.09,-508.51 369.87,-514.73"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" d="M276.73,-348.3C297.08,-334.53 332.29,-311.98 365,-297.32 416.44,-274.27 438.04,-288.93 486,-259.32 516.77,-240.32 544.39,-208.29 560.43,-187.48"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="563.35,-189.42 566.57,-179.32 557.76,-185.21 563.35,-189.42"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~esmf_vmget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~esmf_vmget</title>
+<path fill="none" stroke="#00ff00" d="M268.63,-372.45C285.45,-394.01 323.43,-439.19 365,-465.32 368.15,-467.3 371.52,-469.13 374.98,-470.8"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="373.75,-474.08 384.31,-474.9 376.56,-467.67 373.75,-474.08"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff00" d="M277.19,-372.38C297.68,-385.98 332.75,-408.18 365,-423.32 368.85,-425.12 372.9,-426.87 377,-428.52"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="376,-431.89 386.59,-432.21 378.52,-425.35 376,-431.89"/>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M270.47,-348.01C288.58,-328.28 326.56,-289.24 365,-264.32 370.4,-260.82 376.35,-257.59 382.34,-254.68"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="384.08,-257.73 391.7,-250.38 381.16,-251.37 384.08,-257.73"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node12" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node12"><a xlink:href=".././proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="479.5,-372.32 371.5,-372.32 371.5,-348.32 479.5,-348.32 479.5,-372.32"/>
+<text text-anchor="middle" x="425.5" y="-357.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#00ff00" d="M320.94,-360.32C334.03,-360.32 347.87,-360.32 361.03,-360.32"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="361.41,-363.82 371.41,-360.32 361.41,-356.82 361.41,-363.82"/>
+</g>
+<!-- mpi_irecv -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node14" class="node">
+<title>mpi_irecv</title>
+<polygon fill="#777777" stroke="#777777" points="457.5,-330.32 393.5,-330.32 393.5,-306.32 457.5,-306.32 457.5,-330.32"/>
+<text text-anchor="middle" x="425.5" y="-315.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_irecv</text>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;mpi_irecv -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;mpi_irecv</title>
+<path fill="none" stroke="#00ff00" d="M306.78,-348.28C331,-342.12 360.21,-334.68 383.48,-328.76"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="384.55,-332.1 393.38,-326.24 382.82,-325.32 384.55,-332.1"/>
+</g>
+<!-- proc~esmf_gridget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node15" class="node">
+<title>proc~esmf_gridget</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="469.5,-414.32 381.5,-414.32 381.5,-390.32 469.5,-390.32 469.5,-414.32"/>
+<text text-anchor="middle" x="425.5" y="-399.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_createrequest&#45;&gt;proc~esmf_gridget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_createrequest&#45;&gt;proc~esmf_gridget</title>
+<path fill="none" stroke="#00ff00" d="M306.78,-372.35C327,-377.5 350.68,-383.53 371.49,-388.82"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="370.89,-392.28 381.44,-391.36 372.61,-385.5 370.89,-392.28"/>
+</g>
+<!-- proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffa9" d="M306.2,-208.28C313.96,-205.7 321.82,-202.71 329,-199.32 346.39,-191.12 346.7,-181.24 365,-175.32 418.83,-157.9 484.5,-158.64 527.91,-161.94"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="527.65,-165.43 537.91,-162.78 528.23,-158.46 527.65,-165.43"/>
+</g>
+<!-- proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_roundrobinpelist&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" d="M329.47,-227.95C344.46,-229.59 360.01,-231.28 374.08,-232.82"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="373.72,-236.3 384.04,-233.9 374.48,-229.34 373.72,-236.3"/>
+</g>
+<!-- interface~mapl_getnewrank -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node13" class="node">
+<title>interface~mapl_getnewrank</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node13"><a xlink:href=".././interface/mapl_getnewrank.html" xlink:title="MAPL_GetNewRank">
+<polygon fill="#a7506f" stroke="#a7506f" points="482.5,-208.32 368.5,-208.32 368.5,-184.32 482.5,-184.32 482.5,-208.32"/>
+<text text-anchor="middle" x="425.5" y="-193.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetNewRank</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_roundrobinpelist&#45;&gt;interface~mapl_getnewrank -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_roundrobinpelist&#45;&gt;interface~mapl_getnewrank</title>
+<path fill="none" stroke="#00ffa9" d="M329.47,-210.14C339.02,-208.75 348.8,-207.33 358.27,-205.95"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="359.02,-209.38 368.42,-204.48 358.02,-202.45 359.02,-209.38"/>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M319.52,-121.91C365.4,-125.33 430.08,-131.58 486,-142.32 499.69,-144.95 514.34,-148.67 527.71,-152.44"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="527.08,-155.9 537.66,-155.32 529.03,-149.18 527.08,-155.9"/>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M288.45,-130.35C301.87,-136.92 317.39,-146.04 329,-157.32 351.31,-178.99 340.91,-197.65 365,-217.32 368.11,-219.86 371.55,-222.1 375.16,-224.08"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="373.85,-227.34 384.39,-228.47 376.86,-221.01 373.85,-227.34"/>
+</g>
+<!-- mpi_wait -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node16" class="node">
+<title>mpi_wait</title>
+<polygon fill="#777777" stroke="#777777" points="455.5,-48.32 395.5,-48.32 395.5,-24.32 455.5,-24.32 455.5,-48.32"/>
+<text text-anchor="middle" x="425.5" y="-33.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_wait</text>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;mpi_wait -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;mpi_wait</title>
+<path fill="none" stroke="#aa00ff" d="M278,-106.21C298.63,-93.05 333.29,-71.93 365,-57.32 371.63,-54.26 378.85,-51.37 385.89,-48.77"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="387.08,-52.06 395.32,-45.41 384.73,-45.47 387.08,-52.06"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node17" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="456,-90.32 395,-90.32 395,-66.32 456,-66.32 456,-90.32"/>
+<text text-anchor="middle" x="425.5" y="-75.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~mapl_collectivewait&#45;&gt;mpi_recv -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_collectivewait&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#aa00ff" d="M309.01,-106.32C333.21,-100.45 361.94,-93.48 384.7,-87.97"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="385.8,-91.3 394.69,-85.54 384.15,-84.5 385.8,-91.3"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00aa" d="M466.69,-231.6C514.63,-223.58 595.79,-210.01 655.65,-200"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="656.53,-203.4 665.82,-198.3 655.38,-196.5 656.53,-203.4"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ffda00" d="M472.35,-348.25C477.27,-345.79 481.95,-342.84 486,-339.32 533.11,-298.31 558.72,-226.24 569.22,-189.78"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="572.72,-190.26 572,-179.69 565.97,-188.4 572.72,-190.26"/>
+</g>
+<!-- proc~esmf_distgridget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_node18" class="node">
+<title>proc~esmf_distgridget</title>
+<g id="a_proc~~mapl_collectivescatter3d~~CallsGraph_node18"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="630,-372.32 522,-372.32 522,-348.32 630,-348.32 630,-372.32"/>
+<text text-anchor="middle" x="576" y="-357.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~esmf_distgridget -->
+<g id="proc~~mapl_collectivescatter3d~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~esmf_distgridget</title>
+<path fill="none" stroke="#ffda00" d="M479.69,-360.32C490.04,-360.32 500.97,-360.32 511.61,-360.32"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="511.68,-363.82 521.68,-360.32 511.68,-356.82 511.68,-363.82"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_collectivescatter3dCallsGraph = svgPanZoom('#procmapl_collectivescatter3dCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_collectivescatter3d.html#src">MAPL_CollectiveScatter3D</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CollectiveScatter3D</span><span class="p">(</span><span class="n">Grid</span><span class="p">,</span><span class="w"> </span><span class="n">GlobArray</span><span class="p">,</span><span class="w"> </span><span class="n">LocArray</span><span class="p">,</span><span class="w"> </span><span class="n">hw</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Grid</span><span class="w"></span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LocArray</span><span class="p">(:,:,:)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">                    </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GlobArray</span><span class="p">(:,:,:)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hw</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">       </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="c">! Locals</span>
+<span class="c">!-------</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_CommRequest</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">LocArray</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">root</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">LocArray</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">nNodes</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">LM</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">mype</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">nn</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span><span class="w"></span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">HaveGlobal</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">hw_</span><span class="w"></span>
+
+<span class="c">! Begin</span>
+<span class="c">!------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w">         </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="o">=</span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">localpet</span><span class="o">=</span><span class="n">MYPE</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">hw</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">hw_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hw</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">hw_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    </span><span class="n">nNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">MAPL_NodeRankList</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_RoundRobinPEList</span><span class="p">(</span><span class="n">Root</span><span class="p">,</span><span class="w"> </span><span class="n">nNodes</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">LM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">LocArray</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">NC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">Root</span><span class="o">==</span><span class="n">mype</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">HaveGlobal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NC</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span><span class="w"></span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CreateRequest</span><span class="p">(</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">Root</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="o">=</span><span class="n">L</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                               </span><span class="n">RequestType</span><span class="o">=</span><span class="n">MAPL_IsScatter</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                               </span><span class="n">DstArray</span><span class="o">=</span><span class="n">LocArray</span><span class="p">(:,:,</span><span class="n">L</span><span class="p">),</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                               </span><span class="n">PrePost</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">hw</span><span class="o">=</span><span class="n">hw_</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">enddo</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">HaveGlobal</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">GlobArray</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="o">==</span><span class="n">NC</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;inconsisntent rank&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">       </span><span class="n">nn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">       </span><span class="k">do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">Root</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">==</span><span class="n">mype</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">             </span><span class="n">nn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_ArrayIScatter</span><span class="w"> </span><span class="p">(</span><span class="n">GlobArray</span><span class="p">(:,:,</span><span class="n">nn</span><span class="p">),</span><span class="w"> </span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">hw</span><span class="o">=</span><span class="n">hw_</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">             </span><span class="k">if</span><span class="p">(</span><span class="n">nn</span><span class="o">==</span><span class="n">NC</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">          endif</span>
+<span class="k">       enddo</span>
+<span class="k">    end if</span>
+
+<span class="k">    do </span><span class="n">L</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">LM</span><span class="w"></span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CollectiveWait</span><span class="p">(</span><span class="n">reqs</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CollectiveScatter3D</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T14:11:37.575470           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
