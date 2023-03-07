@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>UnlimitedEntity_deserialize &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>UnlimitedEntity_deserialize
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">88 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/UnlimitedEntity.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/unlimitedentity.f90.html'>UnlimitedEntity.F90</a></li>
+              <li><a href='../module/pfio_unlimitedentitymod.html'>pFIO_UnlimitedEntityMod</a></li>
+          <li class="active">UnlimitedEntity_deserialize</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/unlimitedentity_deserialize.html#src">UnlimitedEntity_deserialize</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine UnlimitedEntity_deserialize(buffer, this, rc)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buffer~85"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5477"></span>
+              type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1692"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~unlimitedentity_deserialize~~CallsGraph Pages: 1 -->
+<svg id="procunlimitedentity_deserializeCallsGraph" width="641pt" height="263pt"
+ viewBox="0.00 0.00 641.00 263.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph" class="graph" transform="scale(1.38 1.38) rotate(0) translate(4 360)">
+<title>proc~~unlimitedentity_deserialize~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-360 882,-360 882,4 -4,4"/>
+<!-- proc~unlimitedentity_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node1" class="node">
+<title>proc~unlimitedentity_deserialize</title>
+<polygon fill="none" stroke="black" points="157,-64 0,-64 0,-40 157,-40 157,-64"/>
+<text text-anchor="middle" x="78.5" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50">UnlimitedEntity_deserialize</text>
+</g>
+<!-- interface~unlimitedentity -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node2" class="node">
+<title>interface~unlimitedentity</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node2"><a xlink:href=".././interface/unlimitedentity.html" xlink:title="UnlimitedEntity">
+<polygon fill="#a7506f" stroke="#a7506f" points="287,-230 193,-230 193,-206 287,-206 287,-230"/>
+<text text-anchor="middle" x="240" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity</text>
+</a>
+</g>
+</g>
+<!-- proc~unlimitedentity_deserialize&#45;&gt;interface~unlimitedentity -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge1" class="edge">
+<title>proc~unlimitedentity_deserialize&#45;&gt;interface~unlimitedentity</title>
+<path fill="none" stroke="#ff0000" d="M91.23,-64.21C118.54,-92.63 186.57,-163.43 219.94,-198.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.8,-200.99 227.25,-205.78 222.85,-196.14 217.8,-200.99"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="601,-209 519,-209 519,-185 601,-185 601,-209"/>
+<text text-anchor="middle" x="560" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~unlimitedentity_deserialize&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge2" class="edge">
+<title>proc~unlimitedentity_deserialize&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M157.12,-47.17C258.67,-42.28 429.91,-39.36 483,-71 521.89,-94.18 543.36,-145.66 552.89,-175.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="549.6,-176.37 555.87,-184.91 556.3,-174.33 549.6,-176.37"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="278,-24 202,-24 202,0 278,0 278,-24"/>
+<text text-anchor="middle" x="240" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~unlimitedentity_deserialize&#45;&gt;proc~mapl_verify -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge3" class="edge">
+<title>proc~unlimitedentity_deserialize&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M127.36,-40C147.86,-34.86 171.73,-28.87 192.12,-23.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.98,-27.15 201.82,-21.32 191.27,-20.36 192.98,-27.15"/>
+</g>
+<!-- proc~new_unlimitedentity_empty -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node5" class="node">
+<title>proc~new_unlimitedentity_empty</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node5"><a xlink:href=".././proc/new_unlimitedentity_empty.html" xlink:title="new_UnlimitedEntity_empty">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="483,-104 323,-104 323,-80 483,-80 483,-104"/>
+<text text-anchor="middle" x="403" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_empty</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_empty -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge4" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_empty</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M247.05,-205.84C258.64,-183.81 286.14,-137.35 323,-113 325.58,-111.29 328.3,-109.73 331.1,-108.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="332.66,-111.42 340.32,-104.11 329.77,-105.05 332.66,-111.42"/>
+</g>
+<!-- proc~new_unlimitedentity_2d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node6" class="node">
+<title>proc~new_unlimitedentity_2d</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node6"><a xlink:href=".././proc/new_unlimitedentity_2d.html" xlink:title="new_UnlimitedEntity_2d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="472.5,-356 333.5,-356 333.5,-332 472.5,-332 472.5,-356"/>
+<text text-anchor="middle" x="403" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_2d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge5" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_2d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M250.29,-230.06C263.31,-250.82 289.23,-291.69 323,-314 333.74,-321.1 346.8,-325.8 359.17,-329.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="358.33,-332.72 368.9,-331.91 360.13,-325.95 358.33,-332.72"/>
+</g>
+<!-- proc~new_unlimitedentity_1d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node7" class="node">
+<title>proc~new_unlimitedentity_1d</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node7"><a xlink:href=".././proc/new_unlimitedentity_1d.html" xlink:title="new_UnlimitedEntity_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="472.5,-314 333.5,-314 333.5,-290 472.5,-290 472.5,-314"/>
+<text text-anchor="middle" x="403" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_1d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge7" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M253.54,-230.24C268.76,-244.44 295.78,-267.6 323,-281 327.05,-282.99 331.31,-284.81 335.67,-286.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="334.73,-289.86 345.32,-289.87 337.05,-283.25 334.73,-289.86"/>
+</g>
+<!-- proc~new_unlimitedentity_3d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node8" class="node">
+<title>proc~new_unlimitedentity_3d</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node8"><a xlink:href=".././proc/new_unlimitedentity_3d.html" xlink:title="new_UnlimitedEntity_3d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="472.5,-272 333.5,-272 333.5,-248 472.5,-248 472.5,-272"/>
+<text text-anchor="middle" x="403" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_3d</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_3d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge6" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_3d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M287.14,-223.86C312.07,-229.48 342.41,-237.53 365.65,-244.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="364.87,-248.19 375.46,-247.91 367,-241.52 364.87,-248.19"/>
+</g>
+<!-- proc~new_unlimitedentity_0d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node9" class="node">
+<title>proc~new_unlimitedentity_0d</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node9"><a xlink:href=".././proc/new_unlimitedentity_0d.html" xlink:title="new_UnlimitedEntity_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="472.5,-146 333.5,-146 333.5,-122 472.5,-122 472.5,-146"/>
+<text text-anchor="middle" x="403" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_0d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge8" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_0d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M253.54,-205.76C268.76,-191.56 295.78,-168.4 323,-155 327.05,-153.01 331.31,-151.19 335.67,-149.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="337.05,-152.75 345.32,-146.13 334.73,-146.14 337.05,-152.75"/>
+</g>
+<!-- proc~new_unlimitedentity_4d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node10" class="node">
+<title>proc~new_unlimitedentity_4d</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node10"><a xlink:href=".././proc/new_unlimitedentity_4d.html" xlink:title="new_UnlimitedEntity_4d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="472.5,-230 333.5,-230 333.5,-206 472.5,-206 472.5,-230"/>
+<text text-anchor="middle" x="403" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_4d</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_4d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge9" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_4d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M287.14,-211.83C298.39,-211.43 310.74,-211.23 323.05,-211.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="323.33,-214.75 333.35,-211.32 323.37,-207.75 323.33,-214.75"/>
+</g>
+<!-- proc~new_unlimitedentity_5d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node11" class="node">
+<title>proc~new_unlimitedentity_5d</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node11"><a xlink:href=".././proc/new_unlimitedentity_5d.html" xlink:title="new_UnlimitedEntity_5d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="472.5,-188 333.5,-188 333.5,-164 472.5,-164 472.5,-188"/>
+<text text-anchor="middle" x="403" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">new_UnlimitedEntity_5d</text>
+</a>
+</g>
+</g>
+<!-- interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_5d -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge10" class="edge">
+<title>interface~unlimitedentity&#45;&gt;proc~new_unlimitedentity_5d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M267.59,-205.9C283.01,-200.78 303.33,-194.95 323.48,-189.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.51,-193.08 333.34,-187.23 322.78,-186.3 324.51,-193.08"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node12"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="768.5,-209 653.5,-209 653.5,-185 768.5,-185 768.5,-209"/>
+<text text-anchor="middle" x="711" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M601.32,-197C614.22,-197 628.87,-197 643.13,-197"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="643.43,-200.5 653.43,-197 643.43,-193.5 643.43,-200.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node13"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="777.5,-107 644.5,-107 644.5,-83 777.5,-83 777.5,-107"/>
+<text text-anchor="middle" x="711" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M578.68,-184.9C604.78,-167.03 653.79,-133.48 683.99,-112.81"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="686.07,-115.62 692.35,-107.09 682.12,-109.85 686.07,-115.62"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M278.13,-14.38C325.82,-17.8 411.03,-25.16 483,-38 544.49,-48.97 613.98,-67.32 659.7,-80.23"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="658.79,-83.61 669.36,-82.98 660.7,-76.87 658.79,-83.61"/>
+</g>
+<!-- proc~new_unlimitedentity_2d&#45;&gt;interface~unlimitedentity -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge16" class="edge">
+<title>proc~new_unlimitedentity_2d&#45;&gt;interface~unlimitedentity</title>
+<path fill="none" stroke="#ffaa00" d="M333.13,-337.71C329.6,-336.01 326.2,-334.11 323,-332 287.92,-308.83 261.31,-265.62 248.84,-239.29"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="252.01,-237.83 244.76,-230.11 245.62,-240.67 252.01,-237.83"/>
+</g>
+<!-- proc~new_unlimitedentity_2d&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge15" class="edge">
+<title>proc~new_unlimitedentity_2d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffaa00" d="M469.42,-331.92C474.31,-329.47 478.92,-326.53 483,-323 513.73,-296.44 496.64,-272.91 519,-239 524.26,-231.02 531.11,-223.19 537.66,-216.49"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="540.4,-218.71 545.09,-209.21 535.5,-213.71 540.4,-218.71"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node14" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node14"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="599.5,-272 520.5,-272 520.5,-248 599.5,-248 599.5,-272"/>
+<text text-anchor="middle" x="560" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~new_unlimitedentity_2d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge14" class="edge">
+<title>proc~new_unlimitedentity_2d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ffaa00" d="M461.21,-331.97C468.74,-329.48 476.19,-326.51 483,-323 504.85,-311.74 526.07,-293.32 540.51,-279.3"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="543.19,-281.57 547.8,-272.03 538.25,-276.61 543.19,-281.57"/>
+</g>
+<!-- proc~new_unlimitedentity_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge18" class="edge">
+<title>proc~new_unlimitedentity_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aaff00" d="M464.7,-289.96C471.12,-287.5 477.35,-284.55 483,-281 503.82,-267.92 502.52,-257.24 519,-239 525.6,-231.7 532.99,-223.85 539.61,-216.93"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="542.51,-218.97 546.92,-209.34 537.47,-214.11 542.51,-218.97"/>
+</g>
+<!-- proc~new_unlimitedentity_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge17" class="edge">
+<title>proc~new_unlimitedentity_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aaff00" d="M449.56,-289.97C460.51,-287.06 472.18,-283.93 483,-281 491.93,-278.58 501.43,-275.98 510.6,-273.45"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="511.65,-276.79 520.36,-270.76 509.79,-270.04 511.65,-276.79"/>
+</g>
+<!-- proc~new_unlimitedentity_3d&#45;&gt;interface~unlimitedentity -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge21" class="edge">
+<title>proc~new_unlimitedentity_3d&#45;&gt;interface~unlimitedentity</title>
+<path fill="none" stroke="#00ff00" d="M333.34,-248.77C314.1,-243.97 293.94,-238.4 277.39,-233.25"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="278.18,-229.82 267.59,-230.1 276.04,-236.49 278.18,-229.82"/>
+</g>
+<!-- proc~new_unlimitedentity_3d&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge20" class="edge">
+<title>proc~new_unlimitedentity_3d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M456.44,-248C465.42,-245.4 474.57,-242.39 483,-239 499.75,-232.26 517.46,-222.64 531.57,-214.3"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="533.52,-217.21 540.27,-209.05 529.9,-211.22 533.52,-217.21"/>
+</g>
+<!-- proc~new_unlimitedentity_3d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge19" class="edge">
+<title>proc~new_unlimitedentity_3d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff00" d="M472.89,-260C485.52,-260 498.46,-260 510.35,-260"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="510.48,-263.5 520.48,-260 510.48,-256.5 510.48,-263.5"/>
+</g>
+<!-- proc~new_unlimitedentity_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge22" class="edge">
+<title>proc~new_unlimitedentity_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" d="M456.44,-146C465.42,-148.6 474.57,-151.61 483,-155 499.75,-161.74 517.46,-171.36 531.57,-179.7"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="529.9,-182.78 540.27,-184.95 533.52,-176.79 529.9,-182.78"/>
+</g>
+<!-- proc~new_unlimitedentity_4d&#45;&gt;interface~unlimitedentity -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge25" class="edge">
+<title>proc~new_unlimitedentity_4d&#45;&gt;interface~unlimitedentity</title>
+<path fill="none" stroke="#00a9ff" d="M333.35,-224.68C321.28,-224.82 308.85,-224.75 297.18,-224.47"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="297.24,-220.97 287.14,-224.17 297.03,-227.97 297.24,-220.97"/>
+</g>
+<!-- proc~new_unlimitedentity_4d&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge24" class="edge">
+<title>proc~new_unlimitedentity_4d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00a9ff" d="M472.89,-208.67C484.9,-207.04 497.19,-205.37 508.58,-203.83"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="509.32,-207.26 518.76,-202.45 508.38,-200.33 509.32,-207.26"/>
+</g>
+<!-- proc~new_unlimitedentity_4d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge23" class="edge">
+<title>proc~new_unlimitedentity_4d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00a9ff" d="M449.56,-230.03C460.51,-232.94 472.18,-236.07 483,-239 491.93,-241.42 501.43,-244.02 510.6,-246.55"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="509.79,-249.96 520.36,-249.24 511.65,-243.21 509.79,-249.96"/>
+</g>
+<!-- proc~new_unlimitedentity_5d&#45;&gt;interface~unlimitedentity -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge28" class="edge">
+<title>proc~new_unlimitedentity_5d&#45;&gt;interface~unlimitedentity</title>
+<path fill="none" stroke="#0000ff" d="M375.46,-188.09C354.22,-195.13 323.7,-203.53 297.11,-209.83"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="296.09,-206.47 287.14,-212.14 297.67,-213.29 296.09,-206.47"/>
+</g>
+<!-- proc~new_unlimitedentity_5d&#45;&gt;proc~mapl_return -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge27" class="edge">
+<title>proc~new_unlimitedentity_5d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M472.89,-185.33C484.9,-186.96 497.19,-188.63 508.58,-190.17"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="508.38,-193.67 518.76,-191.55 509.32,-186.74 508.38,-193.67"/>
+</g>
+<!-- proc~new_unlimitedentity_5d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge26" class="edge">
+<title>proc~new_unlimitedentity_5d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0000ff" d="M461.21,-188.03C468.74,-190.52 476.19,-193.49 483,-197 504.85,-208.26 526.07,-226.68 540.51,-240.7"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="538.25,-243.39 547.8,-247.97 543.19,-238.43 538.25,-243.39"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node15" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node15"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="878,-107 821,-107 821,-83 878,-83 878,-107"/>
+<text text-anchor="middle" x="849.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#ff00aa" d="M777.85,-95C789.08,-95 800.4,-95 810.59,-95"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="810.75,-98.5 820.75,-95 810.75,-91.5 810.75,-98.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node16"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="778,-304 644,-304 644,-280 778,-280 778,-304"/>
+<text text-anchor="middle" x="711" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge30" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M599.76,-268.32C613.34,-271.24 629,-274.6 644.17,-277.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="643.53,-281.3 654.04,-279.98 645,-274.46 643.53,-281.3"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CallsGraph_node17"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="785,-262 637,-262 637,-238 785,-238 785,-262"/>
+<text text-anchor="middle" x="711" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~unlimitedentity_deserialize~~CallsGraph_edge31" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M599.76,-257.4C608.12,-256.84 617.26,-256.22 626.6,-255.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="627.03,-259.08 636.77,-254.91 626.56,-252.09 627.03,-259.08"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocunlimitedentity_deserializeCallsGraph = svgPanZoom('#procunlimitedentity_deserializeCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~unlimitedentity_deserialize~~CalledByGraph Pages: 1 -->
+<svg id="procunlimitedentity_deserializeCalledByGraph" width="641pt" height="123pt"
+ viewBox="0.00 0.00 641.00 123.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph" class="graph" transform="scale(1.11 1.11) rotate(0) translate(4 133)">
+<title>proc~~unlimitedentity_deserialize~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-133 709,-133 709,4 -4,4"/>
+<!-- proc~unlimitedentity_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node1" class="node">
+<title>proc~unlimitedentity_deserialize</title>
+<polygon fill="none" stroke="black" points="705,-66 548,-66 548,-42 705,-42 705,-66"/>
+<text text-anchor="middle" x="626.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">UnlimitedEntity_deserialize</text>
+</g>
+<!-- proc~attribute_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node2" class="node">
+<title>proc~attribute_deserialize</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CalledByGraph_node2"><a xlink:href=".././proc/attribute_deserialize.html" xlink:title="Attribute_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="467,-108 346,-108 346,-84 467,-84 467,-108"/>
+<text text-anchor="middle" x="406.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Attribute_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~attribute_deserialize&#45;&gt;proc~unlimitedentity_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_edge1" class="edge">
+<title>proc~attribute_deserialize&#45;&gt;proc~unlimitedentity_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M467.07,-84.52C493.57,-79.42 525.01,-73.36 552.87,-67.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="553.8,-71.38 562.96,-66.05 552.48,-64.5 553.8,-71.38"/>
+</g>
+<!-- proc~test_serialize~3 -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node3" class="node">
+<title>proc~test_serialize~3</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CalledByGraph_node3"><a xlink:href=".././proc/test_serialize~3.html" xlink:title="test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="447.5,-66 365.5,-66 365.5,-42 447.5,-42 447.5,-66"/>
+<text text-anchor="middle" x="406.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~3&#45;&gt;proc~unlimitedentity_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_edge2" class="edge">
+<title>proc~test_serialize~3&#45;&gt;proc~unlimitedentity_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M447.74,-54C473.05,-54 506.72,-54 537.95,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="537.99,-57.5 547.99,-54 537.99,-50.5 537.99,-57.5"/>
+</g>
+<!-- proc~stringunlimitedentitymap_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node4" class="node">
+<title>proc~stringunlimitedentitymap_deserialize</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CalledByGraph_node4"><a xlink:href=".././proc/stringunlimitedentitymap_deserialize.html" xlink:title="StringUnlimitedEntityMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="512,-24 301,-24 301,0 512,0 512,-24"/>
+<text text-anchor="middle" x="406.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringUnlimitedEntityMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringunlimitedentitymap_deserialize&#45;&gt;proc~unlimitedentity_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_edge3" class="edge">
+<title>proc~stringunlimitedentitymap_deserialize&#45;&gt;proc~unlimitedentity_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M469.97,-24.04C495.85,-29.02 526.05,-34.84 552.91,-40.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="552.54,-43.51 563.02,-41.96 553.86,-36.63 552.54,-43.51"/>
+</g>
+<!-- proc~stringattributemap_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node5" class="node">
+<title>proc~stringattributemap_deserialize</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CalledByGraph_node5"><a xlink:href=".././proc/stringattributemap_deserialize.html" xlink:title="StringAttributeMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="265,-129 90,-129 90,-105 265,-105 265,-129"/>
+<text text-anchor="middle" x="177.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringattributemap_deserialize&#45;&gt;proc~attribute_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_edge4" class="edge">
+<title>proc~stringattributemap_deserialize&#45;&gt;proc~attribute_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M265.29,-108.97C288.63,-106.81 313.56,-104.51 335.83,-102.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.23,-105.92 345.86,-101.52 335.58,-98.95 336.23,-105.92"/>
+</g>
+<!-- proc~test_serialize~4 -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node6" class="node">
+<title>proc~test_serialize~4</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CalledByGraph_node6"><a xlink:href=".././proc/test_serialize~4.html" xlink:title="test_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="218.5,-87 136.5,-87 136.5,-63 218.5,-63 218.5,-87"/>
+<text text-anchor="middle" x="177.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize~4&#45;&gt;proc~attribute_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_edge5" class="edge">
+<title>proc~test_serialize~4&#45;&gt;proc~attribute_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M218.56,-78.71C250.92,-81.7 297.25,-85.99 335.69,-89.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.51,-93.04 345.79,-90.48 336.15,-86.07 335.51,-93.04"/>
+</g>
+<!-- program~main~4 -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_node7" class="node">
+<title>program~main~4</title>
+<g id="a_proc~~unlimitedentity_deserialize~~CalledByGraph_node7"><a xlink:href=".././program/main~4.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-129 0,-129 0,-105 54,-105 54,-129"/>
+<text text-anchor="middle" x="27" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~4&#45;&gt;proc~stringattributemap_deserialize -->
+<g id="proc~~unlimitedentity_deserialize~~CalledByGraph_edge6" class="edge">
+<title>program~main~4&#45;&gt;proc~stringattributemap_deserialize</title>
+<path fill="none" stroke="#ff0000" d="M54.21,-117C61.73,-117 70.4,-117 79.59,-117"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.73,-120.5 89.73,-117 79.72,-113.5 79.73,-120.5"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocunlimitedentity_deserializeCalledByGraph = svgPanZoom('#procunlimitedentity_deserializeCalledByGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/unlimitedentity_deserialize.html#src">UnlimitedEntity_deserialize</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">      </span><span class="n">this</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">()</span><span class="w"> </span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">deserialize</span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="n">type_kind</span><span class="p">,</span><span class="n">length</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">INT32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_int32</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_int64</span><span class="w"></span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">value_real32</span><span class="w"></span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">value_real64</span><span class="w"></span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_logical</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int32</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">INT64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int64</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real32</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real64</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_logical</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">value_char</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">length</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="s1">&#39;length does not match&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">length</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">this</span><span class="p">%</span><span class="nb">shape</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="nb">shape</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">         </span><span class="n">rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_rank</span><span class="p">()</span><span class="w"></span>
+<span class="w">         </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">value_int32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">value_int32</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">value_int64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">value_int64</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">value_real32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">value_real32</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">value_real64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">value_real64</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_LOGICAL</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">value_logical</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">value_logical</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_STRING</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">value_char</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="n">value_char</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_UNSUPPORTED_TYPE</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="c">! this is uninitialized case, make sure shape is not allocated even it is empty</span>
+<span class="w">                 </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="nb">shape</span><span class="p">))</span><span class="k">deallocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="nb">shape</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case </span><span class="n">default</span><span class="w"></span>
+<span class="w">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;UnlimitedEntity deserialize not support&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">end select</span>
+<span class="k">         case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">:)</span><span class="w"></span>
+<span class="w">            </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_int32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="n">values_int32</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_int64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="n">values_int64</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_real32</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="n">values_real32</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_real64</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="n">values_real64</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_LOGICAL</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">values_logical</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="n">values_logical</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">case </span><span class="n">default</span><span class="w"></span>
+<span class="w">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;UnlimitedEntity deserialize not support&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">end select</span>
+<span class="k">   </span>
+<span class="k">         end select</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">deserialize</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">UnlimitedEntity_deserialize</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T17:09:06.425233           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

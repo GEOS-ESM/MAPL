@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_cap_from_gc &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_cap_from_gc
+      <small>Function</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">10 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NUOPCWrapperMod.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_nuopcwrappermod.f90.html'>MAPL_NUOPCWrapperMod.F90</a></li>
+              <li><a href='../module/mapl_nuopcwrappermod.html'>MAPL_NUOPCWrapperMod</a></li>
+          <li class="active">get_cap_from_gc</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_cap_from_gc.html#src">get_cap_from_gc</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function get_cap_from_gc(gc, rc) result(cap)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~27"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1253"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-cap~7"></span>
+          type(<a href='../type/mapl_cap.html'>MAPL_Cap</a>), pointer
+        </small>
+      </h3>
+      
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_cap_from_gc~~CallsGraph Pages: 1 -->
+<svg id="procget_cap_from_gcCallsGraph" width="337pt" height="116pt"
+ viewBox="0.00 0.00 337.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_cap_from_gc~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>proc~~get_cap_from_gc~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 333,-112 333,4 -4,4"/>
+<!-- proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_node1" class="node">
+<title>proc~get_cap_from_gc</title>
+<polygon fill="none" stroke="black" points="103,-66 0,-66 0,-42 103,-42 103,-66"/>
+<text text-anchor="middle" x="51.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_cap_from_gc</text>
+</g>
+<!-- proc~esmf_usercompgetinternalstate -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_node2" class="node">
+<title>proc~esmf_usercompgetinternalstate</title>
+<g id="a_proc~~get_cap_from_gc~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="329,-108 139,-108 139,-84 329,-84 329,-108"/>
+<text text-anchor="middle" x="234" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~get_cap_from_gc&#45;&gt;proc~esmf_usercompgetinternalstate -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_edge1" class="edge">
+<title>proc~get_cap_from_gc&#45;&gt;proc~esmf_usercompgetinternalstate</title>
+<path fill="none" stroke="#ff0000" d="M101.41,-66.04C113.67,-69.01 126.81,-72.16 139,-75 148.53,-77.22 158.61,-79.52 168.49,-81.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="167.76,-85.18 178.29,-83.95 169.3,-78.35 167.76,-85.18"/>
+</g>
+<!-- verify_nuopc_ -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_node3" class="node">
+<title>verify_nuopc_</title>
+<polygon fill="#777777" stroke="#777777" points="277,-66 191,-66 191,-42 277,-42 277,-66"/>
+<text text-anchor="middle" x="234" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verify_nuopc_</text>
+</g>
+<!-- proc~get_cap_from_gc&#45;&gt;verify_nuopc_ -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_edge2" class="edge">
+<title>proc~get_cap_from_gc&#45;&gt;verify_nuopc_</title>
+<path fill="none" stroke="#ff0000" d="M103.26,-54C127.44,-54 156.33,-54 180.7,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.84,-57.5 190.84,-54 180.84,-50.5 180.84,-57.5"/>
+</g>
+<!-- _return -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_node4" class="node">
+<title>_return</title>
+<polygon fill="#777777" stroke="#777777" points="261,-24 207,-24 207,0 261,0 261,-24"/>
+<text text-anchor="middle" x="234" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">_return</text>
+</g>
+<!-- proc~get_cap_from_gc&#45;&gt;_return -->
+<g id="proc~~get_cap_from_gc~~CallsGraph_edge3" class="edge">
+<title>proc~get_cap_from_gc&#45;&gt;_return</title>
+<path fill="none" stroke="#ff0000" d="M101.41,-41.96C113.67,-38.99 126.81,-35.84 139,-33 158.06,-28.56 179.34,-23.79 196.82,-19.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.62,-23.33 206.63,-17.75 196.11,-16.49 197.62,-23.33"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_cap_from_gc~~CalledByGraph Pages: 1 -->
+<svg id="procget_cap_from_gcCalledByGraph" width="244pt" height="200pt"
+ viewBox="0.00 0.00 244.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_cap_from_gc~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<title>proc~~get_cap_from_gc~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 240,-196 240,4 -4,4"/>
+<!-- proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_node1" class="node">
+<title>proc~get_cap_from_gc</title>
+<polygon fill="none" stroke="black" points="236,-108 133,-108 133,-84 236,-84 236,-108"/>
+<text text-anchor="middle" x="184.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_cap_from_gc</text>
+</g>
+<!-- proc~advertise_fields -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_node2" class="node">
+<title>proc~advertise_fields</title>
+<g id="a_proc~~get_cap_from_gc~~CalledByGraph_node2"><a xlink:href=".././proc/advertise_fields.html" xlink:title="advertise_fields">
+<polygon fill="#d9534f" stroke="#d9534f" points="96.5,-192 0.5,-192 0.5,-168 96.5,-168 96.5,-192"/>
+<text text-anchor="middle" x="48.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">advertise_fields</text>
+</a>
+</g>
+</g>
+<!-- proc~advertise_fields&#45;&gt;proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_edge1" class="edge">
+<title>proc~advertise_fields&#45;&gt;proc~get_cap_from_gc</title>
+<path fill="none" stroke="#ff0000" d="M79.38,-167.96C85.33,-165.24 91.45,-162.2 97,-159 119.75,-145.89 143.75,-128.04 160.69,-114.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.22,-117.15 168.85,-108.17 158.85,-111.68 163.22,-117.15"/>
+</g>
+<!-- proc~model_finalize -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_node3" class="node">
+<title>proc~model_finalize</title>
+<g id="a_proc~~get_cap_from_gc~~CalledByGraph_node3"><a xlink:href=".././proc/model_finalize.html" xlink:title="model_finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="93.5,-150 3.5,-150 3.5,-126 93.5,-126 93.5,-150"/>
+<text text-anchor="middle" x="48.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">model_finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~model_finalize&#45;&gt;proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_edge2" class="edge">
+<title>proc~model_finalize&#45;&gt;proc~get_cap_from_gc</title>
+<path fill="none" stroke="#ff0000" d="M87.9,-125.96C102.62,-121.35 119.6,-116.03 135.14,-111.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.6,-114.37 145.1,-108.04 134.51,-107.69 136.6,-114.37"/>
+</g>
+<!-- proc~realize_fields -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_node4" class="node">
+<title>proc~realize_fields</title>
+<g id="a_proc~~get_cap_from_gc~~CalledByGraph_node4"><a xlink:href=".././proc/realize_fields.html" xlink:title="realize_fields">
+<polygon fill="#d9534f" stroke="#d9534f" points="89.5,-108 7.5,-108 7.5,-84 89.5,-84 89.5,-108"/>
+<text text-anchor="middle" x="48.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">realize_fields</text>
+</a>
+</g>
+</g>
+<!-- proc~realize_fields&#45;&gt;proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_edge5" class="edge">
+<title>proc~realize_fields&#45;&gt;proc~get_cap_from_gc</title>
+<path fill="none" stroke="#ff0000" d="M89.7,-96C100.09,-96 111.51,-96 122.69,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.86,-99.5 132.86,-96 122.86,-92.5 122.86,-99.5"/>
+</g>
+<!-- proc~set_clock~2 -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_node5" class="node">
+<title>proc~set_clock~2</title>
+<g id="a_proc~~get_cap_from_gc~~CalledByGraph_node5"><a xlink:href=".././proc/set_clock~2.html" xlink:title="set_clock">
+<polygon fill="#d9534f" stroke="#d9534f" points="79,-66 18,-66 18,-42 79,-42 79,-66"/>
+<text text-anchor="middle" x="48.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_clock</text>
+</a>
+</g>
+</g>
+<!-- proc~set_clock~2&#45;&gt;proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_edge4" class="edge">
+<title>proc~set_clock~2&#45;&gt;proc~get_cap_from_gc</title>
+<path fill="none" stroke="#ff0000" d="M79.24,-63.32C95.79,-68.51 116.78,-75.09 135.58,-80.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.59,-84.34 145.18,-83.99 136.68,-77.66 134.59,-84.34"/>
+</g>
+<!-- proc~model_advance -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_node6" class="node">
+<title>proc~model_advance</title>
+<g id="a_proc~~get_cap_from_gc~~CalledByGraph_node6"><a xlink:href=".././proc/model_advance.html" xlink:title="model_advance">
+<polygon fill="#d9534f" stroke="#d9534f" points="97,-24 0,-24 0,0 97,0 97,-24"/>
+<text text-anchor="middle" x="48.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">model_advance</text>
+</a>
+</g>
+</g>
+<!-- proc~model_advance&#45;&gt;proc~get_cap_from_gc -->
+<g id="proc~~get_cap_from_gc~~CalledByGraph_edge3" class="edge">
+<title>proc~model_advance&#45;&gt;proc~get_cap_from_gc</title>
+<path fill="none" stroke="#ff0000" d="M79.38,-24.04C85.33,-26.76 91.45,-29.8 97,-33 119.75,-46.11 143.75,-63.96 160.69,-77.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.85,-80.32 168.85,-83.83 163.22,-74.85 158.85,-80.32"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_cap_from_gc.html#src">get_cap_from_gc</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">get_cap_from_gc</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">cap</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w"></span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_Cap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap</span><span class="w"></span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">Cap_Wrapper</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">wrapped_cap</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_UserCompGetInternalState</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MAPL_Cap&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">wrapped_cap</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">cap</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrapped_cap</span><span class="p">%</span><span class="n">ptr</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end function </span><span class="n">get_cap_from_gc</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T17:09:06.425233           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

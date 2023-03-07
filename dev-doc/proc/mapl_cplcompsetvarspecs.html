@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CplCompSetVarSpecs &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CplCompSetVarSpecs
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">33 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GenericCplComp.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/genericcplcomp.f90.html'>GenericCplComp.F90</a></li>
+              <li><a href='../module/mapl_genericcplcompmod.html'>MAPL_GenericCplCompMod</a></li>
+          <li class="active">MAPL_CplCompSetVarSpecs</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_cplcompsetvarspecs.html#src">MAPL_CplCompSetVarSpecs</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine MAPL_CplCompSetVarSpecs(CC, SRC_SPEC, DST_SPEC, RC)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cc~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_cplcomp.html'>ESMF_CplComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-src_spec~2"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>SRC_SPEC</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dst_spec~2"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>DST_SPEC</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~286"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cplcompsetvarspecs~~CallsGraph Pages: 1 -->
+<svg id="procmapl_cplcompsetvarspecsCallsGraph" width="641pt" height="224pt"
+ viewBox="0.00 0.00 641.00 224.04" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph" class="graph" transform="scale(1.61 1.61) rotate(0) translate(4 356)">
+<title>proc~~mapl_cplcompsetvarspecs~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-356 1026,-356 1026,4 -4,4"/>
+<!-- proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node1" class="node">
+<title>proc~mapl_cplcompsetvarspecs</title>
+<polygon fill="none" stroke="black" points="161,-252 0,-252 0,-228 161,-228 161,-252"/>
+<text text-anchor="middle" x="80.5" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CplCompSetVarSpecs</text>
+</g>
+<!-- proc~esmf_cplcompget -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node2" class="node">
+<title>proc~esmf_cplcompget</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_cplcompget.html" xlink:title="ESMF_CplCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="345.5,-352 231.5,-352 231.5,-328 345.5,-328 345.5,-352"/>
+<text text-anchor="middle" x="288.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CplCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs&#45;&gt;proc~esmf_cplcompget -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_cplcompsetvarspecs&#45;&gt;proc~esmf_cplcompget</title>
+<path fill="none" stroke="#ff0000" d="M97.1,-252.1C118.54,-268.23 158.81,-296.73 197,-314 206.16,-318.14 216.14,-321.8 226.02,-324.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.25,-328.38 235.83,-327.95 227.29,-321.68 225.25,-328.38"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node3" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node3"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="724,-312 648,-312 648,-288 724,-288 724,-312"/>
+<text text-anchor="middle" x="686" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_cplcompsetvarspecs&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M132.43,-252.04C152.45,-256.39 175.71,-260.97 197,-264 357.63,-286.83 550.2,-295.63 637.65,-298.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="637.67,-302.13 647.78,-298.97 637.9,-295.14 637.67,-302.13"/>
+</g>
+<!-- proc~esmf_cplcompgetinternalstate -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node4" class="node">
+<title>proc~esmf_cplcompgetinternalstate</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_cplcompgetinternalstate.html" xlink:title="ESMF_CplCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="380,-108 197,-108 197,-84 380,-84 380,-108"/>
+<text text-anchor="middle" x="288.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CplCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs&#45;&gt;proc~esmf_cplcompgetinternalstate -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_cplcompsetvarspecs&#45;&gt;proc~esmf_cplcompgetinternalstate</title>
+<path fill="none" stroke="#ff0000" d="M89.36,-227.62C105.97,-202.53 147.24,-145.65 197,-117 200.27,-115.12 203.69,-113.41 207.22,-111.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.75,-115.01 216.75,-108.07 206.17,-108.5 208.75,-115.01"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node5"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="535.5,-272 456.5,-272 456.5,-248 535.5,-248 535.5,-272"/>
+<text text-anchor="middle" x="496" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_cplcompsetvarspecs&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M161.23,-243.86C245.49,-247.93 375.73,-254.23 446.01,-257.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="446.19,-261.14 456.34,-258.13 446.52,-254.15 446.19,-261.14"/>
+</g>
+<!-- interface~mapl_varspecget -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node6" class="node">
+<title>interface~mapl_varspecget</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node6"><a xlink:href=".././interface/mapl_varspecget.html" xlink:title="MAPL_VarSpecGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="343,-150 234,-150 234,-126 343,-126 343,-150"/>
+<text text-anchor="middle" x="288.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs&#45;&gt;interface~mapl_varspecget -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_cplcompsetvarspecs&#45;&gt;interface~mapl_varspecget</title>
+<path fill="none" stroke="#ff0000" d="M105.94,-227.9C142.72,-209.69 212.41,-175.18 253.93,-154.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.68,-157.66 263.09,-150.09 252.58,-151.39 255.68,-157.66"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node7"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="727,-168 645,-168 645,-144 727,-144 727,-168"/>
+<text text-anchor="middle" x="686" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cplcompsetvarspecs&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_cplcompsetvarspecs&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M161.48,-236.73C280.81,-231.33 499.58,-219.31 576,-201 602.76,-194.59 631.47,-182.5 652.7,-172.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="654.41,-175.53 661.9,-168.03 651.37,-169.23 654.41,-175.53"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="929,-249 796,-249 796,-225 929,-225 929,-249"/>
+<text text-anchor="middle" x="862.5" y="-234.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ffff00" d="M724.02,-290.22C735.62,-286.92 748.42,-283.05 760,-279 782.02,-271.3 806.18,-261.37 825.39,-253.1"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="826.9,-256.26 834.68,-249.07 824.11,-249.84 826.9,-256.26"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node11"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="753,-270 619,-270 619,-246 753,-246 753,-270"/>
+<text text-anchor="middle" x="686" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M535.95,-259.59C556.94,-259.36 583.58,-259.08 608.51,-258.81"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="608.74,-262.31 618.7,-258.71 608.66,-255.31 608.74,-262.31"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node12"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="760,-228 612,-228 612,-204 760,-204 760,-228"/>
+<text text-anchor="middle" x="686" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M535.95,-250.88C561.26,-244.96 594.78,-237.12 623.62,-230.37"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="624.66,-233.72 633.6,-228.03 623.07,-226.9 624.66,-233.72"/>
+</g>
+<!-- proc~mapl_varspecgetfieldptr -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node9" class="node">
+<title>proc~mapl_varspecgetfieldptr</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node9"><a xlink:href=".././proc/mapl_varspecgetfieldptr.html" xlink:title="MAPL_VarSpecGetFieldPtr">
+<polygon fill="#d9534f" stroke="#d9534f" points="570,-24 422,-24 422,0 570,0 570,-24"/>
+<text text-anchor="middle" x="496" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetFieldPtr</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetfieldptr -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetfieldptr</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M343.09,-134.08C356.3,-130.95 369.61,-125.7 380,-117 411.15,-90.93 385.27,-59.56 416,-33 417.53,-31.68 419.13,-30.44 420.8,-29.27"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="422.76,-32.18 429.58,-24.08 419.19,-26.16 422.76,-32.18"/>
+</g>
+<!-- proc~mapl_varspecgetregular -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node10" class="node">
+<title>proc~mapl_varspecgetregular</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node10"><a xlink:href=".././proc/mapl_varspecgetregular.html" xlink:title="MAPL_VarSpecGetRegular">
+<polygon fill="#d9534f" stroke="#d9534f" points="571,-192 421,-192 421,-168 571,-168 571,-192"/>
+<text text-anchor="middle" x="496" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetRegular</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetregular -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetregular</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M343.22,-148.98C368.64,-154.18 399.29,-160.44 426.37,-165.97"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="425.67,-169.4 436.17,-167.98 427.08,-162.55 425.67,-169.4"/>
+</g>
+<!-- proc~mapl_varspecgetstateptr -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node13" class="node">
+<title>proc~mapl_varspecgetstateptr</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node13"><a xlink:href=".././proc/mapl_varspecgetstateptr.html" xlink:title="MAPL_VarSpecGetStatePtr">
+<polygon fill="#d9534f" stroke="#d9534f" points="571.5,-150 420.5,-150 420.5,-126 571.5,-126 571.5,-150"/>
+<text text-anchor="middle" x="496" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetStatePtr</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetstateptr -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetstateptr</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M343.22,-138C363.64,-138 387.44,-138 410.04,-138"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="410.33,-141.5 420.33,-138 410.33,-134.5 410.33,-141.5"/>
+</g>
+<!-- proc~mapl_varspecgetnew -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node14" class="node">
+<title>proc~mapl_varspecgetnew</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node14"><a xlink:href=".././proc/mapl_varspecgetnew.html" xlink:title="MAPL_VarSpecGetNew">
+<polygon fill="#d9534f" stroke="#d9534f" points="561.5,-108 430.5,-108 430.5,-84 561.5,-84 561.5,-108"/>
+<text text-anchor="middle" x="496" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetNew</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetnew -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetnew</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M343.22,-127.02C368.64,-121.82 399.29,-115.56 426.37,-110.03"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="427.08,-113.45 436.17,-108.02 425.67,-106.6 427.08,-113.45"/>
+</g>
+<!-- proc~mapl_varspecgetbundleptr -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node15" class="node">
+<title>proc~mapl_varspecgetbundleptr</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node15"><a xlink:href=".././proc/mapl_varspecgetbundleptr.html" xlink:title="MAPL_VarSpecGetBundlePtr">
+<polygon fill="#d9534f" stroke="#d9534f" points="576,-66 416,-66 416,-42 576,-42 576,-66"/>
+<text text-anchor="middle" x="496" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarSpecGetBundlePtr</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetbundleptr -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_varspecget&#45;&gt;proc~mapl_varspecgetbundleptr</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M343.36,-131.36C355.99,-128.25 368.97,-123.69 380,-117 401.02,-104.25 395.18,-88.08 416,-75 418.82,-73.23 421.79,-71.6 424.86,-70.11"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="426.51,-73.21 434.3,-66.04 423.74,-66.79 426.51,-73.21"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M713.12,-168.13C743.15,-182.06 792.59,-205.01 826.07,-220.55"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="824.94,-223.89 835.48,-224.92 827.89,-217.54 824.94,-223.89"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node16" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node16"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="920,-189 805,-189 805,-165 920,-165 920,-189"/>
+<text text-anchor="middle" x="862.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00ff" d="M727.03,-160.82C747.11,-163.23 771.95,-166.22 794.8,-168.97"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="794.44,-172.46 804.79,-170.18 795.28,-165.51 794.44,-172.46"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_node17" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CallsGraph_node17"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1022,-249 965,-249 965,-225 1022,-225 1022,-249"/>
+<text text-anchor="middle" x="993.5" y="-234.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#ff0000" d="M929.13,-237C937.88,-237 946.59,-237 954.63,-237"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="954.77,-240.5 964.77,-237 954.77,-233.5 954.77,-240.5"/>
+</g>
+<!-- proc~mapl_varspecgetfieldptr&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_varspecgetfieldptr&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffaa00" d="M557.64,-24.13C564.07,-26.57 570.32,-29.5 576,-33 618.76,-59.38 654.27,-107.67 672.27,-135.24"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="669.36,-137.19 677.69,-143.74 675.26,-133.42 669.36,-137.19"/>
+</g>
+<!-- proc~mapl_varspecgetregular&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_varspecgetregular&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aaff00" d="M571.03,-170.55C592.47,-167.81 615.36,-164.89 634.96,-162.39"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="635.41,-165.86 644.88,-161.12 634.52,-158.92 635.41,-165.86"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M753.47,-250C763.98,-248.74 774.92,-247.42 785.62,-246.13"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="786.28,-249.58 795.79,-244.91 785.45,-242.63 786.28,-249.58"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffa9" d="M760.25,-224.81C768.76,-225.84 777.46,-226.89 786,-227.91"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="785.59,-231.39 795.94,-229.11 786.43,-224.44 785.59,-231.39"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffa9" d="M740.78,-203.98C758.78,-199.96 779.01,-195.44 797.7,-191.26"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="798.6,-194.64 807.6,-189.05 797.07,-187.81 798.6,-194.64"/>
+</g>
+<!-- proc~mapl_varspecgetstateptr&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_varspecgetstateptr&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00a9ff" d="M571.57,-145.14C592.78,-147.17 615.36,-149.33 634.75,-151.19"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="634.57,-154.69 644.86,-152.16 635.24,-147.72 634.57,-154.69"/>
+</g>
+<!-- proc~mapl_varspecgetnew&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_varspecgetnew&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M544.81,-108.02C555.14,-110.81 565.97,-113.88 576,-117 598.59,-124.03 623.46,-132.84 643.73,-140.31"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="642.69,-143.66 653.28,-143.86 645.12,-137.1 642.69,-143.66"/>
+</g>
+<!-- proc~mapl_varspecgetbundleptr&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_varspecgetbundleptr&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M553.21,-66.1C561.04,-68.6 568.84,-71.55 576,-75 609.93,-91.37 643.97,-118.86 664.76,-137.21"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="662.53,-139.91 672.31,-143.99 667.21,-134.71 662.53,-139.91"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmapl_cplcompsetvarspecsCallsGraph = svgPanZoom('#procmapl_cplcompsetvarspecsCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cplcompsetvarspecs~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_cplcompsetvarspecsCalledByGraph" width="344pt" height="116pt"
+ viewBox="0.00 0.00 344.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>proc~~mapl_cplcompsetvarspecs~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 340,-112 340,4 -4,4"/>
+<!-- proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node1" class="node">
+<title>proc~mapl_cplcompsetvarspecs</title>
+<polygon fill="none" stroke="black" points="336,-66 175,-66 175,-42 336,-42 336,-66"/>
+<text text-anchor="middle" x="255.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CplCompSetVarSpecs</text>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node2" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node2"><a xlink:href=".././proc/initialize.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="98,-108 41,-108 41,-84 98,-84 98,-108"/>
+<text text-anchor="middle" x="69.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize&#45;&gt;proc~mapl_cplcompsetvarspecs</title>
+<path fill="none" stroke="#ff0000" d="M98.05,-89.71C122.65,-84.1 159.62,-75.66 191.44,-68.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.6,-71.72 201.57,-66.08 191.04,-64.89 192.6,-71.72"/>
+</g>
+<!-- proc~mapl_wirecomponent -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node3" class="node">
+<title>proc~mapl_wirecomponent</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_wirecomponent.html" xlink:title="MAPL_WireComponent">
+<polygon fill="#d9534f" stroke="#d9534f" points="136,-66 3,-66 3,-42 136,-42 136,-66"/>
+<text text-anchor="middle" x="69.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_WireComponent</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_wirecomponent&#45;&gt;proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_wirecomponent&#45;&gt;proc~mapl_cplcompsetvarspecs</title>
+<path fill="none" stroke="#ff0000" d="M136.15,-54C145.42,-54 155.08,-54 164.7,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.7,-57.5 174.7,-54 164.7,-50.5 164.7,-57.5"/>
+</g>
+<!-- proc~mapl_setvarspecforcc -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node4" class="node">
+<title>proc~mapl_setvarspecforcc</title>
+<g id="a_proc~~mapl_cplcompsetvarspecs~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_setvarspecforcc.html" xlink:title="MAPL_SetVarSpecForCC">
+<polygon fill="#d9534f" stroke="#d9534f" points="139,-24 0,-24 0,0 139,0 139,-24"/>
+<text text-anchor="middle" x="69.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SetVarSpecForCC</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_setvarspecforcc&#45;&gt;proc~mapl_cplcompsetvarspecs -->
+<g id="proc~~mapl_cplcompsetvarspecs~~CalledByGraph_edge3" class="edge">
+<title>proc~mapl_setvarspecforcc&#45;&gt;proc~mapl_cplcompsetvarspecs</title>
+<path fill="none" stroke="#ff0000" d="M123.23,-24.04C144.59,-28.91 169.44,-34.58 191.73,-39.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.24,-43.15 201.77,-41.96 192.79,-36.33 191.24,-43.15"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_cplcompsetvarspecs.html#src">MAPL_CplCompSetVarSpecs</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CplCompSetVarSpecs</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">SRC_SPEC</span><span class="p">,</span><span class="w"> </span><span class="n">DST_SPEC</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_CplComp</span><span class="w">  </span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CC</span><span class="w">  </span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="w">  </span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SRC_SPEC</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_VarSpec</span><span class="w">  </span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DST_SPEC</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w"></span>
+<span class="w">    </span>
+<span class="c">! ErrLog Variables</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">COMP_NAME</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="w"></span>
+
+<span class="c">! Locals</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GenericCplState</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GenericCplWrap</span><span class="w"> </span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">WRAP</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">SRC_NAME</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">DST_NAME</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                              </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="w"></span>
+
+<span class="c">! Begin...</span>
+
+<span class="c">! Get this instance&#39;s name and set-up traceback handle.</span>
+<span class="c">! -----------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CplCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">COMP_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s2">&quot;MAPL_CplCompSetVarSpecs&quot;</span><span class="w"></span>
+
+<span class="c">! Retrieve the pointer to the internal state. It comes in a wrapper.</span>
+<span class="c">! ------------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CplCompGetInternalState</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">WRAP</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">STATE</span><span class="w">  </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">WRAP</span><span class="p">%</span><span class="n">INTERNAL_STATE</span><span class="w"></span>
+
+<span class="c">! Make sure the specs match</span>
+<span class="c">!--------------------------</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">SRC_SPEC</span><span class="p">)</span><span class="o">==</span><span class="n">size</span><span class="p">(</span><span class="n">DST_SPEC</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">SRC_SPEC</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">SRC_SPEC</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">SRC_NAME</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">DST_SPEC</span><span class="p">(</span><span class="n">I</span><span class="p">),</span><span class="n">SHORT_NAME</span><span class="o">=</span><span class="n">DST_NAME</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!ALT       _ASSERT(SRC_NAME==DST_NAME,&#39;needs informative message&#39;)</span>
+<span class="w">    </span><span class="k">end do</span><span class="w"></span>
+
+<span class="c">! Put miscellaneous info in the internal state</span>
+<span class="c">!---------------------------------------------</span>
+
+<span class="w">    </span><span class="n">STATE</span><span class="p">%</span><span class="n">SRC_SPEC</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SRC_SPEC</span><span class="w"></span>
+<span class="w">    </span><span class="n">STATE</span><span class="p">%</span><span class="n">DST_SPEC</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">DST_SPEC</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACTIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">    </span><span class="n">STATE</span><span class="p">%</span><span class="n">NAME</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">COMP_NAME</span><span class="w"></span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CplCompSetVarSpecs</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T17:09:06.425233           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

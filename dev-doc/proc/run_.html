@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Run_ &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>Run_
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">265 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompMod.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/extdatagridcompmod.f90.html'>ExtDataGridCompMod.F90</a></li>
+              <li><a href='../module/mapl_extdatagridcompmod.html'>MAPL_ExtDataGridCompMod</a></li>
+          <li class="active">Run_</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/run_.html#src">Run_</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine Run_(GC, IMPORT, EXPORT, CLOCK, rc)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~6"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-import~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>IMPORT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-export~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EXPORT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~6"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1295"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~run_~~CallsGraph Pages: 1 -->
+<svg id="procrun_CallsGraph" width="285pt" height="1082pt"
+ viewBox="0.00 0.00 285.00 1082.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~run_~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1078)">
+<title>proc~~run_~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1078 281,-1078 281,4 -4,4"/>
+<!-- proc~run_ -->
+<g id="proc~~run_~~CallsGraph_node1" class="node">
+<title>proc~run_</title>
+<polygon fill="none" stroke="black" points="54,-549 0,-549 0,-525 54,-525 54,-549"/>
+<text text-anchor="middle" x="27" y="-534.6" font-family="Helvetica,sans-Serif" font-size="10.50">Run_</text>
+</g>
+<!-- proc~derivedexportisconstant_ -->
+<g id="proc~~run_~~CallsGraph_node2" class="node">
+<title>proc~derivedexportisconstant_</title>
+<g id="a_proc~~run_~~CallsGraph_node2"><a xlink:href=".././proc/derivedexportisconstant_.html" xlink:title="DerivedExportIsConstant_">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="258.5,-1074 108.5,-1074 108.5,-1050 258.5,-1050 258.5,-1074"/>
+<text text-anchor="middle" x="183.5" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DerivedExportIsConstant_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~derivedexportisconstant_ -->
+<g id="proc~~run_~~CallsGraph_edge25" class="edge">
+<title>proc~run_&#45;&gt;proc~derivedexportisconstant_</title>
+<path fill="none" stroke="#ff0000" d="M27.68,-549.21C26.14,-618.9 22.02,-965.79 90,-1041 92.78,-1044.07 95.9,-1046.75 99.28,-1049.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="97.72,-1052.21 108.14,-1054.13 101.2,-1046.13 97.72,-1052.21"/>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~run_~~CallsGraph_node3" class="node">
+<title>proc~mapl_extdataverticalinterpolate</title>
+<g id="a_proc~~run_~~CallsGraph_node3"><a xlink:href=".././proc/mapl_extdataverticalinterpolate.html" xlink:title="MAPL_ExtDataVerticalInterpolate">
+<polygon fill="#d9534f" stroke="#d9534f" points="277,-1032 90,-1032 90,-1008 277,-1008 277,-1032"/>
+<text text-anchor="middle" x="183.5" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataVerticalInterpolate</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~run_~~CallsGraph_edge12" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdataverticalinterpolate</title>
+<path fill="none" stroke="#ff0000" d="M27.84,-549.05C27.2,-614.89 27.49,-930.6 90,-999 90.78,-999.85 91.58,-1000.67 92.41,-1001.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="90.45,-1004.37 100.48,-1007.8 94.78,-998.87 90.45,-1004.37"/>
+</g>
+<!-- proc~mapl_extdatadestroycfio -->
+<g id="proc~~run_~~CallsGraph_node4" class="node">
+<title>proc~mapl_extdatadestroycfio</title>
+<g id="a_proc~~run_~~CallsGraph_node4"><a xlink:href=".././proc/mapl_extdatadestroycfio.html" xlink:title="MAPL_ExtDataDestroyCFIO">
+<polygon fill="#d9534f" stroke="#d9534f" points="260.5,-990 106.5,-990 106.5,-966 260.5,-966 260.5,-990"/>
+<text text-anchor="middle" x="183.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataDestroyCFIO</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdatadestroycfio -->
+<g id="proc~~run_~~CallsGraph_edge15" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdatadestroycfio</title>
+<path fill="none" stroke="#ff0000" d="M28.02,-549.17C28.35,-611.61 33.03,-895.49 90,-957 92.29,-959.48 94.81,-961.69 97.51,-963.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.71,-966.68 106.07,-968.93 99.38,-960.71 95.71,-966.68"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~run_~~CallsGraph_node5" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="227.5,-948 139.5,-948 139.5,-924 227.5,-924 227.5,-948"/>
+<text text-anchor="middle" x="183.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~run_&#45;&gt;esmf_stateget -->
+<g id="proc~~run_~~CallsGraph_edge13" class="edge">
+<title>proc~run_&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M28.23,-549.1C29.61,-607.58 38.5,-860.28 90,-915 100.18,-925.82 114.67,-931.62 129.16,-934.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.71,-938.07 139.15,-936.23 129.85,-931.16 128.71,-938.07"/>
+</g>
+<!-- proc~mapl_extdatareadprefetch -->
+<g id="proc~~run_~~CallsGraph_node6" class="node">
+<title>proc~mapl_extdatareadprefetch</title>
+<g id="a_proc~~run_~~CallsGraph_node6"><a xlink:href=".././proc/mapl_extdatareadprefetch.html" xlink:title="MAPL_ExtDataReadPrefetch">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-906 104,-906 104,-882 263,-882 263,-906"/>
+<text text-anchor="middle" x="183.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataReadPrefetch</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdatareadprefetch -->
+<g id="proc~~run_~~CallsGraph_edge1" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdatareadprefetch</title>
+<path fill="none" stroke="#ff0000" d="M28.51,-549.19C31.03,-603.77 43.99,-825.07 90,-873 91.62,-874.69 93.35,-876.26 95.16,-877.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.38,-880.72 103.64,-883.37 97.27,-874.9 93.38,-880.72"/>
+</g>
+<!-- proc~esmf_gridcompget -->
+<g id="proc~~run_~~CallsGraph_node7" class="node">
+<title>proc~esmf_gridcompget</title>
+<g id="a_proc~~run_~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="243,-864 124,-864 124,-840 243,-840 243,-864"/>
+<text text-anchor="middle" x="183.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~esmf_gridcompget -->
+<g id="proc~~run_~~CallsGraph_edge2" class="edge">
+<title>proc~run_&#45;&gt;proc~esmf_gridcompget</title>
+<path fill="none" stroke="#ff0000" d="M28.87,-549.34C32.66,-599.81 49.46,-789.84 90,-831 96.62,-837.72 104.91,-842.49 113.78,-845.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.01,-849.26 123.6,-848.93 115.12,-842.58 113.01,-849.26"/>
+</g>
+<!-- interface~mapl_timeron -->
+<g id="proc~~run_~~CallsGraph_node8" class="node">
+<title>interface~mapl_timeron</title>
+<g id="a_proc~~run_~~CallsGraph_node8"><a xlink:href=".././interface/mapl_timeron.html" xlink:title="MAPL_TimerOn">
+<polygon fill="#a7506f" stroke="#a7506f" points="229.5,-822 137.5,-822 137.5,-798 229.5,-798 229.5,-822"/>
+<text text-anchor="middle" x="183.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOn</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~run_~~CallsGraph_edge5" class="edge">
+<title>proc~run_&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#ff0000" d="M29.31,-549.1C34.45,-594.59 54.8,-754.43 90,-789 100.02,-798.84 113.63,-804.46 127.33,-807.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.8,-811.03 137.27,-809.42 128.08,-804.15 126.8,-811.03"/>
+</g>
+<!-- proc~extract_ -->
+<g id="proc~~run_~~CallsGraph_node9" class="node">
+<title>proc~extract_</title>
+<g id="a_proc~~run_~~CallsGraph_node9"><a xlink:href=".././proc/extract_.html" xlink:title="extract_">
+<polygon fill="#d9534f" stroke="#d9534f" points="211,-780 156,-780 156,-756 211,-756 211,-780"/>
+<text text-anchor="middle" x="183.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">extract_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~extract_ -->
+<g id="proc~~run_~~CallsGraph_edge3" class="edge">
+<title>proc~run_&#45;&gt;proc~extract_</title>
+<path fill="none" stroke="#ff0000" d="M27.65,-549.1C27.32,-585.05 31.5,-692.12 90,-747 104.79,-760.88 126.77,-766.26 145.59,-768.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.44,-771.61 155.65,-768.81 145.92,-764.63 145.44,-771.61"/>
+</g>
+<!-- interface~mapl_getobjectfromgc -->
+<g id="proc~~run_~~CallsGraph_node10" class="node">
+<title>interface~mapl_getobjectfromgc</title>
+<g id="a_proc~~run_~~CallsGraph_node10"><a xlink:href=".././interface/mapl_getobjectfromgc.html" xlink:title="MAPL_GetObjectFromGC">
+<polygon fill="#a7506f" stroke="#a7506f" points="254.5,-738 112.5,-738 112.5,-714 254.5,-714 254.5,-738"/>
+<text text-anchor="middle" x="183.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetObjectFromGC</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;interface~mapl_getobjectfromgc -->
+<g id="proc~~run_~~CallsGraph_edge4" class="edge">
+<title>proc~run_&#45;&gt;interface~mapl_getobjectfromgc</title>
+<path fill="none" stroke="#ff0000" d="M28.7,-549.34C31.16,-580.52 42.1,-662.96 90,-705 93.92,-708.44 98.29,-711.35 102.93,-713.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.61,-717.05 112.16,-718.01 104.51,-710.68 101.61,-717.05"/>
+</g>
+<!-- proc~esmf_clockget -->
+<g id="proc~~run_~~CallsGraph_node11" class="node">
+<title>proc~esmf_clockget</title>
+<g id="a_proc~~run_~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="230.5,-696 136.5,-696 136.5,-672 230.5,-672 230.5,-696"/>
+<text text-anchor="middle" x="183.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~esmf_clockget -->
+<g id="proc~~run_~~CallsGraph_edge6" class="edge">
+<title>proc~run_&#45;&gt;proc~esmf_clockget</title>
+<path fill="none" stroke="#ff0000" d="M30.36,-549.25C35.91,-574.67 52.31,-633.24 90,-663 100.4,-671.21 113.41,-676.34 126.35,-679.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.68,-682.94 136.19,-681.56 127.12,-676.09 125.68,-682.94"/>
+</g>
+<!-- proc~checkupdate -->
+<g id="proc~~run_~~CallsGraph_node12" class="node">
+<title>proc~checkupdate</title>
+<g id="a_proc~~run_~~CallsGraph_node12"><a xlink:href=".././proc/checkupdate.html" xlink:title="CheckUpdate">
+<polygon fill="#d9534f" stroke="#d9534f" points="225.5,-654 141.5,-654 141.5,-630 225.5,-630 225.5,-654"/>
+<text text-anchor="middle" x="183.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CheckUpdate</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~checkupdate -->
+<g id="proc~~run_~~CallsGraph_edge7" class="edge">
+<title>proc~run_&#45;&gt;proc~checkupdate</title>
+<path fill="none" stroke="#ff0000" d="M33.48,-549.17C42.49,-567.72 62.24,-602.85 90,-621 102.2,-628.98 117.02,-633.95 131.19,-637.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.87,-640.54 141.35,-638.97 132.18,-633.66 130.87,-640.54"/>
+</g>
+<!-- interface~mapl_timeroff -->
+<g id="proc~~run_~~CallsGraph_node13" class="node">
+<title>interface~mapl_timeroff</title>
+<g id="a_proc~~run_~~CallsGraph_node13"><a xlink:href=".././interface/mapl_timeroff.html" xlink:title="MAPL_TimerOff">
+<polygon fill="#a7506f" stroke="#a7506f" points="230,-612 137,-612 137,-588 230,-588 230,-612"/>
+<text text-anchor="middle" x="183.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOff</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~run_~~CallsGraph_edge8" class="edge">
+<title>proc~run_&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M42.37,-549.03C54.38,-558.5 72.35,-571.34 90,-579 101.56,-584.02 114.48,-587.91 126.91,-590.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.21,-594.34 136.74,-593.12 127.75,-587.51 126.21,-594.34"/>
+</g>
+<!-- proc~mapl_extdatainterpfield -->
+<g id="proc~~run_~~CallsGraph_node14" class="node">
+<title>proc~mapl_extdatainterpfield</title>
+<g id="a_proc~~run_~~CallsGraph_node14"><a xlink:href=".././proc/mapl_extdatainterpfield.html" xlink:title="MAPL_ExtDataInterpField">
+<polygon fill="#d9534f" stroke="#d9534f" points="256,-570 111,-570 111,-546 256,-546 256,-570"/>
+<text text-anchor="middle" x="183.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataInterpField</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdatainterpfield -->
+<g id="proc~~run_~~CallsGraph_edge11" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdatainterpfield</title>
+<path fill="none" stroke="#ff0000" d="M54.21,-540.56C67.31,-542.34 83.95,-544.6 100.87,-546.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.46,-550.38 110.84,-548.26 101.41,-543.45 100.46,-550.38"/>
+</g>
+<!-- proc~primaryexportisconstant_ -->
+<g id="proc~~run_~~CallsGraph_node15" class="node">
+<title>proc~primaryexportisconstant_</title>
+<g id="a_proc~~run_~~CallsGraph_node15"><a xlink:href=".././proc/primaryexportisconstant_.html" xlink:title="PrimaryExportIsConstant_">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="258,-528 109,-528 109,-504 258,-504 258,-528"/>
+<text text-anchor="middle" x="183.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PrimaryExportIsConstant_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~primaryexportisconstant_ -->
+<g id="proc~~run_~~CallsGraph_edge14" class="edge">
+<title>proc~run_&#45;&gt;proc~primaryexportisconstant_</title>
+<path fill="none" stroke="#ff0000" d="M54.21,-533.44C66.76,-531.73 82.56,-529.58 98.74,-527.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="99.4,-530.83 108.84,-526.01 98.46,-523.89 99.4,-530.83"/>
+</g>
+<!-- proc~updatebrackettime -->
+<g id="proc~~run_~~CallsGraph_node16" class="node">
+<title>proc~updatebrackettime</title>
+<g id="a_proc~~run_~~CallsGraph_node16"><a xlink:href=".././proc/updatebrackettime.html" xlink:title="UpdateBracketTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="242.5,-486 124.5,-486 124.5,-462 242.5,-462 242.5,-486"/>
+<text text-anchor="middle" x="183.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UpdateBracketTime</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~updatebrackettime -->
+<g id="proc~~run_~~CallsGraph_edge9" class="edge">
+<title>proc~run_&#45;&gt;proc~updatebrackettime</title>
+<path fill="none" stroke="#ff0000" d="M42.37,-524.97C54.38,-515.5 72.35,-502.66 90,-495 97.71,-491.66 106.02,-488.81 114.39,-486.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.45,-489.73 124.2,-483.76 113.64,-482.97 115.45,-489.73"/>
+</g>
+<!-- esmf_fieldbundlecreate -->
+<g id="proc~~run_~~CallsGraph_node17" class="node">
+<title>esmf_fieldbundlecreate</title>
+<polygon fill="#777777" stroke="#777777" points="252.5,-444 114.5,-444 114.5,-420 252.5,-420 252.5,-444"/>
+<text text-anchor="middle" x="183.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundlecreate</text>
+</g>
+<!-- proc~run_&#45;&gt;esmf_fieldbundlecreate -->
+<g id="proc~~run_~~CallsGraph_edge16" class="edge">
+<title>proc~run_&#45;&gt;esmf_fieldbundlecreate</title>
+<path fill="none" stroke="#ff0000" d="M33.48,-524.83C42.49,-506.28 62.24,-471.15 90,-453 94.57,-450.01 99.5,-447.45 104.63,-445.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="105.94,-448.49 114.03,-441.66 103.44,-441.95 105.94,-448.49"/>
+</g>
+<!-- proc~iobundle_add_entry -->
+<g id="proc~~run_~~CallsGraph_node18" class="node">
+<title>proc~iobundle_add_entry</title>
+<g id="a_proc~~run_~~CallsGraph_node18"><a xlink:href=".././proc/iobundle_add_entry.html" xlink:title="IOBundle_Add_Entry">
+<polygon fill="#d9534f" stroke="#d9534f" points="243.5,-402 123.5,-402 123.5,-378 243.5,-378 243.5,-402"/>
+<text text-anchor="middle" x="183.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IOBundle_Add_Entry</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~iobundle_add_entry -->
+<g id="proc~~run_~~CallsGraph_edge18" class="edge">
+<title>proc~run_&#45;&gt;proc~iobundle_add_entry</title>
+<path fill="none" stroke="#ff0000" d="M30.36,-524.75C35.91,-499.33 52.31,-440.76 90,-411 96.95,-405.51 105.06,-401.4 113.54,-398.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.73,-401.63 123.22,-395.3 112.63,-394.95 114.73,-401.63"/>
+</g>
+<!-- proc~mapl_extdataprefetch -->
+<g id="proc~~run_~~CallsGraph_node19" class="node">
+<title>proc~mapl_extdataprefetch</title>
+<g id="a_proc~~run_~~CallsGraph_node19"><a xlink:href=".././proc/mapl_extdataprefetch.html" xlink:title="MAPL_ExtDataPrefetch">
+<polygon fill="#d9534f" stroke="#d9534f" points="249.5,-360 117.5,-360 117.5,-336 249.5,-336 249.5,-360"/>
+<text text-anchor="middle" x="183.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataPrefetch</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdataprefetch -->
+<g id="proc~~run_~~CallsGraph_edge19" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdataprefetch</title>
+<path fill="none" stroke="#ff0000" d="M28.7,-524.66C31.16,-493.48 42.1,-411.04 90,-369 95.24,-364.4 101.27,-360.75 107.7,-357.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.27,-361 117.35,-354.14 106.76,-354.47 109.27,-361"/>
+</g>
+<!-- proc~mapl_extdatagetfstarttime -->
+<g id="proc~~run_~~CallsGraph_node20" class="node">
+<title>proc~mapl_extdatagetfstarttime</title>
+<g id="a_proc~~run_~~CallsGraph_node20"><a xlink:href=".././proc/mapl_extdatagetfstarttime.html" xlink:title="MAPL_ExtDataGetFStartTime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="266,-318 101,-318 101,-294 266,-294 266,-318"/>
+<text text-anchor="middle" x="183.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGetFStartTime</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdatagetfstarttime -->
+<g id="proc~~run_~~CallsGraph_edge10" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdatagetfstarttime</title>
+<path fill="none" stroke="#ff0000" d="M27.65,-524.9C27.32,-488.95 31.5,-381.88 90,-327 91.28,-325.8 92.61,-324.66 93.99,-323.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.95,-326.49 102.37,-318.06 92.1,-320.65 95.95,-326.49"/>
+</g>
+<!-- proc~mapl_extdatacreatecfio -->
+<g id="proc~~run_~~CallsGraph_node21" class="node">
+<title>proc~mapl_extdatacreatecfio</title>
+<g id="a_proc~~run_~~CallsGraph_node21"><a xlink:href=".././proc/mapl_extdatacreatecfio.html" xlink:title="MAPL_ExtDataCreateCFIO">
+<polygon fill="#d9534f" stroke="#d9534f" points="257.5,-276 109.5,-276 109.5,-252 257.5,-252 257.5,-276"/>
+<text text-anchor="middle" x="183.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataCreateCFIO</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdatacreatecfio -->
+<g id="proc~~run_~~CallsGraph_edge17" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdatacreatecfio</title>
+<path fill="none" stroke="#ff0000" d="M29.31,-524.9C34.45,-479.41 54.8,-319.57 90,-285 93.11,-281.95 96.56,-279.3 100.25,-277.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.02,-280.04 109.25,-272.29 98.77,-273.84 102.02,-280.04"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~run_~~CallsGraph_node22" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~run_~~CallsGraph_node22"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="224.5,-234 142.5,-234 142.5,-210 224.5,-210 224.5,-234"/>
+<text text-anchor="middle" x="183.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_return -->
+<g id="proc~~run_~~CallsGraph_edge20" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M28.87,-524.66C32.66,-474.19 49.46,-284.16 90,-243 101.09,-231.74 116.87,-225.97 132.25,-223.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.86,-226.61 142.26,-221.71 131.86,-219.68 132.86,-226.61"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~run_~~CallsGraph_node23" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~run_~~CallsGraph_node23"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="221.5,-192 145.5,-192 145.5,-168 221.5,-168 221.5,-192"/>
+<text text-anchor="middle" x="183.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_verify -->
+<g id="proc~~run_~~CallsGraph_edge21" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M28.51,-524.81C31.03,-470.23 43.99,-248.93 90,-201 101.71,-188.8 118.91,-183.01 135.31,-180.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.85,-183.91 145.36,-179.24 135.02,-176.96 135.85,-183.91"/>
+</g>
+<!-- proc~mapl_extdatapopulatebundle -->
+<g id="proc~~run_~~CallsGraph_node24" class="node">
+<title>proc~mapl_extdatapopulatebundle</title>
+<g id="a_proc~~run_~~CallsGraph_node24"><a xlink:href=".././proc/mapl_extdatapopulatebundle.html" xlink:title="MAPL_ExtDataPopulateBundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="269.5,-150 97.5,-150 97.5,-126 269.5,-126 269.5,-150"/>
+<text text-anchor="middle" x="183.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataPopulateBundle</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdatapopulatebundle -->
+<g id="proc~~run_~~CallsGraph_edge22" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdatapopulatebundle</title>
+<path fill="none" stroke="#ff0000" d="M28.23,-524.9C29.61,-466.42 38.5,-213.72 90,-159 90.92,-158.02 91.88,-157.08 92.86,-156.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.13,-158.86 101.01,-150.05 90.92,-153.27 95.13,-158.86"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~run_~~CallsGraph_node25" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="244,-108 123,-108 123,-84 244,-84 244,-108"/>
+<text text-anchor="middle" x="183.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~run_&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~run_~~CallsGraph_edge23" class="edge">
+<title>proc~run_&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M28.02,-524.83C28.35,-462.39 33.03,-178.51 90,-117 96.33,-110.17 104.37,-105.33 113.07,-101.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.28,-105.22 122.71,-98.8 112.12,-98.57 114.28,-105.22"/>
+</g>
+<!-- proc~calcderivedfield -->
+<g id="proc~~run_~~CallsGraph_node26" class="node">
+<title>proc~calcderivedfield</title>
+<g id="a_proc~~run_~~CallsGraph_node26"><a xlink:href=".././proc/calcderivedfield.html" xlink:title="CalcDerivedField">
+<polygon fill="#d9534f" stroke="#d9534f" points="235,-66 132,-66 132,-42 235,-42 235,-66"/>
+<text text-anchor="middle" x="183.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CalcDerivedField</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~calcderivedfield -->
+<g id="proc~~run_~~CallsGraph_edge24" class="edge">
+<title>proc~run_&#45;&gt;proc~calcderivedfield</title>
+<path fill="none" stroke="#ff0000" d="M27.84,-524.95C27.2,-459.11 27.49,-143.4 90,-75 98.33,-65.88 109.72,-60.31 121.66,-56.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.79,-60.31 131.77,-54.68 121.24,-53.48 122.79,-60.31"/>
+</g>
+<!-- proc~swapbracketinformation -->
+<g id="proc~~run_~~CallsGraph_node27" class="node">
+<title>proc~swapbracketinformation</title>
+<g id="a_proc~~run_~~CallsGraph_node27"><a xlink:href=".././proc/swapbracketinformation.html" xlink:title="swapBracketInformation">
+<polygon fill="#d9534f" stroke="#d9534f" points="255,-24 112,-24 112,0 255,0 255,-24"/>
+<text text-anchor="middle" x="183.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">swapBracketInformation</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~swapbracketinformation -->
+<g id="proc~~run_~~CallsGraph_edge26" class="edge">
+<title>proc~run_&#45;&gt;proc~swapbracketinformation</title>
+<path fill="none" stroke="#ff0000" d="M27.68,-524.79C26.14,-455.1 22.02,-108.21 90,-33 93.63,-28.98 97.86,-25.65 102.47,-22.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="104.36,-25.86 111.75,-18.27 101.24,-19.59 104.36,-25.86"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/run_.html#src">Run_</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">SUBROUTINE </span><span class="n">Run_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="c">! !USES:</span>
+
+<span class="w">  </span><span class="k">implicit NONE</span><span class="w"></span>
+
+<span class="c">! !INPUT PARAMETERS:</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">     </span><span class="c">! The clock</span>
+
+<span class="c">! !OUTPUT PARAMETERS:</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">     </span><span class="c">! Grid Component</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">IMPORT</span><span class="w">     </span><span class="c">! Import State</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPORT</span><span class="w">     </span><span class="c">! Export State</span>
+<span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">rc</span><span class="w">                   </span><span class="c">! Error return code:</span>
+<span class="w">                                                 </span><span class="c">!  0 - all is well</span>
+<span class="w">                                                 </span><span class="c">!  1 -</span>
+
+<span class="c">! !DESCRIPTION: This is a simple ESMF wrapper.</span>
+<span class="c">!</span>
+<span class="c">! !REVISION HISTORY:</span>
+<span class="c">!</span>
+<span class="c">!  12Dec2009  da Silva  Design and first implementation.</span>
+<span class="c">!</span>
+<span class="c">!EOP</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_ExtData_state</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w">        </span><span class="c">! Legacy state</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="c">! Field</span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">CF</span><span class="w">          </span><span class="c">! Universal Config</span>
+
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span><span class="w"></span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"></span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">PrimaryExport</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">DerivedExport</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">derivedItem</span><span class="w"></span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">time0</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLSTATE</span><span class="w"></span>
+
+<span class="w">   </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">doUpdate_</span><span class="w"></span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldCount</span><span class="w"></span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">ALLOCATABLE</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">NAMES</span><span class="w"> </span><span class="p">(:)</span><span class="w"></span>
+<span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">file_processed</span><span class="p">,</span><span class="w"> </span><span class="n">file_processed1</span><span class="p">,</span><span class="w"> </span><span class="n">file_processed2</span><span class="w"></span>
+<span class="w">   </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">NotSingle</span><span class="w"></span>
+<span class="w">   </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">updateL</span><span class="p">,</span><span class="w"> </span><span class="n">updateR</span><span class="p">,</span><span class="w"> </span><span class="n">swap</span><span class="w"></span>
+<span class="w">   </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">doUpdate</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">useTime</span><span class="p">(:)</span><span class="w"></span>
+
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">bracket_side</span><span class="w"></span>
+<span class="w">   </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">entry_num</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">IOBundleVector</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">IOBundles</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">IOBundleVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_iter</span><span class="w"></span>
+<span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ExtData_IOBundle</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">io_bundle</span><span class="w"></span>
+
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="k">IMPORT</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">EXPORT</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!  Declare pointers to IMPORT/EXPORT/INTERNAL states</span>
+<span class="c">!  -------------------------------------------------</span>
+<span class="c">!  #include &quot;MAPL_ExtData_DeclarePointer___.h&quot;</span>
+
+<span class="c">!  Get my name and set-up traceback handle</span>
+<span class="c">!  ---------------------------------------</span>
+<span class="w">   </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Run_&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;::&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="c">!  Call Run for every Child</span>
+<span class="c">!  -------------------------</span>
+<span class="c">!ALT   call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  _RC)</span>
+
+
+<span class="c">!  Extract relevant runtime information</span>
+<span class="c">!  ------------------------------------</span>
+<span class="w">   </span><span class="k">call </span><span class="n">extract_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">end if</span>
+
+<span class="k">   call </span><span class="n">MAPL_GetObjectFromGC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;Run&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">currTIME</span><span class="o">=</span><span class="n">time0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="c">!  Fill in the internal state with data from the files</span>
+<span class="c">!  ---------------------------------------------------</span>
+
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">doUpdate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nitems</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">doUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">useTime</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nitems</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;-Read_Loop&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Rune_(): Start&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_(): READ_LOOP: Start&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">READ_LOOP</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nItems</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nItems</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">var</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ==&gt; file: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ==&gt; cyclic: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">cyclic</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ==&gt; isConst:: %l1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">isConst</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">isConst</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ==&gt; Break loop since isConst is true&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">cycle</span>
+<span class="k">      endif</span>
+
+
+<span class="k">      </span><span class="n">NotSingle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">cyclic</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;single&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">NotSingle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;--CheckUpd&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">CheckUpdate</span><span class="p">(</span><span class="n">doUpdate_</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">time0</span><span class="p">,</span><span class="n">hasRun</span><span class="p">,</span><span class="n">primaryItem</span><span class="o">=</span><span class="n">item</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">doUpdate</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doUpdate_</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;--CheckUpd&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">DO_UPDATE</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">doUpdate_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ExtData Run_: DO_UPDATE: Start. doUpdate_ is true.&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="n">HAS_RUN</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">hasRun</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">            call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ExtData Run_: Has_Run: Start. hasRun is false. Update time.&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;--Bracket&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">NotSingle</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
+
+<span class="w">               </span><span class="c">! update left time</span>
+<span class="w">               </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ExtData Run_: HAS_RUN: NotSingle is true. Update left time (bracket L)&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">UpdateBracketTime</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="s2">&quot;L&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">interp_time1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                    </span><span class="n">item</span><span class="p">%</span><span class="n">time1</span><span class="p">,</span><span class="n">file_processed1</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">allowExtrap</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">IOBundle_Add_Entry</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">file_processed1</span><span class="p">,</span><span class="n">MAPL_ExtDataLeft</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">tindex1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="c">! update right time</span>
+<span class="w">               </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;      ExtData Run_: HAS_RUN: NotSingle is true. Update right time (bracket R)&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">UpdateBracketTime</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="s2">&quot;R&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">interp_time2</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                    </span><span class="n">item</span><span class="p">%</span><span class="n">time2</span><span class="p">,</span><span class="n">file_processed2</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">allowExtrap</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">IOBundle_Add_Entry</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">file_processed2</span><span class="p">,</span><span class="n">MAPL_ExtDataRight</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">tindex2</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">else</span>
+
+<span class="k">               call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;      ExtData Run_: HAS_RUN: NotSingle is false. Just get time on file.&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="c">! just get time on the file</span>
+<span class="w">               </span><span class="n">item</span><span class="p">%</span><span class="n">time1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ExtDataGetFStartTime</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="n">item</span><span class="p">%</span><span class="n">interp_time1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">time1</span><span class="w"></span>
+<span class="w">               </span><span class="n">file_processed1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="k">file</span>
+<span class="k">               call </span><span class="n">IOBundle_Add_Entry</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">file_processed1</span><span class="p">,</span><span class="n">MAPL_ExtDataLeft</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;--Bracket&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;      ExtData Run_: HAS_RUN: End&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">endif </span><span class="n">HAS_RUN</span><span class="w"></span>
+
+<span class="w">         </span><span class="c">! now update bracketing times if neccessary</span>
+
+<span class="w">         </span><span class="n">NOT_SINGLE</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">NotSingle</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">            call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;      ExtData Run_: NOT_SINGLE: Start. Update bracketing times?&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">interp_time2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
+<span class="w">               </span><span class="c">! normal flow assume clock is moving forward</span>
+<span class="w">               </span><span class="n">updateR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">               </span><span class="n">updateL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">               </span><span class="n">swap</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">            </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">time</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">interp_time1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
+<span class="w">               </span><span class="c">! the can only happen if clock was rewound like in replay update both</span>
+<span class="w">               </span><span class="n">updateR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">               </span><span class="n">updateL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">               </span><span class="n">swap</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">updateR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">               </span><span class="n">updateL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">               </span><span class="n">swap</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;         ==&gt; updateR: %L1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">updateR</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;         ==&gt; updateL: %L1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">updateL</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;         ==&gt; swap: %L1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">swap</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s1">&#39;--Swap&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">DO_SWAP</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">swap</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">               call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;            DO_SWAP: Swapping prev and next&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">swapBracketInformation</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">end if </span><span class="n">DO_SWAP</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s1">&#39;--Swap&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">UPDATE_R</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">updateR</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">               call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;         UPDATE_R: updating right bracket&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s1">&#39;--Bracket&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">UpdateBracketTime</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="s2">&quot;R&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">interp_time2</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                    </span><span class="n">item</span><span class="p">%</span><span class="n">time2</span><span class="p">,</span><span class="n">file_processed</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">allowExtrap</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">IOBundle_Add_Entry</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">file_processed</span><span class="p">,</span><span class="n">MAPL_ExtDataRight</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">tindex2</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s1">&#39;--Bracket&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">end if </span><span class="n">UPDATE_R</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">UPDATE_L</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">updateL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">               call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;         UPDATE_L: updating left bracket&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s1">&#39;--Bracket&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">UpdateBracketTime</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="s2">&quot;L&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">interp_time1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                    </span><span class="n">item</span><span class="p">%</span><span class="n">time1</span><span class="p">,</span><span class="n">file_processed</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">allowExtrap</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">IOBundle_Add_Entry</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">file_processed</span><span class="p">,</span><span class="n">MAPL_ExtDataLeft</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">tindex1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s1">&#39;--Bracket&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">end if </span><span class="n">UPDATE_L</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;      ExtData Run_: NOT_SINGLE: End&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">endif </span><span class="n">NOT_SINGLE</span><span class="w"></span>
+
+<span class="w">         </span><span class="n">useTime</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">time</span>
+
+<span class="nb">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   ExtData Run_: DO_UPDATE: End&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">end if </span><span class="n">DO_UPDATE</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PrimaryExportIsConstant_</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">refresh_time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         deallocate</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">refresh_time</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">item</span><span class="p">%</span><span class="n">refresh_time</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">   end do </span><span class="n">READ_LOOP</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_: READ_LOOP: Done&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">bundle_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IOBundles</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span><span class="w"></span>
+<span class="w">   </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">bundle_iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">IoBundles</span><span class="p">%</span><span class="k">end</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="n">io_bundle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">bundle_iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">bracket_side</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">bracket_side</span><span class="w"></span>
+<span class="w">      </span><span class="n">entry_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">entry_index</span><span class="w"></span>
+<span class="w">      </span><span class="n">file_Processed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">file_name</span><span class="w"></span>
+<span class="w">      </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">entry_num</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">pbundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_ExtDataPopulateBundle</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">bracket_side</span><span class="p">,</span><span class="n">io_bundle</span><span class="p">%</span><span class="n">pbundle</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">bundle_iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span><span class="w"></span>
+<span class="w">   </span><span class="k">enddo</span>
+
+<span class="k">   call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;--PRead&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---CreateCFIO&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_ExtDataCreateCFIO</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---CreateCFIO&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---prefetch&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_ExtDataPrefetch</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---prefetch&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---IclientDone&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">done_collective_prefetch</span><span class="p">()</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">i_Clients</span><span class="p">%</span><span class="n">wait</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---IclientDone&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---read-prefetch&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_ExtDataReadPrefetch</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;---read-prefetch&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;--PRead&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">bundle_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IOBundles</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span><span class="w"></span>
+<span class="w">   </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">bundle_iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">IOBundles</span><span class="p">%</span><span class="k">end</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="n">io_bundle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">bundle_iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">bracket_side</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">bracket_side</span><span class="w"></span>
+<span class="w">      </span><span class="n">entry_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io_bundle</span><span class="p">%</span><span class="n">entry_index</span><span class="w"></span>
+<span class="w">      </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">entry_num</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_ExtDataVerticalInterpolate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">item</span><span class="p">,</span><span class="n">bracket_side</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">bundle_iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span><span class="w"></span>
+<span class="w">   </span><span class="k">enddo</span>
+<span class="k">   call </span><span class="n">MAPL_ExtDataDestroyCFIO</span><span class="p">(</span><span class="n">IOBundles</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;-Read_Loop&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;-Interpolate&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_: INTERP_LOOP: Start&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">INTERP_LOOP</span><span class="p">:</span><span class="w"> </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">nItems</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">primary</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">primaryOrder</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">doUpdate</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">              </span><span class="p">&amp;</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">var</span><span class="p">),</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="k">file</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">         </span><span class="c">! finally interpolate between bracketing times</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_FieldItem</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">               call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_ExtDataInterpField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">useTime</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_BundleItem</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">               call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fieldCount</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">allocate</span><span class="p">(</span><span class="n">names</span><span class="p">(</span><span class="n">fieldCount</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldNameList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Names</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">fieldCount</span><span class="w"></span>
+<span class="w">                  </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="n">names</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">                  </span><span class="k">call </span><span class="n">MAPL_ExtDataInterpField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">useTime</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">enddo</span>
+<span class="k">               deallocate</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">vartype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_ExtDataVectorItem</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">               call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">vcomp1</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_ExtDataInterpField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">useTime</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="n">vector_comp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">%</span><span class="n">vcomp2</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_ExtDataInterpField</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">useTime</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="n">vector_comp</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">      endif</span>
+
+<span class="k">      nullify</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">end do </span><span class="n">INTERP_LOOP</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_: INTERP_LOOP: Done&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;-Interpolate&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="c">! now take care of derived fields</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">nItems</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">derivedItem</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">CheckUpdate</span><span class="p">(</span><span class="n">doUpdate_</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">time0</span><span class="p">,</span><span class="n">hasRun</span><span class="p">,</span><span class="n">derivedItem</span><span class="o">=</span><span class="n">deriveditem</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">doUpdate_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         call </span><span class="n">CalcDerivedField</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">ExtDataState</span><span class="p">,</span><span class="n">derivedItem</span><span class="p">%</span><span class="n">name</span><span class="p">,</span><span class="n">derivedItem</span><span class="p">%</span><span class="n">expression</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">              </span><span class="n">derivedItem</span><span class="p">%</span><span class="n">masking</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">DerivedExportIsConstant_</span><span class="p">(</span><span class="n">derivedItem</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">derivedItem</span><span class="p">%</span><span class="n">refresh_time</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          deallocate</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">refresh_time</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="n">self</span><span class="p">%</span><span class="n">derived</span><span class="p">%</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">refresh_time</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">   end do</span>
+
+<span class="k">   call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ExtData Run_: End&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!  All done</span>
+<span class="c">!  --------</span>
+<span class="w">   </span><span class="k">deallocate</span><span class="p">(</span><span class="n">doUpdate</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">deallocate</span><span class="p">(</span><span class="n">useTime</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasRun</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="n">hasRun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">MAPLSTATE</span><span class="p">,</span><span class="s2">&quot;Run&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">END SUBROUTINE </span><span class="n">Run_</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T17:09:06.425233           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

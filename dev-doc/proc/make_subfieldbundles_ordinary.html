@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>make_subFieldBundles_ordinary &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>make_subFieldBundles_ordinary
+      <small>Function</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">33 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/OpenMP_Support.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/openmp_support.f90.html'>OpenMP_Support.F90</a></li>
+              <li><a href='../module/mapl_openmp_support.html'>MAPL_OpenMP_Support</a></li>
+          <li class="active">make_subFieldBundles_ordinary</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_subfieldbundles_ordinary.html#src">make_subFieldBundles_ordinary</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function make_subFieldBundles_ordinary(bundle, num_grids, unusable, rc) result(sub_bundles)  
+</h2>
+    
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~25"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-num_grids~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>num_grids</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~375"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1827"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-sub_bundles"></span>
+          type(ESMF_FieldBundle), allocatable, (:)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_subfieldbundles_ordinary~~CallsGraph Pages: 1 -->
+<svg id="procmake_subfieldbundles_ordinaryCallsGraph" width="641pt" height="250pt"
+ viewBox="0.00 0.00 641.00 250.12" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph" class="graph" transform="scale(1.91 1.91) rotate(0) translate(4 474)">
+<title>proc~~make_subfieldbundles_ordinary~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-474 1221,-474 1221,4 -4,4"/>
+<!-- proc~make_subfieldbundles_ordinary -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node1" class="node">
+<title>proc~make_subfieldbundles_ordinary</title>
+<polygon fill="none" stroke="black" points="184,-247 0,-247 0,-223 184,-223 184,-247"/>
+<text text-anchor="middle" x="92" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_subFieldBundles_ordinary</text>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node2" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="349.5,-470 228.5,-470 228.5,-446 349.5,-446 349.5,-470"/>
+<text text-anchor="middle" x="289" y="-455.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge1" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M97.14,-247.09C109.74,-282.04 150.99,-384.04 220,-437 222.02,-438.55 224.15,-439.98 226.36,-441.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="224.76,-444.42 235.25,-445.93 227.99,-438.21 224.76,-444.42"/>
+</g>
+<!-- esmf_fieldbundlecreate -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node3" class="node">
+<title>esmf_fieldbundlecreate</title>
+<polygon fill="#777777" stroke="#777777" points="358,-428 220,-428 220,-404 358,-404 358,-428"/>
+<text text-anchor="middle" x="289" y="-413.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundlecreate</text>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;esmf_fieldbundlecreate -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge2" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;esmf_fieldbundlecreate</title>
+<path fill="none" stroke="#ff0000" d="M99.96,-247.29C116.88,-276.15 163,-348.9 220,-390 225.18,-393.74 230.96,-397.01 236.91,-399.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.77,-403.18 246.33,-403.99 238.58,-396.77 235.77,-403.18"/>
+</g>
+<!-- interface~make_subfields -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node4" class="node">
+<title>interface~make_subfields</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node4"><a xlink:href=".././interface/make_subfields.html" xlink:title="make_subfields">
+<polygon fill="#a7506f" stroke="#a7506f" points="336.5,-247 241.5,-247 241.5,-223 336.5,-223 336.5,-247"/>
+<text text-anchor="middle" x="289" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_subfields</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;interface~make_subfields -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge4" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;interface~make_subfields</title>
+<path fill="none" stroke="#ff0000" d="M184.22,-235C200.17,-235 216.35,-235 231.04,-235"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.44,-238.5 241.44,-235 231.44,-231.5 231.44,-238.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node5"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="901,-310 825,-310 825,-286 901,-286 901,-310"/>
+<text text-anchor="middle" x="863" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge3" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M131.18,-247.1C216.81,-273.52 431.21,-335.73 616,-357 668.54,-363.05 683.36,-368.41 735,-357 771,-349.05 808.9,-329.82 833.83,-315.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="835.88,-318.32 842.72,-310.23 832.33,-312.28 835.88,-318.32"/>
+</g>
+<!-- proc~esmf_attributecopy -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node6" class="node">
+<title>proc~esmf_attributecopy</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributecopy.html" xlink:title="ESMF_AttributeCopy">
+<polygon fill="#a7506f" stroke="#a7506f" points="735,-104 616,-104 616,-80 735,-80 735,-104"/>
+<text text-anchor="middle" x="675.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeCopy</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;proc~esmf_attributecopy -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge5" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;proc~esmf_attributecopy</title>
+<path fill="none" stroke="#ff0000" d="M142.08,-222.93C248.53,-196.75 500.29,-134.84 615.32,-106.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="616.47,-109.87 625.35,-104.09 614.8,-103.08 616.47,-109.87"/>
+</g>
+<!-- esmf_fieldbundleadd -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node7" class="node">
+<title>esmf_fieldbundleadd</title>
+<polygon fill="#777777" stroke="#777777" points="351,-24 227,-24 227,0 351,0 351,-24"/>
+<text text-anchor="middle" x="289" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleadd</text>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;esmf_fieldbundleadd -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge6" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;esmf_fieldbundleadd</title>
+<path fill="none" stroke="#ff0000" d="M97.59,-222.94C111.1,-188.98 153.96,-91.59 220,-38 224.53,-34.33 229.63,-31.13 234.95,-28.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.49,-31.51 244.06,-24.1 233.52,-25.17 236.49,-31.51"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node8"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="904,-142 822,-142 822,-118 904,-118 904,-142"/>
+<text text-anchor="middle" x="863" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfieldbundles_ordinary&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge7" class="edge">
+<title>proc~make_subfieldbundles_ordinary&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M113.62,-222.95C138.34,-208.82 181.29,-185.27 220,-169 387.14,-98.74 435.45,-87.53 616,-71 668.67,-66.18 683.36,-59.59 735,-71 771,-78.95 808.9,-98.18 833.83,-112.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="832.33,-115.72 842.72,-117.77 835.88,-109.68 832.33,-115.72"/>
+</g>
+<!-- proc~make_subfields_from_num_grids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node9" class="node">
+<title>proc~make_subfields_from_num_grids</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node9"><a xlink:href=".././proc/make_subfields_from_num_grids.html" xlink:title="make_subfields_from_num_grids">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="580,-247 394,-247 394,-223 580,-223 580,-247"/>
+<text text-anchor="middle" x="487" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_subfields_from_num_grids</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subfields&#45;&gt;proc~make_subfields_from_num_grids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge8" class="edge">
+<title>interface~make_subfields&#45;&gt;proc~make_subfields_from_num_grids</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M336.95,-235C351.11,-235 367.24,-235 383.54,-235"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="383.7,-238.5 393.7,-235 383.7,-231.5 383.7,-238.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node11"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1124,-247 991,-247 991,-223 1124,-223 1124,-247"/>
+<text text-anchor="middle" x="1057.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff91" d="M901.13,-290.89C917.77,-287.33 937.55,-282.58 955,-277 977.53,-269.79 1002.06,-259.71 1021.36,-251.23"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1022.94,-254.35 1030.66,-247.09 1020.1,-247.96 1022.94,-254.35"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node10"><a xlink:href=".././proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1115,-142 1000,-142 1000,-118 1115,-118 1115,-142"/>
+<text text-anchor="middle" x="1057.5" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00da" d="M904.35,-130C929,-130 961.13,-130 989.51,-130"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="989.77,-133.5 999.77,-130 989.77,-126.5 989.77,-133.5"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M904.34,-135.16C920.65,-138.29 939.3,-143.24 955,-151 987.98,-167.3 1019.58,-196.28 1038.52,-215.57"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="1036.15,-218.14 1045.6,-222.93 1041.19,-213.29 1036.15,-218.14"/>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge14" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M517.98,-247.03C543.59,-256.78 581.63,-269.99 616,-277 684.23,-290.91 764.92,-295.62 814.79,-297.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="814.85,-300.71 824.94,-297.5 815.05,-293.71 814.85,-300.71"/>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~esmf_attributecopy -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge18" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~esmf_attributecopy</title>
+<path fill="none" stroke="#ff0000" d="M500.48,-222.62C527.49,-196 590.93,-134.4 616,-118 621.31,-114.53 627.16,-111.31 633.05,-108.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="634.67,-111.51 642.26,-104.11 631.71,-105.17 634.67,-111.51"/>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge19" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M501.35,-222.91C523.38,-203.78 569.53,-167.07 616,-151 681,-128.52 761.15,-125.97 811.93,-127.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="811.89,-130.7 822,-127.5 812.1,-123.7 811.89,-130.7"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node12" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="718,-268 633,-268 633,-244 718,-244 718,-268"/>
+<text text-anchor="middle" x="675.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge12" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M580.16,-245.38C594.64,-247.01 609.16,-248.64 622.31,-250.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="622.22,-253.63 632.54,-251.28 623,-246.68 622.22,-253.63"/>
+</g>
+<!-- interface~make_subgrids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node13" class="node">
+<title>interface~make_subgrids</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node13"><a xlink:href=".././interface/make_subgrids.html" xlink:title="make_subgrids">
+<polygon fill="#a7506f" stroke="#a7506f" points="722,-428 629,-428 629,-404 722,-404 722,-428"/>
+<text text-anchor="middle" x="675.5" y="-413.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_subgrids</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;interface~make_subgrids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge13" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;interface~make_subgrids</title>
+<path fill="none" stroke="#ff0000" d="M500.53,-247.16C532.25,-277.94 615.95,-359.17 654.52,-396.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="652.41,-399.44 662.03,-403.9 657.29,-394.42 652.41,-399.44"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node14" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="726,-184 625,-184 625,-160 726,-160 726,-184"/>
+<text text-anchor="middle" x="675.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge17" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M523.96,-222.85C553.98,-212.71 596.95,-198.2 629.3,-187.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="630.61,-190.52 638.97,-184 628.37,-183.89 630.61,-190.52"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node15" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node15"><a xlink:href=".././proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="719.5,-226 631.5,-226 631.5,-202 719.5,-202 719.5,-226"/>
+<text text-anchor="middle" x="675.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge15" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M580.16,-224.62C594.21,-223.04 608.29,-221.46 621.13,-220.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="621.59,-223.48 631.13,-218.88 620.8,-216.52 621.59,-223.48"/>
+</g>
+<!-- proc~find_bounds -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node16" class="node">
+<title>proc~find_bounds</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node16"><a xlink:href=".././proc/find_bounds.html" xlink:title="find_bounds">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="714,-348 637,-348 637,-324 714,-324 714,-348"/>
+<text text-anchor="middle" x="675.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_bounds</text>
+</a>
+</g>
+</g>
+<!-- proc~make_subfields_from_num_grids&#45;&gt;proc~find_bounds -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge16" class="edge">
+<title>proc~make_subfields_from_num_grids&#45;&gt;proc~find_bounds</title>
+<path fill="none" stroke="#ff0000" d="M507.14,-247.12C531.84,-262.56 576.36,-289.66 616,-310 622.53,-313.35 629.58,-316.7 636.44,-319.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="635.08,-323.05 645.63,-323.94 637.93,-316.66 635.08,-323.05"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node17" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node17"><a xlink:href=".././proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1217,-247 1160,-247 1160,-223 1217,-223 1217,-247"/>
+<text text-anchor="middle" x="1188.5" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#0000ff" d="M1124.13,-235C1132.88,-235 1141.59,-235 1149.63,-235"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1149.77,-238.5 1159.77,-235 1149.77,-231.5 1149.77,-238.5"/>
+</g>
+<!-- proc~make_subgrids_from_num_grids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node18" class="node">
+<title>proc~make_subgrids_from_num_grids</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node18"><a xlink:href=".././proc/make_subgrids_from_num_grids.html" xlink:title="make_subgrids_from_num_grids">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="955,-449 771,-449 771,-425 955,-425 955,-449"/>
+<text text-anchor="middle" x="863" y="-434.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_subgrids_from_num_grids</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subgrids&#45;&gt;proc~make_subgrids_from_num_grids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge21" class="edge">
+<title>interface~make_subgrids&#45;&gt;proc~make_subgrids_from_num_grids</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M722.35,-421.19C734.07,-422.52 747.13,-424 760.44,-425.5"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="760.32,-429.01 770.65,-426.66 761.11,-422.06 760.32,-429.01"/>
+</g>
+<!-- proc~make_subgrids_from_bounds -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node21" class="node">
+<title>proc~make_subgrids_from_bounds</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node21"><a xlink:href=".././proc/make_subgrids_from_bounds.html" xlink:title="make_subgrids_from_bounds">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="946.5,-407 779.5,-407 779.5,-383 946.5,-383 946.5,-407"/>
+<text text-anchor="middle" x="863" y="-392.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_subgrids_from_bounds</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subgrids&#45;&gt;proc~make_subgrids_from_bounds -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge22" class="edge">
+<title>interface~make_subgrids&#45;&gt;proc~make_subgrids_from_bounds</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M722.35,-410.81C736.66,-409.19 752.98,-407.34 769.3,-405.49"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="769.91,-408.95 779.45,-404.35 769.12,-401.99 769.91,-408.95"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M718.41,-226.01C724.23,-228.53 729.94,-231.51 735,-235 755.24,-248.95 749.97,-264.27 771,-277 784.07,-284.92 799.85,-289.85 814.58,-292.92"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="814.09,-296.39 824.55,-294.77 815.36,-289.51 814.09,-296.39"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M718.41,-201.99C724.23,-199.47 729.94,-196.49 735,-193 755.24,-179.05 749.97,-163.73 771,-151 783.28,-143.57 797.94,-138.76 811.88,-135.66"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="812.72,-139.06 821.85,-133.69 811.36,-132.19 812.72,-139.06"/>
+</g>
+<!-- proc~esmf_gridget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node19" class="node">
+<title>proc~esmf_gridget</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node19"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="907,-226 819,-226 819,-202 907,-202 907,-226"/>
+<text text-anchor="middle" x="863" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~esmf_gridget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~esmf_gridget</title>
+<path fill="none" stroke="#00ffff" d="M719.52,-214C746.12,-214 780.46,-214 808.76,-214"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="808.89,-217.5 818.89,-214 808.89,-210.5 808.89,-217.5"/>
+</g>
+<!-- proc~esmf_attributeget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node20" class="node">
+<title>proc~esmf_attributeget</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="918.5,-184 807.5,-184 807.5,-160 918.5,-160 918.5,-184"/>
+<text text-anchor="middle" x="863" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~esmf_attributeget -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~esmf_attributeget</title>
+<path fill="none" stroke="#00ffff" d="M719.52,-204.26C743.15,-198.91 772.9,-192.17 799.09,-186.24"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="799.96,-189.64 808.94,-184.01 798.41,-182.81 799.96,-189.64"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_node22" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CallsGraph_node22"><a xlink:href=".././proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="915,-268 811,-268 811,-244 915,-244 915,-268"/>
+<text text-anchor="middle" x="863" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~make_subfieldbundles_ordinary~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#00ffff" d="M719.52,-223.74C743.72,-229.22 774.34,-236.15 800.98,-242.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="800.45,-245.65 810.97,-244.45 801.99,-238.82 800.45,-245.65"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocmake_subfieldbundles_ordinaryCallsGraph = svgPanZoom('#procmake_subfieldbundles_ordinaryCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_subfieldbundles_ordinary~~CalledByGraph Pages: 1 -->
+<svg id="procmake_subfieldbundles_ordinaryCalledByGraph" width="586pt" height="95pt"
+ viewBox="0.00 0.00 586.00 95.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 91)">
+<title>proc~~make_subfieldbundles_ordinary~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 582,-91 582,4 -4,4"/>
+<!-- proc~make_subfieldbundles_ordinary -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_node1" class="node">
+<title>proc~make_subfieldbundles_ordinary</title>
+<polygon fill="none" stroke="black" points="578,-87 394,-87 394,-63 578,-63 578,-87"/>
+<text text-anchor="middle" x="486" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_subFieldBundles_ordinary</text>
+</g>
+<!-- interface~make_subfieldbundles -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_node2" class="node">
+<title>interface~make_subfieldbundles</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CalledByGraph_node2"><a xlink:href=".././interface/make_subfieldbundles.html" xlink:title="make_subfieldBundles">
+<polygon fill="#a7506f" stroke="#a7506f" points="358,-87 225,-87 225,-63 358,-63 358,-87"/>
+<text text-anchor="middle" x="291.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_subfieldBundles</text>
+</a>
+</g>
+</g>
+<!-- interface~make_subfieldbundles&#45;&gt;proc~make_subfieldbundles_ordinary -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_edge1" class="edge">
+<title>interface~make_subfieldbundles&#45;&gt;proc~make_subfieldbundles_ordinary</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.21,-75C366.43,-75 374.98,-75 383.59,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="383.7,-78.5 393.7,-75 383.7,-71.5 383.7,-78.5"/>
+</g>
+<!-- proc~make_substates_from_num_grids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_node3" class="node">
+<title>proc~make_substates_from_num_grids</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CalledByGraph_node3"><a xlink:href=".././proc/make_substates_from_num_grids.html" xlink:title="make_substates_from_num_grids">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="189,-66 0,-66 0,-42 189,-42 189,-66"/>
+<text text-anchor="middle" x="94.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_substates_from_num_grids</text>
+</a>
+</g>
+</g>
+<!-- proc~make_substates_from_num_grids&#45;&gt;interface~make_subfieldbundles -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_edge2" class="edge">
+<title>proc~make_substates_from_num_grids&#45;&gt;interface~make_subfieldbundles</title>
+<path fill="none" stroke="#ff0000" d="M189,-64.07C197.62,-65 206.28,-65.93 214.71,-66.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.54,-70.34 224.86,-67.93 215.29,-63.38 214.54,-70.34"/>
+</g>
+<!-- interface~make_substates -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_node4" class="node">
+<title>interface~make_substates</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CalledByGraph_node4"><a xlink:href=".././interface/make_substates.html" xlink:title="make_substates">
+<polygon fill="#a7506f" stroke="#a7506f" points="340.5,-45 242.5,-45 242.5,-21 340.5,-21 340.5,-45"/>
+<text text-anchor="middle" x="291.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_substates</text>
+</a>
+</g>
+</g>
+<!-- proc~make_substates_from_num_grids&#45;&gt;interface~make_substates -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_edge4" class="edge">
+<title>proc~make_substates_from_num_grids&#45;&gt;interface~make_substates</title>
+<path fill="none" stroke="#ff0000" d="M150.08,-41.99C175.64,-38.45 206.12,-35.13 232.14,-33.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.54,-36.52 242.25,-32.28 232.01,-29.54 232.54,-36.52"/>
+</g>
+<!-- interface~make_substates&#45;&gt;proc~make_substates_from_num_grids -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_edge3" class="edge">
+<title>interface~make_substates&#45;&gt;proc~make_substates_from_num_grids</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M242.34,-44.1C229.05,-46.02 214.1,-47.91 198.96,-49.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="198.57,-46.12 189,-50.68 199.32,-53.08 198.57,-46.12"/>
+</g>
+<!-- proc~create_subobjects -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_node5" class="node">
+<title>proc~create_subobjects</title>
+<g id="a_proc~~make_subfieldbundles_ordinary~~CalledByGraph_node5"><a xlink:href=".././proc/create_subobjects.html" xlink:title="create_subobjects">
+<polygon fill="#d9534f" stroke="#d9534f" points="149,-24 40,-24 40,0 149,0 149,-24"/>
+<text text-anchor="middle" x="94.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_subobjects</text>
+</a>
+</g>
+</g>
+<!-- proc~create_subobjects&#45;&gt;interface~make_substates -->
+<g id="proc~~make_subfieldbundles_ordinary~~CalledByGraph_edge5" class="edge">
+<title>proc~create_subobjects&#45;&gt;interface~make_substates</title>
+<path fill="none" stroke="#ff0000" d="M149.04,-17.77C174.82,-20.54 205.79,-23.88 232.17,-26.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.09,-30.23 242.41,-27.82 232.84,-23.27 232.09,-30.23"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_subfieldbundles_ordinary.html#src">make_subFieldBundles_ordinary</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">make_subFieldBundles_ordinary</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">num_grids</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">sub_bundles</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sub_bundles</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_grids</span><span class="w"></span>
+<span class="w">       </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">num_fields</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_list</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subfields</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
+
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">sub_bundles</span><span class="p">(</span><span class="n">num_grids</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">       </span><span class="c">! get number of fields and field list from field bundle</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldCount</span><span class="o">=</span><span class="n">num_fields</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">field_list</span><span class="p">(</span><span class="n">num_fields</span><span class="p">))</span><span class="w"></span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="n">field_list</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">       </span><span class="c">! make subfields for each field and add each subfield to corresponding field bundle</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">num_grids</span><span class="w"></span>
+<span class="w">          </span><span class="n">sub_bundles</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">sub_bundles</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">       do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">field_list</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="n">subfields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_subfields</span><span class="p">(</span><span class="n">field_list</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">num_grids</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">subfields</span><span class="p">)</span><span class="w"></span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_FieldBundleAdd</span><span class="p">(</span><span class="n">sub_bundles</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="n">subfields</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">end do</span>
+<span class="k">       end do</span>
+
+<span class="k">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end function </span><span class="n">make_subFieldBundles_ordinary</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T17:09:06.425233           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

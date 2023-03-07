@@ -1,0 +1,2940 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>pFIO_VariableMod &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>pFIO_VariableMod 
+    <small>Module</small>
+    
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for modules and submodules.">350 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Variable.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/variable.f90.html'>Variable.F90</a></li>
+          <li class="active">pFIO_VariableMod</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#variable-variable_serialize_type">Variable_SERIALIZE_TYPE</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#inters-0">Interfaces</a>
+        </h3>
+      </div>
+      <div id="inters-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#interface-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#types-0">Derived Types</a>
+        </h3>
+      </div>
+      <div id="types-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#type-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#funcs-0">Functions</a>
+        </h3>
+      </div>
+      <div id="funcs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_ith_dimension">get_ith_dimension</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_chunksizes">get_chunksizes</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_deflation">get_deflation</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_quantize_algorithm">get_quantize_algorithm</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_quantize_level">get_quantize_level</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_type">get_type</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-equal~4">equal</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-is_attribute_present">is_attribute_present</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-not_equal~3">not_equal</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_attribute~2">get_attribute</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_attributes~2">get_attributes</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_dimensions~2">get_dimensions</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_const_value">get_const_value</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-new_variable">new_Variable</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#subs-0">Subroutines</a>
+        </h3>
+      </div>
+      <div id="subs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-variable_deserialize">Variable_deserialize</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-add_attribute_0d~2">add_attribute_0d</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-add_attribute_1d~2">add_attribute_1d</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-add_const_value">add_const_value</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-serialize~23">serialize</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li>gFTL_StringVector</li>
+                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
+                <li><a href='../module/pfio_constantsmod.html'>pFIO_ConstantsMod</a></li>
+                <li><a href='../module/pfio_stringattributemapmod.html'>pFIO_StringAttributeMapMod</a></li>
+                <li><a href='../module/pfio_stringvectorutilmod.html'>pFIO_StringVectorUtilMod</a></li>
+                <li><a href='../module/pfio_attributemod.html'>pFIO_AttributeMod</a></li>
+                <li><a href='../module/pfio_utilitiesmod.html'>pFIO_UtilitiesMod</a></li>
+                <li><a href='../module/pfio_stringattributemaputilmod.html'>pFIO_StringAttributeMapUtilMod</a></li>
+                <li><a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a></li>
+                <li><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+                <li><a href='../module/pfio_unlimitedentitymod.html'>pFIO_UnlimitedEntityMod</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~pfio_variablemod~~UsesGraph Pages: 1 -->
+<svg id="modulepfio_variablemodUsesGraph" width="641pt" height="141pt"
+ viewBox="0.00 0.00 641.00 140.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~pfio_variablemod~~UsesGraph" class="graph" transform="scale(2.34 2.34) rotate(0) translate(4 325.16)">
+<title>module~~pfio_variablemod~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-325.16 1494,-325.16 1494,4 -4,4"/>
+<!-- module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node1" class="node">
+<title>module~pfio_variablemod</title>
+<polygon fill="none" stroke="black" points="1490,-148.04 1382,-148.04 1382,-124.04 1490,-124.04 1490,-148.04"/>
+<text text-anchor="middle" x="1436" y="-133.64" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_VariableMod</text>
+</g>
+<!-- module~pfio_unlimitedentitymod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node2" class="node">
+<title>module~pfio_unlimitedentitymod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node2"><a xlink:href=".././module/pfio_unlimitedentitymod.html" xlink:title="pFIO_UnlimitedEntityMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="783,-93.04 638,-93.04 638,-69.04 783,-69.04 783,-93.04"/>
+<text text-anchor="middle" x="710.5" y="-78.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UnlimitedEntityMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_unlimitedentitymod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge1" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_unlimitedentitymod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-116.04C836.32,-112.15 795.74,-103.34 764.43,-95.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="765.17,-92.11 754.61,-93.04 763.44,-98.89 765.17,-92.11"/>
+</g>
+<!-- module~pfio_stringattributemapmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node3" class="node">
+<title>module~pfio_stringattributemapmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node3"><a xlink:href=".././module/pfio_stringattributemapmod.html" xlink:title="pFIO_StringAttributeMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1129,-207.04 965,-207.04 965,-183.04 1129,-183.04 1129,-207.04"/>
+<text text-anchor="middle" x="1047" y="-192.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringAttributeMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_stringattributemapmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge3" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_stringattributemapmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1422.54,-148.33C1395.29,-174.25 1327.14,-233.85 1256.5,-255.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-255.04C1246.7,-257.38 1153.68,-228.68 1095.18,-210.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1095.99,-206.73 1085.4,-207.04 1093.87,-213.4 1095.99,-206.73"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_node4" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node4"><a xlink:href=".././module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="463,-192.04 316,-192.04 316,-168.04 463,-168.04 463,-192.04"/>
+<text text-anchor="middle" x="389.5" y="-177.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge4" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1046,-315.04C862.93,-330.18 807.36,-320.17 638,-249.04 596.64,-231.67 596.34,-198.28 551.5,-197.04"/>
+</g>
+<!-- gFTL_StringVector -->
+<g id="module~~pfio_variablemod~~UsesGraph_node5" class="node">
+<title>gFTL_StringVector</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="928.5,-287.04 819.5,-287.04 819.5,-263.04 928.5,-263.04 928.5,-287.04"/>
+<text text-anchor="middle" x="874" y="-272.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringVector</text>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;gFTL_StringVector -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge2" class="edge">
+<title>module~pfio_variablemod&#45;&gt;gFTL_StringVector</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-255.04C1162.96,-282.5 1143.25,-307.16 1048,-315.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1046,-315.04C999.12,-318.92 946.65,-303.59 912.34,-290.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="913.33,-287.43 902.74,-287.11 910.81,-293.97 913.33,-287.43"/>
+</g>
+<!-- module~pfio_stringvectorutilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node6" class="node">
+<title>module~pfio_stringvectorutilmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node6"><a xlink:href=".././module/pfio_stringvectorutilmod.html" xlink:title="pFIO_StringVectorUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1120.5,-287.04 973.5,-287.04 973.5,-263.04 1120.5,-263.04 1120.5,-287.04"/>
+<text text-anchor="middle" x="1047" y="-272.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVectorUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_stringvectorutilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge5" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_stringvectorutilmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-255.04C1214.75,-266.96 1168.96,-272.2 1130.61,-274.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1130.33,-270.87 1120.52,-274.87 1130.68,-277.86 1130.33,-270.87"/>
+</g>
+<!-- module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node7" class="node">
+<title>module~pfio_constantsmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node7"><a xlink:href=".././module/pfio_constantsmod.html" xlink:title="pFIO_ConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="448,-24.04 331,-24.04 331,-0.04 448,-0.04 448,-24.04"/>
+<text text-anchor="middle" x="389.5" y="-9.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge6" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1381.56,-135.19C1261.24,-133.1 972.02,-127.07 875,-116.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-116.04C826.36,-109.37 826.24,-78.74 783,-60.04 752.82,-46.99 743.15,-49.94 711.5,-41.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M709.5,-41.04C639.97,-21.48 622.96,-13.54 551.5,-3.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.5,-3.04C519.78,1.33 486.64,0.37 458.35,-2.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="457.76,1.28 448.16,-3.19 458.45,-5.69 457.76,1.28"/>
+</g>
+<!-- module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node8" class="node">
+<title>module~pfio_attributemod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node8"><a xlink:href=".././module/pfio_attributemod.html" xlink:title="pFIO_AttributeMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="929,-207.04 819,-207.04 819,-183.04 929,-183.04 929,-207.04"/>
+<text text-anchor="middle" x="874" y="-192.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AttributeMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge7" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1254.5,-255.04C1194.69,-272.98 1019.37,-232.58 929.49,-209.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="930.31,-206.18 919.76,-207.07 928.57,-212.96 930.31,-206.18"/>
+</g>
+<!-- module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node9" class="node">
+<title>module~pfio_utilitiesmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node9"><a xlink:href=".././module/pfio_utilitiesmod.html" xlink:title="pFIO_UtilitiesMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="602,-133.04 499,-133.04 499,-109.04 602,-109.04 602,-133.04"/>
+<text text-anchor="middle" x="550.5" y="-118.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge8" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M873,-116.04C782.5,-106.46 676.88,-111.11 612.1,-115.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="611.78,-112.26 602.06,-116.49 612.3,-119.24 611.78,-112.26"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node10" class="node">
+<title>module~pfio_stringattributemaputilmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node10"><a xlink:href=".././module/pfio_stringattributemaputilmod.html" xlink:title="pFIO_StringAttributeMapUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1346,-168.04 1165,-168.04 1165,-144.04 1346,-144.04 1346,-168.04"/>
+<text text-anchor="middle" x="1255.5" y="-153.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringAttributeMapUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~pfio_stringattributemaputilmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge9" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~pfio_stringattributemaputilmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1381.93,-141.98C1373.71,-142.9 1365.01,-143.88 1356.16,-144.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1355.69,-141.4 1346.14,-145.99 1356.47,-148.36 1355.69,-141.4"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_node11" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node11"><a xlink:href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="436.5,-83.04 342.5,-83.04 342.5,-59.04 436.5,-59.04 436.5,-83.04"/>
+<text text-anchor="middle" x="389.5" y="-68.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge10" class="edge">
+<title>module~pfio_variablemod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M709.5,-41.04C641.9,-22.03 621.69,-38.94 551.5,-41.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.5,-41.04C513.93,-42.1 474.63,-49.46 444,-56.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="442.87,-53.29 433.96,-59.03 444.5,-60.1 442.87,-53.29"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node12" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node12"><a xlink:href=".././module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="1335,-88.04 1176,-88.04 1176,-64.04 1335,-64.04 1335,-88.04"/>
+<text text-anchor="middle" x="1255.5" y="-73.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_variablemod&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge11" class="edge">
+<title>module~pfio_variablemod&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1405.15,-123.93C1387.97,-117.14 1365.91,-108.72 1346,-102.04 1334.62,-98.22 1322.31,-94.42 1310.57,-90.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1311.46,-87.58 1300.88,-88.15 1309.51,-94.3 1311.46,-87.58"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge12" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M695.26,-93.07C659.76,-122.84 568.93,-197.52 551.5,-197.04"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.5,-197.04C524.62,-196.35 497.67,-194.06 473.15,-191.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="473.49,-187.89 463.16,-190.24 472.7,-194.84 473.49,-187.89"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge15" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M669.57,-69C659.01,-65.16 647.83,-60.47 638,-55.04 620.26,-45.23 619.26,-37.67 602,-27.04 580.85,-14 576.09,-6.65 551.5,-3.04"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge14" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M662.09,-93.04C645.45,-97.25 626.57,-102.03 609.18,-106.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="607.98,-103.13 599.14,-108.97 609.7,-109.91 607.98,-103.13"/>
+</g>
+<!-- module~pfio_unlimitedentitymod&#45;&gt;iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge13" class="edge">
+<title>module~pfio_unlimitedentitymod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M671.94,-68.98C633.01,-56.95 574.69,-40.34 551.5,-41.04"/>
+</g>
+<!-- module~pfio_stringattributemapmod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge16" class="edge">
+<title>module~pfio_stringattributemapmod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M964.76,-195.04C956.18,-195.04 947.55,-195.04 939.2,-195.04"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="939.19,-191.54 929.19,-195.04 939.19,-198.54 939.19,-191.54"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node13" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node13"><a xlink:href=".././module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="280,-172.04 137,-172.04 137,-148.04 280,-148.04 280,-172.04"/>
+<text text-anchor="middle" x="208.5" y="-157.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge17" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M315.95,-171.93C307.45,-170.98 298.74,-170.01 290.15,-169.05"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="290.45,-165.56 280.12,-167.93 289.67,-172.52 290.45,-165.56"/>
+</g>
+<!-- module~mapl_throwmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_node14" class="node">
+<title>module~mapl_throwmod</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node14"><a xlink:href=".././module/mapl_throwmod.html" xlink:title="MAPL_ThrowMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="101,-212.04 0,-212.04 0,-188.04 101,-188.04 101,-212.04"/>
+<text text-anchor="middle" x="50.5" y="-197.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge18" class="edge">
+<title>module~mapl_exceptionhandling&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#e7ff00" stroke-dasharray="5,2" d="M315.79,-184.35C254.77,-187.97 168.65,-193.08 111.5,-196.48"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="110.95,-193 101.18,-197.09 111.37,-199.99 110.95,-193"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge21" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M709.5,-235.04C639.84,-215.95 623.7,-199.03 551.5,-197.04"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;gFTL_StringVector -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge19" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;gFTL_StringVector</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M973.48,-275.04C961.98,-275.04 950.16,-275.04 938.88,-275.04"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="938.69,-271.54 928.69,-275.04 938.69,-278.54 938.69,-271.54"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge20" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M999.03,-263.03C987.57,-259.28 975.58,-254.62 965,-249.04 947.08,-239.57 946.23,-231.72 929,-221.04 923.66,-217.73 917.84,-214.53 912.05,-211.58"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="913.59,-208.44 903.07,-207.17 910.5,-214.72 913.59,-208.44"/>
+</g>
+<!-- module~pfio_stringvectorutilmod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge22" class="edge">
+<title>module~pfio_stringvectorutilmod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M985.14,-263.04C967.12,-259.77 947.31,-256.47 929,-254.04 832.81,-241.23 806.16,-256.38 711.5,-235.04"/>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M709.5,-235.04C650.71,-218.93 596.39,-169.01 569.39,-140.86"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="571.61,-138.11 562.21,-133.21 566.5,-142.9 571.61,-138.11"/>
+</g>
+<!-- module~pfio_attributemod&#45;&gt;module~pfio_unlimitedentitymod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge24" class="edge">
+<title>module~pfio_attributemod&#45;&gt;module~pfio_unlimitedentitymod</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M855.72,-182.84C827.18,-162.69 770.09,-122.39 736.94,-98.99"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="738.85,-96.06 728.66,-93.15 734.81,-101.78 738.85,-96.06"/>
+</g>
+<!-- module~pfio_attributemod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge23" class="edge">
+<title>module~pfio_attributemod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M818.95,-196.49C755.05,-197.95 645.52,-199.63 551.5,-197.04"/>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge26" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M516.94,-133.12C492.5,-142.19 458.85,-154.68 432.4,-164.49"/>
+<polygon fill="#002eff" stroke="#002eff" points="431.17,-161.21 423.02,-167.97 433.61,-167.77 431.17,-161.21"/>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge28" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M536.38,-108.82C519.99,-93.9 490.7,-68.38 463,-50.04 451.29,-42.28 437.82,-34.85 425.69,-28.65"/>
+<polygon fill="#002eff" stroke="#002eff" points="427.24,-25.51 416.73,-24.17 424.11,-31.77 427.24,-25.51"/>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;iso_fortran_env -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge25" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M511.01,-108.93C489.22,-102.08 461.76,-93.45 438.56,-86.15"/>
+<polygon fill="#002eff" stroke="#002eff" points="439.5,-82.78 428.91,-83.12 437.4,-89.45 439.5,-82.78"/>
+</g>
+<!-- iso_c_binding -->
+<g id="module~~pfio_variablemod~~UsesGraph_node15" class="node">
+<title>iso_c_binding</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node15"><a xlink:href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fC_005fBINDING.html#ISO_005fC_005fBINDING" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="431.5,-133.04 347.5,-133.04 347.5,-109.04 431.5,-109.04 431.5,-133.04"/>
+<text text-anchor="middle" x="389.5" y="-118.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_utilitiesmod&#45;&gt;iso_c_binding -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge27" class="edge">
+<title>module~pfio_utilitiesmod&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M498.75,-121.04C480.59,-121.04 460.11,-121.04 441.89,-121.04"/>
+<polygon fill="#002eff" stroke="#002eff" points="441.74,-117.54 431.74,-121.04 441.74,-124.54 441.74,-117.54"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_stringattributemapmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge32" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_stringattributemapmod</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M1190.86,-168.06C1168.97,-172.19 1144.29,-176.85 1121.68,-181.12"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="1120.96,-177.69 1111.79,-182.99 1122.26,-184.57 1120.96,-177.69"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge29" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M709.5,-159.04C637.28,-159.04 623.7,-199.03 551.5,-197.04"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_attributemod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge30" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_attributemod</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M1046,-155.04C1002.36,-157.45 953.98,-169.7 919.84,-180.02"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="918.69,-176.71 910.17,-183 920.76,-183.4 918.69,-176.71"/>
+</g>
+<!-- module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_utilitiesmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge31" class="edge">
+<title>module~pfio_stringattributemaputilmod&#45;&gt;module~pfio_utilitiesmod</title>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M1164.99,-153.27C1128.66,-152.75 1086.3,-152.92 1048,-155.04"/>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M1046,-155.04C897.55,-163.23 860.17,-157.22 711.5,-159.04"/>
+<path fill="none" stroke="#5c00ff" stroke-dasharray="5,2" d="M709.5,-159.04C668.77,-159.04 623.73,-146.95 592.19,-136.41"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="593.04,-133 582.45,-133.06 590.77,-139.62 593.04,-133"/>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge34" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;module~mapl_throwmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M160.69,-172.04C144.26,-176.25 125.62,-181.03 108.45,-185.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.36,-182.1 98.54,-187.97 109.1,-188.88 107.36,-182.1"/>
+</g>
+<!-- mpi -->
+<g id="module~~pfio_variablemod~~UsesGraph_node16" class="node">
+<title>mpi</title>
+<g id="a_module~~pfio_variablemod~~UsesGraph_node16"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="77.5,-170.04 23.5,-170.04 23.5,-146.04 77.5,-146.04 77.5,-170.04"/>
+<text text-anchor="middle" x="50.5" y="-155.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_errorhandlingmod&#45;&gt;mpi -->
+<g id="module~~pfio_variablemod~~UsesGraph_edge33" class="edge">
+<title>module~mapl_errorhandlingmod&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M136.8,-159.13C119.81,-158.91 102.34,-158.69 87.68,-158.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.59,-155 77.55,-158.37 87.5,-162 87.59,-155"/>
+</g>
+</g>
+</svg>
+</div><script>var panmodulepfio_variablemodUsesGraph = svgPanZoom('#modulepfio_variablemodUsesGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+          </li>
+      </ul>
+    </div>
+
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Used by</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~pfio_variablemod~~UsedByGraph Pages: 1 -->
+<svg id="modulepfio_variablemodUsedByGraph" width="339pt" height="452pt"
+ viewBox="0.00 0.00 339.00 452.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~pfio_variablemod~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 448)">
+<title>module~~pfio_variablemod~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-448 335,-448 335,4 -4,4"/>
+<!-- module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node1" class="node">
+<title>module~pfio_variablemod</title>
+<polygon fill="none" stroke="black" points="108,-234 0,-234 0,-210 108,-210 108,-234"/>
+<text text-anchor="middle" x="54" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_VariableMod</text>
+</g>
+<!-- module~pfio_filemetadatamod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node2" class="node">
+<title>module~pfio_filemetadatamod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node2"><a xlink:href=".././module/pfio_filemetadatamod.html" xlink:title="pFIO_FileMetadataMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="304,-444 171,-444 171,-420 304,-420 304,-444"/>
+<text text-anchor="middle" x="237.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_filemetadatamod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge1" class="edge">
+<title>module~pfio_filemetadatamod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.88,-424.96C161.18,-421.78 151.83,-417.29 144,-411 90.25,-367.8 67.25,-284.52 58.97,-244.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="62.36,-243.61 57.01,-234.46 55.49,-244.94 62.36,-243.61"/>
+</g>
+<!-- module~pfio_stringvariablemapmod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node3" class="node">
+<title>module~pfio_stringvariablemapmod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node3"><a xlink:href=".././module/pfio_stringvariablemapmod.html" xlink:title="pFIO_StringVariableMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="318.5,-402 156.5,-402 156.5,-378 318.5,-378 318.5,-402"/>
+<text text-anchor="middle" x="237.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_stringvariablemapmod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge2" class="edge">
+<title>module~pfio_stringvariablemapmod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.63,-377.81C154.09,-375.38 148.81,-372.47 144,-369 99.89,-337.19 73.48,-276.16 61.92,-243.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.23,-242.49 58.68,-234.16 58.6,-244.75 65.23,-242.49"/>
+</g>
+<!-- module~pfio_stringvariablemaputilmod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node4" class="node">
+<title>module~pfio_stringvariablemaputilmod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node4"><a xlink:href=".././module/pfio_stringvariablemaputilmod.html" xlink:title="pFIO_StringVariableMapUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="327,-360 148,-360 148,-336 327,-336 327,-360"/>
+<text text-anchor="middle" x="237.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_stringvariablemaputilmod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge3" class="edge">
+<title>module~pfio_stringvariablemaputilmod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.57,-335.86C156.07,-333.42 149.77,-330.5 144,-327 109.55,-306.09 81.87,-267.18 66.99,-243.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="69.89,-241.07 61.75,-234.29 63.88,-244.67 69.89,-241.07"/>
+</g>
+<!-- module~pfio_coordinatevariablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node5" class="node">
+<title>module~pfio_coordinatevariablemod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node5"><a xlink:href=".././module/pfio_coordinatevariablemod.html" xlink:title="pFIO_CoordinateVariableMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="321,-318 154,-318 154,-294 321,-294 321,-318"/>
+<text text-anchor="middle" x="237.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CoordinateVariableMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_coordinatevariablemod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge4" class="edge">
+<title>module~pfio_coordinatevariablemod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M168.8,-293.89C160.28,-291.43 151.82,-288.49 144,-285 118.74,-273.73 93.33,-254.81 76.16,-240.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="78.33,-237.89 68.43,-234.11 73.82,-243.24 78.33,-237.89"/>
+</g>
+<!-- module~pfio_netcdf4_fileformattermod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node6" class="node">
+<title>module~pfio_netcdf4_fileformattermod</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node6"><a xlink:href=".././module/pfio_netcdf4_fileformattermod.html" xlink:title="pFIO_NetCDF4_FileFormatterMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="331,-276 144,-276 144,-252 331,-252 331,-276"/>
+<text text-anchor="middle" x="237.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_netcdf4_fileformattermod&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge5" class="edge">
+<title>module~pfio_netcdf4_fileformattermod&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M183.17,-251.97C170.33,-249.06 156.67,-245.93 144,-243 134.82,-240.87 125.11,-238.6 115.61,-236.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="116.35,-232.95 105.81,-234.07 114.75,-239.77 116.35,-232.95"/>
+</g>
+<!-- module~pfio -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node7" class="node">
+<title>module~pfio</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node7"><a xlink:href=".././module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="264.5,-234 210.5,-234 210.5,-210 264.5,-210 264.5,-234"/>
+<text text-anchor="middle" x="237.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~pfio&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge6" class="edge">
+<title>module~pfio&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M210.5,-222C186.53,-222 149.98,-222 118.34,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.27,-218.5 108.27,-222 118.27,-225.5 118.27,-218.5"/>
+</g>
+<!-- module~test_variable -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node8" class="node">
+<title>module~test_variable</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node8"><a xlink:href=".././module/test_variable.html" xlink:title="Test_Variable">
+<polygon fill="#337ab7" stroke="#337ab7" points="278.5,-192 196.5,-192 196.5,-168 278.5,-168 278.5,-192"/>
+<text text-anchor="middle" x="237.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_Variable</text>
+</a>
+</g>
+</g>
+<!-- module~test_variable&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge7" class="edge">
+<title>module~test_variable&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M196.42,-189.02C180.14,-192.71 161.17,-197.03 144,-201 134.82,-203.13 125.11,-205.4 115.61,-207.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.75,-204.23 105.81,-209.93 116.35,-211.05 114.75,-204.23"/>
+</g>
+<!-- module~test_coordinatevariable -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node9" class="node">
+<title>module~test_coordinatevariable</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node9"><a xlink:href=".././module/test_coordinatevariable.html" xlink:title="Test_CoordinateVariable">
+<polygon fill="#337ab7" stroke="#337ab7" points="308,-150 167,-150 167,-126 308,-126 308,-150"/>
+<text text-anchor="middle" x="237.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CoordinateVariable</text>
+</a>
+</g>
+</g>
+<!-- module~test_coordinatevariable&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge8" class="edge">
+<title>module~test_coordinatevariable&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M168.8,-150.11C160.28,-152.57 151.82,-155.51 144,-159 118.74,-170.27 93.33,-189.19 76.16,-203.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="73.82,-200.76 68.43,-209.89 78.33,-206.11 73.82,-200.76"/>
+</g>
+<!-- module~test_serverthread -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node10" class="node">
+<title>module~test_serverthread</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node10"><a xlink:href=".././module/test_serverthread.html" xlink:title="Test_ServerThread">
+<polygon fill="#337ab7" stroke="#337ab7" points="293,-108 182,-108 182,-84 293,-84 293,-108"/>
+<text text-anchor="middle" x="237.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ServerThread</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge9" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.91,-102.32C168.85,-105.44 155.4,-110.08 144,-117 109.55,-137.91 81.87,-176.82 66.99,-200.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.88,-199.33 61.75,-209.71 69.89,-202.93 63.88,-199.33"/>
+</g>
+<!-- module~test_filemetadata -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node11" class="node">
+<title>module~test_filemetadata</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node11"><a xlink:href=".././module/test_filemetadata.html" xlink:title="Test_FileMetadata">
+<polygon fill="#337ab7" stroke="#337ab7" points="290.5,-66 184.5,-66 184.5,-42 290.5,-42 290.5,-66"/>
+<text text-anchor="middle" x="237.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FileMetadata</text>
+</a>
+</g>
+</g>
+<!-- module~test_filemetadata&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge10" class="edge">
+<title>module~test_filemetadata&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M184.46,-58.31C170.36,-61.39 155.75,-66.52 144,-75 99.89,-106.81 73.48,-167.84 61.92,-200.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.6,-199.25 58.68,-209.84 65.23,-201.51 58.6,-199.25"/>
+</g>
+<!-- module~test_netcdf4_fileformatter -->
+<g id="module~~pfio_variablemod~~UsedByGraph_node12" class="node">
+<title>module~test_netcdf4_fileformatter</title>
+<g id="a_module~~pfio_variablemod~~UsedByGraph_node12"><a xlink:href=".././module/test_netcdf4_fileformatter.html" xlink:title="Test_NetCDF4_FileFormatter">
+<polygon fill="#337ab7" stroke="#337ab7" points="318,-24 157,-24 157,0 318,0 318,-24"/>
+<text text-anchor="middle" x="237.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_NetCDF4_FileFormatter</text>
+</a>
+</g>
+</g>
+<!-- module~test_netcdf4_fileformatter&#45;&gt;module~pfio_variablemod -->
+<g id="module~~pfio_variablemod~~UsedByGraph_edge11" class="edge">
+<title>module~test_netcdf4_fileformatter&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M158.31,-24.07C153.2,-26.55 148.36,-29.49 144,-33 90.25,-76.2 67.25,-159.48 58.97,-199.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="55.49,-199.06 57.01,-209.54 62.36,-200.39 55.49,-199.06"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+          </li>
+      </ul>
+    </div>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#variable-variable_serialize_type">Variable_SERIALIZE_TYPE</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#inters-1">Interfaces</a>
+        </h3>
+      </div>
+      <div id="inters-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#interface-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#types-1">Derived Types</a>
+        </h3>
+      </div>
+      <div id="types-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#type-variable">Variable</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#funcs-1">Functions</a>
+        </h3>
+      </div>
+      <div id="funcs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_ith_dimension">get_ith_dimension</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_chunksizes">get_chunksizes</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_deflation">get_deflation</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_quantize_algorithm">get_quantize_algorithm</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_quantize_level">get_quantize_level</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_type">get_type</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-equal~4">equal</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-is_attribute_present">is_attribute_present</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-not_equal~3">not_equal</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_attribute~2">get_attribute</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_attributes~2">get_attributes</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_dimensions~2">get_dimensions</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-get_const_value">get_const_value</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-new_variable">new_Variable</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#subs-1">Subroutines</a>
+        </h3>
+      </div>
+      <div id="subs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-variable_deserialize">Variable_deserialize</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-add_attribute_0d~2">add_attribute_0d</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-add_attribute_1d~2">add_attribute_1d</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-add_const_value">add_const_value</a>
+            <a class="list-group-item" href="../module/pfio_variablemod.html#proc-serialize~23">serialize</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    <section>
+    <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-variable_serialize_type"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>Variable_SERIALIZE_TYPE</strong></td>
+<td> =</td>
+                <td>100</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+    <section>
+   <h2>Interfaces</h2>
+       <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="interface-variable"></span>
+      <h3>public        interface <a href='../interface/variable.html'>Variable</a> 
+      </h3>
+    </div>
+    <ul class="list-group">
+          <li class="list-group-item">
+                <h3>
+    private  function <a href='../proc/new_variable.html'>new_Variable</a>(unusable, type, dimensions, chunksizes, const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)  
+
+    </h3>
+    
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>type</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimensions</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>chunksizes</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>const_value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflation</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_algorithm</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_level</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/variable.html'>Variable</a>)</small>
+    </h4>
+    
+
+          </li>
+    </ul>
+  </div>
+
+    </section>
+  <br>
+
+    
+    <section>
+     <h2>Derived Types</h2>
+       <div class="panel panel-default">
+    <div class="panel-heading codesum">
+      <span class="anchor" id="type-variable"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/variable.html'>Variable</a>
+        
+      </h3>
+    </div>
+    <div class="panel-body">
+      
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chunksizes"></span>
+              integer,
+            </td>
+              <td>private,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>chunksizes</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deflation~2"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflation</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-quantize_algorithm~5"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_algorithm</strong></td>
+<td> =</td>
+                <td>1</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-quantize_level~5"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_level</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-type"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>type</strong></td>
+<td> =</td>
+                <td>-1</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attributes"></span>
+              type(<a href='../type/stringattributemap.html'>StringAttributeMap</a>),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attributes</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dimensions~3"></span>
+              type(StringVector),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimensions</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-const_value"></span>
+              type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>const_value</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        <h4>Constructor</h4>
+          
+        <table class="table table-striped varlist">
+          <tbody>
+                <tr>
+                  <td>
+                        private
+
+                    
+                    function
+                    <strong><a href='../proc/new_variable.html'>new_Variable</a></strong>
+                    (unusable, type, dimensions, chunksizes, const_value, deflation, quantize_algorithm, quantize_level, rc)
+                  </td>
+                  <td></td>
+                </tr>
+          </tbody>
+        </table>
+
+
+        <h4>Type-Bound Procedures</h4>
+        <table class="table table-striped varlist">
+          <tbody>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute~3'>add_attribute</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-add_attribute_0d~2'>add_attribute_0d</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute~4'>add_attribute</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-add_attribute_1d~2'>add_attribute_1d</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute_0d~2'>add_attribute_0d</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_attribute_1d~2'>add_attribute_1d</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-add_const_value'>add_const_value</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-equal~22'>equal</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_attribute~2'>get_attribute</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_attributes~2'>get_attributes</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_chunksizes'>get_chunksizes</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_const_value'>get_const_value</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_deflation'>get_deflation</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_dimensions~2'>get_dimensions</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_ith_dimension'>get_ith_dimension</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_quantize_algorithm'>get_quantize_algorithm</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_quantize_level'>get_quantize_level</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-get_type'>get_type</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-is_attribute_present'>is_attribute_present</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-not_equal~3'>not_equal</a></strong>
+<small>Function</small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-operator%28SLASH%3D%29~115'>operator(/=)</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-not_equal~3'>not_equal</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+generic,
+                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-operator%28%3D%3D%29~145'>operator(==)</a></strong>
+ =>
+                    <a href='../type/variable.html#boundprocedure-equal~22'>equal</a>
+<small></small>                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>
+                    procedure
+                    ,                  public
+                  :: <strong><a href='../type/variable.html#boundprocedure-serialize~25'>serialize</a></strong>
+<small>Subroutine</small>                </td>
+                <td></td>
+              </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+    </section>
+  <br>
+    
+ 
+    <section>
+    <h2>Functions</h2>
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_ith_dimension"></span><h3>private  function <a href='../proc/get_ith_dimension.html'>get_ith_dimension</a>(this, i, unusable, rc) result(dimension_name)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>character(len=:), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_chunksizes"></span><h3>private  function <a href='../proc/get_chunksizes.html'>get_chunksizes</a>(this) result(chunksizes)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer, pointer, (:)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_deflation"></span><h3>private  function <a href='../proc/get_deflation.html'>get_deflation</a>(this) result(deflateLevel)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_quantize_algorithm"></span><h3>private  function <a href='../proc/get_quantize_algorithm.html'>get_quantize_algorithm</a>(this) result(quantizeAlgorithm)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_quantize_level"></span><h3>private  function <a href='../proc/get_quantize_level.html'>get_quantize_level</a>(this) result(quantizeLevel)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_type"></span><h3>private  function <a href='../proc/get_type.html'>get_type</a>(this) result(type)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-equal~4"></span><h3>private  function <a href='../proc/equal~4.html'>equal</a>(a, b)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-is_attribute_present"></span><h3>private  function <a href='../proc/is_attribute_present.html'>is_attribute_present</a>(this, attr_name, rc) result(isPresent)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-not_equal~3"></span><h3>private  function <a href='../proc/not_equal~3.html'>not_equal</a>(a, b)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_attribute~2"></span><h3>private  function <a href='../proc/get_attribute~2.html'>get_attribute</a>(this, attr_name, rc) result(attr)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/attribute.html'>Attribute</a>), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_attributes~2"></span><h3>private  function <a href='../proc/get_attributes~2.html'>get_attributes</a>(this) result(attributes)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/stringattributemap.html'>StringAttributeMap</a>), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_dimensions~2"></span><h3>private  function <a href='../proc/get_dimensions~2.html'>get_dimensions</a>(this) result(dimensions)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(StringVector), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_const_value"></span><h3>private  function <a href='../proc/get_const_value.html'>get_const_value</a>(this) result(const_value)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>), pointer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-new_variable"></span><h3>private  function <a href='../proc/new_variable.html'>new_Variable</a>(unusable, type, dimensions, chunksizes, const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>type</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimensions</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>chunksizes</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>const_value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflation</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_algorithm</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>quantize_level</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/variable.html'>Variable</a>)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+    </section>
+    <br>
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-variable_deserialize"></span><h3>public  subroutine <a href='../proc/variable_deserialize.html'>Variable_deserialize</a>(buffer, var, rc)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-add_attribute_0d~2"></span><h3>private  subroutine <a href='../proc/add_attribute_0d~2.html'>add_attribute_0d</a>(this, attr_name, attr_value, rc)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-add_attribute_1d~2"></span><h3>private  subroutine <a href='../proc/add_attribute_1d~2.html'>add_attribute_1d</a>(this, attr_name, attr_values, rc)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_values</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-add_const_value"></span><h3>private  subroutine <a href='../proc/add_const_value.html'>add_const_value</a>(this, const_value, rc)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/unlimitedentity.html'>UnlimitedEntity</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>const_value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-serialize~23"></span><h3>private  subroutine <a href='../proc/serialize~23.html'>serialize</a>(this, buffer, rc)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='../type/variable.html'>Variable</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+    </section>
+    <br>
+
+
+
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-07T17:09:06.425233           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
