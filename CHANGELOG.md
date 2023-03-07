@@ -10,6 +10,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added config array overload to `MAPL_GetResource`
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.35.2] - 2023-03-06
+
+### Changed
+
+- Updated ExtData test case2 to handle a wider range of test times for more robust testing
+
+### Fixed
+
+- Fixed bug in climatology hanlding of data in ExtDataV2 that occurred depending on the start date of the application relative to the length of the application run time
+- Fixed set_grid. The cf_root is not created when it is called. Instead, use config from CAP.rc
+
+### Removed
+
+- Removed test case 2 for ExtDataV1 as there as an apparent bug in climatologies that has been fixed for ExtDataV2 but there appears to be a different but in ExtDataV1 that causes the extended case 2 to fail
+
+## [2.35.1] - 2023-03-01
+
+### Fixed
+
+- Fix issue when running with monthly history collections
+
+## [2.35.0] - 2023-03-01
+
+### Added
+
+- Added subroutines to read char type in Netcdf
+- Added a subroutine add_variable to Netcdf4_Fileformatter
+- Add a function to get the area of a spherical polygon to the spherical geometry module
 - Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
 - Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
   provides a convenient local solar hour angle diagnostic which will be used to detect local
@@ -17,9 +53,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for more details. Provides the TRUE local solar hour angle (i.e., with equation of time
   included), but can also provide the MEAN value (without EOT) via `FORCE_MLSHA=.TRUE.`
   optional argument.
+- Add `shavemantissa` f2py code. This is used by AeroApps.
+  - NOTE: If you do not have a need for this code, build with `-DUSE_F2PY=OFF`. Note that even if you try to build the f2py code, it might fail anyway due to issues with the Python stack on the machine. ESMA_cmake has code that "tests" if f2py works. If it doesn't, it should failover gracefully.
 
 ### Changed
 
+- Changed set_grid method so users have a chance to specify the grid type
 - Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
   respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
   more accurately reflect what the RegridMethods functions do.
@@ -29,13 +68,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Rather, these default values are encapsulated where they belong in `Sun_Mod` in `base/MAPL_sun_uc.F90`
   and are now explicitly named and commented on at the head of the module. This is a structural
   zero-diff change.
+- Created `MAPL.profiler` logger and moved throughput, per-component, and global timers to use it
 - Moved most of the MAPL_GetResource generic subroutine to a new module, MAPL_ResourceMod, in base.
   The specific subroutines remain in MAPL_GenericMod to maintain the interface in one module, but
   most of the functionality is in MAPL_ResourceMod now.
 - Update "build like UFS" CI test
+- Converted the History Gridded Component to use `_RC` and `_STAT` macros
 
 ### Fixed
 
+- Changed the type of output counters to INT64 for large file.
+- Tested optional arguments arrdes in MAPL_WriteVars
 - Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
 - Corrected issue with native output having metadata saying it was bilinearly regridded. Now sets these files to have
@@ -43,9 +86,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
 - Fixed error handling for refactored MAPL_GetResource
 
-### Removed
+## [2.34.3] - 2023-02-14
 
-### Deprecated
+### Added
+
+- Added test cases 28 and 29 to ExtData testing framework
+
+### Fixed
+
+- Fix bug in ExtData2G when used in "Replay" in the GEOSgcm
 
 ## [2.34.2] - 2023-01-19
 
