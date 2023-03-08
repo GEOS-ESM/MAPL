@@ -1,6 +1,7 @@
 esma_set_this (OVERRIDE MAPL.history)
 
 set (srcs
+     MAPL_StationSamplerMod.F90
      MAPL_HistoryTrajectoryMod.F90
      MAPL_HistoryCollection.F90
      MAPL_HistoryGridComp.F90

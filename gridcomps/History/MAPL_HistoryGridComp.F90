@@ -42,6 +42,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_DownbitMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
+  use StationSamplerMod  
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -868,6 +869,12 @@ contains
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
 
+! Get a single station-data file containing name/lon/lat/elev
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationFile, default="", &
+                                    label=trim(string) // 'station_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
+                                    label=trim(string) // 'observation_spec:', _RC)
+       
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
@@ -1807,6 +1814,8 @@ ENDDO PARSER
                   call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locIn, &
                        layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
                        NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, _RC)
+
+                  write(6,*) 'test if (found) from L1747 '
                end if
 
             end if
@@ -1884,7 +1893,7 @@ ENDDO PARSER
                  _RC )
          end if
 
-      endif
+      endif  ! Line 1676:       if (associated(IntState%Regrid(n)%PTR))
 
 ! Handle possible extra fields needed for the parser
       if (list(n)%nPExtraFields > 0) then
@@ -1908,6 +1917,7 @@ ENDDO PARSER
 
       end if
 
+!***----------------------------------------
       block
         type (ESMF_Field), pointer :: splitFields(:)
         logical :: split
@@ -2175,12 +2185,12 @@ ENDDO PARSER
          deallocate(splitFields)
       end do ! m-loop
       end block
-
+!***----------------------------------------
       ! reset list(n)%field_set and list(n)%items, if split
       !----------------------------------------------------
       call splitUngriddedFields(_RC)
 
-   end do
+   end do   ! Line 1655:    do n=1, nlist
 
    do n=1, nlist
       if (list(n)%disabled) cycle
@@ -2309,7 +2319,7 @@ ENDDO PARSER
           end do
 
 !       endif
-    enddo
+       enddo
 
     do n=1,nlist
        if (associated(list(n)%peAve)) then
@@ -2353,6 +2363,14 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+          elseif (list(n)%observation_spec /= '') then
+             if (list(n)%observation_spec == 'station') then
+                list(n)%station_sampler = StationSampler (trim(list(n)%stationfile),_RC)
+                call list(n)%station_sampler%add_metadata_route_handle(list(n)%items,list(n)%bundle,vdata=list(n)%vdata,_RC)
+             else
+                write(6,*) 'Not implemented: list(n)%observation_spec:', list(n)%observation_spec
+                STOP 'Error: list(n)%observation_spec not implemented'
+             endif
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
@@ -3299,6 +3317,8 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = .true.
+      else if (list(n)%observation_spec /= '') then
+         Writing(n) = .true.         
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
@@ -3405,6 +3425,19 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
             list(n)%currentFile = filename(n)
+         elseif (list(n)%observation_spec /= '') then
+            if (list(n)%observation_spec == 'station') then
+               if (list(n)%unit.eq.0) then
+                  if (mapl_am_i_root()) write(6,*) "Station_data from new file: ",trim(filename(n))
+                  call list(n)%station_sampler%close_file_handle(_RC)
+                  call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               end if
+               list(n)%currentFile = filename(n)
+            else
+               STOP 'Error: list(n)%observation_spec not implemented'
+            endif
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3422,7 +3455,8 @@ ENDDO PARSER
          end if
 
          if(  MAPL_AM_I_ROOT() ) then
-              if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output)) &
+            if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output) &
+                 .and. (list(n)%observation_spec=='') ) &
               write(6,'(1X,"Writing: ",i6," Slices to File:  ",a)') &
                     list(n)%slices,trim(list(n)%currentFile)
          endif
@@ -3483,7 +3517,7 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         if (.not.list(n)%timeseries_output) then
+         if (.not.list(n)%timeseries_output .and. (list(n)%observation_spec=='')) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
@@ -3550,6 +3584,11 @@ ENDDO PARSER
       if (list(n)%timeseries_output) then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
+      elseif (list(n)%observation_spec /= '') then
+         if (list(n)%observation_spec == 'station') then
+            call list(n)%station_sampler%append_file(current_time,_RC)
+         endif
+      else
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
