@@ -872,8 +872,17 @@ contains
 ! Get a single station-data file containing name/lon/lat/elev
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationFile, default="", &
                                     label=trim(string) // 'station_file:', _RC)
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskFile, default="", &
+!                                    label=trim(string) // 'mask_file:', _RC)
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%trajectoryFile, default="", &
+!                                    label=trim(string) // 'trajectory_file:', _RC)
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%swathFile, default="", &
+!                                    label=trim(string) // 'swath_file:', _RC)       
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
-                                    label=trim(string) // 'observation_spec:', _RC)
+                                    label=trim(string) // 'observation_spec:', _RC)  
+       write(6,*) 'list(n)%stationFile, list(n)%observation_spec : ', trim(list(n)%stationFile), trim(list(n)%observation_spec)
+       !!stop 'ck  stop'
+       
        
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -3431,6 +3440,7 @@ ENDDO PARSER
                   if (mapl_am_i_root()) write(6,*) "Station_data from new file: ",trim(filename(n))
                   call list(n)%station_sampler%close_file_handle(_RC)
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+                  stop 'nail 1'
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                end if

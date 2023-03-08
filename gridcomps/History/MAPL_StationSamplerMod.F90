@@ -46,48 +46,60 @@ module StationSamplerMod
      procedure :: close_file_handle
      procedure :: create_output_bundle
      procedure :: append_file
+     !!procedure :: destroy_sampler  !! destructor __ deallocate arrays
   end type StationSampler
 
   interface StationSampler
      module procedure new_StationSampler_readfile
   end interface StationSampler
 
+  integer :: maxstr = 2048  ! because ESMF_MAXSTR=256
   
 contains
 
   function new_StationSampler_readfile (filename,rc) result(sampler)
     type(StationSampler) :: sampler
-    character(len=ESMF_MAXSTR), intent(in) :: filename
+    character(len=*), intent(in) :: filename
     integer, optional, intent(out) :: rc
     ! loc
     integer :: ios
-    character(len=ESMF_MAXSTR) :: mystring
-    character(len=ESMF_MAXSTR), allocatable :: string_pieces(:)
+    character(len=maxstr) :: mystring
+    character(len=maxstr), allocatable :: string_pieces(:)
     integer :: max_len, max_seg, nseg
     integer :: i, iunit, nstation, status
     !
     !
     !_ 1. read from file
     !     read_lon_lat_elevate(filename): text file
-    max_len=ESMF_MAXSTR
+    max_len=maxstr
     max_seg=100       ! segmane separated by ',' on each line
     allocate(string_pieces(max_seg))
 
+    write(6,*) 'filename=', trim(filename)
+    write(6,*) 'ESMF_MAXSTR=', ESMF_MAXSTR 
+
     iunit=11
-    do while (iunit < 5000)
-!! ??
-!!       inquire(iunit, status=istat)
-!!       if (istat /= 0) iunit=iunit+1
-    enddo
+!    do while (iunit < 5000)
+!       inquire(iunit, status=istat)
+!       if (istat /= 0) iunit=iunit+1
+!       write(6,*) 'iunit=', iunit
+!    enddo
     !
     open (iunit, file=trim(filename), status='unknown')
-    i=0
+    i=0; ios=0
     do while (ios==0)
-       read (iunit, *, IOSTAT=ios, ERR=101)  mystring
+       read (iunit, '(A1024)', IOSTAT=ios, ERR=101)  mystring
+       if (ios/=0) goto 101
+       !!write(6,*) 'mystring : ', trim(mystring)
        i=i+1
     enddo
 101 continue
     nstation=i-2   ! minus 2 lines from header
+    write(6,*) 'nstation=', nstation    ! debug: should be 347 in station file
+
+    sampler%nstation=nstation
+    allocate(sampler%station_id(nstation))
+    allocate(sampler%station_name(nstation))
     allocate(sampler%longitude(nstation))
     allocate(sampler%latitude(nstation))
     allocate(sampler%elevation(nstation))
@@ -96,14 +108,18 @@ contains
     read(iunit, *)
     do i=1, nstation
        sampler%station_id(i)=i
-       read(iunit,*) mystring
+       read(iunit,'(A1024)') mystring
        call split_string (mystring, ',', max_len, max_seg, nseg, string_pieces, status)
-       read(string_pieces(1),*) sampler%station_name(i)
+       read(string_pieces(1),'(A1024)') sampler%station_name(i)
        read(string_pieces(2),*) sampler%longitude(i)
        read(string_pieces(3),*) sampler%latitude(i)
        read(string_pieces(4),*) sampler%elevation(i)
     enddo
-        
+    close(iunit)
+    deallocate(string_pieces)
+    write(6,*) 'sampler%station_name(i) : ', sampler%station_name(1:2)
+    write(6,*) 'sampler%longitude(i) : ', sampler%longitude(1:2)
+    
     !_ 2. create LocStreamFactory with StationSampler: 
     !
     sampler%LSF = LocStreamFactory(sampler%longitude, sampler%latitude, _RC)
@@ -169,7 +185,6 @@ contains
 
   end subroutine add_metadata_route_handle
     
-
   
   subroutine create_output_bundle(this,rc)
     class(StationSampler), intent(inout) :: this
@@ -209,7 +224,6 @@ contains
   end subroutine create_output_bundle
 
 
-
   subroutine create_variable(this,vname,rc)
      class(StationSampler), intent(inout) :: this
      character(len=*), intent(in) :: vname
@@ -236,10 +250,13 @@ contains
         units = 'unknown'
      endif
      if (field_rank==2) then
-        vdims = "time"
+        vdims = ""
+        return
+        ! empty return
      else if (field_rank==3) then
-        vdims = "time,lev"
+        vdims = "lev"
      end if
+
      v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
      call v%add_attribute('units',trim(units))
      call v%add_attribute('long_name',trim(long_name))
@@ -431,10 +448,10 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-
   
   
 end module StationSamplerMod
+
 
 ! Meta code:
 ! - station sampler obs 
@@ -497,5 +514,4 @@ end module StationSamplerMod
 !
 ! Take reference from:
 !   MAPL_HistoryTrajectoryMod.F90  &  GriddedIO.F90 
-!
 !
