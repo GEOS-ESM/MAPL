@@ -1830,7 +1830,7 @@ contains
 
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
          if (isTestFramework) then
-            call capture('before', GC, import, export, clock, _RC)
+            call capture('before', phase, GC, import, export, clock, _RC)
          else if (isTestFrameworkDriver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
             call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
@@ -1852,7 +1852,7 @@ contains
 
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
          if (isTestFramework) then
-            call capture('after', GC, import, export, clock, _RC)
+            call capture('after', phase, GC, import, export, clock, _RC)
          else if (isTestFrameworkDriver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
             call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
@@ -1882,8 +1882,9 @@ contains
 
    end subroutine MAPL_GenericWrapper
 
-   subroutine capture(POS, GC, IMPORT, EXPORT, CLOCK, RC)
+   subroutine capture(POS, PHASE, GC, IMPORT, EXPORT, CLOCK, RC)
      character(len=*),    intent(IN   ) :: POS    ! Before or after
+     integer,             intent(IN   ) :: PHASE  ! Run phase
      type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
      type(ESMF_State),    intent(INOUT) :: IMPORT ! Import state
      type(ESMF_State),    intent(INOUT) :: EXPORT ! Export state
@@ -1898,6 +1899,7 @@ contains
      type(ESMF_State), pointer :: internal
      integer :: hdr
      type(ESMF_Time) :: startTime, currTime, targetTime
+     character(len=1) :: phase_
       
      call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
      call MAPL_InternalStateGet ( GC, STATE, _RC)
@@ -1917,18 +1919,19 @@ contains
      if (currTime == targetTime) then
         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=.true., _RC)
+        write(phase_, '(i1)') phase
 
-        call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS), &
+        call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, .false., _RC)
       
         if (pos == "after") then
-           call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS), &
+           call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
                 FILETYPE, STATE, .false., _RC)
         end if
  
         call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         internal => state%get_internal_state()
-        call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS), &
+        call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
      end if
    end subroutine capture
