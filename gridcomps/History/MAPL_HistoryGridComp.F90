@@ -1,4 +1,3 @@
-
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 module MAPL_HistoryGridCompMod
@@ -881,7 +880,6 @@ contains
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
                                     label=trim(string) // 'observation_spec:', _RC)  
        write(6,*) 'list(n)%stationFile, list(n)%observation_spec : ', trim(list(n)%stationFile), trim(list(n)%observation_spec)
-       !!stop 'ck  stop'
        
        
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
@@ -3438,9 +3436,9 @@ ENDDO PARSER
             if (list(n)%observation_spec == 'station') then
                if (list(n)%unit.eq.0) then
                   if (mapl_am_i_root()) write(6,*) "Station_data from new file: ",trim(filename(n))
-                  call list(n)%station_sampler%close_file_handle(_RC)
+                  call list(n)%station_sampler%close_file_handle(_RC)   !? sometime fails!
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
-                  stop 'nail 1'
+!!                  stop 'nail 1'
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                end if
@@ -3591,6 +3589,8 @@ ENDDO PARSER
 
    WRITELOOP: do n=1,nlist
 
+      !-- note:  why not use bundlepost in GriddedIO.F90
+      !
       if (list(n)%timeseries_output) then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
@@ -5128,4 +5128,3 @@ ENDDO PARSER
   end subroutine CopyStateItems
 
 end module MAPL_HistoryGridCompMod
-

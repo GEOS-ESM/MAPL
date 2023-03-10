@@ -1,3 +1,18 @@
+!
+! metacode:
+! input:  bundle, station_file
+!    - bundle: grid, field(x, y, z)
+!    - station: [id, name, lat, lon, elevate (Arlindo: no verti-interp)]; static file
+!
+! core:
+!    - filemetadata to store NC specifics
+!    - LS route handle
+!    - LS interp
+!
+! output:
+!    - write nc
+!    - not yet append with time stamp 
+
 #include "MAPL_Generic.h"
 module StationSamplerMod
   use ESMF
@@ -20,32 +35,26 @@ module StationSamplerMod
 
   public :: StationSampler
   type :: StationSampler
-     type(LocStreamFactory) :: LSF
-     type(ESMF_LocStream) :: esmf_ls
+     type(LocStreamFactory) :: LSF   !? redundancy
+     type(ESMF_LocStream) :: esmf_ls 
      type(LocstreamRegridder) :: regridder
      integer :: nstation
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
-     real*8,  allocatable :: longitude(:)
-     real*8,  allocatable :: latitude(:)
-     real*8,  allocatable :: elevation(:)
+     real(kind=REAL64), allocatable :: longitude(:) ! overlap with LSF%lons(:)
+     real(kind=REAL64), allocatable :: latitude(:)  ! -- LSF%lats(:)
+     real(kind=REAL64), allocatable :: elevation(:) ! LSF does not have Z(:)
      !
      type(ESMF_FieldBundle) :: bundle
-     type(ESMF_FieldBundle) :: output_bundle
-     type(GriddedIOitemVector) :: items
-     type(FileMetadata) :: metadata
-     type(VerticalData) :: vdata
+     type(FileMetadata) :: fmd
      type(NetCDF4_FileFormatter) :: file_handle
-     logical :: do_vertical_regrid
-     integer :: number_written      !  what is this ??
+     integer :: number_written
      character(LEN=ESMF_MAXPATHLEN) :: file_name
    contains
      procedure :: add_metadata_route_handle
-     procedure :: create_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
-     procedure :: create_output_bundle
-     procedure :: append_file
+     procedure :: interp_write_file
      !!procedure :: destroy_sampler  !! destructor __ deallocate arrays
   end type StationSampler
 
@@ -57,6 +66,8 @@ module StationSamplerMod
   
 contains
 
+  !_ initializer / constructor from file
+  !
   function new_StationSampler_readfile (filename,rc) result(sampler)
     type(StationSampler) :: sampler
     character(len=*), intent(in) :: filename
@@ -67,24 +78,17 @@ contains
     character(len=maxstr), allocatable :: string_pieces(:)
     integer :: max_len, max_seg, nseg
     integer :: i, iunit, nstation, status
-    !
-    !
+
     !_ 1. read from file
-    !     read_lon_lat_elevate(filename): text file
+    !     plain text [lon/lat/elevation]: aeronet, ignore elevation for vertical interp
     max_len=maxstr
     max_seg=100       ! segmane separated by ',' on each line
     allocate(string_pieces(max_seg))
-
+    !
     write(6,*) 'filename=', trim(filename)
     write(6,*) 'ESMF_MAXSTR=', ESMF_MAXSTR 
-
-    iunit=11
-!    do while (iunit < 5000)
-!       inquire(iunit, status=istat)
-!       if (istat /= 0) iunit=iunit+1
-!       write(6,*) 'iunit=', iunit
-!    enddo
     !
+    iunit=11
     open (iunit, file=trim(filename), status='unknown')
     i=0; ios=0
     do while (ios==0)
@@ -94,16 +98,16 @@ contains
        i=i+1
     enddo
 101 continue
-    nstation=i-2   ! minus 2 lines from header
+    nstation=i-2   ! minus 2 lines from header: specific for areonet
     write(6,*) 'nstation=', nstation    ! debug: should be 347 in station file
-
+    !
     sampler%nstation=nstation
     allocate(sampler%station_id(nstation))
     allocate(sampler%station_name(nstation))
     allocate(sampler%longitude(nstation))
     allocate(sampler%latitude(nstation))
     allocate(sampler%elevation(nstation))
-    rewind(iunit)  !!; read(iunit, ('//'))
+    rewind(iunit)
     read(iunit, *)
     read(iunit, *)
     do i=1, nstation
@@ -120,156 +124,173 @@ contains
     write(6,*) 'sampler%station_name(i) : ', sampler%station_name(1:2)
     write(6,*) 'sampler%longitude(i) : ', sampler%longitude(1:2)
     
-    !_ 2. create LocStreamFactory with StationSampler: 
+    !_ 2. create LocStreamFactory, then emsf_ls including route_handle
     !
     sampler%LSF = LocStreamFactory(sampler%longitude, sampler%latitude, _RC)
     sampler%esmf_ls = sampler%LSF%create_locstream(_RC)
     !
   end function new_StationSampler_readfile
 
+!
+!  note-1:
+!  var in bundle
+!  var (lon, lat, lev) [..., x?? ]
+!  gridded __,  un-gridded
+!  step by step
+!  loop over bundle
+!    field
+!    dim
+!
+!
+!    Q2: metadata?
+!    concept?
+!    meta:  variable name, units, ... , dim,  station-id (extra var),
+!    when to create metadata?  Initial step, mod as needed,
+!    field (lon, lat, lev, time) :  time, unit, longname,  -> meta,
+!    filename
+!
+!    model field, 
+!
+!    bundle_in: vdata (user: new pressu level) --> bundle_out: vdata
+!    add meta
+!    do interp
+!       output nc
+!       
 
-  subroutine add_metadata_route_handle (this,items,bundle,vdata,rc)
+  
+  !_ prep fmd, RH
+  !
+  subroutine add_metadata_route_handle (this,bundle,timeInfo,rc)
     class(StationSampler), intent(inout) :: this
-    type(GriddedIOitemVector), target, intent(inout) :: items
     type(ESMF_FieldBundle), intent(inout) :: bundle
-    type(VerticalData), optional, intent(inout) :: vdata
+    type(TimeData), intent(inout) :: timeInfo   ! why out ?
     integer, optional, intent(out) :: rc   
-!initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
-    
+    !
     integer :: status
     type(ESMF_Grid) :: grid
     !!type(ESMF_Clock) :: clock
-    type(variable) :: v
-    type(GriddedIOitemVectorIterator) :: iter
-    type(GriddedIOitem), pointer :: item
+    type(variable) :: T, v
+    integer :: fieldCount
+    type(ESMF_Field), allocatable :: fieldList(:)
+    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
+    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdim
+    integer :: field_rank
+    logical :: is_present
 
-    this%bundle=bundle
-    this%items=items
 
-    if (present(vdata)) then
-       this%vdata=vdata
-    else
-       this%vdata=VerticalData(_RC)
-    end if
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC)
-    this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-    if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
-
-!    v = variable(type=PFIO_REAL64,dimensions="time")
-!    call v%add_attribute('units','degrees_east')
-!    call v%add_attribute('long_name','longitude')
-!    call this%metadata%add_variable(trim('longitude'),v)
-!    v = variable(type=PFIO_REAL64,dimensions="time")
-!    call v%add_attribute('units','degrees_east')
-!    call v%add_attribute('long_name','latitude')
-!    call this%metadata%add_variable(trim('latitude'),v)
+    ! wait
+    !    call timeInfo%add_time_to_metadata(this%fmd,_RC)
+    !    this%time_info = timeInfo
+    !    T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
     
-    iter = this%items%begin()    
-    do while (iter /= this%items%end())
-       item => iter%get()
-       if (item%itemType == ItemTypeScalar) then
-          call this%create_variable(item%xname,_RC)
-       else if (item%itemType == ItemTypeVector) then
-          call this%create_variable(item%xname,_RC)
-          call this%create_variable(item%yname,_RC)
-       end if
-       call iter%next()
-    enddo
-    
-    !  ??  this gird ==  history bundle grid ?? 
-    !  ??  should it be  model grid          ??
+    call this%fmd%add_dimension('nstation',this%nstation)
+    call this%fmd%add_dimension('time', 1)  ! time = UNLIMITED
     !
+    T = Variable(type=pFIO_REAL32, dimensions='nstation')
+    call T%add_attribute('long_name','longitude')
+    call T%add_attribute('unit','degree_east')    
+    call this%fmd%add_variable('longitude',T)
+    !
+    T = Variable(type=pFIO_REAL32, dimensions='nstation')
+    call T%add_attribute('long_name','latitude')
+    call T%add_attribute('unit','degree_north')    
+    call this%fmd%add_variable('latitude',T)    
+    !
+    T = Variable(type=pFIO_REAL32, dimensions='time')
+    call T%add_attribute('long_name','time')
+    ! inquire TimeINFO , clock, current_time, ESMF_time, to output --> string
+    call T%add_attribute('unit','minutes since 2000-04-14 22:00:00')
+    ! -- unit: second ? 7.5 min:  450 s
+    call this%fmd%add_variable('time',T)
+    !
+    !    call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
+  
+    !-- add field in bundle to metadata
+    !
+    call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+    allocate (fieldList(fieldCount), fieldNameList(fieldCount))
+    call ESMF_FieldBundleGet(bundle, fieldList=fieldList, fieldNameList=fieldNameList, _RC)
+    do i=1, fieldCount
+       var_name=trim(fieldNameList(i))
+       call ESMF_FieldGet(fieldList(i),rank=field_rank,_RC)
+       call ESMF_AttributeGet(fieldList(i),name="LONG_NAME",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(fieldList(i), NAME="LONG_NAME",VALUE=long_name, _RC)
+       else
+          long_name = var_name
+       endif
+       call ESMF_AttributeGet(fieldList(i),name="UNITS",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(fieldList(i), NAME="UNITS",VALUE=units, _RC)
+       else
+          units = 'unknown'
+       endif
+       !
+       if (field_rank==2) then
+          vdims = "nstation,time"
+       else if (field_rank==3) then
+          vdims = "nstation,lev,time"  ! check convention
+       end if
+       v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+       call v%add_attribute('units',trim(units))
+       call v%add_attribute('long_name',trim(long_name))
+       call v%add_attribute('missing_value',MAPL_UNDEF)
+       call v%add_attribute('_FillValue',MAPL_UNDEF)
+       call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+       call this%fmd%add_variable(trim(var_name),v,_RC)
+    enddo  ! fieldCount
+    
+    !_ 2: locstream route handle
     call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
-    call this%create_output_bundle(_RC)
-
   end subroutine add_metadata_route_handle
-    
-  
-  subroutine create_output_bundle(this,rc)
-    class(StationSampler), intent(inout) :: this
-    integer, optional, intent(out) :: rc
-    !
-    integer :: status
-    type(GriddedIOitemVectorIterator) :: iter
-    type(GriddedIOitem), pointer :: item
-    type(ESMF_Field) :: src_field,dst_field
-    integer :: rank,lb(1),ub(1)
-    !
-    this%output_bundle = ESMF_FieldBundleCreate(_RC)
-    iter = this%items%begin()
-    do while (iter /= this%items%end())
-       item => iter%get()
-       if (item%itemType == ItemTypeScalar) then
-          call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-          call ESMF_FieldGet(src_field,rank=rank,_RC)
-          if (rank==2) then
-             dst_field = ESMF_FieldCreate(this%esmf_ls,name=trim(item%xname), &
-                  typekind=ESMF_TYPEKIND_R4,_RC)
-          else if (rank==3) then
-             call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-             if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-                lb(1)=1
-                ub(1)=this%vdata%lm
-             end if             
-             dst_field = ESMF_FieldCreate(this%esmf_ls,name=trim(item%xname), &
-                  typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          end if
-          call MAPL_FieldBundleAdd(this%output_bundle,dst_field,_RC)
-       else if (item%itemType == ItemTypeVector) then
-          _FAIL("ItemTypeVector not yet supported")
-       end if
-       call iter%next()
-    enddo    
-  end subroutine create_output_bundle
-
-
-  subroutine create_variable(this,vname,rc)
-     class(StationSampler), intent(inout) :: this
-     character(len=*), intent(in) :: vname
-     integer, optional, intent(out) :: rc
-
-     integer :: status,field_rank
-     type(ESMF_Field) :: field
-     character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
-     type(variable) :: v
-     logical :: is_present
-
-     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
-     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
-     call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
-     if ( is_present ) then
-        call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
-     else
-        long_name = var_name
-     endif
-     call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
-     if ( is_present ) then
-        call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
-     else
-        units = 'unknown'
-     endif
-     if (field_rank==2) then
-        vdims = ""
-        return
-        ! empty return
-     else if (field_rank==3) then
-        vdims = "lev"
-     end if
-
-     v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-     call v%add_attribute('units',trim(units))
-     call v%add_attribute('long_name',trim(long_name))
-     call v%add_attribute('missing_value',MAPL_UNDEF)
-     call v%add_attribute('_FillValue',MAPL_UNDEF)
-     call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-     call this%metadata%add_variable(trim(var_name),v,_RC)
-
-  end subroutine create_variable
-
+!
+!  subroutine create_variable(this,vname,rc)
+!     class(StationSampler), intent(inout) :: this
+!     character(len=*), intent(in) :: vname
+!     integer, optional, intent(out) :: rc
+!
+!     integer :: status,field_rank
+!     type(ESMF_Field) :: field
+!     character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
+!     type(variable) :: v
+!     logical :: is_present
+!
+!     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
+!     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
+!     call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+!     if ( is_present ) then
+!        call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
+!     else
+!        long_name = var_name
+!     endif
+!     call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+!     if ( is_present ) then
+!        call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
+!     else
+!        units = 'unknown'
+!     endif
+!     if (field_rank==2) then
+!        vdims = ""
+!        return
+!        ! empty return
+!     else if (field_rank==3) then
+!        vdims = "lev"
+!     end if
+!
+!     v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+!     call v%add_attribute('units',trim(units))
+!     call v%add_attribute('long_name',trim(long_name))
+!     call v%add_attribute('missing_value',MAPL_UNDEF)
+!     call v%add_attribute('_FillValue',MAPL_UNDEF)
+!     call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+!     call this%fmd%add_variable(trim(var_name),v,_RC)
+!
+!  end subroutine create_variable
+!
 
   
-  subroutine append_file(this,current_time,rc)
+  subroutine interp_write_file(this,current_time,rc)
      class(StationSampler), intent(inout) :: this
      type(ESMF_Time), intent(inout) :: current_time
      integer, optional, intent(out) :: rc
@@ -282,75 +303,78 @@ contains
      real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
      real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
      real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-     !
-     this%number_written=0
-     if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-        call this%vdata%setup_eta_to_pressure(_RC)
-     end if
-     if (mapl_am_i_root()) then
-        call this%file_handle%put_var('time',rtimes,&
-             start=[this%number_written+1],count=[number_to_write],_RC)
-        call this%file_handle%put_var('longitude',this%longitude(interval(1):interval(2)),&
-             start=[this%number_written+1],count=[number_to_write],_RC)
-        call this%file_handle%put_var('latitude',this%latitude(interval(1):interval(2)),&
-             start=[this%number_written+1],count=[number_to_write],_RC)
-     end if
-     !
-     iter = this%items%begin()
-     do while (iter /= this%items%end())
-        item => iter%get()
-        if (item%itemType == ItemTypeScalar) then
-           call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-           call ESMF_FieldBundleGet(this%output_bundle,trim(item%xname),field=dst_field,_RC)
-           call ESMF_FieldGet(src_field,rank=rank,_RC)
-           if (rank==2) then
-              call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
-              call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
-              call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
-              if (mapl_am_i_root()) then
-                 call this%file_handle%put_var(trim(item%xname),p_dst_2d(interval(1):interval(2)),&
-                      start=[this%number_written+1],count=[number_to_write])
-              end if
-           else if (rank==3) then
-              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-              call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
-                 call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
-                 call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
-              else
-                 call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-              end if
-              if (mapl_am_i_root()) then
-                 call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
-                      start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])
-              end if
+     !!real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+
+
+     !_ s1. account for ungridded_dim from src to dst, interp
+     
+     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+     allocate (fieldNameList(fieldCount))
+     call ESMF_FieldBundleGet(bundle, fieldNameList=fieldNameList, _RC)
+     do i=1, fieldCount
+        xname=trim(fieldNameList(i))
+        call ESMF_FieldBundleGet(this%bundle,xname,field=src_field,_RC)
+        call ESMF_FieldGet(src_field,rank=rank,_RC)
+        if (rank==2) then
+           call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+           dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname, &
+                typekind=ESMF_TYPEKIND_R4,_RC)
+           call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
+           call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
+           if (mapl_am_i_root()) then
+              ! plain
+              call this%file_handle%put_var(trim(xname),p_dst_2d)
+              ! fancy
+              !call this%file_handle%put_var(trim(xname),p_dst_2d, &
+              !     start=[1,this%number_written+1],count=[number_to_write = nstation, 1])
            end if
-        else if (item%itemType == ItemTypeVector) then
-           _FAIL("ItemTypeVector not yet supported")
+        else if (rank==3) then
+           STOP 'grid2LS regridder for rank==3 not implemented'
+           call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+           call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+           !!if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+           !!   lb(1)=1
+           !!   ub(1)=this%vdata%lm
+           !!end if
+           dst_field = ESMF_FieldCreate(this%emsf_ls,name=xname,&
+                typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+           call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+           call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)              
+           !!if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+           !!   allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
+           !!   call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
+           !!   call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
+           !!else
+           !!   call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+           !!end if
+           if (mapl_am_i_root()) then
+              call this%file_handle%put_var(xname),p_dst_3d)
+              !!call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
+              !!    start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])                 
+           end if
+        else
+           STOP 'grid2LS regridder: rank > 3 not implemented'
         end if
-        call iter%next()
-     enddo
-     this%number_written=this%number_written+number_to_write
+     enddo  !  loop fieldCount
+     !!     this%number_written=this%number_written+number_to_write
+     !!
+   end subroutine interp_write_file
+   
+   subroutine create_file_handle(this,filename,rc)
+     class(StationSampler), intent(inout) :: this
+     character(len=*), intent(inout) :: filename
+     integer, optional, intent(out) :: rc
      !
-  end subroutine append_file
-
-
-  subroutine create_file_handle(this,filename,rc)
-    class(StationSampler), intent(inout) :: this
-    character(len=*), intent(inout) :: filename
-    integer, optional, intent(out) :: rc
-    !
-    type(variable) :: v
-    integer :: status
-    
-    this%file_name = trim(filename)
-!    v = this%time_info%define_time_variable(_RC)
-!    call this%metadata%modify_variable('time',v,_RC)
+     type(variable) :: v
+     integer :: status
+     !
+     ! check this later
+     !    v = this%time_info%define_time_variable(_RC)
+     !    call this%fmd%modify_variable('time',v,_RC)
+     this%file_name = trim(filename)
     if (mapl_am_I_root()) then
        call this%file_handle%create(trim(filename),_RC)
-       call this%file_handle%write(this%metadata,_RC)
+       call this%file_handle%write(this%fmd,_RC)
     end if
     this%number_written = 0
   end subroutine create_file_handle
@@ -368,7 +392,6 @@ contains
     end if
     _RETURN(_SUCCESS)
   end subroutine close_file_handle
-
   
   subroutine split_string (string, mark, length_mx, &
        mxseg, nseg, str_piece, jstatus)
@@ -387,11 +410,9 @@ contains
     !   xxxx_yy_zz_uu_vv
     !       ^  ^  ^  ^
     !       |  |  |  |
+    !       marker
     !
-    !       mark
-    !
-
-      len1 = LEN_TRIM( string )
+    len1 = LEN_TRIM( string )
     allocate (ipos(len1))
     iseg=0
     do l=1, len1
@@ -431,7 +452,7 @@ contains
     if (nseg.gt.mxseg) then
        call error ('split_string', 'nseg exceeds mx', 1)
     endif
-    str_piece(nseg+1:mxseg)='xxx'
+    str_piece(nseg+1:mxseg)='void'
     return
   end subroutine split_string
 
@@ -448,8 +469,7 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-  
-  
+  !
 end module StationSamplerMod
 
 

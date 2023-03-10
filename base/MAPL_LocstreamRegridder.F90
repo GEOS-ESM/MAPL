@@ -102,8 +102,8 @@ contains
 
    subroutine regrid_3d_real32(this,q_in,q_out, rc)
       class(LocstreamRegridder), intent(inout) :: this
-      real(kind=REAL32), intent(in) :: q_in(:,:,:)
-      real(kind=REAL32), intent(out) :: q_out(:,:)
+      real(kind=REAL32), intent(in) :: q_in(:,:,:)   ! (nx, ny, nz)
+      real(kind=REAL32), intent(out) :: q_out(:,:)   ! (nstation, nz)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -139,3 +139,12 @@ contains
    end subroutine regrid_3d_real32
 
 end module MAPL_LocstreamRegridderMod
+
+! grid --> LS
+!  nc -- F90 : 
+! pt(nstat=10, nlev=72)
+!   --> order
+! trailing: 
+!
+!  
+!
