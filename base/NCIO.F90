@@ -465,10 +465,7 @@ module NCIOMod
           _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                if (trim(name) == "lons" .or. trim(name) == "lats") then
-                   print*, 'it is a tiled variable...', trim(name)
-                   print*, vr8_2d
-                end if
+ 
                 if (arrdes%write_restart_by_oserver) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
@@ -4127,7 +4124,6 @@ module NCIOMod
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
              _VERIFY(STATUS)
-
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
                 call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
@@ -4170,7 +4166,6 @@ module NCIOMod
              _VERIFY(STATUS)
              call ESMF_FieldGet(field,array=array,rc=FieldIsValid)
              
-             ! if (MAPL_AM_I_ROOT()) print*, "field: ", trim(ITEMNAMES(I)), fieldIsValid
              if (fieldIsValid == 0) then
               
              skipWriting = .false.
