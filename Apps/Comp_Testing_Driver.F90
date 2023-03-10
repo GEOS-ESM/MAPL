@@ -55,7 +55,7 @@ program comp_testing_driver
   subroutine driver_component(filename, compName, rc)
     character(len=*), intent(in) :: filename, compName
     integer, intent(out) :: rc
-    integer :: status, root_id, userRC, RUN_DT, i, ncid, varid, tsteps, NX, NY
+    integer :: status, root_id, userRC, RUN_DT, i, j, ncid, varid, tsteps, NX, NY, itemCount, fieldCount
     character(len=ESMF_MAXSTR) :: time, startTime, sharedObj, exportCheckpoint, variable, restartFile
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: timeInterval
@@ -71,6 +71,10 @@ program comp_testing_driver
     type(FileMetadata) :: basic_metadata
     type(FileMetadataUtils) :: metadata
     logical :: subset
+    character(len=ESMF_MAXSTR), allocatable :: itemNameList(:), fieldNameList(:)
+    type(ESMF_StateItem_Flag):: itemType
+    type(ESMF_FieldBundle) :: fieldBundle
+    type(ESMF_Field), allocatable :: fieldList(:)
    
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
@@ -132,22 +136,53 @@ program comp_testing_driver
 
     status = nf90_open(exportCheckpoint, nf90_nowrite, ncid)
     _VERIFY(status)
-    status = nf90_inquire_variable(ncid, 1, variable)
-    _VERIFY(status)
 
-    i = 2
-    do while (status == 0)
-       if (trim(variable) == "lon" .or. trim(variable) == "lat" .or. trim(variable) == "lev" .or. trim(variable) == "time") then
-          status = nf90_inquire_variable(ncid, i, variable)
-          i = i + 1
-          cycle
+    call ESMF_StateGet(export, itemCount = itemCount, _RC)
+    allocate(itemNameList(itemCount))
+    call ESMF_StateGet(export, itemNameList = itemNameList, _RC)
+    do i = 1, itemCount
+       call ESMF_StateGet(export, itemName=itemNameList(i), itemType=itemType, _RC)
+       if (itemType == ESMF_STATEITEM_FIELD) then
+          call ESMF_StateGet(export, itemNameList(i), field, _RC)
+          status = nf90_inq_varid(ncid, itemNameList(i), varid)
+          if (status == 0) then
+             call MAPL_AllocateCoupling(field, _RC)
+          end if
+       else if (itemType == ESMF_STATEITEM_FIELDBUNDLE) then
+          call ESMF_StateGet(export, itemNameList(i), fieldBundle, _RC)
+          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount, _RC)
+          allocate(fieldList(fieldCount))
+          allocate(fieldNameList(fieldCount))
+          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, fieldNameList=fieldNameList, _RC)
+          do j = 1, fieldCount
+             status = nf90_inq_varid(ncid, fieldNameList(j), varid)
+             if (status == 0) then
+                call MAPL_AllocateCoupling(fieldList(j), _RC)
+             end if
+          end do
        end if
-
-       call ESMF_StateGet(export, variable, field, _RC)
-       call MAPL_AllocateCoupling(field, _RC)
-       status = nf90_inquire_variable(ncid, i, variable)
-       i = i + 1
     end do
+    !i = 2
+    !do while (status == 0)
+    !   if (trim(variable) == "lon" .or. trim(variable) == "lat" .or. trim(variable) == "lev" .or. trim(variable) == "time") then
+    !      status = nf90_inquire_variable(ncid, i, variable)
+    !      i = i + 1
+    !      cycle
+    !   end if
+
+       
+       !if (variable(1:10) == "DU_AERO_DP") then
+       !   status = nf90_inquire_variable(ncid, i, variable)
+       !   i = i + 1
+       !   cycle
+       !end if
+    !   print*, 'trying: ', trim(variable)
+    !   call ESMF_StateGet(export, variable, field, _RC)
+    !   print*, 'succeeded: ', trim(variable)
+    !   call MAPL_AllocateCoupling(field, _RC)
+    !   status = nf90_inquire_variable(ncid, i, variable)
+    !   i = i + 1
+    !end do
 
     call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC)
     call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=userRC, _RC) 
