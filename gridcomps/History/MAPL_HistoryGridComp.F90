@@ -2373,7 +2373,7 @@ ENDDO PARSER
           elseif (list(n)%observation_spec /= '') then
              if (list(n)%observation_spec == 'station') then
                 list(n)%station_sampler = StationSampler (trim(list(n)%stationfile),_RC)
-                call list(n)%station_sampler%add_metadata_route_handle(list(n)%items,list(n)%bundle,vdata=list(n)%vdata,_RC)
+                call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,_RC)
              else
                 write(6,*) 'Not implemented: list(n)%observation_spec:', list(n)%observation_spec
                 STOP 'Error: list(n)%observation_spec not implemented'
@@ -3436,7 +3436,7 @@ ENDDO PARSER
             if (list(n)%observation_spec == 'station') then
                if (list(n)%unit.eq.0) then
                   if (mapl_am_i_root()) write(6,*) "Station_data from new file: ",trim(filename(n))
-                  call list(n)%station_sampler%close_file_handle(_RC)   !? sometime fails!
+                  call list(n)%station_sampler%close_file_handle(_RC)
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
 !!                  stop 'nail 1'
                   list(n)%currentFile = filename(n)
@@ -3596,7 +3596,7 @@ ENDDO PARSER
          call list(n)%trajectory%append_file(current_time,_RC)
       elseif (list(n)%observation_spec /= '') then
          if (list(n)%observation_spec == 'station') then
-            call list(n)%station_sampler%append_file(current_time,_RC)
+            call list(n)%station_sampler%interp_write_file(current_time,_RC)
          endif
       else
       end if
