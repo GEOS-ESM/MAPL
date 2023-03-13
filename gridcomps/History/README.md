@@ -4,11 +4,11 @@
 `History` is an internal MAPL gridded component used to manage output streams from a MAPL hierarchy. 
 It writes Fields in the Export states of all MAPL components in a hierarchy to file collections 
 during the course of a run. 
-It also has the some capability to interpolate the fields horizontally and/or vertically before outputing
+It also has some capability to interpolate the fields horizontally and/or vertically before outputing
 them.
 The main features of `History` are its:
 - **Flexibility**: can quickly be integrated in a MAPL application.
-- **Configurability**: at run time, users to select which fields to produce, at which grid,
+- **Configurability**: at run time, users can select which fields to produce, at which grid,
 at which frequency, in which collection, at which resolution, etc. A field can also be derived from existing ones.
 
 The component has no true export state, since its products are diagnostic file collections.

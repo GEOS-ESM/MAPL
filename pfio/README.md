@@ -9,10 +9,10 @@ calculations without waiting for the I/O tasks to be completed.
 This allows the applications to achieve achieve higher effective write speeds, 
 and leads to a decrease of the overall model integration time. 
 The goal of `PFIO` is for models to spend more time doing calculations instead 
-of waiting on I/O activity.
+of waiting on I/O activitiies to be done first.
 
-To implement `PFIO` in an application, it is important to note handles netCDF files 
-and therefore follows the netCDF steps to read and create files. 
+To implement `PFIO` in an application, it is important to note that `PFIO`
+handles netCDF files and therefore follows the netCDF steps to read and create files. 
 However, the processes in PFIO are simpler because it works only with 
 variable names instead of variable identifier (as in netCDF).
 When an application is wun with `PFIO`, the available nodes (cores) are split into two groups:

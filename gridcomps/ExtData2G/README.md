@@ -9,7 +9,7 @@ More specifically, `ExtData` populates fields in the "Import" states within the 
 Only fields designated as part of a component's import state can be filled with `ExtData`.
 
 `ExtData` is instantiated and all its registered methods (`Initialize`, `Run` and `Finalize`)
- are run automatically by the CAP.
+ are run automatically by the `CAP`.
 In a MAPL application, fields added to the Import state of a component 
 are passed up the MAPL hierarchy looking for a connectivity to another component 
 that will provide data to fill the import. 
