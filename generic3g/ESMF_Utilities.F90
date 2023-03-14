@@ -1,9 +1,12 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_ESMF_Utilities
    use esmf
    implicit none
    private
 
    public :: write(formatted)
+   public :: get_substate
 
    interface write(formatted)
       procedure write_state
@@ -82,7 +85,7 @@ contains
             iomsg = 'unknown type of state item'
             return
          end if
-            
+
          write(unit,*, iostat=iostat, iomsg=iomsg)indent(depth), i, ' ', trim(itemNameList(i)), ' ', type_str, new_line('a')
          if (iostat /= 0) return
 
@@ -106,7 +109,43 @@ contains
          integer, intent(in) :: depth
          indent = repeat('..', depth)
       end function indent
-      
+
    end subroutine write_state_
-   
+
+   ! If name is empty string then return the existing state.
+   ! Otherwise, return the named substate; creating it if it does
+   ! not already exist.
+   subroutine get_substate(state, name, substate, rc)
+      use mapl_ErrorHandling
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: name
+      type(ESMF_State), intent(out) :: substate
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: itemType
+      character(:), allocatable :: substate_name
+
+      if (name == '') then ! no substate
+         substate = state
+         _RETURN(_SUCCESS)
+      end if
+
+      substate_name = '[' // name // ']'
+      call ESMF_StateGet(state, substate_name, itemType, _RC)
+
+      if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New substate
+         substate = ESMF_StateCreate(name=substate_name, _RC)
+         call ESMF_StateAdd(state, [substate], _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      _ASSERT(itemType == ESMF_STATEITEM_STATE, 'incorrect object in state')
+
+      ! Substate exists so ...
+      call ESMF_StateGet(state, substate_name, substate, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_substate
+
 end module mapl3g_ESMF_Utilities

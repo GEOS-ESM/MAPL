@@ -5,6 +5,10 @@ module mapl3g_FieldSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_ExtraDimsSpec
    use mapl3g_VariableSpec
+   use mapl3g_ActualConnectionPt
+   use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl3g_MultiState
+   use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -20,7 +24,7 @@ module mapl3g_FieldSpec
 
       character(:), allocatable :: units
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
-      type(ESMF_GeomBase) :: geom_base
+      type(ESMF_Geom) :: geom
       type(ExtraDimsSpec) :: extra_dims
 !!$      type(FrequencySpec) :: freq_spec
 !!$      class(AbstractFrequencySpec), allocatable :: freq_spec
@@ -50,9 +54,9 @@ module mapl3g_FieldSpec
 
 contains
 
-   subroutine initialize(this, geom_base, var_spec, unusable, rc)
+   subroutine initialize(this, geom, var_spec, unusable, rc)
       class(FieldSpec), intent(inout) :: this
-      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(ESMF_Geom), intent(in) :: geom
       type(VariableSpec), intent(in) :: var_spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -60,7 +64,7 @@ contains
       character(:), allocatable :: units
       integer :: status
 
-      this%geom_base = geom_base
+      this%geom = geom
 !!$      this%extra_dims = var_spec%extra_dims
 !!$      this%typekind = var_spec%typekind
 
@@ -91,27 +95,27 @@ contains
    end subroutine initialize
 
 
-   function new_FieldSpec_geombase(extra_dims, typekind, geom_base, units) result(field_spec)
+   function new_FieldSpec_geombase(extra_dims, typekind, geom, units) result(field_spec)
       type(FieldSpec) :: field_spec
       type(ExtraDimsSpec), intent(in) :: extra_dims
       type(ESMF_Typekind_Flag), intent(in) :: typekind
-      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(ESMF_Geom), intent(in) :: geom
       character(*), intent(in) :: units
 
       field_spec%extra_dims = extra_dims
       field_spec%typekind = typekind
-      field_spec%geom_base = geom_base
+      field_spec%geom = geom
       field_spec%units = units
    end function new_FieldSpec_geombase
 
 
-   function new_FieldSpec_defaults(extra_dims, geom_base, units) result(field_spec)
+   function new_FieldSpec_defaults(extra_dims, geom, units) result(field_spec)
       type(FieldSpec) :: field_spec
       type(ExtraDimsSpec), intent(in) :: extra_dims
-      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(ESMF_Geom), intent(in) :: geom
       character(*), intent(in) :: units
       
-      field_spec = FieldSpec(extra_dims, ESMF_TYPEKIND_R4, geom_base, units)
+      field_spec = FieldSpec(extra_dims, ESMF_TYPEKIND_R4, geom, units)
       
    end function new_FieldSpec_defaults
 
@@ -123,16 +127,16 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      call MAPL_FieldEmptySet(this%payload, this%geom_base, _RC)
+      call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
 
       call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
-   subroutine MAPL_FieldEmptySet(field, geom_base, rc)
+   subroutine MAPL_FieldEmptySet(field, geom, rc)
       type(ESMF_Field), intent(inout) :: field
-      type(ESMF_GeomBase), intent(inout) :: geom_base
+      type(ESMF_Geom), intent(inout) :: geom
       integer, optional, intent(out) ::rc
 
       type(ESMF_GeomType_Flag) :: geom_type
@@ -142,22 +146,22 @@ contains
       type(ESMF_LocStream) :: locstream
       integer :: status
 
-      call ESMF_GeomBaseGet(geom_base, geomtype=geom_type, _RC)
+      call ESMF_GeomGet(geom, geomtype=geom_type, _RC)
 
       if(geom_type == ESMF_GEOMTYPE_GRID) then
-         call ESMF_GeomBaseGet(geom_base, grid=grid, _RC)
+         call ESMF_GeomGet(geom, grid=grid, _RC)
          call ESMF_FieldEmptySet(field, grid, _RC)
       else if (geom_type == ESMF_GEOMTYPE_MESH) then
-         call ESMF_GeomBaseGet(geom_base, mesh=mesh, _RC)
+         call ESMF_GeomGet(geom, mesh=mesh, _RC)
          call ESMF_FieldEmptySet(field, mesh, _RC)
       else if (geom_type == ESMF_GEOMTYPE_XGRID) then
-         call ESMF_GeomBaseGet(geom_base, xgrid=xgrid, _RC)
+         call ESMF_GeomGet(geom, xgrid=xgrid, _RC)
          call ESMF_FieldEmptySet(field, xgrid, _RC)
       else if (geom_type == ESMF_GEOMTYPE_LOCSTREAM) then
-         call ESMF_GeomBaseGet(geom_base, locstream=locstream, _RC)
+         call ESMF_GeomGet(geom, locstream=locstream, _RC)
          call ESMF_FieldEmptySet(field, locstream, _RC)
       else
-         _FAIL('Unsupported type of GeomBase')
+         _FAIL('Unsupported type of Geom')
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -253,7 +257,7 @@ contains
       integer :: status
       
       requires_extension = .true.
-      call ESMF_GeomBaseGet(this%geom_base, geomtype=geom_type, rc=status)
+      call ESMF_GeomGet(this%geom, geomtype=geom_type, rc=status)
       if (status /= 0) return
 
       select type(src_spec)
@@ -288,18 +292,24 @@ contains
 
    end function can_convert_units
 
-   subroutine add_to_state(this, state, short_name, rc)
+   subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(FieldSpec), intent(in) :: this
-      type(ESMF_State), intent(inout) :: state
-      character(*), intent(in) :: short_name
+      type(MultiState), intent(inout) :: multi_state
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(ESMF_Field) :: alias
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
+      type(ESMF_State) :: state, substate
+      character(:), allocatable :: short_name
 
+      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+      call get_substate(state, actual_pt%get_comp_name(), substate=substate, _RC)
+
+      short_name = actual_pt%get_esmf_name()
       alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
-      call ESMF_StateAdd(state, [alias], _RC)
+      call ESMF_StateAdd(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state

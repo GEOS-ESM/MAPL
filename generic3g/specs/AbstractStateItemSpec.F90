@@ -36,13 +36,13 @@ module mapl3g_AbstractStateItemSpec
 
    abstract interface
 
-      subroutine I_initialize(this, geom_base, var_spec, unusable, rc)
-         use esmf, only: ESMF_GeomBase
+      subroutine I_initialize(this, geom, var_spec, unusable, rc)
+         use esmf, only: ESMF_Geom
          use mapl3g_VariableSpec, only: VariableSpec
          use mapl_KeywordEnforcer, only: KeywordEnforcer
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(inout) :: this
-         type(ESMF_GeomBase), intent(in) :: geom_base
+         type(ESMF_Geom), intent(in) :: geom
          type(VariableSpec), intent(in) :: var_spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
@@ -79,12 +79,16 @@ module mapl3g_AbstractStateItemSpec
          integer, optional, intent(out) :: rc
       end function I_make_extension
          
-      subroutine I_add_to_state(this, state, short_name, rc)
-         use ESMF, only: ESMF_State
+      subroutine I_add_to_state(this, multi_state, actual_pt, rc)
+         use mapl3g_MultiState
+         use mapl3g_ActualConnectionPt
+!!$         use esmf, only: ESMF_State
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(in) :: this
-         type(ESMF_State), intent(inout) :: state
-         character(*), intent(in) :: short_name
+         type(MultiState), intent(inout) :: multi_state
+!!$         type(ESMF_State), intent(inout) :: state
+         type(ActualConnectionPt), intent(in) :: actual_pt
+!!$         character(*), intent(in) :: short_name
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_state
 

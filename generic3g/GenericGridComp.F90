@@ -142,7 +142,7 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
       case (GENERIC_INIT_GRID)
-         call outer_meta%initialize_geom_base(importState, exportState, clock, _RC)
+         call outer_meta%initialize_geom(importState, exportState, clock, _RC)
       case (GENERIC_INIT_ADVERTISE)
          call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
       case (GENERIC_INIT_POST_ADVERTISE)

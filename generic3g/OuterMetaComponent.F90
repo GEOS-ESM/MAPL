@@ -49,7 +49,7 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_GeomBase), allocatable            :: geom_base
+      type(ESMF_Geom), allocatable            :: geom
       type(MultiState)                            :: user_states
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
@@ -82,7 +82,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: initialize ! main/any phase
       procedure :: initialize_user
-      procedure :: initialize_geom_base
+      procedure :: initialize_geom
       procedure :: initialize_advertise
       procedure :: initialize_post_advertise
       procedure :: initialize_realize
@@ -105,7 +105,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: traverse
 
-      procedure :: set_geom_base
+      procedure :: set_geom
       procedure :: get_name
       procedure :: get_user_gridcomp_name
       procedure :: get_gridcomp
@@ -404,7 +404,7 @@ contains
    ! initialize_geom() is responsible for passing grid down to
    ! children.  User component can insert a different grid using
    ! GENERIC_INIT_GRID phase in their component.
-   recursive subroutine initialize_geom_base(this, importState, exportState, clock, unusable, rc)
+   recursive subroutine initialize_geom(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
@@ -430,14 +430,14 @@ contains
 
          integer :: status
          
-         if (allocated(this%geom_base)) then
-            call child_meta%set_geom_base(this%geom_base)
+         if (allocated(this%geom)) then
+            call child_meta%set_geom(this%geom)
          end if
 
          _RETURN(ESMF_SUCCESS)
       end subroutine set_child_geom
 
-   end subroutine initialize_geom_base
+   end subroutine initialize_geom
 
    recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -489,7 +489,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry, this%geom_base, _RC)
+              call advertise_variable (var_spec, this%registry, this%geom, _RC)
               call iter%next()
            end do
          end associate
@@ -499,10 +499,10 @@ contains
       end subroutine self_advertise
 
 
-      subroutine advertise_variable(var_spec, registry, geom_base, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, geom, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(HierarchicalRegistry), intent(inout) :: registry
-         type(ESMF_GeomBase), intent(in) :: geom_base
+         type(ESMF_Geom), intent(in) :: geom
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -513,7 +513,7 @@ contains
 
          _ASSERT(var_spec%type_id /= MAPL_TYPE_ID_INVALID, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
          item_spec = create_item_spec(var_spec%type_id)
-         call item_spec%initialize(geom_base, var_spec, _RC)
+         call item_spec%initialize(geom, var_spec, _RC)
          call item_spec%create(_RC)
 
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
@@ -748,7 +748,7 @@ contains
 
       select case (phase_name)
       case ('GENERIC::INIT_GRID')
-         call this%initialize_geom_base(importState, exportState, clock, _RC)
+         call this%initialize_geom(importState, exportState, clock, _RC)
       case ('GENERIC::INIT_ADVERTISE')
          call this%initialize_advertise(importState, exportState, clock, _RC)
       case ('GENERIC::INIT_USER')
@@ -949,13 +949,13 @@ contains
    end function is_root
 
 
-   subroutine set_geom_base(this, geom_base)
+   subroutine set_geom(this, geom)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(ESMF_Geom), intent(in) :: geom
 
-      this%geom_base = geom_base
+      this%geom = geom
 
-   end subroutine set_geom_base
+   end subroutine set_geom
 
    function get_registry(this) result(r)
       type(HierarchicalRegistry), pointer :: r

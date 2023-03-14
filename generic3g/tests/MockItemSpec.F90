@@ -4,6 +4,8 @@ module MockItemSpecMod
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_VariableSpec
+   use mapl3g_MultiState
+   use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -45,9 +47,9 @@ module MockItemSpecMod
 contains
 
    ! Nothing defined at this time.
-   subroutine initialize(this, geom_base, var_spec, unusable, rc)
+   subroutine initialize(this, geom, var_spec, unusable, rc)
       class(MockItemSpec), intent(inout) :: this
-      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(ESMF_Geom), intent(in) :: geom
       type(VariableSpec), intent(in) :: var_spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -152,10 +154,10 @@ contains
    end function requires_extension
 
 
-   subroutine add_to_state(this, state, short_name, rc)
+   subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(MockItemSpec), intent(in) :: this
-      type(ESMF_State), intent(inout) :: state
-      character(*), intent(in) :: short_name
+      type(MultiState), intent(inout) :: multi_state
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _FAIL('unimplemented')
