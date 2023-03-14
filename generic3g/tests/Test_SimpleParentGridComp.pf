@@ -46,7 +46,7 @@ contains
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
-      call MAPL_GridCompSetGeomBase(outer_gc, grid, _RC)
+      call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
 
       associate (import => states%importState, export => states%exportState)
         import = ESMF_StateCreate(_RC)

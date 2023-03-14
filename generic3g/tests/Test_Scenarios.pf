@@ -93,7 +93,7 @@ contains
         call ESMF_GridCompSetServices(outer_gc, setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
         grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
-        call MAPL_GridCompSetGeomBase(outer_gc, grid, _RC)
+        call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
 
         importState = ESMF_StateCreate(_RC)
         exportState = ESMF_StateCreate(_RC)
@@ -266,7 +266,7 @@ contains
 
             expected_item_count = state_items%size()
             found_item_count = num_fields(state, _RC)
-            
+
             @assert_that('item count for '//intent_case, found_item_count, is(expected_item_count))
 
             rc = 0
