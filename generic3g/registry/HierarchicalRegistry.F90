@@ -722,14 +722,13 @@ contains
              call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
              call get_substate(actual_pt, state=state, substate=substate, _RC)
              name = actual_pt%get_esmf_name()
-
              call item_spec%add_to_state(substate, name, _RC)
            end associate filter
 
            call actual_iter%next()
         end do
       end associate
-      
+
       _RETURN(_SUCCESS)
 
    contains

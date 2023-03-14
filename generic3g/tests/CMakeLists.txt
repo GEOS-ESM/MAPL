@@ -21,6 +21,8 @@ set (test_srcs
   Test_GenericInitialize.pf
 
   Test_HierarchicalRegistry.pf
+
+  Test_Scenarios.pf
   )
 
 

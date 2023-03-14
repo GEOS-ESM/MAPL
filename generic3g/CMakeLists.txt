@@ -36,6 +36,8 @@ set(srcs
   Validation.F90
 
   # ComponentSpecBuilder.F90
+
+  ESMF_Utilities.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
