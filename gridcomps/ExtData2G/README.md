@@ -1,21 +1,17 @@
 
 ## The `ExtData` Gridded Component
 
-`ExtData` stands for "External Data" and is an internal MAPL gridded component 
-used to read data (gridded, geospatial) from netCDF files (external data files) on disk. 
-`ExtData` is the component of last resort providing fields to existing components
-when no other component cannot satisfy the import state requirement.
-More specifically, `ExtData` populates fields in the "Import" states within the MAPL hierarchy. 
-Only fields designated as part of a component's import state can be filled with `ExtData`.
+`ExtData` is an ESMF gridded component provided by MAPL to encapsulate access to geospatial data residing on disk. 
+It provides a flexible, run-time configurable mechanism for intepolating in time and regridding to arbitrary ESMF grids.
+`ExtData` acts as the "provider of last resort" for any fields in model import states that have not been satisfied by the usual MAPL connection rules.
+
 
 `ExtData` is instantiated and all its registered methods (`Initialize`, `Run` and `Finalize`)
- are run automatically by the `CAP`.
-In a MAPL application, fields added to the Import state of a component 
-are passed up the MAPL hierarchy looking for a connectivity to another component 
-that will provide data to fill the import. 
-If a connectivity is not found these fields will eventually reach the `CAP`. 
-At this point any fields that have not have their connectivity satisfied,
- are passed to the `ExtData` through its Export state. 
+ are run automatically by the `CapGridComp`.
+In a MAPL application, fields added to the import state of a component 
+are propagated up the MAPL hierarchy until connected to an export state item by some ancestor component.
+When no such connection is made, a field will eventually reach the `CapGridComp`, and is passed to 
+the `ExtData` gridded component for servicing.
 `ExtData` is in essence a provider of last resort for Import fields that need to be filled with data. 
 Like other components, it has a `Run` method that gets called every step in your MAPL application. 
 What actually happens when it is run is determined by a `ExtData` resource file. 
@@ -24,11 +20,11 @@ to MAPL components such as chemical and aerosol emissions and forcings like sea 
 
 The behavior of `ExtData` is is controlled through a YAML configuration file `extdata.yaml`.
 The main goal of the file is to provide a connection between a field name (within the code)
-and a variable name in a NetCDF file on disk.
-`ExtData` receives a list of fields that need to be supplied with data and parses `extdata.yaml`
-to determine if it can supply a variable of that name. 
-`extdata.yaml` should be viewed as an announcement of what `ExtData` can provide, 
-not what it necessarily will provide. 
+and a variable name within a "collection" of NetCDF files.
+`ExtData` analyzes each of the fields passed from `CapGridComp` and parses `extdata.yaml`
+to determine if it can supply appropriate data. 
+`extdata.yaml` should be viewed as an description of what `ExtData` can provide, 
+*not* what it necessarily will provide. 
 In addition to simply announcing what `ExtData` can provide, the user can specify other information 
 such as how frequently to update the data from disk and how the data is organized.
 This update could be at every step, just once when starting the model run, 
