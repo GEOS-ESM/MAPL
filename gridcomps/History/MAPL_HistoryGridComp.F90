@@ -869,8 +869,10 @@ contains
                                     label=trim(string) // 'recycle_track:', _RC)
 
 ! Get a single station-data file containing name/lon/lat/elev
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationFile, default="", &
-                                    label=trim(string) // 'station_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
+            label=trim(string) // 'station_id_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationDataFile, default="", &
+            label=trim(string) // 'station_data_file:', _RC)
 !       call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskFile, default="", &
 !                                    label=trim(string) // 'mask_file:', _RC)
 !       call ESMF_ConfigGetAttribute(cfg, value=list(n)%trajectoryFile, default="", &
@@ -879,8 +881,8 @@ contains
 !                                    label=trim(string) // 'swath_file:', _RC)       
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
                                     label=trim(string) // 'observation_spec:', _RC)  
-       write(6,*) 'list(n)%stationFile, list(n)%observation_spec : ', trim(list(n)%stationFile), trim(list(n)%observation_spec)
-       
+       write(6,*) 'list(n)%stationIdFile, list(n)%stationDataFile, list(n)%observation_spec : ', &
+            trim(list(n)%stationIdFile), trim(list(n)%stationDataFile), trim(list(n)%observation_spec)
        
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2372,7 +2374,7 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%observation_spec /= '') then
              if (list(n)%observation_spec == 'station') then
-                list(n)%station_sampler = StationSampler (trim(list(n)%stationfile),_RC)
+                list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),trim(list(n)%stationDataFile),_RC)
                 call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,_RC)
              else
                 write(6,*) 'Not implemented: list(n)%observation_spec:', list(n)%observation_spec
@@ -3435,14 +3437,12 @@ ENDDO PARSER
          elseif (list(n)%observation_spec /= '') then
             if (list(n)%observation_spec == 'station') then
                if (list(n)%unit.eq.0) then
-                  if (mapl_am_i_root()) write(6,*) "Station_data from new file: ",trim(filename(n))
+                  if (mapl_am_i_root()) write(6,*) "Station_data output to new file: ",trim(filename(n))
                   call list(n)%station_sampler%close_file_handle(_RC)
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
-!!                  stop 'nail 1'
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                end if
-               list(n)%currentFile = filename(n)
             else
                STOP 'Error: list(n)%observation_spec not implemented'
             endif

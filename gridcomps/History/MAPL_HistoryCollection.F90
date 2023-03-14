@@ -100,7 +100,8 @@ module MAPL_HistoryCollectionMod
      type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
-     character(len=ESMF_MAXPATHLEN)     :: stationFile
+     character(len=ESMF_MAXPATHLEN)     :: stationIdFile
+     character(len=ESMF_MAXPATHLEN)     :: stationDataFile
      logical                            :: splitField
      logical                            :: regex
      logical                            :: timeseries_output = .false.

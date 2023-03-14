@@ -1,6 +1,6 @@
 !
 ! metacode:
-! input:  bundle, station_file
+! input:  bundle, station_id_file, station_data_file
 !    - bundle: grid, field(x, y, z)
 !    - station: [id, name, lat, lon, elevate (Arlindo: no verti-interp)]; static file
 !
@@ -41,15 +41,15 @@ module StationSamplerMod
      integer :: nstation
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
-     real(kind=REAL64), allocatable :: longitude(:) ! overlap with LSF%lons(:)
-     real(kind=REAL64), allocatable :: latitude(:)  ! -- LSF%lats(:)
-     real(kind=REAL64), allocatable :: elevation(:) ! LSF does not have Z(:)
+     real(kind=REAL64), allocatable :: lons(:)
+     real(kind=REAL64), allocatable :: lats(:)
+     real(kind=REAL64), allocatable :: elevs(:)
      !
      type(ESMF_FieldBundle) :: bundle
      type(FileMetadata) :: fmd
-     type(NetCDF4_FileFormatter) :: file_handle
-     integer :: number_written
-     character(LEN=ESMF_MAXPATHLEN) :: file_name
+     type(NetCDF4_FileFormatter) :: formatter
+     integer :: number_written, count_write_times
+     character(LEN=ESMF_MAXPATHLEN) :: ncfile ! file_name
    contains
      procedure :: add_metadata_route_handle
      procedure :: create_file_handle
@@ -66,72 +66,62 @@ contains
 
   !_ initializer / constructor from file
   !
-  function new_StationSampler_readfile (filename,rc) result(sampler)
+  function new_StationSampler_readfile (filename1,filename2,rc) result(sampler)
     type(StationSampler) :: sampler
-    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: filename1, filename2  ! 1:station_name, 2:station_data
     integer, optional, intent(out) :: rc
     ! loc
-    integer :: ios
-    character(len=maxstr) :: mystring
-    character(len=maxstr), allocatable :: string_pieces(:)
+    character(len=40) :: str
     integer :: max_len, max_seg, nseg
-    integer :: i, iunit, nstation, status
+    integer :: unit, ios, nline, id, nstation, status, i
+    real :: x, y, z
 
-    !_ 1. read from file
-    !     plain text [lon/lat/elevation]: aeronet, ignore elevation for vertical interp
-    max_len=maxstr
-    max_seg=100       ! segmane separated by ',' on each line
-    allocate(string_pieces(max_seg))
-    !
-    write(6,*) 'filename=', trim(filename)
-    write(6,*) 'ESMF_MAXSTR=', ESMF_MAXSTR 
-    !
-    iunit=11
-    open (iunit, file=trim(filename), status='unknown')
-    i=0; ios=0
+    !_ 1. read from station_id_file
+    !     plain text format: [id,name,lat,lon,elev]
+
+    write(6,*) 'filename1=', trim(filename1)
+    open(newunit=unit, file=trim(filename1), form='formatted', access='sequential', status='old')
+    ios=0; nstation=0
     do while (ios==0)
-       read (iunit, '(A1024)', IOSTAT=ios, ERR=101)  mystring
-       if (ios/=0) goto 101
-       !!write(6,*) 'mystring : ', trim(mystring)
-       i=i+1
+       read (unit, *, IOSTAT=ios)  id, str, x, y, z
+       if (ios==0) nstation=nstation+1
+       !! write(6,*) 'id=',id
     enddo
-101 continue
-    nstation=i-2   ! minus 2 lines from header: specific for areonet
-    write(6,*) 'nstation=', nstation    ! debug: should be 347 in station file
-    !
+    !! print*, 'nstation=', nstation
     sampler%nstation=nstation
     allocate(sampler%station_id(nstation))
     allocate(sampler%station_name(nstation))
-    allocate(sampler%longitude(nstation))
-    allocate(sampler%latitude(nstation))
-    allocate(sampler%elevation(nstation))
-    rewind(iunit)
-    read(iunit, *)
-    read(iunit, *)
+    allocate(sampler%lons(nstation))
+    allocate(sampler%lats(nstation))
+    allocate(sampler%elevs(nstation))
+    rewind(unit)
     do i=1, nstation
-       sampler%station_id(i)=i
-       read(iunit,'(A1024)') mystring
-       call split_string (mystring, ',', max_len, max_seg, nseg, string_pieces, status)
-       read(string_pieces(1),'(A1024)') sampler%station_name(i)
-       read(string_pieces(2),*) sampler%longitude(i)
-       read(string_pieces(3),*) sampler%latitude(i)
-       read(string_pieces(4),*) sampler%elevation(i)
+       read(unit, *) sampler%station_id(i), &
+            sampler%station_name(i), &
+            sampler%lats(i), &
+            sampler%lons(i), &
+            sampler%elevs(i)
     enddo
-    close(iunit)
-    deallocate(string_pieces)
+    close(unit)
     write(6,*) 'sampler%station_name(1:2) : ', &
          trim(sampler%station_name(1)), ' ', trim(sampler%station_name(2))
-    write(6,*) 'sampler%longitude(1:2) : ', sampler%longitude(1:2)
-    
-!!    call create_file_handle(sampler, filename, _RC)
+    write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
 
+    
+    !_ 2. read from station_data_file
+    open(newunit=unit, file=trim(filename2), form='formatted', access='sequential', status='old')
+
+    
+    
     
     !_ 2. create LocStreamFactory, then esmf_ls including route_handle
     !
-    sampler%LSF = LocStreamFactory(sampler%longitude, sampler%latitude, _RC)
+    sampler%LSF = LocStreamFactory(sampler%lons, sampler%lats, _RC)
     sampler%esmf_ls = sampler%LSF%create_locstream(_RC)
     !
-    sampler%file_name=''
+    ! init ncfile
+    sampler%ncfile=''
+    sampler%count_write_times=0
     !
   end function new_StationSampler_readfile
 
@@ -182,6 +172,7 @@ contains
     integer :: field_rank, i
     logical :: is_present
 
+    
     ! wait
     !    call timeInfo%add_time_to_metadata(this%fmd,_RC)
     !    this%time_info = timeInfo
@@ -209,17 +200,13 @@ contains
     ! -- unit: second ? 7.5 min:  450 s
     call this%fmd%add_variable('time',T)
 
-    call this%file_handle%put_var('longitude', this%longitude)
-    call this%file_handle%put_var('latitude', this%latitude)    
     
-    !
+    !?
     !    call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
 
     
-    !-- add field in bundle to metadata
+    !-- add field in bundle to filemetadata
     !
-!    allocate(fieldNameList(fieldCount_max))
-!    call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount,fieldNameList=fieldNameList, _RC)
     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
     allocate (fieldNameList(fieldCount))
     call ESMF_FieldBundleGet(bundle, fieldNameList=fieldNameList, _RC)
@@ -255,57 +242,11 @@ contains
     enddo  ! fieldCount
     deallocate (fieldNameList)
 
-
     
     !_ 2: locstream route handle
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
   end subroutine add_metadata_route_handle
-
-
-!  subroutine create_variable(this,vname,rc)
-!     class(StationSampler), intent(inout) :: this
-!     character(len=*), intent(in) :: vname
-!     integer, optional, intent(out) :: rc
-!
-!     integer :: status,field_rank
-!     type(ESMF_Field) :: field
-!     character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
-!     type(variable) :: v
-!     logical :: is_present
-!
-!     call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
-!     call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
-!     call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
-!     if ( is_present ) then
-!        call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, _RC)
-!     else
-!        long_name = var_name
-!     endif
-!     call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
-!     if ( is_present ) then
-!        call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, _RC)
-!     else
-!        units = 'unknown'
-!     endif
-!     if (field_rank==2) then
-!        vdims = ""
-!        return
-!        ! empty return
-!     else if (field_rank==3) then
-!        vdims = "lev"
-!     end if
-!
-!     v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-!     call v%add_attribute('units',trim(units))
-!     call v%add_attribute('long_name',trim(long_name))
-!     call v%add_attribute('missing_value',MAPL_UNDEF)
-!     call v%add_attribute('_FillValue',MAPL_UNDEF)
-!     call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-!     call this%fmd%add_variable(trim(var_name),v,_RC)
-!
-!  end subroutine create_variable
-!
 
   
   subroutine interp_write_file(this,current_time,rc)
@@ -329,7 +270,14 @@ contains
 
      !!real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
-
+     if (this%count_write_times==0) then
+        ! write lon/lat only once
+        call this%formatter%put_var('longitude', this%lons)
+        call this%formatter%put_var('latitude', this%lats)
+     else
+        this%count_write_times=1
+     endif
+     
      !_ s1. account for ungridded_dim from src to dst, interp
      
      call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
@@ -347,9 +295,9 @@ contains
            call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
            if (mapl_am_i_root()) then
               ! plain
-              call this%file_handle%put_var(trim(xname),p_dst_2d)
+              call this%formatter%put_var(trim(xname),p_dst_2d)
               ! fancy
-              !call this%file_handle%put_var(trim(xname),p_dst_2d, &
+              !call this%formatter%put_var(trim(xname),p_dst_2d, &
               !     start=[1,this%number_written+1],count=[number_to_write = nstation, 1])
            end if
         else if (rank==3) then
@@ -375,8 +323,8 @@ contains
            !!   call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
            !!end if
            if (mapl_am_i_root()) then
-              call this%file_handle%put_var(xname,p_dst_3d)
-              !!call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
+              call this%formatter%put_var(xname,p_dst_3d)
+              !!call this%formatter%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
               !!    start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])                 
            end if
         else
@@ -395,17 +343,17 @@ contains
      !
      type(variable) :: v
      integer :: status
-     !
-     ! check this later
-     !    v = this%time_info%define_time_variable(_RC)
-     !    call this%fmd%modify_variable('time',v,_RC)
-     this%file_name = trim(filename)
-    if (mapl_am_I_root()) then
-       call this%file_handle%create(trim(filename),_RC)
-       call this%file_handle%write(this%fmd,_RC)
-    end if
-    this%number_written = 0
-  end subroutine create_file_handle
+
+     this%ncfile = trim(filename)
+!     v = this%time_info%define_time_variable(_RC)
+!     call this%fmd%modify_variable('time',v,_RC)
+
+     if (mapl_am_I_root()) then
+        call this%formatter%create(trim(filename),_RC)
+        call this%formatter%write(this%fmd,_RC)
+     end if
+     this%number_written = 0
+   end subroutine create_file_handle
 
   
   subroutine close_file_handle(this,rc)
@@ -413,13 +361,13 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
     !
-    if (trim(this%file_name) /= '') then
+    if (trim(this%ncfile) /= '') then
        if (mapl_am_i_root()) then
-          write(6,*) 'file_name=', this%file_name
-          call this%file_handle%close(_RC)
+          write(6,*) 'ncfile=', this%ncfile
+          call this%formatter%close(_RC)
        end if
     end if
-    write(6,*) 'empty file_name=', this%file_name
+    write(6,*) 'empty file_name=', this%ncfile
     _RETURN(_SUCCESS)
   end subroutine close_file_handle
   
