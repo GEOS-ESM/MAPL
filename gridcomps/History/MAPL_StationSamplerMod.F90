@@ -1,3 +1,7 @@
+!  15-March-2023:
+!     time series output for station data
+!
+!
 !  Input Data:
 !_ 1. station_id_file: static
 !     plain text format: [id,name,lat,lon,elev]
