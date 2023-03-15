@@ -1,9 +1,16 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
-
 !=============================================================================
 !FPP macros for repeated (type-dependent) code
+
+#ifdef IO_SUCCESS
+#  undef IO_SUCCESS
+#endif
+
+#define IO_SUCCESS 0
+
+!=============================================================================
 
 #ifdef SET_VALUE
 #  undef SET_VALUE
@@ -51,7 +58,7 @@ type is(T) ;\
 #  undef MAKE_STRINGS
 #endif
 
-#define MAKE_STRINGS(T, VAL, TSTR, FMT) \
+#define MAKE_STRINGS(T, VAL, TSTR, SFMT) \
       if (label_is_present) then ;\
          if(default_is_present) then ;\
             select type(default) ;\
@@ -63,11 +70,14 @@ type is(T) ;\
          else ;\
             value_is_default = .FALSE. ;\
          end if ;\
+      else ;\
+         value_is_default = .TRUE. ;\
       end if ;\
       if (.not. (print_nondefault_only .and. value_is_default)) then ;\
          type_string = TSTR ;\
-         type_format = scalar_format(FMT) ;\
-         write(formatted_value, type_format) VAL ;\
+         type_format = SFMT ;\
+         write(formatted_value, type_format, iostat=io_stat) VAL ;\
+         _ASSERT((io_stat == IO_SUCCESS), 'Failure writing scalar formatted_value: ' // trim(actual_label)) ;\
       else ;\
          do_print = .FALSE. ;\
       end if
@@ -78,7 +88,7 @@ type is(T) ;\
 #  undef MAKE_ARRAY_STRINGS
 #endif
 
-#define MAKE_ARRAY_STRINGS(T, VAL, TSTR, FMT) \
+#define MAKE_ARRAY_STRINGS(T, VAL, TSTR, SFMT) \
       if (label_is_present) then ;\
          if(default_is_present) then ;\
             select type(default) ;\
@@ -90,15 +100,20 @@ type is(T) ;\
          else ;\
             value_is_default = .FALSE. ;\
          end if ;\
+      else ;\
+         value_is_default = .TRUE. ;\
       end if ;\
       if (.not. (print_nondefault_only .and. value_is_default)) then ;\
          type_string = TSTR ;\
-         write(array_size_string, '(i2)') size(VAL) ;\
-         type_format = array_format(FMT, array_size_string) ;\
-         write(formatted_value, type_format) VAL ;\
+         write(array_size_string, '(i2)', iostat=io_stat) size(VAL) ;\
+         _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array size string: ' // trim(actual_label)) ;\
+         type_format = array_format(SFMT, array_size_string) ;\
+         write(formatted_value, type_format, iostat=io_stat) VAL ;\
+         _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array formatted_value: ' // trim(actual_label)) ;\
       else ;\
          do_print = .FALSE. ;\
       end if
+
 !=============================================================================
 
 #ifdef ARE_EQUAL_FUNCTION
@@ -131,7 +146,6 @@ module MAPL_ResourceMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 
    ! !PUBLIC MEMBER FUNCTIONS:
-
    implicit none
    private
 
@@ -140,12 +154,11 @@ module MAPL_ResourceMod
 
    character(len=*), parameter :: MISMATCH_MESSAGE = "Type of 'default' does not match type of 'value'."
 
-   character(len=*), parameter :: FMT_INT32 = 'i0.1'
-   character(len=*), parameter :: FMT_INT64 = 'i0.1'
-   character(len=*), parameter :: FMT_REAL32 = 'f0.6'
-   character(len=*), parameter :: FMT_REAL64 = 'f0.6'
-   character(len=*), parameter :: FMT_LOGICAL= 'l1'
-   character(len=*), parameter :: FMT_CHARACTER = 'a'
+   character(len=*), parameter :: FMT_INT32 = '(i0.1)'
+   character(len=*), parameter :: FMT_INT64 = '(i0.1)'
+   character(len=*), parameter :: FMT_REAL32 = '(f0.6)'
+   character(len=*), parameter :: FMT_REAL64 = '(f0.6)'
+   character(len=*), parameter :: FMT_LOGICAL= '(l1)'
 
    character(len=*), parameter :: TYPE_INT32 = "'Integer*4 '" 
    character(len=*), parameter :: TYPE_INT64 = "'Integer*8 '" 
@@ -165,6 +178,9 @@ module MAPL_ResourceMod
 
 contains
 
+   ! Set do_print & print_nondefault_only based on config and if default is present
+   ! Print only (do_print) only if printrc is 0 or 1
+   ! Print only nondefault values if printrc == 0 and if default is present
    subroutine get_print_settings(config, default_is_present, do_print, print_nondefault_only, rc)
       type(ESMF_Config), intent(inout) :: config
       logical, intent(in) :: default_is_present
@@ -180,8 +196,8 @@ contains
 
       if (MAPL_AM_I_Root()) then
          call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)  
-         print_nondefault_only = ((printrc == PRINT_DIFFERENT) .and. default_is_present)
-         do_print = (print_nondefault_only .or. (printrc == PRINT_ALL))
+         do_print = (printrc == PRINT_ALL) .or. (printrc == PRINT_DIFFERENT)
+         print_nondefault_only = (printrc == PRINT_DIFFERENT) .and. default_is_present
       else
          do_print = .FALSE.
       end if
@@ -309,13 +325,15 @@ contains
       logical :: do_print
       logical :: value_is_default
 
+      integer :: io_stat
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
+      default_is_present = present(default)
+
       ! these need to be initialized explitictly 
       value_is_set = .FALSE.
-      default_is_present = present(default)
       label_is_present = .FALSE.
       print_nondefault_only = .FALSE.
       do_print = .FALSE.
@@ -333,7 +351,6 @@ contains
          return
       end if
 
-      ! only print if root
       call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
    
       select type(val)
@@ -364,6 +381,7 @@ contains
       end if
 
       SET_VALUE(character(len=*), val)
+      ! character value can't use the MAKE_STRINGS macro (formatted differently)
       if (do_print) then 
          if (label_is_present) then 
             if(default_is_present) then 
@@ -422,27 +440,34 @@ contains
       logical :: value_is_default
       integer :: count
 
+      integer :: io_stat
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
-      value_is_set = .FALSE.
-
       default_is_present = present(default)
+
+      ! these need to be initialized explitictly 
+      value_is_set = .FALSE.
+      label_is_present = .FALSE.
+      print_nondefault_only = .FALSE.
+      do_print = .FALSE.
+      value_is_default = .FALSE.
 
       if (default_is_present) then
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      _ASSERT(present(component_name), "Component name is necessary but not present.")
       call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
 
-      ! No default and not in config, error
       ! label or default must be present
       if (.not. label_is_present .and. .not. default_is_present) then
          value_is_set = .FALSE.
          return
       end if
+
+      ! only print if root
+      call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
 
       count = size(vals)
 
@@ -489,9 +514,11 @@ contains
          end if 
          if (.not. (print_nondefault_only .and. value_is_default)) then 
             type_string = TYPE_CHARACTER
-            write(array_size_string, '(i2)') size(vals)
-            type_format = array_format(FMT_CHARACTER//new_line('a'), array_size_string) ;\
-            write(formatted_value, type_format) vals
+            write(array_size_string, '(i2)', iostat=io_stat) size(vals)
+            _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array size string: ' // trim(actual_label))
+            type_format = string_array_format(array_size_string)
+            write(formatted_value, type_format, iostat=io_stat) vals
+            _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array formatted_value: ' // trim(actual_label))
          else 
             do_print = .FALSE. 
          end if 
@@ -535,23 +562,29 @@ contains
 
    end subroutine print_resource
 
-   pure function scalar_format(fmt)
-      character(len=*), intent(in) :: fmt
-      character(len=:), allocatable :: scalar_format
-
-      scalar_format = '('//fmt//')'
-
-   end function scalar_format
-
-   pure function array_format(fmt, array_size_string)
-      character(len=*), intent(in) :: fmt
+   ! Create array format string from scalar format string
+   pure function array_format(scalar_format, array_size_string)
+      character(len=*), intent(in) :: scalar_format
       character(len=*), intent(in) :: array_size_string
       character(len=:), allocatable :: array_format
 
-      array_format = '('//trim(array_size_string)//'('//fmt//')'
+      array_format = '('//trim(adjustl(array_size_string))//scalar_format(1:len_trim(scalar_format)-1)//',1X))'
 
    end function array_format
 
+   ! Create format string for array of strings
+   pure function string_array_format(array_size_string)
+      character(len=*), intent(in) :: array_size_string
+      character(len=:), allocatable :: string_array_format
+      character(len=:), allocatable :: N
+
+      ! N specifies the number of repeats in the format string.
+      N = trim(adjustl(array_size_string))
+      string_array_format = '('//N//'(""a"",1X))'
+
+   end function string_array_format
+   
+   ! Compare all the strings in two string arrays
    pure function compare_all(astrings, bstrings)
       character(len=*), dimension(:), intent(in) :: astrings
       character(len=*), dimension(:), intent(in) :: bstrings
@@ -568,6 +601,8 @@ contains
          
    end function compare_all
 
+   ! Test if two logicals are equivalent
+   ! Basically a wrapper function for use in are_equal generic function
    pure elemental function are_equivalent(a, b) result(res)
       logical, intent(in) :: a
       logical, intent(in) :: b
@@ -575,294 +610,12 @@ contains
       res = a .eqv. b
    end function are_equivalent
 
+   ! These are specific functions for the are_equal generic function.
+   ! Basically wrapper functions for the == binary relational operator 
    pure elemental function are_equal_int32 ARE_EQUAL_FUNCTION(integer(int32)) ; end function are_equal_int32
    pure elemental function are_equal_int64 ARE_EQUAL_FUNCTION(integer(int64)) ; end function are_equal_int64
    pure elemental function are_equal_real32 ARE_EQUAL_FUNCTION(real(real32)) ; end function are_equal_real32
    pure elemental function are_equal_real64 ARE_EQUAL_FUNCTION(real(real64)) ; end function are_equal_real64
    pure elemental function are_equal_character ARE_EQUAL_FUNCTION(character(len=*)) ; end function are_equal_character
 
-!   pure function concat_strings(strings, join_string)
-!      character(len=*), dimension(:), intent(in) :: strings
-!      character(len=*), optional, intent(in) :: join_string
-!      character(len=:), allocatable :: concat_strings
-!      character(len=*) :: DEFAULT_JOIN_STRING
-!      character(len=:), allocatable :: js
-!
-!   end function concat_strings
-
 end module MAPL_ResourceMod
-!===================================== OLD ====================================!
-!   ! Print the resource value according to the value of printrc
-!   ! printrc = 0 - Only print non-default values
-!   ! printrc = 1 - Print all values
-!   subroutine print_resource_scalar(printrc, label, val, default, rc)
-!      integer, intent(in) :: printrc
-!      character(len=*), intent(in) :: label
-!      class(*), intent(in) :: val
-!      class(*), optional, intent(in) :: default
-!      integer, optional, intent(out) :: rc
-!
-!      character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
-!      type(StringVector), pointer, save :: already_printed_labels => null()
-!      integer :: status
-!
-!      if (.not. associated(already_printed_labels)) then
-!         allocate(already_printed_labels)
-!      end if
-!
-!      ! Do not print label more than once
-!      if (.not. vector_contains_str(already_printed_labels, trim(label))) then
-!         call already_printed_labels%push_back(trim(label))
-!      else
-!         return
-!      end if
-!
-!      select type(val)
-!      SET_STRINGS(integer(int32), "'Integer*4 '", '(i0.1)')
-!      SET_STRINGS(integer(int64), "'Integer*8 '", '(i0.1)')
-!      SET_STRINGS(real(real32), "'Real*4 '" , '(f0.6)')
-!      SET_STRINGS(real(real64), "'Real*8 '" , '(f0.6)')
-!      SET_STRINGS(logical, "'Logical '" , '(l1)' )
-!      SET_STRINGS(character(len=*),"'Character '", '(a)') 
-!      class default
-!         _FAIL("Unsupported type")
-!      end select
-!
-!      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)a"
-!
-!      ! printrc = 0 - Only print non-default values
-!      ! printrc = 1 - Print all values
-!      if (present(default)) then
-!         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
-!            print output_format, trim(label), trim(val_str)
-!         end if
-!      else
-!         print output_format, trim(label), trim(val_str)
-!      end if
-!
-!      _RETURN(_SUCCESS)
-!
-!   end subroutine print_resource_scalar
-!
-!   ! Convert val to string according to str_format
-!   function intrinsic_to_string(val, str_format, rc) result(formatted_str)
-!      class(*), intent(in) :: val
-!      character(len=*), intent(in) :: str_format
-!      character(len=256) :: formatted_str
-!      integer, optional, intent(out) :: rc
-!
-!      select type(val)
-!      type is(integer(int32))
-!         write(formatted_str, str_format) val
-!      type is(integer(int64))
-!         write(formatted_str, str_format) val
-!      type is(real(real32))
-!         write(formatted_str, str_format) val
-!      type is(real(real64))
-!         write(formatted_str, str_format) val
-!      type is(logical)
-!         write(formatted_str, str_format) val
-!      type is(character(len=*))
-!         formatted_str = trim(val)
-!         class default
-!         _FAIL( "Unsupported type in intrinsic_to_string")
-!      end select
-!
-!      _RETURN(_SUCCESS)
-!
-!   end function intrinsic_to_string
-!   
-!   subroutine print_resource_array(printrc, label, vals, default, rc)
-!      integer, intent(in) :: printrc
-!      character(len=*), intent(in) :: label
-!      class(*), intent(in) :: vals(:)
-!      class(*), optional, intent(in) :: default(:)
-!      integer, optional, intent(out) :: rc
-!
-!      character(len=:), allocatable :: val_str, default_str, output_format
-!      character(len=:), allocatable :: type_str, type_format
-!      type(StringVector), pointer, save :: already_printed_labels => null()
-!      integer :: i
-!      character(len=2) :: size_vals_str
-!      logical :: value_equals_default
-!      character(len=:), allocatable :: default_tag
-!
-!      if (.not. associated(already_printed_labels)) then
-!         allocate(already_printed_labels)
-!      end if
-!
-!      ! Do not print label more than once
-!      if (.not. vector_contains_str(already_printed_labels, trim(label))) then
-!         call already_printed_labels%push_back(trim(label))
-!      else
-!         return
-!      end if
-!
-!      character(len=2) :: size_vals_str
-!      ! Cast the size(vals) to a string making sure to strip any spaces
-!      ! We assume we'll never have more than 99 values
-!      write(size_vals_str, '(i2)') size(vals)
-!
-!      select type(vals)
-!      type is(integer(int32))
-!         type_str = "'Integer*4 '"
-!         type_format = '('//trim(size_vals_str)//'(i0.1,1X))'
-!         val_str = intrinsic_array_to_string(vals, type_format)
-!         if (present(default)) then
-!            default_str = intrinsic_array_to_string(default, type_format)
-!         end if
-!      type is(integer(int64))
-!         type_str = "'Integer*8 '"
-!         type_format = '('//trim(size_vals_str)//'(i0.1,1X))'
-!         val_str = intrinsic_array_to_string(vals, type_format)
-!         if (present(default)) then
-!            default_str = intrinsic_array_to_string(default, type_format)
-!         end if
-!      type is(real(real32))
-!         type_str = "'Real*4 '"
-!         type_format = '('//trim(size_vals_str)//'(f0.6,1X))'
-!         val_str = intrinsic_array_to_string(vals, type_format)
-!         if (present(default)) then
-!            default_str = intrinsic_array_to_string(default, type_format)
-!         end if
-!      type is(real(real64))
-!         type_str = "'Real*8 '"
-!         type_format = '('//trim(size_vals_str)//'(f0.6,1X))'
-!         val_str = intrinsic_array_to_string(vals, type_format)
-!         if (present(default)) then
-!            default_str = intrinsic_array_to_string(default, type_format)
-!         end if
-!       type is(logical)
-!         type_str = "'Logical '"
-!         type_format = '('//trim(size_vals_str)//'(l1,1X))'
-!         val_str = intrinsic_array_to_string(vals, type_format)
-!         if (present(default)) then
-!            default_str = intrinsic_array_to_string(default, type_format)
-!         end if
-!      type is(character(len=*))
-!         type_str = "'Character '"
-!         do i = 1, size(vals)
-!            val_str(i:i) = trim(vals(i))
-!         end do
-!         if (present(default)) then
-!            default_str = intrinsic_array_to_string(default, 'a')
-!         end if
-!      class default
-!         _FAIL("Unsupported type")
-!      end select
-!
-!      if(allocated(default_str)) then
-!         output_parameter(printrc, type_str, val_str, default_str)
-!      else
-!         output_parameter(printrc, type_str, val_str)
-!      end if
-!
-!   end subroutine print_resource_array
-!
-!   function intrinsic_array_to_string(vals, str_format, rc) result(formatted_str)
-!      class(*), intent(in) :: vals(:)
-!      character(len=*), intent(in) :: str_format
-!      character(len=1024) :: formatted_str
-!      integer, optional, intent(out) :: rc
-!
-!      integer :: i
-!
-!      select type(vals)
-!      type is(integer(int32))
-!         write(formatted_str, str_format) vals
-!      type is(integer(int64))
-!         write(formatted_str, str_format) vals
-!      type is(real(real32))
-!         write(formatted_str, str_format) vals
-!      type is(real(real64))
-!         write(formatted_str, str_format) vals
-!      type is(logical)
-!         write(formatted_str, str_format) vals
-!      type is(character(len=*))
-!         do i = 1, size(vals)
-!            formatted_str(i) = trim(vals(i))
-!         end do
-!      class default
-!         _FAIL( "Unsupported type in intrinsic_array_to_string")
-!      end select
-!
-!   end function intrinsic_array_to_string
-!
-!   subroutine output_parameter(printrc, type_str, val_str, default_str)
-!      character(len=*), intent(in) :: type_str
-!      character(len=*), intent(in) :: val_str
-!      character(len=*), intent(in), optional :: default_str
-!      integer, intent(in) :: printrc
-!      character(len=:), allocatable :: output_format
-!      character(len=*), parameter :: DEFAULT_ = ", (default value)"
-!      character(len=*), parameter :: NOT_DEFAULT = ''
-!      character(len=*), parameter :: NO_DEFAULT = ''
-!
-!      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a" // ", a" // "a)"
-!
-!      ! printrc = 0 - Only print non-default values
-!      ! printrc = 1 - Print all values with label if default value
-!      if (present(default_str)) then
-!         if trim(val_str) == trim(default_str) then
-!            if printrc == 1 then
-!               print output_format, trim(label), trim(val_str), trim(DEFAULT_)
-!            end if
-!         else
-!            print output_format, trim(label), trim(val_str), trim(NOT_DEFAULT)
-!         end if 
-!      else
-!         print output_format, trim(label), trim(val_str), trim(NO_DEFAULT)
-!      end if
-!   end subroutine output_parameter
-!
-!#ifdef SET_VAL
-!#  undef SET_VAL
-!#endif
-!
-!#define SET_VAL(T, VAL) \
-!type is (T) ;\
-!   if (default_is_present .and. .not. label_is_present) then ;\
-!      select type(default) ;\
-!      type is(T) ;\
-!         VAL = default ;\
-!      class default ;\
-!         _FAIL("Type of 'default' does not match type of 'VAL'.") ;\
-!      end select ;\
-!   else ;\
-!      call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, _RC) ;\
-!   end if
-!
-!!=============================================================================
-!
-!#ifdef SET_VALS
-!#  undef SET_VALS
-!#endif
-!
-!#define SET_VALS(T, VALS) \
-!type is (T) ;\
-!   if (default_is_present .and. .not. label_is_present) then ;\
-!      select type(default) ;\
-!      type is(T) ;\
-!         VALS = default ;\
-!      class default ;\
-!         _FAIL("Type of 'default' does not match type of 'VALS'.") ;\
-!      end select ;\
-!   else ;\
-!      call ESMF_ConfigGetAttribute(config, valuelist = VALS, count = count, label = actual_label, _RC) ;\
-!   end if
-!
-!!=============================================================================
-!
-!#ifdef SET_STRINGS
-!#  undef SET_STRINGS
-!#endif
-!
-!#define SET_STRINGS(T, TSTR, TFMT) \
-!type is (T) ;\
-!   type_str = TSTR ;\
-!   val_str = intrinsic_to_string(val, TFMT) ;\
-!   if (present(default)) then ;\
-!      default_str = intrinsic_to_string(default, TFMT) ;\
-!   end if
-!
-!!=============================================================================
