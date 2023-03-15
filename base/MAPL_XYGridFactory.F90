@@ -35,9 +35,6 @@ module MAPL_XYGridFactoryMod
       integer, allocatable :: jms(:)
       logical :: has_corners
       
-      ! Used for halo
-      type (ESMF_DELayout) :: layout
-      integer :: px, py
       logical :: initialized_from_metadata = .false.
    contains
       procedure :: make_new_grid
@@ -67,6 +64,7 @@ module MAPL_XYGridFactoryMod
       procedure :: generate_file_reference3D
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
+      procedure :: file_has_corners
    end type XYGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_XYGridFactory::'
@@ -204,7 +202,7 @@ contains
 
       integer :: i_1,i_n,j_1,j_n, ncid, varid
       integer :: ic_1,ic_n,jc_1,jc_n ! regional corner bounds
-      real, pointer :: centers(:,:) !corners(:,:)
+      real, pointer :: centers(:,:), corners(:,:)
       real(ESMF_KIND_R8), pointer :: fptr(:,:)
 
       integer :: IM, JM
@@ -214,6 +212,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+       
        lon_center_name = "lons"
        lat_center_name = "lats"
        lon_corner_name = "corner_lons"
@@ -283,48 +282,50 @@ contains
           deallocate(centers)
        end if
        !! now repeat for corners
-       !call MAPL_AllocateShared(corners,[im_world+1,jm_world+1],transroot=.true.,_RC)
+       if (this%has_corners) then
+          call MAPL_AllocateShared(corners,[im_world+1,jm_world+1],transroot=.true.,_RC)
 
-       !! do longitudes
+          ! do longitudes
 
-       !call MAPL_SyncSharedMemory(_RC)
-       !if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          !status = nf90_inq_varid(ncid,lon_corner_name,varid)
-          !_VERIFY(status)
-          !status = nf90_get_var(ncid,varid,corners)
-          !_VERIFY(status)
-          !corners=corners*MAPL_DEGREES_TO_RADIANS_R8
-       !end if
-       !call MAPL_SyncSharedMemory(_RC)
+          call MAPL_SyncSharedMemory(_RC)
+          if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+             status = nf90_inq_varid(ncid,lon_corner_name,varid)
+             _VERIFY(status)
+             status = nf90_get_var(ncid,varid,corners)
+             _VERIFY(status)
+             corners=corners*MAPL_DEGREES_TO_RADIANS_R8
+          end if
+          call MAPL_SyncSharedMemory(_RC)
 
-       !call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          !staggerloc=ESMF_STAGGERLOC_CORNER, &
-          !farrayPtr=fptr, _RC)
-       !fptr=corners(ic_1:ic_n,jc_1:jc_n)
-       !! do latitudes
+          call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+             staggerloc=ESMF_STAGGERLOC_CORNER, &
+             farrayPtr=fptr, _RC)
+          fptr=corners(ic_1:ic_n,jc_1:jc_n)
+          ! do latitudes
 
-       !call MAPL_SyncSharedMemory(_RC)
-       !if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          !status = nf90_inq_varid(ncid,lat_corner_name,varid)
-          !_VERIFY(status)
-          !status = nf90_get_var(ncid,varid,corners)
-          !_VERIFY(status)
-          !corners=corners*MAPL_DEGREES_TO_RADIANS_R8
-       !end if
-       !call MAPL_SyncSharedMemory(_RC)
+          call MAPL_SyncSharedMemory(_RC)
+          if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+             status = nf90_inq_varid(ncid,lat_corner_name,varid)
+             _VERIFY(status)
+             status = nf90_get_var(ncid,varid,corners)
+             _VERIFY(status)
+             corners=corners*MAPL_DEGREES_TO_RADIANS_R8
+          end if
+          call MAPL_SyncSharedMemory(_RC)
 
-       !call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          !staggerloc=ESMF_STAGGERLOC_CORNER, &
-          !farrayPtr=fptr, _RC)
-       !fptr=corners(ic_1:ic_n,jc_1:jc_n)
+          call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+             staggerloc=ESMF_STAGGERLOC_CORNER, &
+             farrayPtr=fptr, _RC)
+          fptr=corners(ic_1:ic_n,jc_1:jc_n)
 
-       !call MAPL_SyncSharedMemory(_RC)
-       !if(MAPL_ShmInitialized) then
-          !call MAPL_DeAllocNodeArray(corners,_RC)
-       !else
-          !deallocate(corners)
-       !end if
+          call MAPL_SyncSharedMemory(_RC)
+          if(MAPL_ShmInitialized) then
+             call MAPL_DeAllocNodeArray(corners,_RC)
+          else
+             deallocate(corners)
+          end if
 
+      end if
       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
          status=nf90_close(ncid)
          _VERIFY(status)
@@ -480,8 +481,7 @@ contains
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
-      !this%ims = spread(this%im_world / this%nx, 1, this%nx)
-      !this%jms = spread(this%jm_world / this%ny, 1, this%ny)
+      call this%file_has_corners(_RC)
       
       _RETURN(_SUCCESS)
 
@@ -668,34 +668,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ESMF_Grid) :: grid
-      type (ESMF_DistGrid) :: dist_grid
-      integer :: dim_count
-      integer :: pet
-      integer :: ndes
-      type (ESMF_VM) :: vm
-
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'init_halo'
-      
-      _UNUSED_DUMMY(unusable)
-
-      grid = this%make_grid(rc=status)
-      _VERIFY(status)
-      
-      call ESMF_GridGet(grid,   distGrid=dist_grid, dimCount=dim_count, rc=status)
-      _VERIFY(status)
-      call ESMF_DistGridGet(dist_grid, delayout=this%layout, rc=status)
-      _VERIFY(status)
-
-      call ESMF_DELayoutGet (this%layout, vm=vm, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VmGet(vm, localPet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
-      
-      this%px = mod(pet, this%nx)
-      this%py = pet / this%nx
 
       _RETURN(_SUCCESS)
 
@@ -712,177 +685,7 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'halo'
-      include 'mpif.h'
-
-      integer :: pet_north
-      integer :: pet_south
-      integer :: pet_east
-      integer :: pet_west
-
-      _UNUSED_DUMMY(unusable)
-      ! not yet implmented, default halo_width=1
-      _UNUSED_DUMMY(halo_width)
-      associate (nx => this%nx, ny => this%ny, px => this%px, py => this%py)
-        ! Nearest neighbors processor' ids
-        pet_north = get_pet(px, py+1, nx, ny)
-        pet_south = get_pet(px, py-1, nx, ny)
-        pet_east  = get_pet(px+1, py, nx, ny)
-        pet_west  = get_pet(px-1, py, nx, ny)
-
-        call fill_south(array, rc=status)
-        _VERIFY(status)
-
-        call fill_north(array, rc=status)
-        _VERIFY(status)
-
-        call fill_east(array, rc=status)
-        _VERIFY(status)
-
-        call fill_west(array, rc=status)
-        _VERIFY(status)
-
-      end associate
-
-      _RETURN(ESMF_SUCCESS)
-
-   contains
-
-      ! Neighbor pet is more subtle here than for latlon.
-      ! At the southern edge of the grid, there is no southern neighbor.
-      ! At the northern edge, there grid folds on itself. TLC
-
-      integer function get_pet(px, py, nx, ny) result(pet)
-         integer, intent(in) :: px, py  ! rank in x/y directions
-         integer, intent(in) :: nx, ny  ! npets in x/y directions
-
-         if (py < 0) then ! off the south pole
-            pet = MPI_PROC_NULL
-         elseif (py == nx) then ! reflect on north pole
-            pet = mod(nx + 1 - px,nx) + nx*(py-1)
-         else
-            pet = mod(px+nx,nx) + nx*mod(py+ny,ny)
-         end if
          
-      end function get_pet
-
-
-      subroutine fill_north(array, rc)
-         real(kind=REAL32), intent(inout) :: array(:,:)
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_north'
-
-         integer :: len, last
-
-         last = size(array,2)-1 
-         len = size(array,1)
-         
-         if(this%py==this%ny-1) then
-            call MAPL_CommsSendRecv(this%layout,        &
-                 array(:,2        ),  len,  pet_south,  &
-                 array(:,last+1   ),  len,  pet_north,  &
-                 rc=status)
-            _VERIFY(status)
-         else
-            call MAPL_CommsSendRecv(this%layout,        &
-                 array(:,last     ),  len,  pet_north,  &
-                 array(:,last+1   ),  len,  pet_north,  &
-                 rc=status)
-            _VERIFY(status)
-            ! reflect results
-            block
-              integer :: n, i, ii
-              real(kind=REAL32) :: tmp
-              n = size(array,1)
-              do i = 1, n/2
-                 ii = n + 1 - i
-                 tmp = array(i,last+1)
-                 array(i,last+1) = array(ii,last+1)
-                 array(ii,last+1) = tmp
-              end do
-            end block
-         end if
-         
-         _RETURN(_SUCCESS)
-
-      end subroutine fill_north
-
-     
-      subroutine fill_south(array, rc)
-         use MAPL_BaseMod, only: MAPL_UNDEF
-         real(kind=REAL32), intent(inout) :: array(:,:)
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_south'
-
-         integer :: len, last
-
-         last = size(array,2)-1 
-         len = size(array,1)
-
-         call MAPL_CommsSendRecv(this%layout,     &
-              array(:,last     ),  len,  pet_north,  &
-              array(:,1        ),  len,  pet_south,  &
-              rc=status)
-         _VERIFY(status)
-
-         if(this%py==0) then
-            array(:,1   ) = MAPL_UNDEF
-         endif
-
-         _RETURN(_SUCCESS)
-
-      end subroutine fill_south
-
-
-      subroutine fill_east(array, rc)
-         real(kind=REAL32), intent(inout) :: array(:,:)
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_east'
-         
-         integer :: len, last
-
-         last = size(array,2)-1 
-         len = size(array,1)
-
-         call MAPL_CommsSendRecv(this%layout,      &
-             array(2     , : ),  len,  pet_west,  &
-             array(last+1, : ),  len,  pet_east,  &
-             rc=status)
-         _VERIFY(status)
-
-         _RETURN(_SUCCESS)
-
-      end subroutine fill_east
-
-
-      subroutine fill_west(array, rc)
-         real(kind=REAL32), intent(inout) :: array(:,:)
-         integer, optional, intent(out) :: rc
-         
-         integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_west'
-
-         integer :: len, last
-         
-         last = size(array,1)-1
-         len = size(array,2)
-         
-         call MAPL_CommsSendRecv(this%layout,   &
-              array(last  , : ),  len,  pet_west,  &
-              array(1     , : ),  len,  pet_east,  &
-              rc=status)
-         _VERIFY(status)
-         
-         _RETURN(_SUCCESS)
-
-      end subroutine fill_west
-
-
    end subroutine halo
       
    subroutine append_metadata(this, metadata)
@@ -933,15 +736,17 @@ contains
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
-      !v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
-      !call v%add_attribute('long_name','longitude')
-      !call v%add_attribute('units','degrees_east')
-      !call metadata%add_variable('corner_lons',v)
-!
-      !v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
-      !call v%add_attribute('long_name','latitude')
-      !call v%add_attribute('units','degrees_north')
-      !call metadata%add_variable('corner_lats',v)
+      if (this%has_corners) then
+         v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+         call v%add_attribute('long_name','longitude')
+         call v%add_attribute('units','degrees_east')
+         call metadata%add_variable('corner_lons',v)
+
+         v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+         call v%add_attribute('long_name','latitude')
+         call v%add_attribute('units','degrees_north')
+         call metadata%add_variable('corner_lats',v)
+      end if
 !
      call metadata%add_attribute('grid_type','XY')
 
@@ -1022,6 +827,7 @@ contains
 
    end subroutine generate_file_corner_bounds
 
+
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
       type(ArrayReference) :: ref
@@ -1040,5 +846,33 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
+
+   subroutine file_has_corners(this,rc)
+      use MAPL_CommsMod
+      class(XYGridFactory), intent(inout) :: this
+      integer, intent(out), optional :: rc
+
+      integer :: status, ncid,varid
+      type(ESMF_VM) :: vm
+      integer :: log_array(1)
+
+      if (mapl_am_i_root()) then
+         status = nf90_open(this%grid_file_name,NF90_NOWRITE,ncid)
+         _VERIFY(status)
+         status = NF90_inq_varid(ncid,"corner_lons",varid)
+         if (status == 0) then
+            this%has_corners = .true.
+            log_array(1) = 1
+         else
+            this%has_corners = .false.
+            log_array(1) = 0
+         end if
+      end if
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMBroadcast(vm,log_array,1,0,_RC)
+      this%has_corners = (1 == log_array(1))
+
+      _RETURN(_SUCCESS)
+   end subroutine
 
 end module MAPL_XYGridFactoryMod
