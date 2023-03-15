@@ -2375,7 +2375,7 @@ ENDDO PARSER
           elseif (list(n)%observation_spec /= '') then
              if (list(n)%observation_spec == 'station') then
                 list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),trim(list(n)%stationDataFile),_RC)
-                call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,_RC)
+                call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              else
                 write(6,*) 'Not implemented: list(n)%observation_spec:', list(n)%observation_spec
                 STOP 'Error: list(n)%observation_spec not implemented'

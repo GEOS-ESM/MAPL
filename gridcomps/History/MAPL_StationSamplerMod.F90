@@ -136,7 +136,7 @@ contains
        read(unit, *) str, sdmy, shms, j, t, sampler%ids(i)
        read(sdmy,'(i2,a,i2,a,i4)') iday, s1, imonth, s1, iyear
        read(shms,'(i2,a,i2,a,i2)') ihr, s1, imin, s1, isec
-       if (mod(i,100)==1) then
+       if (mod(i,3000)==1) then
           print*, str, sdmy, shms, j, t, sampler%ids(i)
           print*, iday, imonth, iyear
           print*, ihr, imin, isec
@@ -251,6 +251,8 @@ contains
     this%previous_index = lbound(this%times,1)-1
     call timeInfo%get(clock=clock,_RC)
     call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
+
+    write(6,*) 'end of add_metadata_route_handle'
     
   end subroutine add_metadata_route_handle
 
@@ -276,7 +278,11 @@ contains
      integer :: i, id, iobs, ix
 
 
+     write(6,*) 'bg: append_file'
+
      interval = this%get_current_interval(current_time)
+     write(6,*) 'interval=', interval(1:2)
+     
      if (all(interval==0)) then
         number_to_write = 0
      else
@@ -375,6 +381,7 @@ contains
      !!end if
      this%previous_time=current_time
 
+     write(6,*) 'end: append_file'
    end subroutine append_file
    
    subroutine create_file_handle(this,filename,rc)
