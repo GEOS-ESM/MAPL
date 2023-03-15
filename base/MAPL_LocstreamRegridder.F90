@@ -139,12 +139,3 @@ contains
    end subroutine regrid_3d_real32
 
 end module MAPL_LocstreamRegridderMod
-
-! grid --> LS
-!  nc -- F90 : 
-! pt(nstat=10, nlev=72)
-!   --> order
-! trailing: 
-!
-!  
-!

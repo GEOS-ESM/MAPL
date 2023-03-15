@@ -34,6 +34,7 @@ module StationSamplerMod
      integer :: nobs
      integer :: nstation
      integer, allocatable :: station_id(:)
+     integer, allocatable :: id2rank(:)     
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
@@ -65,10 +66,10 @@ module StationSamplerMod
      module procedure new_StationSampler_readfile
   end interface StationSampler
   integer :: maxstr = 2048  ! because ESMF_MAXSTR=256  
+  integer :: maxnstation = 10000 
 contains
 
-  !_ initializer / constructor from file
-  !
+
   function new_StationSampler_readfile (filename1,filename2,rc) result(sampler)
     type(StationSampler) :: sampler
     character(len=*), intent(in) :: filename1, filename2  ! 1:station_name, 2:station_data
@@ -108,6 +109,12 @@ contains
             sampler%elevs(i)
     enddo
     close(unit)
+    allocate(sampler%id2rank(maxnstation))
+    do i=1, nstation
+       sampler%id2rank(sampler%station_id(i))=i
+    enddo
+
+    
     write(6,*) 'sampler%station_name(1:2) : ', &
          trim(sampler%station_name(1)), ' ', trim(sampler%station_name(2))
     write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
@@ -127,11 +134,13 @@ contains
     rewind(unit)
     do i=1, nobs
        read(unit, *) str, sdmy, shms, j, t, sampler%ids(i)
-       print*, str, sdmy, shms, j, t, sampler%ids(i)
        read(sdmy,'(i2,a,i2,a,i4)') iday, s1, imonth, s1, iyear
        read(shms,'(i2,a,i2,a,i2)') ihr, s1, imin, s1, isec
-       print*, iday, imonth, iyear
-       print*, ihr, imin, isec
+       if (mod(i,100)==1) then
+          print*, str, sdmy, shms, j, t, sampler%ids(i)
+          print*, iday, imonth, iyear
+          print*, ihr, imin, isec
+       endif
        call ESMF_TimeSet(sampler%times(i),yy=iyear,mm=imonth,dd=iday,h=ihr,m=imin,s=isec,_RC)
     enddo
     close(unit)
@@ -264,7 +273,7 @@ contains
      character(len=ESMF_MAXSTR) :: xname
      integer :: ub(ESMF_MAXDIM), lb(ESMF_MAXDIM)
      real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-     integer :: i, id, iobs
+     integer :: i, id, iobs, ix
 
 
      interval = this%get_current_interval(current_time)
@@ -287,10 +296,10 @@ contains
            !!call this%formatter%put_var('latitude',this%lats(interval(1):interval(2)),&
            !!     start=[this%obs_written+1],count=[number_to_write],_RC)
            do iobs=interval(1), interval(2)
-              id=this%ids(iobs)
-              call this%formatter%put_var('longitude',this%lons(id),&
+              ix=this%id2rank(this%ids(iobs))
+              call this%formatter%put_var('longitude',this%lons(ix:ix),&
                    start=[this%obs_written+iobs],count=[1],_RC)
-              call this%formatter%put_var('latitude',this%lats(id),&
+              call this%formatter%put_var('latitude',this%lats(ix:ix),&
                    start=[this%obs_written+iobs],count=[1],_RC)
            enddo
         end if
@@ -315,8 +324,9 @@ contains
                  !!call this%formatter%put_var(trim(xname),p_dst_2d(interval(1):interval(2)),&
                  !!     start=[this%obs_written+1],count=[number_to_write])
                  do iobs=interval(1), interval(2)
-                    id=this%ids(iobs)              
-                    call this%formatter%put_var(xname,p_dst_2d(id),&
+                    ix=this%id2rank(this%ids(iobs))
+                    write(6,'(2x,a,2x,2i5)') 'id, ix=', this%ids(iobs), ix
+                    call this%formatter%put_var(xname,p_dst_2d(ix:ix),&
                          start=[this%obs_written+iobs],count=[1],_RC)                         
                  enddo
               end if
@@ -341,8 +351,8 @@ contains
               end if
               if (mapl_am_i_root()) then
                  do iobs=interval(1), interval(2)
-                    id=this%ids(iobs)              
-                    call this%formatter%put_var(xname,p_dst_3d(id),&
+                    id=this%id2rank(this%ids(iobs))
+                    call this%formatter%put_var(xname,p_dst_3d(id:id,1:size(p_dst_3d,2)),&
                          start=[this%obs_written+iobs,1],count=[1,size(p_dst_3d,2)],_RC)
                     !                                   lev            nlev
                  enddo
@@ -413,7 +423,7 @@ contains
   !
   function get_current_interval(this,current_time,rc) result(interval)
     class(StationSampler), intent(inout) :: this
-    type(ESMF_Time), intent(inout) :: current_time
+    type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     integer :: interval(2)
     integer :: i,nfound
