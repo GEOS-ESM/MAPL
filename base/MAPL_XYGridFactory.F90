@@ -160,7 +160,6 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-       write(*,*)"Bmaa creating lambert"
        grid = ESMF_GridCreateNoPeriDim( &
             name=trim(this%grid_name) ,&
             countsPerDEDim1=this%ims, &
@@ -478,11 +477,6 @@ contains
       if (.not. allocated(this%grid_name)) then
          this%grid_name = MAPL_GRID_NAME_DEFAULT
       end if
-
-      ! Check decomposition/bounds
-      ! XY requires even divisibility
-      write(*,*)"bmaa check and fill ",this%im_world,this%jm_world,this%nx,this%ny
-
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
