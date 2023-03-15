@@ -1,17 +1,8 @@
-!
-! metacode:
-! input:  bundle, station_id_file, station_data_file
-!    - bundle: grid, field(x, y, z)
-!    - station: [id, name, lat, lon, elevate (Arlindo: no verti-interp)]; static file
-!
-! core:
-!    - filemetadata to store NC specifics
-!    - LS route handle
-!    - LS interp
-!
-! output:
-!    - write nc
-!    - not yet append with time stamp 
+!  Input Data:
+!_ 1. station_id_file: static
+!     plain text format: [id,name,lat,lon,elev]
+!_ 2. station_data_file: time series
+!     plain text format: [time, AOD..., id]
 
 #include "MAPL_Generic.h"
 module StationSamplerMod
@@ -38,6 +29,9 @@ module StationSamplerMod
      type(LocStreamFactory) :: LSF   !? redundancy
      type(ESMF_LocStream) :: esmf_ls 
      type(LocstreamRegridder) :: regridder
+     type(ESMF_time), allocatable :: times(:) ! nobs
+     integer, allocatable :: ids(:)         ! ...
+     integer :: nobs
      integer :: nstation
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
@@ -48,13 +42,18 @@ module StationSamplerMod
      type(ESMF_FieldBundle) :: bundle
      type(FileMetadata) :: fmd
      type(NetCDF4_FileFormatter) :: formatter
-     integer :: number_written, count_write_times
+     type(VerticalData) :: vdata
+     logical :: do_vertical_regrid
+     type(TimeData) :: time_info
+     integer :: previous_index
+     type(ESMF_Time) :: previous_time
+     integer :: obs_written, count_write_times  ! remove number_written
      character(LEN=ESMF_MAXPATHLEN) :: ncfile ! file_name
    contains
      procedure :: add_metadata_route_handle
      procedure :: create_file_handle
      procedure :: close_file_handle
-     procedure :: interp_write_file
+     procedure :: append_file  
      !!procedure :: destroy_sampler  !! destructor __ deallocate arrays
   end type StationSampler
 
@@ -71,14 +70,16 @@ contains
     character(len=*), intent(in) :: filename1, filename2  ! 1:station_name, 2:station_data
     integer, optional, intent(out) :: rc
     ! loc
-    character(len=40) :: str
+    character(len=40) :: str, sdmy, shms
     integer :: max_len, max_seg, nseg
-    integer :: unit, ios, nline, id, nstation, status, i
-    real :: x, y, z
-
-    !_ 1. read from station_id_file
+    integer :: unit, ios, nline, id, nstation, status, i, j, nobs
+    integer :: iday, imonth, iyear, ihr, imin, isec
+    real :: x, y, z, t
+    character(len=1) :: s1
+    
+    !_ 1. read from station_id_file: static
     !     plain text format: [id,name,lat,lon,elev]
-
+    !
     write(6,*) 'filename1=', trim(filename1)
     open(newunit=unit, file=trim(filename1), form='formatted', access='sequential', status='old')
     ios=0; nstation=0
@@ -108,13 +109,34 @@ contains
     write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
 
     
-    !_ 2. read from station_data_file
+    !_ 2. read from station_data_file: time series
     open(newunit=unit, file=trim(filename2), form='formatted', access='sequential', status='old')
+    ios=0; i=0
+    do while (ios==0)
+       read (unit, *, IOSTAT=ios) str,str,str,j,t,id,str
+       if (ios==0) i=i+1
+       !! write(6,*) 'id=',id
+    enddo
+    nobs=i; sampler%nobs=nobs
+    allocate(sampler%times(nobs))
+    allocate(sampler%ids(nobs))
+    rewind(unit)
+    do i=1, nobs
+       read(unit, *) str, sdmy, shms, j, t, sampler%ids(i)
+       print*, str, sdmy, shms, j, t, sampler%ids(i)
+       read(sdmy,'(i2,a,i2,a,i4)') iday, s1, imonth, s1, iyear
+       read(shms,'(i2,a,i2,a,i2)') ihr, s1, imin, s1, isec
+       print*, iday, imonth, iyear
+       print*, ihr, imin, isec
+       call ESMF_TimeSet(sampler%times(i),yy=iyear,mm=imonth,dd=iday,h=ihr,m=imin,s=isec,_RC)
+    enddo
+    close(unit)
+    write(6,*) 'sampler%station_name(1:2) : ', &
+         trim(sampler%station_name(1)), ' ', trim(sampler%station_name(2))
+    write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
 
     
-    
-    
-    !_ 2. create LocStreamFactory, then esmf_ls including route_handle
+    !_ 3. create LocStreamFactory, then esmf_ls including route_handle
     !
     sampler%LSF = LocStreamFactory(sampler%lons, sampler%lats, _RC)
     sampler%esmf_ls = sampler%LSF%create_locstream(_RC)
@@ -125,45 +147,18 @@ contains
     !
   end function new_StationSampler_readfile
 
-!
-!  note-1:
-!  var in bundle
-!  var (lon, lat, lev) [..., x?? ]
-!  gridded __,  un-gridded
-!  step by step
-!  loop over bundle
-!    field
-!    dim
-!
-!
-!    Q2: metadata?
-!    concept?
-!    meta:  variable name, units, ... , dim,  station-id (extra var),
-!    when to create metadata?  Initial step, mod as needed,
-!    field (lon, lat, lev, time) :  time, unit, longname,  -> meta,
-!    filename
-!
-!    model field, 
-!
-!    bundle_in: vdata (user: new pressu level) --> bundle_out: vdata
-!    add meta
-!    do interp
-!       output nc
-!       
-
   
-  !_ prep fmd, RH
-  !
-  subroutine add_metadata_route_handle (this,bundle,timeInfo,rc)
+  subroutine add_metadata_route_handle (this,bundle,timeInfo,vdata,rc)
     class(StationSampler), intent(inout) :: this
     type(ESMF_FieldBundle), intent(in) :: bundle
-    type(TimeData), intent(inout) :: timeInfo   ! why out ?
+    type(TimeData), intent(inout) :: timeInfo
+    type(VerticalData), optional, intent(inout) :: vdata
     integer, optional, intent(out) :: rc   
     !
     integer :: status
     type(ESMF_Grid) :: grid
-    !!type(ESMF_Clock) :: clock
-    type(variable) :: T, v
+    type(ESMF_Clock) :: clock
+    type(variable) :: v
     integer :: fieldCount
     integer :: fieldCount_max = 1000
     type(ESMF_Field) :: field
@@ -172,38 +167,32 @@ contains
     integer :: field_rank, i
     logical :: is_present
 
+    this%bundle=bundle    
+    if (present(vdata)) then
+       this%vdata=vdata
+    else
+       this%vdata=VerticalData(_RC)
+    end if
+    call this%vdata%append_vertical_metadata(this%fmd,this%bundle,_RC)
+    this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+    if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
+
+    call timeInfo%add_time_to_metadata(this%fmd,_RC)
+    this%time_info = timeInfo
+    nobs = size(this%times)
     
-    ! wait
-    !    call timeInfo%add_time_to_metadata(this%fmd,_RC)
-    !    this%time_info = timeInfo
-    !    T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
-
-    this%bundle=bundle
-    call this%fmd%add_dimension('nstation',this%nstation)
-    call this%fmd%add_dimension('time', 1)  ! time = UNLIMITED
-    call this%fmd%add_dimension('lev',  1)  ! lev = 1: aeronet on surface 
+    !call this%fmd%add_dimension('nstation',this%nstation)
+    !call this%fmd%add_dimension('time', 1)  ! time = UNLIMITED
+    !call this%fmd%add_dimension('lev',  1)  ! lev = 1: aeronet on surface 
     !
-    T = Variable(type=pFIO_REAL32, dimensions='nstation')
-    call T%add_attribute('long_name','longitude')
-    call T%add_attribute('unit','degree_east')    
-    call this%fmd%add_variable('longitude',T)
-    !
-    T = Variable(type=pFIO_REAL32, dimensions='nstation')
-    call T%add_attribute('long_name','latitude')
-    call T%add_attribute('unit','degree_north')    
-    call this%fmd%add_variable('latitude',T)    
-    !
-    T = Variable(type=pFIO_REAL32, dimensions='time')
-    call T%add_attribute('long_name','time')
-    ! inquire TimeINFO , clock, current_time, ESMF_time, to output --> string
-    call T%add_attribute('unit','minutes since 2000-04-14 22:00:00')
-    ! -- unit: second ? 7.5 min:  450 s
-    call this%fmd%add_variable('time',T)
-
-    
-    !?
-    !    call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
-
+    v = Variable(type=pFIO_REAL32, dimensions='time')
+    call v%add_attribute('long_name','longitude')
+    call v%add_attribute('unit','degree_east')    
+    call this%fmd%add_variable('longitude',v)
+    v = Variable(type=pFIO_REAL32, dimensions='time')
+    call v%add_attribute('long_name','latitude')
+    call v%add_attribute('unit','degree_north')    
+    call this%fmd%add_variable('latitude',v)
     
     !-- add field in bundle to filemetadata
     !
@@ -228,9 +217,9 @@ contains
        endif
        !
        if (field_rank==2) then
-          vdims = "nstation,time"
+          vdims = "time"
        else if (field_rank==3) then
-          vdims = "lev,nstation,time"  ! check convention
+          vdims = "time,lev"    ! how is lev defined in fmd
        end if
        v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
        call v%add_attribute('units',trim(units))
@@ -242,14 +231,19 @@ contains
     enddo  ! fieldCount
     deallocate (fieldNameList)
 
-    
-    !_ 2: locstream route handle
+    ! locstream route handle
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
+
+    this%obs_written = 0  ! not number_written
+    this%previous_index = lbound(this%times,1)-1
+    call timeInfo%get(clock=clock,_RC)
+    call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
+    
   end subroutine add_metadata_route_handle
 
   
-  subroutine interp_write_file(this,current_time,rc)
+  subroutine append_file(this,current_time,rc)
      class(StationSampler), intent(inout) :: this
      type(ESMF_Time), intent(inout) :: current_time
      integer, optional, intent(out) :: rc
@@ -258,7 +252,7 @@ contains
      type(GriddedIOitemVectorIterator) :: iter
      type(GriddedIOitem), pointer :: item
      type(ESMF_Field) :: src_field,dst_field
-     integer :: rank,number_to_write,previous_day,current_day
+     integer :: rank,interval(2),number_to_write,previous_day,current_day
      real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
      real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
      real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
@@ -266,10 +260,16 @@ contains
      character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
      character(len=ESMF_MAXSTR) :: xname
      integer :: ub(ESMF_MAXDIM), lb(ESMF_MAXDIM)
+     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
      integer :: i
 
-     !!real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-
+     interval = this%get_current_interval(current_time)
+     if (all(interval==0)) then
+        number_to_write = 0
+     else
+        number_to_write = interval(2)-interval(1)+1
+     end if
+     
      if (this%count_write_times==0) then
         ! write lon/lat only once
         call this%formatter%put_var('longitude', this%lons)
@@ -333,8 +333,7 @@ contains
      enddo  !  loop fieldCount
      !!     this%number_written=this%number_written+number_to_write
      !!
-   end subroutine interp_write_file
-
+   end subroutine append_file
    
    subroutine create_file_handle(this,filename,rc)
      class(StationSampler), intent(inout) :: this
@@ -370,146 +369,41 @@ contains
     write(6,*) 'empty file_name=', this%ncfile
     _RETURN(_SUCCESS)
   end subroutine close_file_handle
+
   
-  subroutine split_string (string, mark, length_mx, &
-       mxseg, nseg, str_piece, jstatus)
-    implicit none
-    integer,           intent (in) :: length_mx
-    character (len=length_mx), intent (in) :: string
-    character (len=1), intent (in) :: mark
-    integer,           intent (in) :: mxseg
-    integer,           intent (out):: nseg
-    character (len=length_mx), intent (out):: str_piece(mxseg)
-    integer,           intent (out):: jstatus
-    INTEGER                        :: len1, l, lh, lw
-    integer                        :: iseg
-    integer,           allocatable :: ipos(:)
-    !
-    !   xxxx_yy_zz_uu_vv
-    !       ^  ^  ^  ^
-    !       |  |  |  |
-    !       marker
-    !
-    len1 = LEN_TRIM( string )
-    allocate (ipos(len1))
-    iseg=0
-    do l=1, len1
-       if (mark .eq. string(l:l)) then
-          iseg=iseg+1
-          ipos(iseg)=l
-  !        write(6,*) 'match!', l
-  !        write(6,*) 'ipos ', iseg, ' = ', l
-       endif
-    enddo
-    if (iseg.eq.0 .or. iseg.gt.mxseg-1) then
-       call error ('split_string', 'find nseg .eq.0 or > 4', 1)
-       jstatus=1   ! fail
-       return
-    else
-       jstatus=0   ! success
-    endif
-    nseg=iseg
-    !
-    !
-    str_piece(:)=''
-    lw=1    ! lw, lh: two index positions
-    do l=1, nseg
-       lh=ipos(l)-1
-       do iseg=lw, lh
-          str_piece(l)=trim(str_piece(l))//string(iseg:iseg)
-       enddo
-       lw=ipos(l)+1
-    enddo
-    if (lw.le.len1) then
-       lh=len1
-       do iseg=lw, lh
-          str_piece(l)=trim(str_piece(l))//string(iseg:iseg)
-       enddo
-    endif
-    nseg=nseg+1  ! must add one bc of eggs and '_'
-    if (nseg.gt.mxseg) then
-       call error ('split_string', 'nseg exceeds mx', 1)
-    endif
-    str_piece(nseg+1:mxseg)='void'
-    return
-  end subroutine split_string
+  function get_current_interval(this,current_time,rc) result(interval)
+    class(StationSampler), intent(inout) :: this
+    type(ESMF_Time), intent(inout) :: current_time
+    integer, optional, intent(out) :: rc
+    integer :: interval(2)
+    integer :: i,nfound
+    logical :: found
 
-  subroutine error(insubroutine, message, ierr )
-    character (len=*), intent (in) :: insubroutine
-    character (len=*), intent (in) :: message
-    integer, intent (in) :: ierr
-    !
-    write (6, 11)
-    write (6, 12)  trim(insubroutine), trim(message), ierr
-    write (6, 11)
-    stop
-11  format ('**====================**')
-12  format (2x, a, 4x, a, 4x, "ierr =", i4)
-    return
-  end subroutine error
-  !
+    found = .false.
+    nfound = 0
+    interval = 0
+    do i=this%previous_index+1,size(this%times)
+       if (this%times(i) .ge. this%previous_time .and. this%times(i) .le. current_time) then
+          if (.not.found) then
+             interval(1) = i
+             found = .true.
+          end if
+          nfound = nfound + 1
+       end if
+       if (this%times(i) .ge. current_time) exit
+    enddo
+    if (found) then
+       interval(2) = interval(1)+nfound-1
+       this%previous_index = interval(2)
+    end if
+    _RETURN(_SUCCESS)
+
+    ! ---/// ----------- /// ------->
+    !          X   X  X
+    !          LB     UB  :  interval(1:2)
+  end function get_current_interval
+
+
+  
+       
 end module StationSamplerMod
-
-
-! Meta code:
-! - station sampler obs 
-!   station data = /gpfsm/dnb04/projects/p22/aerosol/data/AERONET.v3/Level2/STATIONS/aeronet_locations_v3_2019_lev2.txt
-!   format: Site_Name,Longitude(decimal_degrees),Latitude(decimal_degrees),Elevation(meters),JAN,FEB,MAR,
-!   wc line:  349  (-2 header)
-!   AOD data = /gpfsm/dnb04/projects/p22/aerosol/data/AERONET.v3/Level2/Y2019/M12/aeronet_v3.aod.20191231.txt
-!   wc station wo time : 165
-!   grep 2019 aeronet_v3.aod.20191231.txt | cut -d, -f1 | sort -u |wc
-!   
-!   Focus: 2019/M12  
-!          20191201  ---  20191231
-!
-!  
-!   var:
-!   max_station=1000
-!
-!  
-!  readin
-!  - station id, name, lon/lat/elevation, fake AOD_620nm(time, id)
-!  - use ESMF_LocStream
-!    - use LocStreamFactoryMod::LocStreamFactory::create_locstream
-!          LocStreamFactoryMod::LocStreamFactory_from_arrays
-!  - do interpolation
-!    from model grid to LocStreamFactory::
-!          
-!  - 
-!
-!  
-!  Details:
-!  - aerostation_data_file
-!  - aeronet_data_file =  concatenate 2019/12/01 to  2019/12/32 : aeronet_v3.aod.20191201_20191231.txt
-!    format
-!    FILE_NAME=aeronet_v3.aod.20191231.txt  + (content) +  repeat
-!  
-!  - aero_data_top_dir :
-!     - subdir_format : Y$YYYY$/M$MM$/aeronet_v3.aod.$YYYYMMDD$.txt
-!     - subdir_format : Y'YYYY'/M'MM'/aeronet_v3.aod.'yyyymmdd'.txt
-!                     : Y_YYYY_/M_MM_/aeronet_v3.aod._YYYYMMDD_.txt
-!
-!
-!  type :: aerostation
-!     id = 1:347
-!     name = Tallahassee
-!     lon/lat/elevat (degree,degree,meters)
-!
-!     naerostation=
-!     ntime=
-!     
-!  inquire_name
-!
-!  Explicit array:
-!    aero_station_name(:)
-!    longitude(:)
-!    latitude(:)
-!    elevation(:)
-!    AOD_620nm(time, id)
-!    Ozone_Dobson(time, id)
-!
-!
-! Take reference from:
-!   MAPL_HistoryTrajectoryMod.F90  &  GriddedIO.F90 
-!

@@ -3596,7 +3596,7 @@ ENDDO PARSER
          call list(n)%trajectory%append_file(current_time,_RC)
       elseif (list(n)%observation_spec /= '') then
          if (list(n)%observation_spec == 'station') then
-            call list(n)%station_sampler%interp_write_file(current_time,_RC)
+            call list(n)%station_sampler%append_file(current_time,_RC)
          endif
       else
       end if
