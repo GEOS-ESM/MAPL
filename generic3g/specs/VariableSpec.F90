@@ -9,11 +9,7 @@ module mapl3g_VariableSpec
    use mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
-   use esmf, only: ESMF_StateIntent_Flag
-   use esmf, only: ESMF_Geom
-   use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
-   use esmf, only: ESMF_MAXSTR
-   use esmf, only: ESMF_SUCCESS
+   use esmf
    use nuopc
    implicit none
    private
@@ -32,7 +28,7 @@ module mapl3g_VariableSpec
 
       ! Optional values
       character(:), allocatable :: standard_name
-      type(StateItemSpecTypeId) :: type_id = MAPL_TYPE_ID_FIELD
+      type(ESMF_StateItem_Flag) :: type_id = MAPL_STATEITEM_FIELD
       character(:), allocatable :: units
       type(ExtraDimsSpec) :: extra_dims
    contains
@@ -59,7 +55,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       ! Optional args:
       character(*), optional, intent(in) :: standard_name
-      type(StateItemSpecTypeId), optional, intent(in) :: type_id
+      type(ESMF_StateItem_Flag), optional, intent(in) :: type_id
       character(*), optional, intent(in) :: units
 
       var_spec%state_intent = state_intent
@@ -93,34 +89,34 @@ contains
 
       
       function get_type_id(config) result(type_id)
-         type(StateItemSpecTypeId) :: type_id
+         type(ESMF_StateItem_Flag) :: type_id
          class(YAML_Node), intent(in) :: config
 
          character(:), allocatable :: type_id_as_string
          integer :: status
 
-         type_id = MAPL_TYPE_ID_FIELD ! default
+         type_id = MAPL_STATEITEM_FIELD ! default
          if (.not. config%has('type_id')) return
          
          call config%get(type_id_as_string, 'type_id', rc=status)
          if (status /= 0) then
-            type_id = MAPL_TYPE_ID_INVALID
+            type_id = MAPL_STATEITEM_UNKNOWN
             return
          end if
          
          select case (type_id_as_string)
          case ('field')
-            type_id = MAPL_TYPE_ID_FIELD
+            type_id = MAPL_STATEITEM_FIELD
          case ('bundle')
-            type_id = MAPL_TYPE_ID_BUNDLE
+            type_id = MAPL_STATEITEM_FIELDBUNDLE
          case ('state')
-            type_id = MAPL_TYPE_ID_STATE
+            type_id = MAPL_STATEITEM_STATE
          case ('service_provider')
-            type_id = MAPL_TYPE_ID_SERVICE_PROVIDER
+            type_id = MAPL_STATEITEM_SERVICE_PROVIDER
          case ('service_subcriber')
-            type_id = MAPL_TYPE_ID_SERVICE_SUBSCRIBER
+            type_id = MAPL_STATEITEM_SERVICE_SUBSCRIBER
          case default
-            type_id = MAPL_TYPE_ID_INVALID
+            type_id = MAPL_STATEITEM_UNKNOWN
          end select
          
       end function get_type_id
@@ -144,11 +140,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      select case (this%type_id%id)
-      case (MAPL_TYPE_ID_FIELD%id)
+      select case (this%type_id%ot)
+      case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
          item_spec = this%make_FieldSpec(geom, _RC)
-!!$      case (MAPL_TYPE_ID_FIELDBUNDLE)
+!!$      case (MAPL_STATEITEM_FIELDBUNDLE)
 !!$         allocate(FieldBundleSpec::item_spec)
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
       case default
@@ -188,7 +184,7 @@ contains
 
          is_valid = .false. ! unless
 
-         if (.not. this%type_id == MAPL_TYPE_ID_FIELD) return
+         if (.not. this%type_id == MAPL_STATEITEM_FIELD) return
          if (.not. allocated(this%standard_name)) return
 
          is_valid = .true.
