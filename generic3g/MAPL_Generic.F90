@@ -46,6 +46,7 @@ module mapl3g_Generic
 
 !!$   public :: MAPL_GetInternalState
 
+!!$   public :: MAPL_AddSpec
    public :: MAPL_AddImportSpec
    public :: MAPL_AddExportSpec
    public :: MAPL_AddInternalSpec
@@ -89,8 +90,7 @@ module mapl3g_Generic
    end interface MAPL_run_children
 
    interface MAPL_AddImportSpec
-      module procedure :: add_import_spec
-!!$      module procedure :: add_import_field_spec
+      module procedure :: add_import_spec_legacy
    end interface MAPL_AddImportSpec
 
    interface MAPL_AddExportSpec
@@ -224,25 +224,53 @@ contains
    end subroutine gridcomp_set_entry_point
 
 
-   subroutine add_import_spec(gridcomp, unusable, short_name, standard_name, units, rc)
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), intent(in) :: short_name
-      character(len=*), intent(in) :: standard_name
-      character(len=*), optional, intent(in) :: units
-      integer, optional, intent(out) :: rc
+!!$   subroutine add_spec_generic(gridcomp, var_spec)
+!!$   end subroutine add_spec_generic
+!!$
+!!$   subroutine add_spec_field(gridcomp, short_name, unusable, standard_name, typekind, units,
+!!$      ...)
+!!$   end subroutine add_spec_field
+!!$
+
+   subroutine add_import_spec_legacy(GC, SHORT_NAME, LONG_NAME,               &
+        UNITS,  Dims, VLocation,                 &
+        DATATYPE,NUM_SUBTILES, REFRESH_INTERVAL, &
+        AVERAGING_INTERVAL, HALOWIDTH, PRECISION, DEFAULT,  &
+        RESTART, UNGRIDDED_DIMS, FIELD_TYPE,     &
+        STAGGERING, ROTATION, RC, STANDARD_NAME)
+      !ARGUMENTS:
+      type (ESMF_GridComp)            , intent(INOUT)   :: GC
+      character (len=*)               , intent(IN)      :: SHORT_NAME
+      character (len=*)  , optional   , intent(IN)      :: LONG_NAME
+      character (len=*)  , optional   , intent(IN)      :: UNITS
+      integer            , optional   , intent(IN)      :: DIMS
+      integer            , optional   , intent(IN)      :: DATATYPE
+      integer            , optional   , intent(IN)      :: NUM_SUBTILES
+      integer            , optional   , intent(IN)      :: VLOCATION
+      integer            , optional   , intent(IN)      :: REFRESH_INTERVAL
+      integer            , optional   , intent(IN)      :: AVERAGING_INTERVAL
+      integer            , optional   , intent(IN)      :: HALOWIDTH
+      integer            , optional   , intent(IN)      :: PRECISION
+      real               , optional   , intent(IN)      :: DEFAULT
+      integer            , optional   , intent(IN)      :: RESTART
+      integer            , optional   , intent(IN)      :: UNGRIDDED_DIMS(:)
+      integer            , optional   , intent(IN)      :: FIELD_TYPE
+      integer            , optional   , intent(IN)      :: STAGGERING
+      integer            , optional   , intent(IN)      :: ROTATION
+      integer            , optional   , intent(OUT)     :: RC
+      character(len=*)   , optional   , intent(IN)      :: standard_name
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      outer_meta => get_outer_meta_from_inner_gc(gc, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_IMPORT, &
            short_name=short_name, standard_name=standard_name))
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine add_import_spec
+   end subroutine add_import_spec_legacy
 
 !!$   subroutine add_import_field_spec(gridcomp, short_name, standard_name, typekind, grid, unusable, extra_dims, rc)
 !!$      type(ESMF_GridComp), intent(inout) :: gridcomp

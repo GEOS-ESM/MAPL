@@ -17,7 +17,9 @@ contains
       type(StateSpec) :: state_spec
       type(ESMF_Geom) :: geom
 
-      call state_spec%add_item('A', FieldSpec(ExtraDimsSpec(), geom, 'unknown'))
+      call state_spec%add_item('A', &
+                 FieldSpec(geom, ESMF_TYPEKIND_R4, ExtraDimsSpec(), '', '', 'unknown'))
+
    end subroutine test_add_one_field
    
    @test
@@ -35,7 +37,7 @@ contains
       type(FieldSpec) :: field_spec
       type(ESMF_Geom) :: geom
 
-      field_spec = FieldSpec(ExtraDimsSpec(), geom, 'unknown')
+      field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, ExtraDimsSpec(), '', '', 'unknown')
       call state_spec%add_item('A', field_spec)
 
       ! Different name/key
