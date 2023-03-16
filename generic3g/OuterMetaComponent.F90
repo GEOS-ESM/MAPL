@@ -3,7 +3,7 @@
 module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
-   use mapl3g_StateItemSpecTypeId
+   use mapl3g_StateItem
    use mapl3g_ExtraDimsSpec
    use mapl3g_InvalidSpec
    use mapl3g_FieldSpec
