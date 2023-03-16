@@ -511,7 +511,7 @@ contains
          type(VirtualConnectionPt) :: virtual_pt
          type(ExtraDimsSpec) :: extra_dims
 
-         _ASSERT(var_spec%type_id /= MAPL_TYPE_ID_INVALID, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
+         _ASSERT(var_spec%type_id /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
          item_spec = var_spec%make_ItemSpec(geom, _RC)
          call item_spec%create(_RC)
