@@ -173,7 +173,10 @@ contains
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
-      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
+      if (this%has_corner) then
+         call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
+      end if
+
       _VERIFY(status)
       
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
