@@ -44,7 +44,7 @@ contains
 
       integer :: target_year, original_year,clim_shift,valid_years(2)
       integer, allocatable :: source_years(:)
-     
+    
    
       _ASSERT(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology") 
       if (bracket%time_in_bracket(input_time)) then
@@ -169,15 +169,10 @@ contains
 
          else
 
-            write(*,*)"bmaa now getting left"
             call this%get_file(current_file,target_time,0,_RC)
-               call ESMF_TimePrint(target_time,options='string',prestring='bmaa after get_file 0 ') !bmaa
-               write(*,*)'bmaa current file 0 ',trim(current_file)
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,rc=status)
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,-1,_RC)
-               call ESMF_TimePrint(target_time,options='string',prestring='bmaa after get_file -1 ') !bmaa
-               write(*,*)'bmaa current file -1 ',trim(current_file)
                call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
                _ASSERT(time_index/=time_not_found,"Time not found on file")
                call ESMF_TimeGet(target_time,yy=target_year,_RC)
@@ -197,16 +192,12 @@ contains
             end if
             call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
 
-            write(*,*)"bmaa now getting right"
             target_time = clim_target_time
-            call ESMF_TimePrint(target_time,options='string',prestring='bmaa target time get right start ')
             call this%get_file(current_file,target_time,0,_RC)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,1,_RC)
                call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
-               call ESMF_TimePrint(target_time,options='string',prestring='bmaa target time shift 1 right ')
-               write(*,*)"bmaa current right file ",trim(current_file)
                _ASSERT(time_index/=time_not_found,"Time not found on file")
                call ESMF_TimeGet(target_time,yy=target_year,_RC)
                if (target_year < this%clim_year) then
@@ -258,13 +249,9 @@ contains
       if (this%clim_year /= CLIM_NULL) then
          call ESMF_TimeGet(ftime,yy=new_year,_RC)
          if (new_year/=this%clim_year) then
-            write(*,*)"bmaa swapping year ",new_year-this%clim_year
-            call ESMF_TimePrint(ftime,options='string',prestring='bmaa swap time before ')
             call swap_year(ftime,this%clim_year,_RC)
-            call ESMF_TimePrint(ftime,options='string',prestring='bmaa swap time after ')
 
             local_shift = this%clim_year - new_year
-            write(*,*)"bmaa local shift: ",local_shift
             call swap_year(target_time,this%clim_year+local_shift)
 
             !if (shift > 0) then
