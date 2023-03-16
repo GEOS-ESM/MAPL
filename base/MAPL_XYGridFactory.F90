@@ -698,8 +698,10 @@ contains
 
       call metadata%add_dimension('Xdim', this%im_world)
       call metadata%add_dimension('Ydim', this%jm_world)
-      !call metadata%add_dimension('XCdim', this%im_world+1)
-      !call metadata%add_dimension('YCdim', this%jm_world+1)
+      if (this%has_corners) then
+         call metadata%add_dimension('XCdim', this%im_world+1)
+         call metadata%add_dimension('YCdim', this%jm_world+1)
+      end if
 
       allocate(fake_coord(this%im_world))
       do i=1,this%im_world
