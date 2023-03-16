@@ -512,8 +512,8 @@ contains
          type(ExtraDimsSpec) :: extra_dims
 
          _ASSERT(var_spec%type_id /= MAPL_TYPE_ID_INVALID, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
-         item_spec = create_item_spec(var_spec%type_id)
-         call item_spec%initialize(geom, var_spec, _RC)
+
+         item_spec = var_spec%make_ItemSpec(geom, _RC)
          call item_spec%create(_RC)
 
          virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
@@ -524,24 +524,6 @@ contains
          _UNUSED_DUMMY(unusable)
       end subroutine advertise_variable
 
-
-      function create_item_spec(type_id) result(item_spec)
-         class(AbstractStateItemSpec), allocatable :: item_spec
-         type(StateItemSpecTypeId), intent(in) :: type_id
-         
-        if (type_id == MAPL_TYPE_ID_FIELD) then
-           allocate(FieldSpec::item_spec)
-!!$        else if (type_id == MAPL_TYPE_ID_BUNDLE) then
-!!$           allocate(BundleSpec::item_spec)
-        else if (type_id == MAPL_TYPE_ID_STATE) then
-           allocate(StateSpec::item_spec)
-        else
-           ! We return an invalid item that will throw exceptions when
-           ! used.
-           allocate(InvalidSpec::item_spec)
-        end if
-
-     end function create_item_spec
 
 
      subroutine process_connections(this, rc)

@@ -3,7 +3,6 @@
 module mapl3g_InvalidSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
-   use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use esmf, only: ESMF_Geom
@@ -19,7 +18,6 @@ module mapl3g_InvalidSpec
    type, extends(AbstractStateItemSpec) :: InvalidSpec
      private
    contains
-      procedure :: initialize
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -34,21 +32,6 @@ module mapl3g_InvalidSpec
 
 contains
   
-   subroutine initialize(this, geom, var_spec, unusable, rc)
-      class(InvalidSpec), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-      type(VariableSpec), intent(in) :: var_spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _FAIL('Attempt to use invalid spec')
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine initialize
-
 
 
    subroutine create(this, rc)

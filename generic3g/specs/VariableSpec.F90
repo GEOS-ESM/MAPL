@@ -1,26 +1,47 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
+   use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItemSpecTypeId
+   use mapl3g_ExtraDimsSpec
+   use mapl3g_FieldSpec
+   use mapl3g_InvalidSpec
+   use mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcerMod
+   use mapl_ErrorHandling
    use esmf, only: ESMF_StateIntent_Flag
+   use esmf, only: ESMF_Geom
+   use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
+   use esmf, only: ESMF_MAXSTR
+   use esmf, only: ESMF_SUCCESS
+   use nuopc
    implicit none
    private
 
    public :: VariableSpec
 
+   ! This type provides components that might be needed for _any_
+   ! state item.  This is largely to support legacy interfaces, but it
+   ! also allows us to defer interpretation until after user
+   ! setservices() have run.
    type VariableSpec
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
-      character(:), allocatable :: standard_name
+      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
 
       ! Optional values
-      !   - either not mandatory, or have sensibe defaults
+      character(:), allocatable :: standard_name
       type(StateItemSpecTypeId) :: type_id = MAPL_TYPE_ID_FIELD
       character(:), allocatable :: units
+      type(ExtraDimsSpec) :: extra_dims
    contains
-      procedure :: initialize
+      procedure :: make_virtualPt
+      procedure :: make_ItemSpec
+      procedure :: make_FieldSpec
+!!$      procedure :: make_StateSpec
+!!$      procedure :: make_BundleSpec
+!!$      procedure :: initialize
    end type VariableSpec
 
    interface VariableSpec
@@ -105,5 +126,95 @@ contains
       end function get_type_id
       
    end subroutine initialize
+
+   function make_virtualPt(this) result(v_pt)
+      type(VirtualConnectionPt) :: v_pt
+      class(VariableSpec), intent(in) :: this
+      v_pt = VirtualConnectionPt(this%state_intent, this%short_name)
+   end function make_virtualPt
+
+
+   ! This implementation ensures that an object is at least created
+   ! even if failures are encountered.  This is necessary for
+   ! robust error handling upstream.
+   function make_ItemSpec(this, geom, rc) result(item_spec)
+      class(AbstractStateItemSpec), allocatable :: item_spec
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      select case (this%type_id%id)
+      case (MAPL_TYPE_ID_FIELD%id)
+         allocate(FieldSpec::item_spec)
+         item_spec = this%make_FieldSpec(geom, _RC)
+!!$      case (MAPL_TYPE_ID_FIELDBUNDLE)
+!!$         allocate(FieldBundleSpec::item_spec)
+!!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
+      case default
+         ! Fail, but still need to allocate a result.
+         allocate(InvalidSpec::item_spec)
+         _FAIL('Unsupported type.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_ItemSpec
+
+   
+   function make_FieldSpec(this, geom, rc) result(field_spec)
+      type(FieldSpec) :: field_spec
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      if (.not. valid(this)) then
+         _RETURN(_FAILURE)
+      end if
+
+      units = get_units(this, _RC)
+
+      field_spec = new_FieldSpec_geom(geom=geom, typekind=this%typekind, extra_dims=this%extra_dims, &
+           standard_name=this%standard_name, long_name=' ', units=units)
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      logical function valid(this) result(is_valid)
+         class(VariableSpec), intent(in) :: this
+
+         is_valid = .false. ! unless
+
+         if (.not. this%type_id == MAPL_TYPE_ID_FIELD) return
+         if (.not. allocated(this%standard_name)) return
+
+         is_valid = .true.
+         
+      end function valid
+
+      function get_units(this, rc) result(units)
+         character(:), allocatable :: units
+         class(VariableSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+
+         character(len=ESMF_MAXSTR) :: canonical_units
+         integer :: status
+         
+         if (allocated(this%units)) then ! user override of canonical
+            units = this%units
+            _RETURN(_SUCCESS)
+         end if
+
+         call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
+         _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
+         units = trim(canonical_units)
+
+         _RETURN(_SUCCESS)
+      end function get_units
+      
+   end function make_FieldSpec
 
 end module mapl3g_VariableSpec

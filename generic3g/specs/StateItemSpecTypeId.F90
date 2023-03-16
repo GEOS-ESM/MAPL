@@ -17,7 +17,7 @@ module mapl3g_StateItemSpecTypeId
 
 
    type :: StateItemSpecTypeId
-      private
+!!$      private
       integer :: id = -1
    end type StateItemSpecTypeId
 
