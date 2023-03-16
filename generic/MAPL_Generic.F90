@@ -1722,7 +1722,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads
+      character(len=ESMF_MAXSTR) :: use_threads
 
 
       !=============================================================================
@@ -1807,7 +1807,7 @@ contains
 
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
-      if (use_threads .and. method == ESMF_METHOD_RUN)  then
+      if (use_threads /= "none" .and. method == ESMF_METHOD_RUN)  then
          call omp_driver(GC, import, export, clock, _RC)  ! compnent threaded with OpenMP
       else
          call func_ptr (GC, &
@@ -1886,7 +1886,7 @@ contains
          _VERIFY(userRC)
       else
          !call start_global_time_profiler('activate_threads')
-         num_threads = get_num_threads()
+         num_threads = get_num_threads(MAPL%get_use_threads())
          call MAPL%activate_threading(num_threads, _RC)
          !call stop_global_time_profiler('activate_threads')
          !call start_global_time_profiler('parallel')
@@ -1899,7 +1899,7 @@ contains
          !$omp& private(thread, subimport, subexport, thread_gc), &
          !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
 
-         thread = get_current_thread()
+         thread = get_current_thread(MAPL%get_use_threads())
 
          subimport = MAPL%get_import_state()
          subexport = MAPL%get_export_state()

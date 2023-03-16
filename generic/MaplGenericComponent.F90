@@ -52,7 +52,7 @@ module mapl_MaplGenericComponent
       type(ESMF_State) :: internal_state
 
       logical :: threading_active = .FALSE.
-      logical :: use_threads = .FALSE.
+      character(len=ESMF_MAXSTR) :: use_threads = "none"
 
 
    contains
@@ -213,7 +213,7 @@ contains
 
    subroutine set_use_threads(this, use_threads)
       class(MaplGenericComponent), intent(inout) :: this
-      logical, intent(in) :: use_threads
+      character(*), intent(in) :: use_threads
 
       this%use_threads = use_threads
       
@@ -221,7 +221,7 @@ contains
 
    function get_use_threads(this) result(use_threads)
       class(MaplGenericComponent), intent(in) :: this
-      logical :: use_threads
+      character(len=ESMF_MAXSTR) :: use_threads
 
       use_threads = this%use_threads
       
@@ -242,7 +242,7 @@ contains
       if (.NOT. this%is_threading_active()) then
         internal_state => this%internal_state
      else
-        thread = get_current_thread()
+        thread = get_current_thread(this%use_threads)
         internal_state => this%subcomponents(thread+1)%internal_state
      end if
    end function get_internal_state
@@ -255,7 +255,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         import_state => this%import_state
      else
-        thread = get_current_thread()
+        thread = get_current_thread(this%use_threads)
         import_state => this%subcomponents(thread+1)%import_state
      end if
    end function get_import_state
@@ -268,7 +268,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         export_state => this%export_state
      else
-        thread = get_current_thread()
+        thread = get_current_thread(this%use_threads)
         export_state => this%subcomponents(thread+1)%export_state
      end if
    end function get_export_state
@@ -281,7 +281,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         grid => this%grid
      else
-        thread = get_current_thread()
+        thread = get_current_thread(this%use_threads)
         grid => this%subcomponents(thread+1)%grid ! subgrids is of type ESMF_Grid because of the return type of make_subgrids
      end if
    end function get_grid
@@ -372,7 +372,7 @@ contains
       if (.NOT. this%is_threading_active()) then
          gridcomp => this%gridcomp
      else
-        thread = get_current_thread()
+        thread = get_current_thread(this%use_threads)
         gridcomp => this%subcomponents(thread+1)%gridcomp
      end if
 

@@ -49,14 +49,36 @@ module MAPL_OpenMP_Support
 
     CONTAINS 
 
-    integer function get_current_thread() result(current_thread)
-        current_thread = 0  ! default if OpenMP is not used
-        !$ current_thread = omp_get_thread_num() ! get the actual thread id if OpenMP is used
+    integer function get_current_thread( use_threads ) result(current_thread)
+        character(*), intent(in) :: use_threads
+        type(ESMF_vm) :: vm
+        integer :: pet
+        select case (use_threads)
+        case ("vm")
+          call ESMF_VMGetCurrent(vm)
+          call ESMF_VMGet(vm, localpet = pet)
+          call ESMF_VMGet(vm, pet, threadId = current_thread)
+        case ("env")
+          !$ current_thread = omp_get_thread_num() ! get the actual thread id if OpenMP is used
+        case default
+          current_thread = 0  ! default if OpenMP is not used
+        end select
     end function get_current_thread
 
-    integer function get_num_threads() result(num_threads)
-        num_threads = 1  ! default if OpenMP is not used
-        !$ num_threads = omp_get_max_threads() ! get the actual number of threads if OpenMP is used
+    integer function get_num_threads( use_threads ) result(num_threads)
+        character(*), intent(in) :: use_threads
+        type(ESMF_vm) :: vm
+        integer :: pet
+        select case (use_threads)
+        case ("vm")
+          call ESMF_VMGetCurrent(vm)
+          call ESMF_VMGet(vm, localpet = pet)
+          call ESMF_VMGet(vm, pet, threadCount = num_threads)
+        case ("env")
+          !$ num_threads = omp_get_max_threads() ! get the actual number of threads if OpenMP is used
+        case default
+          num_threads = 1  ! default if OpenMP is not used
+        end select
     end function get_num_threads
 
     function make_subgrids_from_num_grids(primary_grid, num_grids, unusable, rc) result(subgrids)
