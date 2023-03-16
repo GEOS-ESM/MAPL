@@ -40,7 +40,7 @@ contains
       character(len=ESMF_MAXPATHLEN) :: current_file
       integer :: status
       type(ESMF_TimeInterval) :: zero
-      type(ESMF_Time) :: target_time
+      type(ESMF_Time) :: target_time, clim_target_time
 
       integer :: target_year, original_year,clim_shift,valid_years(2)
       integer, allocatable :: source_years(:)
@@ -91,6 +91,7 @@ contains
             call swap_year(target_time,target_year,_RC)
          end if 
       end if
+      clim_target_time = target_time
 
       ! the target time is contained in the dataset and we are not extrapolating outside of source time selection based on available data
       if (this%clim_year == CLIM_NULL) then
@@ -127,6 +128,7 @@ contains
                bracket%new_file_left=.true.
             end if
 
+            target_time = clim_target_time
             call this%get_file(current_file,target_time,0,_RC)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
@@ -167,10 +169,15 @@ contains
 
          else
 
+            write(*,*)"bmaa now getting left"
             call this%get_file(current_file,target_time,0,_RC)
+               call ESMF_TimePrint(target_time,options='string',prestring='bmaa after get_file 0 ') !bmaa
+               write(*,*)'bmaa current file 0 ',trim(current_file)
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,rc=status)
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,-1,_RC)
+               call ESMF_TimePrint(target_time,options='string',prestring='bmaa after get_file -1 ') !bmaa
+               write(*,*)'bmaa current file -1 ',trim(current_file)
                call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
                _ASSERT(time_index/=time_not_found,"Time not found on file")
                call ESMF_TimeGet(target_time,yy=target_year,_RC)
@@ -190,11 +197,16 @@ contains
             end if
             call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
 
+            write(*,*)"bmaa now getting right"
+            target_time = clim_target_time
+            call ESMF_TimePrint(target_time,options='string',prestring='bmaa target time get right start ')
             call this%get_file(current_file,target_time,0,_RC)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,1,_RC)
                call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
+               call ESMF_TimePrint(target_time,options='string',prestring='bmaa target time shift 1 right ')
+               write(*,*)"bmaa current right file ",trim(current_file)
                _ASSERT(time_index/=time_not_found,"Time not found on file")
                call ESMF_TimeGet(target_time,yy=target_year,_RC)
                if (target_year < this%clim_year) then
@@ -226,7 +238,7 @@ contains
       type(ESMF_Time) :: ftime
       integer :: n,status
       logical :: file_found
-      integer :: new_year
+      integer :: new_year, local_shift
       integer(ESMF_KIND_I8) :: interval_seconds
 
 
@@ -246,12 +258,27 @@ contains
       if (this%clim_year /= CLIM_NULL) then
          call ESMF_TimeGet(ftime,yy=new_year,_RC)
          if (new_year/=this%clim_year) then
+            write(*,*)"bmaa swapping year ",new_year-this%clim_year
+            call ESMF_TimePrint(ftime,options='string',prestring='bmaa swap time before ')
             call swap_year(ftime,this%clim_year,_RC)
-            if (shift > 0) then
-               call swap_year(target_time,this%clim_year-shift)
-            else if (shift < 0) then
-               call swap_year(target_time,this%clim_year+shift)
-            end if
+            call ESMF_TimePrint(ftime,options='string',prestring='bmaa swap time after ')
+
+            local_shift = this%clim_year - new_year
+            write(*,*)"bmaa local shift: ",local_shift
+            call swap_year(target_time,this%clim_year+local_shift)
+
+            !if (shift > 0) then
+               !call swap_year(target_time,this%clim_year-shift)
+            !else if (shift < 0) then
+               !call swap_year(target_time,this%clim_year+shift)
+            !end if
+            !if (shift > 0) then
+               !call swap_year(target_time,this%clim_year+shift)
+               !write(*,*)"bmaa shifting ",shift
+            !else if (shift < 0) then
+               !call swap_year(target_time,this%clim_year-shift)
+               !write(*,*)"bmaa shifting ",shift
+            !end if
          end if
       end if
       call fill_grads_template(filename,this%file_template,time=ftime,_RC)

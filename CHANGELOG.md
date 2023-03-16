@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in climatologies with ExtDataV2 when wrapping around the year
+
 ### Removed
 
 ### Deprecated
