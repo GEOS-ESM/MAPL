@@ -2,7 +2,7 @@
 
 module mapl3g_VariableSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_StateItemSpecTypeId
+   use mapl3g_StateItem
    use mapl3g_ExtraDimsSpec
    use mapl3g_FieldSpec
    use mapl3g_InvalidSpec

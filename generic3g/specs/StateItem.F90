@@ -1,4 +1,4 @@
-module mapl3g_StateItemSpecTypeId
+module mapl3g_StateItem
    use esmf
    implicit none
    private
@@ -21,4 +21,4 @@ module mapl3g_StateItemSpecTypeId
         MAPL_STATEITEM_SERVICE_PROVIDER = ESMF_StateItem_Flag(201), &
         MAPL_STATEITEM_SERVICE_SUBSCRIBER = ESMF_StateItem_Flag(202)
 
-end module Mapl3g_StateItemSpecTypeId
+end module Mapl3g_StateItem
