@@ -55,8 +55,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added config array overload to `MAPL_GetResource`
 
 ### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.25.1
+  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
+  - ESMA_cmake v3.24.0 → v3.26.0 (Detection of additional sites)
 
 ### Fixed
 

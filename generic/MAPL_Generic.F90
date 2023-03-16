@@ -322,7 +322,8 @@ module MAPL_GenericMod
    interface  MAPL_GetResource
       module procedure MAPL_GetResourceFromConfig_scalar
       module procedure MAPL_GetResourceFromMAPL_scalar
-      module procedure MAPL_GetResource_array
+      module procedure MAPL_GetResourceFromConfig_array
+      module procedure MAPL_GetResourceFromMAPL_array
    end interface MAPL_GetResource
 
    interface MAPL_CopyFriendliness
@@ -352,7 +353,6 @@ module MAPL_GenericMod
    interface MAPL_AddAttributeToFields
       module procedure MAPL_AddAttributeToFields_I4
    end interface
-
 
    ! =======================================================================
 
@@ -8208,7 +8208,7 @@ contains
       logical :: value_is_set
 
       call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
-      
+
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
@@ -8222,7 +8222,7 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResource_array(state, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
@@ -8231,20 +8231,44 @@ contains
 
       logical :: value_is_set
       integer :: status
-      
+
       call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
          default = default, component_name = state%compname, rc = status)
-      
+
       if(.not. value_is_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
-      
+
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
-   end subroutine MAPL_GetResource_array
+   end subroutine MAPL_GetResourceFromMAPL_array
+
+   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, default, rc)
+      type(ESMF_Config), intent(inout) :: config
+      character(len=*), intent(in) :: label
+      class(*), intent(inout) :: vals(:)
+      class(*), optional, intent(in) :: default(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: value_is_set
+
+      call MAPL_GetResource_config_array(config, vals, label, value_is_set, &
+         default = default, rc = status)
+
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
+      end if
+
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine MAPL_GetResourceFromConfig_array
 
    integer function MAPL_GetNumSubtiles(STATE, RC)
       type (MAPL_MetaComp),       intent(INOUT)    :: STATE
