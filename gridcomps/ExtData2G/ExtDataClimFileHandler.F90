@@ -254,18 +254,6 @@ contains
             local_shift = this%clim_year - new_year
             call swap_year(target_time,this%clim_year+local_shift)
 
-            !if (shift > 0) then
-               !call swap_year(target_time,this%clim_year-shift)
-            !else if (shift < 0) then
-               !call swap_year(target_time,this%clim_year+shift)
-            !end if
-            !if (shift > 0) then
-               !call swap_year(target_time,this%clim_year+shift)
-               !write(*,*)"bmaa shifting ",shift
-            !else if (shift < 0) then
-               !call swap_year(target_time,this%clim_year-shift)
-               !write(*,*)"bmaa shifting ",shift
-            !end if
          end if
       end if
       call fill_grads_template(filename,this%file_template,time=ftime,_RC)
