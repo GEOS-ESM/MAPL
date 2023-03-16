@@ -6,12 +6,8 @@
 module StationSamplerMod
   use ESMF
   use MAPL_ErrorHandlingMod
-  !use MAPL_KeywordEnforcerMod
-  !use MAPL_FileMetadataUtilsMod
   use LocStreamFactoryMod
   use pFIO
-  use MAPL_GriddedIOItemVectorMod
-  use MAPL_GriddedIOItemMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_BaseMod
@@ -44,8 +40,7 @@ module StationSamplerMod
      logical :: do_vertical_regrid
      type(TimeData) :: time_info
      integer :: previous_index
-     type(ESMF_Time) :: previous_time
-     integer :: obs_written  ! remove number_written
+     integer :: obs_written  ! replace number_written
      character(LEN=ESMF_MAXPATHLEN) :: ofile ! file_name
    contains
      procedure :: add_metadata_route_handle
@@ -54,8 +49,7 @@ module StationSamplerMod
      procedure :: append_file
      procedure :: get_file_start_time
      procedure :: reset_times_to_current_day
-     procedure :: get_current_interval
-     procedure :: compute_times_for_interval
+     procedure :: compute_time_for_current
      !!procedure :: destroy_sampler  !! destructor __ deallocate arrays
   end type StationSampler
 
@@ -139,10 +133,12 @@ contains
     type(ESMF_Field) :: field
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
-    integer :: field_rank, i
+    integer :: field_rank, i, nstation
     logical :: is_present
-
-    this%bundle=bundle    
+    integer :: ub(ESMF_MAXDIM), lb(ESMF_MAXDIM)
+    
+    this%bundle=bundle
+    nstation=this%nstation
     if (present(vdata)) then
        this%vdata=vdata
     else
@@ -154,19 +150,19 @@ contains
 
     call timeInfo%add_time_to_metadata(this%fmd,_RC)
     this%time_info = timeInfo
-    
-    call this%fmd%add_dimension('station_index',this%nstation)
-!? check vdata vertical !!    call this%fmd%add_dimension('lev',  1)  ! lev = 1: aeronet on surface 
+
+    call this%fmd%add_dimension('nstation',nstation)
+    call this%fmd%add_dimension('station_index',nstation)
+    !? check vdata vertical !!  call this%fmd%add_dimension('lev',  1)  ! lev = 1: aeronet on surface 
     !
     v = Variable(type=pFIO_REAL32, dimensions='nstation')  ! nstation
     call v%add_attribute('long_name','longitude')
-    call v%add_attribute('unit','degree_east')    
+    call v%add_attribute('unit','degree_east')
     call this%fmd%add_variable('longitude',v)
     v = Variable(type=pFIO_REAL32, dimensions='nstation')
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%fmd%add_variable('latitude',v)
-    !??
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
     
@@ -198,7 +194,8 @@ contains
           v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[nstation,1])          
        else if (field_rank==3) then
           vdims = "lev,nstation,time"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[??,1,1])
+          call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[ub(1)-lb(1)+1,1,1])
        end if
 
        call v%add_attribute('units',trim(units))
@@ -239,90 +236,74 @@ contains
 
      write(6,*) 'bg: append_file'
 
-
+     
      this%obs_written=this%obs_written+1  ! increment first
      number_to_write=1
+     
+     !_ s1. put_var: time variable
+     !!rtimes = this%compute_time_for_current(current_time,_RC)   ! real
+     allocate(rtimes(1)); rtimes=0.0
 
-     !_ s1. put_var: time/gridded variables
-     rtimes = this%compute_times_from_open_to_now(this%currtime)   ! real 
+     
      if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
         call this%vdata%setup_eta_to_pressure(_RC)
-        end if
-        if (mapl_am_i_root()) then
-           call this%formatter%put_var('time',rtimes,&             ! rtimes: seconds from opening file 3600s
-                start=[this%obs_written],count=[1],_RC)
-        end if
-        deallocate(rtimes)
+     end if
+     if (mapl_am_i_root()) then
+        call this%formatter%put_var('time',rtimes(1:1),&             ! rtimes: seconds from opening file 3600s
+             start=[this%obs_written],count=[1],_RC)
+     end if
 
-
-        !_ s2. put_var: ungridded_dim from src to dst [interpolation]
-        call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-        allocate (fieldNameList(fieldCount))
-        call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
-        do i=1, fieldCount
-           xname=trim(fieldNameList(i))
-           call ESMF_FieldBundleGet(this%bundle,xname,field=src_field,_RC)
-           call ESMF_FieldGet(src_field,rank=rank,_RC)
-           if (rank==2) then
-              call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
-              dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname, &
-                   typekind=ESMF_TYPEKIND_R4,_RC)
-              call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
-              call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
-              call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
-              if (mapl_am_i_root()) then
-                 !!call this%formatter%put_var(trim(xname),p_dst_2d(interval(1):interval(2)),&
-                 !!     start=[this%obs_written+1],count=[number_to_write])
-
-                 !write(6,'(2x,a,2x,2i5)') 'id, ix=', this%ids(iobs), ix
-                    call this%formatter%put_var(xname,p_dst_2d,&
-                         start=[1,this%obs_written],count=[nstation,1],_RC)                         
-              end if
-           else if (rank==3) then
-              !!STOP 'grid2LS regridder for rank==3 not implemented'
-              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-              !              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-              if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-                 lb(1)=1
-                 ub(1)=this%vdata%lm
-              end if
-              dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
-                   typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-              call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-
+     !_ s2. put_var: ungridded_dim from src to dst [interpolation]
+     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
+     allocate (fieldNameList(fieldCount))
+     call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
+     do i=1, fieldCount
+        xname=trim(fieldNameList(i))
+        call ESMF_FieldBundleGet(this%bundle,xname,field=src_field,_RC)
+        call ESMF_FieldGet(src_field,rank=rank,_RC)
+        if (rank==2) then
+           call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+           dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname, &
+                typekind=ESMF_TYPEKIND_R4,_RC)
+           call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
+           call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
+           call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
+           if (mapl_am_i_root()) then
+              call this%formatter%put_var(xname,p_dst_2d,&
+                   start=[1,this%obs_written],count=[this%nstation,1],_RC)                         
+           end if
+        else if (rank==3) then
+           call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+           call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+           !!call ESMF_FieldGet(src_field,farrayptr=p_src_3d,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+           if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+              lb(1)=1
+              ub(1)=this%vdata%lm
+           end if
+           dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
+                typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+           call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
 !              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
 !                 allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
 !                 call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
 !                 call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
 !              else
-                 call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-              !              end if
-
-                 call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
-
-                 
-              if (mapl_am_i_root()) then
-                 call this%formatter%put_var(xname,p_dst_3d,&
-                      start=[1,1,this%obs_written],count=[size(p_dst_3d,2),nstation,1],_RC)
-                 !            lev, station,time
-              end if
-           else
-              STOP 'grid2LS regridder: rank > 3 not implemented'
-           end if  ! rank
-        enddo  !  loop fieldCount
-
-     
-     !? call ESMF_TimeGet(this%previous_time,dd=previous_day,_RC)
-     !? call ESMF_TimeGet(current_time,dd=current_day,_RC)
-     !!if (this%recycle_track .and. (current_day/=previous_day)) then
-     !!   call this%reset_times_to_current_day(_RC)
-     !!   this%previous_index = lbound(this%times,1)-1
-     !!end if
-     this%previous_time=current_time
+           call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+!              end if
+           if (mapl_am_i_root()) then
+              call this%formatter%put_var(xname,p_dst_3d,&
+                   start=[1,1,this%obs_written],count=[size(p_dst_3d,2),this%nstation,1],_RC)
+              !            lev, station,time
+           end if
+           call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
+        else
+           STOP 'grid2LS regridder: rank > 3 not implemented'
+        end if  ! rank
+     enddo  !  loop fieldCount
 
      write(6,*) 'end: append_file'
    end subroutine append_file
+
    
    subroutine create_file_handle(this,filename,rc)
      class(StationSampler), intent(inout) :: this
@@ -331,6 +312,9 @@ contains
      !
      type(variable) :: v
      integer :: status
+     !
+
+     write(6,*) 'filename=', filename
 
      this%ofile = trim(filename)
      v = this%time_info%define_time_variable(_RC)
@@ -347,95 +331,48 @@ contains
    end subroutine create_file_handle
 
   
-  subroutine close_file_handle(this,rc)
-    class(StationSampler), intent(inout) :: this
-    integer, optional, intent(out) :: rc
-    integer :: status
-    !
-    if (trim(this%ofile) /= '') then
-       if (mapl_am_i_root()) then
-          write(6,*) 'ofile=', this%ofile
-          call this%formatter%close(_RC)
-       end if
-    end if
-    write(6,*) 'empty output file_name=', this%ofile
-    _RETURN(_SUCCESS)
-  end subroutine close_file_handle
+   subroutine close_file_handle(this,rc)
+     class(StationSampler), intent(inout) :: this
+     integer, optional, intent(out) :: rc
+     integer :: status
+     !
+     if (trim(this%ofile) /= '') then
+        if (mapl_am_i_root()) then
+           write(6,*) 'ofile=', this%ofile
+           call this%formatter%close(_RC)
+        end if
+     end if
+     write(6,*) 'empty output file_name=', this%ofile
+     _RETURN(_SUCCESS)
+   end subroutine close_file_handle
+   
 
-
+   function compute_time_for_current(this,current_time,rc) result(rtimes)
+     class(StationSampler), intent(inout) :: this
+     type(ESMF_Time), intent(in) :: current_time
+     integer, optional, intent(out) :: rc
+     real(ESMF_KIND_R8), allocatable :: rtimes(:)
+     integer :: i,status
+     type(ESMF_TimeInterval) :: tint
+     type(ESMF_Time) :: file_start_time
+     character(len=ESMF_MAXSTR) :: tunits
+     
+     allocate(rtimes(1),_STAT)
+     call this%get_file_start_time(file_start_time,tunits,_RC)
+     tint = current_time-file_start_time
+     select case(trim(tunits))
+     case ('days')
+        call ESMF_TimeIntervalGet(tint,d_r8=rtimes(1),_RC)
+     case ('hours')
+        call ESMF_TimeIntervalGet(tint,h_r8=rtimes(1),_RC)
+     case ('minutes')
+        call ESMF_TimeIntervalGet(tint,m_r8=rtimes(1),_RC)
+     end select
+     _RETURN(_SUCCESS)
+   end function compute_time_for_current
+   
   !-- below is a copy from MAPL_HistoryTrajectoryMod.F90
-  !
-  ! o ---/// ----------- /// ------->
-  !            X   X  X
-  !            LB     UB  :  interval(1:2)
-  ! |--------->
-  ! |-------------> rtimes(:)
-  !
-  function get_current_interval(this,current_time,rc) result(interval)
-    class(StationSampler), intent(inout) :: this
-    type(ESMF_Time), intent(in) :: current_time
-    integer, optional, intent(out) :: rc
-    integer :: interval(2)
-    integer :: i,nfound
-    logical :: found
-
-    found = .false.
-    nfound = 0
-    interval = 0
-
-    write(6,'(2x,a,2x,2i5)')  'this%previous_index+1,size(this%times)', this%previous_index+1,size(this%times)
-    
-    do i=this%previous_index+1,size(this%times)
-       if (this%times(i) .ge. this%previous_time .and. this%times(i) .le. current_time) then
-          if (.not.found) then
-             interval(1) = i
-             found = .true.
-          end if
-          nfound = nfound + 1
-       end if
-       if (this%times(i) .ge. current_time) exit
-    enddo
-    if (found) then
-       interval(2) = interval(1)+nfound-1
-       this%previous_index = interval(2)
-    end if
-    _RETURN(_SUCCESS)
-  end function get_current_interval
-
-
-  function compute_times_for_interval(this,interval,rc) result(rtimes)
-    class(StationSampler), intent(inout) :: this
-    integer, intent(in) :: interval(2)
-    integer, optional, intent(out) :: rc
-    real(ESMF_KIND_R8), allocatable :: rtimes(:)
-    integer :: ntimes,i,status,icnt
-    type(ESMF_TimeInterval) :: tint
-    type(ESMF_Time) :: file_start_time
-    character(len=ESMF_MAXSTR) :: tunits
-    
-    ntimes = interval(2)-interval(1)+1
-    if (all(interval==0)) then
-       _RETURN(_SUCCESS)
-    end if
-    call this%get_file_start_time(file_start_time,tunits,_RC)
-    allocate(rtimes(ntimes),_STAT)
-    icnt=0
-    do i=interval(1),interval(2)
-       icnt=icnt+1
-       tint = this%times(i)-file_start_time
-       select case(trim(tunits))
-       case ('days')
-          call ESMF_TimeIntervalGet(tint,d_r8=rtimes(icnt),_RC)
-       case ('hours')
-          call ESMF_TimeIntervalGet(tint,h_r8=rtimes(icnt),_RC)
-       case ('minutes')
-          call ESMF_TimeIntervalGet(tint,m_r8=rtimes(icnt),_RC)
-       end select
-    enddo
-    _RETURN(_SUCCESS)
-  end function compute_times_for_interval
-    
-
+  !  
   subroutine get_file_start_time(this,start_time,time_units,rc)
     class(StationSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout) :: start_time
@@ -542,8 +479,7 @@ contains
   subroutine get(this, file_name, rc)
     class(StationSampler), intent(inout) :: this
     character(len=*), intent(inout), optional :: file_name
-    integer, intent(out), optional :: rc
-    
+    integer, intent(out), optional :: rc    
     if (present(file_name)) file_name = trim(this%ofile)
     _RETURN(_SUCCESS)
   end subroutine get
