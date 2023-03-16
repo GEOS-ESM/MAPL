@@ -15,7 +15,7 @@ To implement `PFIO` in an application, it is important to note that `PFIO`
 handles netCDF files and therefore follows the netCDF steps to read and create files. 
 However, the processes in PFIO are simpler because it works only with 
 variable names instead of variable identifier (as in netCDF).
-When an application is wun with `PFIO`, the available nodes (cores) are split into two groups:
+When an application is run with `PFIO`, the available nodes (cores) are split into two groups:
 the computing nodes (reserved for model calculations) and 
 the I/O nodes (used to perform I/O operations only). 
 
