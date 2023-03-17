@@ -83,31 +83,37 @@ MODULE ExtDataUtRoot_GridCompMod
                long_name='na' , &
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
-               vlocation = MAPL_VLocationCenter, _RC)
+               vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='lats', &
                long_name='na' , &
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
-               vlocation = MAPL_VLocationCenter, _RC)
+               vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='lons', &
                long_name='na' , &
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
-               vlocation = MAPL_VLocationCenter, _RC)
+               vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='i_index', &
                long_name='na' , &
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
-               vlocation = MAPL_VLocationCenter, _RC)
+               vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='j_index', &
                long_name='na' , &
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
-               vlocation = MAPL_VLocationCenter, _RC)
+               vlocation = MAPL_VLocationNone, _RC)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='doy', &
+               long_name='day_since_start_of_year' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationNone, _RC)
 
          call MAPL_GenericSetServices ( GC, _RC)
 
@@ -237,7 +243,7 @@ MODULE ExtDataUtRoot_GridCompMod
             call FillState(internal,export,currTime,grid,synth,_RC)
             call CompareState(import,export,0.001,_RC)
 
-         case(runModeFillImport)
+         case(runModeFillImport) 
 ! Nothing to do, we are just letting ExtData run
 
          case(runModeFillExportFromImport)
@@ -470,7 +476,7 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: Exptr2(:,:) => null()
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
-      type(ESMF_Field) :: expf,farray(5)
+      type(ESMF_Field) :: expf,farray(6)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
       integer :: i1,in,j1,jn,ldims(3),i,j
@@ -497,12 +503,15 @@ MODULE ExtDataUtRoot_GridCompMod
             exPtr2(i,j)=j1+j-1
          enddo
       enddo
+      call MAPL_GetPointer(inState,exPtr2,'doy',_RC)
+      exPtr2 = compute_doy(time,_RC)
 
       call ESMF_StateGet(inState,'time',farray(1),_RC)
       call ESMF_StateGet(inState,'lons',farray(2),_RC)
       call ESMF_StateGet(inState,'lats',farray(3),_RC)
       call ESMF_StateGet(inState,'i_index',farray(4),_RC)
       call ESMF_StateGet(inState,'j_index',farray(5),_RC)
+      call ESMF_StateGet(inState,'doy',farray(6),_RC)
       pstate = ESMF_StateCreate(_RC)
       call ESMF_StateAdd(pstate,farray,_RC)
 
@@ -613,6 +622,25 @@ MODULE ExtDataUtRoot_GridCompMod
          _RETURN(ESMF_SUCCESS)
 
       end subroutine ForceAllocation
+
+      function compute_doy(time,rc) result(doy)
+         real(ESMF_KIND_R8) :: doy
+         type(ESMF_Time), intent(in) :: time
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_Time) :: start_0z, current_0z
+         integer :: status
+         type(ESMF_TimeInterval) :: tint
+
+         integer :: year,month,day,hour,minute,second
+
+         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+         call ESMF_TimeSet(start_0z,yy=year,mm=1,dd=1,h=0,m=0,s=0,_RC)
+         call ESMF_TimeSet(current_0z,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+         tint = current_0z-start_0z
+         call ESMF_TimeIntervalGet(tint,d_r8=doy,_RC)
+         _RETURN(_SUCCESS)
+      end function
 
 end module ExtDataUtRoot_GridCompMod
 
