@@ -48,7 +48,6 @@ module StationSamplerMod
      procedure :: close_file_handle
      procedure :: append_file
      procedure :: get_file_start_time
-     procedure :: reset_times_to_current_day
      procedure :: compute_time_for_current
      !!procedure :: destroy_sampler  !! destructor __ deallocate arrays
   end type StationSampler
@@ -299,7 +298,6 @@ contains
      type(variable) :: v
      integer :: status
 
-     write(6,*) 'create output filename= ', filename
      this%ofile = trim(filename)
      v = this%time_info%define_time_variable(_RC)
      call this%fmd%modify_variable('time',v,_RC)
@@ -319,10 +317,8 @@ contains
      class(StationSampler), intent(inout) :: this
      integer, optional, intent(out) :: rc
      integer :: status
-     !
      if (trim(this%ofile) /= '') then
         if (mapl_am_i_root()) then
-           write(6,*) 'close ofile=', trim(this%ofile)
            call this%formatter%close(_RC)
         end if
      end if
@@ -355,9 +351,8 @@ contains
    end function compute_time_for_current
 
    
-   !-- subroutines below are taken from MAPL_HistoryTrajectoryMod.F90
-   !   with class name changes.
-   !   We could make them generic utility functions
+   !-- a copy from MAPL_HistoryTrajectoryMod.F90
+   !
    subroutine get_file_start_time(this,start_time,time_units,rc)
      class(StationSampler), intent(inout) :: this
      type(ESMF_Time), intent(inout) :: start_time
@@ -460,34 +455,4 @@ contains
      
    end subroutine get_file_start_time
 
-       
-   subroutine get(this, file_name, rc)
-     class(StationSampler), intent(inout) :: this
-     character(len=*), intent(inout), optional :: file_name
-     integer, intent(out), optional :: rc    
-     if (present(file_name)) file_name = trim(this%ofile)
-     _RETURN(_SUCCESS)
-   end subroutine get
-
-  
-   subroutine reset_times_to_current_day(this,rc)
-     class(StationSampler), intent(Inout) :: this
-     integer, intent(out), optional :: rc
-     
-     integer :: i,status,h,m,yp,mp,dp,s,ms,us,ns
-     type(ESMF_Clock) :: clock
-     type(ESMF_Time) :: current_time
-     integer :: year,month,day
-     
-     call this%time_info%get(clock=clock,_RC)
-     call ESMF_ClockGet(clock,currtime=current_time,_RC)
-     call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,_RC)
-     do i=1,size(this%times)
-        call ESMF_TimeGet(this%times(i),yy=yp,mm=mp,dd=dp,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
-        call ESMF_TimeSet(this%times(i),yy=year,mm=month,dd=day,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
-     enddo
-     
-   end subroutine reset_times_to_current_day
-  
-  
 end module StationSamplerMod
