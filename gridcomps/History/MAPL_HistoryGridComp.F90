@@ -868,21 +868,21 @@ contains
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
 
-! Get a single station-data file containing name/lon/lat/elev
+! Get a single station-data file containing id/name/lon/lat/elev
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
+            label=trim(string) // 'observation_spec:', _RC)  
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationDataFile, default="", &
-            label=trim(string) // 'station_data_file:', _RC)
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskFile, default="", &
-!                                    label=trim(string) // 'mask_file:', _RC)
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%trajectoryFile, default="", &
-!                                    label=trim(string) // 'trajectory_file:', _RC)
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%swathFile, default="", &
-!                                    label=trim(string) // 'swath_file:', _RC)       
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
-                                    label=trim(string) // 'observation_spec:', _RC)  
-       write(6,*) 'list(n)%stationIdFile, list(n)%stationDataFile, list(n)%observation_spec : ', &
-            trim(list(n)%stationIdFile), trim(list(n)%stationDataFile), trim(list(n)%observation_spec)
+       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationDataFile, default="", &
+       !!     label=trim(string) // 'station_data_file:', _RC)
+       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskFile, default="", &
+       !!                             label=trim(string) // 'mask_file:', _RC)
+       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%trajectoryFile, default="", &
+       !!                             label=trim(string) // 'trajectory_file:', _RC)
+       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%swathFile, default="", &
+       !!                             label=trim(string) // 'swath_file:', _RC)       
+       write(6,'(3(x,a,x))') 'list(n)%observation_spec, list(n)%stationIdFile:', &
+            trim(list(n)%observation_spec), trim(list(n)%stationIdFile)
        
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2374,7 +2374,7 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%observation_spec /= '') then
              if (list(n)%observation_spec == 'station') then
-                list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),trim(list(n)%stationDataFile),_RC)
+                list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
                 call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              else
                 write(6,*) 'Not implemented: list(n)%observation_spec:', list(n)%observation_spec
@@ -3595,6 +3595,7 @@ ENDDO PARSER
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
       elseif (list(n)%observation_spec /= '') then
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
          if (list(n)%observation_spec == 'station') then
             call list(n)%station_sampler%append_file(current_time,_RC)
          endif
