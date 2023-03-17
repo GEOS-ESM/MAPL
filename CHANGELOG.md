@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.35.4] - 2023-03-17
+
+### Added
+
+- Added MAPL_StationSamplerMod.F90 for HISOTRY output sampling station data
+
 ## [2.35.3] - 2023-03-17
 
 ### Fixed
