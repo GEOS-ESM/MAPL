@@ -5,7 +5,6 @@
 It provides a flexible, run-time configurable mechanism for intepolating in time and regridding to arbitrary ESMF grids.
 `ExtData` acts as the "provider of last resort" for any fields in model import states that have not been satisfied by the usual MAPL connection rules.
 
-
 `ExtData` is instantiated and all its registered methods (`Initialize`, `Run` and `Finalize`)
  are run automatically by the `CapGridComp`.
 In a MAPL application, fields added to the import state of a component 
@@ -35,7 +34,10 @@ the file to the application grid.
 
 The file `extdata.yaml` allows several following settings that are used by `ExtData` to perform operations
 (such as appropriate file selection, horizontal interpolation, time interpolation, etc.) on the fly.
-To have additional information on `ExtData`, you may to consult:
+To have additional information on `ExtData`, you may want to consult:
 
 [ExtData Next Generation User Guide](https://github.com/GEOS-ESM/MAPL/wiki/ExtData-Next-Generation---User-Guide)
 
+A sample `ExtData` configuration file is available at:
+
+[Sample ExtData Configuration YAML File](https://github.com/GEOS-ESM/MAPL/wiki/Sample_ExtData_configuration_yaml_file)

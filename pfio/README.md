@@ -27,7 +27,7 @@ There are typically two main command line configurations:
 - **Simple Server**: This the basic configuration where the compute nodes and I/O nodes overlap. `PFIO` is set to run the standard-like Message Passing Interface (MPI) root processor configuration (where IO are completed before calculations resume). This default is efficient at low resolution and/or with few file collections.
 - **MultiGroupServer Class**: Here, the compute nodes and I/O nodes are completely separate. All the I/O procedures are handled by the I/O nodes that perform their tasks wven while the compute nodes do model integration.
 
-To have additional information on `PFIO`, you may to consult:
+To have additional information on `PFIO`, you may want to consult:
 
 [PFIO: a High Performance Client Server I/O Layer](https://github.com/GEOS-ESM/MAPL/wiki/PFIO:-a-High-Performance-Client-Server-I-O-Layer)
 

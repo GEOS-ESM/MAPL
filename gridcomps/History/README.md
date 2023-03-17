@@ -29,3 +29,9 @@ The three methods are called at the level of CAP.
 Additional information about the `History` griddec component can be found at:
 
 [MAPL History Component](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component)
+
+A sample `History` configuration file is available at:
+
+[Sample History Configuration File](https://github.com/GEOS-ESM/MAPL/wiki/Sample_History_configuration_file)
+
+
