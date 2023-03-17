@@ -8,14 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added config array overload to `MAPL_GetResource`
+
+- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
 
 ### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.25.1
+  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
+  - ESMA_cmake v3.24.0 → v3.26.0 (Detection of additional sites)
 
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.35.3] - 2023-03-17
+
+### Fixed
+
+- Fixed bug in climatologies with ExtDataV2 when wrapping around the year
+
+### Added
+
+- Added Ford documentation
 
 ## [2.35.2] - 2023-03-06
 
