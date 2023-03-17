@@ -34,7 +34,7 @@ module MAPL_XYGridFactoryMod
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
       logical :: has_corners
-      
+
       logical :: initialized_from_metadata = .false.
    contains
       procedure :: make_new_grid
@@ -42,7 +42,7 @@ module MAPL_XYGridFactoryMod
       procedure :: add_horz_coordinates_from_file
       procedure :: init_halo
       procedure :: halo
-      
+
 
       procedure :: initialize_from_file_metadata
       procedure :: initialize_from_config_with_prefix
@@ -66,9 +66,9 @@ module MAPL_XYGridFactoryMod
       procedure :: physical_params_are_equal
       procedure :: file_has_corners
    end type XYGridFactory
-   
+
    character(len=*), parameter :: MOD_NAME = 'MAPL_XYGridFactory::'
-   
+
    interface XYGridFactory
       module procedure XYGridFactory_from_parameters
    end interface XYGridFactory
@@ -101,7 +101,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'XYGridFactory_from_parameters'
 
-      
+
       if (present(unusable)) print*,shape(unusable)
 
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
@@ -146,14 +146,15 @@ contains
    end function make_new_grid
 
 
-   
+
    function create_basic_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
       class (XYGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
+      type(ESMF_Info) :: infoh
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
       _UNUSED_DUMMY(unusable)
@@ -169,7 +170,7 @@ contains
             coordDep2=[1,2], &
             coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
       _VERIFY(status)
-      
+
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
@@ -178,13 +179,16 @@ contains
       end if
 
       _VERIFY(status)
-      
+
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
+         call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
          _VERIFY(status)
       end if
-      
-      call ESMF_AttributeSet(grid, 'GridType', 'XY', rc=status)
+
+      call ESMF_InfoSet(infoh,'GridType','XY',rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -215,7 +219,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-       
+
        lon_center_name = "lons"
        lat_center_name = "lats"
        lon_corner_name = "corner_lons"
@@ -256,7 +260,7 @@ contains
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(_RC)
- 
+
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=fptr, rc=status)
@@ -353,8 +357,8 @@ contains
       this%jm_world = file_Metadata%get_dimension('Ydim',_RC)
       if (file_metadata%has_dimension('lev')) then
          this%lm = file_metadata%get_dimension('lev',_RC)
-      end if 
-   
+      end if
+
       this%grid_file_name=file_metadata%get_source_file()
 
       this%initialized_from_metadata = .true.
@@ -409,7 +413,7 @@ contains
       _RETURN(_SUCCESS)
 
    contains
-      
+
       subroutine get_multi_integer(values, label, rc)
          integer, allocatable, intent(out) :: values(:)
          character(len=*) :: label
@@ -420,7 +424,7 @@ contains
          integer :: tmp
          integer :: status
          logical :: isPresent
-         
+
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
          _VERIFY(status)
          if (.not. isPresent) then
@@ -453,7 +457,7 @@ contains
       end subroutine get_multi_integer
 
    end subroutine initialize_from_config_with_prefix
-   
+
 
 
    function to_string(this) result(string)
@@ -485,7 +489,7 @@ contains
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
       call this%file_has_corners(_RC)
-      
+
       _RETURN(_SUCCESS)
 
    contains
@@ -526,7 +530,7 @@ contains
          _RETURN(_SUCCESS)
 
       end subroutine verify
-         
+
    end subroutine check_and_fill_consistency
 
 
@@ -534,27 +538,27 @@ contains
       integer, intent(out) :: to
       integer, optional, intent(in) :: from
       integer, intent(in) :: default
-      
+
       if (present(from)) then
          to = from
       else
          to = default
       end if
-      
+
    end subroutine set_with_default_integer
-   
-   
+
+
    subroutine set_with_default_character(to, from, default)
       character(len=:), allocatable, intent(out) :: to
       character(len=*), optional, intent(in) :: from
       character(len=*), intent(in) :: default
-      
+
       if (present(from)) then
          to = from
       else
          to = default
       end if
-      
+
    end subroutine set_with_default_character
 
    ! MAPL uses values in lon_array and lat_array only to determine the
@@ -579,9 +583,9 @@ contains
       _UNUSED_DUMMY(lon_array)
       _UNUSED_DUMMY(lat_array)
 
-      
+
       ! not supported
-      _FAIL("XY initialize from distgrid non supported") 
+      _FAIL("XY initialize from distgrid non supported")
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -600,12 +604,12 @@ contains
          ! same decomposition
          equal = a%nx == this%nx .and. a%ny == this%ny
          if (.not. equal) return
-         
+
       end select
-         
+
    end function decomps_are_equal
 
-   
+
    function physical_params_are_equal(this, a) result(equal)
       class (XYGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
@@ -623,9 +627,9 @@ contains
 
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
          if (.not. equal) return
-         
+
       end select
-         
+
    end function physical_params_are_equal
 
 
@@ -648,9 +652,9 @@ contains
 
          equals = a%physical_params_are_equal(b)
          if (.not. equals) return
-         
+
       end select
-         
+
    end function equals
 
 
@@ -688,9 +692,9 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'halo'
-         
+
    end subroutine halo
-      
+
    subroutine append_metadata(this, metadata)
       class (XYGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
@@ -710,12 +714,12 @@ contains
       do i=1,this%im_world
          fake_coord(i)=dble(i)
       enddo
-      
+
       ! Coordinate variables
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
-      call v%add_const_value(UnlimitedEntity(fake_coord))    
+      call v%add_const_value(UnlimitedEntity(fake_coord))
       call metadata%add_variable('Xdim', v)
       deallocate(fake_coord)
 
@@ -728,7 +732,7 @@ contains
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
       call v%add_const_value(UnlimitedEntity(fake_coord))
-      call metadata%add_variable('Ydim', v)   
+      call metadata%add_variable('Ydim', v)
       deallocate(fake_coord)
 
       v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim')
