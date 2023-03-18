@@ -159,7 +159,9 @@ contains
       type(ActualPtVector), pointer :: actual_pts
       type(ActualConnectionPt), pointer :: actual_pt
 
-      actual_pts => this%actual_pts_map%at(virtual_pt, _RC)
+      actual_pts => this%actual_pts_map%at(virtual_pt, rc=status)
+      if (status /= 0) allocate(specs(0))
+      _VERIFY(status)
 
       associate ( n => actual_pts%size() )
         allocate(specs(n))
@@ -258,7 +260,9 @@ contains
         if (extensions%count(virtual_pt) == 0) then
            call extensions%insert(virtual_pt, ActualPtVector())
         end if
+        _HERE
         actual_pts => this%actual_pts_map%of(virtual_pt)
+        _HERE
         call actual_pts%push_back(actual_pt)
       end associate
       
@@ -411,6 +415,7 @@ contains
 
         import_specs = this%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
         export_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
+
         do i = 1, size(import_specs)
            import_spec => import_specs(i)%ptr
            satisfied = .true.
@@ -447,6 +452,9 @@ contains
 
       associate (src_pt => connection%source%v_pt, dst_pt => connection%destination%v_pt)
         _ASSERT(this%actual_pts_map%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
+        _HERE,this%name, src_pt
+        _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
+
         actual_pts => src_registry%get_actual_pts(src_pt)
         associate (e => actual_pts%end())
           iter = actual_pts%begin()
@@ -458,7 +466,6 @@ contains
              else
                 dst_actual_pt = ActualConnectionPt(dst_pt%add_comp_name(src_registry%get_name()))
              end if
-!!$             dst_actual_pt = extend(dst_actual_pt)
              
              spec => src_registry%get_item_spec(src_actual_pt)
              _ASSERT(associated(spec), 'This should not happen.')

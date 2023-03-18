@@ -62,7 +62,8 @@ contains
       type(ScenarioDescription), allocatable :: params(:)
 
       params = [ &
-           ScenarioDescription(name='scenario_1') &
+           ScenarioDescription(name='scenario_1'), &
+           ScenarioDescription(name='scenario_2') &
       ]
    end function getParameters
 
@@ -81,6 +82,7 @@ contains
       p = Parser()
 
       file_name = './configs/' // this%scenario_name // '/parent.yaml'
+      print*,__FILE__, 'using: ', file_name
       yaml_cfg = p%load_from_file(file_name, _RC)
 
       config = GenericConfig(yaml_cfg=yaml_cfg)
@@ -138,7 +140,6 @@ contains
       class(YAML_NODE), pointer :: state_items
       integer :: item_count, expected_item_count
       type(MultiState) :: comp_states
-      type(ESMF_State) :: state
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
@@ -146,10 +147,13 @@ contains
 
       components: do i = 1, this%expectations%size()
 
+         print*,__FILE__,__LINE__, i
          comp_expectations => this%expectations%of(i)
 
          call comp_expectations%get(comp_path, 'component', _RC)
          call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
+
+         print*,__FILE__,__LINE__, comp_path
 
          call check(comp_expectations, comp_states, 'imports', 'import', _RC)
          call check(comp_expectations, comp_states, 'exports', 'export', _RC)
@@ -170,7 +174,9 @@ contains
             integer :: status
             class(NodeIterator), allocatable :: iter
             class(YAML_NODE), pointer :: state_items
+            type(ESMF_State) :: state
 
+            print*,__FILE__,__LINE__, intent_case
             rc = -1
 
             if (.not. comp_expectations%has(intent_case)) then
@@ -180,16 +186,20 @@ contains
 
             state_items => comp_expectations%at(intent_case, _RC)
             @assert_that(state_items%is_mapping(), is(true()))
-            state = comp_states%importState
-               
+
+            call states%get_state(state, intent, _RC)
+
+            print*,"state: ", state
             associate (e => state_items%end())
               allocate(iter, source=state_items%begin())
 
               do while (iter /= e)
                  item_name = to_string(iter%first(), _RC)
+                 print*,__FILE__,__LINE__, item_name
                  properties => iter%second()
                  call get_field(comp_states, intent, item_name, field, _RC)
                  call ESMF_FieldGet(field, status=field_status, _RC)
+                 print*,__FILE__,__LINE__, item_name
                  
                  call properties%get(expected_status, 'status', _RC)
                  expected_field_status = ESMF_FIELDSTATUS_GRIDSET
