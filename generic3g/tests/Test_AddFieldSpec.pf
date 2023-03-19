@@ -1,9 +1,9 @@
 module Test_AddFieldSpec
    use funit
-   use mapl3g_ExtraDimsSpec, only: ExtraDimsSpec
+   use mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
    use mapl3g_FieldSpec, only: FieldSpec
    use mapl3g_StateSpec, only: StateSpec
-   use mapl3g_VerticalDimSpec, only: V_STAGGER_LOC_CENTER
+   use mapl3g_VerticalDimSpec, only: VERTICAL_DIM_CENTER
    use mapl3g_AbstractStateItemSpec
    use ESMF
    implicit none
@@ -18,7 +18,7 @@ contains
       type(ESMF_Geom) :: geom
 
       call state_spec%add_item('A', &
-                 FieldSpec(geom, ESMF_TYPEKIND_R4, ExtraDimsSpec(), '', '', 'unknown'))
+                 FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown'))
 
    end subroutine test_add_one_field
    
@@ -37,7 +37,7 @@ contains
       type(FieldSpec) :: field_spec
       type(ESMF_Geom) :: geom
 
-      field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, ExtraDimsSpec(), '', '', 'unknown')
+      field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown')
       call state_spec%add_item('A', field_spec)
 
       ! Different name/key

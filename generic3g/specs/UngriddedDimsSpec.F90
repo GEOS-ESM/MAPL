@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_ExtraDimsSpec
+module mapl3g_UngriddedDimsSpec
    use mapl3g_DimSpecVector
    use mapl3g_UngriddedDimSpec
    use mapl_ErrorHandling
@@ -8,13 +8,13 @@ module mapl3g_ExtraDimsSpec
 
    private
 
-   public :: ExtraDimsSpec
+   public :: UngriddedDimsSpec
    public :: operator(==)
    public :: operator(/=)
 
    ! Note: GEOS convention is that the vertical dim spec should be
    ! before any other ungridded dim specs.
-   type :: ExtraDimsSpec
+   type :: UngriddedDimsSpec
       private
       type(DimSpecVector) :: dim_specs
    contains
@@ -23,13 +23,13 @@ module mapl3g_ExtraDimsSpec
       procedure :: get_ith_dim_spec
       procedure :: get_lbounds
       procedure :: get_ubounds
-   end type ExtraDimsSpec
+   end type UngriddedDimsSpec
 
-   interface ExtraDimsSpec
-      module procedure new_ExtraDimsSpec_empty
-      module procedure new_ExtraDimsSpec_vec
-      module procedure new_ExtraDimsSpec_arr
-   end interface ExtraDimsSpec
+   interface UngriddedDimsSpec
+      module procedure new_UngriddedDimsSpec_empty
+      module procedure new_UngriddedDimsSpec_vec
+      module procedure new_UngriddedDimsSpec_arr
+   end interface UngriddedDimsSpec
 
    interface operator(==)
       module procedure equal_to
@@ -43,24 +43,24 @@ module mapl3g_ExtraDimsSpec
 contains
 
 
-   function new_ExtraDimsSpec_empty() result(spec)
-      type(ExtraDimsSpec) :: spec
+   function new_UngriddedDimsSpec_empty() result(spec)
+      type(UngriddedDimsSpec) :: spec
 
       spec%dim_specs = DimSpecVector()
 
-   end function new_ExtraDimsSpec_empty
+   end function new_UngriddedDimsSpec_empty
 
-   pure function new_ExtraDimsSpec_vec(dim_specs) result(spec)
-      type(ExtraDimsSpec) :: spec
+   pure function new_UngriddedDimsSpec_vec(dim_specs) result(spec)
+      type(UngriddedDimsSpec) :: spec
       type(DimSpecVector), intent(in) :: dim_specs
 
       spec%dim_specs = dim_specs
 
-   end function new_ExtraDimsSpec_vec
+   end function new_UngriddedDimsSpec_vec
 
 
-   function new_ExtraDimsSpec_arr(dim_specs) result(spec)
-      type(ExtraDimsSpec) :: spec
+   function new_UngriddedDimsSpec_arr(dim_specs) result(spec)
+      type(UngriddedDimsSpec) :: spec
       type(UngriddedDimSpec), intent(in) :: dim_specs(:)
 
       integer :: i
@@ -69,12 +69,12 @@ contains
          call spec%dim_specs%push_back(dim_specs(i))
       end do
 
-   end function new_ExtraDimsSpec_arr
+   end function new_UngriddedDimsSpec_arr
 
 
    ! Note: Ensure that vertical is the first ungridded dimension.
    subroutine add_dim_spec(this, dim_spec, rc)
-      class(ExtraDimsSpec), intent(inout) :: this
+      class(UngriddedDimsSpec), intent(inout) :: this
       type(UngriddedDimSpec), intent(in) :: dim_spec
       integer, optional, intent(out) :: rc
 
@@ -89,7 +89,7 @@ contains
    end subroutine add_dim_spec
 
    pure integer function get_num_ungridded(this)
-      class(ExtraDimsSpec), intent(in) :: this
+      class(UngriddedDimsSpec), intent(in) :: this
 
       get_num_ungridded = this%dim_specs%size()
       
@@ -98,7 +98,7 @@ contains
 
    function get_ith_dim_spec(this, i, rc) result(dim_spec)
       type(UngriddedDimSpec), pointer :: dim_spec
-      class(ExtraDimsSpec), target, intent(in) :: this
+      class(UngriddedDimsSpec), target, intent(in) :: this
       integer, intent(in) :: i
       integer, optional, intent(out) :: rc
 
@@ -112,7 +112,7 @@ contains
 
    function get_lbounds(this) result(lbounds)
       integer, allocatable :: lbounds(:)
-      class(ExtraDimsSpec), intent(in) :: this
+      class(UngriddedDimsSpec), intent(in) :: this
 
       integer :: i
       class(UngriddedDimSpec), pointer :: dim_spec
@@ -128,7 +128,7 @@ contains
 
    function get_ubounds(this) result(ubounds)
       integer, allocatable :: ubounds(:)
-      class(ExtraDimsSpec), intent(in) :: this
+      class(UngriddedDimsSpec), intent(in) :: this
 
       integer :: i
       class(UngriddedDimSpec), pointer :: dim_spec
@@ -143,8 +143,8 @@ contains
 
 
    logical function equal_to(a, b)
-      type(ExtraDimsSpec), intent(in) :: a
-      type(ExtraDimsSpec), intent(in) :: b
+      type(UngriddedDimsSpec), intent(in) :: a
+      type(UngriddedDimsSpec), intent(in) :: b
 
       integer :: i
 
@@ -164,12 +164,12 @@ contains
 
 
    logical function not_equal_to(a, b)
-      type(ExtraDimsSpec), intent(in) :: a
-      type(ExtraDimsSpec), intent(in) :: b
+      type(UngriddedDimsSpec), intent(in) :: a
+      type(UngriddedDimsSpec), intent(in) :: b
 
       not_equal_to = .not. (a == b)
 
    end function not_equal_to
 
-end module mapl3g_ExtraDimsSpec
+end module mapl3g_UngriddedDimsSpec
 

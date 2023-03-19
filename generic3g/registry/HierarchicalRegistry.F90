@@ -260,9 +260,7 @@ contains
         if (extensions%count(virtual_pt) == 0) then
            call extensions%insert(virtual_pt, ActualPtVector())
         end if
-        _HERE
         actual_pts => this%actual_pts_map%of(virtual_pt)
-        _HERE
         call actual_pts%push_back(actual_pt)
       end associate
       
@@ -452,7 +450,6 @@ contains
 
       associate (src_pt => connection%source%v_pt, dst_pt => connection%destination%v_pt)
         _ASSERT(this%actual_pts_map%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
-        _HERE,this%name, src_pt
         _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
 
         actual_pts => src_registry%get_actual_pts(src_pt)

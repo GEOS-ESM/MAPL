@@ -451,8 +451,8 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-
       call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
+
       call self_advertise(this, _RC)
       call apply_to_children(this, add_subregistry, _RC)
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
@@ -511,14 +511,13 @@ contains
          type(VirtualConnectionPt) :: virtual_pt
          type(ExtraDimsSpec) :: extra_dims
 
-         _ASSERT(var_spec%type_id /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
+         _ASSERT(var_spec%state_item /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
          item_spec = var_spec%make_ItemSpec(geom, _RC)
          call item_spec%create(_RC)
 
-         virtual_pt = VirtualConnectionPt(var_spec%state_intent, var_spec%short_name)
+         virtual_pt = var_spec%make_virtualPt()
          call registry%add_item_spec(virtual_pt, item_spec)
-         
          
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)

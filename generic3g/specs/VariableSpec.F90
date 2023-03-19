@@ -3,7 +3,9 @@
 module mapl3g_VariableSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItem
-   use mapl3g_ExtraDimsSpec
+   use mapl3g_UngriddedDimsSpec
+   use mapl3g_VerticalDimSpec
+   use mapl3g_HorizontalDimsSpec
    use mapl3g_FieldSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
@@ -26,11 +28,15 @@ module mapl3g_VariableSpec
       character(:), allocatable :: short_name
       type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
 
-      ! Optional values
+      ! Metadata
       character(:), allocatable :: standard_name
-      type(ESMF_StateItem_Flag) :: type_id = MAPL_STATEITEM_FIELD
+      type(ESMF_StateItem_Flag) :: state_item = MAPL_STATEITEM_FIELD
       character(:), allocatable :: units
-      type(ExtraDimsSpec) :: extra_dims
+
+      ! Geometry
+      type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
+      type(HorizontalDimsSpec) :: horizontal_dims_spec ! none, geom
+      type(UngriddedDimsSpec) :: ungridded_dims
    contains
       procedure :: make_virtualPt
       procedure :: make_ItemSpec
@@ -48,14 +54,14 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        type_id, units) result(var_spec)
+        state_item, units) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       ! Optional args:
       character(*), optional, intent(in) :: standard_name
-      type(ESMF_StateItem_Flag), optional, intent(in) :: type_id
+      type(ESMF_StateItem_Flag), optional, intent(in) :: state_item
       character(*), optional, intent(in) :: units
 
       var_spec%state_intent = state_intent
@@ -67,7 +73,7 @@ contains
 #define SET_OPTIONAL(attr) if (present(attr)) var_spec% attr = attr
 
       SET_OPTIONAL(standard_name)
-      SET_OPTIONAL(type_id)
+      SET_OPTIONAL(state_item)
       SET_OPTIONAL(units)
       
    end function new_VariableSpec
@@ -82,44 +88,44 @@ contains
       class(YAML_Node), intent(in) :: config
 
       call config%get(this%standard_name, 'standard_name')
-      this%type_id = get_type_id(config)
+      this%state_item = get_state_item(config)
       call config%get(this%units, 'units')
 
    contains
 
       
-      function get_type_id(config) result(type_id)
-         type(ESMF_StateItem_Flag) :: type_id
+      function get_state_item(config) result(state_item)
+         type(ESMF_StateItem_Flag) :: state_item
          class(YAML_Node), intent(in) :: config
 
-         character(:), allocatable :: type_id_as_string
+         character(:), allocatable :: state_item_as_string
          integer :: status
 
-         type_id = MAPL_STATEITEM_FIELD ! default
-         if (.not. config%has('type_id')) return
+         state_item = MAPL_STATEITEM_FIELD ! default
+         if (.not. config%has('state_item')) return
          
-         call config%get(type_id_as_string, 'type_id', rc=status)
+         call config%get(state_item_as_string, 'state_item', rc=status)
          if (status /= 0) then
-            type_id = MAPL_STATEITEM_UNKNOWN
+            state_item = MAPL_STATEITEM_UNKNOWN
             return
          end if
          
-         select case (type_id_as_string)
+         select case (state_item_as_string)
          case ('field')
-            type_id = MAPL_STATEITEM_FIELD
+            state_item = MAPL_STATEITEM_FIELD
          case ('bundle')
-            type_id = MAPL_STATEITEM_FIELDBUNDLE
+            state_item = MAPL_STATEITEM_FIELDBUNDLE
          case ('state')
-            type_id = MAPL_STATEITEM_STATE
+            state_item = MAPL_STATEITEM_STATE
          case ('service_provider')
-            type_id = MAPL_STATEITEM_SERVICE_PROVIDER
+            state_item = MAPL_STATEITEM_SERVICE_PROVIDER
          case ('service_subcriber')
-            type_id = MAPL_STATEITEM_SERVICE_SUBSCRIBER
+            state_item = MAPL_STATEITEM_SERVICE_SUBSCRIBER
          case default
-            type_id = MAPL_STATEITEM_UNKNOWN
+            state_item = MAPL_STATEITEM_UNKNOWN
          end select
          
-      end function get_type_id
+      end function get_state_item
       
    end subroutine initialize
 
@@ -140,7 +146,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      select case (this%type_id%ot)
+      select case (this%state_item%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
          item_spec = this%make_FieldSpec(geom, _RC)
@@ -172,7 +178,7 @@ contains
 
       units = get_units(this, _RC)
 
-      field_spec = new_FieldSpec_geom(geom=geom, typekind=this%typekind, extra_dims=this%extra_dims, &
+      field_spec = new_FieldSpec_geom(geom=geom, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            standard_name=this%standard_name, long_name=' ', units=units)
 
       _RETURN(_SUCCESS)
@@ -184,7 +190,7 @@ contains
 
          is_valid = .false. ! unless
 
-         if (.not. this%type_id == MAPL_STATEITEM_FIELD) return
+         if (.not. this%state_item == MAPL_STATEITEM_FIELD) return
          if (.not. allocated(this%standard_name)) return
 
          is_valid = .true.

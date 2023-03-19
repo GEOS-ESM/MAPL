@@ -3,7 +3,7 @@
 module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
-   use mapl3g_ExtraDimsSpec
+   use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl3g_MultiState
@@ -24,7 +24,7 @@ module mapl3g_FieldSpec
 
       type(ESMF_Geom) :: geom
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
-      type(ExtraDimsSpec) :: extra_dims
+      type(UngriddedDimsSpec) :: ungridded_dims
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -60,13 +60,13 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom(geom, typekind, extra_dims, &
+   function new_FieldSpec_geom(geom, typekind, ungridded_dims, &
         standard_name, long_name, units) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
-      type(ExtraDimsSpec), intent(in) :: extra_dims
+      type(UngriddedDimsSpec), intent(in) :: ungridded_dims
 
       character(*), intent(in) :: standard_name
       character(*), intent(in) :: long_name
@@ -74,7 +74,7 @@ contains
 
       field_spec%geom = geom
       field_spec%typekind = typekind
-      field_spec%extra_dims = extra_dims
+      field_spec%ungridded_dims = ungridded_dims
 
       field_spec%units = standard_name
       field_spec%units = long_name
@@ -82,13 +82,13 @@ contains
    end function new_FieldSpec_geom
 
 
-!!$   function new_FieldSpec_defaults(extra_dims, geom, units) result(field_spec)
+!!$   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !!$      type(FieldSpec) :: field_spec
-!!$      type(ExtraDimsSpec), intent(in) :: extra_dims
+!!$      type(ExtraDimsSpec), intent(in) :: ungridded_dims
 !!$      type(ESMF_Geom), intent(in) :: geom
 !!$      character(*), intent(in) :: units
 !!$      
-!!$      field_spec = FieldSpec(extra_dims, ESMF_TYPEKIND_R4, geom, units)
+!!$      field_spec = FieldSpec(ungridded_dims, ESMF_TYPEKIND_R4, geom, units)
 !!$      
 !!$   end function new_FieldSpec_defaults
 !!$
@@ -165,8 +165,8 @@ contains
       if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
 
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
-              ungriddedLBound= this%extra_dims%get_lbounds(),  &
-              ungriddedUBound= this%extra_dims%get_ubounds(),  &
+              ungriddedLBound= this%ungridded_dims%get_lbounds(),  &
+              ungriddedUBound= this%ungridded_dims%get_ubounds(),  &
               _RC)
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
@@ -209,7 +209,7 @@ contains
       class is (FieldSpec)
          can_connect_to = all ([ &
               this%typekind == src_spec%typekind,   &
-              this%extra_dims == src_spec%extra_dims &
+              this%ungridded_dims == src_spec%ungridded_dims &
 !!$              this%freq_spec == src_spec%freq_spec,   &
 !!$              this%halo_width == src_spec%halo_width,  &
 !!$              this%vm == sourc%vm, &
@@ -236,7 +236,7 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          requires_extension = any([ &
-              this%extra_dims /= src_spec%extra_dims, &
+              this%ungridded_dims /= src_spec%ungridded_dims, &
               this%typekind /= src_spec%typekind,   &
 !!$              this%freq_spec /= src_spec%freq_spec,   &
 !!$              this%units /= src_spec%units,           &
