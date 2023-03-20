@@ -2375,7 +2375,7 @@ ENDDO PARSER
                 list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
                 call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              else
-                _FAIL('Not implemented: list(n)%observation_spec:', list(n)%observation_spec)
+                _FAIL('Not implemented: list(n)%observation_spec= '//trim(list(n)%observation_spec))
              endif
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
