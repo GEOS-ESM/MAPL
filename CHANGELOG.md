@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added MAPL_StationSamplerMod.F90 for HISOTRY output sampling station data
+- Added MAPL_StationSamplerMod.F90 for HISTORY output sampling station data
 
 ## [2.35.3] - 2023-03-17
 

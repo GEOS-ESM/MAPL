@@ -1823,8 +1823,6 @@ ENDDO PARSER
                   call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locIn, &
                        layout, FILENAME=IntState%Regrid(n)%PTR%TILEFILE, &
                        NAME='history_in', MASK=(/MAPL_Ocean/), grid=grid_in, _RC)
-
-                  write(6,*) 'test if (found) from L1747 '
                end if
 
             end if
@@ -2377,8 +2375,7 @@ ENDDO PARSER
                 list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
                 call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              else
-                write(6,*) 'Not implemented: list(n)%observation_spec:', list(n)%observation_spec
-                STOP 'Error: list(n)%observation_spec not implemented'
+                _FAIL('Not implemented: list(n)%observation_spec:', list(n)%observation_spec)
              endif
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
@@ -3444,7 +3441,7 @@ ENDDO PARSER
                   list(n)%unit = -1
                end if
             else
-               STOP 'Error: list(n)%observation_spec not implemented'
+               _FAIL('Error: list(n)%observation_spec not implemented')
             endif
          else
             if( list(n)%unit.eq.0 ) then

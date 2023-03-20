@@ -82,7 +82,7 @@ contains
        if (ios==0) nstation=nstation+1
        !! write(6,*) 'id=',id
     enddo
-    write(6,*) 'nstation=', nstation
+    !!write(6,*) 'nstation=', nstation
     sampler%nstation=nstation
     allocate(sampler%station_id(nstation))
     allocate(sampler%station_name(nstation))
@@ -98,10 +98,10 @@ contains
             sampler%lons(i)
     enddo
     close(unit)
-    ! debug
-    write(6,*) 'sampler%station_name(1:2) : ', &
-         trim(sampler%station_name(1)), ' ', trim(sampler%station_name(2))
-    write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
+    !! debug
+    !!write(6,*) 'sampler%station_name(1:2) : ', &
+    !!     trim(sampler%station_name(1)), ' ', trim(sampler%station_name(2))
+    !!write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
 
     
     !__ 2. create LocStreamFactory, then esmf_ls including route_handle
@@ -111,7 +111,8 @@ contains
     !
     ! init ofile
     sampler%ofile=''
-    sampler%obs_written=0
+    sampler%obs_written=0    
+    _RETURN(_SUCCESS)
   end function new_StationSampler_readfile
 
   
@@ -204,6 +205,7 @@ contains
     ! locstream route handle
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
+    _RETURN(_SUCCESS)
   end subroutine add_metadata_route_handle
 
   
@@ -285,9 +287,10 @@ contains
            end if
            call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
         else
-           STOP 'grid2LS regridder: rank > 3 not implemented'
+           _FAIL('grid2LS regridder: rank > 3 not implemented')
         end if  ! rank
      enddo      ! fieldCount
+     _RETURN(_SUCCESS)
    end subroutine append_file
 
    
@@ -310,6 +313,7 @@ contains
         call this%formatter%put_var('station_id',this%station_id,_RC)                
      end if
      this%obs_written = 0
+     _RETURN(_SUCCESS)
    end subroutine create_file_handle
 
   
@@ -388,7 +392,7 @@ contains
         lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
         
         if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
-           rc = -1
+           if (present(rc)) rc = -1
            return
         endif
         ypos(2) = firstdash - 1
@@ -451,8 +455,7 @@ contains
         _FAIL("Time unit must be character")
      end select
      call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
-     _RETURN(_SUCCESS)
-     
+     _RETURN(_SUCCESS)     
    end subroutine get_file_start_time
 
 end module StationSamplerMod
