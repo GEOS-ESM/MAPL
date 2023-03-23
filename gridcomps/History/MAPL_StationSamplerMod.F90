@@ -21,7 +21,7 @@ module StationSamplerMod
   public :: StationSampler
   type :: StationSampler
      type(LocStreamFactory) :: LSF
-     type(ESMF_LocStream) :: esmf_ls 
+     type(ESMF_LocStream) :: esmf_ls
      type(LocstreamRegridder) :: regridder
      type(ESMF_time), allocatable :: times(:)
      integer, allocatable :: ids(:)
@@ -55,11 +55,11 @@ module StationSamplerMod
   interface StationSampler
      module procedure new_StationSampler_readfile
   end interface StationSampler
-  integer :: maxstr = 2048  ! because ESMF_MAXSTR=256  
+  integer :: maxstr = 2048  ! because ESMF_MAXSTR=256
 contains
 
 
-  function new_StationSampler_readfile (filename,rc) result(sampler)  
+  function new_StationSampler_readfile (filename,rc) result(sampler)
     type(StationSampler) :: sampler
     character(len=*), intent(in) :: filename ! 1:station_name input
     integer, optional, intent(out) :: rc
@@ -70,19 +70,17 @@ contains
     integer :: iday, imonth, iyear, ihr, imin, isec
     real :: x, y, z, t
     character(len=1) :: s1
-    
+
     !__ 1. read from station_id_file: static
     !      plain text format: [id,name,lat,lon,elev]
     !
-    write(6,*) 'sampler: station_id filename= ', trim(filename)
     open(newunit=unit, file=trim(filename), form='formatted', access='sequential', status='old')
     ios=0; nstation=0
     do while (ios==0)
        read (unit, *, IOSTAT=ios)  id, str, x, y, z
        if (ios==0) nstation=nstation+1
-       !! write(6,*) 'id=',id
     enddo
-    !!write(6,*) 'nstation=', nstation
+    call lgr%debug('%a~,%i~', 'nstation=', nstation)
     sampler%nstation=nstation
     allocate(sampler%station_id(nstation))
     allocate(sampler%station_name(nstation))
@@ -98,12 +96,11 @@ contains
             sampler%lons(i)
     enddo
     close(unit)
-    !! debug
-    !!write(6,*) 'sampler%station_name(1:2) : ', &
-    !!     trim(sampler%station_name(1)), ' ', trim(sampler%station_name(2))
-    !!write(6,*) 'sampler%lons(1:2) : ', sampler%lons(1:2)
+    call lgr%debug('%a~,%a~,%a~',& 'sampler%station_name(1:2) : ', &
+         sampler%station_name(1), trim(sampler%station_name(2)))
+    call lgr%debug('%a~,%f~,%f~', 'sampler%lons(1:2) : ', sampler%lons(1:2))
+    call lgr%debug('%a~,%f~,%f~', 'sampler%lats(1:2) : ', sampler%lats(1:2))
 
-    
     !__ 2. create LocStreamFactory, then esmf_ls including route_handle
     !
     sampler%LSF = LocStreamFactory(sampler%lons, sampler%lats, _RC)
