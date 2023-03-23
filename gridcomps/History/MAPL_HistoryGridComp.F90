@@ -41,7 +41,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_DownbitMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
-  use StationSamplerMod  
+  use StationSamplerMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
