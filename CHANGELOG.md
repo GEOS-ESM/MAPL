@@ -8,7 +8,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added config array overload to `MAPL_GetResource`
 
+- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.25.1
+  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
+  - ESMA_cmake v3.24.0 → v3.26.0 (Detection of additional sites)
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.35.3] - 2023-03-17
+
+### Fixed
+
+- Fixed bug in climatologies with ExtDataV2 when wrapping around the year
+
+### Added
+
+- Added Ford documentation
+
+## [2.35.2] - 2023-03-06
+
+### Changed
+
+- Converted files in `Python/MAPL` to Python 3. Note this will most likely require changes to codes that call MAPL. This conversion
+  was done in concert with converting `pyrob` to Python 3
+- Updated ExtData test case2 to handle a wider range of test times for more robust testing
+
+### Fixed
+
+- Fixed bug in climatology hanlding of data in ExtDataV2 that occurred depending on the start date of the application relative to the length of the application run time
+- Fixed set_grid. The cf_root is not created when it is called. Instead, use config from CAP.rc
+
+### Removed
+
+- Removed test case 2 for ExtDataV1 as there as an apparent bug in climatologies that has been fixed for ExtDataV2 but there appears to be a different but in ExtDataV1 that causes the extended case 2 to fail
+
+## [2.35.1] - 2023-03-01
+
+### Fixed
+
+- Fix issue when running with monthly history collections
+
+## [2.35.0] - 2023-03-01
+
+### Added
+
+- Added subroutines to read char type in Netcdf
+- Added a subroutine add_variable to Netcdf4_Fileformatter
+- Add a function to get the area of a spherical polygon to the spherical geometry module
 - Created layout independent version of the "DownBit"/"pFIO_ShaveMantissa" routines when running in MPI codes
 - Added subroutine `MAPL_SunGetLocalSolarHourAngle()` in `base/MAPL_sun_uc.F90`. This
   provides a convenient local solar hour angle diagnostic which will be used to detect local
@@ -21,8 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Converted files in `Python/MAPL` to Python 3. Note this will most likely require changes to codes that call MAPL. This conversion
-  was done in concert with converting `pyrob` to Python 3
+- Changed set_grid method so users have a chance to specify the grid type
 - Renamed `get_regrid_method` and `translate_regrid_method` to `regrid_method_string_to_int` and `regrid_method_int_to_string`
   respectively in `RegridMethods.F90`. This was done so we could add `get_regrid_method` to the AbstractRegridder. The new names
   more accurately reflect what the RegridMethods functions do.
@@ -41,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Changed the type of output counters to INT64 for large file. 
+- Changed the type of output counters to INT64 for large file.
 - Tested optional arguments arrdes in MAPL_WriteVars
 - Added the correct values to halo corner of LatLon grid
 - Fixed range in halo of LatLonGridFactory
@@ -49,10 +103,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `regrid_method: identity`
 - Fix bug in `mapl_acg.cmake` that caused unnecessary rebuilds
 - Fixed error handling for refactored MAPL_GetResource
-
-### Removed
-
-### Deprecated
 
 ## [2.34.3] - 2023-02-14
 
