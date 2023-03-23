@@ -8,15 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added config array overload to `MAPL_GetResource`
-
-- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
 
 ### Changed
-
-- Updated `components.yaml` to match GEOSgcm v10.25.1
-  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
-  - ESMA_cmake v3.24.0 → v3.26.0 (Detection of additional sites)
 
 ### Fixed
 
@@ -24,11 +17,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.35.4] - 2023-03-17
+## [2.36.1] - 2023-03-24
 
 ### Added
 
 - Added MAPL_StationSamplerMod.F90 for HISTORY output sampling station data
+
+## [2.36.0] - 2023-03-23
+
+### Added
+
+- Added config array overload to `MAPL_GetResource`
+- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
+  - **NOTE**: This grid factory is experimental and the API may change or it might be superseded by another grid factory
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.25.1
+  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
+  - ESMA_cmake v3.24.0 → v3.28.0 (Detection of additional sites, updated Intel Fortran flags, updates for Python3 support)
+- Converted files in `Python/MAPL` to Python 3.
+  - **NOTE 1**: This will require changes to codes that call MAPL's Python layer.
+  - **NOTE 2**: If building with F2PY support, you will need to use ESMA_cmake v3.28.0 or later if using in a mixed Python 2/3 environment.
 
 ## [2.35.3] - 2023-03-17
 
