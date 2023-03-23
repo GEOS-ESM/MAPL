@@ -47,6 +47,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
+  use pflogger, only: Logger, logging
 
   implicit none
   private
@@ -870,20 +871,10 @@ contains
 
 ! Get a single station-data file containing id/name/lon/lat/elev
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
-            label=trim(string) // 'observation_spec:', _RC)  
+            label=trim(string) // 'observation_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
-       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationDataFile, default="", &
-       !!     label=trim(string) // 'station_data_file:', _RC)
-       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskFile, default="", &
-       !!                             label=trim(string) // 'mask_file:', _RC)
-       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%trajectoryFile, default="", &
-       !!                             label=trim(string) // 'trajectory_file:', _RC)
-       !!call ESMF_ConfigGetAttribute(cfg, value=list(n)%swathFile, default="", &
-       !!                             label=trim(string) // 'swath_file:', _RC)       
-       write(6,'(3(x,a,x))') 'list(n)%observation_spec, list(n)%stationIdFile:', &
-            trim(list(n)%observation_spec), trim(list(n)%stationIdFile)
-       
+
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
@@ -970,7 +961,6 @@ contains
                          k = k+1
                       end do
 987                   continue
-
                    end if
 
                    call MAPL_CommsBcast(vm, DATA=k, N=1, ROOT=MAPL_Root, _RC)
@@ -1900,7 +1890,7 @@ ENDDO PARSER
                  _RC )
          end if
 
-      endif  ! Line 1676:       if (associated(IntState%Regrid(n)%PTR))
+      endif
 
 ! Handle possible extra fields needed for the parser
       if (list(n)%nPExtraFields > 0) then
@@ -1924,7 +1914,6 @@ ENDDO PARSER
 
       end if
 
-!***----------------------------------------
       block
         type (ESMF_Field), pointer :: splitFields(:)
         logical :: split
@@ -2192,12 +2181,11 @@ ENDDO PARSER
          deallocate(splitFields)
       end do ! m-loop
       end block
-!***----------------------------------------
       ! reset list(n)%field_set and list(n)%items, if split
       !----------------------------------------------------
       call splitUngriddedFields(_RC)
 
-   end do   ! Line 1655:    do n=1, nlist
+   end do
 
    do n=1, nlist
       if (list(n)%disabled) cycle
@@ -2326,7 +2314,7 @@ ENDDO PARSER
           end do
 
 !       endif
-       enddo
+       end do
 
     do n=1,nlist
        if (associated(list(n)%peAve)) then
@@ -3216,6 +3204,7 @@ ENDDO PARSER
 !   ErrLog vars
     integer                        :: status
     logical                        :: file_exists
+    type(Logger), pointer          :: lgr
 
 !=============================================================================
 
@@ -3324,7 +3313,7 @@ ENDDO PARSER
       else if (list(n)%timeseries_output) then
          Writing(n) = .true.
       else if (list(n)%observation_spec /= '') then
-         Writing(n) = .true.         
+         Writing(n) = .true.
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
@@ -3412,7 +3401,6 @@ ENDDO PARSER
                ! it's tempting to use the variable "oneMonth" but it does not work
                ! instead we compute the differece between
                ! thisMonth and lastMonth and as a new timeInterval
-
                call ESMF_ClockGet(clock,currTime=current_time,_RC)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, _RC)
                lastMonth = current_time - oneMonth
@@ -3421,10 +3409,11 @@ ENDDO PARSER
                call list(n)%mGriddedIO%modifyTimeIncrement(sec, _RC)
             end if
          endif
-
+         lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
-               if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
+               if (mapl_am_i_root()) call lgr%debug('%a~, %a~',&
+                    "Sampling to new file: ",trim(filename(n)))
                call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
@@ -3434,7 +3423,8 @@ ENDDO PARSER
          elseif (list(n)%observation_spec /= '') then
             if (list(n)%observation_spec == 'station') then
                if (list(n)%unit.eq.0) then
-                  if (mapl_am_i_root()) write(6,*) "Station_data output to new file: ",trim(filename(n))
+                  if (mapl_am_i_root()) call lgr%debug('%a~,%a~',&
+                       "Station_data output to new file: ",trim(filename(n)))
                   call list(n)%station_sampler%close_file_handle(_RC)
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
                   list(n)%currentFile = filename(n)
@@ -3458,14 +3448,12 @@ ENDDO PARSER
                end if
             end if
          end if
-
          if(  MAPL_AM_I_ROOT() ) then
             if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output) &
                  .and. (list(n)%observation_spec=='') ) &
               write(6,'(1X,"Writing: ",i6," Slices to File:  ",a)') &
                     list(n)%slices,trim(list(n)%currentFile)
          endif
-
       end if
 !
    enddo OPENLOOP

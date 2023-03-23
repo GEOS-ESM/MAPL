@@ -410,8 +410,7 @@ contains
         firstcolon = index(TimeUnits, ':')
         if (firstcolon .LE. 0) then
            
-           ! If no colons, check for hour.
-           
+           ! If no colons, check for hour.           
            ! Logic below assumes a null character or something else is after the hour
            ! if we do not find a null character add one so that it correctly parses time
            if (TimeUnits(strlen:strlen) /= char(0)) then
