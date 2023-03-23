@@ -8,21 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added config array overload to `MAPL_GetResource`
-
-- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
 
 ### Changed
-
-- Updated `components.yaml` to match GEOSgcm v10.25.1
-  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
-  - ESMA_cmake v3.24.0 → v3.26.0 (Detection of additional sites)
 
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.36.0] - 2023-03-23
+
+### Added
+
+- Added config array overload to `MAPL_GetResource`
+- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
+  - **NOTE**: This grid factory is experimental and the API may change or it might be superseded by another grid factory
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.25.1
+  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
+  - ESMA_cmake v3.24.0 → v3.26.0 (Detection of additional sites)
+- Converted files in `Python/MAPL` to Python 3.
+  - **NOTE**: This will require changes to codes that call MAPL's Python layer.
 
 ## [2.35.3] - 2023-03-17
 
@@ -38,8 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Converted files in `Python/MAPL` to Python 3. Note this will most likely require changes to codes that call MAPL. This conversion
-  was done in concert with converting `pyrob` to Python 3
 - Updated ExtData test case2 to handle a wider range of test times for more robust testing
 
 ### Fixed
