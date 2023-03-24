@@ -15,23 +15,18 @@ module StationSamplerMod
   implicit none
   private
 
-!!  public :: station
-  type :: station
-     integer :: station_id
-     character(len=ESMF_MAXSTR), allocatable :: station_name
-     real(kind=REAL64), allocatable :: lon
-     real(kind=REAL64), allocatable :: lat
-     real(kind=REAL64), allocatable :: elev
-  end type station
-
-!!  public :: StationSampler
+  public :: StationSampler
   type :: StationSampler
-     !!     private
+     private
      type(LocStreamFactory) :: LSF
      type(ESMF_LocStream) :: esmf_ls
      type(LocstreamRegridder) :: regridder
-     type(station), allocatable :: stations(:)
      integer :: nstation
+     integer, allocatable :: station_id(:)
+     character(len=ESMF_MAXSTR), allocatable :: station_name(:)
+     real(kind=REAL64), allocatable :: lons(:)
+     real(kind=REAL64), allocatable :: lats(:)
+     real(kind=REAL64), allocatable :: elevs(:)
      !
      type(ESMF_FieldBundle) :: bundle
      type(FileMetadata) :: fmd
@@ -72,6 +67,7 @@ contains
 
     !__ 1. read from station_id_file: static
     !      plain text format: [id,name,lat,lon,elev]
+    !
     open(newunit=unit, file=trim(filename), form='formatted', &
          access='sequential', status='old', _IOSTAT)
     ios=0
@@ -81,28 +77,32 @@ contains
        if (ios==0) nstation=nstation+1
     end do
     sampler%nstation=nstation
-    allocate(sampler%stations(nstation))
+    allocate(sampler%station_id(nstation))
+    allocate(sampler%station_name(nstation))
+    allocate(sampler%lons(nstation))
+    allocate(sampler%lats(nstation))
+    allocate(sampler%elevs(nstation))
     rewind(unit)
     do i=1, nstation
        read(unit, *) &
-            sampler%stations(i)%station_id, &
-            sampler%stations(i)%station_name, &
-            sampler%stations(i)%lat, &
-            sampler%stations(i)%lon
+            sampler%station_id(i), &
+            sampler%station_name(i), &
+            sampler%lats(i), &
+            sampler%lons(i)
     end do
     close(unit)
     lgr => logging%get_logger('HISTORY.sampler')
     call lgr%debug('%a %i8', 'nstation=', nstation)
     call lgr%debug('%a %a %a','sampler%station_name(1:2) : ', &
-         trim(sampler%stations(1)%station_name), trim(sampler%stations(2)%station_name))
-    call lgr%debug('%a %f8.2 %f8.2', 'sampler%stations(1:2)%lon : ',&
-         sampler%stations(1)%lon,sampler%stations(2)%lon)
-    call lgr%debug('%a %f8.2 %f8.2', 'sampler%stations(1:2)%lat : ',&
-         sampler%stations(1)%lat,sampler%stations(2)%lat)
+         trim(sampler%station_name(1)), trim(sampler%station_name(2)))
+    call lgr%debug('%a %f8.2 %f8.2', 'sampler%lons(1:2) : ',&
+         sampler%lons(1),sampler%lons(2))
+    call lgr%debug('%a %f8.2 %f8.2', 'sampler%lats(1:2) : ',&
+         sampler%lats(1),sampler%lats(2))
 
     !__ 2. create LocStreamFactory, then esmf_ls including route_handle
     !
-    sampler%LSF = LocStreamFactory(sampler%stations%lon, sampler%stations%lat, _RC)
+    sampler%LSF = LocStreamFactory(sampler%lons, sampler%lats, _RC)
     sampler%esmf_ls = sampler%LSF%create_locstream(_RC)
     !
     ! init ofile
@@ -134,7 +134,7 @@ contains
     logical :: do_vertical_regrid
 
     !__ 1. metadata add_dimension, add_variable for time, latlon, station
-    ! 
+    !
     this%bundle=bundle
     nstation=this%nstation
     if (present(vdata)) then
@@ -307,10 +307,9 @@ contains
     end if
     call this%formatter%create(trim(filename),_RC)
     call this%formatter%write(this%fmd,_RC)
-    call this%formatter%put_var('longitude',this%stations%lon,_RC)
-    call this%formatter%put_var('latitude',this%stations%lat,_RC)
-    call this%formatter%put_var('station_id',this%stations%station_id,_RC)
-    _RETURN(_SUCCESS)
+    call this%formatter%put_var('longitude',this%lons,_RC)
+    call this%formatter%put_var('latitude',this%lats,_RC)
+    call this%formatter%put_var('station_id',this%station_id,_RC)
   end subroutine create_file_handle
 
 
@@ -336,7 +335,7 @@ contains
     type(ESMF_TimeInterval) :: tint
     type(ESMF_Time) :: file_start_time
     character(len=ESMF_MAXSTR) :: tunit
-    !
+
     allocate(rtimes(1),_STAT)
     call this%get_file_start_time(file_start_time,tunit,_RC)
     tint = current_time-file_start_time
@@ -459,7 +458,11 @@ contains
     class(StationSampler), intent(inout) :: this
     integer, optional, intent(out) :: rc
     integer :: status
-    deallocate(this%stations, stat=rc)
+    deallocate(this%station_id)
+    deallocate(this%station_name)
+    deallocate(this%lons)
+    deallocate(this%lats)
+    deallocate(this%elevs)
     _RETURN(_SUCCESS)
   end subroutine deallocate_arrays
 
