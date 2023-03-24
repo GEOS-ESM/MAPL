@@ -1,7 +1,3 @@
-!  Input Data:
-!__ 1. station_id_file: static
-!     plain text format: [id,name,lat,lon,elev]
-
 #include "MAPL_Generic.h"
 module StationSamplerMod
   use ESMF
@@ -15,17 +11,16 @@ module StationSamplerMod
   use MAPL_LocstreamRegridderMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_c_binding,   only: C_NULL_CHAR
   implicit none
   private
 
   public :: StationSampler
   type :: StationSampler
+     private
      type(LocStreamFactory) :: LSF
      type(ESMF_LocStream) :: esmf_ls
      type(LocstreamRegridder) :: regridder
-     type(ESMF_time), allocatable :: times(:)
-     integer, allocatable :: ids(:)
-     integer :: nobs
      integer :: nstation
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
@@ -37,9 +32,7 @@ module StationSamplerMod
      type(FileMetadata) :: fmd
      type(NetCDF4_FileFormatter) :: formatter
      type(VerticalData) :: vdata
-     logical :: do_vertical_regrid
      type(TimeData) :: time_info
-     integer :: previous_index
      integer :: obs_written  ! replace number_written
      character(LEN=ESMF_MAXPATHLEN) :: ofile ! file_name
    contains
@@ -49,13 +42,12 @@ module StationSamplerMod
      procedure :: append_file
      procedure :: get_file_start_time
      procedure :: compute_time_for_current
-     !!procedure :: destroy_sampler  !! destructor __ deallocate arrays
+     procedure :: deallocate_arrays
   end type StationSampler
 
   interface StationSampler
      module procedure new_StationSampler_readfile
   end interface StationSampler
-  integer :: maxstr = 2048  ! because ESMF_MAXSTR=256
 contains
 
 
@@ -67,7 +59,7 @@ contains
     ! loc
     character(len=40) :: str, sdmy, shms
     integer :: max_len, max_seg, nseg
-    integer :: unit, ios, nline, id, nstation, status, i, j, nobs
+    integer :: unit, ios, nline, id, nstation, status, i, j
     integer :: iday, imonth, iyear, ihr, imin, isec
     real :: x, y, z, t
     character(len=1) :: s1
@@ -76,8 +68,10 @@ contains
     !__ 1. read from station_id_file: static
     !      plain text format: [id,name,lat,lon,elev]
     !
-    open(newunit=unit, file=trim(filename), form='formatted', access='sequential', status='old')
-    ios=0; nstation=0
+    open(newunit=unit, file=trim(filename), form='formatted', &
+         access='sequential', status='old', _IOSTAT)
+    ios=0
+    nstation=0
     do while (ios==0)
        read (unit, *, IOSTAT=ios)  id, str, x, y, z
        if (ios==0) nstation=nstation+1
@@ -137,6 +131,7 @@ contains
     integer :: field_rank, i, nstation
     logical :: is_present
     integer :: ub(ESMF_MAXDIM), lb(ESMF_MAXDIM)
+    logical :: do_vertical_regrid
 
     this%bundle=bundle
     nstation=this%nstation
@@ -146,7 +141,7 @@ contains
        this%vdata=VerticalData(_RC)
     end if
     call this%vdata%append_vertical_metadata(this%fmd,this%bundle,_RC) ! take care of lev in fmd
-    this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+    do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
     if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) then
        call this%vdata%get_interpolating_variable(this%bundle,_RC)
     endif
@@ -272,26 +267,21 @@ contains
            dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
                 typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
            call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-           !!if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-           !!   allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
-           !!   call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
-           !!   call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
-           !!else
            call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-           !!end if
-           !!
            if (mapl_am_i_root()) then
               nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
               arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
               call this%formatter%put_var(xname,arr,&
                    start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
               !note:     lev,station,time
+              deallocate(arr)
            end if
            call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
         else
            _FAIL('grid2LS regridder: rank > 3 not implemented')
         end if  ! rank
      enddo      ! fieldCount
+     deallocate (fieldNameList)
      _RETURN(_SUCCESS)
    end subroutine append_file
 
@@ -306,7 +296,6 @@ contains
      this%ofile = trim(filename)
      v = this%time_info%define_time_variable(_RC)
      call this%fmd%modify_variable('time',v,_RC)
-     !
      if (mapl_am_I_root()) then
         call this%formatter%create(trim(filename),_RC)
         call this%formatter%write(this%fmd,_RC)
@@ -340,18 +329,20 @@ contains
      integer :: i,status
      type(ESMF_TimeInterval) :: tint
      type(ESMF_Time) :: file_start_time
-     character(len=ESMF_MAXSTR) :: tunits
+     character(len=ESMF_MAXSTR) :: tunit
 
      allocate(rtimes(1),_STAT)
-     call this%get_file_start_time(file_start_time,tunits,_RC)
+     call this%get_file_start_time(file_start_time,tunit,_RC)
      tint = current_time-file_start_time
-     select case(trim(tunits))
+     select case(trim(tunit))
      case ('days')
         call ESMF_TimeIntervalGet(tint,d_r8=rtimes(1),_RC)
      case ('hours')
         call ESMF_TimeIntervalGet(tint,h_r8=rtimes(1),_RC)
      case ('minutes')
         call ESMF_TimeIntervalGet(tint,m_r8=rtimes(1),_RC)
+     case default
+        _FAIL('illegal value for tunit: '//trim(tunit))
      end select
      _RETURN(_SUCCESS)
    end function compute_time_for_current
@@ -411,12 +402,11 @@ contains
 
         firstcolon = index(TimeUnits, ':')
         if (firstcolon .LE. 0) then
-
            ! If no colons, check for hour.
            ! Logic below assumes a null character or something else is after the hour
            ! if we do not find a null character add one so that it correctly parses time
-           if (TimeUnits(strlen:strlen) /= char(0)) then
-              TimeUnits = trim(TimeUnits)//char(0)
+           if (TimeUnits(strlen:strlen) /= C_NULL_CHAR) then
+              TimeUnits = trim(TimeUnits)//C_NULL_CHAR
               strlen=len_trim(TimeUnits)
            endif
            lastspace = index(TRIM(TimeUnits), ' ', BACK=.TRUE.)
@@ -431,7 +421,6 @@ contains
               min  = 0
               sec  = 0
            endif
-
         else
            hpos(1) = firstcolon - 2
            hpos(2) = firstcolon - 1
@@ -458,5 +447,19 @@ contains
      call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
      _RETURN(_SUCCESS)
    end subroutine get_file_start_time
+
+
+  subroutine deallocate_arrays (this,rc)
+    class(StationSampler), intent(inout) :: this
+    integer, optional, intent(out) :: rc
+    integer :: status
+    deallocate(this%station_id)
+    deallocate(this%station_name)
+    deallocate(this%lons)
+    deallocate(this%lats)
+    deallocate(this%elevs)
+    _RETURN(_SUCCESS)
+  end subroutine deallocate_arrays
+
 
 end module StationSamplerMod
