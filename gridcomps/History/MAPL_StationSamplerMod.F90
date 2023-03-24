@@ -15,18 +15,23 @@ module StationSamplerMod
   implicit none
   private
 
-  public :: StationSampler
+!!  public :: station
+  type :: station
+     integer :: station_id
+     character(len=ESMF_MAXSTR), allocatable :: station_name
+     real(kind=REAL64), allocatable :: lon
+     real(kind=REAL64), allocatable :: lat
+     real(kind=REAL64), allocatable :: elev
+  end type station
+
+!!  public :: StationSampler
   type :: StationSampler
-     private
+     !!     private
      type(LocStreamFactory) :: LSF
      type(ESMF_LocStream) :: esmf_ls
      type(LocstreamRegridder) :: regridder
+     type(station), allocatable :: stations(:)
      integer :: nstation
-     integer, allocatable :: station_id(:)
-     character(len=ESMF_MAXSTR), allocatable :: station_name(:)
-     real(kind=REAL64), allocatable :: lons(:)
-     real(kind=REAL64), allocatable :: lats(:)
-     real(kind=REAL64), allocatable :: elevs(:)
      !
      type(ESMF_FieldBundle) :: bundle
      type(FileMetadata) :: fmd
@@ -67,7 +72,6 @@ contains
 
     !__ 1. read from station_id_file: static
     !      plain text format: [id,name,lat,lon,elev]
-    !
     open(newunit=unit, file=trim(filename), form='formatted', &
          access='sequential', status='old', _IOSTAT)
     ios=0
@@ -75,34 +79,30 @@ contains
     do while (ios==0)
        read (unit, *, IOSTAT=ios)  id, str, x, y, z
        if (ios==0) nstation=nstation+1
-    enddo
+    end do
     sampler%nstation=nstation
-    allocate(sampler%station_id(nstation))
-    allocate(sampler%station_name(nstation))
-    allocate(sampler%lons(nstation))
-    allocate(sampler%lats(nstation))
-    allocate(sampler%elevs(nstation))
+    allocate(sampler%stations(nstation))
     rewind(unit)
     do i=1, nstation
        read(unit, *) &
-            sampler%station_id(i), &
-            sampler%station_name(i), &
-            sampler%lats(i), &
-            sampler%lons(i)
-    enddo
+            sampler%stations(i)%station_id, &
+            sampler%stations(i)%station_name, &
+            sampler%stations(i)%lat, &
+            sampler%stations(i)%lon
+    end do
     close(unit)
     lgr => logging%get_logger('HISTORY.sampler')
     call lgr%debug('%a %i8', 'nstation=', nstation)
     call lgr%debug('%a %a %a','sampler%station_name(1:2) : ', &
-         trim(sampler%station_name(1)), trim(sampler%station_name(2)))
-    call lgr%debug('%a %f8.2 %f8.2', 'sampler%lons(1:2) : ',&
-         sampler%lons(1),sampler%lons(2))
-    call lgr%debug('%a %f8.2 %f8.2', 'sampler%lats(1:2) : ',&
-         sampler%lats(1),sampler%lats(2))
+         trim(sampler%stations(1)%station_name), trim(sampler%stations(2)%station_name))
+    call lgr%debug('%a %f8.2 %f8.2', 'sampler%stations(1:2)%lon : ',&
+         sampler%stations(1)%lon,sampler%stations(2)%lon)
+    call lgr%debug('%a %f8.2 %f8.2', 'sampler%stations(1:2)%lat : ',&
+         sampler%stations(1)%lat,sampler%stations(2)%lat)
 
     !__ 2. create LocStreamFactory, then esmf_ls including route_handle
     !
-    sampler%LSF = LocStreamFactory(sampler%lons, sampler%lats, _RC)
+    sampler%LSF = LocStreamFactory(sampler%stations%lon, sampler%stations%lat, _RC)
     sampler%esmf_ls = sampler%LSF%create_locstream(_RC)
     !
     ! init ofile
@@ -133,6 +133,8 @@ contains
     integer :: ub(ESMF_MAXDIM), lb(ESMF_MAXDIM)
     logical :: do_vertical_regrid
 
+    !__ 1. metadata add_dimension, add_variable for time, latlon, station
+    ! 
     this%bundle=bundle
     nstation=this%nstation
     if (present(vdata)) then
@@ -160,7 +162,7 @@ contains
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
 
-    !-- add field in bundle to filemetadata
+    !__ 2. filemetadata: extract field from bundle, add_variable
     !
     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
     allocate (fieldNameList(fieldCount))
@@ -196,10 +198,11 @@ contains
        call v%add_attribute('_FillValue',MAPL_UNDEF)
        call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
        call this%fmd%add_variable(trim(var_name),v,_RC)
-    enddo
+    end do
     deallocate (fieldNameList)
 
-    ! locstream route handle
+    !__ 3. locstream route handle
+    !
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
     _RETURN(_SUCCESS)
@@ -207,258 +210,256 @@ contains
 
 
   subroutine append_file(this,current_time,rc)
-     class(StationSampler), intent(inout) :: this
-     type(ESMF_Time), intent(in) :: current_time
-     integer, optional, intent(out) :: rc
-     !
-     integer :: status
-     integer :: fieldCount
-     integer :: ub(1), lb(1)
-     type(ESMF_Field) :: src_field,dst_field
-     real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-     real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-     real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-     real(kind=REAL32), allocatable :: arr(:,:)
-     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
-     character(len=ESMF_MAXSTR) :: xname
-     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-     integer :: i, id, iobs, ix, rank
-     integer :: nx, nz
+    class(StationSampler), intent(inout) :: this
+    type(ESMF_Time), intent(in) :: current_time
+    integer, optional, intent(out) :: rc
+    !
+    integer :: status
+    integer :: fieldCount
+    integer :: ub(1), lb(1)
+    type(ESMF_Field) :: src_field,dst_field
+    real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
+    real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+    real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+    real(kind=REAL32), allocatable :: arr(:,:)
+    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
+    character(len=ESMF_MAXSTR) :: xname
+    real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+    integer :: i, id, iobs, ix, rank
+    integer :: nx, nz
 
-     this%obs_written=this%obs_written+1
+    this%obs_written=this%obs_written+1
 
-     !__ s1. put_var: time variable
-     !!call ESMF_TimePrint(current_time,options='string')
-     rtimes = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
-     if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-        call this%vdata%setup_eta_to_pressure(_RC)
-     end if
-     if (mapl_am_i_root()) then
-        call this%formatter%put_var('time',rtimes(1:1),&
-             start=[this%obs_written],count=[1],_RC)
-     end if
+    !__ 1. put_var: time variable
+    !
+    rtimes = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+       call this%vdata%setup_eta_to_pressure(_RC)
+    end if
+    if (mapl_am_i_root()) then
+       call this%formatter%put_var('time',rtimes(1:1),&
+            start=[this%obs_written],count=[1],_RC)
+    end if
 
-     !__ s2. put_var: ungridded_dim from src to dst [interpolation]
-     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-     allocate (fieldNameList(fieldCount))
-     call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
-     do i=1, fieldCount
-        xname=trim(fieldNameList(i))
-        call ESMF_FieldBundleGet(this%bundle,xname,field=src_field,_RC)
-        call ESMF_FieldGet(src_field,rank=rank,_RC)
-        if (rank==2) then
-           call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
-           dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname, &
-                typekind=ESMF_TYPEKIND_R4,_RC)
-           call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
-           call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
-           if (mapl_am_i_root()) then
-              call this%formatter%put_var(xname,p_dst_2d,&
-                   start=[1,this%obs_written],count=[this%nstation,1],_RC)
-           end if
-           call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
-        else if (rank==3) then
-           call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-           call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-           if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-              lb(1)=1
-              ub(1)=this%vdata%lm
-           end if
-           dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
-                typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-           call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-           call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-           if (mapl_am_i_root()) then
-              nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
-              arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
-              call this%formatter%put_var(xname,arr,&
-                   start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
-              !note:     lev,station,time
-              deallocate(arr)
-           end if
-           call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
-        else
-           _FAIL('grid2LS regridder: rank > 3 not implemented')
-        end if  ! rank
-     enddo      ! fieldCount
-     deallocate (fieldNameList)
-     _RETURN(_SUCCESS)
-   end subroutine append_file
-
-
-   subroutine create_file_handle(this,filename,rc)
-     class(StationSampler), intent(inout) :: this
-     character(len=*), intent(inout) :: filename  ! for ouput nc
-     integer, optional, intent(out) :: rc
-     type(variable) :: v
-     integer :: status
-
-     this%ofile = trim(filename)
-     v = this%time_info%define_time_variable(_RC)
-     call this%fmd%modify_variable('time',v,_RC)
-     this%obs_written = 0
-
-     if (.not. mapl_am_I_root()) then
-        _RETURN(_SUCCESS)
-     end if
-     call this%formatter%create(trim(filename),_RC)
-     call this%formatter%write(this%fmd,_RC)
-     call this%formatter%put_var('longitude',this%lons,_RC)
-     call this%formatter%put_var('latitude',this%lats,_RC)
-     call this%formatter%put_var('station_id',this%station_id,_RC)
-   end subroutine create_file_handle
+    !__ 2. put_var: ungridded_dim from src to dst [interpolation]
+    !
+    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
+    allocate (fieldNameList(fieldCount))
+    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
+    do i=1, fieldCount
+       xname=trim(fieldNameList(i))
+       call ESMF_FieldBundleGet(this%bundle,xname,field=src_field,_RC)
+       call ESMF_FieldGet(src_field,rank=rank,_RC)
+       if (rank==2) then
+          call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+          dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname, &
+               typekind=ESMF_TYPEKIND_R4,_RC)
+          call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
+          call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
+          if (mapl_am_i_root()) then
+             call this%formatter%put_var(xname,p_dst_2d,&
+                  start=[1,this%obs_written],count=[this%nstation,1],_RC)
+          end if
+          call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
+       else if (rank==3) then
+          call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+          call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+          if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+             lb(1)=1
+             ub(1)=this%vdata%lm
+          end if
+          dst_field = ESMF_FieldCreate(this%esmf_ls,name=xname,&
+               typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+          call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+          call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+          if (mapl_am_i_root()) then
+             nx=size(p_dst_3d,1); nz=size(p_dst_3d,2); allocate(arr(nz, nx))
+             arr=reshape(p_dst_3d,[nz,nx],order=[2,1])
+             call this%formatter%put_var(xname,arr,&
+                  start=[1,1,this%obs_written],count=[nz,nx,1],_RC)
+             !note:     lev,station,time
+             deallocate(arr)
+          end if
+          call ESMF_FieldDestroy(dst_field,nogarbage=.true.)
+       else
+          _FAIL('grid2LS regridder: rank > 3 not implemented')
+       end if
+    end do
+    deallocate (fieldNameList)
+    _RETURN(_SUCCESS)
+  end subroutine append_file
 
 
-   subroutine close_file_handle(this,rc)
-     class(StationSampler), intent(inout) :: this
-     integer, optional, intent(out) :: rc
-     integer :: status
-     if (trim(this%ofile) /= '') then
-        if (mapl_am_i_root()) then
-           call this%formatter%close(_RC)
-        end if
-     end if
-     _RETURN(_SUCCESS)
-   end subroutine close_file_handle
+  subroutine create_file_handle(this,filename,rc)
+    class(StationSampler), intent(inout) :: this
+    character(len=*), intent(inout) :: filename  ! for ouput nc
+    integer, optional, intent(out) :: rc
+    type(variable) :: v
+    integer :: status
+
+    this%ofile = trim(filename)
+    v = this%time_info%define_time_variable(_RC)
+    call this%fmd%modify_variable('time',v,_RC)
+    this%obs_written = 0
+
+    if (.not. mapl_am_I_root()) then
+       _RETURN(_SUCCESS)
+    end if
+    call this%formatter%create(trim(filename),_RC)
+    call this%formatter%write(this%fmd,_RC)
+    call this%formatter%put_var('longitude',this%stations%lon,_RC)
+    call this%formatter%put_var('latitude',this%stations%lat,_RC)
+    call this%formatter%put_var('station_id',this%stations%station_id,_RC)
+    _RETURN(_SUCCESS)
+  end subroutine create_file_handle
 
 
-   function compute_time_for_current(this,current_time,rc) result(rtimes)
-     class(StationSampler), intent(inout) :: this
-     type(ESMF_Time), intent(in) :: current_time
-     integer, optional, intent(out) :: rc
-     real(ESMF_KIND_R8), allocatable :: rtimes(:)
-     integer :: i,status
-     type(ESMF_TimeInterval) :: tint
-     type(ESMF_Time) :: file_start_time
-     character(len=ESMF_MAXSTR) :: tunit
-
-     allocate(rtimes(1),_STAT)
-     call this%get_file_start_time(file_start_time,tunit,_RC)
-     tint = current_time-file_start_time
-     select case(trim(tunit))
-     case ('days')
-        call ESMF_TimeIntervalGet(tint,d_r8=rtimes(1),_RC)
-     case ('hours')
-        call ESMF_TimeIntervalGet(tint,h_r8=rtimes(1),_RC)
-     case ('minutes')
-        call ESMF_TimeIntervalGet(tint,m_r8=rtimes(1),_RC)
-     case default
-        _FAIL('illegal value for tunit: '//trim(tunit))
-     end select
-     _RETURN(_SUCCESS)
-   end function compute_time_for_current
+  subroutine close_file_handle(this,rc)
+    class(StationSampler), intent(inout) :: this
+    integer, optional, intent(out) :: rc
+    integer :: status
+    if (trim(this%ofile) /= '') then
+       if (mapl_am_i_root()) then
+          call this%formatter%close(_RC)
+       end if
+    end if
+    _RETURN(_SUCCESS)
+  end subroutine close_file_handle
 
 
-   !-- a copy from MAPL_HistoryTrajectoryMod.F90
-   !
-   subroutine get_file_start_time(this,start_time,time_units,rc)
-     class(StationSampler), intent(inout) :: this
-     type(ESMF_Time), intent(inout) :: start_time
-     character(len=*), intent(inout) :: time_units
-     integer, optional, intent(out) :: rc
+  function compute_time_for_current(this,current_time,rc) result(rtimes)
+    class(StationSampler), intent(inout) :: this
+    type(ESMF_Time), intent(in) :: current_time
+    integer, optional, intent(out) :: rc
+    real(ESMF_KIND_R8), allocatable :: rtimes(:)
+    integer :: i,status
+    type(ESMF_TimeInterval) :: tint
+    type(ESMF_Time) :: file_start_time
+    character(len=ESMF_MAXSTR) :: tunit
+    !
+    allocate(rtimes(1),_STAT)
+    call this%get_file_start_time(file_start_time,tunit,_RC)
+    tint = current_time-file_start_time
+    select case(trim(tunit))
+    case ('days')
+       call ESMF_TimeIntervalGet(tint,d_r8=rtimes(1),_RC)
+    case ('hours')
+       call ESMF_TimeIntervalGet(tint,h_r8=rtimes(1),_RC)
+    case ('minutes')
+       call ESMF_TimeIntervalGet(tint,m_r8=rtimes(1),_RC)
+    case default
+       _FAIL('illegal value for tunit: '//trim(tunit))
+    end select
+    _RETURN(_SUCCESS)
+  end function compute_time_for_current
 
-     integer :: status
-     class(Variable), pointer :: var
-     type(Attribute), pointer :: attr
-     class(*), pointer :: pTimeUnits
-     character(len=ESMF_MAXSTR) :: timeUnits
 
-     integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
-     integer strlen
-     integer firstdash, lastdash
-     integer firstcolon, lastcolon
-     integer lastspace,since_pos
-     integer year,month,day,hour,min,sec
+  !-- a copy from MAPL_HistoryTrajectoryMod.F90
+  !
+  subroutine get_file_start_time(this,start_time,time_units,rc)
+    class(StationSampler), intent(inout) :: this
+    type(ESMF_Time), intent(inout) :: start_time
+    character(len=*), intent(inout) :: time_units
+    integer, optional, intent(out) :: rc
 
-     var => this%fmd%get_variable('time',_RC)
-     attr => var%get_attribute('units')
-     ptimeUnits => attr%get_value()
-     select type(pTimeUnits)
-     type is (character(*))
-        timeUnits = pTimeUnits
-        strlen = LEN_TRIM (TimeUnits)
+    integer :: status
+    class(Variable), pointer :: var
+    type(Attribute), pointer :: attr
+    class(*), pointer :: pTimeUnits
+    character(len=ESMF_MAXSTR) :: timeUnits
 
-        since_pos = index(TimeUnits, 'since')
-        time_units = trim(TimeUnits(:since_pos-1))
-        time_units = trim(time_units)
+    integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
+    integer strlen
+    integer firstdash, lastdash
+    integer firstcolon, lastcolon
+    integer lastspace,since_pos
+    integer year,month,day,hour,min,sec
 
-        firstdash = index(TimeUnits, '-')
-        lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
+    var => this%fmd%get_variable('time',_RC)
+    attr => var%get_attribute('units')
+    ptimeUnits => attr%get_value()
+    select type(pTimeUnits)
+    type is (character(*))
+       timeUnits = pTimeUnits
+       strlen = LEN_TRIM (TimeUnits)
 
-        if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
-           if (present(rc)) rc = -1
-           return
-        endif
-        ypos(2) = firstdash - 1
-        mpos(1) = firstdash + 1
-        ypos(1) = ypos(2) - 3
+       since_pos = index(TimeUnits, 'since')
+       time_units = trim(TimeUnits(:since_pos-1))
+       time_units = trim(time_units)
 
-        mpos(2) = lastdash - 1
-        dpos(1) = lastdash + 1
-        dpos(2) = dpos(1) + 1
+       firstdash = index(TimeUnits, '-')
+       lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
 
-        read ( TimeUnits(ypos(1):ypos(2)), * ) year
-        read ( TimeUnits(mpos(1):mpos(2)), * ) month
-        read ( TimeUnits(dpos(1):dpos(2)), * ) day
+       if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
+          if (present(rc)) rc = -1
+          return
+       endif
+       ypos(2) = firstdash - 1
+       mpos(1) = firstdash + 1
+       ypos(1) = ypos(2) - 3
 
-        firstcolon = index(TimeUnits, ':')
-        if (firstcolon .LE. 0) then
-           ! If no colons, check for hour.
-           ! Logic below assumes a null character or something else is after the hour
-           ! if we do not find a null character add one so that it correctly parses time
-           if (TimeUnits(strlen:strlen) /= C_NULL_CHAR) then
-              TimeUnits = trim(TimeUnits)//C_NULL_CHAR
-              strlen=len_trim(TimeUnits)
-           endif
-           lastspace = index(TRIM(TimeUnits), ' ', BACK=.TRUE.)
-           if ((strlen-lastspace).eq.2 .or. (strlen-lastspace).eq.3) then
-              hpos(1) = lastspace+1
-              hpos(2) = strlen-1
-              read (TimeUnits(hpos(1):hpos(2)), * ) hour
-              min  = 0
-              sec  = 0
-           else
-              hour = 0
-              min  = 0
-              sec  = 0
-           endif
-        else
-           hpos(1) = firstcolon - 2
-           hpos(2) = firstcolon - 1
-           lastcolon =  index(TimeUnits, ':', BACK=.TRUE.)
-           if ( lastcolon .EQ. firstcolon ) then
-              mpos(1) = firstcolon + 1
-              mpos(2) = firstcolon + 2
-              read (TimeUnits(hpos(1):hpos(2)), * ) hour
-              read (TimeUnits(mpos(1):mpos(2)), * ) min
-              sec = 0
-           else
-              mpos(1) = firstcolon + 1
-              mpos(2) = lastcolon - 1
-              spos(1) = lastcolon + 1
-              spos(2) = lastcolon + 2
-              read (TimeUnits(hpos(1):hpos(2)), * ) hour
-              read (TimeUnits(mpos(1):mpos(2)), * ) min
-              read (TimeUnits(spos(1):spos(2)), * ) sec
-           endif
-        endif
-     class default
-        _FAIL("Time unit must be character")
-     end select
-     call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
-     _RETURN(_SUCCESS)
-   end subroutine get_file_start_time
+       mpos(2) = lastdash - 1
+       dpos(1) = lastdash + 1
+       dpos(2) = dpos(1) + 1
+
+       read ( TimeUnits(ypos(1):ypos(2)), * ) year
+       read ( TimeUnits(mpos(1):mpos(2)), * ) month
+       read ( TimeUnits(dpos(1):dpos(2)), * ) day
+
+       firstcolon = index(TimeUnits, ':')
+       if (firstcolon .LE. 0) then
+          ! If no colons, check for hour.
+          ! Logic below assumes a null character or something else is after the hour
+          ! if we do not find a null character add one so that it correctly parses time
+          if (TimeUnits(strlen:strlen) /= C_NULL_CHAR) then
+             TimeUnits = trim(TimeUnits)//C_NULL_CHAR
+             strlen=len_trim(TimeUnits)
+          endif
+          lastspace = index(TRIM(TimeUnits), ' ', BACK=.TRUE.)
+          if ((strlen-lastspace).eq.2 .or. (strlen-lastspace).eq.3) then
+             hpos(1) = lastspace+1
+             hpos(2) = strlen-1
+             read (TimeUnits(hpos(1):hpos(2)), * ) hour
+             min  = 0
+             sec  = 0
+          else
+             hour = 0
+             min  = 0
+             sec  = 0
+          endif
+       else
+          hpos(1) = firstcolon - 2
+          hpos(2) = firstcolon - 1
+          lastcolon =  index(TimeUnits, ':', BACK=.TRUE.)
+          if ( lastcolon .EQ. firstcolon ) then
+             mpos(1) = firstcolon + 1
+             mpos(2) = firstcolon + 2
+             read (TimeUnits(hpos(1):hpos(2)), * ) hour
+             read (TimeUnits(mpos(1):mpos(2)), * ) min
+             sec = 0
+          else
+             mpos(1) = firstcolon + 1
+             mpos(2) = lastcolon - 1
+             spos(1) = lastcolon + 1
+             spos(2) = lastcolon + 2
+             read (TimeUnits(hpos(1):hpos(2)), * ) hour
+             read (TimeUnits(mpos(1):mpos(2)), * ) min
+             read (TimeUnits(spos(1):spos(2)), * ) sec
+          endif
+       endif
+    class default
+       _FAIL("Time unit must be character")
+    end select
+    call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
+    _RETURN(_SUCCESS)
+  end subroutine get_file_start_time
 
 
   subroutine deallocate_arrays (this,rc)
     class(StationSampler), intent(inout) :: this
     integer, optional, intent(out) :: rc
     integer :: status
-    deallocate(this%station_id)
-    deallocate(this%station_name)
-    deallocate(this%lons)
-    deallocate(this%lats)
-    deallocate(this%elevs)
+    deallocate(this%stations, stat=rc)
     _RETURN(_SUCCESS)
   end subroutine deallocate_arrays
 
