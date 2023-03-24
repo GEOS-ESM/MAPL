@@ -3412,8 +3412,8 @@ ENDDO PARSER
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
-               if (mapl_am_i_root()) call lgr%debug('%a~, %a~',&
-                    "Sampling to new file: ",trim(filename(n)))
+               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                    'Sampling to new file:',trim(filename(n)))
                call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
@@ -3423,8 +3423,8 @@ ENDDO PARSER
          elseif (list(n)%observation_spec /= '') then
             if (list(n)%observation_spec == 'station') then
                if (list(n)%unit.eq.0) then
-                  if (mapl_am_i_root()) call lgr%debug('%a~,%a~',&
-                       "Station_data output to new file: ",trim(filename(n)))
+                  if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                       'Station_data output to new file:',trim(filename(n)))
                   call list(n)%station_sampler%close_file_handle(_RC)
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
                   list(n)%currentFile = filename(n)
@@ -3574,8 +3574,6 @@ ENDDO PARSER
 
    WRITELOOP: do n=1,nlist
 
-      !-- note:  why not use bundlepost in GriddedIO.F90
-      !
       if (list(n)%timeseries_output) then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
