@@ -296,15 +296,16 @@ contains
      this%ofile = trim(filename)
      v = this%time_info%define_time_variable(_RC)
      call this%fmd%modify_variable('time',v,_RC)
-     if (mapl_am_I_root()) then
-        call this%formatter%create(trim(filename),_RC)
-        call this%formatter%write(this%fmd,_RC)
-        call this%formatter%put_var('longitude',this%lons,_RC)
-        call this%formatter%put_var('latitude',this%lats,_RC)
-        call this%formatter%put_var('station_id',this%station_id,_RC)
-     end if
      this%obs_written = 0
-     _RETURN(_SUCCESS)
+
+     if (.not. mapl_am_I_root()) then
+        _RETURN(_SUCCESS)
+     end if
+     call this%formatter%create(trim(filename),_RC)
+     call this%formatter%write(this%fmd,_RC)
+     call this%formatter%put_var('longitude',this%lons,_RC)
+     call this%formatter%put_var('latitude',this%lats,_RC)
+     call this%formatter%put_var('station_id',this%station_id,_RC)
    end subroutine create_file_handle
 
 
