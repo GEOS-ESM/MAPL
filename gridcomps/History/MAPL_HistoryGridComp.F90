@@ -765,6 +765,7 @@ contains
        list(n)%regex = (useRegex /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
                                       label=trim(string) // 'frequency:',_RC )
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_interval, default=list(n)%frequency, &
                                       label=trim(string) // 'acc_interval:',_RC )
 
@@ -1603,9 +1604,9 @@ ENDDO PARSER
        if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
           sec = 0
        else if (list(n)%timeStampStart) then
-          sec = MAPL_nsecf(list(n)%acc_interval)
+          sec = MAPL_nsecf(list(n)%frequency)
        else
-          sec = MAPL_nsecf(list(n)%acc_interval) / 2
+          sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
@@ -2120,7 +2121,6 @@ ENDDO PARSER
                   if (allocated(ungridded_coord)) deallocate(ungridded_coord)
 
                else
-
                   call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,     &
                        SHORT_NAME = SHORT_NAME,                            &
                        LONG_NAME  = LONG_NAME,                             &
@@ -5070,7 +5070,7 @@ ENDDO PARSER
           call ESMF_StateGet(src, itemNames(n), bundle(1), _RC)
           call ESMF_StateAdd(dst, bundle, _RC)
        end if
-    end do
+    end do 
 
     deallocate(itemTypes)
     deallocate(itemNames)

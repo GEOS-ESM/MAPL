@@ -451,7 +451,7 @@ contains
           STATE%TIME_TO_CLEAR(J) = ESMF_AlarmCreate(NAME='TIME2CLEAR_' // trim(COMP_NAME) &
                // '_' // trim(NAME),   &
                clock        = CLOCK,   &
-               ringInterval = TCPL,    & 
+               ringInterval = TCLR,    & 
                ringTime     = rTime,   &
                sticky       = .false., &
                rc=STATUS   )
@@ -1208,7 +1208,7 @@ contains
 
           end select
 
-          STATE%ACCUM_COUNT(J) = -1
+          !STATE%ACCUM_COUNT(J) = -1
 
        end if
 
