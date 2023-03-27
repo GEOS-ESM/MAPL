@@ -1,3 +1,4 @@
+
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 module MAPL_HistoryGridCompMod
@@ -2181,6 +2182,7 @@ ENDDO PARSER
          deallocate(splitFields)
       end do ! m-loop
       end block
+
       ! reset list(n)%field_set and list(n)%items, if split
       !----------------------------------------------------
       call splitUngriddedFields(_RC)
@@ -2314,7 +2316,7 @@ ENDDO PARSER
           end do
 
 !       endif
-       end do
+    enddo
 
     do n=1,nlist
        if (associated(list(n)%peAve)) then
@@ -3401,6 +3403,7 @@ ENDDO PARSER
                ! it's tempting to use the variable "oneMonth" but it does not work
                ! instead we compute the differece between
                ! thisMonth and lastMonth and as a new timeInterval
+
                call ESMF_ClockGet(clock,currTime=current_time,_RC)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, _RC)
                lastMonth = current_time - oneMonth
@@ -3409,11 +3412,12 @@ ENDDO PARSER
                call list(n)%mGriddedIO%modifyTimeIncrement(sec, _RC)
             end if
          endif
+
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) call lgr%debug('%a %a',&
-                    'Sampling to new file:',trim(filename(n)))
+                    "Sampling to new file:",trim(filename(n)))
                call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
@@ -3424,7 +3428,7 @@ ENDDO PARSER
             if (list(n)%observation_spec == 'station') then
                if (list(n)%unit.eq.0) then
                   if (mapl_am_i_root()) call lgr%debug('%a %a',&
-                       'Station_data output to new file:',trim(filename(n)))
+                       "Station_data output to new file:",trim(filename(n)))
                   call list(n)%station_sampler%close_file_handle(_RC)
                   call list(n)%station_sampler%create_file_handle(filename(n),_RC)
                   list(n)%currentFile = filename(n)
@@ -3448,12 +3452,14 @@ ENDDO PARSER
                end if
             end if
          end if
+
          if(  MAPL_AM_I_ROOT() ) then
-            if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output) &
+              if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output) &
                  .and. (list(n)%observation_spec=='') ) &
               write(6,'(1X,"Writing: ",i6," Slices to File:  ",a)') &
                     list(n)%slices,trim(list(n)%currentFile)
          endif
+
       end if
 !
    enddo OPENLOOP
@@ -5112,3 +5118,4 @@ ENDDO PARSER
   end subroutine CopyStateItems
 
 end module MAPL_HistoryGridCompMod
+
