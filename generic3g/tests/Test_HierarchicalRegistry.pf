@@ -273,7 +273,7 @@ contains
 
 
    @test
-   ! For E2E, we expect the parent actual_pt to be the one specified by the connection,
+   ! For E2E, we expect the parent virtual_pt to be the one specified by the connection,
    ! rather than the one specified by the child.  This is in addition to the analogous
    ! assumption about the virtual pt, which is verified in the previous test.
    subroutine test_e2e_preserve_actual_pt()
@@ -296,7 +296,7 @@ contains
       ! E-to-E with rename
       call r%add_connection(ConnectionSpec(CP('A',vpt_1), CP('R',vpt_2)), rc=status)
 
-      @assert_that(r%has_item_spec(ActualConnectionPt(vpt_2%add_comp_name('A'))), is(true()))
+      @assert_that(r%has_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A'))), is(true()))
 
    end subroutine test_e2e_preserve_actual_pt
 
@@ -403,7 +403,7 @@ contains
       @assert_that(associated(spec),is(true()))
       @assert_that('vpt_1', spec%is_active(), is(true()))
 
-      spec => r_P%get_item_spec(ActualConnectionPt(vpt_2%add_comp_name('A')))
+      spec => r_P%get_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A')))
       @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
 
@@ -411,7 +411,7 @@ contains
       @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
 
-      spec => r_B%get_item_spec(extend(ActualConnectionPt(vpt_4%add_comp_name('C'))))
+      spec => r_B%get_item_spec(ActualConnectionPt(vpt_4%add_comp_name('C')))
       @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
       
@@ -507,7 +507,7 @@ contains
 
       @assert_that(status, is(0))
       @assert_that(r_parent%has_item_spec(new_v_pt('import', 'T')), is(true()))
-      @assert_that(r_parent%has_item_spec(extend(ActualConnectionPt(c_pt%add_comp_name('child')))), is(true()))
+      @assert_that(r_parent%has_item_spec(ActualConnectionPt(c_pt%add_comp_name('child'))), is(true()))
       
    end subroutine test_propagate_import
 
@@ -570,7 +570,7 @@ contains
       r_C = HierarchicalRegistry('C')
       r_D = HierarchicalRegistry('D')
       r_P = HierarchicalRegistry('parent')
-      
+
       call r_B%add_subregistry(r_C)
       call r_B%add_subregistry(r_D)
       call r_P%add_subregistry(r_A)
@@ -603,10 +603,10 @@ contains
       @assert_that(spec%is_active(), is(true()))
 
       ! Secondary imports should be active
-      spec => r_B%get_item_spec(extend(ActualConnectionPt(T_C%add_comp_name('C'))))
+      spec => r_B%get_item_spec(ActualConnectionPt(T_C%add_comp_name('C')))
       @assert_that(spec%is_active(), is(true()))
       
-      spec => r_B%get_item_spec(extend(ActualConnectionPt(T_D%add_comp_name('D'))))
+      spec => r_B%get_item_spec(ActualConnectionPt(T_D%add_comp_name('D')))
       @assert_that(spec%is_active(), is(true()))
       
       

@@ -40,7 +40,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine run_self
 
-   module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
+   recursive module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       use mapl3g_GenericGridComp

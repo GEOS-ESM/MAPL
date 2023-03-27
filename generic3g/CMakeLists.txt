@@ -1,6 +1,5 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
-
 set(srcs
   Generic3g.F90
 

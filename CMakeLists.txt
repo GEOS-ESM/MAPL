@@ -215,6 +215,8 @@ if (BUILD_WITH_FLAP)
    add_subdirectory (tutorial)
 endif()
 
+#add_subdirectory (geom)
+
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)

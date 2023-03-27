@@ -39,7 +39,7 @@ module mapl3g_ChildComponent
          integer, optional, intent(out) :: rc
       end subroutine
 
-      module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
+      module recursive subroutine initialize_self(this, clock, unusable, phase_idx, rc)
          use :: MaplShared, only: KeywordEnforcer
          class(ChildComponent), intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
