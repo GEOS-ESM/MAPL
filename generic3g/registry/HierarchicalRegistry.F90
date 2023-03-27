@@ -276,8 +276,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: exists_
 
       call this%add_extension(virtual_pt, actual_pt)
+      if (this%has_item_spec(actual_pt)) then ! that's ok?
+         _RETURN(_SUCCESS)
+      end if
       call this%link_item_spec(actual_pt, spec, _RC)
 
       _RETURN(_SUCCESS)
@@ -457,11 +461,12 @@ contains
           iter = actual_pts%begin()
           do while (iter /= e)
              src_actual_pt => iter%of()
+
              if (src_actual_pt%is_internal()) then
                 ! Don't encode with comp name
                 dst_actual_pt = ActualConnectionPt(dst_pt)
              else
-                dst_actual_pt = ActualConnectionPt(dst_pt%add_comp_name(src_registry%get_name()))
+                dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
              end if
              
              spec => src_registry%get_item_spec(src_actual_pt)
@@ -556,7 +561,7 @@ contains
          _ASSERT(associated(item), 'Should not happen.')
 
          if (actual_pt%is_import() .and. .not. item%is_active()) then
-            call this%link_item_spec_virtual(virtual_pt, item, extend(actual_pt%add_comp_name(child_r%get_name())), _RC)
+            call this%link_item_spec_virtual(virtual_pt, item, actual_pt%add_comp_name(child_r%get_name()), _RC)
          end if
 
       end do

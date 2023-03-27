@@ -1,0 +1,19 @@
+children:
+  - name: child_A
+    sharedObj:  libsimple_leaf_gridcomp
+    setServices: setservices_
+    config_file: configs/scenario_reexport_twice/child_A.yaml
+  - name: child_B
+    dso:  libsimple_leaf_gridcomp
+    config_file: configs/scenario_reexport_twice/child_B.yaml
+
+states:  {}
+
+connections:
+  - src_name: E_B1
+    dst_name: Eparent_B1
+    src_intent: export
+    src_comp: child_B
+    dst_comp: <self>
+    dst_intent: export
+

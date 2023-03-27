@@ -93,7 +93,7 @@ contains
       character(*), intent(in) :: comp_name
 
       v_pt = this
-      v_pt%comp_name = comp_name
+      if (.not. allocated(v_pt%comp_name)) v_pt%comp_name = comp_name
       
    end function add_comp_name
 

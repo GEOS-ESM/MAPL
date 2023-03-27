@@ -937,8 +937,8 @@ contains
       this%geom = geom
 
    end subroutine set_geom
-
-   function get_registry(this) result(r)
+ 
+  function get_registry(this) result(r)
       type(HierarchicalRegistry), pointer :: r
       class(OuterMetaComponent), target, intent(in) :: this
 
@@ -961,5 +961,6 @@ contains
       internal_state = this%user_states%internalState
 
    end function get_internal_state
+
 
 end module mapl3g_OuterMetaComponent
