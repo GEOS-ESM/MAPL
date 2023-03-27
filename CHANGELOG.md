@@ -56,6 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- new macro `_RETURN_IF(cond)` to provide a succinct early return in procedures with return codes.
+
 ### Changed
 
 ### Fixed
