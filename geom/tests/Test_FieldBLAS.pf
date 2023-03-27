@@ -1,0 +1,384 @@
+module Test_FieldDictionary
+
+   use mapl3g_FieldBLAS
+   use ESMF
+   use funit
+   use, intrinsic :: iso_fortran_env, only: R4 => REAL32, R8 => REAL64, 
+
+   implicit none
+
+   integer, dimension(:), parameter :: DIM_DEFAULT = [4, 4]
+   integer, dimension(:), parameter :: REG_DECOMP_DEFAULT = DIM_DEFAULT
+   integer, dimension(:), parameter :: MAX_INDEX_DEFAULT = REG_DECOMP_DEFAULT
+   integer, dimension(:), parameter :: DIMR4_DEFAULT = DIM_DEFAULT
+   integer, dimension(:), parameter :: DIMR8_DEFAULT = DIM_DEFAULT
+   real(R4), dimension(:), parameter :: R4_ARRAY_DEFAULT = &
+      & reshape([( ((i+DIMR4_DEFAULT*(j-1)), i = 1, DIMR4_DEFAULT(2)  ), j = 1, DIMR4_DEFAULT(1) )], DIMR4_DEFAULT)
+   real(R8), dimension(:), parameter :: R8_ARRAY_DEFAULT = R4_ARRAY_DEFAULT
+   integer :: i, j
+
+contains
+
+   function mk_grid(reg_dc, max_idx, rc) result(grid)
+      integer, dimension(:), optional, intent(in) :: reg_dc
+      integer, dimension(:), optional, intent(in) :: max_idx
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+      integer, dimension(:), allocatable :: actual_reg_dc
+      integer, dimension(:), allocatable :: actual_max_idx
+      integer :: status
+      
+      actual_reg_dc = merge(reg_dc, REG_DECOMP_DEFAULT, present(reg_dc))
+      actual_max_idx = merge(max_idx, MAX_INDEX_DEFAULT, present(max_idx))
+
+      eg = ESMF_GridCreateNoPeriDim(regDecomp = actual_reg_dc, &
+         & maxIndex = actual_max_idx, rc = status)
+
+      if(present(rc)) rc = status
+
+   end function mk_grid
+   
+   function mk_field_r4(farray, index_flag, reg_dc, max_idx, rc) result(field)
+      real(R4), dimension(:,:),  intent(in) :: farray
+      type(ESMF_Index_Flag), intent(in) :: index_flag
+      integer, dimension(:), optional, intent(in) :: reg_dc
+      integer, dimension(:), optional, intent(in) :: max_idx
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = mk_grid(reg_dc, max_idx, rc = status)
+      if(status == ESMF_SUCCESS) field = ESMF_FieldCreate(grid, farray, index_flag, rc = status)
+      if(present(rc)) rc = status
+
+   end function mk_field_r4
+
+   function mk_field_r8(farray, index_flag, reg_dc, max_idx, rc) result(field)
+      real(R8), dimension(:,:),  intent(in) :: farray
+      type(ESMF_Index_Flag), intent(in) :: index_flag
+      integer, dimension(:), optional, intent(in) :: reg_dc
+      integer, dimension(:), optional, intent(in) :: max_idx
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = mk_grid(reg_dc, max_idx, rc = status)
+      if(status == ESMF_SUCCESS) field = ESMF_FieldCreate(grid, farray, index_flag, rc = status)
+      if(present(rc)) rc = status
+
+   end function mk_field_r8
+
+   @test
+   ! Basic test of FieldCOPY subroutine (REAL32)
+   subroutine test_FieldCOPY_R4()
+      type(ESMF_Index_Flag), parameter :: INDEX_FLAG = ESMF_INDEX_DELOCAL
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(R4), dimension(:,:) :: x_array = R4_ARRAY_DEFAULT
+      real(R4), dimension(:,:), pointer :: x_ptr
+      real(R4), dimension(:,:) :: y_array = x_array + 100
+      real(R4), dimension(:,:), pointer :: y_ptr
+      integer :: status
+      
+      do while(.TRUE.)
+         x = mk_field(x_array, INDEX_FLAG, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         y  = mk_field(y_array, INDEX_FLAG, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         call FieldCOPY(x, y, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+         
+         call ESMF_FieldGet(x, x_ptr, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         call ESMF_FieldGet(y, y_ptr, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         @assertEqual(x_ptr, y_ptr)
+         exit
+      end do
+
+      if(present(rc)) rc = status
+
+   end subroutine test_FieldCOPY_R4
+
+   @test
+   ! Basic test of FieldCOPY subroutine (REAL64)
+   subroutine test_FieldCOPY_R8()
+      type(ESMF_Index_Flag), parameter :: INDEX_FLAG = ESMF_INDEX_DELOCAL
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(R8), dimension(:,:) :: x_array = R8_ARRAY_DEFAULT
+      real(R8), dimension(:,:), pointer :: x_ptr
+      real(R8), dimension(:,:) :: y_array = x_array + 100
+      real(R8), dimension(:,:), pointer :: y_ptr
+      integer :: status
+      
+      do while(.TRUE.)
+         x = mk_field(x_array, INDEX_FLAG, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         y  = mk_field(y_array, INDEX_FLAG, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         call FieldCOPY(x, y, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+         
+         call ESMF_FieldGet(x, x_ptr, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         call ESMF_FieldGet(y, y_ptr, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         @assertEqual(x_ptr, y_ptr)
+         exit
+      end do
+
+      if(present(rc)) rc = status
+
+   end subroutine test_FieldCOPY_R8
+
+   @test
+   ! Basic test of FieldSCAL subroutine (REAL32)
+   subroutine test_FieldSCAL_R4()
+      type(ESMF_Index_Flag), parameter :: INDEX_FLAG = ESMF_INDEX_DELOCAL
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(R4), dimension(:,:) :: x_array = R4_ARRAY_DEFAULT
+      real(R4), dimension(:,:), pointer :: x_ptr
+      integer :: status
+
+      do while(.TRUE.)
+         x = mk_field(x_array, INDEX_FLAG, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         call FieldSCAL(a, x, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+         
+         call ESMF_FieldGet(x, x_ptr, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         @assertEqual(x_ptr, a*x_array)
+         exit
+      end do
+   end subroutine test_FieldSCAL_R4
+
+   @test
+   ! Basic test of FieldSCAL subroutine (REAL64)
+   subroutine test_FieldSCAL_R8()
+      type(ESMF_Index_Flag), parameter :: INDEX_FLAG = ESMF_INDEX_DELOCAL
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(R8), dimension(:,:) :: x_array = R8_ARRAY_DEFAULT
+      real(R8), dimension(:,:), pointer :: x_ptr
+      integer :: status
+
+      do while(.TRUE.)
+         x = mk_field(x_array, INDEX_FLAG, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         call FieldSCAL(a, x, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+         
+         call ESMF_FieldGet(x, x_ptr, rc = status)
+         if(status /= ESMF_SUCCESS) exit
+
+         @assertEqual(x_ptr, a*x_array)
+         exit
+      end do
+   end subroutine test_FieldSCAL_R8
+
+   @test
+   !
+   subroutine test_FieldAXPY()
+   end subroutine test_FieldAXPY
+
+   @test
+   !
+   subroutine test_FieldGEMV()
+   end subroutine test_FieldGEMV
+
+   @test
+   !
+   subroutine test_FieldSpread()
+   end subroutine test_FieldSpread
+
+   @test
+   !
+   subroutine test_FieldConvertPrec()
+   end subroutine test_FieldConvertPrec
+
+   @test
+   !
+   subroutine test_FieldClone()
+   end subroutine test_FieldClone
+
+   @test
+   !
+   subroutine test_FieldGetLocalElementCount()
+   end subroutine test_FieldGetLocalElementCount
+
+   @test
+   !
+   subroutine test_FieldGetLocalSize()
+   end subroutine test_FieldGetLocalSize
+
+   @test
+   !
+   subroutine test_FieldGetCptr()
+   end subroutine test_FieldGetCptr
+
+   @test
+   !
+   subroutine test_FieldsAreConformable()
+   end subroutine test_FieldsAreConformable
+
+   @test
+   !
+   subroutine test_FieldsAreSameTypeKind()
+   end subroutine test_FieldsAreSameTypeKind
+
+!   @test
+!   ! Sanity test - just exercise interfaces
+!   subroutine test_add_item()
+!      type(FieldDictionary) :: fd
+!
+!      fd = FieldDictionary() ! empty
+!      call fd%add_item('X_Y_Z', FieldDictionaryItem(canonical_units='m', long_name='X Y Z'))
+!
+!   end subroutine test_add_item
+!
+!   @test
+!   ! Process a YAML stream with two entries and verify that the
+!   ! resulting dictionary has two entries.
+!   subroutine test_from_yaml_size()
+!      type(FieldDictionary) :: fd
+!
+!      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
+!      @assert_that(1, is(fd%size()))
+!
+!      fd = FieldDictionary(TextStream( '{' // &
+!           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+!           'A_B_C: {canonical_units: m, long_name: "A B C"} }'))
+!      @assert_that(2, is(fd%size()))
+!
+!   end subroutine test_from_yaml_size
+!
+!
+!   @test
+!   ! Process a single item and verify that the correct item is
+!   ! retrieved.
+!   subroutine test_get_field_item()
+!      type(FieldDictionary) :: fd
+!      type(FieldDictionaryItem) :: item
+!
+!      integer :: status
+!      
+!      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
+!
+!      item = fd%get_item('X_Y_Z', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('m', item%get_units())
+!      @assertEqual('X Y Z', item%get_long_name())
+!      
+!   end subroutine test_get_field_item
+!
+!   @test
+!   ! Process a single item and verify that the correct units are
+!   ! retrieved directly from the dictionary.
+!   subroutine test_get_units()
+!      type(FieldDictionary) :: fd
+!      character(:), allocatable :: units
+!      integer :: status
+!
+!      fd = FieldDictionary(TextStream( '{' // &
+!           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+!           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
+!
+!      units = fd%get_units('A_B_C', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('s', units)
+!      
+!      units = fd%get_units('X_Y_Z', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('m', units)
+!
+!   end subroutine test_get_units
+!
+!   @test
+!   ! Process a single item and verify that the correct long name is
+!   ! retrieved directly from the dictionary.
+!   subroutine test_get_long_name()
+!      type(FieldDictionary) :: fd
+!      character(:), allocatable :: long_name
+!      integer :: status
+!      
+!      fd = FieldDictionary(TextStream( '{' // &
+!           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+!           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
+!
+!      long_name = fd%get_long_name('A_B_C', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('A B C', long_name)
+!      
+!      long_name = fd%get_long_name('X_Y_Z', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('X Y Z', long_name)
+!
+!   end subroutine test_get_long_name
+!
+!   @test
+!   ! Process a stream with two items that have aliases and verify that
+!   ! the correct standard name is retrievable from the corresponding
+!   ! alias.
+!   subroutine test_get_standard_name_from_alias()
+!      type(FieldDictionary) :: fd
+!      character(:), allocatable :: standard_name
+!      integer :: status
+!      
+!      fd = FieldDictionary(TextStream( '{' // &
+!           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' //  &
+!           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a]} }'))
+!
+!      standard_name = fd%get_standard_name('x', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('X_Y_Z', standard_name)
+!
+!      standard_name = fd%get_standard_name('a', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('A_B_C', standard_name)
+!
+!   end subroutine test_get_standard_name_from_alias
+!
+!   @test
+!   ! Process a stream with two items that have multiple aliases and
+!   ! verify that the correct standard name is retrievable from the
+!   ! corresponding any of the aliases.
+!   subroutine test_get_standard_name_from_alias_multi()
+!      type(FieldDictionary) :: fd
+!      character(:), allocatable :: standard_name
+!      integer :: status
+!      
+!      fd = FieldDictionary(TextStream( '{' // &
+!           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, y]},' //  &
+!           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a, b, c]} }'))
+!
+!      standard_name = fd%get_standard_name('y', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('X_Y_Z', standard_name)
+!
+!      standard_name = fd%get_standard_name('b', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('A_B_C', standard_name)
+!
+!      standard_name = fd%get_standard_name('c', rc=status)
+!      @assert_that(status, is(0))
+!      @assertEqual('A_B_C', standard_name)
+!
+!   end subroutine test_get_standard_name_from_alias_multi
+
+end module Test_FieldDictionary

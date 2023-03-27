@@ -155,10 +155,10 @@ contains
       call ESMF_FieldGet(y, typekind = tk_y, _RC) 
       
       y_is_double = (tk_y == ESMF_TYPEKIND_R8)
-      _ASSERT(y_is_double .or. (tk_y == ESMF_TYPEKIND_R8), UNSUPPORTED_TK//'y.')
+      _ASSERT(y_is_double .or. (tk_y == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'y.')
 
       x_is_double = (tk_x == ESMF_TYPEKIND_R8)
-      _ASSERT(x_is_double .or. (tk_x == ESMF_TYPEKIND_R8), UNSUPPORTED_TK//'x.')
+      _ASSERT(x_is_double .or. (tk_x == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'x.')
 
       if (y_is_double) then
          if (x_is_double) then
@@ -301,7 +301,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine axpy_r4
-
 
    subroutine axpy_r8(a, x, y, rc)
       real(kind=ESMF_KIND_R8), intent(in) :: a
