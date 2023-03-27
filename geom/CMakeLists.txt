@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.generic3g)
+esma_set_this (OVERRIDE MAPL.geom)
 
 
 set(srcs
@@ -25,6 +25,7 @@ find_package (PFLOGGER REQUIRED)
 esma_add_library(${this}
   SRCS ${srcs}
 #  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+  DEPENDENCIES PFLOGGER::pflogger
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 #add_subdirectory(specs)

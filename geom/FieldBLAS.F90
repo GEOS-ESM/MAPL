@@ -1,35 +1,7 @@
-! MACROS
-
-!===============================================================================
-
-#ifdef IS_IDENTITY
-#  undef IS_IDENTITY
-#endif
-
-#define IS_IDENTITY(T, A, R) T, intent(in) :: A; logical :: R; R = (A == 1)
-
-!===============================================================================
-
-#ifdef ASSIGN_FPTR
-#  undef ASSIGN_FPTR
-#endif
-
-#define ASSIGN_FPTR(P, F, N) \
-   type(c_ptr) :: cptr ; \
-   integer(ESMF_KIND_I8), allocatable :: fp_shape(:) ; \
-   integer :: status ; \
-   if(present(N)) then ; \
-      fp_shape = N ; \
-   else ; \
-      fp_shape = [ FieldGetLocalSize(F, _RC) ] ; \
-   end if ; \ 
-   call FieldGetCptr(F, cptr, _RC) ; \
-   call c_f_ptr(cptr, P, shape = fp_shape)
-
-!===============================================================================
+#include "MAPL_Generic.h"
 
 module mapl3g_FieldBLAS
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, 
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use, intrinsic :: iso_fortran_env, only: INT8, INT16, INT32, INT64
    implicit none
    private
@@ -42,26 +14,26 @@ module mapl3g_FieldBLAS
    ! Level 2 BLAS
    public :: FieldGEMV
 
-   ! Fortran intrinsics applied to fields
-   public :: Sin
-   public :: Cos
-   public :: Tan
-   public :: ASin
-   public :: ACos
-   public :: ATan
-   public :: Pow
-   public :: Abs
-   public :: Log
-   public :: Exp
-   public :: Log10
-   public :: Sqrt
-   public :: Sinh
-   public :: Cosh
-   public :: Tanh
-   public :: ASinh
-   public :: ACosh
-   public :: ATanh
-   public :: Heavyside
+!   ! Fortran intrinsics applied to fields
+!   public :: Sin
+!   public :: Cos
+!   public :: Tan
+!   public :: ASin
+!   public :: ACos
+!   public :: ATan
+!   public :: Pow
+!   public :: Abs
+!   public :: Log
+!   public :: Exp
+!   public :: Log10
+!   public :: Sqrt
+!   public :: Sinh
+!   public :: Cosh
+!   public :: Tanh
+!   public :: ASinh
+!   public :: ACosh
+!   public :: ATanh
+!   public :: Heavyside
    
 
    ! Misc utiliities
@@ -79,26 +51,26 @@ module mapl3g_FieldBLAS
       procedure copy
    end interface FieldCOPY
 
-   interface :: FieldSCAL
+   interface FieldSCAL
       procedure scale_r4
       procedure scale_r8
    end interface
 
-   interface :: FieldAXPY
+   interface FieldAXPY
       procedure axpy_r4
       procedure axpy_r8
    end interface
 
-   interface :: FieldGEMV
+   interface FieldGEMV
       procedure gemv_r4
       procedure gemv_r8
    end interface
 
-   interface :: FieldGetCptr
+   interface FieldGetCptr
       procedure get_cptr
    end interface
 
-   interface :: FieldsAreConformable
+   interface FieldsAreConformable
       procedure areConformable_scalar_scalar
       procedure areConformable_scalar_vector
    end interface
@@ -108,23 +80,23 @@ module mapl3g_FieldBLAS
       procedure verify_typekind_1d
    end interface verify_typekind
 
-   interface :: FieldGetLocalSize
+   interface FieldGetLocalSize
       procedure getLocalSize
    end interface FieldGetLocalSize
 
-   interface :: FieldGetLocalElementCount
+   interface FieldGetLocalElementCount
       procedure getLocalElementCount
    end interface FieldGetLocalElementCount
 
-   interface :: is_identity
+   interface is_identity
       module procedure is_r4_identity
       module procedure is_r8_identity
    end interface is_identity
 
-   interface :: assign_fptr 
+   interface assign_fptr 
       module procedure assign_fptr_r4
       module procedure assign_fptr_r8
-   end interface :: assign_fptr 
+   end interface assign_fptr 
 
 contains
 
@@ -229,12 +201,14 @@ contains
       y_ptr=x_ptr
    end subroutine copy_r8_r8
 
-   logical function is_r4_identity(a) result(res)
-      IS_IDENTITY(real(REAL32), a, res)
+   logical function is_r4_identity(a)
+      real(REAL32), intent(in) :: a
+      is_r4_identity = (a == 1)
    end function is_r4_identity
    
-   logical function is_r8_identity(a) result(res)
-      IS_IDENTITY(real(REAL64), a, res)
+   logical function is_r8_identity(a) 
+      real(REAL64), intent(in) :: a
+      is_r8_identity = (a == 1)
    end function is_r8_identity
    
    subroutine scale_r4(a, x, rc)
@@ -293,7 +267,7 @@ contains
       call assign_fptr(y, y_ptr, _RC)
 
       ! saxpy 
-      if(is_identity(a))
+      if(is_identity(a)) then
          y_ptr = y_ptr + x_ptr
       else
          y_ptr = y_ptr + a * x_ptr
@@ -324,7 +298,7 @@ contains
       call assign_fptr(y, y_ptr, _RC)
 
       ! daxpy 
-      if(is_identity(a))
+      if(is_identity(a)) then
          y_ptr = y_ptr + x_ptr
       else
          y_ptr = y_ptr + a * x_ptr
@@ -389,7 +363,7 @@ contains
          end do
       end do
 
-      __RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine gemv_r4
 
    ! Double precision version (R8) of gemv. See gemv_r4 (single precision)
@@ -443,7 +417,7 @@ contains
          end do
       end do
 
-      __RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine gemv_r8
 
    subroutine verify_kind_scalar(x, expected_tk, rc)
@@ -476,22 +450,55 @@ contains
    end subroutine verify_kind_vector
 
    subroutine assign_fptr_r4(x, fptr, n, rc)
-      real(kind=ESMF_KIND_R4), dimension(:), pointer, intent(out) :: fptr
       type(ESMF_Field), intent(inout) :: x
+      real(kind=ESMF_KIND_R4), dimension(:), pointer, intent(out) :: fptr
       integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
       integer, optional, intent(out) :: rc
-      ASSIGN_FPTR(fptr, x, n)
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      call c_f_ptr(cptr, fptr, shape = fp_shape)
+
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r4
 
    subroutine assign_fptr_r8(x, fptr, n, rc)
-      real(kind=ESMF_KIND_R8), dimension(:), pointer, intent(out) :: fptr
       type(ESMF_Field), intent(inout) :: x
+      real(kind=ESMF_KIND_R8), dimension(:), pointer, intent(out) :: fptr
       integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
       integer, optional, intent(out) :: rc
-      ASSIGN_FPTR(fptr, x, n)
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      call c_f_ptr(cptr, fptr, shape = fp_shape)
+
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8
+
+   subroutine get_fptr_arguments(x, cptr, fp_shape, n, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(c_ptr), intent(out) :: cptr
+      integer(ESMF_KIND_I8), allocatable, intent(out) :: fp_shape(:)
+      integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
+      integer, optional, intent(out) :: rc 
+
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      if(present(n)) then
+         fp_shape = n
+      else
+         local_size = FieldGetLocalSize(x, _RC)
+         fp_shape = [ local_size ]
+      end if 
+      call FieldGetCptr(x, cptr, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_fptr_arguments
 
    subroutine get_cptr(x, cptr, rc)
       type(ESMF_Field), intent(inout) :: x
