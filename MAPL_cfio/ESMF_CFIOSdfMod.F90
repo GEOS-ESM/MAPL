@@ -1,21 +1,26 @@
-!==============================================================================
-!BOP
-! !MODULE: ESMF_CFIOSdfMod.F90 - Source file for CFIO
-
-       module ESMF_CFIOSdfMod
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `ESMF_CFIOSdfMod`
 !
-! !DESCRIPTION:
+! Author: GMAO SI-Team
 !
-! The code in this file provides data type definitions and interface 
-! specifications
+! `ESMF_CFIOSdfMod` - Source file for CFIO.
 !
-! This module provides all the necessary subroutines for users to write/read
+! The module `ESMF_CFIOSdfMod` provides data type definitions and interface
+! specifications. It provides all the necessary subroutines for users to write/read
 ! HDF format output using CF convention.
 !
-! !REVISION HISTORY:
+!#### History
+!- Feb2007  Baoyu Yin  Modified from ESMF_CFIOSdfMod.F90. This is the SDF module for CFIO.
 !
-!  Feb2007  Baoyu Yin  Modified from ESMF_CFIOSdfMod.F90. This is the SDF
-!                      module for CFIO.
+!==============================================================================
+!
+       module ESMF_CFIOSdfMod
+!
 !------------------------------------------------------------------------------
 ! !USES:
       use ESMF_CFIOUtilMod
@@ -58,52 +63,42 @@
         ESMF_CFIOSdfVarReadT3D__, &
         ESMF_CFIOSdfVarReadT2D__
       end interface
-
 !
-!EOP
 !------------------------------------------------------------------------------
-
       contains
-
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfFileCreate -- Create a CFIO output file with meta data
-
-! !INTERFACE:
-      subroutine ESMF_CFIOSdfFileCreate (cfio, rc, expid)
+!>
+! `ESMF_CFIOSdfFileCreate` -- Create a CFIO output file with meta data
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOSdfFileCreate (cfio, rc, expid)
 !
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inout) :: cfio       ! a CFIO object
-      character(len=*), intent(in), OPTIONAL  :: expid    ! Experiment ID
+      type(ESMF_CFIO), intent(inout) :: cfio       !! a CFIO object
+      character(len=*), intent(in), OPTIONAL  :: expid    !! Experiment ID
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                      ! 0   all is well
-                      ! -1 Time increment is 0
-                      ! -2  allocate memory error
-                      ! -3  Num of int/char/real elements and Cnt don't match
-                      ! -12  error determining default precision
-                      ! -18 incorrect time increment
-                      ! -30 can't open file
-                      ! -31 error from NF90_DEF_DIM
-                      ! -32 error from NF90_DEF_VAR (dimension variable)
-                      ! -33 error from NF90_PUT_ATT (dimension attribute)
-                      ! -34 error from NF90_DEF_VAR (variable)
-                      ! -35  error from NF90_PUT_ATT (variable attribute)
-                      ! -36  error from NF90_PUT_ATT (global attribute)
-                      ! -37  error from NF90_ENDDEF
-                      ! -38  error from NF90_VAR_PUT (dimension variable)
-                      ! -39 Num of real var elements and Cnt differ
-                      ! -55  error from NF90_REDEF (enter define mode)
-                      ! -56  error from NF90_ENDDEF (exit define mode)
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                      !! 0   all is well
+                      !! -1 Time increment is 0
+                      !! -2  allocate memory error
+                      !! -3  Num of int/char/real elements and Cnt don't match
+                      !! -12  error determining default precision
+                      !! -18 incorrect time increment
+                      !! -30 can't open file
+                      !! -31 error from NF90_DEF_DIM
+                      !! -32 error from NF90_DEF_VAR (dimension variable)
+                      !! -33 error from NF90_PUT_ATT (dimension attribute)
+                      !! -34 error from NF90_DEF_VAR (variable)
+                      !! -35  error from NF90_PUT_ATT (variable attribute)
+                      !! -36  error from NF90_PUT_ATT (global attribute)
+                      !! -37  error from NF90_ENDDEF
+                      !! -38  error from NF90_VAR_PUT (dimension variable)
+                      !! -39 Num of real var elements and Cnt differ
+                      !! -55  error from NF90_REDEF (enter define mode)
+                      !! -56  error from NF90_ENDDEF (exit define mode)
 !
-! !DESCRIPTION:
-!     Create a CFIO output file with meta data
-!EOP
 !------------------------------------------------------------------------------
        integer :: i, rtcode
        !integer :: maxLen
@@ -299,55 +294,47 @@
       end subroutine ESMF_CFIOSdfFileCreate
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfFileOpen -- open a CFIO file, and get CFIO meta data
-!                                into a cfio Object.
-
-! !INTERFACE:
-      subroutine ESMF_CFIOSdfFileOpen (cfio, fmode, rc, expid, cyclic)
-
+!>
+! `ESMF_CFIOSdfFileOpen` -- open a CFIO file, and get CFIO meta data into a cfio Object.
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOSdfFileOpen (cfio, fmode, rc, expid, cyclic)
 !
 ! !INPUT PARAMETERS:
 !
-      integer, intent(in) :: fmode              ! 0 for READ-WRITE
-                                                ! non-zero for READ-ONLY
-      character(len=*), intent(in), OPTIONAL :: expid   ! Experiment ID
-      logical, intent(in), OPTIONAL :: cyclic           ! cyclic input file
+      integer, intent(in) :: fmode              !! 0 for READ-WRITE
+                                                !! non-zero for READ-ONLY
+      character(len=*), intent(in), OPTIONAL :: expid   !! Experiment ID
+      logical, intent(in), OPTIONAL :: cyclic           !! cyclic input file
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         ! -1   invalid count
-                         ! -2   type mismatch
-                         ! -12  error determining default precision
-                         ! -10  ngatts is incompatible with file
-                         ! -11  character string not long enough
-                         ! -19  unable to identify coordinate variable
-                         ! -36  error from NF90_PUT_ATT (global attribute)
-                         ! -39  error from ncopn (file open)
-                         ! -40  error from NF90_INQ_VARID
-                         ! -41  error from NF90_INQ_DIMID (lat or lon)
-                         ! -42  error from NF90_INQ_DIMID (lev)
-                         ! -43  error from NF90_INQ_VARID (time variable)
-                         ! -47  error from NF90_INQ_DIMID (time)
-                         ! -48  error from NF90_INQUIRE
-                         ! -51  error from NF90_GET_ATT (global attribute)
-                         ! -52  error from NF90_INQUIRE_VARIABLE
-                         ! -53  error from NF90_GET_ATT
-                         ! -57  error from NF90_INQ_ATTNAME
-                         ! -58  error from NF90_INQUIRE_ATTRIBUTE
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !! -1   invalid count
+                         !! -2   type mismatch
+                         !! -12  error determining default precision
+                         !! -10  ngatts is incompatible with file
+                         !! -11  character string not long enough
+                         !! -19  unable to identify coordinate variable
+                         !! -36  error from NF90_PUT_ATT (global attribute)
+                         !! -39  error from ncopn (file open)
+                         !! -40  error from NF90_INQ_VARID
+                         !! -41  error from NF90_INQ_DIMID (lat or lon)
+                         !! -42  error from NF90_INQ_DIMID (lev)
+                         !! -43  error from NF90_INQ_VARID (time variable)
+                         !! -47  error from NF90_INQ_DIMID (time)
+                         !! -48  error from NF90_INQUIRE
+                         !! -51  error from NF90_GET_ATT (global attribute)
+                         !! -52  error from NF90_INQUIRE_VARIABLE
+                         !! -53  error from NF90_GET_ATT
+                         !! -57  error from NF90_INQ_ATTNAME
+                         !! -58  error from NF90_INQUIRE_ATTRIBUTE
 
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inout) :: cfio    ! a CFIO object
+      type(ESMF_CFIO), intent(inout) :: cfio    !! a CFIO object
 !
-! !DESCRIPTION:
-!     open a CFIO file, and get CFIO meta data into a cfio Object.
-!EOP
 !------------------------------------------------------------------------------
       integer :: ngatts, lm, i, ii, iv
       real(kind=REAL32) :: amiss
@@ -1087,59 +1074,50 @@
       end subroutine ESMF_CFIOSdfFileOpen
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarWrite3D_ -- Write a variable to a output file
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarWrite3D_` -- Write a variable to a output file.
+!
       subroutine ESMF_CFIOSdfVarWrite3D_(cfio, vName, field, date, curTime, &
                                       kbeg, kount, timeString, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj  
-      character(len=*), intent(in) :: vName       ! Variable name  
-      real, intent(in) :: field(:,:,:)            ! array contains data
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
-      integer, intent(in), OPTIONAL :: kbeg       ! first level to write
-      integer, intent(in), OPTIONAL :: kount      ! number of levels to write
-      character(len=*), intent(in), OPTIONAL :: timeString
-                                  ! string expression for date and time
-
-
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj  
+      character(len=*), intent(in) :: vName       !! Variable name  
+      real, intent(in) :: field(:,:,:)            !! array contains data
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
+      integer, intent(in), OPTIONAL :: kbeg       !! first level to write
+      integer, intent(in), OPTIONAL :: kount      !! number of levels to write
+      character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -15  data outside of valid range
-                         !  rc = -16  data outside of packing range
-                         !  rc = -17  data outside of pack and valid range
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -45  error from NF90_VAR_PUT
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !  rc = -53  error from NF90_GET_ATT
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_VAR_PUT
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
 
 !
-! !DESCRIPTION:
-!     Write a variable to file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, rtcode
       integer :: myKbeg, myKount
@@ -1215,34 +1193,26 @@
       end subroutine ESMF_CFIOSdfVarWrite3D_
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarWrite1D_ -- Write a variable to a output file
-                                                                                
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarWrite1D_` -- Write a variable to a output file.
+!
       subroutine ESMF_CFIOSdfVarWrite1D_(cfio, vName, field, date, curTime,  &
                                       timeString, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! Variable name
-      real, intent(in) :: field(:)            ! array contains data
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
-      character(len=*), intent(in), OPTIONAL :: timeString
-                                  ! string expression for date and time
-                                                                                
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! Variable name
+      real, intent(in) :: field(:)            !! array contains data
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
+      character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
 !
-! !DESCRIPTION:
-!     Write a variable to file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, rtcode
       integer :: myDate, myCurTime
@@ -1297,36 +1267,28 @@
                                                                                 
                                                                                 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarWrite2D_ -- Write a variable to a output file
-                                                                                
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarWrite2D_` -- Write a variable to a output file.
+!
       subroutine ESMF_CFIOSdfVarWrite2D_(cfio, vName, field, date, curTime, &
                                       kbeg, kount, timeString, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio    ! a CFIO obj
-      character(len=*), intent(in) :: vName     ! Variable name
-      real, intent(in) :: field(:,:)            ! array contains data
-      integer, intent(in), OPTIONAL :: date     ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime  ! hhmmss
-      integer, intent(in), OPTIONAL :: kbeg     ! first level to write
-      integer, intent(in), OPTIONAL :: kount    ! number of levels to write
-      character(len=*), intent(in), OPTIONAL :: timeString
-                                  ! string expression for date and time
-                                                                                
+      type(ESMF_CFIO), intent(inOut) :: cfio    !! a CFIO obj
+      character(len=*), intent(in) :: vName     !! Variable name
+      real, intent(in) :: field(:,:)            !! array contains data
+      integer, intent(in), OPTIONAL :: date     !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime  !! hhmmss
+      integer, intent(in), OPTIONAL :: kbeg     !! first level to write
+      integer, intent(in), OPTIONAL :: kount    !! number of levels to write
+      character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
 !
-! !DESCRIPTION:
-!     Write a variable to file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, rtcode
       integer :: myKbeg, myKount
@@ -1411,60 +1373,52 @@
                                                                                 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarRead3D_ -- Read a variable from an existing file
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarRead3D_` -- Read a variable from an existing file.
+!
       subroutine ESMF_CFIOSdfVarRead3D_(cfio, vName, field, date, curTime, &
                                      kBeg, kount, xBeg, xCount, yBeg,   &
                                      yCount, timeString, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
-      integer, intent(in), OPTIONAL :: kbeg       ! first level to write
-      integer, intent(in), OPTIONAL :: kount      ! number of levels to write
-      integer, intent(in), OPTIONAL :: xBeg       ! first point for lon 
-      integer, intent(in), OPTIONAL :: xCount     ! number of points to read
-      integer, intent(in), OPTIONAL :: yBeg       ! first point for lat 
-      integer, intent(in), OPTIONAL :: yCount     ! number of points to read
-      character(len=*), intent(in), OPTIONAL :: timeString
-                                  ! string expression for date and time
-                                                                                       
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
+      integer, intent(in), OPTIONAL :: kbeg       !! first level to write
+      integer, intent(in), OPTIONAL :: kount      !! number of levels to write
+      integer, intent(in), OPTIONAL :: xBeg       !! first point for lon 
+      integer, intent(in), OPTIONAL :: xCount     !! number of points to read
+      integer, intent(in), OPTIONAL :: yBeg       !! first point for lat 
+      integer, intent(in), OPTIONAL :: yCount     !! number of points to read
+      character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:,:,:)             ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -8  vname miss-match
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
+      real, pointer :: field(:,:,:)             !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -8  vname miss-match
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, j, k, rtcode
       integer :: myKbeg, myKount
@@ -1592,61 +1546,52 @@
       end subroutine ESMF_CFIOSdfVarRead3D_ 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarRead2D_ -- Read a variable from an existing file
-                                                                                
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarRead2D_` -- Read a variable from an existing file.
+!
       subroutine ESMF_CFIOSdfVarRead2D_(cfio, vName, field, date, curTime, &
                                      kbeg, kount, xBeg, xCount, yBeg,   &
                                      yCount, timeString, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inout) :: cfio         ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
-      integer, intent(in), OPTIONAL :: kbeg       ! first level to write
-      integer, intent(in), OPTIONAL :: kount      ! number of levels to write
-      integer, intent(in), OPTIONAL :: xBeg       ! first point for lon
-      integer, intent(in), OPTIONAL :: xCount     ! number of points to read
-      integer, intent(in), OPTIONAL :: yBeg       ! first point for lat
-      integer, intent(in), OPTIONAL :: yCount     ! number of points to read
-      character(len=*), intent(in), OPTIONAL :: timeString
-                                  ! string expression for date and time
-
+      type(ESMF_CFIO), intent(inout) :: cfio         !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
+      integer, intent(in), OPTIONAL :: kbeg       !! first level to write
+      integer, intent(in), OPTIONAL :: kount      !! number of levels to write
+      integer, intent(in), OPTIONAL :: xBeg       !! first point for lon
+      integer, intent(in), OPTIONAL :: xCount     !! number of points to read
+      integer, intent(in), OPTIONAL :: yBeg       !! first point for lat
+      integer, intent(in), OPTIONAL :: yCount     !! number of points to read
+      character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:,:)             ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -8  vname miss-match
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-
+      real, pointer :: field(:,:)             !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -8  vname miss-match
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
       integer :: i, j, k, rtcode
       integer :: myKbeg, myKount
@@ -1803,35 +1748,28 @@
       end subroutine ESMF_CFIOSdfVarRead2D_
                                                                                 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarRead1D_ -- Read a variable from an existing file
-                                                                                
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarRead1D_` -- Read a variable from an existing file.
+!
       subroutine ESMF_CFIOSdfVarRead1D_(cfio, vName, field, date, curTime, &
                                      xBeg, xCount, timestring, rc)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio         ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      integer, intent(in), OPTIONAL :: date       ! yyyymmdd
-      integer, intent(in), OPTIONAL :: curTime    ! hhmmss
-      integer, intent(in), OPTIONAL :: xBeg       ! first point for lon
-      integer, intent(in), OPTIONAL :: xCount     ! number of points to read
-      character(len=*), intent(in), OPTIONAL :: timeString
-                                  ! string expression for date and time
+      type(ESMF_CFIO), intent(inOut) :: cfio         !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      integer, intent(in), OPTIONAL :: date       !! yyyymmdd
+      integer, intent(in), OPTIONAL :: curTime    !! hhmmss
+      integer, intent(in), OPTIONAL :: xBeg       !! first point for lon
+      integer, intent(in), OPTIONAL :: xCount     !! number of points to read
+      character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:)             ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      real, pointer :: field(:)             !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
 
       integer :: i, rtcode
@@ -1890,29 +1828,21 @@
                                                                                 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfFileClose -- close an open CFIO stream
-
-! !INTERFACE:
-      subroutine ESMF_CFIOSdfFileClose (cfio, rc)
+!>
+! `ESMF_CFIOSdfFileClose` -- close an open CFIO stream.
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOSdfFileClose (cfio, rc)
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                       ! 0   all is well
-                                       ! -54  error from ncclos (file close)
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                       !! 0   all is well
+                                       !! -54  error from ncclos (file close)
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inout) :: cfio       ! CFIO object
-
-
+      type(ESMF_CFIO), intent(inout) :: cfio       !! CFIO object
 !
-! !DESCRIPTION:
-!     close an open CFIO stream
-!EOP
 !------------------------------------------------------------------------------
        integer :: rtcode
 
@@ -1937,13 +1867,10 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE:  CFIO_Create_ -- Creates a DAO gridded file for writing
+!>
+! `CFIO_Create_` -- Creates a DAO gridded file for writing.
 ! 
-! !DESCRIPTION: This routine is used to open a new file for a CFIO stream.
-!
-!, im, jm, km !INTERFACE:
+! This routine is used to open a new file for a CFIO stream.
 !
       subroutine CFIO_Create_ ( cfio, rc )
 !
@@ -1956,32 +1883,29 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer        fid     ! File handle
-      integer        rc      ! Error return code:
-                             ! 0  All is well
-                             ! -1 Time increment is 0
-                             ! -18 incorrect time increment
-                             ! -30 can't open file
-                             ! -31 error from NF90_DEF_DIM
-                             ! -32 error from NF90_DEF_VAR (dimension variable)
-                             ! -33 error from NF90_PUT_ATT (dimension attribute)
-                             ! -34 error from NF90_DEF_VAR (variable)
-                             ! -35  error from NF90_PUT_ATT (variable attribute)
-                             ! -36  error from NF90_PUT_ATT (global attribute)
-                             ! -37  error from NF90_ENDDEF
-                             ! -38  error from NF90_VAR_PUT (dimension variable)
-                             ! -39 Num of real var elements and Cnt differ
-                             ! -40 error setting deflate compression routine
-                             ! -41 error setting fletcher checksum routine
+      integer        fid     !! File handle
+      integer        rc      !! Error return code:
+                             !! 0  All is well
+                             !! -1 Time increment is 0
+                             !! -18 incorrect time increment
+                             !! -30 can't open file
+                             !! -31 error from NF90_DEF_DIM
+                             !! -32 error from NF90_DEF_VAR (dimension variable)
+                             !! -33 error from NF90_PUT_ATT (dimension attribute)
+                             !! -34 error from NF90_DEF_VAR (variable)
+                             !! -35  error from NF90_PUT_ATT (variable attribute)
+                             !! -36  error from NF90_PUT_ATT (global attribute)
+                             !! -37  error from NF90_ENDDEF
+                             !! -38  error from NF90_VAR_PUT (dimension variable)
+                             !! -39 Num of real var elements and Cnt differ
+                             !! -40 error setting deflate compression routine
+                             !! -41 error setting fletcher checksum routine
 
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
      type(ESMF_CFIO), intent(inout) :: cfio 
 !
-! !REVISION HISTORY: 
-!
-!EOP
 !-------------------------------------------------------------------------
 
       ! REAL(KIND=REAL32) variables for 32-bit output to netCDF file.
@@ -3365,13 +3289,12 @@ contains
 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: writeBnds -- write time bounds
-
-! !INTERFACE:
-      subroutine writeBnds(cfio, vName, date, curTime, rc)
+!>
+! `writeBnds` -- write time bounds
 !
-! !ARGUMENTS:
+! Write time bounds for time averaging variable.
+!
+      subroutine writeBnds(cfio, vName, date, curTime, rc)
 !
 ! !INPUT PARAMETERS:
 !
@@ -3382,14 +3305,10 @@ contains
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                                                ! 1   ...
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                                                !! 1   ...
 !
-!
-! !DESCRIPTION:
-!     write time bounds for time averaging variable
-!EOP
 !------------------------------------------------------------------------------
 
       integer :: vid, corner(4), edges(4)
@@ -3457,52 +3376,44 @@ contains
       end subroutine writeBnds
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarReadT3D_ -- Read a variable from an existing file
-                                                                                                              
-! !INTERFACE:
+!>
+! `ESMF_CFIOSdfVarReadT3D_` -- Read a variable from an existing file.
+!
       subroutine ESMF_CFIOSdfVarReadT3D_ ( cfio, vName, field, &
                                         timeString, cfio2, rc )
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
-      character(len=*), intent(in) :: timeString
-                                  ! string expression for date and time
-                                                                                                        
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
+      character(len=*), intent(in) :: timeString !! string expression for date and time
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:,:,:)             ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !  rc = -99  must specify date/curTime of timeString
+      real, pointer :: field(:,:,:)             !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -99  must specify date/curTime of timeString
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
 
     integer :: date_, curTime_
@@ -3524,51 +3435,44 @@ contains
     end subroutine ESMF_CFIOSdfVarReadT3D_
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarReadT3D_ -- Read a variable from an existing file
-                                                                                                              
-! !INTERFACE:
-
-      subroutine ESMF_CFIOSdfVarReadT3D__(cfio, vName, date, curTime, field, rc, cfio2)
+!>
+! `ESMF_CFIOSdfVarReadT3D_` -- Read a variable from an existing file.
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOSdfVarReadT3D__(cfio, vName, date, curTime, field, rc, cfio2)
 !
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      integer, intent(in) :: date                 ! yyyymmdd
-      integer, intent(in) :: curTime              ! hhmmss
-      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      integer, intent(in) :: date                 !! yyyymmdd
+      integer, intent(in) :: curTime              !! hhmmss
+      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
                                                                                                               
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:,:,:)             ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
+      real, pointer :: field(:,:,:)             !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
 
       integer rtcode
@@ -3676,10 +3580,9 @@ contains
 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarReadT2D_ -- Read a variable from an existing file
-                                                                                                              
-! !INTERFACE:
+!>
+! ESMF_CFIOSdfVarReadT2D_` -- Read a variable from an existing file.
+!
       subroutine ESMF_CFIOSdfVarReadT2D_ ( cfio, vName, field, &
                                         timeString, cfio2, rc )
 !
@@ -3687,41 +3590,37 @@ contains
 !
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
-      character(len=*), intent(in) :: timeString
-                                  ! string expression for date and time
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
+      character(len=*), intent(in) :: timeString !! string expression for date and time
                                                                                                         
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:,:)               ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NV_GET_VARA
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !  rc = -99  must specify date/curTime of timeString
+      real, pointer :: field(:,:)               !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NV_GET_VARA
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -99  must specify date/curTime of timeString
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
 
     integer :: date_, curTime_
@@ -3742,51 +3641,43 @@ contains
     end subroutine ESMF_CFIOSdfVarReadT2D_
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSdfVarReadT2D_ -- Read a variable from an existing file
-                                                                                                              
-! !INTERFACE:
-
-      subroutine ESMF_CFIOSdfVarReadT2D__(cfio, vName, date, curTime, field, rc, cfio2)
+!>
+! `ESMF_CFIOSdfVarReadT2D_` -- Read a variable from an existing file.
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIOSdfVarReadT2D__(cfio, vName, date, curTime, field, rc, cfio2)
 !
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
-      character(len=*), intent(in) :: vName       ! variable name
-      integer, intent(in) :: date                 ! yyyymmdd
-      integer, intent(in) :: curTime              ! hhmmss
-      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
-                                                                                                              
+      type(ESMF_CFIO), intent(inOut) :: cfio      !! a CFIO obj
+      character(len=*), intent(in) :: vName       !! variable name
+      integer, intent(in) :: date                 !! yyyymmdd
+      integer, intent(in) :: curTime              !! hhmmss
+      type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
 !
 ! !OUTPUT PARAMETERS:
 !
-      real, pointer :: field(:,:)             ! array contains data
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -38  error from NF90_VAR_PUT (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
+      real, pointer :: field(:,:)             !! array contains data
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_VAR_PUT (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 !
-! !DESCRIPTION:
-!     Read a variable from an existing file
-!EOP
 !------------------------------------------------------------------------------
 
       integer rtcode

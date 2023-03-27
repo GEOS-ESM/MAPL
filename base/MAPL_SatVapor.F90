@@ -1,6 +1,36 @@
-
-
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_SatVaporMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_SatVaporMod` provides a function that returns
+! the saturation specific humidity $q_s$, mixing ratio, $r_s$,
+! or vapor pressure $e_s$, over either liquid water or ice.
+! The function can also return the derivatives $\frac{d q_s}{dT}$,
+! $\frac{d r_s}{dT}$, or $\frac{d e_s}{dT}$ through an optional argument.
+! The module does not depend on ESMF and its only dependence
+! on the rest of MAPL is for the definition
+! of gas constants. If the preprocessor macro MAPL_MODE is not defined,
+! these are assigned standard values and the build becomes
+! independent of the rest of MAPL.
+!
+!#### File Used
+! The main computations are done in the following include files:
+!```
+!      eqsat.H esatlqu.H esatice.H qsatlqu.H qsatice.H. 
+!```
+!
+! @bug
+! The tables and some control parameters are globals.
+! This can result in unsafe race conditions when called from
+! multiple threads. Most of these, however, will be benign.
+!@endbug
+!
 module MAPL_SatVaporMod
 
 
@@ -9,24 +39,6 @@ module MAPL_SatVaporMod
 #endif
 
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-!BOP
-
-! !MODULE: MAPL_SatVaporMod -- A module for saturation humidity calculations
-
-! !DESCRIPTION:
-!
-!  This module provides a function that returns
-!  the  saturation specific humidity $q_s$, mixing ratio, $r_s$,
-!  or vapor pressure $e_s$, over either liquid water or ice.
-!  The function can also return the derivatives $\frac{d q_s}{dT}$,
-!  $\frac{d r_s}{dT}$, or $\frac{d e_s}{dT}$ through an optional argument.
-!  The module does not depend on ESMF and its only dependence
-!  on the rest of MAPL is for the definition
-!  of gas constants. If the preprocessor macro MAPL_MODE is not defined,
-!  these are assigned standard values and the build becomes
-!  independent of the rest of MAPL.
-!  \newline
-!
 
 ! !USES:
 !
@@ -45,21 +57,6 @@ module MAPL_SatVaporMod
 !
 ! !PUBLIC DATA MEMBERS:
 !
-
-! !FILES USED:
-!
-!   The main computations are done in the following include files:
-!
-!      eqsat.H esatlqu.H esatice.H qsatlqu.H qsatice.H. 
-!
-! !BUGS:
-
-!   The tables and some control parameters are globals.
-!   This can result in unsafe race conditions when called from
-!   multiple threads. Most of these, however, will be benign.
-!
-!EOP
-
   interface MAPL_EQsat
      module procedure QSAT0
      module procedure QSAT1
@@ -185,13 +182,40 @@ module MAPL_SatVaporMod
 contains
 
 !==============================================
-
-!BOPI
-
-! !IROUTINE: MAPL_EQsatSET -- Sets behavior of MAPL_EQsat.
-
-! !INTERFACE:
-
+!>
+! The subroutine `MAPL_EQsatSET` set behavior of MAPL_EQsat.
+! `MAPL_EQsatSet` can be used to set three parameters that control
+! the behavior of the working routine, MAPL_EQsat.
+!
+! If **UseTable** is true, tabled values of the saturation vapor pressures are used,
+! instead of the `exact` calculations.
+! These tables are automatically generated at a 0.01K resolution for whatever
+! vapor pressure formulation is being used. If never set, MAPL_EQsat will use the tables.
+! If not specified, the table behavior is left unmodified.
+!
+! **Formulation** sets the saturation vapor pressure function to use
+! to use in generating tables or for `exact` calculations.
+! Three formulations of saturation vapor pressure are supported:
+!- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat), 
+!- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and 
+!- Murphy and Koop (2005, QJRMS) (MAPL_UseMurphyKoopQsat).
+!
+! If it has not been set, the formulation is Starr (MAPL_UseStarrQsat).
+! If not specified, the formulation is left unmodified.
+!
+! **Subdivisions** sets the number of subdivisions per degree in the saturation
+! vapor pressure tables. If never set, it is 100; if not specified, it is left unmodified.
+!
+! **MixingRatio** sets whether MAPL_EQsat will return saturation mixing ratio (true)
+! or saturation specific humidity (false) when the pressure is present
+! (see MAPL_EQsat documentation). If never set, it is false; 
+! if not specified, it is left unmodified.
+!
+! MAPL_EQsatSET also initializes the tables. If MAPL_EQsatSET is
+! not called and tables are required, they will be initialized the first time
+! one of the  MAPL_EQsat functions is called. The tables are reset with every call
+! to MAPL_EQsatSET.
+!
   subroutine MAPL_EQsatSET(UseTable,Formulation,Subdivisions,MixingRatio)
 
 ! !ARGUMENTS:
@@ -200,43 +224,6 @@ contains
     integer, optional, intent(IN) :: Formulation
     integer, optional, intent(IN) :: Subdivisions
     logical, optional, intent(IN) :: MixingRatio
-
-! !DESCRIPTION: 
-!  MAPL\_EQsatSet can be used to set three parameters that control
-!  the behavior of the working routine, MAPL\_EQsat:\newline
-!
-!  If {\tt \bf UseTable} is true, tabled values of the saturation vapor pressures are used,
-!  instead of the ``exact'' calculations.
-!  These tables are automatically generated at a 0.01K resolution for whatever
-!  vapor pressure formulation is being used. If never set, MAPL\_EQsat will use the tables.
-!  If not specified, the table behavior is left unmodified.\newline
-!
-!  {\tt \bf Formulation} sets the saturation vapor pressure function to use
-!  to use in generating tables or for ``exact'' calculations.
-!  Three formulations of saturation vapor pressure are supported:
-! \begin{itemize} 
-!  \item the Starr code, as was used in NSIPP-1 (MAPL\_UseStarrQsat), 
-!  \item the Goff-Gratch formulation, as used in CAM (MAPL\_UseGoffGratchQsat), and 
-!  \item Murphy and Koop (2005, QJRMS) (MAPL\_UseMurphyKoopQsat).
-! \end{itemize}
-!  If it has not been set, the formulation is Starr (MAPL\_UseStarrQsat).
-!  If not specified, the formulation is left unmodified.\newline
-!
-! {\tt \bf Subdivisions} sets the number of subdivisions per degree in the saturation
-!  vapor pressure tables. If never set, it is 100; if not specified, it is left unmodified.
-!  \newline
-!
-!  {\tt \bf MixingRatio} sets whether MAPL\_EQsat will return saturation mixing ratio (true)
-!  or saturation specific humidity (false) when the pressure is present
-!  (see MAPL\_EQsat documentation). If never set, it is false; 
-!  if not specified, it is left unmodified.\newline
-!
-!  MAPL\_EQsatSET also initializes the tables. If MAPL\_EQsatSET is
-!  not called and tables are required, they will be initialized the first time
-!  one of the  MAPL\_EQsat functions is called. The tables are reset with every call
-!  to MAPL\_EQsatSET.\newline
-
-!EOPI
 
 ! Set the global flags
 
@@ -325,9 +312,7 @@ contains
   end subroutine MAPL_EQsatSET
 
 !=========================================================================
-
-!BOPI
-
+!
 ! !IROUTINE: MAPL_EQsat - Computes saturation vapor pressure or specific humidity
 
 ! !INTERFACE:

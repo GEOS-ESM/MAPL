@@ -1,36 +1,18 @@
-
-#define INT_MAX 2147483647
-
-#include "MAPL_ErrLog.h"
-
-
-!=============================================================================
-!BOP
-
-! !MODULE: MAPL_Hash   -- A utility to manage hash tables
-
-! !INTERFACE:
-
-module MAPL_HashMod
-
-  use MAPL_ExceptionHandling
-
-  implicit none
-  private
-
-! !PUBLIC ROUTINES:
-
-  public MAPL_HashCreate
-  public MAPL_HashIncrement
-  public MAPL_HashDestroy
-  public MAPL_HashSize
-  public MAPL_HashDump
-
-! !DESCRIPTION:
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_HashMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_HashMod`  -- A utility to manage hash tables.
 ! 
-!   {\tt MAPL\_HashMod} is a FORTRAN binding to a simple C has facility.
-!   The API is:
-!\bv
+! `MAPL_HashMod` is a FORTRAN binding to a simple C has facility.
+! The API is:
+!```fortran
 !
 !   ! Create a hash table with Nbuckets
 !
@@ -66,14 +48,14 @@ module MAPL_HashMod
 !
 !       subroutine MAPL_HashDestroy(Hash)
 !         integer, intent(IN) :: Hash
-!\ev
+!```
 !
-!  The following is a sample usage that makes a list of
-!  unique integers in the large array II. It can similarly
-!  be used to find ordered pairs of integers. The asserts
-!  are put in to clarify the usage.
+! The following is a sample usage that makes a list of
+! unique integers in the large array II. It can similarly
+! be used to find ordered pairs of integers. The asserts
+! are put in to clarify the usage.
 !
-!\bv       
+!```fortran       
 !       integer :: Hash, k, II(100000), FoundOrder(10000)
 !
 !       Hash = MAPL_HashCreate(1000)
@@ -91,11 +73,27 @@ module MAPL_HashMod
 !           _ASSERT(FoundOrder(k)==ii(i),'needs informative message')
 !         endif
 !       enddo
+!```
 !
-!
-!\ev
+#define INT_MAX 2147483647
 
-!EOP
+#include "MAPL_ErrLog.h"
+
+module MAPL_HashMod
+
+  use MAPL_ExceptionHandling
+
+  implicit none
+  private
+
+! !PUBLIC ROUTINES:
+
+  public MAPL_HashCreate
+  public MAPL_HashIncrement
+  public MAPL_HashDestroy
+  public MAPL_HashSize
+  public MAPL_HashDump
+
 !=============================================================================
 
 contains

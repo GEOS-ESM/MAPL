@@ -1,11 +1,20 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_Base`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_Base` provides a collection assorted
+! utilities and constants used throughout the MAPL Library.
+!
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module MAPL_Base
-
-  !BOP
-  !
-  ! !MODULE: MAPL_BaseMod --- A Collection of Assorted MAPL Utilities
 
   ! !USES:
   !
@@ -80,17 +89,6 @@ module MAPL_Base
      !logical :: am_i_root
   end type MAPL_Communicator
 
-#ifdef __PROTEX__
-
-  !DESCRIPTION:
-
-  The module {\tt MAPL\_Base} provides a collection assorted
-  utilities and constants used throughout the MAPL Library.
-
-
-#endif
-
-  !EOP
   !----------------------------------------------------------------------
 
   interface MAPL_FieldCreate
@@ -425,14 +423,100 @@ module MAPL_Base
        real(kind=REAL64), pointer            :: ptr(:,:,:)
      end function MAPL_RemapBounds_3dr8
 
-     !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-     !BOP
-
-     ! !IROUTINE: MAPL_LatLonGridCreate --- Create regular Lat/Lon Grid
-     !
-     ! !INTERFACE:
-
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!>
+! `MAPL_LatLonGridCreate` --- Create regular Lat/Lon Grid
+!
+! This routine creates a distributed ESMF grid where the horizontal
+! coordinates are regular longitudes and latitudes. The grid is
+! created on the user specified **VM**, or on the current VM if the user
+! does not specify one. The layout and the coordinate information can
+! be provided with a `ESMF_Config attribute, a resource file name
+! or specified through the argument list.
+!
+!### Using resource files
+! The **resource file** has a syntax similar to a GrADS
+! control file.  Here is an example defining a typical GEOS-5 1x1.25
+! grid with 72 layers:
+!
+!```
+!       GDEF: LatLon 
+!       IDEF: 32  
+!       JDEF: 16  
+!       LDEF:  1  
+!       XDEF: 288 LINEAR -180. 1.25
+!       YDEF: 181 LINEAR -90. 1.
+!       ZDEF:  72 LINEAR 1 1
+!```
+! More generally,
+!```
+!       GDEF: LatLon
+!       IDEF: Nx 
+!       JDEF: Ny
+!       LDEF: Nz
+!       XDEF: IM_World XCoordType BegLon, DelLon
+!       YDEF: JM_World YCoordType BegLat, DelLat
+!       ZDEF: LM_World ZCoordType 1        1
+!```
+!
+! The attribute **GDEF** must always be `LatLon` for  Lat/Lon grids.
+! The remaining parameters are:
+!- **Nx** is the number of processors used to decompose the X dimension
+!- **Ny** is the number of processors used to decompose the Y dimension
+!- **Nz** is the number of processors used to decompose the Z dimension;
+!   must be 1 for now.
+!- **IM_World** is the number of longitudinal grid points; if `IM_World=0` then
+!   the grid has no zonal dimension.
+!- **XCoordType** must be set to LINEAR
+!- **BegLon** is the longitude (in degrees) of the {\em center} of the first gridbox
+!- **DelLon** is the constant mesh size (in degrees); if `DelLon<1` then a
+!   global grid is assumed.
+!- **JM_World** is the number of meridional grid points; if `JM_World=0` then
+!   the grid has no meridional dimension.
+!- **YCoordType** must be set to LINEAR
+!- **BegLat** s the latitude (in degrees) of the *center* of the first gridbox
+!- **DelLat** s the constant mesh size (in degrees); if `DelLat<1` then a
+!   global grid is assumed.
+!- **LM_World** is the number of vertical grid points; `LM_World=0` then the grid has no
+!   vertical dimension.
+!
+! As of this writing, only the size of the vertical grid `LM_World` needs to be specified.
+!
+!### Passing an ESMF Config
+! The `ESMF_Config` object `Config`, when specified, must
+! contain the same information as the resource file above.
+!
+!### Providing parameters explicitly through the argument list
+! Alternatively, one can specify coordinate information in the argument
+! list; their units and meaning is as in the resource file above. In
+! this case you must specify at least `Nx, Ny, IM_World, JM_World`, and
+! `LM_World`. The other parameters have default values
+!- **BegLon** defaults to -180. (the date line)
+!- **DelLon** defaults to -1. (meaning a global grid)
+!- **BegLat** defaults to -90. (the south pole)
+!- **DelLat** deaults to -1. (meaning a global grid)
+!
+!### Restrictions
+! The current implementation imposes the following restrictions:
+!1. Only uniform longitude/latitude grids are supported (no Gaussian grids).
+!2. Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported
+!   (no Lat-Lev or Lon-Lev grids supprted yet).
+!3. No vertical decomposition yet (`Nz=1`).
+!
+!### Future enhancements
+! The `IDEF/JDEF/LDEF` records in the resource file should be
+! extended as to allow specification of a more general distribution.
+! For consistency with the `XDEF/YDEF/ZDEF` records a similar
+! syntax could be adopted. For example,
+!
+!```
+!       IDEF 4   LEVELS  22 50 50 22
+!       XDEF 144 LINEAR -180 2.5
+!```
+! would indicate that longitudes would be decomposed in 4 PETs,
+! with the first PET having 22 grid points, the second 50 gridpoints,
+! and so on.
+!
      module function MAPL_LatLonGridCreate (Name, vm,                 &
           Config, ConfigFile,       &
           Nx, Ny,                   &
@@ -474,117 +558,6 @@ module MAPL_Base
 
        type (ESMF_Grid)                         :: Grid  ! Distributed grid
        integer,           OPTIONAL, intent(out) :: rc    ! return code
-#ifdef ___PROTEX___
-
-       !DESCRIPTION: 
-
-       This routine creates a distributed ESMF grid where the horizontal
-       coordinates are regular longitudes and latitudes. The grid is 
-       created on the user specified {\bf VM}, or on the current VM if the user 
-       does not specify one. The layout and the coordinate information can
-       be provided with a {\tt ESMF\_Config attribute}, a resource file name
-       or specified through the argument list.
-
-       \subsubsection*{Using resource files}
-
-       The {\bf resource file} {\tt ConfigFile} has a syntax similar to a GrADS
-       control file.  Here is an example defining a typical GEOS-5 1x1.25
-       grid with 72 layers:
-       %
-       \begin{verbatim}
-       GDEF: LatLon 
-       IDEF: 32  
-       JDEF: 16  
-       LDEF:  1  
-       XDEF: 288 LINEAR -180. 1.25
-       YDEF: 181 LINEAR -90. 1.
-       ZDEF:  72 LINEAR 1 1
-       \end{verbatim}
-       %
-       More generally, 
-       \begin{verbatim}
-       GDEF: LatLon 
-       IDEF: Nx 
-       JDEF: Ny
-       LDEF: Nz
-       XDEF: IM_World XCoordType BegLon, DelLon
-       YDEF: JM_World YCoordType BegLat, DelLat
-       ZDEF: LM_World ZCoordType 1        1
-       \end{verbatim}
-       The attribute {\bf GDEF} must always be {\tt LatLon} for  Lat/Lon grids. 
-       The remaining parameters are:
-       \bd
-       \item[Nx] is the number of processors used to decompose the X dimension
-       \item[Ny] is the number of processors used to decompose the Y dimension
-       \item[Nz] is the number of processors used to decompose the Z dimension;
-       must be 1 for now.          
-       \item[IM\_World] is the number of longitudinal grid points;  if {\tt IM\_World=0} then
-       the grid has no zonal dimension.
-       \item[XCoordType] must be set to LINEAR
-       \item[BegLon] is the longitude (in degrees) of the {\em center} of the first 
-       gridbox
-       \item[DelLon] is the constant mesh size (in degrees); if {\tt DelLon<1} then a
-       global grid is assumed.
-       %
-       \item[JM\_World] is the number of meridional grid points  if {\tt JM\_World=0} then
-       the grid has no meridional dimension.
-       \item[YCoordType] must be set to LINEAR
-       \item[BegLat] is the latitude (in degrees) of the {\em center} of the first 
-       gridbox
-       \item[DelLat] is the constant mesh size (in degrees); if {\tt DelLat<1} then a
-       global grid is assumed.
-       %
-       \item[LM\_World] is the number of vertical grid points; if {\tt LM\_World=0} then the grid has no
-       vertical dimension.
-       \ed
-       As of this writing, only the size of the vertical grid ({\tt LM\_World})
-       needs to be specified.
-
-       \subsubsection*{Passing an ESMF Config}
-
-       The {\bf ESMF\_Config} object {\tt Config}, when specified, must
-       contain the same information as the resource file above.
-
-       subsubsection*{Providing parameters explicitly through the argument list}
-
-       Alternatively, one can specify coordinate information in the argument
-       list; their units and meaning is as in the resource file above. In
-       this case you must specify at least {\tt Nx, Ny, IM\_World, JM\_World,} and 
-       {\tt LM\_World}. The other parameters have default values
-       \bd
-       \item[BegLon] defaults to -180. (the date line)
-       \item[DelLon] defaults to -1. (meaning a global grid)
-       \item[BegLat] defaults to -90. (the south pole)
-       \item[DelLat] deaults to -1. (meaning a global grid)
-       \ed
-
-       \subsubsection*{Restrictions}
-
-       The current implementation imposes the following 
-       restrictions:
-       \begin{enumerate}
-       \item Only uniform longitude/latitude grids are supported (no Gaussian grids).
-       \item Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported 
-       (no Lat-Lev or Lon-Lev grids supprted yet).
-       \item No vertical decomposition yet ({\tt Nz=1}).
-       \end{enumerate}
-
-       \subsubsection*{Future enhancements}
-
-       The {\tt IDEF/JDEF/LDEF} records in the resource file should be
-       extended as to allow specification of a more general distribution.
-       For consistency with the {\tt XDEF/YDEF/ZDEF} records a similar 
-       syntax could be adopted. For example,
-       %
-       \begin{verbatim}
-       IDEF 4   LEVELS  22 50 50 22 
-       XDEF 144 LINEAR -180 2.5 
-       \end{verbatim}
-       would indicate that longitudes would be decomposed in 4 PETs,
-       with the first PET having 22 grid points, the second 50 gridpoints,
-       and so on. 
-
-#endif
      end function MAPL_LatLonGridCreate
 
      !............................................................................

@@ -1,9 +1,18 @@
-#include "MAPL_ErrLog.h"
 !------------------------------------------------------------------------------
-!BOP
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `linearVerticalInterpolation_mod`
 !
-! !MODULE: linearVerticalInterpolation_mod
+! Author: GMAO SI-Team
 !
+! The module `linearVerticalInterpolation_mod` contains routines for 
+! linear vertical interpolation in the pressure to the KAPPA formulation.
+!
+#include "MAPL_ErrLog.h"
+
       module linearVerticalInterpolation_mod
 
       use ESMF
@@ -16,45 +25,29 @@
 !
       private
 !
-! !PUBLIC MEMBER FUNCTIONS:
-
      public  :: vertInterpolation_pressKappa
 !
-! !DESCRIPTION:
-! Contains routines for linear vertical interpolation in the pressure
-! to the KAPPA formulation.
-!
-!EOP
 !------------------------------------------------------------------------------
 CONTAINS
 !------------------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE: vertInterpolation_pressKappa
-!
-! !INTERFACE:
-!
+!>
+! The subroutine `vertInterpolation_pressKappa` performs a linear vertical 
+! interpolation from pressure levels to model levels in the pressure kappa 
+! formulation. It is assumed that we have a top to bottom ordering of 
+! the vertical levels.
+! 
       subroutine vertInterpolation_pressKappa (fModel, fPres, ps, plevs, &
                                   undef, phis, phis_units, rc)
 !
-! !INPUT PARAMETERS:
-      type(ESMF_Field), intent(INOUT) :: fPres  
-      type(ESMF_Field), intent(INOUT) :: ps  
-      real,    intent(IN) :: plevs(:)        ! pressure levels
-      real,    intent(IN) :: undef                ! undefined value
-      type(ESMF_Field), optional, intent(INOUT) :: PHIS   ! Surface Geopotential Heights
-      character(len=*), optional, intent(in) :: phis_units  ! units of phis
+      type(ESMF_Field),           intent(INOUT) :: fModel  
+      type(ESMF_Field),           intent(INOUT) :: fPres  
+      type(ESMF_Field),           intent(INOUT) :: ps  
+      real,                       intent(IN)    :: plevs(:)   !! pressure levels
+      real,                       intent(IN)    :: undef      !! undefined value
+      type(ESMF_Field), optional, intent(INOUT) :: PHIS       !! Surface Geopotential Heights
+      character(len=*), optional, intent(in)    :: phis_units !! units of phis
+      integer, optional,          intent(OUT)   :: rc
 !
-! !OUTPUT PARAMETERS:
-      type(ESMF_Field), intent(INOUT) :: fModel  
-      integer, optional, intent(OUT) :: rc
-!
-! !DESCRIPTION:
-!  Perform a linear vertical interpolation from pressure levels to model levels
-!  in the pressure kappa formulation.
-!  It is assumed that we have a top to bottom ordering of the vertical levels.
-!
-! !LOCAL VARIABLES:
       integer :: im, jm, lmMod, lmPres
       integer :: i, j, L, k, k2, k3, dims(3)
       integer, allocatable :: kbeg(:,:),kend(:,:)
@@ -68,10 +61,7 @@ CONTAINS
       real, pointer   :: vMod(:,:,:), vPres(:,:,:), vPS(:,:), vPHIS(:,:)
       character(ESMF_MAXSTR) :: vname, units
 !
-!EOP
 !------------------------------------------------------------------------------
-!BOC
-
       ! get dimensions, allocate
       call ESMF_FieldGet(fModel,grid=grid,rc=status)
       _VERIFY(STATUS)
@@ -281,84 +271,62 @@ CONTAINS
       end subroutine vertInterpolation_pressKappa
 !EOC
 !------------------------------------------------------------------------------
-!BOP
-! !IROUTINE: interpVal
-! 
-! !INTERFACE
-!
-      FUNCTION interpVal (var1, var2, ple, plev1, plev2, KAP) result(val)
-!
-! !INPUT PARAMETERS:
-      real :: var1      ! variable (pressure level) value at level k
-      real :: var2      ! variable (pressure level) value at level k-1
-      real :: ple       ! model pressure at current level
-      real :: plev1     ! pressure value at level k
-      real :: plev2     ! pressure value at level k-1
-      real :: KAP       ! coefficient KAPPA
-!      
-! ! RETURNED VALUE:
-      real :: val
-!
-! !DESCRIPTION:
+!>
 ! Main vertical interpolation formula:
 !
-!  \begin{eqnarray*}
-!  \alpha_{L} & = & \frac{ \alpha_{k-1}P_{L}^{\kappa} - \alpha_{k}P_{L}^{\kappa} + 
+!$$
+!\alpha_{L} = \frac{ \alpha_{k-1}P_{L}^{\kappa} - \alpha_{k}P_{L}^{\kappa} + 
 !                   \alpha_{k}P_{k-1}^{\kappa}  - \alpha_{k-1}P_{k}^{\kappa} }
 !                   { P_{k-1}^{\kappa} - P_{k}^{\kappa} }
-!  \end{eqnarray*}
+!$$
 !
 ! In this particular case, we have:
 !
-!  \begin{eqnarray*}
-!  val & = & \frac{ var2 \times ple^{KAP}    - var1 \times ple^{KAP} + 
+!$$
+! val = \frac{ var2 \times ple^{KAP}    - var1 \times ple^{KAP} + 
 !                   var1 \times plev2^{KAP}  - var2 \times plev1^{KAP} }
 !                   { plev2^{KAP} - plevs^{KAP} }
-!  \end{eqnarray*}
+!$$
+
+      FUNCTION interpVal (var1, var2, ple, plev1, plev2, KAP) result(val)
 !
-!EOP
+      real :: var1      !! variable (pressure level) value at level k
+      real :: var2      !! variable (pressure level) value at level k-1
+      real :: ple       !! model pressure at current level
+      real :: plev1     !! pressure value at level k
+      real :: plev2     !! pressure value at level k-1
+      real :: KAP       !! coefficient KAPPA
+      real :: val       !! Returned value
+!
 !------------------------------------------------------------------------------
-!BOC
 
       val = ( var1*(ple**KAP - plev2**KAP) - &
               var2*(ple**KAP - plev1**KAP) ) / (plev1**KAP - plev2**KAP)
 
       END FUNCTION interpVal
-!EOC
+!
 !------------------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE: searchVerticalLocations
-!
-! !INTERFACE
+!>
+! For each horizontal grid point, the subroutine `searchVerticalLocations`
+! searches the last pressure level that is below lowest model levels and 
+! the first pressure level that is above the last model level. 
+! This allows to speed up the calculations while doing interpolations.
 !
       subroutine searchVerticalLocations(pl_mod, plevs, kbeg, kend, &
                                     im, jm, lmmod, lmpres)
 !
-! !INPUT PARAMETERS:
-      integer, intent(IN) :: im                  ! number of longitude grid points
-      integer, intent(IN) :: jm                  ! number of latitude  grid points
-      integer, intent(IN) :: lmmod               ! number of model vertical levels
-      integer, intent(IN) :: lmpres              ! number of pressure vertical levels
-      real,    intent(IN) :: pl_mod(im,jm,lmmod) ! 3D mid pressure on model levels
-      real,    intent(IN) :: plevs(lmpres)       ! pressure levels
+      integer, intent(IN)  :: im                  !! number of longitude grid points
+      integer, intent(IN)  :: jm                  !! number of latitude  grid points
+      integer, intent(IN)  :: lmmod               !! number of model vertical levels
+      integer, intent(IN)  :: lmpres              !! number of pressure vertical levels
+      real,    intent(IN)  :: pl_mod(im,jm,lmmod) !! 3D mid pressure on model levels
+      real,    intent(IN)  :: plevs(lmpres)       !! pressure levels
+      integer, intent(OUT) :: kbeg(im,jm)         !! starting location
+      integer, intent(OUT) :: kend(im,jm)         !! ending location
 !
-! !OUTPUT PARAMETERS:
-      integer, intent(OUT) :: kbeg(im,jm)        ! starting location
-      integer, intent(OUT) :: kend(im,jm)        ! ending location
-!
-! !DESCRIPTION:
-!  For each horizontal grid point, search the last pressure level that
-!  is below lowest model levels and the first pressure level that is above the
-!  last model level. This allows to speed up the calculations while doing
-!  interpolations.
-!
-! !LOCAL VARIABLES:
       integer :: i, j, L, k
-
-!EOP
+!
 !------------------------------------------------------------------------------
-!BOC
       !-----------------------------------------------------------------------
       ! Find the starting location.
       ! The kbeg in each column is the index of model level data which has the
@@ -411,8 +379,7 @@ CONTAINS
       return
 
       end subroutine searchVerticalLocations
-!EOC
+!
 !------------------------------------------------------------------------------
-
 
       end module linearVerticalInterpolation_mod

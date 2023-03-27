@@ -1,15 +1,24 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_OrbGridCompMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_OrbGridCompMod` is an ESMF gridded component implementing
+! the MAPL-5 Nominal Orbit Calculator.
+!
+! It was developed for MAPL-5 release Fortuna 2.3 and later.
+!
+!#### History
+!- 30Nov2010 da Silva  Initial version.
+!
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-!BOP
-!
-! !MODULE: MAPL_OrbGridCompMod - Implements MAPL Orbital Simulator
-!
-! !INTERFACE:
-!
    MODULE MAPL_OrbGridCompMod
 !
 ! !USES:
@@ -28,20 +37,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-!
-! !DESCRIPTION: 
-!
-!  {\tt MAPL_OrbGridComp} is an ESMF gridded component implementing
-!  the MAPL-5 Nominal Orbit Calculator.
-!
-!  Developed for MAPL-5 release Fortuna 2.3 and later.
-!
-! !REVISION HISTORY:
-!
-!  30Nov2010 da Silva  Initial version.
-!
-!EOP
-!-------------------------------------------------------------------------
 
 ! Legacy state
 ! ------------
@@ -67,36 +62,18 @@
   TYPE Orb_Wrap
      TYPE (Orb_State), pointer :: PTR => null()
   END TYPE Orb_WRAP
-
-
-
-
+!
+!------------------------------------------------------------------------------
 CONTAINS
-
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-!BOP
+!------------------------------------------------------------------------------
+!>
+! Sets IRF services for the Orb Grid Component. 
+! Sets Initialize, Run and Finalize services.
 !
-! !IROUTINE: SetServices --- Sets IRF services for the Orb Grid Component
-!
-! !INTERFACE:
-
    SUBROUTINE SetServices ( GC, RC )
 
-! !ARGUMENTS:
-
     type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, optional                  :: RC  ! return code
-
-! !DESCRIPTION: Sets Initialize, Run and Finalize services. 
-!
-! !REVISION HISTORY:
-!
-!  30Nov2010 da Silva  Initial version.
-!
-!EOP
-!-------------------------------------------------------------------------
+    integer, intent(ou), optional      :: RC  ! return code
 
 !   Local derived type aliases
 !   --------------------------
@@ -215,26 +192,17 @@ CONTAINS
 
   END SUBROUTINE SetServices
 
-!BOP
-
-! !IROUTINE: INITIALIZE_
-
-! !DESCRIPTION: The Initialize method of the orbital component, sets up bundle
+!------------------------------------------------------------------------------
+!>
+! The Initialize method of the orbital component, sets up bundle.
 !
-
-! !INTERFACE:
-
   subroutine Initialize_( GC, IMPORT, EXPORT, CLOCK, RC )
 
-! !ARGUMENTS:
-
-    type(ESMF_GridComp), intent(inout) :: GC     ! Gridded component 
-    type(ESMF_State),    intent(inout) :: IMPORT ! Import state
-    type(ESMF_State),    intent(inout) :: EXPORT ! Export state
-    type(ESMF_Clock),    intent(inout) :: CLOCK  ! The clock
-    integer, optional,   intent(  out) :: RC     ! Error code
-
-!EOP
+    type(ESMF_GridComp), intent(inout) :: GC     !! Gridded component 
+    type(ESMF_State),    intent(inout) :: IMPORT !! Import state
+    type(ESMF_State),    intent(inout) :: EXPORT !! Export state
+    type(ESMF_Clock),    intent(inout) :: CLOCK  !! The clock
+    integer, optional,   intent(  out) :: RC     !! Error code
 
 ! ErrLog Variables
 

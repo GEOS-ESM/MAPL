@@ -1,17 +1,20 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `regrid_functions_mod`
+!
+! Author: GMAO SI-Team
+!
+! The module `regrid_functions_mod` contains functions for regridding.
+!
+!#### History
+!- 09 Jan 2017 - S. D. Eastham - Initial version
+!
 #include "unused_dummy.H"
 
-!-----------------------------------------------------------------------
-!                 GEOS-Chem Global Chemical Transport Model            !
-!-----------------------------------------------------------------------
-!BOP
-!
-! !MODULE: regrid_functions_mod
-!
-! !DESCRIPTION: Module regrid_functions_mod contains functions for regridding.
-!\\
-!\\
-! !INTERFACE:
-!
   MODULE Regrid_Functions_Mod
 !
 ! !USES:
@@ -47,13 +50,6 @@
 !
 ! !PRIVATE MEMBER FUNCTIONS:
 !
-!
-! !REVISION HISTORY:
-!  09 Jan 2017 - S. D. Eastham - Initial version
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-!
 ! !PRIVATE TYPES:
 !
       ! Precision
@@ -80,20 +76,16 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The subroutine `Assert` checks if the output value is valid.
 !
-! !ROUTINE: Assert
-!
-! !DESCRIPTION: Subroutine to check if the output value is valid
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version.
 !
       Subroutine Assert(RC,CallRoutine,CallMsg,ncID)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -108,11 +100,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -143,24 +131,20 @@
       End If
 
       End Subroutine Assert
-!EOC
+!
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The subroutine `Set_fID` sets the file ID shadow variables.
 !
-! !ROUTINE: Set_fID
-!
-! !DESCRIPTION: Routine Set_fID sets the file ID shadow variables
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine Set_fID(fIDIn, fIDOut, RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -174,9 +158,6 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
 !BOC
 !
@@ -208,20 +189,16 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `Cleanup` closes any remaining open files.
 !
-! !ROUTINE: Cleanup
-!
-! !DESCRIPTION: Routine Cleanup closes any remaining open files
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine Cleanup(RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -233,11 +210,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -268,21 +241,17 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `readTileFileNC` reads a Tempest NetCDF tile file
+! and stores the relevant data in module variables for later use.
 !
-! !ROUTINE: readTileFileNC
-!
-! !DESCRIPTION: Routine readTileFileNC reads a Tempest NetCDF tile file
-!  and stores the relevant data in module variables for later use.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       subroutine readTileFileNC(TFDir,gridIn,gridOut,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -297,11 +266,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -655,21 +620,17 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `readTileFile` reads a tile file and stores the
+! relevant data in module variables for later use.
 !
-! !ROUTINE: readTileFile
-!
-! !DESCRIPTION: Routine readTileFile reads a tile file and stores the
-!  relevant data in module variables for later use.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine readTileFile(TFDir,gridIn,gridOut,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
@@ -684,11 +645,7 @@
 !
       !Real(kind=sp), Intent(Out) :: TestOut
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -876,15 +833,12 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `genGridName` returns the name of a grid based on
+! certain parameters. This mimics the MAPL behavior.
 !
-! !ROUTINE: genGridName
-!
-! !DESCRIPTION: Routine genGridName returns the name of a grid based on
-!  certain parameters. This mimics the MAPL behavior.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine genGridName(nX, nY, gridName, xVec, yVec, &
                                    isCS, isPC, isDE, rc)
@@ -909,11 +863,7 @@
       Logical, Optional, Intent(Out)       :: isDE
       Logical, Optional, Intent(Out)       :: isPC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -986,23 +936,23 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: parseGridName
-!
-! !DESCRIPTION: Routine parseGridName determines a grid specification
+!>
+! The routine `parseGridName` determines a grid specification
 ! based on a string. The string can either be a standardized MAPL grid
 ! name (eg DE0180xPC0091, CF0024x6C) or a small number of shorthand
 ! options:
+!
+!```
 !       4x5          GMAO 4x5 grid
 !       2x2.5        GMAO 2x2.5 grid
 !       1x1.25       GMAO 1x1.25 grid
 !       1x1          GMAO 1x1 grid
 !       0.5x0.625    GMAO 0.5x0.625 grid
 !       0.25x0.3125  GMAO 0.25x0.3125 grid
-!\\
-!\\
-! !INTERFACE:
+!```
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine parseGridName( gridName, nX, nY, isCS, isDE, isPC )
 !
@@ -1021,11 +971,7 @@
       Logical, Optional, Intent(Out)       :: isDE
       Logical, Optional, Intent(Out)       :: isPC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -1137,26 +1083,21 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: nXYtoVec
-!
-! !DESCRIPTION: Routine nXYtoVec estimate the X/Y mid-point vectors
+!>
+! The routine `nXYtoVec` estimate the X/Y mid-point vectors
 ! based on as little data as possible.
-!\\
-!\\
-! !INTERFACE:
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine nXYtoVec(xVec,yVec,isCS,isPC,isDE,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
 
 !
 ! !INPUT PARAMETERS:
-!
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1164,11 +1105,7 @@
       Logical,Intent(In)                   :: isCS, isPC, isDE
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -1234,16 +1171,13 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: GetLUN
-!
-! !DESCRIPTION: Routine GetLUN finds a valid logical unit number in the
+!>
+! The routine `GetLUN` finds a valid logical unit number in the
 ! range 1-100. IMPORTANT: This is the minimal-effort version of this
 ! routine, and extremely slow!
-!\\
-!\\
-! !INTERFACE:
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine GetLUN(LUN,RC)
 !
@@ -1261,9 +1195,6 @@
       Integer, Intent(Out)                 :: LUN
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
 !BOC
 !
@@ -1294,15 +1225,12 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: regridData
-!
-! !DESCRIPTION: Routine regridData regrids from lat-lon to cubed-sphere,
+!>
+! The routine `regridData` regrids from lat-lon to cubed-sphere,
 !  using tile file data already read in.
-!\\
-!\\
-! !INTERFACE:
+!
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine regridData(in2D,out2D,RC)
 !
@@ -1324,11 +1252,7 @@
 !
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -1371,26 +1295,20 @@
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
-!BOP
+!>
+! The routine `ReadInput` reads the input options file.
 !
-! !ROUTINE: ReadInput
-!
-! !DESCRIPTION: Routine ReadInput reads the input options file.
-!\\
-!\\
-! !INTERFACE:
+!#### History
+!- 09 Jan 2016 - S. D. Eastham - Initial version
 !
       Subroutine ReadInput(resOut,fNameIn,fNameOut,reverseLev,&
                               isCSOut,isPCOut,isDEOut,RC)
 !
 ! !USES:
 !
-
 !      Use Precision_Mod, Only: f4
-
 !
 ! !INPUT PARAMETERS:
-!
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1403,11 +1321,7 @@
       Logical, Intent(Out)                 :: reverseLev
       Integer, Optional                    :: RC
 !
-! !REVISION HISTORY:
-!  09 Jan 2016 - S. D. Eastham - Initial version
-!EOP
 !-----------------------------------------------------------------------
-!BOC
 !
 ! !LOCAL VARIABLES:
 !

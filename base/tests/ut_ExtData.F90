@@ -1,3 +1,14 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `module_name`
+!
+! Author: GMAO SI-Team
+!
+! `
 !
 ! ut_ExtaData.x - Simple ESMF/MAPL example demonstrating 
 !                 MAPL_ExtDataGridComp

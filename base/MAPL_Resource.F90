@@ -1,3 +1,16 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_ResourceMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_ResourceMod` provides subroutines get scalar and array
+! resources from ESMF_Config objects.
+!
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
@@ -52,18 +65,7 @@ type is (T) ;\
       default_str = intrinsic_to_string(default, TFMT) ;\
    end if
 
-!=============================================================================
-
-
 module MAPL_ResourceMod
-
-   !BOP
-   ! !MODULE: MAPL_ResourceMod
-   !
-   ! !DESCRIPTION:  MAPL\_ResourceMod provides subroutines get scalar and array
-   ! resources from ESMF_Config objects.
-
-   ! !USES:
 
    use ESMF
    use ESMFL_Mod
@@ -74,8 +76,6 @@ module MAPL_ResourceMod
    use MAPL_KeywordEnforcerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 
-   ! !PUBLIC MEMBER FUNCTIONS:
-
    implicit none
    private
 
@@ -83,13 +83,15 @@ module MAPL_ResourceMod
    public MAPL_GetResource_config_array
 
 contains
-
-   ! MAPL searches for labels with certain prefixes as well as just the label itself
+!--------------------------------------------------------------------------------
+!>
+! MAPL searches for labels with certain prefixes as well as just the label itself.
+!
    pure function get_labels_with_prefix(label, component_name) result(labels_with_prefix)
-      character(len=*), intent(in) :: label
+      character(len=*),           intent(in) :: label
       character(len=*), optional, intent(in) :: component_name
-      character(len=ESMF_MAXSTR) :: component_type
-      character(len=ESMF_MAXSTR) :: labels_with_prefix(4)
+      character(len=ESMF_MAXSTR)             :: component_type
+      character(len=ESMF_MAXSTR)             :: labels_with_prefix(4)
 
       if(present(component_name)) then
          component_type = component_name(index(component_name, ":") + 1:)
@@ -106,15 +108,19 @@ contains
 
    end function get_labels_with_prefix
 
-   ! If possible, find label or label with prefix. Out: label found (logical)  ! version of label found,
+!--------------------------------------------------------------------------------
+!>
+! If possible, find label or label with prefix. 
+! Out: label found (logical) - version of label found
+!
    subroutine get_actual_label(config, label, label_is_present, actual_label, unusable, component_name, rc)
-      type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: label
-      logical, intent(out) :: label_is_present
-      character(len=:), allocatable, intent(out) :: actual_label
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional, intent(in) :: component_name
-      integer, optional, intent(out) :: rc
+      type(ESMF_Config),                intent(inout) :: config
+      character(len=*),                 intent(in)    :: label
+      logical,                          intent(out)   :: label_is_present
+      character(len=:), allocatable,    intent(out)   :: actual_label
+      class(KeywordEnforcer), optional, intent(in)    :: unusable
+      character(len=*),       optional, intent(in)    :: component_name
+      integer,                optional, intent(out)   :: rc
 
       character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
       integer :: i
@@ -139,16 +145,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_actual_label
 
-   ! Find value of scalar variable in config
+!--------------------------------------------------------------------------------
+!>
+! Find value of scalar variable in config.
+!
    subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, rc)
-      type(ESMF_Config), intent(inout) :: config
-      class(*), intent(inout) :: val
-      character(len=*), intent(in) :: label
-      logical , intent(out) :: value_is_set
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      class(*), optional, intent(in) :: default
-      character(len=*), optional, intent(in) :: component_name
-      integer, optional, intent(out) :: rc
+      type(ESMF_Config),                intent(inout) :: config
+      class(*),                         intent(inout) :: val
+      character(len=*),                 intent(in)    :: label
+      logical,                          intent(out)   :: value_is_set
+      class(KeywordEnforcer), optional, intent(in)    :: unusable
+      class(*),               optional, intent(in)    :: default
+      character(len=*),       optional, intent(in)    :: component_name
+      integer,                optional, intent(out)   :: rc
 
       integer :: status, printrc
       logical :: default_is_present, label_is_present
@@ -203,16 +212,19 @@ contains
 
    end subroutine MAPL_GetResource_config_scalar
 
-   ! Find value of array variable in config
+!--------------------------------------------------------------------------------
+!>
+! Find value of array variable in config.
+!
    subroutine MAPL_GetResource_config_array(config, vals, label, value_is_set, unusable, default, component_name, rc)
-      type(ESMF_Config), intent(inout) :: config
-      class(*), intent(inout) :: vals(:)
-      character(len=*), intent(in) :: label
-      logical, intent(out) :: value_is_set
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      class(*), optional, intent(in) :: default(:)
-      character(len=*), optional, intent(in) :: component_name
-      integer, optional, intent(out) :: rc
+      type(ESMF_Config),                intent(inout) :: config
+      class(*),                         intent(inout) :: vals(:)
+      character(len=*),                 intent(in)    :: label
+      logical,                          intent(out)   :: value_is_set
+      class(KeywordEnforcer), optional, intent(in)    :: unusable
+      class(*),               optional, intent(in)    :: default(:)
+      character(len=*),       optional, intent(in)    :: component_name
+      integer,                optional, intent(out)   :: rc
 
       character(len=:), allocatable :: actual_label
       integer :: status, count
@@ -257,15 +269,18 @@ contains
 
    end subroutine MAPL_GetResource_config_array
 
-   ! Print the resource value according to the value of printrc
-   ! printrc = 0 - Only print non-default values
-   ! printrc = 1 - Print all values
+!--------------------------------------------------------------------------------
+!>
+! Print the resource value according to the value of printrc:
+!- `printrc = 0` - Only print non-default values
+!- `printrc = 1` - Print all values
+!
    subroutine print_resource(printrc, label, val, default, rc)
-      integer, intent(in) :: printrc
-      character(len=*), intent(in) :: label
-      class(*), intent(in) :: val
-      class(*), optional, intent(in) :: default
-      integer, optional, intent(out) :: rc
+      integer,                    intent(in)  :: printrc
+      character(len=*),           intent(in)  :: label
+      class(*),                   intent(in)  :: val
+      class(*),         optional, intent(in)  :: default
+      integer,          optional, intent(out) :: rc
 
       character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
       type(StringVector), pointer, save :: already_printed_labels => null()
@@ -329,11 +344,14 @@ contains
 
    end function vector_contains_str
 
-   ! Convert val to string according to str_format
+!--------------------------------------------------------------------------------
+!>
+! Convert val to string according to str_format.
+!
    function intrinsic_to_string(val, str_format, rc) result(formatted_str)
-      class(*), intent(in) :: val
-      character(len=*), intent(in) :: str_format
-      character(len=256) :: formatted_str
+      class(*),          intent(in)  :: val
+      character(len=*),  intent(in)  :: str_format
+      character(len=256)             :: formatted_str
       integer, optional, intent(out) :: rc
 
       select type(val)
