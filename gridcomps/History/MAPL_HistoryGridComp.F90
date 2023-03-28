@@ -875,6 +875,8 @@ contains
             label=trim(string) // 'observation_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskHeaderFile, default="", &
+            label=trim(string) // 'mask_header_file:', _RC)       
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2364,6 +2366,8 @@ ENDDO PARSER
              if (list(n)%observation_spec == 'station') then
                 list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
                 call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             elseif (list(n)%observation_spec == 'time_dependent_mask') then
+                list(n)%tdmask = TimeDependentMask (trim(list(n)%stationIdFile),_RC)
              else
                 _FAIL('Not implemented: list(n)%observation_spec= '//trim(list(n)%observation_spec))
              endif
