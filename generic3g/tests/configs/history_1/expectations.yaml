@@ -1,0 +1,66 @@
+# For each component:
+#   - provide a path to the outer/user componen in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: root/A/<user>
+  exports:
+    E_A1: {status: complete}
+    E_A2: {status: gridset}
+
+- component: root/A
+  exports:
+    E_A1: {status: complete}
+    E_A2: {status: gridset}
+
+- component: root/B/<user>
+  exports:
+    E_B1: {status: gridset}
+    E_B2: {status: complete}
+
+- component: root/B
+  exports:
+    E_B1: {status: gridset}
+    E_B2: {status: complete}
+
+- component: root/<user>
+  exports: {}
+
+- component: root
+  exports:
+    "A/E_A1": {status: complete}
+    "A/E_A2": {status: gridset}
+    "B/E_B1": {status: gridset}
+    "B/E_B2": {status: complete}
+
+- component: history/collection_1/<user>
+  imports: {}
+#    "A/E_A1": {status: complete}
+#    "B/E_B2": {status: complete}
+
+- component: history/collection_1
+  imports:
+    "A/E_A1": {status: complete}
+    "B/E_B2": {status: complete}
+
+- component: history/<user>
+  imports: {}
+
+- component: history
+  imports:
+    "A/E_A1": {status: complete}
+    "B/E_B2": {status: complete}
+
+- component: <user>
+  imports: {}
+  exports: {}
+  internals: {}
+
+- component: <root>
+  imports: {}
+  exports:
+    "A/E_A1": {status: complete}
+    "A/E_A2": {status: gridset}
+    "B/E_B1": {status: gridset}
+    "B/E_B2": {status: complete}
+  

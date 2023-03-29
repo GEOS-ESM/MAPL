@@ -155,21 +155,20 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
-      integer :: i
+      integer :: i, n
       type(ActualPtVector), pointer :: actual_pts
       type(ActualConnectionPt), pointer :: actual_pt
 
       actual_pts => this%actual_pts_map%at(virtual_pt, rc=status)
       if (status /= 0) allocate(specs(0))
       _VERIFY(status)
-
-      associate ( n => actual_pts%size() )
-        allocate(specs(n))
-        do i = 1, n
-           actual_pt => actual_pts%of(i)
-           specs(i)%ptr => this%get_item_spec(actual_pt, _RC)
-        end do
-      end associate
+         
+      n = actual_pts%size()
+      allocate(specs(n))
+      do i = 1, n
+         actual_pt => actual_pts%of(i)
+         specs(i)%ptr => this%get_item_spec(actual_pt, _RC)
+      end do
 
       _RETURN(_SUCCESS)
    end function get_actual_pt_SpecPtrs
@@ -227,6 +226,7 @@ contains
       integer :: status
       type(ActualConnectionPt) :: actual_pt
 
+      
       actual_pt = ActualConnectionPt(virtual_pt)
       call this%add_item_spec(virtual_pt, spec, actual_pt, _RC)
 
@@ -373,17 +373,41 @@ contains
 
    ! Connect two _virtual_ connection points.
    ! Use extension map to find actual connection points.
-   subroutine add_connection(this, connection, rc)
+   recursive subroutine add_connection(this, connection, rc)
+      use esmf
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(ConnectionSpec), intent(in) :: connection
       integer, optional, intent(out) :: rc
 
       type(HierarchicalRegistry), pointer :: src_registry, dst_registry
       integer :: status
+      type(VirtualConnectionPt) :: s_v_pt
+      type(VirtualConnectionPt), pointer :: d_v_pt
+      type(ConnectionPt) :: s_pt,d_pt
+      type(ActualPtVec_MapIterator) :: iter
 
       associate(src_pt => connection%source, dst_pt => connection%destination)
-        src_registry => this%get_subregistry(src_pt)
         dst_registry => this%get_subregistry(dst_pt)
+
+        if (dst_pt%get_esmf_name() == '*') then
+           associate (e => dst_registry%actual_pts_map%end())
+             iter = dst_registry%actual_pts_map%begin()
+             do while (iter /= e)
+                d_v_pt => iter%first()
+                if (d_v_pt%get_state_intent() /= 'import') cycle
+                s_v_pt = d_v_pt
+                s_v_pt%state_intent = ESMF_STATEINTENT_EXPORT
+
+                s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
+                d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
+                call this%add_connection(ConnectionSpec(s_pt, d_pt), _RC)
+                call iter%next()
+             end do
+           end associate
+           _RETURN(_SUCCESS)
+        end if
+           
+        src_registry => this%get_subregistry(src_pt)
 
         _ASSERT(associated(src_registry), 'Unknown source registry')
         _ASSERT(associated(dst_registry), 'Unknown destination registry')
@@ -728,11 +752,8 @@ contains
                 _FAIL("unknown mode.  Must be 'user', or 'outer'.")
              end select
 
-!!$             call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
-!!$             call get_substate(state, actual_pt%get_comp_name(), substate=substate, _RC)
-!!$
-!!$             name = actual_pt%get_esmf_name()
              call item_spec%add_to_state(multi_state, actual_pt, _RC)
+
            end associate filter
 
            call actual_iter%next()

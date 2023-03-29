@@ -14,7 +14,7 @@ module mapl3g_VirtualConnectionPt
    type(ESMF_StateIntent_Flag), parameter :: ESMF_STATEINTENT_INTERNAL = ESMF_StateIntent_Flag(100)
   
    type :: VirtualConnectionPt
-      private
+!!$      private
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
       character(:), allocatable :: comp_name
@@ -86,7 +86,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_VirtualPt_string_intent
 
-   ! Virtual points override any existing comp name.
    function add_comp_name(this, comp_name) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
       class(VirtualConnectionPt), intent(in) :: this
@@ -196,7 +195,7 @@ contains
 
 
       write(unit, '("Virtual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
-           this%get_state_intent(), this%get_esmf_name()
+           this%get_state_intent(), this%get_full_name()
    end subroutine write_formatted
 
 end module mapl3g_VirtualConnectionPt

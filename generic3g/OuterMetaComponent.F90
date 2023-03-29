@@ -4,7 +4,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
-   use mapl3g_ExtraDimsSpec
+   use mapl3g_UngriddedDimsSpec
    use mapl3g_InvalidSpec
    use mapl3g_FieldSpec
    use mapl3g_MultiState
@@ -209,13 +209,13 @@ contains
 
          integer :: status
 
-         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, rc=status)
+         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=this%get_name(), rc=status)
          if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user importState.'
          
-         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, rc=status)
+         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=this%get_name(), rc=status)
          if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user exportState'
 
-         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, rc=status)
+         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, name=this%get_name(), rc=status)
          if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user internalState.'
 
          this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
@@ -509,7 +509,6 @@ contains
          integer :: status
          class(AbstractStateItemSpec), allocatable :: item_spec
          type(VirtualConnectionPt) :: virtual_pt
-         type(ExtraDimsSpec) :: extra_dims
 
          _ASSERT(var_spec%state_item /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 

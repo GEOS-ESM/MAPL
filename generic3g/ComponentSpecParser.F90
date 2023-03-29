@@ -26,7 +26,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_SetServices
    public :: var_parse_ChildSpecMap
 
-   public :: parse_ExtraDimsSpec
+   public :: parse_UngriddedDimsSpec
    
 contains
 
@@ -82,23 +82,46 @@ contains
 
          type(VariableSpec) :: var_spec
          class(NodeIterator), allocatable :: iter, e
-         character(:), pointer :: short_name
+         character(:), pointer :: name
+         character(:), allocatable :: short_name
+         character(:), allocatable :: substate
          class(YAML_Node), pointer :: attributes
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
          do while (iter /= e)
-            short_name => to_string(iter%first())
+            name => to_string(iter%first())
             attributes => iter%second()
+
+            call split(name, short_name, substate)
+            
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
-                 units=to_string(attributes%of('units')))
+                 units=to_string(attributes%of('units')), &
+                 substate=substate)
             call var_specs%push_back(var_spec)
             call iter%next()
          end do
 
          _RETURN(_SUCCESS)
       end subroutine process_state_specs
+
+      subroutine split(name, short_name, substate)
+         character(*), intent(in) :: name
+         character(:), allocatable, intent(out) :: short_name
+         character(:), allocatable, intent(out) :: substate
+
+         integer :: idx
+
+         idx = index(name, '/')
+         if (idx == 0) then
+            short_name = name
+            return
+         end if
+
+         short_name = name(idx+1:)
+         substate = name(:idx-1)
+      end subroutine split
    end function process_var_specs
 
 
@@ -137,8 +160,17 @@ contains
          character(:), allocatable :: src_comp, dst_comp
          character(:), allocatable :: src_intent, dst_intent
 
-         call get_names(config, src_name, dst_name, _RC)
          call get_comps(config, src_comp, dst_comp, _RC)
+
+         if (config%has('all_unsatisfied')) then
+            connection = ConnectionSpec( &
+                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
+                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
+                 )
+            _RETURN(_SUCCESS)
+         end if
+            
+         call get_names(config, src_name, dst_name, _RC)
          call get_intents(config, src_intent, dst_intent, _RC)
 
          associate ( &
@@ -338,14 +370,14 @@ contains
 
       
 
-   function parse_ExtraDimsSpec(config, rc) result(dims_spec)
-      use mapl3g_ExtraDimsSpec
-      type(ExtraDimsSpec) :: dims_spec
+   function parse_UngriddedDimsSpec(config, rc) result(dims_spec)
+      use mapl3g_UngriddedDimsSpec
+      type(UngriddedDimsSpec) :: dims_spec
       class(YAML_Node), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
-!!$      dims_spec = ExtraDimsSpec()
+!!$      dims_spec = UngriddedDimsSpec()
       
-   end function parse_ExtraDimsSpec
+   end function parse_UngriddedDimsSpec
    
 end module mapl3g_ComponentSpecParser

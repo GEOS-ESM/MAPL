@@ -18,6 +18,9 @@ module mapl3g_MultiState
       procedure :: get_state_by_esmf_intent
       generic :: get_state => get_state_by_string_intent
       generic :: get_state => get_state_by_esmf_intent
+
+      procedure :: write_multistate
+      generic :: write(formatted) => write_multistate
    end type MultiState
 
    interface MultiState
@@ -88,4 +91,23 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_state_by_esmf_intent
 
-end module mapl3g_MultiState
+   subroutine write_multistate(this, unit, iotype, v_list, iostat, iomsg)
+      use mapl3g_ESMF_Utilities
+      class(MultiState), intent(in) :: this
+      integer, intent(in)         :: unit
+      character(*), intent(in)    :: iotype
+      integer, intent(in)         :: v_list (:)
+      integer, intent(out)        :: iostat
+      character(*), intent(inout) :: iomsg
+
+      type(ESMF_State) :: state
+      integer :: status
+      character(ESMF_MAXSTR) :: name
+      integer :: itemCount
+
+      write(unit,*, iostat=iostat, iomsg=iomsg) 'IMPORT:', this%importState
+      write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
+
+   end subroutine write_multistate
+
+ end module mapl3g_MultiState

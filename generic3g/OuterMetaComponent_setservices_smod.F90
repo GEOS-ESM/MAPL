@@ -154,6 +154,7 @@ contains
          if (child_spec%has('config_file')) then
             call child_spec%get(config_file, 'config_file', _RC)
             p = Parser()
+!!$            _HERE, 'config file? ', config_file
             generic_config = GenericConfig(yaml_cfg=p%load_from_file(config_file))
          end if
 

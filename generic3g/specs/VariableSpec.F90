@@ -32,6 +32,7 @@ module mapl3g_VariableSpec
       character(:), allocatable :: standard_name
       type(ESMF_StateItem_Flag) :: state_item = MAPL_STATEITEM_FIELD
       character(:), allocatable :: units
+      character(:), allocatable :: substate
 
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
@@ -54,7 +55,7 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        state_item, units) result(var_spec)
+        state_item, units, substate) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -63,18 +64,20 @@ contains
       character(*), optional, intent(in) :: standard_name
       type(ESMF_StateItem_Flag), optional, intent(in) :: state_item
       character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: substate
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
 
-#if defined(SET_OPTIONAL)
-#  undef SET_OPTIONAL
+#if defined(_SET_OPTIONAL)
+#  undef _SET_OPTIONAL
 #endif
-#define SET_OPTIONAL(attr) if (present(attr)) var_spec% attr = attr
+#define _SET_OPTIONAL(attr) if (present(attr)) var_spec% attr = attr
 
-      SET_OPTIONAL(standard_name)
-      SET_OPTIONAL(state_item)
-      SET_OPTIONAL(units)
+      _SET_OPTIONAL(standard_name)
+      _SET_OPTIONAL(state_item)
+      _SET_OPTIONAL(units)
+      _SET_OPTIONAL(substate)
       
    end function new_VariableSpec
 
@@ -133,6 +136,10 @@ contains
       type(VirtualConnectionPt) :: v_pt
       class(VariableSpec), intent(in) :: this
       v_pt = VirtualConnectionPt(this%state_intent, this%short_name)
+      if (allocated(this%substate)) then
+         v_pt = v_pt%add_comp_name(this%substate)
+
+      end if
    end function make_virtualPt
 
 
@@ -146,6 +153,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
       select case (this%state_item%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
