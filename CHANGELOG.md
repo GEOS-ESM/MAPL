@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New feature in History to allow the accumulation in non-instataneous colletions to be reset independently of the writing frequency if requested.
+
 ### Changed
 
 ### Fixed
