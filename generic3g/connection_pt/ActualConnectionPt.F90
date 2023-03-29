@@ -41,7 +41,7 @@ module mapl3g_ActualConnectionPt
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
 
-      
+      procedure :: is_represented_in
    end type ActualConnectionPt
 
    ! Constructors
@@ -216,5 +216,25 @@ contains
       name = this%v_pt%get_comp_name()
    end function get_comp_name
       
+
+   logical function is_represented_in(this, mode)
+      class(ActualConnectionPt), intent(in) :: this
+      character(*), intent(in) :: mode ! user or outer grid comp
+
+      is_represented_in = .false. ! unless
+
+      select case (mode)
+      case ('user') ! only add undecorated items
+         if (this%is_extension()) return
+         if (this%get_comp_name() /= '') return
+      case ('outer') ! do not add internal items
+         if (this%get_state_intent() == 'internal') return
+      case default
+         error stop "Illegal mode in ActualConnectionPt.F90 - should be checked by calling procedure."
+      end select
+
+      is_represented_in = .true.
+      
+   end function is_represented_in
 
 end module mapl3g_ActualConnectionPt

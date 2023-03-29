@@ -728,8 +728,8 @@ contains
       type(ActualConnectionPt), pointer :: actual_pt
       type(StateItemSpecPtr), pointer :: item_spec_ptr
       class(AbstractStateItemSpec), pointer :: item_spec
-!!$      character(:), allocatable :: name
-!!$      type(ESMF_State) :: state, substate
+
+      _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
 
       associate (e => this%actual_specs_map%end())
 
@@ -737,24 +737,12 @@ contains
         do while (actual_iter /= e)
 
            actual_pt => actual_iter%first()
-           item_spec_ptr =>  actual_iter%second()
-           item_spec => item_spec_ptr%ptr
 
-           filter: associate (state_intent => actual_pt%get_state_intent())
-
-             select case (mode)
-             case ('user') ! only add undecorated items
-                if (actual_pt%is_extension()) exit
-                if (actual_pt%get_comp_name() /= '') exit
-             case ('outer') ! do not add internal items
-                if (state_intent == 'internal') exit
-             case default
-                _FAIL("unknown mode.  Must be 'user', or 'outer'.")
-             end select
-
-             call item_spec%add_to_state(multi_state, actual_pt, _RC)
-
-           end associate filter
+           if (actual_pt%is_represented_in(mode)) then
+              item_spec_ptr =>  actual_iter%second()
+              item_spec => item_spec_ptr%ptr
+              call item_spec%add_to_state(multi_state, actual_pt, _RC)
+           end if
 
            call actual_iter%next()
         end do
@@ -845,22 +833,23 @@ contains
       type(ActualPtVector), pointer :: actual_pts
       type(ActualConnectionPt), pointer :: actual_pt
 
-
       virtual_pt => iter%first()
       actual_pts => iter%second()
-      do i = 1, actual_pts%size()
-         actual_pt => actual_pts%of(i)
-         item => child_r%get_item_spec(actual_pt)
-         _ASSERT(associated(item), 'Should not happen.')
 
-         if (actual_pt%is_export()) then
-            parent_vpt = virtual_pt%add_comp_name(child_r%name)
-            call this%link_item_spec_virtual(parent_vpt, item, actual_pt%add_comp_name(child_r%get_name()), _RC)
-         end if
+      do i = 1, actual_pts%size()
+
+         actual_pt => actual_pts%of(i)
+         if (.not. actual_pt%is_export()) cycle
+
+         item => child_r%get_item_spec(actual_pt)
+         _ASSERT(associated(item), 'Inconsistent map in hierarchy.')
+
+         parent_vpt = virtual_pt%add_comp_name(child_r%name)
+         call this%link_item_spec_virtual(parent_vpt, item, actual_pt%add_comp_name(child_r%get_name()), _RC)
 
       end do
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt
 
 end module mapl3g_HierarchicalRegistry
