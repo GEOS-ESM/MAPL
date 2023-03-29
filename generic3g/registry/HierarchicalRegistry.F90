@@ -386,9 +386,11 @@ contains
       type(ConnectionPt) :: s_pt,d_pt
       type(ActualPtVec_MapIterator) :: iter
 
-      associate(src_pt => connection%source, dst_pt => connection%destination)
+      associate( src_pt => connection%source, dst_pt => connection%destination)
         dst_registry => this%get_subregistry(dst_pt)
 
+        ! TODO: Move this into a separate procedure, or introduce
+        ! a 2nd type of connection
         if (dst_pt%get_esmf_name() == '*') then
            associate (e => dst_registry%actual_pts_map%end())
              iter = dst_registry%actual_pts_map%begin()
