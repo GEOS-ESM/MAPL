@@ -43,6 +43,7 @@ module MAPL_HistoryGridCompMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
+  use MAPL_TimeDependentMask
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -875,8 +876,10 @@ contains
             label=trim(string) // 'observation_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%maskHeaderFile, default="", &
-            label=trim(string) // 'mask_header_file:', _RC)       
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%collection_is_masked, default="", &
+            label=trim(string) // 'collection_is_masked:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%mask_setup, default="", &
+            label=trim(string) // 'mask_setup:', _RC)              
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2366,8 +2369,8 @@ ENDDO PARSER
              if (list(n)%observation_spec == 'station') then
                 list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
                 call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
-             elseif (list(n)%observation_spec == 'time_dependent_mask') then
-                list(n)%tdmask = TimeDependentMask (trim(list(n)%stationIdFile),_RC)
+             !elseif (list(n)%observation_spec == 'time_dependent_mask') then
+             !   list(n)%tdmask = TimeDependentMask (trim(list(n)%stationIdFile),_RC)
              else
                 _FAIL('Not implemented: list(n)%observation_spec= '//trim(list(n)%observation_spec))
              endif
@@ -3587,12 +3590,16 @@ ENDDO PARSER
       if (list(n)%timeseries_output) then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
-      elseif (list(n)%observation_spec /= '') then
+      end if
+      if (list(n)%observation_spec /= '') then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          if (list(n)%observation_spec == 'station') then
             call list(n)%station_sampler%append_file(current_time,_RC)
          endif
-      else
+      end if
+      if (list(n)%collection_is_masked) then
+         call list(n)%td_mask%get_mask(..., mask,_RC)
+         call list(n)
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then

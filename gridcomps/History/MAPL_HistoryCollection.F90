@@ -102,14 +102,15 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
      character(len=ESMF_MAXPATHLEN)     :: stationIdFile
+     character(len=ESMF_MAXPATHLEN)     :: mask_setup
      logical                            :: splitField
      logical                            :: regex
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
-     logical                            :: use_td_mask = .false.
+     logical                            :: collection_is_masked = .false.     
      type(HistoryTrajectory)            :: trajectory
      type(StationSampler)               :: station_sampler
-     type(TimeDependentMask)            :: tdmask
+     type(TimeDependentMask)            :: td_mask
      character(len=ESMF_MAXSTR)         :: observation_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
      type(HistoryCollectionGlobalAttributes) :: global_atts

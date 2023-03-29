@@ -2,10 +2,20 @@ module MAPL_TimeDependentMask
   public
   type :: TimeDependentMask
      logical, allocatable :: mask(:,:)    ! for CS and LL
+     type(ESMF_Time) :: mask_start
+     type(ESMF_Time) :: mask_end
+     type(ESMF_Time) :: mask_freq
+     character(len=ESMF_MAXPATHLEN) :: mask_file_header
    contains
      procedure :: get_mask
   end type TimeDependentMask
+  type(ESMF_Time) :: obs_start_time
+  type(ESMF_Time) :: obs_end_time
+  type(ESMF_TimeInterval) :: obs_interval
+  type(ESMF_Time) :: bracket_obs_start
+  type(ESMF_Time) :: bracket_obs_end
 
+  
   interface TimeDependentMask
      procedure new_TimeDependentMask
   end interface TimeDependentMask
@@ -13,18 +23,41 @@ module MAPL_TimeDependentMask
 contains
 
   subroutine new_TimeDependentMask()
-
     ! convert mask start_time, end_time to ESMF time
     ! read in
-    
-
   end subroutine new_TimeDependentMask
   
-  subroutine get_mask(this, time_span, grid, rc)
+  subroutine get_mask(this, bundle, time_span, grid, rc)
     type(TimeDependentMask), intent(inout) :: this
-    type(ESMF_time), intent (in) :: time_span(2)
+    type(ESMF_FieldBundle), intent (in) :: bundle    ! input bundle
+    type(ESMF_Time), intent (in) :: time_span(2)
     type(ESMF_grid), intent (in) :: grid
     integer, optional, intent(out) :: rc
+
+    type(ESMF_grid) :: grid_in   ! CS or LL from model/bundle
+    integer :: status
+    integer, allocatable :: COUNTS(:)
+    integer :: IM, JM, LM, IM_WORLD, JM_WORLD
+    
+    this%mask = 1
+
+    ! s1. get esmf grid dim, default mask=.F.
+    call ESMF_FieldBundleGet(bundle, grid=grid_in, _RC)
+    call ESMF_GridGet(grid_in, DistGrid=disgrid, dimCount=dimCount, _RC)
+    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+    call EMSF_VmGetCurrent(VM, _RC)
+    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+    
+    call ESMF_GridGet(grid_in, localCellCountPerDim=COUNTS, _RC)
+    IM= COUNTS(1)
+    JM= COUNTS(2)
+    LM= COUNTS(3)
+
+    call ESMF_GridGet(grid_in, globalCellCountPerDim=COUNTS, _RC)
+    IM_WORLD= COUNTS(1)
+    JM_WORLD= CONNTS(2)
+
+
     this%mask = 1
 
 
