@@ -1,9 +1,12 @@
-!usage
-!mpirun -np 8 ./pfio_server_demo.x -nc 6 -ns 2 -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
-!The variable should be 4d with lavel>=20
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
-
+!>
+! Usage:
+!```
+! mpirun -np 8 ./pfio_server_demo.x -nc 6 -ns 2 -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
+!```
+! The variable should be 4d with lavel>=20
+!
 module server_demo_CLI
    use MAPL_ExceptionHandling
    use gFTL_StringVector
@@ -308,9 +311,9 @@ program main
          call d_s%connect_to_client('i_server', s)
          print*, "using MpiServer"
       else if(trim(options%server_type) == 'openmp') then
-!!$         call omp_set_num_threads(num_threads)
-!!$         allocate(s, source=OpenMPServer(comm,d_s))
-!!$         print*, "using OpenMPServer"
+!$         call omp_set_num_threads(num_threads)
+!$         allocate(s, source=OpenMPServer(comm,d_s))
+!$         print*, "using OpenMPServer"
       else
          print*, options%server_type // '  not implemented'
          stop
