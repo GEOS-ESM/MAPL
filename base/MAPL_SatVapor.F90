@@ -9,10 +9,10 @@
 ! Author: GMAO SI-Team
 !
 ! The module `MAPL_SatVaporMod` provides a function that returns
-! the saturation specific humidity $q_s$, mixing ratio, $r_s$,
-! or vapor pressure $e_s$, over either liquid water or ice.
-! The function can also return the derivatives $\frac{d q_s}{dT}$,
-! $\frac{d r_s}{dT}$, or $\frac{d e_s}{dT}$ through an optional argument.
+! the saturation specific humidity \(q_s\), mixing ratio, \(r_s\),
+! or vapor pressure \(e_s\), over either liquid water or ice.
+! The function can also return the derivatives \(\frac{d q_s}{dT}\),
+! \(\frac{d r_s}{dT}\), or \(\frac{d e_s}{dT}\) through an optional argument.
 ! The module does not depend on ESMF and its only dependence
 ! on the rest of MAPL is for the definition
 ! of gas constants. If the preprocessor macro MAPL_MODE is not defined,

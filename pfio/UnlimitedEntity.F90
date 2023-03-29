@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
+
 !>
 !### MODULE: `pFIO_UnlimitedEntityMod`
 !
@@ -10,7 +13,7 @@
 !
 ! The module `pFIO_UnlimitedEntityMod` encapsulates notion of variable UnlimitedEntitys.
 !
-! `CFI\_AtttributeMod` is a support layer for the CFIO package and
+! `CFIO_AtttributeMod` is a support layer for the CFIO package and
 ! which implements encapsulates variable UnlimitedEntitys ala NetCDF.
 ! An UnlimitedEntity can be any Fortan kind/type and can either be a scalar
 ! or a 1-dimensional vector.   (Strings can only be scalars.)
@@ -18,10 +21,7 @@
 ! While some functionality exists for containing non-intrinsic types
 ! (e.g., user defined types),  the primary intended use is for
 ! establishing correspondence with intrinsic types stored in files.
-
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
+!
 module pFIO_UnlimitedEntityMod
 
    use pFIO_ConstantsMod

@@ -3,12 +3,36 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+#define GET_POINTER ESMFL_StateGetPointerToData
+#define MAPL_MAX_PHASES 10
+
+! MAT: The ftell function is a non-portable Fortran
+!      extension. While the 32-bit function has a
+!      common name, the 64-bit does not. So we select
+!      the correct Intel or PGI function, and default
+!      to the 32-bit. Note, this will present problems
+!      if a >2gb file is read with PARALLEL_READFORCING.
+
+#if defined(__INTEL_COMPILER)
+# define _FTELL ftelli8
+#elif defined(__PGI)
+# define _FTELL ftell64
+#else
+# define _FTELL ftell
+#endif
+
+#include "unused_dummy.H"
+
+!------------------------------------------------------------------------------
 !>
 !### MODULE: `MAPL_GenericMod`
 !
 ! Author: GMAO SI-Team
 !
-! `MAPLGeneric allows the user to easily build ESMF gridded
+! `MAPLGeneric` allows the user to easily build ESMF gridded
 ! components.  It has its own SetServices, Initialize, Run, and Finalize
 ! (IRF) methods, and thus is itself a valid gridded component, although somewhat
 ! non-standard since it makes its IRF methods public. An instance of
@@ -16,7 +40,7 @@
 !
 ! The standard way to use MAPL_Generic is as an aid in building ESMF gridded
 ! components. A MAPL/ESMF gridded component built in this way will always have
-! its own SetServices, which will call the subroutine MAPL\_GenericSetServices.
+! its own SetServices, which will call the subroutine MAPL_GenericSetServices.
 ! When MAPL_GenericSetServices is called it sets the
 ! component's IRF methods to the generic versions, MAPL_GenericInitialize, MAPL_GenericFinalize, and
 ! MAPL_GenericRun.  Any (or all) of
@@ -71,29 +95,6 @@
 !
 ! MAPL_GenericSetServices provides generic versions of all these, as described below.
 !
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
-#define GET_POINTER ESMFL_StateGetPointerToData
-#define MAPL_MAX_PHASES 10
-
-! MAT: The ftell function is a non-portable Fortran
-!      extension. While the 32-bit function has a
-!      common name, the 64-bit does not. So we select
-!      the correct Intel or PGI function, and default
-!      to the 32-bit. Note, this will present problems
-!      if a >2gb file is read with PARALLEL_READFORCING.
-
-#if defined(__INTEL_COMPILER)
-# define _FTELL ftelli8
-#elif defined(__PGI)
-# define _FTELL ftell64
-#else
-# define _FTELL ftell
-#endif
-
-#include "unused_dummy.H"
-
-
 module MAPL_GenericMod
 
 

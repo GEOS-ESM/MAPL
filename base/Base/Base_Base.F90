@@ -3,6 +3,10 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `MAPL_Base`
 !
@@ -11,9 +15,6 @@
 ! The module `MAPL_Base` provides a collection assorted
 ! utilities and constants used throughout the MAPL Library.
 !
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
 module MAPL_Base
 
   ! !USES:

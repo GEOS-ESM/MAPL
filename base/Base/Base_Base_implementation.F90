@@ -3,6 +3,11 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
+!
 !>
 !### SUBMODULE: `(MAPL_Base) Base_Implementation`
 !
@@ -10,10 +15,6 @@
 !
 ! MAPL_BaseMod --- A Collection of Assorted MAPL Utilities
 !
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
 submodule (MAPL_Base) Base_Implementation
 
   !BOP

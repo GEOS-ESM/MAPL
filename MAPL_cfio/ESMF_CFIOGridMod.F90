@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `ESMF_CFIOGridMod`
 !
@@ -16,9 +19,6 @@
 !#### History
 !- Feb2007 Baoyu Yin   Separated from ESMF_CFIOMod
 !
-#include "unused_dummy.H"
-!==============================================================================
-
        module ESMF_CFIOGridMod
 
 !------------------------------------------------------------------------------
@@ -42,36 +42,37 @@
 !
 !EOP
 !------------------------------------------------------------------------------
-! Define a new data type "CFIO_Grid" -- contains grid information
-
+!
+      !>
+      ! Define a new data type "CFIO_Grid" -- contains grid information
       type ESMF_CFIOGrid
 !         private
-         character(len=MVARLEN) :: gName ! name for this grid
-         integer :: im              ! size of longitudinal dimension
-         integer :: jm              ! size of latitudinal  dimension
-         integer :: km              ! size of vertical dimension
-         integer :: tm              ! size of time dimension
-         real(kind=REAL64), pointer :: lon(:) => NULL()    ! longitude of center of gridbox in
-                                    ! degrees east of Greenwich (can be
-                                    ! -180 -> 180 or 0 -> 360)
-         real(kind=REAL64), pointer :: lat(:) => NULL()    ! latitude of center of gridbox in
-                                    ! degrees north of equator
-         real(kind=REAL64), pointer :: lev(:) => NULL()    ! Level (units given by levUnits) of
-                                    ! center of gridbox
-         character(len=MLEN) :: levUnits   ! units of level dimension, e.g.,
-                                           ! "hPa", "sigma_level"
-         character(len=MLEN) :: coordinate ! string to indicate vertical coord
-                                           ! (pressure, sigma, pressure_sigma)
-         character(len=MLEN) :: standardName ! string for CF standard name
-         character(len=MLEN) :: formulaTerm  ! string for CF formula terms
-         real, pointer :: ak(:) => NULL()     ! parameter for hybrid sigma prs coord.
-         real, pointer :: bk(:) => NULL()     ! parameter for hybrid sigma prs coord.
-         real, pointer :: sigma(:) => NULL()  ! parameter for sigma coordinate
-         real :: ptop               ! parameter for sigma/eta coordinate
-         character(len=MVARLEN) :: ptopUnit !  unit of ptop
-         logical :: twoDimLat       ! support 2D lat/lon or not
-         logical :: reduceGrid      ! support for reduced grid
-         logical :: stnGrid         ! support for station data
+         character(len=MVARLEN) :: gName !! name for this grid
+         integer :: im              !! size of longitudinal dimension
+         integer :: jm              !! size of latitudinal  dimension
+         integer :: km              !! size of vertical dimension
+         integer :: tm              !! size of time dimension
+         real(kind=REAL64), pointer :: lon(:) => NULL()    !! longitude of center of gridbox in   
+                                    !! degrees east of Greenwich (can be   
+                                    !! -180 -> 180 or 0 -> 360)
+         real(kind=REAL64), pointer :: lat(:) => NULL()    !! latitude of center of gridbox in   
+                                    !! degrees north of equator
+         real(kind=REAL64), pointer :: lev(:) => NULL()    !! Level (units given by levUnits) of   
+                                    !! center of gridbox
+         character(len=MLEN) :: levUnits   !! units of level dimension, e.g.,
+                                           !! "hPa", "sigma_level"
+         character(len=MLEN) :: coordinate !! string to indicate vertical coord   
+                                           !! (pressure, sigma, pressure_sigma)
+         character(len=MLEN) :: standardName !! string for CF standard name
+         character(len=MLEN) :: formulaTerm  !! string for CF formula terms
+         real, pointer :: ak(:) => NULL()     !! parameter for hybrid sigma prs coord.
+         real, pointer :: bk(:) => NULL()     !! parameter for hybrid sigma prs coord.
+         real, pointer :: sigma(:) => NULL()  !! parameter for sigma coordinate   
+         real :: ptop               !! parameter for sigma/eta coordinate
+         character(len=MVARLEN) :: ptopUnit !!  unit of ptop
+         logical :: twoDimLat       !! support 2D lat/lon or not
+         logical :: reduceGrid      !! support for reduced grid
+         logical :: stnGrid         !! support for station data
       end type ESMF_CFIOGrid
 !------------------------------------------------------------------------------
 
@@ -88,7 +89,7 @@
 ! !INPUT PARAMETERS:
 !
       character(len=*), intent(in), OPTIONAL :: gName  !! grid object name
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:    
                                                 !! 0   all is well
 !
 !------------------------------------------------------------------------------
@@ -163,11 +164,11 @@
 
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc !! Error return code:
-                                           !! 0   all is well
-                                           !! -1  Problem in setting lon
-                                           !! -2  Problem in setting lat
-                                           !! -3  Problem in setting lev
+      integer, intent(out), OPTIONAL :: rc !! Error return code:       
+                                           !! 0   all is well       
+                                           !! -1  Problem in setting lon       
+                                           !! -2  Problem in setting lat       
+                                           !! -3  Problem in setting lev  
 ! !INPUT/OUTPUT PARAMETERS:
 !
       type(ESMF_CFIOGrid), intent(inout) :: grid   ! CFIO grid   
@@ -315,11 +316,11 @@
       logical, intent(out), OPTIONAL :: twoDimLat !! support 2D lat/lon or not
       logical, intent(out), OPTIONAL :: reduceGrid !! support for reduced grid 
       logical, intent(out), OPTIONAL :: stnGrid !! support for station grid 
-      integer, intent(out), OPTIONAL :: rc !! Error return code:
-                                           !! 0   all is well
-                                           !! -1  problem in getting lon
-                                           !! -2  problem in getting lat
-                                           !! -3  problem in getting lev
+      integer, intent(out), OPTIONAL :: rc !! Error return code:       
+                                           !! 0   all is well       
+                                           !! -1  problem in getting lon       
+                                           !! -2  problem in getting lat       
+                                           !! -3  problem in getting lev       
 !
 !------------------------------------------------------------------------------
        integer :: rtcode = 0
@@ -412,7 +413,7 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:       
                                                 !! 0   all is well
 !
 ! !INPUT/OUTPUT PARAMETERS:

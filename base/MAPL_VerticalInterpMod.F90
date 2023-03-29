@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_ErrLog.h"
+!
 !>
 !### MODULE: `linearVerticalInterpolation_mod`
 !
@@ -11,8 +14,6 @@
 ! The module `linearVerticalInterpolation_mod` contains routines for 
 ! linear vertical interpolation in the pressure to the KAPPA formulation.
 !
-#include "MAPL_ErrLog.h"
-
       module linearVerticalInterpolation_mod
 
       use ESMF

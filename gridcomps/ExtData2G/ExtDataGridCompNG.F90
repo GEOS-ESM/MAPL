@@ -3,6 +3,11 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_Exceptions.h"
+#include "MAPL_Generic.h"
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `MAPL_ExtDataGridComp2G`
 !
@@ -17,10 +22,6 @@
 !#### History
 !- 12Dec2009:  da Silva  Design and first implementation.
 !
-#include "MAPL_Exceptions.h"
-#include "MAPL_Generic.h"
-#include "unused_dummy.H"
-
    MODULE MAPL_ExtDataGridComp2G
 !
 ! !USES:
@@ -228,9 +229,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
    type(ESMF_State), intent(inout)    :: IMPORT  !! Import State
    type(ESMF_State), intent(inout)    :: EXPORT  !! Export State
-   integer, intent(out)               :: rc      !! Error return code:
-                                                 !!  0 - all is well
-                                                 !!  1 -
+   integer, intent(out)               :: rc      !! Error return code:   
+                                                 !!  0 - all is well      
+                                                 !!  1 -   
 
 !-------------------------------------------------------------------------
 
@@ -479,9 +480,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:
-                                                 !!  0 - all is well
-                                                 !!  1 -
+   integer, intent(out) ::  rc                   !! Error return code:   
+                                                 !!  0 - all is well   
+                                                 !!  1 -   
 
 !-------------------------------------------------------------------------
 
@@ -719,9 +720,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:
-                                                 !!  0 - all is well
-                                                 !!  1 -
+   integer, intent(out) ::  rc                   !! Error return code:   
+                                                 !!  0 - all is well   
+                                                 !!  1 -   
 
 !-------------------------------------------------------------------------
 

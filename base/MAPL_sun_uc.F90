@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_ErrLog.h"
+!
 !>
 !### MODULE: `MAPL_SunMod`
 !
@@ -14,9 +17,6 @@
 ! The Orbit object defines this class and has public opaque type `GEOS_SunOrbit`.
 ! Methods are provided for creating it, destroying it, and making various queries.
 !
-
-#include "MAPL_ErrLog.h"
-
 module MAPL_SunMod
 
 ! !USES:
@@ -1075,37 +1075,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 ! noon, to account for small but cumulative eccentricity and obliquity
 ! effects on the actual length of the solar day.
 !@endnote
-
-!   subroutine MAPL_SunGetInsolation(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
-!                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,ZTHP, &
-!                                    RC)
-
-! !ARGUMENTS:
-
-!      type (MAPL_SunOrbit),               intent(IN ) :: ORBIT
-!      TYPE             ,                  intent(IN ) :: LATS
-!      TYPE             ,                  intent(IN ) :: LONS
-!      TYPE             ,                  intent(OUT) :: ZTH
-!      TYPE             ,                  intent(OUT) :: SLR
-!      type (ESMF_TimeInterval), optional, intent(IN ) :: INTV
-!      type (ESMF_Clock),        optional, intent(IN ) :: CLOCK
-!      integer,                  optional, intent(IN ) :: TIME
-!      type (ESMF_Time),         optional, intent(IN ) :: currTime
-!      real,                     optional, intent(OUT) :: DIST
-!      TYPE             ,        optional, intent(OUT) :: ZTHB
-!      TYPE             ,        optional, intent(OUT) :: ZTHD
-!      TYPE             ,        optional, intent(OUT) :: ZTH1
-!      TYPE             ,        optional, intent(OUT) :: ZTHN
-!      TYPE             ,        optional, intent(OUT) :: ZTHP
-!      integer,                  optional, intent(OUT) :: RC
-!\end{verbatim}
-! where we currently support three overloads for {\tt TYPE} :
-!\begin{verbatim}
-!  type (ESMF_Array)
-!  real, dimension(:)
-!  real, dimension(:,:)
-!EOPI
-
+!
 #undef  DIMENSIONS
 #define DIMENSIONS (:)
 #define THE_SIZE   (size(LONS,1))

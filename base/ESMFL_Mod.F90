@@ -3,12 +3,14 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_ErrLog.h"
+!
 !>
 !### MODULE: `ESMFL_MOD`
 !
 ! Author: GMAO SI-Team
 !
-#include "MAPL_ErrLog.h"
 
 #if 0
 stubbed routines
@@ -38,7 +40,8 @@ module ESMFL_MOD
   private
 
 !
-!ALT These need to be changed!!! values here are just to compile
+!ALT These need to be changed 
+!    values here are just to compile
 !
 
   !PUBLIC MEMBER FUNCTIONS:
@@ -1201,7 +1204,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(status)
    call ESMF_ArrayGet(srcARR, RANK=rank, rc=status)
    _VERIFY(status)
-   ! datamap - with rank=2!!!
+   ! datamap - with rank=2!
    call ESMF_FieldDataMapSetDefault(dmap, 2, rc=status)
    _VERIFY(STATUS)
 
@@ -1522,7 +1525,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMF_ArrayGet(dstARR, RANK=rank, rc=status)
    _VERIFY(status)
 
-   ! datamap - with rank=2!!!
+   ! datamap - with rank=2!
    call ESMF_FieldDataMapSetDefault(dmap, 2, rc=status)
    _VERIFY(STATUS)
 
@@ -3860,7 +3863,7 @@ CONTAINS
         _RETURN(ESMF_SUCCESS)
      end if
 
-! This is section of the code is valid ONLY for rectilinear grids!!!
+! This is section of the code is valid ONLY for rectilinear grids!
 
      NX = thisHaloType%NX
      NY = thisHaloType%NY
@@ -3935,7 +3938,7 @@ CONTAINS
 
    end SUBROUTINE ESMFL_HALO_R4_2D
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------
 !>
 ! The recursive subrountine `BundleAddState_` adds contents of State to Bundle.
 ! Extracts fields from an ESMF State and adds them to a

@@ -3,19 +3,12 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
-!>
-!### MODULE: `MAPL_ResourceMod`
-!
-! Author: GMAO SI-Team
-!
-! The module `MAPL_ResourceMod` provides subroutines get scalar and array
-! resources from ESMF_Config objects.
 !
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
+!
 
-!=============================================================================
 !FPP macros for repeated (type-dependent) code
 
 #ifdef SET_VAL
@@ -65,6 +58,15 @@ type is (T) ;\
       default_str = intrinsic_to_string(default, TFMT) ;\
    end if
 
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_ResourceMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_ResourceMod` provides subroutines get scalar and array
+! resources from ESMF_Config objects.
+!
 module MAPL_ResourceMod
 
    use ESMF

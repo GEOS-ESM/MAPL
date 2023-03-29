@@ -3,6 +3,15 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+#include "MAPL_Generic.h"
+#define MPI_NULL_TAG 99
+
+#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+
+#define DEALOC2_(A) if(associated(A)) then; deallocate(A, stat=STATUS); _VERIFY(STATUS); NULLIFY(A); endif
+
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `MAPL_CFIOMod`
 !
@@ -19,15 +28,6 @@
 !- MAPL_CFIOWrite
 !- MAPL_CFIODestroy
 !
-#include "MAPL_Generic.h"
-#define MPI_NULL_TAG 99
-
-#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-
-#define DEALOC2_(A) if(associated(A)) then; deallocate(A, stat=STATUS); _VERIFY(STATUS); NULLIFY(A); endif
-
-#include "unused_dummy.H"
-
 module MAPL_CFIOMod
    use MAPL_ExceptionHandling
 

@@ -3,6 +3,11 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#ifndef __PROTEX__
+#  include "MAPL_Generic.h"
+#endif
+!
 !>
 !### MODULE: `MAPL_SimpleBundleMod`
 !
@@ -15,10 +20,6 @@
 !- April2010: Arlindo da Silva <arlindo.dasilva@nasa.gov>
 !- 11Feb2011: Todling - remove ESMFL_BundleAddState since in MAPL_CFIO
 !
-#ifndef __PROTEX__
-#  include "MAPL_Generic.h"
-#endif
-
    module MAPL_SimpleBundleMod
 
    use ESMF

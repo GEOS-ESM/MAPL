@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_ErrLog.h"
+!
 !>
 !### MODULE: `MAPL_SortMod`
 !
@@ -39,8 +42,6 @@
 ! to a B ordered as B(size(A),:), whereas DIM=2 corresponds to B(:,size(A)).
 ! The default is DIM=2. The quicksort is coded in C and does not appear here.
 !
-#include "MAPL_ErrLog.h"
-
 module MAPL_SortMod
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL32, REAL64
    use, intrinsic :: ISO_FORTRAN_ENV, only: INT32, INT64

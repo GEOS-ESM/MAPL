@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_Generic.h"
+!
 !>
 !### MODULE: `MAPL_ConfigMod`
 !
@@ -12,8 +15,6 @@
 ! ESMF_Config object.  Otherwise, ESMF only provides a constructor
 ! that loads the data from a text file.
 !
-#include "MAPL_Generic.h"
-
 module MAPL_ConfigMod
    use ESMF
    use MAPL_ExceptionHandling

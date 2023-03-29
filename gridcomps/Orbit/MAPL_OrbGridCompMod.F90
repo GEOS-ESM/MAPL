@@ -3,6 +3,10 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_Generic.h"
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `MAPL_OrbGridCompMod`
 !
@@ -16,9 +20,6 @@
 !#### History
 !- 30Nov2010 da Silva  Initial version.
 !
-#include "MAPL_Generic.h"
-#include "unused_dummy.H"
-
    MODULE MAPL_OrbGridCompMod
 !
 ! !USES:
@@ -295,13 +296,11 @@ CONTAINS
     _RETURN(ESMF_SUCCESS)
 
     end subroutine Initialize_
-!BOP
 !
-! !IROUTINE:  Run_ --- Runs Orb
+!-----------------------------------------------------------------------------------------------------
+!>
+! `Run_` --- Runs Orb
 !
-! !INTERFACE:
-!
-
    SUBROUTINE Run_ ( gc, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -310,16 +309,16 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, optional ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 - 
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, optional ::  rc                   !! Error return code:  
+                                                 !!  0 - all is well   
+                                                 !!  1 -   
   ! local
   type (ESMF_VM)                      :: VM
   type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
@@ -530,7 +529,10 @@ CONTAINS
 
    end subroutine extract_
 
-
+!------------------------------------------------------------------------
+!>
+! The routine `DoMasking_` ...
+!
        subroutine DoMasking_ (field, im, jm, lons, lats, undef, &
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, rc )
@@ -548,17 +550,17 @@ CONTAINS
        real, intent(in) :: swath(3)
        real, intent(in) :: undef
 
-       character(len=*), intent(in) :: sat_name     ! Satellite name
-       integer, intent(in) :: dt      ! delta t in secs
-       integer, intent(in) :: nymd(2) ! Beginning/ending date: YYYYMMDD
-       integer, intent(in) :: nhms(2) ! Beginning/ending time: HHMMSS
+       character(len=*), intent(in) :: sat_name     !! Satellite name
+       integer, intent(in) :: dt      !! delta t in secs
+       integer, intent(in) :: nymd(2) !! Beginning/ending date: YYYYMMDD
+       integer, intent(in) :: nhms(2) !! Beginning/ending time: HHMMSS
 
 ! !OUTPUT PARAMETERS:
 
        real,    intent(inout) :: field(im,jm)
-       integer, intent(out), optional   :: rc    ! Error return code
-                                       ! = 0  all is well
-                                       ! = 3  memory allocation error
+       integer, intent(out), optional   :: rc    !! Error return code     
+                                       !! = 0  all is well     
+                                       !! = 3  memory allocation error      
 
 !                               ----
 
@@ -632,6 +634,10 @@ CONTAINS
 !      --------
      end subroutine DoMasking_
 
+!--------------------------------------------------------------------------------
+!>
+! The routine `DoMasking_CS` ...
+!
        subroutine DoMasking_CS (field, im, jm, x, y, undef, &
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, face, rc )
@@ -649,18 +655,18 @@ CONTAINS
        real, intent(in) :: swath(3)
        real, intent(in) :: undef
 
-       character(len=*), intent(in) :: sat_name     ! Satellite name
-       integer, intent(in) :: dt      ! delta t in secs
-       integer, intent(in) :: nymd(2) ! Beginning/ending date: YYYYMMDD
-       integer, intent(in) :: nhms(2) ! Beginning/ending time: HHMMSS
+       character(len=*), intent(in) :: sat_name     !! Satellite name
+       integer, intent(in) :: dt      !! delta t in secs
+       integer, intent(in) :: nymd(2) !! Beginning/ending date: YYYYMMDD
+       integer, intent(in) :: nhms(2) !! Beginning/ending time: HHMMSS
        integer, intent(in) :: face
  
 ! !OUTPUT PARAMETERS:
 
        real,    intent(inout) :: field(im,jm)
-       integer, optional   :: rc    ! Error return code
-                                       ! = 0  all is well
-                                       ! = 3  memory allocation error
+       integer, optional   :: rc    !! Error return code    
+                                       !! = 0  all is well    
+                                       !! = 3  memory allocation error    
 
 !                               ----
 

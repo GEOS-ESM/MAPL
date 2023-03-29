@@ -73,25 +73,25 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                      !! 0   all is well
-                      !! -1 Time increment is 0
-                      !! -2  allocate memory error
-                      !! -3  Num of int/char/real elements and Cnt don't match
-                      !! -12  error determining default precision
-                      !! -18 incorrect time increment
-                      !! -30 can't open file
-                      !! -31 error from NF90_DEF_DIM
-                      !! -32 error from NF90_DEF_VAR (dimension variable)
-                      !! -33 error from NF90_PUT_ATT (dimension attribute)
-                      !! -34 error from NF90_DEF_VAR (variable)
-                      !! -35  error from NF90_PUT_ATT (variable attribute)
-                      !! -36  error from NF90_PUT_ATT (global attribute)
-                      !! -37  error from NF90_ENDDEF
-                      !! -38  error from NF90_PUT_VAR (dimension variable)
-                      !! -39 Num of real var elements and Cnt differ
-                      !! -55  error from NF90_REDEF (enter define mode)
-                      !! -56  error from NF90_ENDDEF (exit define mode)
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:  
+                      !! 0   all is well  
+                      !! -1 Time increment is 0  
+                      !! -2  allocate memory error    
+                      !! -3  Num of int/char/real elements and Cnt don't match    
+                      !! -12  error determining default precision  
+                      !! -18 incorrect time increment  
+                      !! -30 can't open file  
+                      !! -31 error from NF90_DEF_DIM  
+                      !! -32 error from NF90_DEF_VAR (dimension variable)  
+                      !! -33 error from NF90_PUT_ATT (dimension attribute)  
+                      !! -34 error from NF90_DEF_VAR (variable)  
+                      !! -35  error from NF90_PUT_ATT (variable attribute)  
+                      !! -36  error from NF90_PUT_ATT (global attribute)  
+                      !! -37  error from NF90_ENDDEF  
+                      !! -38  error from NF90_PUT_VAR (dimension variable)  
+                      !! -39 Num of real var elements and Cnt differ  
+                      !! -55  error from NF90_REDEF (enter define mode)  
+                      !! -56  error from NF90_ENDDEF (exit define mode)  
 !
 !------------------------------------------------------------------------------
        integer :: i, n, maxLen, rtcode
@@ -312,29 +312,29 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                                                !! 0   all is well
-                         !!  rc = -2  time is inconsistent with increment
-                         !!  rc = -3  number of levels is incompatible with file
-                         !!  rc = -4  im is incompatible with file
-                         !!  rc = -5  jm is incompatible with file
-                         !!  rc = -6  time must fall on a minute boundary
-                         !!  rc = -7  error in diffdate
-                         !!  rc = -12  error determining default precision
-                         !!  rc = -13  error determining variable type
-                         !!  rc = -15  data outside of valid range
-                         !!  rc = -16  data outside of packing range
-                         !!  rc = -17  data outside of pack and valid range
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
-                         !!  rc = -40  error from NF90_INQ_VARID
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !!  rc = -45  error from NF90_PUT_VAR
-                         !!  rc = -46  error from NF90_GET_VAR
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !!  rc = -53  error from NF90_GET_ATT
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:  
+                                                !! 0   all is well  
+                         !!  rc = -2  time is inconsistent with increment  
+                         !!  rc = -3  number of levels is incompatible with file  
+                         !!  rc = -4  im is incompatible with file  
+                         !!  rc = -5  jm is incompatible with file  
+                         !!  rc = -6  time must fall on a minute boundary  
+                         !!  rc = -7  error in diffdate  
+                         !!  rc = -12  error determining default precision  
+                         !!  rc = -13  error determining variable type  
+                         !!  rc = -15  data outside of valid range  
+                         !!  rc = -16  data outside of packing range  
+                         !!  rc = -17  data outside of pack and valid range  
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)  
+                         !!  rc = -40  error from NF90_INQ_VARID  
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)  
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)  
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)  
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)  
+                         !!  rc = -45  error from NF90_PUT_VAR  
+                         !!  rc = -46  error from NF90_GET_VAR  
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE  
+                         !!  rc = -53  error from NF90_GET_ATT  
 
 !
 !------------------------------------------------------------------------------
@@ -414,7 +414,7 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:  
                                                 !! 0   all is well
 !
 !------------------------------------------------------------------------------
@@ -483,8 +483,8 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                                                !! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:  
+                                                !! 0   all is well  
 !
 !------------------------------------------------------------------------------
       integer :: i, rtcode
@@ -560,9 +560,9 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                                       !! 0   all is well
-                                       !! -54  error from NF90_CLOSE (file close)
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:  
+                                       !! 0   all is well  
+                                       !! -54  error from NF90_CLOSE (file close)  
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -603,9 +603,9 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                                                !! 0   all is well
-                                                !! 1   ...
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:    
+                                                !! 0   all is well  
+                                                !! 1   ...  
 !
 !------------------------------------------------------------------------------
       integer :: sds_index, sfwdata, sfselect, sfn2index    
@@ -766,23 +766,23 @@
 ! !OUTPUT PARAMETERS:
 !
       integer        fid     !! File handle
-      integer        rc      !! Error return code:
-                             !!  rc = 0   all is well
-                             !!  rc = -1  time increment is 0
-                             !!  rc = -18 incorrect time increment
-                             !!
-                             !!  NetCDF Errors
-                             !!  -------------
-                             !!  rc = -30  error creating file
-                             !!  rc = -31  error defining a coordinate (dimension)
-                             !!  rc = -32  error detaching from grid
-                             !!  rc = -33  error associating a dimension with a variable
-                             !!  rc = -34  error defining a variable
-                             !!  rc = -35  error defining a variable attribute
-                             !!  rc = -36  error creating a global attribute
-                             !!  rc = -37  error attaching to grid (HDFEOS)
-                             !!  rc = -38  error writing a coordinate (dimension)
-                             !!  rc = -59  variable name contains only blanks     
+      integer        rc      !! Error return code:  
+                             !!  rc = 0   all is well  
+                             !!  rc = -1  time increment is 0  
+                             !!  rc = -18 incorrect time increment  
+                             !!  
+                             !!  NetCDF Errors  
+                             !!  -------------  
+                             !!  rc = -30  error creating file  
+                             !!  rc = -31  error defining a coordinate (dimension)  
+                             !!  rc = -32  error detaching from grid  
+                             !!  rc = -33  error associating a dimension with a variable  
+                             !!  rc = -34  error defining a variable  
+                             !!  rc = -35  error defining a variable attribute  
+                             !!  rc = -36  error creating a global attribute  
+                             !!  rc = -37  error attaching to grid (HDFEOS)  
+                             !!  rc = -38  error writing a coordinate (dimension)  
+                             !!  rc = -59  variable name contains only blanks       
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !

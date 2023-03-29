@@ -3,6 +3,10 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "MAPL_Generic.h"
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `MAPL_HistoryGridCompMod`
 !
@@ -11,8 +15,6 @@
 ! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
 ! The three methods are called at the level of CAP.
 !
-#include "MAPL_Generic.h"
-#include "unused_dummy.H"
   module MAPL_HistoryGridCompMod
 !
 ! !USES:

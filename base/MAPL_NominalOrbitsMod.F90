@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `MAPL_NominalOrbitsMod`
 !
@@ -15,7 +18,6 @@
 !- 07Jul2009   Albayrak  Initial implementation.
 !- 30Jul2009   Albayrak  Beta version 2 implemantation
 !
-#include "unused_dummy.H"
   MODULE MAPL_NominalOrbitsMod
      use MAPL_Constants
      IMPLICIT NONE

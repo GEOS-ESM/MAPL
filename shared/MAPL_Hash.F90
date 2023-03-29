@@ -3,6 +3,11 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#define INT_MAX 2147483647
+
+#include "MAPL_ErrLog.h"
+!
 !>
 !### MODULE: `MAPL_HashMod`
 !
@@ -11,6 +16,7 @@
 ! `MAPL_HashMod`  -- A utility to manage hash tables.
 ! 
 ! `MAPL_HashMod` is a FORTRAN binding to a simple C has facility.
+!
 ! The API is:
 !```fortran
 !
@@ -75,10 +81,6 @@
 !       enddo
 !```
 !
-#define INT_MAX 2147483647
-
-#include "MAPL_ErrLog.h"
-
 module MAPL_HashMod
 
   use MAPL_ExceptionHandling

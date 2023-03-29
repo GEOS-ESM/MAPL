@@ -3,6 +3,7 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+#include "unused_dummy.H"
 !>
 !### MODULE: `ESMF_CFIOVarInfoMod`
 !
@@ -15,8 +16,6 @@
 !#### History
 !- Feb2007    Yin     Separated from ESMF_CFIOMod
 !
-#include "unused_dummy.H"
-
        module ESMF_CFIOVarInfoMod
 !
 !------------------------------------------------------------------------------
@@ -60,13 +59,13 @@
          logical :: twoDimVar     !! True for 2D; false for 3D
          logical :: timAve        !! True for time averaging file
          logical :: isGridSet     !! True only if grid was passed in
-         character :: aveMethod   !! 'c' for center averaging for time
-                                  !! [-0.5*timeInc+time, 0.5*timeInc+time]
-                                  !! Default: 'c'
-                                  !! 'd' for downstream averaging
-                                  !! [time, time+timeInc]
-                                  !! 'u' for upstream averaging
-                                  !! [time-timeInc, time]
+         character :: aveMethod   !! 'c' for center averaging for time    
+                                  !! [-0.5*timeInc+time, 0.5*timeInc+time]    
+                                  !! Default: 'c'    
+                                  !! 'd' for downstream averaging    
+                                  !! [time, time+timeInc]    
+                                  !! 'u' for upstream averaging    
+                                  !! [time-timeInc, time]    
          character(len=MVARLEN) :: cellMthd   !! Cell methmod
          integer :: nVarAttInt    !! number of variable int attributes
          integer :: nVarAttReal   !! number of variable real attributes
@@ -105,10 +104,10 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                                                !! 0   all is well
-                                                !! -1  problem in creating Grid
-!
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:            
+                                                !! 0   all is well            
+                                                !! -1  problem in creating Grid        
+!    
 !------------------------------------------------------------------------------
       type(ESMF_CFIOVarInfo) :: varObj ! a CFIO grid object
       integer :: rtcode = 0
@@ -224,16 +223,16 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer, intent(out), OPTIONAL :: rc   !! 0  all is well
-                                 !! -1 Allocation for attCharCnts failed
-                                 !! -2 Allocation for attRealCnts failed
-                                 !! -3 Allocation for attIntCnts failed
-                                 !! -4 Allocation for varAttChars failed
-                                 !! -5 Allocation for varAttReals failed
-                                 !! -6 Allocation for varAttInts failed
-                                 !! -7 Allocation for attCharNames failed
-                                 !! -8 Allocation for attRealNames failed
-                                 !! -9 Allocation for attIntNames failed
+       integer, intent(out), OPTIONAL :: rc   !! 0  all is well   
+                                 !! -1 Allocation for attCharCnts failed   
+                                 !! -2 Allocation for attRealCnts failed   
+                                 !! -3 Allocation for attIntCnts failed   
+                                 !! -4 Allocation for varAttChars failed   
+                                 !! -5 Allocation for varAttReals failed   
+                                 !! -6 Allocation for varAttInts failed   
+                                 !! -7 Allocation for attCharNames failed   
+                                 !! -8 Allocation for attRealNames failed   
+                                 !! -9 Allocation for attIntNames failed   
                                                
 
 ! !INPUT/OUTPUT PARAMETERS:
@@ -454,17 +453,17 @@
        integer, pointer, OPTIONAL :: attInt(:) !! User defined  int attribute
        integer, pointer, OPTIONAL :: ChunkSize(:) !! User defined Chunksize int 
 
-       integer, intent(out), OPTIONAL :: rc !! Error return code:
-                                    !! 0   all is well
-                                    !! -1  Allocation for attCharNames failed
-                                    !! -2  Allocation for attRealNames failed
-                                    !! -3  Allocation for attIntNames failed 
-                                    !! -4  Allocation for vAttCharCnts failed
-                                    !! -5  Allocation for vAttRealCnts failed 
-                                    !! -6  Allocation for vAttIntCnts failed 
-                                    !! -7  Allocation for varAttChars failed 
-                                    !! -8  Allocation for varAttReals failed 
-                                    !! -9  Allocation for varAttInts failed  
+       integer, intent(out), OPTIONAL :: rc !! Error return code:               
+                                    !! 0   all is well               
+                                    !! -1  Allocation for attCharNames failed               
+                                    !! -2  Allocation for attRealNames failed               
+                                    !! -3  Allocation for attIntNames failed                
+                                    !! -4  Allocation for vAttCharCnts failed               
+                                    !! -5  Allocation for vAttRealCnts failed                
+                                    !! -6  Allocation for vAttIntCnts failed                
+                                    !! -7  Allocation for varAttChars failed            
+                                    !! -8  Allocation for varAttReals failed            
+                                    !! -9  Allocation for varAttInts failed         
 
 !
 !------------------------------------------------------------------------------
@@ -658,8 +657,8 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                                                !! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:            
+                                                !! 0   all is well        
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !

@@ -3,6 +3,9 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
+!
+#include "unused_dummy.H"
+!
 !>
 !### MODULE: `regrid_functions_mod`
 !
@@ -13,7 +16,6 @@
 !#### History
 !- 09 Jan 2017 - S. D. Eastham - Initial version
 !
-#include "unused_dummy.H"
 
   MODULE Regrid_Functions_Mod
 !

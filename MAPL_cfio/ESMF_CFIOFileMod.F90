@@ -38,7 +38,7 @@
       public :: ESMF_CFIODestroy         ! destructor for a CFIO object
 
       !>
-      ! Define a new data type "ESMF_CFIO" -- a CFIO object(file) with file name,
+      ! Define a new data type `ESMF_CFIO` -- a CFIO object(file) with file name,
       ! CFIO variable objects, time, grid index and global attributes.
       type ESMF_CFIO
 !         private
@@ -113,8 +113,8 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      ! Error return code:      
+                                                ! 0   all is well  
 !
 !------------------------------------------------------------------------------
       type(ESMF_CFIO) :: cfio                   ! a CFIO object
@@ -238,19 +238,19 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer, intent(out), OPTIONAL :: rc !! Error return code:
-                                    !! 0   all is well
-                                    !! -1  can't allocate memory for grid(s)
-                                    !! -2  can't allocate memory: varObjs    
-                                    !! -3  can't allocate mem: attIntCnts   
-                                    !! -4  can't allocate mem: attIntNames  
-                                    !! -5  can't allocate memory: attInts    
-                                    !! -6  can't allocate mem: attRealCnts   
-                                    !! -7  can't allocate mem: attRealNames  
-                                    !! -8  can't allocate memory: attReals  
-                                    !! -9  can't allocate mem: attCharCnts  
-                                    !! -10  can't allocate mem: attCharNames  
-                                    !! -11  can't allocate memory: attChars  
+       integer, intent(out), OPTIONAL :: rc  !! Error return code:      
+                                    !! 0   all is well      
+                                    !! -1  can't allocate memory for grid(s)      
+                                    !! -2  can't allocate memory: varObjs      
+                                    !! -3  can't allocate mem: attIntCnts     
+                                    !! -4  can't allocate mem: attIntNames    
+                                    !! -5  can't allocate memory: attInts      
+                                    !! -6  can't allocate mem: attRealCnts     
+                                    !! -7  can't allocate mem: attRealNames    
+                                    !! -8  can't allocate memory: attReals    
+                                    !! -9  can't allocate mem: attCharCnts    
+                                    !! -10  can't allocate mem: attCharNames    
+                                    !! -11  can't allocate memory: attChars    
 ! !INPUT/OUTPUT PARAMETERS:
 !
        type(ESMF_CFIO), intent(inout) :: cfio    !! a CFIO object
@@ -516,28 +516,28 @@
        logical, intent(out), OPTIONAL :: isOpen
        character(len=*), intent(out), OPTIONAL :: format
 
-       integer, intent(out), OPTIONAL :: rc      !! Error return code:
-                         !!  0   all is well
-                         !! -1  can't allocate memory for grid(s)
-                         !! -2  can't allocate memory: varObjs
-                         !! -3  can't allocate mem: attCharNames
-                         !! -4  can't allocate mem: attRealNames
-                         !! -5  can't allocate mem: attIntNames
-                         !! -6  can't allocate mem: attCharCnts
-                         !! -7  can't allocate mem: attRealCnts
-                         !! -8  can't allocate mem: attIntCnts
-                         !! -9  can't allocate mem: attChars
-                         !! -10  can't allocate mem: attReals
-                         !! -11  can't allocate mem: attInts
-                         !! -12  can't allocate mem: attInt
-                         !!  rc = -19  unable to identify coordinate variable
-                         !!  rc = -40  error from NF90_INQ_VARID
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)
-                         !!  rc = -48  error from NF90_INQUIRE
-                         !!  rc = -53  error from NF90_GET_ATT
+       integer, intent(out), OPTIONAL :: rc      !! Error return code:    
+                         !!  0   all is well  
+                         !! -1  can't allocate memory for grid(s)  
+                         !! -2  can't allocate memory: varObjs    
+                         !! -3  can't allocate mem: attCharNames    
+                         !! -4  can't allocate mem: attRealNames    
+                         !! -5  can't allocate mem: attIntNames    
+                         !! -6  can't allocate mem: attCharCnts    
+                         !! -7  can't allocate mem: attRealCnts    
+                         !! -8  can't allocate mem: attIntCnts    
+                         !! -9  can't allocate mem: attChars    
+                         !! -10  can't allocate mem: attReals    
+                         !! -11  can't allocate mem: attInts    
+                         !! -12  can't allocate mem: attInt    
+                         !!  rc = -19  unable to identify coordinate variable    
+                         !!  rc = -40  error from NF90_INQ_VARID    
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)    
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)    
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)    
+                         !!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)    
+                         !!  rc = -48  error from NF90_INQUIRE    
+                         !!  rc = -53  error from NF90_GET_ATT    
 !
 !------------------------------------------------------------------------------
        integer :: rtcode
@@ -767,7 +767,7 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
+      integer, intent(out), OPTIONAL :: rc      ! Error return code:      
                                                 ! 0   all is well
 !
 ! !INPUT/OUTPUT PARAMETERS:

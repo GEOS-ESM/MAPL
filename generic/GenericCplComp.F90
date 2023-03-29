@@ -3,13 +3,6 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
-!>
-!### MODULE: `MAPL_GenericCplCompMod`
-!
-! Author: GMAO SI-Team
-!
-! This is a generic coupler component used by a gridded component to instantiate
-! the automatic couplers it needs.
 !
 #define _DEALLOC(A) \
     if(associated(A))then; \
@@ -24,7 +17,16 @@
     endif
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
-
+!
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_GenericCplCompMod`
+!
+! Author: GMAO SI-Team
+!
+! This is a generic coupler component used by a gridded component to instantiate
+! the automatic couplers it needs.
+!
 module MAPL_GenericCplCompMod
 
 ! !USES:
