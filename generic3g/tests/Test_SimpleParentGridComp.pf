@@ -303,11 +303,11 @@ contains
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
 
-      @assert_that(check(states, 'import', field_name='[child_A]/I_A1'), is(0))
-      @assert_that(check(states, 'export', field_name='[child_A]/E_A1'), is(0))
-      @assert_that(check(states, 'export', field_name='[child_A]/Z_A1'), is(0))
-      @assert_that(check(states, 'export', field_name='[child_B]/E_B1'), is(0))
-      @assert_that(check(states, 'export', field_name='[child_B]/Z_B1'), is(not(0)))
+      @assert_that(check(states, 'import', field_name='child_A/I_A1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_A/E_A1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_A/Z_A1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_B/E_B1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_B/Z_B1'), is(not(0)))
 
 
    contains
@@ -491,7 +491,7 @@ contains
 !!$      @assert_that(status, is(0))
 
       ! Child A import is unsatisfied, so it should propagate up
-      call ESMF_StateGet(states%importState, '[child_A]/I_A1', f, rc=status)
+      call ESMF_StateGet(states%importState, 'child_A/I_A1', f, rc=status)
       @assert_that('Expected unsatisfied import in parent.', status, is(0))
       
    end subroutine test_propagate_imports

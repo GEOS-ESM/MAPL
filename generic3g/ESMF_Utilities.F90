@@ -150,7 +150,8 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      substate_name = '[' // name // ']'
+!!$      substate_name = '[' // name // ']'
+      substate_name = name
       call ESMF_StateGet(state, substate_name, itemType, _RC)
 
       if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New substate

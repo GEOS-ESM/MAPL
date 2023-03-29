@@ -67,7 +67,8 @@ contains
       params = [ &
            ScenarioDescription(name='scenario_1',root='parent.yaml'), &
            ScenarioDescription(name='scenario_2',root='parent.yaml'), &
-           ScenarioDescription(name='scenario_reexport_twice', root='grandparent.yaml') &
+           ScenarioDescription(name='scenario_reexport_twice', root='grandparent.yaml'), &
+           ScenarioDescription(name='history_1', root='cap.yaml') &
       ]
    end function getParameters
 
@@ -83,7 +84,8 @@ contains
       integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
-      p = Parser()
+
+     p = Parser()
 
       file_name = './configs/' // this%scenario_name // '/' // this%scenario_root
       yaml_cfg = p%load_from_file(file_name, _RC)
@@ -283,7 +285,7 @@ contains
             found_item_count = num_fields(state, _RC)
 
             if (found_item_count /= expected_item_count) then
-               print*, state
+!!$               print*, state
             end if
 
             @assert_that(msg // ' item count', found_item_count, is(expected_item_count))
@@ -334,6 +336,7 @@ contains
 
       child_gc = child%get_outer_gridcomp()
       child_states = child%get_states()
+
       call get_substates(child_gc, child_states, component_path(idx+1:), &
            substates, _RC)
 

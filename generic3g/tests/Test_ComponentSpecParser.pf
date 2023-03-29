@@ -224,27 +224,27 @@ contains
 
 
    @test
-   subroutine test_parse_ExtraDimsSpec_default()
+   subroutine test_parse_UngriddedDimsSpec_default()
       use mapl3g_VerticalDimSpec
-      use mapl3g_ExtraDimsSpec
+      use mapl3g_UngriddedDimsSpec
 
       type(Parser) :: p
 !!$      class(YAML_Node), target, allocatable :: config
 !!$      class(YAML_Node), pointer :: cfg_ptr
 !!$      type(ChildSpecMap) :: expected, found
 !!$      integer :: status, rc
-!!$      type(ExtraDimsSpec) :: dims_spec
+!!$      type(UngriddedDimsSpec) :: dims_spec
 
       p = Parser('core')
       ! Simulate usage for emtpy config
 !!$      cfg_ptr => null()
 
-!!$      dims_spec = parse_ExtraDimsSpec(cfg_ptr, rc=status)
+!!$      dims_spec = parse_UngriddedDimsSpec(cfg_ptr, rc=status)
 !!$      @assert_that(status, is(0))
 !!$
 !!$      @assert_that(dims_spec%vert_stagger_loc  == V_STAGGER_LOC_NONE, is(true()))
 
       
-   end subroutine test_parse_ExtraDimsSpec_default
+   end subroutine test_parse_UngriddedDimsSpec_default
 
 end module Test_ComponentSpecParser
