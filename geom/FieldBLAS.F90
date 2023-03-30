@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldBLAS
+   use ESMF
+   use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use, intrinsic :: iso_fortran_env, only: INT8, INT16, INT32, INT64
    implicit none
@@ -37,15 +39,15 @@ module mapl3g_FieldBLAS
    
 
    ! Misc utiliities
-   public :: FieldSpread
-   public :: FieldConvertPrec
-   public :: FieldClone
+!   public :: FieldSpread
+!   public :: FieldConvertPrec
+!   public :: FieldClone
 
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
-   public :: FieldGetCptr !wdb Should this be public? or any of these utils?
+   public :: FieldGetCptr
    public :: FieldsAreConformable
-   public :: FieldsAreSameTypeKind
+!wdb  fixme Who/Why/What/When? public :: FieldsAreSameTypeKind
 
    interface FieldCOPY
       procedure copy
@@ -72,12 +74,14 @@ module mapl3g_FieldBLAS
 
    interface FieldsAreConformable
       procedure areConformable_scalar_scalar
+      procedure areConformable_vector_vector
       procedure areConformable_scalar_vector
+      procedure areConformable_vector_scalar
    end interface
 
    interface verify_typekind
       procedure verify_typekind_scalar
-      procedure verify_typekind_1d
+      procedure verify_typekind_rank1
    end interface verify_typekind
 
    interface FieldGetLocalSize
@@ -88,15 +92,27 @@ module mapl3g_FieldBLAS
       procedure getLocalElementCount
    end interface FieldGetLocalElementCount
 
+!wdb  fixme Not implemented
+!   interface FieldConvertPrec
+!      module procedure 
+!   end interface FieldConvertPrec
+   
    interface is_identity
       module procedure is_r4_identity
       module procedure is_r8_identity
    end interface is_identity
 
    interface assign_fptr 
-      module procedure assign_fptr_r4
-      module procedure assign_fptr_r8
+      module procedure assign_fptr_r4_rank1
+      module procedure assign_fptr_r8_rank1
+      module procedure assign_fptr_r4_rank2
+      module procedure assign_fptr_r8_rank2
    end interface assign_fptr 
+
+   interface convert_fptr_prec
+      module procedure convert_fptr_R4_to_R8
+      module procedure convert_fptr_R8_to_R4
+   end interface convert_fptr_prec
 
 contains
 
@@ -117,7 +133,6 @@ contains
    
       conformable = FieldsAreConformable(x, y,_RC)
       _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
-     !wdb  todo Could I use assign_fptr? Pros: No need to define cptr__ or n; Cons: Have to duplicate code, or do I? 
       call FieldGetCptr(x, cptr_x, _RC)
       call ESMF_FieldGet(x, typekind = tk_x, _RC) 
 
@@ -156,8 +171,8 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
       real(kind=ESMF_KIND_R4), pointer :: y_ptr(:)
 
-      call c_f_pointer(cptr_x, x_ptr, shape = [n])
-      call c_f_pointer(cptr_y, y_ptr, shape = [n])
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
 
       y_ptr=x_ptr
    end subroutine copy_r4_r4
@@ -169,8 +184,8 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
       real(kind=ESMF_KIND_R8), pointer :: y_ptr(:)
 
-      call c_f_pointer(cptr_x, x_ptr, shape = [n])
-      call c_f_pointer(cptr_y, y_ptr, shape = [n])
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
 
       y_ptr=x_ptr
    end subroutine copy_r4_r8
@@ -182,8 +197,8 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
       real(kind=ESMF_KIND_R4), pointer :: y_ptr(:)
 
-      call c_f_pointer(cptr_x, x_ptr, shape = [n])
-      call c_f_pointer(cptr_y, y_ptr, shape = [n])
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
 
       y_ptr=x_ptr
    end subroutine copy_r8_r4
@@ -195,19 +210,19 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
       real(kind=ESMF_KIND_R8), pointer :: y_ptr(:)
 
-      call c_f_pointer(cptr_x, x_ptr, shape = [n])
-      call c_f_pointer(cptr_y, y_ptr, shape = [n])
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
 
       y_ptr=x_ptr
    end subroutine copy_r8_r8
 
    logical function is_r4_identity(a)
-      real(REAL32), intent(in) :: a
+      real(kind=ESMF_KIND_R4), intent(in) :: a
       is_r4_identity = (a == 1)
    end function is_r4_identity
    
    logical function is_r8_identity(a) 
-      real(REAL64), intent(in) :: a
+      real(kind=ESMF_KIND_R8), intent(in) :: a
       is_r8_identity = (a == 1)
    end function is_r8_identity
    
@@ -352,11 +367,13 @@ contains
 
 !      y = matmul(A, x)
       do yi = 1, size(y)
-         call assign_fptr(y(yi), y_ptr, fp_shape, _RC)
+         !wdb  fixme call assign_fptr(y(yi), y_ptr, fp_shape, _RC)
+         call assign_fptr(y(yi), y_ptr, fp_shape, rc = status)
          y_ptr(:,yi) = beta * y_ptr(:,yi)
 
          do xi = 1, size(x)
-            call assign_fptr(x(xi), x_ptr, fp_shape, _RC)
+            !wdb  fixme call assign_fptr(x(xi), x_ptr, fp_shape, _RC)
+            call assign_fptr(x(xi), x_ptr, fp_shape, rc = status)
             do uni = 1, n_ungridded
                y_ptr(:,yi) = y_ptr(:,yi) + alpha * A(:,xi,yi) * x_ptr(:,uni)
             end do
@@ -406,11 +423,13 @@ contains
 
 !      y = matmul(A, x)
       do yi = 1, size(y)
-         call assign_fptr(y(yi), y_ptr, fp_shape, _RC)
+         !wdb  fixme call assign_fptr(y(yi), y_ptr, fp_shape, _RC)
+         call assign_fptr(y(yi), y_ptr, fp_shape, rc = status)
          y_ptr(:,yi) = beta * y_ptr(:,yi)
 
          do xi = 1, size(x)
-            call assign_fptr(x(xi), x_ptr, fp_shape, _RC)
+            !wdb  fixme call assign_fptr(x(xi), x_ptr, fp_shape, _RC)
+            call assign_fptr(x(xi), x_ptr, fp_shape, rc = status)
             do uni = 1, n_ungridded
                y_ptr(:,yi) = y_ptr(:,yi) + alpha * A(:,xi,yi) * x_ptr(:,uni)
             end do
@@ -420,21 +439,24 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gemv_r8
 
-   subroutine verify_kind_scalar(x, expected_tk, rc)
-      type(ESMF_Field), intent(in) :: x(:)
+   subroutine verify_typekind_scalar(x, expected_tk, rc)
+      type(ESMF_Field), intent(in) :: x
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
       
       integer :: status
+
+      type(ESMF_TypeKind_Flag) :: found_tk
+      logical :: is_expected_tk
       
       call ESMF_FieldGet(x, typekind=found_tk, _RC)
 
-      _ASSERT(found_tk == expected_tk, 'Found incorrect typekind.')
+      is_expected_tk = (found_tk == expected_tk)
+      _ASSERT(is_expected_tk, 'Found incorrect typekind.')
       _RETURN(_SUCCESS)
-   end subroutine verify_kind_scalar
+   end subroutine verify_typekind_scalar
 
-
-   subroutine verify_kind_vector(x, expected_tk, rc)
+   subroutine verify_typekind_rank1(x, expected_tk, rc)
       type(ESMF_Field), intent(in) :: x(:)
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
@@ -443,41 +465,79 @@ contains
       integer :: i
       
       do i = 1, size(x)
-         call verify_kind(x(i), expected_tk, _RC)
+         call verify_typekind(x(i), expected_tk, _RC)
       end do
       
       _RETURN(_SUCCESS)
-   end subroutine verify_kind_vector
+   end subroutine verify_typekind_rank1
 
-   subroutine assign_fptr_r4(x, fptr, n, rc)
+   subroutine assign_fptr_r4_rank1(x, fptr, n, rc)
       type(ESMF_Field), intent(inout) :: x
       real(kind=ESMF_KIND_R4), dimension(:), pointer, intent(out) :: fptr
       integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
       integer, optional, intent(out) :: rc
 
+      integer :: status
+
       ! local declarations
       type(c_ptr) :: cptr
       integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
       call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
-      call c_f_ptr(cptr, fptr, shape = fp_shape)
+      call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
-   end subroutine assign_fptr_r4
+   end subroutine assign_fptr_r4_rank1
 
-   subroutine assign_fptr_r8(x, fptr, n, rc)
+   subroutine assign_fptr_r8_rank1(x, fptr, n, rc)
       type(ESMF_Field), intent(inout) :: x
       real(kind=ESMF_KIND_R8), dimension(:), pointer, intent(out) :: fptr
       integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
       integer, optional, intent(out) :: rc
 
+      integer :: status
+
       ! local declarations
       type(c_ptr) :: cptr
       integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
       call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
-      call c_f_ptr(cptr, fptr, shape = fp_shape)
+      call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
-   end subroutine assign_fptr_r8
+   end subroutine assign_fptr_r8_rank1
+
+   subroutine assign_fptr_r4_rank2(x, fptr, n, rc)
+      type(ESMF_Field), intent(inout) :: x
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer, intent(out) :: fptr
+      integer(ESMF_KIND_I8), dimension(:), intent(in) :: n
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r4_rank2
+
+   subroutine assign_fptr_r8_rank2(x, fptr, n, rc)
+      type(ESMF_Field), intent(inout) :: x
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer, intent(out) :: fptr
+      integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r8_rank2
 
    subroutine get_fptr_arguments(x, cptr, fp_shape, n, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -508,7 +568,7 @@ contains
       integer :: status
       type(ESMF_TypeKind_Flag) :: tk_x
 
-      call ESMF_FieldGet(f, typekind=tk_x, _RC)
+      call ESMF_FieldGet(x, typekind=tk_x, _RC)
 
       if (tk_x == ESMF_TYPEKIND_R4) then
          call get_cptr_r4(x, cptr, _RC)
@@ -542,19 +602,19 @@ contains
       
       select case (rank)
       case (1)
-         call ESMF_FieldGet(x, x_1d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_1d, _RC)
          cptr = c_loc(x_1d)
       case (2)
-         call ESMF_FieldGet(x, x_2d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_2d, _RC)
          cptr = c_loc(x_2d)
       case (3)
-         call ESMF_FieldGet(x, x_3d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_3d, _RC)
          cptr = c_loc(x_3d)
       case (4)
-         call ESMF_FieldGet(x, x_4d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_4d, _RC)
          cptr = c_loc(x_4d)
       case (5)
-         call ESMF_FieldGet(x, x_5d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
          _FAIL('Unsupported rank in FieldGetCptr().')
@@ -580,19 +640,19 @@ contains
       
       select case (rank)
       case (1)
-         call ESMF_FieldGet(x, x_1d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_1d, _RC)
          cptr = c_loc(x_1d)
       case (2)
-         call ESMF_FieldGet(x, x_2d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_2d, _RC)
          cptr = c_loc(x_2d)
       case (3)
-         call ESMF_FieldGet(x, x_3d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_3d, _RC)
          cptr = c_loc(x_3d)
       case (4)
-         call ESMF_FieldGet(x, x_4d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_4d, _RC)
          cptr = c_loc(x_4d)
       case (5)
-         call ESMF_FieldGet(x, x_5d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
          _FAIL('Unsupported rank in FieldGetCptr().')
@@ -618,19 +678,19 @@ contains
       
       select case (rank)
       case (1)
-         call ESMF_FieldGet(x, x_1d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_1d, _RC)
          cptr = c_loc(x_1d)
       case (2)
-         call ESMF_FieldGet(x, x_2d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_2d, _RC)
          cptr = c_loc(x_2d)
       case (3)
-         call ESMF_FieldGet(x, x_3d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_3d, _RC)
          cptr = c_loc(x_3d)
       case (4)
-         call ESMF_FieldGet(x, x_4d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_4d, _RC)
          cptr = c_loc(x_4d)
       case (5)
-         call ESMF_FieldGet(x, x_5d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
          _FAIL('Unsupported rank in FieldGetCptr().')
@@ -656,19 +716,19 @@ contains
       
       select case (rank)
       case (1)
-         call ESMF_FieldGet(x, x_1d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_1d, _RC)
          cptr = c_loc(x_1d)
       case (2)
-         call ESMF_FieldGet(x, x_2d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_2d, _RC)
          cptr = c_loc(x_2d)
       case (3)
-         call ESMF_FieldGet(x, x_3d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_3d, _RC)
          cptr = c_loc(x_3d)
       case (4)
-         call ESMF_FieldGet(x, x_4d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_4d, _RC)
          cptr = c_loc(x_4d)
       case (5)
-         call ESMF_FieldGet(x, x_5d, _RC)
+         call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
          _FAIL('Unsupported rank in FieldGetCptr().')
@@ -677,18 +737,77 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_cptr_i8
 
-
+!wdb  fixme This is not implemented. Should it be?
    subroutine convertprec(x, y, rc)
-      type(ESMF_Field), intent(in) :: x
+      type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
 
+      type(ESMF_TypeKind_Flag) :: tk_x, tk_y
+
       integer :: status
 
+      if(areSameTypeKind(x, y)) then
+         call FieldCOPY(x, y, _RC)
+      else
+         call ESMF_FieldGet(y, typekind = tk_x, _RC)
+         call ESMF_FieldGet(y, typekind = tk_y, _RC)
 
+         if(tk_x == ESMF_TypeKind_Flag) then
+            call convert_prec_R4_to_R8(x, y, _RC)
+         else
+            call convert_prec_R8_to_R4(x, y, _RC)
+         end if
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine convertprec
+
+   subroutine convert_prec_R4_to_R8(x, y, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+
+      real(kind+ESMF_KIND_R4), pointer :: x_ptr
+      real(kind+ESMF_KIND_R8), pointer :: y_ptr
+      
+      call assign_fptr(x, x_ptr, _RC)
+      call assign_fptr(y, y_ptr, _RC)
+
+      y_ptr = convert_fptr_prec(x_ptr)
+
+   end subroutine convert_prec_R4_to_R8
+
+   subroutine convert_prec_R8_to_R4(x, y, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+
+      real(kind+ESMF_KIND_R8), pointer :: x_ptr
+      real(kind+ESMF_KIND_R4), pointer :: y_ptr
+      
+      call assign_fptr(x, x_ptr, _RC)
+      call assign_fptr(y, y_ptr, _RC)
+
+      y_ptr = convert_fptr_prec(x_ptr)
+
+   end subroutine convert_prec_R4_to_R8
+
+   function convert_fptr_R4_to_R8(src_ptr) result(dest_ptr)
+      real(kind=ESMF_KIND_R4), intent(in) :: src_ptr
+      real(kind=ESMF_KIND_R8) :: dest_ptr
+
+      dest_ptr = real(src_ptr, ESMF_KIND_R8)
+
+   end function convert_fptr_R4_to_R8
+
+   function convert_fptr_R8_to_R4(src_ptr) result(dest_ptr)
+      real(kind=ESMF_KIND_R8), intent(in) :: src_ptr
+      real(kind=ESMF_KIND_R4) :: dest_ptr
+
+      dest_ptr = real(src_ptr, ESMF_KIND_R4)
+
+   end function convert_fptr_R8_to_R4
 
    logical function areConformable_scalar_scalar(x, y, rc) result(conformable)
       type(ESMF_Field), intent(in) :: x
@@ -719,6 +838,24 @@ contains
       _RETURN(_SUCCESS)
    end function areConformable_scalar_scalar
 
+   logical function areConformable_vector_vector(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(in) :: x(:)
+      type(ESMF_Field), intent(in) :: y(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: j
+
+      conformable = (size(x) == size(y))
+    
+      do j = 1, size(y)
+         if(.not. conformable) exit
+         conformable = FieldsAreConformable(x(j), y(j), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function areConformable_vector_vector
+
    logical function areConformable_scalar_vector(x, y, rc) result(conformable)
       type(ESMF_Field), intent(in) :: x
       type(ESMF_Field), intent(in) :: y(:)
@@ -732,7 +869,19 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end function areConformable_vector_vector
+   end function areConformable_scalar_vector
+
+   logical function areConformable_vector_scalar(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(in) :: x(:)
+      type(ESMF_Field), intent(in) :: y
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      conformable = FieldsAreConformable(y, x, _RC)
+
+      _RETURN(_SUCCESS)
+   end function areConformable_vector_scalar
 
    logical function areSameTypeKind(x, y, rc) result(same_tk)
       type(ESMF_Field), intent(in) :: x
@@ -740,7 +889,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: tk_x, tk_y
+      type(ESMF_TypeKind_Flag) :: tk_x, tk_y
 
       same_tk = .false.
       call ESMF_FieldGet(x, typekind=tk_x, _RC)
@@ -751,7 +900,7 @@ contains
       _RETURN(_SUCCESS)
    end function areSameTypeKind
 
-   function getLocalElementCount(x, element_count, rc) result(element_count)
+   function getLocalElementCount(x, rc) result(element_count)
       type(ESMF_Field), intent(in) :: x
       integer, optional, intent(out) :: rc
       integer, allocatable :: element_count(:)
@@ -778,15 +927,16 @@ contains
 
       sz = 0
       element_count = FieldGetLocalElementCount(x, _RC)
-      sz = product(element_count, kind=ESMF_KIND_I8)
+      sz = int(product(element_count), kind=ESMF_KIND_I8)
 
       _RETURN(_SUCCESS)
    end function getLocalSize
 
-
-   function sin(f, rc) result(sin_f)
-      type(ESMF_Field), intent(inout) ::f
-      type(ESMF_Field) :: sin_f
-   end function sin
+!wdb   fixme Not implemented
+!   function sin(f, rc) result(sin_f)
+!      type(ESMF_Field), intent(inout) ::f
+!      integer, optional, intent(out) :: rc
+!      type(ESMF_Field) :: sin_f
+!   end function sin
 
 end module mapl3g_FieldBLAS
