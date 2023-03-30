@@ -4,8 +4,11 @@ module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_ExtraDimsSpec
+   use mapl3g_VariableSpec
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
+   use nuopc
 
    implicit none
    private
@@ -16,8 +19,8 @@ module mapl3g_FieldSpec
       private
 
       character(:), allocatable :: units
-      type(ESMF_typekind_flag) :: typekind
-      type(ESMF_Grid) :: grid
+      type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
+      type(ESMF_GeomBase) :: geom_base
       type(ExtraDimsSpec) :: extra_dims
 !!$      type(FrequencySpec) :: freq_spec
 !!$      class(AbstractFrequencySpec), allocatable :: freq_spec
@@ -26,6 +29,7 @@ module mapl3g_FieldSpec
       type(ESMF_Field) :: payload
 
    contains
+      procedure :: initialize
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -35,35 +39,79 @@ module mapl3g_FieldSpec
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+
+      procedure :: check_complete
    end type FieldSpec
 
    interface FieldSpec
-      module procedure new_FieldSpec_full
+      module procedure new_FieldSpec_geombase
       module procedure new_FieldSpec_defaults
    end interface FieldSpec
 
 contains
 
+   subroutine initialize(this, geom_base, var_spec, unusable, rc)
+      class(FieldSpec), intent(inout) :: this
+      type(ESMF_GeomBase), intent(in) :: geom_base
+      type(VariableSpec), intent(in) :: var_spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
 
-   function new_FieldSpec_full(extra_dims, typekind, grid) result(field_spec)
+      character(:), allocatable :: units
+      integer :: status
+
+      this%geom_base = geom_base
+!!$      this%extra_dims = var_spec%extra_dims
+!!$      this%typekind = var_spec%typekind
+
+      call get_units(units, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   contains
+
+      subroutine get_units(units, rc)
+         character(:), intent(out), allocatable :: units
+         integer, optional, intent(out) :: rc
+
+         character(ESMF_MAXSTR) :: esmf_units
+         integer :: status
+         
+         if (allocated(var_spec%units)) units = var_spec%units ! user override
+
+         if (.not. allocated(units)) then
+            call NUOPC_FieldDictionaryGetEntry(var_spec%standard_name, esmf_units, status)
+            _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//var_spec%standard_name//'>')
+            units = trim(esmf_units)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine get_units
+      
+   end subroutine initialize
+
+
+   function new_FieldSpec_geombase(extra_dims, typekind, geom_base, units) result(field_spec)
       type(FieldSpec) :: field_spec
       type(ExtraDimsSpec), intent(in) :: extra_dims
       type(ESMF_Typekind_Flag), intent(in) :: typekind
-      type(ESMF_Grid), intent(in) :: grid
+      type(ESMF_GeomBase), intent(in) :: geom_base
+      character(*), intent(in) :: units
 
       field_spec%extra_dims = extra_dims
       field_spec%typekind = typekind
-      field_spec%grid = grid
-      field_spec%units = 'unknown'
-   end function new_FieldSpec_full
+      field_spec%geom_base = geom_base
+      field_spec%units = units
+   end function new_FieldSpec_geombase
 
 
-   function new_FieldSpec_defaults(extra_dims, grid) result(field_spec)
+   function new_FieldSpec_defaults(extra_dims, geom_base, units) result(field_spec)
       type(FieldSpec) :: field_spec
       type(ExtraDimsSpec), intent(in) :: extra_dims
-      type(ESMF_Grid), intent(in) :: grid
+      type(ESMF_GeomBase), intent(in) :: geom_base
+      character(*), intent(in) :: units
       
-      field_spec = new_FieldSpec_full(extra_dims, ESMF_TYPEKIND_R4, grid)
+      field_spec = FieldSpec(extra_dims, ESMF_TYPEKIND_R4, geom_base, units)
       
    end function new_FieldSpec_defaults
 
@@ -73,15 +121,47 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      call ESMF_FieldEmptySet(this%payload, grid=this%grid, _RC)
+      call MAPL_FieldEmptySet(this%payload, this%geom_base, _RC)
 
       call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
+   subroutine MAPL_FieldEmptySet(field, geom_base, rc)
+      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_GeomBase), intent(inout) :: geom_base
+      integer, optional, intent(out) ::rc
+
+      type(ESMF_GeomType_Flag) :: geom_type
+      type(ESMF_Grid) :: grid
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_XGrid) :: xgrid
+      type(ESMF_LocStream) :: locstream
+      integer :: status
+
+      call ESMF_GeomBaseGet(geom_base, geomtype=geom_type, _RC)
+
+      if(geom_type == ESMF_GEOMTYPE_GRID) then
+         call ESMF_GeomBaseGet(geom_base, grid=grid, _RC)
+         call ESMF_FieldEmptySet(field, grid, _RC)
+      else if (geom_type == ESMF_GEOMTYPE_MESH) then
+         call ESMF_GeomBaseGet(geom_base, mesh=mesh, _RC)
+         call ESMF_FieldEmptySet(field, mesh, _RC)
+      else if (geom_type == ESMF_GEOMTYPE_XGRID) then
+         call ESMF_GeomBaseGet(geom_base, xgrid=xgrid, _RC)
+         call ESMF_FieldEmptySet(field, xgrid, _RC)
+      else if (geom_type == ESMF_GEOMTYPE_LOCSTREAM) then
+         call ESMF_GeomBaseGet(geom_base, locstream=locstream, _RC)
+         call ESMF_FieldEmptySet(field, locstream, _RC)
+      else
+         _FAIL('Unsupported type of GeomBase')
+      end if
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_FieldEmptySet
 
    subroutine destroy(this, rc)
       class(FieldSpec), intent(inout) :: this
@@ -105,12 +185,14 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
       
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      if (fstatus == ESMF_FIELDSTATUS_EMPTY) then
+      if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
 
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
               ungriddedLBound= this%extra_dims%get_lbounds(),  &
               ungriddedUBound= this%extra_dims%get_ubounds(),  &
               _RC)
+      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+      _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
          call this%set_allocated()
       end if
@@ -132,6 +214,7 @@ contains
       class is (FieldSpec)
          ! ok
          this%payload = src_spec%payload
+         call this%set_active()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -166,7 +249,12 @@ contains
       class(FieldSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
 
+      type(ESMF_GeomType_Flag) :: geom_type
+      integer :: status
+      
       requires_extension = .true.
+      call ESMF_GeomBaseGet(this%geom_base, geomtype=geom_type, rc=status)
+      if (status /= 0) return
 
       select type(src_spec)
       class is (FieldSpec)
@@ -177,7 +265,7 @@ contains
 !!$              this%units /= src_spec%units,           &
 !!$              this%halo_width /= src_spec%halo_width, &
 !!$              this%vm /= sourc%vm,               &
-              this%grid /= src_spec%grid             &
+              geom_type /= geom_type &
               ])
 !!$         requires_extension = .false.
       end select
@@ -208,13 +296,12 @@ contains
 
       type(ESMF_Field) :: alias
       integer :: status
+      type(ESMF_FieldStatus_Flag) :: fstatus
 
-      _FAIL('unimplemented')
+      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+      call ESMF_StateAdd(state, [alias], _RC)
 
-!!$      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
-!!$      call ESMF_StateAdd(state, this%payload, short_name, _RC)
-!!$
-
+      _RETURN(_SUCCESS)
    end subroutine add_to_state
 
    function make_extension(this, src_spec, rc) result(action_spec)
@@ -223,5 +310,17 @@ contains
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc 
    end function make_extension
+
+   logical function check_complete(this, rc)
+      class(FieldSpec), intent(in) :: this
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: fstatus
+
+      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+      check_complete = (fstatus == ESMF_FIELDSTATUS_COMPLETE)
+
+   end function check_complete
 
 end module mapl3g_FieldSpec

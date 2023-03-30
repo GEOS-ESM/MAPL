@@ -13,6 +13,7 @@ module mapl3g_AbstractStateItemSpec
 
    contains
 
+      procedure(I_initialize), deferred :: initialize
       procedure(I_make), deferred :: create
       procedure(I_make), deferred :: destroy
       procedure(I_make), deferred :: allocate
@@ -34,6 +35,18 @@ module mapl3g_AbstractStateItemSpec
    end type AbstractStateItemSpec
 
    abstract interface
+
+      subroutine I_initialize(this, geom_base, var_spec, unusable, rc)
+         use esmf, only: ESMF_GeomBase
+         use mapl3g_VariableSpec, only: VariableSpec
+         use mapl_KeywordEnforcer, only: KeywordEnforcer
+         import AbstractStateItemSpec
+         class(AbstractStateItemSpec), intent(inout) :: this
+         type(ESMF_GeomBase), intent(in) :: geom_base
+         type(VariableSpec), intent(in) :: var_spec
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine I_initialize
 
       subroutine I_connect(this, src_spec, rc)
          use mapl3g_ConnectionSpec
@@ -159,6 +172,7 @@ contains
       class(AbstractStateItemSpec), intent(in) :: this
       is_active = this%active
    end function is_active
+
 
 
 end module mapl3g_AbstractStateItemSpec

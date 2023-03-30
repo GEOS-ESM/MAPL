@@ -297,7 +297,6 @@ contains
       call ESMF_Finalize(endflag=ESMF_END_KEEPMPI, _RC)
       call stop_timer()
 
-      ! W.J note : below reporting will be remove soon
       call report_throughput()
 
       _RETURN(_SUCCESS)
@@ -327,7 +326,7 @@ contains
             model_days_per_day = model_duration / wall_time
 
 
-            lgr => logging%get_logger('MAPL')
+            lgr => logging%get_logger('MAPL.profiler')
             call lgr%info("Model Throughput: %f12.3 days per day", model_days_per_day)
          end if
 

@@ -120,10 +120,12 @@ contains
       integer, optional, intent(out) :: rc
 
       phase_index = -1
-
+      if (present(rc)) rc = _SUCCESS
+      
       associate (b => phases%begin(), e => phases%end())
         associate (iter => find(b, e, phase_name))
-          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name)//"> not found")
+          if (iter == phases%end()) return
+!!$          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name)//"> not found")
           phase_index = 1 + distance(b, iter)
         end associate
       end associate

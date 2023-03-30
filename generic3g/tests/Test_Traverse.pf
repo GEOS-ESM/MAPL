@@ -38,7 +38,7 @@ contains
       call outer_meta%traverse(pre=pre, rc=status)
       @assert_that(status, is(0))
 
-      @assertEqual('pre<A0> :: pre<A1>', log)
+      @assertEqual('pre<[A0]> :: pre<[A1]>', log)
 
       
    end subroutine test_traverse_pre
@@ -73,7 +73,7 @@ contains
       call outer_meta%traverse(post=post, rc=status)
       @assert_that(status, is(0))
 
-      @assertEqual('post<A1> :: post<A0>', log)
+      @assertEqual('post<[A1]> :: post<[A0]>', log)
       
    end subroutine test_traverse_post
       
@@ -133,10 +133,10 @@ contains
       @assert_that(status, is(0))
 
       expected = &
-           'pre<A> :: ' // &
-           'pre<AB> :: pre<ABD> :: post<ABD> :: pre<ABE> :: post<ABE> :: post<AB> :: ' // &
-           'pre<AC> :: pre<ACF> :: post<ACF> :: pre<ACG> :: post<ACG> :: post<AC> :: ' // &
-           'post<A>'
+           'pre<[A]> :: ' // &
+           'pre<[AB]> :: pre<[ABD]> :: post<[ABD]> :: pre<[ABE]> :: post<[ABE]> :: post<[AB]> :: ' // &
+           'pre<[AC]> :: pre<[ACF]> :: post<[ACF]> :: pre<[ACG]> :: post<[ACG]> :: post<[AC]> :: ' // &
+           'post<[A]>'
       @assertEqual(expected, log)
       
    end subroutine test_traverse_complex

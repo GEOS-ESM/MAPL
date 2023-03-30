@@ -28,6 +28,7 @@ set(srcs
   OuterMetaComponent.F90
   OuterMetaComponent_setservices_smod.F90
   OuterMetaComponent_addChild_smod.F90
+  GenericPhases.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90
