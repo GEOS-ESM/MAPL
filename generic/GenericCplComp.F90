@@ -442,16 +442,17 @@ contains
 
           if (TCLR < TS) TCLR = TS
 
-          rTime = TM0 + TOFF - TCLR
+          !rTime = TM0 + TOFF - TCLR
+          rTime = TM0 + TOFF
 
-          do while (rTime < currTime)
-             rTime = rTime + TCPL
-          end do
+          !do while (rTime < currTime)
+             !rTime = rTime + TCPL
+          !end do
 
           STATE%TIME_TO_CLEAR(J) = ESMF_AlarmCreate(NAME='TIME2CLEAR_' // trim(COMP_NAME) &
                // '_' // trim(NAME),   &
                clock        = CLOCK,   &
-               ringInterval = TCPL,    &
+               ringInterval = TCLR,    &
                ringTime     = rTime,   &
                sticky       = .false., &
                rc=STATUS   )
@@ -530,7 +531,7 @@ contains
 ! Put pointer in accumulator
           STATE%ACCUMULATORS(J)=ESMF_LocalArrayCreate( PTR40, RC=STATUS)
           _VERIFY(STATUS)
-          
+
        case(3)
 ! Get SRC pointer, making sure it is allocated.
           call MAPL_GetPointer(SRC, PTR3, NAME, ALLOC=.TRUE., RC=STATUS)
@@ -754,7 +755,7 @@ contains
                       DO I4=1,size(PTR4,4)
                          if (PTR40(I1,I2,I3,I4)== MAPL_Undef) then
                             PTR40(I1,I2,I3,I4) = PTR4(I1,I2,I3,I4)
-                         else 
+                         else
                             if (couplerType == MAPL_CplMax) then
                                PTR40(I1,I2,I3,I4) = max(PTR40(I1,I2,I3,I4),PTR4(I1,I2,I3,I4))
                             else if (couplerType == MAPL_CplMin) then
@@ -1076,13 +1077,13 @@ contains
              PTR4c => STATE%ARRAY_COUNT(J)%PTR4C
              if(associated(PTR4C)) then
                 if (couplerType /= MAPL_CplAccumulate) then
-                   where (PTR4C /= 0) 
+                   where (PTR4C /= 0)
                       PTR40 = PTR40 / PTR4C
                    elsewhere
                       PTR40 = MAPL_Undef
                    end where
                 else
-                   where (PTR4C /= 0) 
+                   where (PTR4C /= 0)
                       PTR40 = PTR40
                    elsewhere
                       PTR40 = MAPL_Undef
@@ -1209,7 +1210,7 @@ contains
 
           end select
 
-          STATE%ACCUM_COUNT(J) = -1
+          !STATE%ACCUM_COUNT(J) = -1
 
        end if
 
