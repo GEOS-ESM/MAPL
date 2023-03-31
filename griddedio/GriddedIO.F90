@@ -22,6 +22,7 @@ module MAPL_GriddedIOMod
   use gFTL_StringVector
   use gFTL_StringStringMap
   use MAPL_FileMetadataUtilsMod
+  use MAPL_DownbitMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
@@ -142,6 +143,13 @@ module MAPL_GriddedIOMod
         end if
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
+
+        ! We get the regrid_method here because in the case of Identity, we set it to
+        ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
+        ! to change the regrid_method in the GriddedIO object to be the same as the
+        ! the regridder object.
+        this%regrid_method = this%regrid_handle%get_regrid_method()
+
         call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
         _VERIFY(status)
         factory => get_factory(this%output_grid,rc=status)
@@ -366,7 +374,7 @@ module MAPL_GriddedIOMod
         call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-        call v%add_attribute('regrid_method', translate_regrid_method(this%regrid_method))
+        call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
@@ -865,6 +873,12 @@ module MAPL_GriddedIOMod
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
      class (AbstractGridFactory), pointer :: factory
+     real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
+     type(ESMF_VM) :: vm
+     integer :: mpi_comm
+
+     call ESMF_VMGetCurrent(vm,_RC)
+     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
 
      factory => get_factory(this%output_grid,rc=status)
      _VERIFY(status)
@@ -881,7 +895,8 @@ module MAPL_GriddedIOMod
            call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
            _VERIFY(status)
            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-              call pFIO_DownBit(ptr2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,rc=status)
+              allocate(temp_2d,source=ptr2d)
+              call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
               _VERIFY(status)
            end if
         else
@@ -896,7 +911,8 @@ module MAPL_GriddedIOMod
             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
             _VERIFY(status)
             if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-               call pFIO_DownBit(ptr3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,rc=status)
+               allocate(temp_3d,source=ptr3d)
+               call DownBit(temp_3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
                _VERIFY(status)
             end if
          else
