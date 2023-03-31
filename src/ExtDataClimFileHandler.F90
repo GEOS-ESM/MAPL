@@ -40,11 +40,11 @@ contains
       character(len=ESMF_MAXPATHLEN) :: current_file
       integer :: status
       type(ESMF_TimeInterval) :: zero
-      type(ESMF_Time) :: target_time
+      type(ESMF_Time) :: target_time, clim_target_time
 
       integer :: target_year, original_year,clim_shift,valid_years(2)
       integer, allocatable :: source_years(:)
-     
+    
    
       _ASSERT(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology") 
       if (bracket%time_in_bracket(input_time)) then
@@ -91,6 +91,7 @@ contains
             call swap_year(target_time,target_year,_RC)
          end if 
       end if
+      clim_target_time = target_time
 
       ! the target time is contained in the dataset and we are not extrapolating outside of source time selection based on available data
       if (this%clim_year == CLIM_NULL) then
@@ -127,6 +128,7 @@ contains
                bracket%new_file_left=.true.
             end if
 
+            target_time = clim_target_time
             call this%get_file(current_file,target_time,0,_RC)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
@@ -190,6 +192,7 @@ contains
             end if
             call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
 
+            target_time = clim_target_time
             call this%get_file(current_file,target_time,0,_RC)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,rc=status)
             if (time_index == time_not_found) then
@@ -226,7 +229,7 @@ contains
       type(ESMF_Time) :: ftime
       integer :: n,status
       logical :: file_found
-      integer :: new_year
+      integer :: new_year, local_shift
       integer(ESMF_KIND_I8) :: interval_seconds
 
 
@@ -247,11 +250,10 @@ contains
          call ESMF_TimeGet(ftime,yy=new_year,_RC)
          if (new_year/=this%clim_year) then
             call swap_year(ftime,this%clim_year,_RC)
-            if (shift > 0) then
-               call swap_year(target_time,this%clim_year-shift)
-            else if (shift < 0) then
-               call swap_year(target_time,this%clim_year+shift)
-            end if
+
+            local_shift = this%clim_year - new_year
+            call swap_year(target_time,this%clim_year+local_shift)
+
          end if
       end if
       call fill_grads_template(filename,this%file_template,time=ftime,_RC)
