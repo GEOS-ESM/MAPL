@@ -68,7 +68,8 @@ contains
            ScenarioDescription(name='scenario_1',root='parent.yaml'), &
            ScenarioDescription(name='scenario_2',root='parent.yaml'), &
            ScenarioDescription(name='scenario_reexport_twice', root='grandparent.yaml'), &
-           ScenarioDescription(name='history_1', root='cap.yaml') &
+           ScenarioDescription(name='history_1', root='cap.yaml'), &
+           ScenarioDescription(name='precision_extension', root='parent.yaml') &
       ]
    end function getParameters
 
@@ -401,4 +402,110 @@ contains
       return
    end function num_fields
    
+   @test
+   subroutine test_typekind(this)
+      class(Scenario), intent(inout) :: this
+
+      integer :: status
+      integer :: i
+      character(:), allocatable :: comp_path, item_name
+      class(YAML_NODE), pointer :: comp_expectations, properties
+      class(YAML_NODE), pointer :: state_items
+      integer :: item_count, expected_item_count
+      type(MultiState) :: comp_states
+      type(ESMF_Field) :: field
+      type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
+      character(:), allocatable :: expected_status
+
+
+      components: do i = 1, this%expectations%size()
+
+         comp_expectations => this%expectations%of(i)
+
+         call comp_expectations%get(comp_path, 'component', _RC)
+         call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
+
+         call check(comp_expectations, comp_states, 'imports', 'import', _RC)
+         call check(comp_expectations, comp_states, 'exports', 'export', _RC)
+         call check(comp_expectations, comp_states, 'internals', 'internal', _RC)
+            
+      end do components
+
+   contains
+
+      subroutine check(comp_expectations, states, intent_case, intent, rc)
+            class(YAML_Node), target :: comp_expectations
+            type(MultiState), intent(inout) :: states
+            character(*), intent(in) :: intent_case
+            character(*), intent(in) :: intent
+            integer, intent(out) :: rc
+
+            integer :: status
+            class(NodeIterator), allocatable :: iter
+            class(YAML_NODE), pointer :: state_items
+            type(ESMF_State) :: state
+
+            character(:), allocatable :: msg
+            character(:), allocatable :: expected_typekind_str
+            type(ESMF_TypeKind_Flag) :: found_typekind
+            type(ESMF_TypeKind_Flag) :: expected_typekind
+            type(ESMF_FieldStatus_Flag) :: field_status
+            
+            msg = comp_path // '::' // intent
+            rc = -1
+
+            if (.not. comp_expectations%has(intent_case)) then
+               rc = 0 ! that's ok
+               return
+            end if
+
+            state_items => comp_expectations%at(intent_case, _RC)
+            @assert_that(msg, state_items%is_mapping(), is(true()))
+
+            call states%get_state(state, intent, _RC)
+
+            associate (e => state_items%end())
+              allocate(iter, source=state_items%begin())
+
+              do while (iter /= e)
+                 item_name = to_string(iter%first(), _RC)
+                 properties => iter%second()
+
+                 call get_field(comp_states, intent, item_name, field, _RC)
+
+                 call ESMF_FieldGet(field, status=field_status, _RC)
+                 if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
+                    rc = 0
+                    call iter%next()
+                    cycle
+                 end if
+
+
+                 expected_typekind = ESMF_TYPEKIND_R4
+                 if (properties%has('typekind')) then
+                    call ESMF_FieldGet(field, typekind=found_typekind, _RC)
+                    call properties%get(expected_typekind_str, 'typekind', rc=status)
+                    if (status == ESMF_SUCCESS) then
+                       select case (expected_typekind_str)
+                       case ('R4')
+                          expected_typekind = ESMF_TYPEKIND_R4
+                       case ('R8')
+                          expected_typekind = ESMF_TYPEKIND_R8
+                       case default
+                          _VERIFY(-1)
+                       end select
+                    end if
+                    @assert_that(msg // ' incorrect typekind for field ' // item_name, expected_typekind == found_typekind, is(true()))
+                 end if
+                 
+                 call iter%next()
+              end do
+              deallocate(iter)
+            end associate
+            
+            rc = 0
+
+         end subroutine check
+      end subroutine test_typekind
+
 end module Test_Scenarios

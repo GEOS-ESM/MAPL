@@ -69,6 +69,9 @@ module mapl3g_OuterMetaComponent
       procedure :: set_esmf_config
       procedure :: set_yaml_config
       generic   :: set_config => set_esmf_config, set_yaml_config
+!!$      procedure :: get_esmf_config
+!!$      procedure :: get_yaml_config
+!!$      generic   :: get_config => get_esmf_config, get_yaml_config
 
       procedure :: get_phases
 !!$      procedure :: get_gridcomp
@@ -392,6 +395,27 @@ contains
 
    end subroutine set_yaml_config
 
+!!$   subroutine get_esmf_config(this, config)
+!!$      class(OuterMetaComponent), intent(inout) :: this
+!!$      type(ESMF_Config), intent(out) :: config
+!!$
+!!$      if (.not. allocated(this%esmf_cfg)) return
+!!$      config = this%esmf_cfg
+!!$
+!!$   end subroutine get_esmf_config
+!!$
+!!$
+!!$   subroutine get_yaml_config(this, config)
+!!$      class(OuterMetaComponent), target, intent(inout) :: this
+!!$      class(YAML_Node), pointer :: config
+!!$
+!!$      config => null
+!!$      if (.not. allocated(this%yaml_cfg)) return
+!!$
+!!$      config => this%yaml_cfg
+!!$
+!!$   end subroutine get_yaml_config
+
    subroutine set_user_setservices(this, user_setservices)
       class(OuterMetaComponent), intent(inout) :: this
       class(AbstractUserSetServices), intent(in) :: user_setservices
@@ -560,6 +584,7 @@ contains
       type(MultiState) :: outer_states
 
       call this%registry%add_to_states(this%user_states, mode='user', _RC)
+!!$      call this%registry%create_extensions(this%extensions, this%user_states, _RC)
 
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
@@ -589,6 +614,7 @@ contains
 
       call this%registry%allocate(_RC)
 
+      
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    contains

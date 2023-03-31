@@ -86,6 +86,7 @@ contains
          character(:), allocatable :: short_name
          character(:), allocatable :: substate
          class(YAML_Node), pointer :: attributes
+         type(ESMF_TypeKind_Flag) :: typekind
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -94,10 +95,13 @@ contains
             attributes => iter%second()
 
             call split(name, short_name, substate)
+
+            call to_typekind(typekind, attributes, _RC)
             
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
                  units=to_string(attributes%of('units')), &
+                 typekind=typekind, &
                  substate=substate)
             call var_specs%push_back(var_spec)
             call iter%next()
@@ -122,6 +126,37 @@ contains
          short_name = name(idx+1:)
          substate = name(:idx-1)
       end subroutine split
+
+      subroutine to_typekind(typekind, attributes, rc)
+         type(ESMF_TypeKind_Flag) :: typekind
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: typekind_str
+
+         typekind = ESMF_TYPEKIND_R4 ! GEOS default
+         if (.not. attributes%has('typekind')) then
+            _RETURN(_SUCCESS)
+         end if
+         call attributes%get(typekind_str, 'typekind', _RC)
+
+         select case (typekind_str)
+         case ('R4')
+            typekind = ESMF_TYPEKIND_R4
+         case ('R8')
+            typekind = ESMF_TYPEKIND_R8
+         case ('I4')
+            typekind = ESMF_TYPEKIND_I4
+         case ('I8')
+            typekind = ESMF_TYPEKIND_I8
+         case default
+            _FAIL('Unsupported typekind')
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine to_typekind
+
    end function process_var_specs
 
 

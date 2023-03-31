@@ -102,6 +102,7 @@ contains
       character(*), intent(in) :: comp_name
 
       a_pt%v_pt = this%v_pt%add_comp_name(comp_name)
+      if (allocated(this%label)) a_pt%label = this%label
       
    end function add_comp_name
 

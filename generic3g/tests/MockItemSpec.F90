@@ -92,11 +92,12 @@ contains
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
+      print*,__FILE__,__LINE__
       select type (src_spec)
       class is (MockItemSpec)
          ! ok
+         print*,__FILE__,__LINE__
          this%name = src_spec%name
-         call this%set_active(src_spec%is_active())
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
