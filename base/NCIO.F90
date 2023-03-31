@@ -3540,8 +3540,8 @@ module NCIOMod
              x0=1.0d0
              x1=dble(arrdes%IM_WORLD)
              if (is_stretched) then
-                call cf%add_attribute('TARGET_LON',target_lon*MAPL_RADIANS_TO_DEGREES)
-                call cf%add_attribute('TARGET_LAT',target_lat*MAPL_RADIANS_TO_DEGREES)
+                call cf%add_attribute('TARGET_LON',target_lon)
+                call cf%add_attribute('TARGET_LAT',target_lat)
                 call cf%add_attribute('STRETCH_FACTOR',stretch_factor)
              end if
           else
