@@ -192,6 +192,7 @@ contains
       type(HierarchicalRegistry), target :: r_A, r_B ! child registries
       type(VirtualConnectionPt) :: cp_A, cp_B
       type(ConnectionSpec) :: conn
+      type(ActualPtVector), pointer :: actual_pts
       integer :: status
 
       r = HierarchicalRegistry('P')
@@ -210,7 +211,9 @@ contains
       call r%add_connection(conn, rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_b, cp_B, ['AE'])) return
+      ! Check that extension was created
+      actual_pts => r_a%get_actual_pts(cp_A)
+      @assert_that(int(actual_pts%size()), is(2))
 
    end subroutine test_connect
 
@@ -311,7 +314,7 @@ contains
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild
       type(VirtualConnectionPt) :: vpt_1, vpt_2, vpt_3
-
+      type(ActualPtVector), pointer :: actual_pts
       integer :: status
 
       r = HierarchicalRegistry('R')
@@ -337,7 +340,9 @@ contains
       call r%add_connection(ConnectionSpec(CP('A',vpt_2), CP('B', vpt_3)), rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_B, vpt_3, ['AE1'])) return
+       ! Check that extension was created
+      actual_pts => r_a%get_actual_pts(vpt_2)
+      @assert_that(int(actual_pts%size()), is(2))
 
    end subroutine test_connect_chain
 
@@ -626,6 +631,7 @@ contains
       type(VirtualConnectionPt) :: vpt_parent, vpt_child
       type(ConnectionSpec) :: conn
       integer :: status
+      type(ActualPtVector), pointer :: actual_pts
 
       r_parent = HierarchicalRegistry('parent')
       r_child = HierarchicalRegistry('child')
@@ -641,8 +647,11 @@ contains
       call r_parent%add_connection(conn, rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_child, vpt_child, ['AE'])) return
+!!$      if (.not. check(r_child, vpt_child, ['AE'])) return
 
+      ! Check that extension was created
+      actual_pts => r_parent%get_actual_pts(vpt_parent)
+      @assert_that(int(actual_pts%size()), is(2))
    end subroutine test_import_from_parent
 
    @test
@@ -659,6 +668,7 @@ contains
       type(VirtualConnectionPt) :: vpt_parent, vpt_child
       type(ConnectionSpec) :: conn
       integer :: status
+      type(ActualPtVector), pointer :: actual_pts
 
       r_parent = HierarchicalRegistry('parent')
       r_child = HierarchicalRegistry('child')
@@ -674,7 +684,10 @@ contains
       call r_parent%add_connection(conn, rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_parent, vpt_parent, ['AE'])) return
+!!$      if (.not. check(r_parent, vpt_parent, ['AE'])) return
+      ! Check that extension was created
+      actual_pts => r_child%get_actual_pts(vpt_child)
+      @assert_that(int(actual_pts%size()), is(2))
 
    end subroutine test_import_from_child
 

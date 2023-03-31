@@ -55,7 +55,7 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        state_item, units, substate) result(var_spec)
+        state_item, units, substate, typekind) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -65,6 +65,7 @@ contains
       type(ESMF_StateItem_Flag), optional, intent(in) :: state_item
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: substate
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -78,7 +79,7 @@ contains
       _SET_OPTIONAL(state_item)
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(substate)
-      
+      _SET_OPTIONAL(typekind)
    end function new_VariableSpec
 
 

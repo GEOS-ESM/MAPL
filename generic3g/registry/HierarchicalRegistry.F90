@@ -33,6 +33,8 @@ module mapl3g_HierarchicalRegistry
 
       ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
+
+!!$      type(ExtensionVector) :: extensions
    contains
 
       ! getters
@@ -61,7 +63,7 @@ module mapl3g_HierarchicalRegistry
       procedure :: link_item_spec_virtual
       generic :: link_item_spec => link_item_spec_actual, link_item_spec_virtual
 
-      procedure :: add_extension
+      procedure :: add_extension_pt
 
       procedure :: propagate_unsatisfied_imports_all
       procedure :: propagate_unsatisfied_imports_child
@@ -79,6 +81,7 @@ module mapl3g_HierarchicalRegistry
       procedure :: add_connection
       procedure :: connect_sibling
       procedure :: connect_export_to_export
+      procedure :: add_extension
 
       procedure :: allocate
 
@@ -232,7 +235,10 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_item_spec_virtual
-   
+
+   ! Do not add a new actual_pt, but instead point to an existing one.
+   ! This is used for associating a spec form a child registry in a
+   ! parent registry.
    subroutine add_item_spec_virtual_override(this, virtual_pt, spec, actual_pt, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
@@ -242,14 +248,14 @@ contains
 
       integer :: status
 
-      call this%add_extension(virtual_pt, actual_pt)
+      call this%add_extension_pt(virtual_pt, actual_pt)
       call this%add_item_spec(actual_pt, spec, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_item_spec_virtual_override
    
 
-   subroutine add_extension(this, virtual_pt, actual_pt)
+   subroutine add_extension_pt(this, virtual_pt, actual_pt)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
       type(ActualConnectionPt), intent(in) :: actual_pt
@@ -264,7 +270,7 @@ contains
         call actual_pts%push_back(actual_pt)
       end associate
       
-   end subroutine add_extension
+   end subroutine add_extension_pt
 
 
    ! This procedure is used when a child import/export must be propagated to parent.
@@ -278,7 +284,7 @@ contains
       integer :: status
       logical :: exists_
 
-      call this%add_extension(virtual_pt, actual_pt)
+      call this%add_extension_pt(virtual_pt, actual_pt)
       if (this%has_item_spec(actual_pt)) then ! that's ok?
          _RETURN(_SUCCESS)
       end if
@@ -415,11 +421,13 @@ contains
         _ASSERT(associated(dst_registry), 'Unknown destination registry')
 
         if (connection%is_sibling()) then
+        ! TODO: do not need to send src_registry, as it can be derived from connection again.
            call dst_registry%connect_sibling(src_registry, connection, _RC)
            _RETURN(_SUCCESS)
         end if
 
         ! Non-sibling connection: just propagate pointer "up"
+
            call this%connect_export_to_export(src_registry, connection, _RC)
       end associate
       
@@ -428,7 +436,7 @@ contains
 
    subroutine connect_sibling(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), target, intent(in) :: this
-      type(HierarchicalRegistry), target, intent(in) :: src_registry
+      type(HierarchicalRegistry), target, intent(inout) :: src_registry
       type(ConnectionSpec), intent(in) :: connection
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -446,16 +454,28 @@ contains
 
         do i = 1, size(import_specs)
            import_spec => import_specs(i)%ptr
-           satisfied = .true.
-           do j = 1, size(export_specs)
+           satisfied = .false.
+
+           find_source: do j = 1, size(export_specs)
               export_spec => export_specs(j)%ptr
+
               if (import_spec%can_connect_to(export_spec)) then
                  call export_spec%set_active()
-                 call import_spec%connect_to(export_spec, _RC)
+                 call import_spec%set_active()
+
+                 if (import_spec%requires_extension(export_spec)) then
+                    call src_registry%add_extension(src_pt%v_pt, import_spec, _RC)
+                    ! Add registration of the extension ...
+                 else
+                    call import_spec%connect_to(export_spec, _RC)
+                 end if
+
+
                  satisfied = .true.
-                 exit
+                 exit find_source
               end if
-           end do
+           end do find_source
+
            _ASSERT(satisfied,'no matching actual export spec found')
         end do
       end associate
@@ -463,6 +483,32 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling
+
+
+   subroutine add_extension(this, v_pt, spec, rc)
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: v_pt
+      class(AbstractStateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ActualConnectionPt) :: extension_pt
+      type(ActualPtVector), pointer :: actual_pts
+      type(ActualConnectionPt), pointer :: actual_pt
+
+      ! 1. Get existing actual pts for v_pt
+      actual_pts => this%get_actual_pts(v_pt)
+      _ASSERT(associated(actual_pts), 'No actual pts found for v_pt')
+      ! 2. Get last actual_pt so that we can generate "next" name
+      actual_pt => actual_pts%back()
+      
+      ! 3. Create extension pt that is an extension of last actual_pt in list.
+      extension_pt = actual_pt%extend()
+      ! 4. Put spec in registry under actual_pt
+      call this%add_item_spec(v_pt, spec, extension_pt, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_extension
 
    subroutine connect_export_to_export(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), intent(inout) :: this
@@ -854,4 +900,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt
 
+
+!!$   subroutine create_extensions(this, extensions, multi_state, rc)
+!!$      class(HierarchicalRegistry), intent(in) :: this
+!!$      type(ExtensionVector), intent(out) :: extensions
+!!$      type(MultiState), intent(inout) :: multi_state
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      integer :: status
+!!$
+!!$      do i = 1, this%extension_specs%size()
+!!$         extension_spec => this%extension_specs%of(i)
+!!$
+!!$         extension = extension_spec%make_extension(multi_state, _RC)
+!!$         call extensions%push_back(extension)
+!!$      end do
+!!$         
+!!$   end subroutine create_extensions
+!!$
 end module mapl3g_HierarchicalRegistry

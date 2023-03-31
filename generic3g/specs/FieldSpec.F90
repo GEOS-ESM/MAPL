@@ -79,6 +79,7 @@ contains
       field_spec%units = standard_name
       field_spec%units = long_name
       field_spec%units = units
+
    end function new_FieldSpec_geom
 
 
@@ -191,7 +192,6 @@ contains
       class is (FieldSpec)
          ! ok
          this%payload = src_spec%payload
-         call this%set_active()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -208,10 +208,7 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          can_connect_to = all ([ &
-              this%typekind == src_spec%typekind,   &
               this%ungridded_dims == src_spec%ungridded_dims &
-!!$              this%freq_spec == src_spec%freq_spec,   &
-!!$              this%halo_width == src_spec%halo_width,  &
 !!$              this%vm == sourc%vm, &
 !!$              can_convert_units(this, src_spec) &
               ])
