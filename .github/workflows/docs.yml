@@ -17,53 +17,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install graphviz
-        run: sudo apt-get install -y graphviz
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Build and Deploy Docs
+        uses: ./.github/actions/deploy-ford-docs
         with:
-          python-version: '3.x'
-
-      - name: Install Ford
-        run: pip install ford
-
-      - name: Ford version
-        run: ford --version
-
-      - name: Checkout gFTL
-        uses: actions/checkout@v3
-        with:
-          repository: Goddard-Fortran-Ecosystem/gFTL
-          path: gFTL
-          fetch-depth: 1
-
-      - name: Build gFTL
-        run: |
-          cd gFTL
-          mkdir -p build
-          cd build
-          cmake .. -DCMAKE_Fortran_COMPILER=gfortran-10 -DCMAKE_INSTALL_PREFIX=../install
-          make -j$(nproc) install
-
-      - name: Build Documentation
-        run: ford Ford/docs-with-remote-esmf.md
-
-      - name: Build Developer Documentation
-        run: ford Ford/docs-with-remote-esmf.public_private_protected.md
-
-      - name: Deploy Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' )
-        with:
-          folder: Ford/doc
+          ford-input: Ford/docs-with-remote-esmf.md
+          doc-folder: Ford/doc
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy Dev Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' )
+  build-and-deploy-dev-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build and Deploy Dev Docs
+        uses: ./.github/actions/deploy-ford-docs
         with:
-          folder: Ford/dev-doc
+          ford-input: Ford/docs-with-remote-esmf.public_private_protected.md
+          doc-folder: Ford/dev-doc
           token: ${{ secrets.GITHUB_TOKEN }}
           target-folder: dev-doc
-
