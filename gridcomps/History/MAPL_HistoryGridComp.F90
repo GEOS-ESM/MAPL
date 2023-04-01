@@ -2374,6 +2374,8 @@ ENDDO PARSER
              else
                 _FAIL('Not implemented: list(n)%observation_spec= '//trim(list(n)%observation_spec))
              endif
+          elseif (list(n)%collection_is_masked) then
+             list(n)%td_mask = TimeDependentMask(list(n)%mask_setup)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
