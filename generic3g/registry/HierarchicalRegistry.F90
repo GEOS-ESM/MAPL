@@ -22,7 +22,20 @@ module mapl3g_HierarchicalRegistry
    private
   
    public :: HierarchicalRegistry
-  
+
+   type :: ExtensionAction
+   end type ExtensionAction
+
+
+   type StateExtension
+      type(ActualConnectionPt) :: src_actual_pt
+      type(ActualConnectionPt) :: dst_actual_pt
+      ! type(ActionVector) :: actions
+      type(ExtensionAction) :: action
+!!$      class(AbstractAction), allocatable :: action
+   end type StateExtension
+
+
    type, extends(AbstractRegistry) :: HierarchicalRegistry
       private
       character(:), allocatable :: name
@@ -34,7 +47,8 @@ module mapl3g_HierarchicalRegistry
       ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
 
-!!$      type(ExtensionVector) :: extensions
+      type(StateExtension) :: extension
+
    contains
 
       ! getters
@@ -81,7 +95,8 @@ module mapl3g_HierarchicalRegistry
       procedure :: add_connection
       procedure :: connect_sibling
       procedure :: connect_export_to_export
-      procedure :: add_extension
+      procedure :: extend => extend_
+      procedure :: add_state_extension
 
       procedure :: allocate
 
@@ -282,7 +297,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: exists_
 
       call this%add_extension_pt(virtual_pt, actual_pt)
       if (this%has_item_spec(actual_pt)) then ! that's ok?
@@ -464,8 +478,7 @@ contains
                  call import_spec%set_active()
 
                  if (import_spec%requires_extension(export_spec)) then
-                    call src_registry%add_extension(src_pt%v_pt, import_spec, _RC)
-                    ! Add registration of the extension ...
+                    call src_registry%extend(src_pt%v_pt, import_spec, _RC)
                  else
                     call import_spec%connect_to(export_spec, _RC)
                  end if
@@ -485,7 +498,7 @@ contains
    end subroutine connect_sibling
 
 
-   subroutine add_extension(this, v_pt, spec, rc)
+   subroutine extend_(this, v_pt, spec, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: v_pt
       class(AbstractStateItemSpec), intent(in) :: spec
@@ -507,8 +520,48 @@ contains
       ! 4. Put spec in registry under actual_pt
       call this%add_item_spec(v_pt, spec, extension_pt, _RC)
 
+      call this%add_state_extension(v_pt, extension_pt, spec, _RC)
+
       _RETURN(_SUCCESS)
-   end subroutine add_extension
+   end subroutine extend_
+
+   subroutine add_state_extension(this, v_pt, a_pt, dst_spec, rc)
+      class(HierarchicalRegistry), target, intent(inout) :: this
+      type(VirtualConnectionPt), intent(in) :: v_pt
+      type(ActualConnectionPt), intent(in) :: a_pt
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateExtension) :: extension
+      type(ExtensionAction) :: action
+      class(AbstractStateItemSpec), pointer :: src_spec
+      type(ActualPtVector), pointer :: actual_pts
+
+      ! Determine which actual_pt in v_p we should use as the starting
+      ! point.
+      actual_pts => this%get_actual_pts(v_pt)
+      _ASSERT(associated(actual_pts), 'No actual pts found for v_pt')
+      src_spec => this%get_item_spec(actual_pts%front(), _RC)
+
+      action = make_action(src_spec, dst_spec, _RC)
+      this%extension = StateExtension(actual_pts%front(), a_pt, action)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_state_extension
+
+   function make_action(src_spec, dst_spec, rc) result(action)
+      type(ExtensionAction) :: action
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      action = ExtensionAction()
+
+      _RETURN(_SUCCESS)
+   end function make_action
 
    subroutine connect_export_to_export(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), intent(inout) :: this
@@ -917,5 +970,5 @@ contains
 !!$      end do
 !!$         
 !!$   end subroutine create_extensions
-!!$
+
 end module mapl3g_HierarchicalRegistry

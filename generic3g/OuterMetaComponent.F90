@@ -790,8 +790,7 @@ contains
            clock=clock, phase=phase_idx, userRC=userRC, _RC)
       _VERIFY(userRC)
 
-!!$      call child couplers
-
+!!$      call this%state_extensions%run(_RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run

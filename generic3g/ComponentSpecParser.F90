@@ -87,6 +87,7 @@ contains
          character(:), allocatable :: substate
          class(YAML_Node), pointer :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
+         real, allocatable :: default_value
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -97,12 +98,16 @@ contains
             call split(name, short_name, substate)
 
             call to_typekind(typekind, attributes, _RC)
-            
+
+            call to_float(default_value, attributes, 'default_value', _RC)
+
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
                  units=to_string(attributes%of('units')), &
                  typekind=typekind, &
-                 substate=substate)
+                 substate=substate, &
+                 default_value=default_value &
+                 )
             call var_specs%push_back(var_spec)
             call iter%next()
          end do
@@ -126,6 +131,21 @@ contains
          short_name = name(idx+1:)
          substate = name(:idx-1)
       end subroutine split
+
+      subroutine to_float(x, attributes, key, rc)
+         real, allocatable, intent(out) :: x
+         class(YAML_Node), intent(in) :: attributes
+         character(*), intent(in) :: key
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         _RETURN_UNLESS(attributes%has('default_value'))
+         allocate(x)
+         call attributes%get(x, 'default_value', _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine to_float
 
       subroutine to_typekind(typekind, attributes, rc)
          type(ESMF_TypeKind_Flag) :: typekind
