@@ -30,13 +30,13 @@ module mapl3g_FieldSpec
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
       character(:), allocatable :: units
-
       ! TBD
 !!$      type(FrequencySpec) :: freq_spec
 !!$      class(AbstractFrequencySpec), allocatable :: freq_spec
 !!$      integer :: halo_width = 0
 
       type(ESMF_Field) :: payload
+      real, allocatable :: default_value
 
    contains
       procedure :: create
@@ -61,7 +61,8 @@ contains
 
 
    function new_FieldSpec_geom(geom, typekind, ungridded_dims, &
-        standard_name, long_name, units) result(field_spec)
+        standard_name, long_name, units, &
+        default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_Geom), intent(in) :: geom
@@ -71,6 +72,7 @@ contains
       character(*), intent(in) :: standard_name
       character(*), intent(in) :: long_name
       character(*), intent(in) :: units
+      real, optional, intent(in) :: default_value
 
       field_spec%geom = geom
       field_spec%typekind = typekind
@@ -79,6 +81,8 @@ contains
       field_spec%units = standard_name
       field_spec%units = long_name
       field_spec%units = units
+
+      if (present(default_value)) field_spec%default_value = default_value
 
    end function new_FieldSpec_geom
 

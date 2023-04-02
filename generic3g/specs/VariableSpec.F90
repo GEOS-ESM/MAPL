@@ -34,6 +34,8 @@ module mapl3g_VariableSpec
       character(:), allocatable :: units
       character(:), allocatable :: substate
 
+      real, allocatable :: default_value
+
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec ! none, geom
@@ -55,7 +57,7 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        state_item, units, substate, typekind) result(var_spec)
+        state_item, units, substate, typekind, default_value) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -66,6 +68,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      real, optional, intent(in) :: default_value
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -80,6 +83,8 @@ contains
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(substate)
       _SET_OPTIONAL(typekind)
+      _SET_OPTIONAL(default_value)
+
    end function new_VariableSpec
 
 
@@ -188,7 +193,7 @@ contains
       units = get_units(this, _RC)
 
       field_spec = new_FieldSpec_geom(geom=geom, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
-           standard_name=this%standard_name, long_name=' ', units=units)
+           standard_name=this%standard_name, long_name=' ', units=units, default_value=this%default_value)
 
       _RETURN(_SUCCESS)
 
