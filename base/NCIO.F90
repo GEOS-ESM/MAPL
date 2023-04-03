@@ -2723,7 +2723,7 @@ module NCIOMod
     type(Netcdf4_Fileformatter)        :: formatter
     type(FileMetaData)                 :: metadata
     character(len=:), allocatable      :: fname_by_face
-    logical :: grid_file_match,flip
+    logical :: grid_file_match,flip, restoreExport, isPresent
     type(ESMF_VM) :: vm
     integer :: comm
 
@@ -2792,6 +2792,15 @@ module NCIOMod
 !@            allocate(Mask(1))
          endif
       endif
+
+      restoreExport = .false.
+      call ESMF_AttributeGet(bundle, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+      if (isPresent) then
+         call ESMF_AttributeGet(bundle, name='MAPL_RestoreExport', value=restoreExport, _RC)
+      end if
+      if (restoreExport) then
+         call MAPL_AllocateCoupling(field, _RC)
+      end if
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
@@ -2884,7 +2893,7 @@ module NCIOMod
     integer                            :: dna
     logical                            :: bootstrapable_
     logical                            :: isPresent
-    logical                            :: isTestFramework
+    logical                            :: isTestFramework, restoreExport
     character(len=:), allocatable      :: fname_by_face
     ! get a list of variables in the file so we can skip if the
     ! variable in the state is not in the file and it is bootstrapable
@@ -2978,7 +2987,7 @@ module NCIOMod
              call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
              if (isPresent) then
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                skipReading = (isTestFramework == .false.)
+                if (isTestFramework) skipReading = .false.
              end if
 
              if (skipReading) cycle
@@ -3008,7 +3017,7 @@ module NCIOMod
                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
                if (isPresent) then
                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                  skipReading = (isTestFramework == .false.)
+                  if (isTestFramework) skipReading = .false.
                end if
 
                if (skipReading) cycle
@@ -3041,9 +3050,17 @@ module NCIOMod
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
                      call ESMF_AttributeSet ( field, name='RESTART', &
                              value=MAPL_RestartBootstrap, rc=status)
-
                   else
-                     _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                     restoreExport = .false.
+                     call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+                     if (isPresent) then
+                        call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restoreExport, _RC)
+                     end if
+                     if (restoreExport) then
+                        if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
+                     else
+                        _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                     end if
                   end if
                end if
 
@@ -3072,7 +3089,7 @@ module NCIOMod
              call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
              if (isPresent) then
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                 skipReading = (isTestFramework == .false.)
+                if (isTestFramework) skipReading = .false.
              end if
 
              if (skipReading) cycle
@@ -3087,7 +3104,7 @@ module NCIOMod
              call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
              if (isPresent) then
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                skipReading = (isTestFramework == .false.)
+                if (isTestFramework) skipReading = .false.
              end if
 
              if (skipReading) cycle
@@ -3111,7 +3128,16 @@ module NCIOMod
                     call ESMF_AttributeSet ( field, name='RESTART', &
                             value=MAPL_RestartBootstrap, rc=status)
                 else
-                    _FAIL( "  Could not find field "//trim(Fieldname)//" in "//trim(filename))
+                   restoreExport = .false.
+                   call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+                   if (isPresent) then
+                      call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restoreExport, _RC)
+                   end if
+                   if (restoreExport) then
+                      if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
+                   else
+                      _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                   end if
                 end if
              end if
 
@@ -3123,6 +3149,11 @@ module NCIOMod
 
     tile = arrdes%tile
 
+    call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+    if (isPresent) then
+       call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restoreExport, _RC)
+       call ESMF_AttributeSet(bundle_read, name="MAPL_RestoreExport", value=restoreExport, _RC)
+    end if
     call MAPL_VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
     _VERIFY(STATUS)
 
@@ -4123,7 +4154,7 @@ module NCIOMod
              call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
              if (isPresent) then
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                skipWriting = (isTestFramework == .false.)
+                if (isTestFramework) skipWriting = .false.
              end if
 
              if (skipWriting) cycle
@@ -4167,7 +4198,7 @@ module NCIOMod
              call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
              if (isPresent) then
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                skipWriting = (isTestFramework == .false.)
+                if (isTestFramework) skipWriting = .false.
              end if
 
              if (skipWriting) cycle
@@ -4183,7 +4214,7 @@ module NCIOMod
              call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
              if (isPresent) then
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=isTestFramework, _RC)
-                skipWriting = (isTestFramework == .false.)
+                if (isTestFramework) skipWriting = .false.
              end if
 
              if (skipWriting) cycle
