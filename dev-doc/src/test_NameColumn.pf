@@ -1,0 +1,53 @@
+module test_NameColumn
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_Profiler
+   use funit
+
+contains
+
+
+   @test
+   subroutine test_one_timer()
+      type (NameColumn) :: column
+      type (MeterNode), target :: node
+      integer, parameter :: WIDTH = 10
+      character(:), allocatable :: header(:)
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+      column = NameColumn(width=WIDTH)
+
+      ! Check proper padding.
+      call column%get_header(header)
+      @assertEqual(WIDTH, len(header))
+      @assertEqual(WIDTH, len(column%get_row(node)))
+      @assertEqual('Name      ',header(1))
+      @assertEqual('all       ',column%get_row(node))
+      
+   end subroutine test_one_timer
+
+   @test
+   subroutine test_get_rows()
+!!$      type (NameColumn) :: column
+!!$      type (MeterNode), target :: node
+!!$      integer, parameter :: WIDTH = 10
+!!$      character(len=WIDTH) :: expected(3)
+!!$      character(:), allocatable :: found(:)
+!!$
+!!$      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+!!$      call node%add_child('t1', AdvancedMeter(MpiTimerGauge()))
+!!$      call node%add_child('t2', AdvancedMeter(MpiTimerGauge()))
+!!$
+!!$      column = NameColumn(width=WIDTH)
+!!$
+!!$      expected(1) = 'all'
+!!$      expected(2) = '--t1'
+!!$      expected(3) = '--t2'
+!!$
+!!$      call column%get_rows(node, found)
+!!$      do i = 1, 3
+!!$         @assertEqual(expected(i), found(i))
+!!$      end do
+      
+   end subroutine test_get_rows
+
+end module test_NameColumn
