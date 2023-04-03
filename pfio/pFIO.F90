@@ -15,7 +15,7 @@ module pFIO
    use pFIO_MultiCommServerMod
    use pFIO_MultiGroupServerMod
    use pFIO_UtilitiesMod
-!$   use pFIO_OpenMPServerMod
+!C$   use pFIO_OpenMPServerMod
    use pFIO_ServerThreadMod
    use pFIO_ClientThreadMod
    use pFIO_ClientThreadVectorMod

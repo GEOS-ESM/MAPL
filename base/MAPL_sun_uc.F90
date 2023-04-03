@@ -240,7 +240,7 @@ contains
 ! this code can be found in Blanco & McCuskey, 1961: "Basic
 ! Physics of the Solar System", hereafter BM.
 !
-```
+!```
 ! CLOCK: The orbit will depend on the calendar in this clock
 !        This is used for the length of year, to set intercalation cycle.
 !
@@ -288,7 +288,7 @@ contains
 ! ORB2B_EQUINOX_YYYYMMDD: March equinox date.
 !
 ! ORB2B_EQUINOX_HHMMSS: March equinox time.
-```
+!```
 !
 type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
                                                  ECCENTRICITY,           &

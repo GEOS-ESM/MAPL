@@ -311,9 +311,9 @@ program main
          call d_s%connect_to_client('i_server', s)
          print*, "using MpiServer"
       else if(trim(options%server_type) == 'openmp') then
-!$         call omp_set_num_threads(num_threads)
-!$         allocate(s, source=OpenMPServer(comm,d_s))
-!$         print*, "using OpenMPServer"
+!C$         call omp_set_num_threads(num_threads)
+!C$         allocate(s, source=OpenMPServer(comm,d_s))
+!C$         print*, "using OpenMPServer"
       else
          print*, options%server_type // '  not implemented'
          stop

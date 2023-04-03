@@ -74,7 +74,7 @@ CONTAINS
    SUBROUTINE SetServices ( GC, RC )
 
     type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, intent(ou), optional      :: RC  ! return code
+    integer, intent(out), optional     :: RC  ! return code
 
 !   Local derived type aliases
 !   --------------------------
