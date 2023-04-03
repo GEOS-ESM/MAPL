@@ -3443,6 +3443,13 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
+         elseif (list(n)%collection_is_masked) then
+            if (list(n)%unit.eq.0) then
+               !call list(n)%station_sampler%close_file_handle(_RC)
+               !call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if            
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3600,9 +3607,8 @@ ENDDO PARSER
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          time_span(1)=Current_time
          call ESMF_timeintervalSet(timestep_local, h=6, m=0, s=0, _RC)
-         time_span(2)=Current_time+timestep_local   
-         call ESMF_StateGet ( state_loc,trim(list(n)%field_set%fields(3,1)),field_loc,_RC )
-         call ESMF_FieldGet ( field_loc, grid=grid_in, _RC )
+         time_span(2)=Current_time+timestep_local
+         call ESMF_FieldBundleGet(list(n)%bundle,grid=grid_in,_RC)
          call list(n)%td_mask%get_mask(time_span,grid_in,_RC)
         !! call list(n)
       end if

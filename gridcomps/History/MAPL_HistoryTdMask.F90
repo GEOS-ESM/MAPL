@@ -97,13 +97,13 @@ contains
     !     - read in lon/lat obs. data
     start_time=this%mask_start
     if (start_time < time_span(1)) then
-       do while ( start_time < time_span(1) )
+       do while ( start_time <= time_span(1) )
           start_time = start_time + this%obs_interval
        enddo
     endif
     start_time_aux=start_time
     nx=0
-    do while ( start_time < time_span(2) )
+    do while ( start_time <= time_span(2) )
        call this%get_filename_arraybound (start_time, fname, nlon)
        nx=nx+nlon
        write(6,121) 'nx', nx
@@ -182,7 +182,7 @@ contains
 
 
     read(string_pieces(3), '(3i2)') ih, im, is
-    write(6,102) 'string_pieces(3)', trim(string_pieces(3))
+    write(6,102) 'string_pieces(3) = obs_interval', trim(string_pieces(3))
     write(6, '(3i2)') ih, im, is    
 
     call ESMF_timeintervalSet(obs_interval, d=0, h=ih, m=im, s=is, rc=rc)    
@@ -313,25 +313,7 @@ contains
     return
   end subroutine error
 
-
-
   
 end module MAPL_TimeDependentMaskMod
-!
-!Q1.  what is template in ExtData, how to read in multiple nc files
-!Q2.  II, JJ index on each processor?
-!!!
-!!!CO2_GridComp_ExtData.rc
-!!!
-!!!Y F%y4-%m2-%d2t12:00:00 none     none     emco2ff       ExtData/PIESA/sfc/bian.co2.x288_y181_t12.2001.nc
-!!!CO2_NEP         'kg C m-2 s-1'      Y Y F%y4-%m2-%d2t12:00:00 none     none     emco2nep      ExtData/PIESA/sfc/bian.co2.x288_y181_t12.2001.nc
-!!!CO2_OCN         'kg C m-2 s-1'      Y Y F%y4-%m2-%d2t12:00:00 none     none     emco2ocn      ExtData/PIESA/sfc/bian.co2.x288_y181_t12.2001.nc
-!!!
-!!!CO2_CMS_BIOMASS 'kg C m-2 s-1'      N Y F%y4-%m2-%d2t12:00:00 none     none     biomass       ExtData/PIESA/sfc/CMS/em.daily.1x1.25.%y4.nc
-!!!CO2_CMS_FF      'kg C m-2 s-1'      N Y F%y4-%m2-%d2t12:00:00 none     none     emco2ff       ExtData/PIESA/sfc/CMS/ORNL_TRANSCOM.co2_ff_nep_ocn.x288_y181_t12.%y4.nc
-!!!CO2_CMS_NEP     'kg C m-2 s-1'      N Y  P0000-00-00T03:00    none     none     emco2nep      ExtData/PIESA/sfc/CMS/casa.3hr.1x1.25.%y4.nc
-!!!CO2_CMS_OCN     'kg C m-2 s-1'      N Y F%y4-%m2-%d2t12:00:00 none     none     emco2ocn      ExtData/PIESA/sfc/CMS/NOBM_fco2.daily.1x1.25.%y4.nc
-!!!
-!!!CO2_regionMask  NA                  N v   -                   none     none     REGION_MASK   ExtData/PIESA/sfc/ARCTAS.region_mask.x540_y361.2008.nc
-!!!#---------------+-------------------+-+-+---------------------+--------+--------+-------------+----------------------
-!!!%%~
+
+
