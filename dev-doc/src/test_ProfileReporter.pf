@@ -1,0 +1,122 @@
+module test_ProfileReporter
+   use funit
+   use MAPL_Profiler
+   implicit none
+
+   character(1) :: empty(0)
+
+contains
+
+
+   @test
+   subroutine test_simple_report_timer()
+      type (TimeProfiler), target :: prof
+      type (ProfileReporter), target :: reporter
+
+      character(:), allocatable :: report_lines(:)
+
+      prof = TimeProfiler('top')   ! timer 1
+      call prof%start()
+      call prof%start('timer_1') ! 2
+      call prof%start('timer_1a')! 3
+      call prof%stop('timer_1a')
+      call prof%start('timer_1b') ! 4
+      call prof%start('timer_1b1') ! 5
+      call prof%stop('timer_1b1')
+      call prof%stop('timer_1b')
+      call prof%stop('timer_1')
+      call prof%start('timer_2') ! 6
+      call prof%start('timer_2b')! 7
+      call prof%stop('timer_2b')
+      call prof%stop('timer_2')
+
+      call prof%start('timer_1') ! 2
+      call prof%start('timer_1a')! 3
+      call prof%stop('timer_1a')
+      call prof%stop('timer_1')
+
+      call prof%start('timer_2') ! 6
+      call prof%stop('timer_2')
+      call prof%start('timer_2') ! 6
+      call prof%stop('timer_2')
+
+      call prof%finalize()
+
+      reporter = ProfileReporter(empty)
+      call reporter%add_column(NameColumn(20))
+      call reporter%add_column(FormattedTextColumn('# cycles','(i8.0)', 8, NumCyclesColumn()))
+      allocate(report_lines, source=reporter%generate_report(prof))
+
+      @assertEqual(1 + 7, size(report_lines))
+      @assertEqual(20 + 1 + 8, len(report_lines(1)))
+
+      @assertEqual('Name                 # cycles', report_lines(1))
+      @assertEqual('top                         1', report_lines(2))
+      @assertEqual('--timer_1                   2', report_lines(3))
+      @assertEqual('----timer_1a                2', report_lines(4))
+      @assertEqual('----timer_1b                1', report_lines(5))
+      @assertEqual('------timer_1b1             1', report_lines(6))
+      @assertEqual('--timer_2                   3', report_lines(7))
+      @assertEqual('----timer_2b                1', report_lines(8))
+
+   end subroutine test_simple_report_timer
+
+
+   @test
+   subroutine test_simple_report_timer_b()
+      type (TimeProfiler), target :: prof
+      type (ProfileReporter) :: reporter
+      
+      character(:), allocatable :: report_lines(:)
+
+      prof = TimeProfiler('top')   ! timer 1
+      call prof%start()
+      call prof%start('timer_1') ! 2
+      call prof%start('timer_1a')! 3
+      call prof%stop('timer_1a')
+      call prof%start('timer_1b') ! 4
+      call prof%start('timer_1b1') ! 5
+      call prof%stop('timer_1b1')
+      call prof%stop('timer_1b')
+      call prof%stop('timer_1')
+      call prof%start('timer_2') ! 6
+      call prof%start('timer_2b')! 7
+      call prof%stop('timer_2b')
+      call prof%stop('timer_2')
+
+      call prof%start('timer_1') ! 2
+      call prof%start('timer_1a')! 3
+      call prof%stop('timer_1a')
+      call prof%stop('timer_1')
+
+      call prof%start('timer_2') ! 6
+      call prof%stop('timer_2')
+      call prof%start('timer_2') ! 6
+      call prof%stop('timer_2')
+
+      call prof%finalize()
+
+
+      reporter = ProfileReporter(empty)
+      call reporter%add_column(NameColumn(20))
+      call reporter%add_column(FormattedTextColumn('# cycles','(i8.0)', 8, NumCyclesColumn()))
+      call reporter%add_column(FormattedTextColumn('T(incl)','(f15.6)', 15, InclusiveColumn()))
+      report_lines = reporter%generate_report(prof)
+
+      @assertEqual(1 + 7, size(report_lines))
+      @assertEqual(20 + 1 + 8 + 1 + 15, len(report_lines(1)))
+
+      @assertEqual('Name                 # cycles', report_lines(1)(1:29))
+      @assertEqual('top                         1', report_lines(2)(1:29))
+      @assertEqual('--timer_1                   2', report_lines(3)(1:29))
+      @assertEqual('----timer_1a                2', report_lines(4)(1:29))
+      @assertEqual('----timer_1b                1', report_lines(5)(1:29))
+      @assertEqual('------timer_1b1             1', report_lines(6)(1:29))
+      @assertEqual('--timer_2                   3', report_lines(7)(1:29))
+      @assertEqual('----timer_2b                1', report_lines(8)(1:29))
+
+   end subroutine test_simple_report_timer_b
+
+
+
+end module test_ProfileReporter
