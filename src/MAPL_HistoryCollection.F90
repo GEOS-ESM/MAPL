@@ -40,6 +40,8 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: mode
      integer                            :: frequency
      integer                            :: acc_interval
+     integer                            :: acc_ref_time
+     integer                            :: acc_offset
      integer                            :: ref_date
      integer                            :: ref_time
      integer                            :: end_date
