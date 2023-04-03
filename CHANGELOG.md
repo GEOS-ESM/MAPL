@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.37.0] - 2023-04-03
+
+### Added
+
+- New feature in History to allow the accumulation in non-instantaneous collections to be reset independently of the writing frequency if requested.
+- new macro `_RETURN_IF(cond)` to provide a succinct early return in procedures with return codes.
+
+### Fixed
+
+- Fixed bug in CubedSphereGridFactory when constructing a grid from a file
+- Cleaned up cubed-sphere grid factory and NCIO to produce files with consistent capitalization and types for the stretching factor
+
 ## [2.36.0] - 2023-03-23
 
 ### Added
