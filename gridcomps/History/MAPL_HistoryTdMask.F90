@@ -12,14 +12,14 @@ module MAPL_TimeDependentMaskMod
      type(ESMF_Time) :: mask_end
      type(ESMF_Time) :: mask_freq
    contains
-!     procedure :: get_mask
+     !     procedure :: get_mask
   end type TimeDependentMask
   integer :: maxstr=512
   interface TimeDependentMask
      procedure new_TimeDependentMask
   end interface TimeDependentMask
 
-  include "/users/yyu11/sftp/myformat.inc"  
+
 contains
 
   function new_TimeDependentMask(mask_setup) result(tdmask)
@@ -42,104 +42,83 @@ contains
     integer :: idoy,ih,im,is    
     integer :: iyy, imm, idd
 
-    call getData_timeinfo(mask_setup, tdmask%obs_start, tdmask%obs_end, tdmask%obs_interval, tdmask%mask_file_header)
-    
-    max_len=maxstr
-    max_seg=100       ! segmane separated by ',' on each line
-    allocate(string_pieces(max_seg))
+    call getData_timeinfo(mask_setup, tdmask%obs_start, tdmask%obs_end, &
+         tdmask%obs_interval, tdmask%mask_start, tdmask%mask_file_header)
 
-    call split_string(mask_setup,  ' ', max_len, max_seg, nseg, string_pieces, status)
-    write(6,*) 'nseg=', nseg
-    write(6,*) 'string_pieces(1:nseg)=', string_pieces(1:nseg)
-    max_seg=2
-    allocate(string_pieces2(max_seg))
-    call split_string(string_pieces(1),'.',max_len, max_seg, nseg, string_pieces2, status)
-    read(string_pieces2(1), '(i4,i3)') iyy,idoy
-    read(string_pieces2(2), '(i2,i2)') ih,im
-    is=0
-    write(6,121) 'iyy,idoy,ih,im,is', iyy,idoy,ih,im,is
-
-    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian', rc=rc)
-    call ESMF_timeSet(startTime, yy=iyy,mm=1,dd=1,h=0,m=0,s=0, &
-         calendar=gregorianCalendar, rc=rc)
-
-    call ESMF_timeGet(startTime, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)   
-    write(6, 121) 'start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is   
-    call ESMF_timeintervalSet(timestep, d=350, h=23, m=59, s=29, rc=rc)
-    startTime=startTime+timeStep
-    call ESMF_timeGet(startTime, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
-    write(6, 121) 'after increment: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
-
-    !call ESMF_TimeSet(start_time,yy=iy,mm=1,dd=1,h=ih,m=im,s=is)
-    stop -1
-    
-
-!!    tdmask%mask(:,:)=.false.
-
-    
-    return
-
+    !!    tdmask%mask(:,:)=.false.
 
   end function new_TimeDependentMask
 
-  
-!  subroutine get_mask(this, time_span, grid, rc)
-!    type(TimeDependentMask), intent(inout) :: this
-!    type(ESMF_Time), intent (in) :: time_span(2)
-!    type(ESMF_grid), intent (in) :: grid  ! CS or LL from model/bundle
-!    integer, optional, intent(out) :: rc
-!
-!    integer :: status
-!    integer, allocatable :: COUNTS(:)
-!    integer :: IM, JM, LM, IM_WORLD, JM_WORLD
-!
-!    character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
-!    
-!    ! s1. get esmf grid dim, default mask=.F.
-!    call ESMF_GridGet(grid, DistGrid=disgrid, dimCount=dimCount, _RC)
-!    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-!    call EMSF_VmGetCurrent(VM, _RC)
-!    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
-!    
-!    call ESMF_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-!    IM= COUNTS(1)
-!    JM= COUNTS(2)
-!    LM= COUNTS(3)
-!
-!    call ESMF_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
-!    IM_WORLD= COUNTS(1)
-!    JM_WORLD= CONNTS(2)
-!
-!!    allocate(this%mask(IM, JM))
-!!    this%mask(:,:)=.F.
-!    
-!    ! s2. read in a series of swath files within time_span
-!    !     - parse ob filename, dir, freq. from hist-input
-!    !     - read in lon/lat obs. data
-!
-!
-!
-!    ! s3. find index [loc/global] via bisect for CS/LL
-!    !
-!    !
-!    
-!
-!    
-!
-!    
-!  end subroutine get_mask
-!
+
+  subroutine get_mask(this, time_span, grid, rc)
+    type(TimeDependentMask), intent(inout) :: this
+    type(ESMF_Time), intent (in) :: time_span(2)
+    type(ESMF_grid), intent (in) :: grid  ! CS or LL from model/bundle
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+    integer, allocatable :: COUNTS(:)
+    integer :: IM, JM, LM, IM_WORLD, JM_WORLD
+
+    character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
+
+    ! s1. get esmf grid dim, default mask=.F.
+    call ESMF_GridGet(grid, DistGrid=disgrid, dimCount=dimCount, _RC)
+    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+    call EMSF_VmGetCurrent(VM, _RC)
+    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+
+    call ESMF_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+    IM= COUNTS(1)
+    JM= COUNTS(2)
+    LM= COUNTS(3)
+
+    call ESMF_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
+    IM_WORLD= COUNTS(1)
+    JM_WORLD= CONNTS(2)
+
+    !    allocate(this%mask(IM, JM))
+    !    this%mask(:,:)=.F.
+
+    ! s2. read in a series of swath files within time_span
+    !     - parse ob filename, dir, freq. from hist-input
+    !     - read in lon/lat obs. data
+    start_time=this%mask_start
+    if (start_time < time_span(1)) then
+       do while ( start_time < time_span(1) )
+          start_time = start_time + this%obs_interval
+       enddo
+    endif
+    start_time_aux=start_time
+    do while ( start_time < time_span(2) )
+       call get_filename_arraybound (start_time, file_root, fname, dim)
+
+       start_time=start_time+this%obs_interval
+
+
+    enddo
+
+    this%mask_start=start_time
+
+    ! s3. find index [loc/global] via bisect for CS/LL
+    !
+    !
+
+
+  end subroutine get_mask
 
 
 
-  subroutine getData_timeinfo(mask_setup, obs_start, obs_end, obs_interval, file_root)
+
+  subroutine getData_timeinfo(mask_setup, obs_start, obs_end, obs_interval, mask_start, file_root)
     !
     ! Exact timeinfo from mask_setup
     !
     character(len=ESMF_MAXPATHLEN), intent(in) :: mask_setup
     type(ESMF_Time), intent(out) :: obs_start
     type(ESMF_Time), intent(out) :: obs_end
-    type(ESMF_Time), intent(out) :: obs_interval
+    type(ESMF_Time), intent(out) :: mask_start    
+    type(ESMF_TimeInterval), intent(out) :: obs_interval
     character(len=ESMF_MAXPATHLEN), intent(out) :: file_root    
 
     type(ESMF_Time) :: startTime
@@ -153,38 +132,81 @@ contains
     integer :: idoy,ih,im,is    
     integer :: iyy, imm, idd
 
-    
+
     max_len=maxstr
     max_seg=100       ! segmane separated by ',' on each line
     allocate(string_pieces(max_seg))
+    allocate(string_pieces2(max_seg))
+
+    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', rc=rc)    
 
     call split_string(mask_setup,  ' ', max_len, max_seg, nseg, string_pieces, status)
     write(6,*) 'nseg=', nseg
     write(6,*) 'string_pieces(1:nseg)=', string_pieces(1:nseg)
-    max_seg=2
-    allocate(string_pieces2(max_seg))
+    !
     call split_string(string_pieces(1),'.',max_len, max_seg, nseg, string_pieces2, status)
     read(string_pieces2(1), '(i4,i3)') iyy,idoy
     read(string_pieces2(2), '(i2,i2)') ih,im
     is=0
     write(6,121) 'iyy,idoy,ih,im,is', iyy,idoy,ih,im,is
-
-    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian', rc=rc)
+    !
     call ESMF_timeSet(startTime, yy=iyy,mm=1,dd=1,h=0,m=0,s=0, &
          calendar=gregorianCalendar, rc=rc)
-    write(6, 121) 'start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is   
-    call ESMF_timeintervalSet(timestep,d=0, h=ih, m=im, s=is, rc=rc)
-    startTime=startTime+timeStep
-    call ESMF_timeGet(startTime, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
-    write(6, 121) 'after increment: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
+    idoy=idoy-1
+    call ESMF_timeintervalSet(timestep,d=idoy, h=ih, m=im, s=is, rc=rc)
+    obs_start=startTime+timeStep
 
-    !call ESMF_TimeSet(start_time,yy=iy,mm=1,dd=1,h=ih,m=im,s=is)
+
+    call split_string(string_pieces(2),'.',max_len, max_seg, nseg, string_pieces2, status)
+    read(string_pieces2(1), '(i4,i3)') iyy,idoy
+    read(string_pieces2(2), '(i2,i2)') ih,im
+    is=0
+    !
+    call ESMF_timeSet(startTime, yy=iyy,mm=1,dd=1,h=0,m=0,s=0, &
+         calendar=gregorianCalendar, rc=rc)
+    idoy=idoy-1
+    call ESMF_timeintervalSet(timestep,d=idoy, h=ih, m=im, s=is, rc=rc)
+    obs_end=startTime+timeStep
+
+
+    read(string_pieces(3), '(3i2)') ih, im, is
+    write(6,102) 'string_pieces(3)', trim(string_pieces(3))
+    write(6, '(3i2)') ih, im, is    
+
+    call ESMF_timeintervalSet(obs_interval, d=0, h=ih, m=im, s=is, rc=rc)    
+    mask_start=obs_start
+
+    ! check
+    ! -----
+    call ESMF_timeGet(obs_start, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
+    write(6, 121) 'obs_start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
+    call ESMF_timeGet(obs_end, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
+    write(6, 121) 'obs_end  : iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
+
     stop -1
-    
 
-
+    include "/users/yyu11/sftp/myformat.inc"  
   end subroutine getData_timeinfo
 
+
+
+
+  subroutine  get_filename_arraybound (this, obs_time, file_root, fname, ndim)
+    type(TimeDependentMask), intent(in) :: this
+    type(ESMF_time), intent(in) :: obs_time
+    character(len=ESMF_MAXPATHLEN), intent(in) :: file_root, fname
+    integer, intent(out) :: ndim
+    type(ESMF_timeInterval) :: time_step
+    
+!!    time_step = obs_time - this%obs_start
+    call ESMF_timeGet(obs_time, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)    
+    call ESMF_timeintervalSet(timestep, d=0, h=ih, m=im, s=is, rc=rc)
+    
+
+    
+    
+  end subroutine get_filename_arraybound
+    
 
     subroutine split_string (string, mark, length_mx, &
        mxseg, nseg, str_piece, jstatus)
