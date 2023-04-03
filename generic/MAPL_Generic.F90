@@ -1646,6 +1646,7 @@ contains
 
       subroutine create_export_state_variables(rc)
          integer, optional, intent(out) :: rc
+         logical :: restoreExport
 
 
          ! Create export state variables
@@ -1663,9 +1664,26 @@ contains
                     MYGRID%ESMFGRID,              &
                     DEFER=.true., _RC       )
             end if
+
+            call MAPL_GetResource(STATE, restoreExport, label='RESTORE_EXPORT_STATE:', default=.false., _RC)
+            if (restoreExport) then
+               call MAPL_GetResource( STATE, FILENAME, LABEL='EXPORT_RESTART_FILE:', _RC)
+               if(status==ESMF_SUCCESS) then
+                  
+                  call MAPL_ESMFStateReadFromFile(EXPORT, CLOCK, FILENAME, &
+                       STATE, .FALSE., rc=status)
+                  if (status /= ESMF_SUCCESS) then
+                     if (MAPL_AM_I_Root(VM)) then
+                        call ESMF_StatePrint(EXPORT)
+                     end if
+                     _RETURN(ESMF_FAILURE)
+                  end if
+               endif
+            end if
          end if
          
          call ESMF_AttributeSet(export,'POSITIVE',trim(positive),_RC)
+
          _RETURN(ESMF_SUCCESS)
       end subroutine create_export_state_variables
 
@@ -1736,11 +1754,8 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads, isTestFramework, isTestFrameworkDriver, isGridCapture
+      logical :: use_threads, isTestFramework, isTestFrameworkDriver, isGridCapture, restoreExport
       character(len=ESMF_MAXSTR) :: compToWrite
-      type(ESMF_State), pointer :: internal
-      integer :: hdr, yy, mm, dd, h, m, s, label_yy, label_mm, label_dd, label_h, label_m, label_s
-     type(ESMF_Time) :: currTime
 
       !=============================================================================
 
@@ -1828,13 +1843,18 @@ contains
       call MAPL_GetResource(STATE, isTestFramework, label='TEST_FRAMEWORK:', default=.false.)
       call MAPL_GetResource(STATE, isTestFrameworkDriver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
       call MAPL_GetResource(STATE, isGridCapture, label='GRID_CAPTURE:', default=.false.)
+      call MAPL_GetResource(STATE, restoreExport, label='RESTORE_EXPORT_STATE:', default=.false.)
 
+      if (method == ESMF_METHOD_INITIALIZE .and. comp_name == compToWrite) then
+         call ESMF_AttributeSet(export, name="MAPL_RestoreExport", value=restoreExport, _RC)
+      end if
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
+         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
+
          if (isTestFramework) then
             call capture('before', phase, GC, import, export, clock, _RC)
          else if (isTestFrameworkDriver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
-            call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
          end if
       end if
 
@@ -1850,13 +1870,14 @@ contains
 
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
       end if
-
+      
       if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
+         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
          if (isTestFramework) then
             call capture('after', phase, GC, import, export, clock, _RC)
          else if (isTestFrameworkDriver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
-            call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
+            call ESMF_AttributeSet(export, name="MAPL_TestFramework", value=.true., _RC)
          end if
       end if
 
@@ -1896,7 +1917,6 @@ contains
      integer :: status
      character(len=ESMF_MAXSTR) :: FILENAME, comp_name, timeLabel
      character(len=4) :: FILETYPE
-     logical :: fileExists
      type(ESMF_State), pointer :: internal
      integer :: hdr
      type(ESMF_Time) :: startTime, currTime, targetTime
@@ -1918,20 +1938,17 @@ contains
      FILENAME = trim(comp_name)//"_"
 
      if (currTime == targetTime) then
+        internal => state%get_internal_state()
         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
-        call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=.true., _RC)
         write(phase_, '(i1)') phase
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, .false., _RC)
       
-        if (pos == "after") then
-           call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
-                FILETYPE, STATE, .false., _RC)
-        end if
+        call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
+             FILETYPE, STATE, .false., oClients = o_Clients, _RC)
  
         call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
-        internal => state%get_internal_state()
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
      end if
