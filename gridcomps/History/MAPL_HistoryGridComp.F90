@@ -136,6 +136,9 @@ module MAPL_HistoryGridCompMod
   integer, parameter :: MAPL_T2G = 2
   integer, parameter :: MAPL_T2G2G = 3
 
+  type (ESMF_Time) :: time_span(2)
+  type (ESMF_TimeInterval) :: timestep_local
+  
   public HISTORY_ExchangeListWrap
 
   include "mpif.h"
@@ -3203,7 +3206,9 @@ ENDDO PARSER
     type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
     integer                        :: sec
-
+    type(ESMF_State)               :: state_loc
+    type(ESMF_Field)               :: field_loc
+    type(ESMF_Grid)                :: grid_in
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
@@ -3429,19 +3434,15 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
             list(n)%currentFile = filename(n)
-         elseif (list(n)%observation_spec /= '') then
-            if (list(n)%observation_spec == 'station') then
-               if (list(n)%unit.eq.0) then
-                  if (mapl_am_i_root()) call lgr%debug('%a %a',&
-                       "Station_data output to new file:",trim(filename(n)))
-                  call list(n)%station_sampler%close_file_handle(_RC)
-                  call list(n)%station_sampler%create_file_handle(filename(n),_RC)
-                  list(n)%currentFile = filename(n)
-                  list(n)%unit = -1
-               end if
-            else
-               _FAIL('Error: list(n)%observation_spec not implemented')
-            endif
+         elseif (list(n)%observation_spec == 'station') then
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                    "Station_data output to new file:",trim(filename(n)))
+               call list(n)%station_sampler%close_file_handle(_RC)
+               call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3596,7 +3597,13 @@ ENDDO PARSER
          endif
       end if
       if (list(n)%collection_is_masked) then
-        !! call list(n)%td_mask%get_mask(..., mask,_RC)
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+         time_span(1)=Current_time
+         call ESMF_timeintervalSet(timestep_local, h=6, m=0, s=0, _RC)
+         time_span(2)=Current_time+timestep_local   
+         call ESMF_StateGet ( state_loc,trim(list(n)%field_set%fields(3,1)),field_loc,_RC )
+         call ESMF_FieldGet ( field_loc, grid=grid_in, _RC )
+         call list(n)%td_mask%get_mask(time_span,grid_in,_RC)
         !! call list(n)
       end if
 
