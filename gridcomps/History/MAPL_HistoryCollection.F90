@@ -10,7 +10,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MAPL_TimeDepedentMaskMod
+  use MAPL_TimeDependentMaskMod
   use gFTL_StringStringMap
   implicit none
 
@@ -107,7 +107,7 @@ module MAPL_HistoryCollectionMod
      logical                            :: regex
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
-     logical                            :: collection_is_masked = .false.     
+     logical                            :: collection_is_masked
      type(HistoryTrajectory)            :: trajectory
      type(StationSampler)               :: station_sampler
      type(TimeDependentMask)            :: td_mask

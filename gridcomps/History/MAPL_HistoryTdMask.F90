@@ -1,91 +1,189 @@
 #include "MAPL_Generic.h"
-module MAPL_TimeDependentMask
+module MAPL_TimeDependentMaskMod
   use ESMF
   public
   type :: TimeDependentMask
      logical, allocatable :: mask(:,:)    ! for CS and LL
      character(len=ESMF_MAXPATHLEN) :: mask_file_header
-     type(ESMF_Time) :: obs_start_time
-     type(ESMF_Time) :: obs_end_time
+     type(ESMF_Time) :: obs_start
+     type(ESMF_Time) :: obs_end
      type(ESMF_TimeInterval) :: obs_interval
      type(ESMF_Time) :: mask_start
      type(ESMF_Time) :: mask_end
      type(ESMF_Time) :: mask_freq
    contains
-     procedure :: get_mask
+!     procedure :: get_mask
   end type TimeDependentMask
-
-  
+  integer :: maxstr=512
   interface TimeDependentMask
      procedure new_TimeDependentMask
   end interface TimeDependentMask
 
+  include "/users/yyu11/sftp/myformat.inc"  
 contains
 
   function new_TimeDependentMask(mask_setup) result(tdmask)
     ! convert mask start_time, end_time to ESMF time
     ! read in
-    type(TimeDependentMask), intent(out) :: tdmask
+    type(TimeDependentMask) :: tdmask
     character(len=ESMF_MAXPATHLEN), intent(in) :: mask_setup
     integer :: nx, ny
 
+    character(maxstr) :: ss
+    character(maxstr) :: s1, s2, s3, s4   
+    type(ESMF_Time) :: startTime
+    type(ESMF_TimeInterval) :: timeStep
+    type(ESMF_Calendar) :: gregorianCalendar
+    character(len=maxstr) :: mystring
+    character(len=maxstr), allocatable :: string_pieces(:)
+    character(len=maxstr), allocatable :: string_pieces2(:)
+    integer :: max_len, max_seg, nseg
+    integer :: rc, status
+    integer :: idoy,ih,im,is    
+    integer :: iyy, imm, idd
 
+    call getData_timeinfo(mask_setup, tdmask%obs_start, tdmask%obs_end, tdmask%obs_interval, tdmask%mask_file_header)
     
-    ! allocate mask dimension from obs
-    nx=10; ny=10
-    allocate(tdmask%mask(nx,ny))
-    mask(:,:)=.F.
+    max_len=maxstr
+    max_seg=100       ! segmane separated by ',' on each line
+    allocate(string_pieces(max_seg))
+
+    call split_string(mask_setup,  ' ', max_len, max_seg, nseg, string_pieces, status)
+    write(6,*) 'nseg=', nseg
+    write(6,*) 'string_pieces(1:nseg)=', string_pieces(1:nseg)
+    max_seg=2
+    allocate(string_pieces2(max_seg))
+    call split_string(string_pieces(1),'.',max_len, max_seg, nseg, string_pieces2, status)
+    read(string_pieces2(1), '(i4,i3)') iyy,idoy
+    read(string_pieces2(2), '(i2,i2)') ih,im
+    is=0
+    write(6,121) 'iyy,idoy,ih,im,is', iyy,idoy,ih,im,is
+
+    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian', rc=rc)
+    call ESMF_timeSet(startTime, yy=iyy,mm=1,dd=1,h=0,m=0,s=0, &
+         calendar=gregorianCalendar, rc=rc)
+
+    call ESMF_timeGet(startTime, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)   
+    write(6, 121) 'start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is   
+    call ESMF_timeintervalSet(timestep, d=350, h=23, m=59, s=29, rc=rc)
+    startTime=startTime+timeStep
+    call ESMF_timeGet(startTime, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
+    write(6, 121) 'after increment: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
+
+    !call ESMF_TimeSet(start_time,yy=iy,mm=1,dd=1,h=ih,m=im,s=is)
+    stop -1
+    
+
+!!    tdmask%mask(:,:)=.false.
 
     
     return
+
+
   end function new_TimeDependentMask
+
   
-  subroutine get_mask(this, time_span, grid, rc)
-    type(TimeDependentMask), intent(inout) :: this
-    type(ESMF_Time), intent (in) :: time_span(2)
-    type(ESMF_grid), intent (in) :: grid  ! CS or LL from model/bundle
-    integer, optional, intent(out) :: rc
+!  subroutine get_mask(this, time_span, grid, rc)
+!    type(TimeDependentMask), intent(inout) :: this
+!    type(ESMF_Time), intent (in) :: time_span(2)
+!    type(ESMF_grid), intent (in) :: grid  ! CS or LL from model/bundle
+!    integer, optional, intent(out) :: rc
+!
+!    integer :: status
+!    integer, allocatable :: COUNTS(:)
+!    integer :: IM, JM, LM, IM_WORLD, JM_WORLD
+!
+!    character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
+!    
+!    ! s1. get esmf grid dim, default mask=.F.
+!    call ESMF_GridGet(grid, DistGrid=disgrid, dimCount=dimCount, _RC)
+!    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+!    call EMSF_VmGetCurrent(VM, _RC)
+!    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+!    
+!    call ESMF_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+!    IM= COUNTS(1)
+!    JM= COUNTS(2)
+!    LM= COUNTS(3)
+!
+!    call ESMF_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
+!    IM_WORLD= COUNTS(1)
+!    JM_WORLD= CONNTS(2)
+!
+!!    allocate(this%mask(IM, JM))
+!!    this%mask(:,:)=.F.
+!    
+!    ! s2. read in a series of swath files within time_span
+!    !     - parse ob filename, dir, freq. from hist-input
+!    !     - read in lon/lat obs. data
+!
+!
+!
+!    ! s3. find index [loc/global] via bisect for CS/LL
+!    !
+!    !
+!    
+!
+!    
+!
+!    
+!  end subroutine get_mask
+!
 
-    integer :: status
-    integer, allocatable :: COUNTS(:)
-    integer :: IM, JM, LM, IM_WORLD, JM_WORLD
-
-    character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
-    
-    ! s1. get esmf grid dim, default mask=.F.
-    call ESMF_GridGet(grid, DistGrid=disgrid, dimCount=dimCount, _RC)
-    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-    call EMSF_VmGetCurrent(VM, _RC)
-    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
-    
-    call ESMF_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-    IM= COUNTS(1)
-    JM= COUNTS(2)
-    LM= COUNTS(3)
-
-    call ESMF_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
-    IM_WORLD= COUNTS(1)
-    JM_WORLD= CONNTS(2)
-
-    allocate(this%mask(IM, JM))
-    this%mask(:,:)=.F.
-    
-    ! s2. read in a series of swath files within time_span
-    !     - parse ob filename, dir, freq. from hist-input
-    !     - read in lon/lat obs. data
-    read(mask_setup,*) s1, s2, s3, s4
 
 
-    ! s3. find index [loc/global] via bisect for CS/LL
+  subroutine getData_timeinfo(mask_setup, obs_start, obs_end, obs_interval, file_root)
     !
+    ! Exact timeinfo from mask_setup
     !
-    
+    character(len=ESMF_MAXPATHLEN), intent(in) :: mask_setup
+    type(ESMF_Time), intent(out) :: obs_start
+    type(ESMF_Time), intent(out) :: obs_end
+    type(ESMF_Time), intent(out) :: obs_interval
+    character(len=ESMF_MAXPATHLEN), intent(out) :: file_root    
+
+    type(ESMF_Time) :: startTime
+    type(ESMF_TimeInterval) :: timeStep
+    type(ESMF_Calendar) :: gregorianCalendar
+    character(len=maxstr) :: mystring
+    character(len=maxstr), allocatable :: string_pieces(:)
+    character(len=maxstr), allocatable :: string_pieces2(:)
+    integer :: max_len, max_seg, nseg
+    integer :: rc, status
+    integer :: idoy,ih,im,is    
+    integer :: iyy, imm, idd
 
     
+    max_len=maxstr
+    max_seg=100       ! segmane separated by ',' on each line
+    allocate(string_pieces(max_seg))
 
+    call split_string(mask_setup,  ' ', max_len, max_seg, nseg, string_pieces, status)
+    write(6,*) 'nseg=', nseg
+    write(6,*) 'string_pieces(1:nseg)=', string_pieces(1:nseg)
+    max_seg=2
+    allocate(string_pieces2(max_seg))
+    call split_string(string_pieces(1),'.',max_len, max_seg, nseg, string_pieces2, status)
+    read(string_pieces2(1), '(i4,i3)') iyy,idoy
+    read(string_pieces2(2), '(i2,i2)') ih,im
+    is=0
+    write(6,121) 'iyy,idoy,ih,im,is', iyy,idoy,ih,im,is
+
+    gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian', rc=rc)
+    call ESMF_timeSet(startTime, yy=iyy,mm=1,dd=1,h=0,m=0,s=0, &
+         calendar=gregorianCalendar, rc=rc)
+    write(6, 121) 'start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is   
+    call ESMF_timeintervalSet(timestep,d=0, h=ih, m=im, s=is, rc=rc)
+    startTime=startTime+timeStep
+    call ESMF_timeGet(startTime, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
+    write(6, 121) 'after increment: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
+
+    !call ESMF_TimeSet(start_time,yy=iy,mm=1,dd=1,h=ih,m=im,s=is)
+    stop -1
     
-  end subroutine get_mask
 
+
+  end subroutine getData_timeinfo
 
 
     subroutine split_string (string, mark, length_mx, &
@@ -165,9 +263,12 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-  
-end module MAPL_TimeDependentMask
 
+
+
+
+  
+end module MAPL_TimeDependentMaskMod
 !
 !Q1.  what is template in ExtData, how to read in multiple nc files
 !Q2.  II, JJ index on each processor?
@@ -186,86 +287,5 @@ end module MAPL_TimeDependentMask
 !!!CO2_regionMask  NA                  N v   -                   none     none     REGION_MASK   ExtData/PIESA/sfc/ARCTAS.region_mask.x540_y361.2008.nc
 !!!#---------------+-------------------+-+-+---------------------+--------+--------+-------------+----------------------
 !!!%%~
-!!!
-!!!
-!
-!
-!
-!
-!
-!
-!
-!!!MAPL_HistoryTdMask.F90
-!!!! In History
-!!!!  - New option to specify a time-dependent mask:   template
-!!!!    (up where we define grids and such)
-!!!!  - Add way to specify that the named mask is used in a collection
-!!!!  - During run step
-!!!!      - check if collection needs mask
-!!!!      - if so use get_mask() to get mask
-!!!!      - WHERE (.not. mask) T = undef
-!!!!
-!!!
-!!!module mapl_TimeDependentMask
-!!!   implicit none
-!!!
-!!!   type :: TimeDependentMask
-!!!   contains
-!!!      procedure :: mask
-!!!   end type TimeDependentMask
-!!!
-!!!contains
-!!!
-!!!   function new_TimeDependentMask(template) result(mask)
-!!!      character(*), intent(in) :: template
-!!!   end function new_TimeDependentMask
-!!!
-!!!   subroutine get_mask(this, time_interval, grid, mask, rc)
-!!!      class(TimeDependentMask), intent(inout) :: this
-!!!      type(ESMF_Time), intent(in) :: time_interval(2)
-!!!      type(ESMF_Grid), intent(inout) :: grid
-!!!      logical, intent(out) :: mask(:,:)
-!!!      integer, optional, intent(in) :: rc
-!!!
-!!!      ! (0) Set mask(I,J) = .false.
-!!!
-!!!
-!!!
-!!!
-!!!
-!!!t(in) :: time_interval(2)
-!!!type(ESMF_Grid), intent(inout) :: grid
-!!!logical, intent(out) :: mask(:,:)
-!!!integer, optional, intent(in) :: rc
-!!!
-!!!! (0) Set mask(I,J) = .false.
-!!!
-!!!type(ESMF_Grid), intent(inout) :: grid
-!!!logical, intent(out) :: mask(:,:)
-!!!integer, optional, intent(in) :: rc
-!!!
-!!!! (0) Set mask(I,J) = .false.~
-!!!
-!!!
-!!!      ! (1) Figure out which files in template overlap time interval
-!!!      ! Similar logic exists in ExtData
-!!!
-!!!      ! (2) For each file with overlap
-!!!      !         Determine subset (lat,lon) that is in time window
-!!!      ! (3) For each (lat,lon) determine (I,J,FACE)
-!!!      !     if proc has (I,J,FACE) set mask(I,J) = .true.
-!!!      !     Logic is grid dependent. (unfortunate)
-!!!
-!!!      !   MAPL/base/Base_Base_implementation.F90
-!!!      !    module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
-!!!
-!!!
-!!!   end subroutine get_mask
-!!!
-!!!      ! In history - after regrid step
-!!!      if (collection_is_masked) then
-!!!         call td_mask%get_mask(..., mask,_RC)
-!!!      end if
-!!!
-!!!end module mapl_TimeDependentMask
-!
+
+

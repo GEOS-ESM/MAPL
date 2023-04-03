@@ -43,7 +43,7 @@ module MAPL_HistoryGridCompMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MAPL_TimeDependentMask
+  use MAPL_TimeDependentMaskMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -876,11 +876,11 @@ contains
             label=trim(string) // 'observation_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%collection_is_masked, default="", &
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%collection_is_masked, default=.false., &
             label=trim(string) // 'collection_is_masked:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%mask_setup, default="", &
-            label=trim(string) // 'mask_setup:', _RC)              
-
+            label=trim(string) // 'mask_setup:', _RC)
+       
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
@@ -2365,15 +2365,11 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
-          elseif (list(n)%observation_spec /= '') then
-             if (list(n)%observation_spec == 'station') then
-                list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
-                call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
-             !elseif (list(n)%observation_spec == 'time_dependent_mask') then
-             !   list(n)%tdmask = TimeDependentMask (trim(list(n)%stationIdFile),_RC)
-             else
-                _FAIL('Not implemented: list(n)%observation_spec= '//trim(list(n)%observation_spec))
-             endif
+          elseif (list(n)%observation_spec == 'station') then
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
+             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             ! else
+             ! _FAIL('Not implemented: list(n)%observation_spec= '//trim(list(n)%observation_spec))
           elseif (list(n)%collection_is_masked) then
              list(n)%td_mask = TimeDependentMask(list(n)%mask_setup)
           else
@@ -3600,8 +3596,8 @@ ENDDO PARSER
          endif
       end if
       if (list(n)%collection_is_masked) then
-         call list(n)%td_mask%get_mask(..., mask,_RC)
-         call list(n)
+        !! call list(n)%td_mask%get_mask(..., mask,_RC)
+        !! call list(n)
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
