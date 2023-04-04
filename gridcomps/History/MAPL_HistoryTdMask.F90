@@ -60,6 +60,7 @@ contains
 
 
   subroutine get_mask(this, time_span, grid, rc)
+    implicit none
     class(TimeDependentMask), intent(inout) :: this
     type(ESMF_Time), intent (in) :: time_span(2)
     type(ESMF_grid), intent (inout) :: grid  ! CS or LL from model/bundle
@@ -87,7 +88,7 @@ contains
     integer, allocatable :: II(:)
     integer, allocatable :: JJ(:)
 
-    integer :: k
+    integer :: i
     
     ! s1. get esmf grid dim, default mask=.F.
     call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
@@ -106,7 +107,7 @@ contains
     write(6,121) 'IM,JM,LM', IM,JM,LM
     write(6,121) 'IM_WORLD,JM_WORLD', IM_WORLD,JM_WORLD
 
-    allocate(this%mask(IM, JM))
+    allocate(this%mask(IM_WORLD, JM_WORLD))
     this%mask=.false.
 
     ! s2. read in a series of swath files within time_span
@@ -158,23 +159,28 @@ contains
     ! s3. find index [loc/global] via bisect for CS/LL
     !
     !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
-    call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
-
-    !    if (mapl_am_i_root()) then
-!    if (myid == 0) then
-       write(6,123) (II(k), k=1,nx,100)
-       !write(6,123) (JJ(k), k=1,nx,100)
-!    endif
+    if (nx >0) then
+       call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
+       do i=1, nx
+          if ( II(i)>0 .AND. JJ(i)>0 ) then
+             this%mask( II(i), JJ(i) ) = .true.
+          endif
+       enddo
+   
+       !    if (mapl_am_i_root()) then
+       !    if (myid == 0) then
+       write(6,123) (II(i), i=1,nx,100)
+       !write(6,123) (JJ(i), i=1,nx,100)
+       !    endif
+    endif
     
-    stop -1
 
     deallocate(obs_lons, obs_lats)
     deallocate(II, JJ)
-    
+    deallocate(this%mask)
+
     include "/users/yyu11/sftp/myformat.inc"  
   end subroutine get_mask
-
-
 
 
   subroutine getData_timeinfo(mask_setup, obs_start, obs_end, obs_interval, mask_start, file_root)
