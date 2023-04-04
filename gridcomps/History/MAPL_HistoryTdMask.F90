@@ -1,10 +1,12 @@
 #include "MAPL_Generic.h"
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
 module MAPL_TimeDependentMaskMod
   use ESMF
-  use pFIO
+  use netcdf
+  use mapl_MaplGrid, only : MAPL_GridGet
+  use MAPL_Base, only : MAPL_GetHorzIJIndex, MAPL_GetGlobalHorzIJIndex
+  !  use MAPL_CommsMod, only : MAPL_AM_I_ROOT
+  !use MAPL_CommsMod, only : MAPL_AM_I_ROOT
+  use MAPL_ErrorHandlingMod
   implicit none
   private
 
@@ -54,75 +56,121 @@ contains
     call getData_timeinfo(mask_setup, tdmask%obs_start, tdmask%obs_end, &
          tdmask%obs_interval, tdmask%mask_start, tdmask%mask_file_header)
 
-    !!    tdmask%mask(:,:)=.false.
-
   end function new_TimeDependentMask
 
 
   subroutine get_mask(this, time_span, grid, rc)
     class(TimeDependentMask), intent(inout) :: this
     type(ESMF_Time), intent (in) :: time_span(2)
-    type(ESMF_grid), intent (in) :: grid  ! CS or LL from model/bundle
+    type(ESMF_grid), intent (inout) :: grid  ! CS or LL from model/bundle
     integer, optional, intent(out) :: rc
 
     integer :: status
-    integer, allocatable :: COUNTS(:)
-    integer :: IM, JM, LM, IM_WORLD, JM_WORLD
-
-    integer :: nx, nlon
+    integer :: IM, JM, LM, IM_WORLD, JM_WORLD, COUNTS(3)
+    type(ESMF_DistGrid) :: distGrid
+    type(ESMF_DElayout) :: layout
+    type(ESMF_VM) :: VM
+    integer :: myid
+    integer :: ndes
+    integer :: dimCount
+    
+    integer :: Xdim, Ydim, nx, npts
     character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
     type(ESMF_time) :: start_time
     type(ESMF_time) :: start_time_aux
-
     character(len=ESMF_MAXPATHLEN) :: fname    
 
-    !    
-!    ! s1. get esmf grid dim, default mask=.F.
-!    call ESMF_GridGet(grid, DistGrid=disgrid, dimCount=dimCount, _RC)
-!    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-!    call EMSF_VmGetCurrent(VM, _RC)
-!    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
-!
-!    call ESMF_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-!    IM= COUNTS(1)
-!    JM= COUNTS(2)
-!    LM= COUNTS(3)
-!
-!    call ESMF_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
-!    IM_WORLD= COUNTS(1)
-!    JM_WORLD= CONNTS(2)
-!
-!    !    allocate(this%mask(IM, JM))
-!    !    this%mask(:,:)=.F.
+    real, allocatable :: obs_lons(:)
+    real, allocatable :: obs_lats(:)
+    real, allocatable :: lons(:,:)
+    real, allocatable :: lats(:,:)
+    integer, allocatable :: II(:)
+    integer, allocatable :: JJ(:)
 
+    integer :: k
     
+    ! s1. get esmf grid dim, default mask=.F.
+    call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
+    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+    call ESMF_DELayoutGet(layout, VM=vm, _RC)
+    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+    IM= COUNTS(1)
+    JM= COUNTS(2)
+    LM= COUNTS(3)
+    call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
+    IM_WORLD= COUNTS(1)
+    JM_WORLD= COUNTS(2)
+
+    write(6,121) 'myid,ndes', myid,ndes
+    write(6,121) 'IM,JM,LM', IM,JM,LM
+    write(6,121) 'IM_WORLD,JM_WORLD', IM_WORLD,JM_WORLD
+
+    allocate(this%mask(IM, JM))
+    this%mask=.false.
+
     ! s2. read in a series of swath files within time_span
     !     - parse ob filename, dir, freq. from hist-input
     !     - read in lon/lat obs. data
-    start_time=this%mask_start
+    start_time = this%mask_start
     if (start_time < time_span(1)) then
        do while ( start_time <= time_span(1) )
           start_time = start_time + this%obs_interval
        enddo
     endif
     start_time_aux=start_time
-    nx=0
-    do while ( start_time <= time_span(2) )
-       call this%get_filename_arraybound (start_time, fname, nlon)
-       nx=nx+nlon
-       write(6,121) 'nx', nx
-       write(6,102) 'fname', fname
-       start_time=start_time+this%obs_interval
-    enddo
 
+    ! allocate arrays
+    nx=0
+    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
+       call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
+       nx = nx + Xdim*Ydim
+       write(6,121) 'nx increase', Xdim*Ydim
+       write(6,102) 'fname', trim(fname)
+       start_time = start_time + this%obs_interval
+    enddo
     write(6,121) 'nx final:', nx
+    allocate(obs_lons(nx), obs_lats(nx))
+    allocate(II(nx), JJ(nx))
     
+    ! fill in arrays [repeat loop]
+    nx=0
+    start_time=start_time_aux
+    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
+       call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
+       if(Xdim>0) then
+          allocate(lons(Xdim,Ydim), lats(Xdim,Ydim))
+          call get_v2d_netcdf(fname, 'clon', lons, Xdim, Ydim)
+          call get_v2d_netcdf(fname, 'clat', lats, Xdim, Ydim)
+          npts = Xdim*Ydim
+          obs_lons(nx+1:nx+npts) = reshape(lons, [npts])
+          obs_lats(nx+1:nx+npts) = reshape(lats, [npts])
+          nx = nx + npts
+          deallocate(lons, lats)
+       endif
+       start_time = start_time + this%obs_interval
+    enddo
     this%mask_start=start_time
+
+    !! write(6,203) obs_lons(1:nx:100)
+
 
     ! s3. find index [loc/global] via bisect for CS/LL
     !
-    !
+    !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
+    call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
 
+    !    if (mapl_am_i_root()) then
+!    if (myid == 0) then
+       write(6,123) (II(k), k=1,nx,100)
+       !write(6,123) (JJ(k), k=1,nx,100)
+!    endif
+    
+    stop -1
+
+    deallocate(obs_lons, obs_lats)
+    deallocate(II, JJ)
+    
     include "/users/yyu11/sftp/myformat.inc"  
   end subroutine get_mask
 
@@ -150,7 +198,8 @@ contains
     integer :: rc, status
     integer :: idoy,ih,im,is    
     integer :: iyy, imm, idd
-
+    integer :: k
+    
     max_len=maxstr
     max_seg=100       ! segmane separated by ',' on each line
     allocate(string_pieces(max_seg))
@@ -160,7 +209,7 @@ contains
 
     call split_string(mask_setup,  ' ', max_len, max_seg, nseg, string_pieces, status)
     write(6,*) 'nseg=', nseg
-    write(6,*) 'string_pieces(1:nseg)=', string_pieces(1:nseg)
+    write(6,102) 'string_pieces(1:nseg)=', (trim(string_pieces(k)), k=1,nseg)
     !
     call split_string(string_pieces(1),'.',max_len, max_seg, nseg, string_pieces2, status)
     read(string_pieces2(1), '(i4,i3)') iyy,idoy
@@ -212,22 +261,21 @@ contains
 
 
 
-  subroutine  get_filename_arraybound (this, obs_time, fname, ndim)
+  subroutine  get_filename_arraybound (this, obs_time, fname, Xdim, Ydim)
     class(TimeDependentMask), intent(in) :: this
     type(ESMF_time), intent(in) :: obs_time
     character(len=ESMF_MAXPATHLEN), intent(out):: fname
-    integer, intent(out) :: ndim
+    integer, intent(out) :: Xdim, Ydim
+
     type(ESMF_time) :: ref_time
     type(ESMF_timeInterval) :: timestep
     type(ESMF_Calendar) :: gregorianCalendar
     character(len=ESMF_MAXPATHLEN) :: s
-    integer :: rc
     integer :: iyy, imm, idd, idoy
     integer :: ih, im, is
-    integer :: Xdim, Ydim, ntime
-    integer :: status
+    integer :: ntime
+    integer :: rc, status
     
-    !!    time_step = obs_time - this%obs_start
     gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', rc=rc)
     call ESMF_timeGet(obs_time, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
     call ESMF_timeSet(ref_time, yy=iyy, mm=1,   dd=1,   h=0,  m=0,  s=0, &
@@ -236,11 +284,84 @@ contains
     call ESMF_timeIntervalGet(timestep, d=idoy, h=ih, m=im, s=is, rc=rc)
     write(s,'(i4,i0.3,a1,2i0.2,a4)') iyy, idoy+1, '.', ih, im, '.nc4'
     fname=trim(this%mask_file_header)//trim(s)
-    call get_ncfile_dimension(fname, Xdim, Ydim, ntime, rc=rc)
-    ndim=Xdim*Ydim
+    call get_ncfile_dimension(fname, Xdim, Ydim, ntime)
   end subroutine get_filename_arraybound
     
 
+
+  subroutine get_ncfile_dimension(filename, nlon, nlat, tdim)
+!    use netcdf
+    implicit none
+    character(len=*), intent(in) :: filename
+    integer, intent(out) :: nlat, nlon, tdim
+    integer :: ncid , dimid
+    integer :: rc, status
+
+    character(len=100) :: lon_str, lat_str
+    lon_str="cell_across_swath"
+    lat_str="cell_along_swath"
+
+
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), rc=rc)
+    if (rc/=0) then
+       nlon=0
+       nlat=0
+       tdim=0
+       !write(6,*) 'eror in nf90_open, fileName=', trim(fileName)
+       !write(6,*) 'rc=', rc
+       return
+    endif
+
+    call check_nc_status(nf90_inq_dimid(ncid, "time", dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
+    !
+    call check_nc_status(nf90_inq_dimid(ncid, lon_str, dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
+    !
+    call check_nc_status(nf90_inq_dimid(ncid, lat_str, dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+    call check_nc_status(nf90_close(ncid), _RC)
+    !! debug summary
+    write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+  end subroutine get_ncfile_dimension
+
+  
+  subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: name, filename
+    integer, intent(in) :: Xdim, Ydim
+    real, dimension(Xdim,Ydim), intent(out) :: array
+    integer :: ncid, varid
+    real    :: scale_factor, add_offset
+    integer :: rc, status, iret
+    
+    call check_nc_status (nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status (nf90_inq_varid (ncid,  name,  varid), _RC)
+    call check_nc_status (nf90_get_var   (ncid, varid,  array), _RC)
+    
+    iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
+    if(iret .eq. 0) array = array * scale_factor
+    !
+    iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
+    if(iret .eq. 0) array = array + add_offset
+    !
+    iret = nf90_close(ncid)
+  end subroutine get_v2d_netcdf
+
+
+  subroutine check_nc_status(status, rc)
+    implicit none
+    integer, intent (in) :: status
+    integer, intent (out), optional :: rc
+    if(status /= nf90_noerr) then
+       print *, 'netCDF error: '//trim(nf90_strerror(status))
+    endif
+    if(present(rc))  rc=status-nf90_noerr
+  end subroutine check_nc_status
+  
+
+  
     subroutine split_string (string, mark, length_mx, &
        mxseg, nseg, str_piece, jstatus)
     implicit none
@@ -318,73 +439,6 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-
-  
-
-  subroutine get_ncfile_dimension(filename, nlon, nlat, tdim, rc)
-    use netcdf
-    implicit none
-    character(len=*), intent(in) :: filename
-    integer, intent(out) :: nlat, nlon, tdim
-    integer, intent(out), optional :: rc
-    integer :: ncid , dimid
-    integer :: status
-
-    character(len=100) :: lon_str, lat_str
-    lon_str="cell_across_swath"
-    lat_str="cell_along_swath"
-    
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
-    call check_nc_status(nf90_inq_dimid(ncid, "time", dimid), _RC)
-    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
-    !
-    call check_nc_status(nf90_inq_dimid(ncid, lon_str, dimid), _RC)
-    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
-    !
-    call check_nc_status(nf90_inq_dimid(ncid, lat_str, dimid), _RC)
-    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
-    call check_nc_status(nf90_close(ncid), _RC)
-    !! debug summary
-    write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
-  end subroutine get_ncfile_dimension
-
-  
-!  subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
-!    use netcdf
-!    implicit none
-!    character(len=*), intent(in) :: name, filename
-!    integer, intent(in) :: Xdim, Ydim
-!    real, dimension(Xdim,Ydim), intent(out) :: array
-!    integer :: ncid, varid
-!    real    :: scale_factor, add_offset
-!    integer :: rc, status, iret
-!    
-!    call check_nc_status (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC )
-!    call check_nc_status (  nf90_inq_varid (ncid,  name,  varid), _RC )
-!    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
-!    
-!    iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
-!    if(iret .eq. 0) array = array * scale_factor
-!    !
-!    iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
-!    if(iret .eq. 0) array = array + add_offset
-!    !
-!    iret = nf90_close(ncid)
-!  end subroutine get_v2d_netcdf
-!
-
-  subroutine check_nc_status(status, rc)
-    use netcdf
-    implicit none
-    integer, intent (in) :: status
-    integer, intent (out), optional :: rc
-    if(status /= nf90_noerr) then
-       print *, 'netCDF error: '//trim(nf90_strerror(status))
-    endif
-    if(present(rc))  rc=status-nf90_noerr
-    return
-  end subroutine check_nc_status
-  
 
 
 end module MAPL_TimeDependentMaskMod
