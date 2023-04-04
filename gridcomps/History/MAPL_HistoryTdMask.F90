@@ -4,8 +4,6 @@ module MAPL_TimeDependentMaskMod
   use netcdf
   use mapl_MaplGrid, only : MAPL_GridGet
   use MAPL_Base, only : MAPL_GetHorzIJIndex, MAPL_GetGlobalHorzIJIndex
-  !  use MAPL_CommsMod, only : MAPL_AM_I_ROOT
-  !use MAPL_CommsMod, only : MAPL_AM_I_ROOT
   use MAPL_ErrorHandlingMod
   implicit none
   private
@@ -88,7 +86,7 @@ contains
     integer, allocatable :: II(:)
     integer, allocatable :: JJ(:)
 
-    integer :: i
+    integer :: i,j
     
     ! s1. get esmf grid dim, default mask=.F.
     call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
@@ -113,6 +111,7 @@ contains
     ! s2. read in a series of swath files within time_span
     !     - parse ob filename, dir, freq. from hist-input
     !     - read in lon/lat obs. data
+    !
     start_time = this%mask_start
     if (start_time < time_span(1)) then
        do while ( start_time <= time_span(1) )
@@ -152,28 +151,23 @@ contains
        start_time = start_time + this%obs_interval
     enddo
     this%mask_start=start_time
-
     !! write(6,203) obs_lons(1:nx:100)
 
 
     ! s3. find index [loc/global] via bisect for CS/LL
     !
-    !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
     if (nx >0) then
        call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
+       !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
        do i=1, nx
           if ( II(i)>0 .AND. JJ(i)>0 ) then
              this%mask( II(i), JJ(i) ) = .true.
           endif
        enddo
-   
-       !    if (mapl_am_i_root()) then
-       !    if (myid == 0) then
        write(6,123) (II(i), i=1,nx,100)
-       !write(6,123) (JJ(i), i=1,nx,100)
-       !    endif
+       write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
     endif
-    
+    stop -1
 
     deallocate(obs_lons, obs_lats)
     deallocate(II, JJ)
