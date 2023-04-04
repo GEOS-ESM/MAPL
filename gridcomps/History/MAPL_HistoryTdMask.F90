@@ -1,6 +1,10 @@
 #include "MAPL_Generic.h"
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 module MAPL_TimeDependentMaskMod
   use ESMF
+  use pFIO
   implicit none
   private
 
@@ -111,6 +115,8 @@ contains
        start_time=start_time+this%obs_interval
     enddo
 
+    write(6,121) 'nx final:', nx
+    
     this%mask_start=start_time
 
     ! s3. find index [loc/global] via bisect for CS/LL
@@ -218,8 +224,10 @@ contains
     integer :: rc
     integer :: iyy, imm, idd, idoy
     integer :: ih, im, is
+    integer :: Xdim, Ydim, ntime
+    integer :: status
     
-!!    time_step = obs_time - this%obs_start
+    !!    time_step = obs_time - this%obs_start
     gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs', rc=rc)
     call ESMF_timeGet(obs_time, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
     call ESMF_timeSet(ref_time, yy=iyy, mm=1,   dd=1,   h=0,  m=0,  s=0, &
@@ -228,10 +236,8 @@ contains
     call ESMF_timeIntervalGet(timestep, d=idoy, h=ih, m=im, s=is, rc=rc)
     write(s,'(i4,i0.3,a1,2i0.2,a4)') iyy, idoy+1, '.', ih, im, '.nc4'
     fname=trim(this%mask_file_header)//trim(s)
-    write(6,*)  'fname=', fname
-    
-    ndim=1
-    stop -1       
+    call get_ncfile_dimension(fname, Xdim, Ydim, ntime, rc=rc)
+    ndim=Xdim*Ydim
   end subroutine get_filename_arraybound
     
 
@@ -314,6 +320,71 @@ contains
   end subroutine error
 
   
+
+  subroutine get_ncfile_dimension(filename, nlon, nlat, tdim, rc)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: filename
+    integer, intent(out) :: nlat, nlon, tdim
+    integer, intent(out), optional :: rc
+    integer :: ncid , dimid
+    integer :: status
+
+    character(len=100) :: lon_str, lat_str
+    lon_str="cell_across_swath"
+    lat_str="cell_along_swath"
+    
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
+    call check_nc_status(nf90_inq_dimid(ncid, "time", dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
+    !
+    call check_nc_status(nf90_inq_dimid(ncid, lon_str, dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
+    !
+    call check_nc_status(nf90_inq_dimid(ncid, lat_str, dimid), _RC)
+    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+    call check_nc_status(nf90_close(ncid), _RC)
+    !! debug summary
+    write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+  end subroutine get_ncfile_dimension
+
+  
+!  subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
+!    use netcdf
+!    implicit none
+!    character(len=*), intent(in) :: name, filename
+!    integer, intent(in) :: Xdim, Ydim
+!    real, dimension(Xdim,Ydim), intent(out) :: array
+!    integer :: ncid, varid
+!    real    :: scale_factor, add_offset
+!    integer :: rc, status, iret
+!    
+!    call check_nc_status (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC )
+!    call check_nc_status (  nf90_inq_varid (ncid,  name,  varid), _RC )
+!    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
+!    
+!    iret = nf90_get_att(ncid, varid, 'scale_factor', scale_factor)
+!    if(iret .eq. 0) array = array * scale_factor
+!    !
+!    iret = nf90_get_att(ncid, varid, 'add_offset', add_offset)
+!    if(iret .eq. 0) array = array + add_offset
+!    !
+!    iret = nf90_close(ncid)
+!  end subroutine get_v2d_netcdf
+!
+
+  subroutine check_nc_status(status, rc)
+    use netcdf
+    implicit none
+    integer, intent (in) :: status
+    integer, intent (out), optional :: rc
+    if(status /= nf90_noerr) then
+       print *, 'netCDF error: '//trim(nf90_strerror(status))
+    endif
+    if(present(rc))  rc=status-nf90_noerr
+    return
+  end subroutine check_nc_status
+  
+
+
 end module MAPL_TimeDependentMaskMod
-
-
