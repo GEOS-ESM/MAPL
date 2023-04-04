@@ -855,11 +855,11 @@ contains
       logical                          :: isCreated
       logical                          :: gridIsPresent
       logical :: is_associated
-      character(len=ESMF_MAXSTR)       :: positive, compToWrite
+      character(len=ESMF_MAXSTR)       :: positive, comp_to_record
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
-      logical :: isTestFramework, isTestFrameworkDriver
+      logical :: is_test_framework, is_test_framework_driver
       !=============================================================================
 
       ! Begin...
@@ -876,10 +876,10 @@ contains
       call MAPL_InternalStateGet ( GC, STATE, _RC)
 
 
-      call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
-      call MAPL_GetResource(STATE, isTestFramework, label='TEST_FRAMEWORK:', default=.false.)
-      call MAPL_GetResource(STATE, isTestFrameworkDriver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
-      if (comp_name == compToWrite .and. (isTestFramework .or. isTestFrameworkDriver)) then
+      call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='')
+      call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false.)
+      call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
+      if (comp_name == comp_to_record .and. (is_test_framework .or. is_test_framework_driver)) then
          call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
       end if
 
@@ -1754,8 +1754,9 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads, isTestFramework, isTestFrameworkDriver, isGridCapture, restoreExport
-      character(len=ESMF_MAXSTR) :: compToWrite
+      logical :: use_threads, is_test_framework, is_test_framework_driver
+      logical :: is_grid_capture, restore_export
+      character(len=ESMF_MAXSTR) :: comp_to_record
 
       !=============================================================================
 
@@ -1839,21 +1840,21 @@ contains
 
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
-      call MAPL_GetResource(STATE, compToWrite, label='COMPONENT_TO_RECORD:', default='')
-      call MAPL_GetResource(STATE, isTestFramework, label='TEST_FRAMEWORK:', default=.false.)
-      call MAPL_GetResource(STATE, isTestFrameworkDriver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
-      call MAPL_GetResource(STATE, isGridCapture, label='GRID_CAPTURE:', default=.false.)
-      call MAPL_GetResource(STATE, restoreExport, label='RESTORE_EXPORT_STATE:', default=.false.)
+      call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='')
+      call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false.)
+      call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
+      call MAPL_GetResource(STATE, is_grid_capture, label='GRID_CAPTURE:', default=.false.)
+      call MAPL_GetResource(STATE, restore_export, label='RESTORE_EXPORT_STATE:', default=.false.)
 
-      if (method == ESMF_METHOD_INITIALIZE .and. comp_name == compToWrite) then
-         call ESMF_AttributeSet(export, name="MAPL_RestoreExport", value=restoreExport, _RC)
+      if (method == ESMF_METHOD_INITIALIZE .and. comp_name == comp_to_record) then
+         call ESMF_AttributeSet(export, name="MAPL_RestoreExport", value=restore_export, _RC)
       end if
-      if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
+      if (method == ESMF_METHOD_RUN .and. comp_name == comp_to_record) then
+         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=is_grid_capture, _RC)
 
-         if (isTestFramework) then
+         if (is_test_framework) then
             call capture('before', phase, GC, import, export, clock, _RC)
-         else if (isTestFrameworkDriver) then
+         else if (is_test_framework_driver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
          end if
       end if
@@ -1871,11 +1872,11 @@ contains
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
       end if
       
-      if (method == ESMF_METHOD_RUN .and. comp_name == compToWrite) then
-         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=isGridCapture, _RC)
-         if (isTestFramework) then
+      if (method == ESMF_METHOD_RUN .and. comp_name == comp_to_record) then
+         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=is_grid_capture, _RC)
+         if (is_test_framework) then
             call capture('after', phase, GC, import, export, clock, _RC)
-         else if (isTestFrameworkDriver) then
+         else if (is_test_framework_driver) then
             call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
             call ESMF_AttributeSet(export, name="MAPL_TestFramework", value=.true., _RC)
          end if
@@ -1915,29 +1916,29 @@ contains
      
      type (MAPL_MetaComp),pointer :: STATE
      integer :: status
-     character(len=ESMF_MAXSTR) :: FILENAME, comp_name, timeLabel
-     character(len=4) :: FILETYPE
+     character(len=ESMF_MAXSTR) :: filename, comp_name, time_label
+     character(len=4) :: filetype
      type(ESMF_State), pointer :: internal
      integer :: hdr
-     type(ESMF_Time) :: startTime, currTime, targetTime
+     type(ESMF_Time) :: start_time, curr_time, target_time
      character(len=1) :: phase_
       
-     call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
-     call MAPL_InternalStateGet ( GC, STATE, _RC)
+     call ESMF_GridCompGet(GC, NAME=comp_name, _RC)
+     call MAPL_InternalStateGet (GC, STATE, _RC)
 
-     call ESMF_ClockGet(clock, startTime=startTime, currTime=currTime, _RC)
+     call ESMF_ClockGet(clock, startTime=start_time, currTime=curr_time, _RC)
 
-     call MAPL_GetResource(STATE, timeLabel, label='TARGET_TIME:', default='')
-     if (timeLabel == '') then
-        targetTime = startTime
+     call MAPL_GetResource(STATE, time_label, label='TARGET_TIME:', default='')
+     if (time_label == '') then
+        target_time = start_time
      else
-        targetTime = parse_time_string(timeLabel, _RC)
+        target_time = parse_time_string(time_label, _RC)
      end if
      
-     FILETYPE = 'pnc4'
-     FILENAME = trim(comp_name)//"_"
+     filetype = 'pnc4'
+     filename = trim(comp_name)//"_"
 
-     if (currTime == targetTime) then
+     if (curr_time == target_time) then
         internal => state%get_internal_state()
         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
         write(phase_, '(i1)') phase
@@ -1948,7 +1949,7 @@ contains
         call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, .false., oClients = o_Clients, _RC)
  
-        call MAPL_GetResource( STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
+        call MAPL_GetResource(STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
      end if
