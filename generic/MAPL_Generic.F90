@@ -1673,7 +1673,7 @@ contains
                        STATE, .FALSE., rc=status)
                   if (status /= ESMF_SUCCESS) then
                      if (MAPL_AM_I_Root(VM)) then
-                        call ESMF_StatePrint(EXPORT)
+                        call ESMF_StatePrint(EXPORT, _RC)
                      end if
                      _RETURN(ESMF_FAILURE)
                   end if
