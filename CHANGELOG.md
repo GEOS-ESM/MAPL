@@ -20,13 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.38.0] - 2023-04-04
 ### Added
 - New feature to allow for single component testing as code is refactored
-- Created `Comp_Testing_Driver.F90` in Apps
-- Created `subset_fields.py` to grab a subset of columns
-- Created shell script to perform subsetting, run the driver, and evaluate differences
-
-### Changed
-- Changed `MAPL_Generic.F90` to capture states before and after run and perform export restart if requested
-- Changed `NCIO.F90` to allow for capture of a subset of columns and perform export restart if requested
+  - Created `Comp_Testing_Driver.F90` in Apps
+  - Created `subset_fields.py` in Apps to grab a subset of columns
+  - Created shell script to perform subsetting, run the driver, and evaluate differences
 
 ## [2.37.0] - 2023-04-03
 
