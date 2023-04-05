@@ -4199,51 +4199,51 @@ module NCIOMod
              
              if (fieldIsValid == 0) then
               
-             skipWriting = .false.
-             if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                skipWriting = .false.
+                if (.not. forceWriteNoRestart_) then
+                   call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                   _VERIFY(STATUS)
+                   if (isPresent) then
+                      call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                      _VERIFY(STATUS)
+                      skipWriting = (RST == MAPL_RestartSkip)
+                   end if
+                else
+                   skipWriting = .true.
+                end if
+                
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+                if (isPresent) then
+                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                   if (is_test_framework) skipWriting = .false.
+                end if
+                
+                if (skipWriting) cycle
+
+                call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                   call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
                    _VERIFY(STATUS)
-                   skipWriting = (RST == MAPL_RestartSkip)
+                   skipWriting = (dna /= 0)
+                endif
+                
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+                if (isPresent) then
+                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                   if (is_test_framework) skipWriting = .false.
                 end if
-             else
-                skipWriting = .true.
-             end if
 
-             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
-             if (isPresent) then
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
-                if (is_test_framework) skipWriting = .false.
-             end if
+                if (skipWriting) cycle
 
-             if (skipWriting) cycle
-
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS)
-             if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                if (flip) then
+                   added_field = create_flipped_field(field,rc=status)
+                   _VERIFY(status)
+                else
+                   added_field = field
+                end if
+                call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
                 _VERIFY(STATUS)
-                skipWriting = (dna /= 0)
-             endif
-
-             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
-             if (isPresent) then
-                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
-                if (is_test_framework) skipWriting = .false.
-             end if
-
-             if (skipWriting) cycle
-
-             if (flip) then
-                added_field = create_flipped_field(field,rc=status)
-                _VERIFY(status)
-             else
-                added_field = field
-             end if
-             call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
-             _VERIFY(STATUS)
              end if
 
           end IF
