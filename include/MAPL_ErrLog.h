@@ -94,6 +94,7 @@
 #       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
 #    else
 #       define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
+#       define _RETURN_IF(cond) if (cond) then; _RETURN(_SUCCESS); endif
 #       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
 #    endif
 #    define _RC_(rc,status) rc=status);_VERIFY(status

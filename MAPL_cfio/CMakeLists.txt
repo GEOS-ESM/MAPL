@@ -57,9 +57,9 @@ endif ()
 
 if (USE_F2PY)
   if (precision STREQUAL "r4")
-    find_package(F2PY2)
-    if (F2PY2_FOUND)
-      esma_add_f2py2_module(ShaveMantissa_
+    find_package(F2PY3)
+    if (F2PY3_FOUND)
+      esma_add_f2py3_module(ShaveMantissa_
         SOURCES ShaveMantissa_py.F90 ShaveMantissa.c
         DESTINATION lib/Python/${this}
         INCLUDEDIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/lib ${include_${this}}

@@ -766,8 +766,19 @@ contains
        list(n)%regex = (useRegex /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
                                       label=trim(string) // 'frequency:',_RC )
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_interval, default=list(n)%frequency, &
                                       label=trim(string) // 'acc_interval:',_RC )
+
+       call ESMF_ConfigFindLabel(cfg,label= trim(string) // 'acc_ref_time',isPresent = isPresent, _RC)
+       if (isPresent) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_ref_time, default=000000, &
+                                         label=trim(string) // 'acc_ref_time:',_RC )
+          _ASSERT(is_valid_time(list(n)%ref_time),'Invalid acc_ref_time')
+          list(n)%acc_offset = get_acc_offset(currTime,list(n)%acc_ref_time,_RC)
+       else
+          list(n)%acc_offset = 0
+       end if
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_date, default=nymdc, &
                                       label=trim(string) // 'ref_date:',_RC )
@@ -1604,9 +1615,9 @@ ENDDO PARSER
        if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
           sec = 0
        else if (list(n)%timeStampStart) then
-          sec = MAPL_nsecf(list(n)%acc_interval)
+          sec = MAPL_nsecf(list(n)%frequency)
        else
-          sec = MAPL_nsecf(list(n)%acc_interval) / 2
+          sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
@@ -2085,6 +2096,7 @@ ENDDO PARSER
                           UNGRIDDED_COORDS = ungridded_coord,               &
                           ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
                           COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          offset = list(n)%acc_offset, &
                           VLOCATION  = VLOCATION,                           &
                           GRID       = GRID,                                &
                           FIELD_TYPE = FIELD_TYPE,                          &
@@ -2115,6 +2127,7 @@ ENDDO PARSER
                           UNGRIDDED_UNIT = ungridded_unit,                  &
                           ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
                           COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          offset = list(n)%acc_offset, &
                           VLOCATION  = VLOCATION,                           &
                           GRID       = GRID,                                &
                           FIELD_TYPE = FIELD_TYPE,                          &
@@ -2124,7 +2137,6 @@ ENDDO PARSER
                   if (allocated(ungridded_coord)) deallocate(ungridded_coord)
 
                else
-
                   call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,     &
                        SHORT_NAME = SHORT_NAME,                            &
                        LONG_NAME  = LONG_NAME,                             &
@@ -2143,6 +2155,7 @@ ENDDO PARSER
                        DIMS       = DIMS,                                  &
                        ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),  &
                        COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),  &
+                       offset = list(n)%acc_offset, &
                        VLOCATION  = VLOCATION,                             &
                        GRID       = GRID,                                  &
                        FIELD_TYPE = FIELD_TYPE,                            &
@@ -5078,13 +5091,41 @@ ENDDO PARSER
           call ESMF_StateGet(src, itemNames(n), bundle(1), _RC)
           call ESMF_StateAdd(dst, bundle, _RC)
        end if
-    end do
+    end do 
 
     deallocate(itemTypes)
     deallocate(itemNames)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine CopyStateItems
+
+  function get_acc_offset(current_time,ref_time,rc) result(acc_offset)
+     integer :: acc_offset
+     type(ESMF_Time), intent(in) :: current_time
+     integer, intent(in) :: ref_time
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     integer :: hour,minute,second,year,month,day,diff_sec
+     type(ESMF_Time) :: new_time
+     type(ESMF_TimeInterval) :: t_int
+
+     call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+     call MAPL_UnpackTime(ref_time,hour,minute,second)
+     call ESMF_TimeSet(new_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+     t_int = new_time - current_time
+
+     call ESMF_TimeIntervalGet(t_int,s=diff_sec,_RC)
+     if (diff_sec == 0) then
+        acc_offset = 0
+     else if (diff_sec > 0) then
+        acc_offset = diff_sec - 86400
+     else if (diff_sec < 0) then
+        acc_offset = diff_sec
+     end if
+     _RETURN(_SUCCESS)
+  end function
+
 
 end module MAPL_HistoryGridCompMod
 

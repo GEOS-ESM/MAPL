@@ -30,7 +30,7 @@ def shave(a,xbits=12,has_undef=0,undef=MISSING,chunksize=-1):
     a_shaved, rc = shave32(a,xbits,has_undef,undef,chunksize)
 
     if rc:
-        raise ValueError, 'shave: error on return from ShaveMantissa_.shave32: %d'%rc
+        raise ValueError('shave: error on return from ShaveMantissa_.shave32: %d'%rc)
 
     return a_shaved
 
