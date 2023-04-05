@@ -1,3 +1,7 @@
+!wdb  return if
+!wdb  use asserts in tests
+!wdb  use setup procedures to create fields
+
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldBLAS
@@ -40,29 +44,35 @@ module mapl3g_FieldBLAS
 
    ! Misc utiliities
 !   public :: FieldSpread
-!   public :: FieldConvertPrec
 !   public :: FieldClone
-
+   public :: FieldConvertPrec
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
    public :: FieldGetCptr
    public :: FieldsAreConformable
-!wdb  fixme Who/Why/What/When? public :: FieldsAreSameTypeKind
+   public :: FieldsAreSameTypeKind
+!wdb  fixme temporary to test out this helper function
+   public :: assign_fptr
 
+   ! call FieldCOPY(x, y, rc): y = x
    interface FieldCOPY
       procedure copy
    end interface FieldCOPY
 
+!wdb  fixme This acts on y in-place. Do we need a form that acts more like a function: y = FieldSCAL(a, x)?
+   ! call FieldSCAL(a, x, rc): x = a*x (multiply x in-place)
    interface FieldSCAL
       procedure scale_r4
       procedure scale_r8
    end interface
 
+   ! call FieldAXPY(a, x, y, rc): y = a*x + y (add a*x to y in-place)
    interface FieldAXPY
       procedure axpy_r4
       procedure axpy_r8
    end interface
 
+   ! call FieldGEMV(alpha, A, x, beta, y, rc) (multiply y in-place, then add a*A*x to y in-place)
    interface FieldGEMV
       procedure gemv_r4
       procedure gemv_r8
@@ -73,35 +83,22 @@ module mapl3g_FieldBLAS
    end interface
 
    interface FieldsAreConformable
-      procedure areConformable_scalar_scalar
-      procedure areConformable_vector_vector
-      procedure areConformable_scalar_vector
-      procedure areConformable_vector_scalar
+      procedure are_conformable_scalar
+      procedure are_conformable_array
    end interface
 
-   interface verify_typekind
-      procedure verify_typekind_scalar
-      procedure verify_typekind_rank1
-   end interface verify_typekind
-
    interface FieldGetLocalSize
-      procedure getLocalSize
+      procedure get_local_size
    end interface FieldGetLocalSize
 
    interface FieldGetLocalElementCount
-      procedure getLocalElementCount
+      procedure get_local_element_count
    end interface FieldGetLocalElementCount
 
-!wdb  fixme Not implemented
-!   interface FieldConvertPrec
-!      module procedure 
-!   end interface FieldConvertPrec
+   interface FieldConvertPrec
+      module procedure convert_prec
+   end interface FieldConvertPrec
    
-   interface is_identity
-      module procedure is_r4_identity
-      module procedure is_r8_identity
-   end interface is_identity
-
    interface assign_fptr 
       module procedure assign_fptr_r4_rank1
       module procedure assign_fptr_r8_rank1
@@ -109,10 +106,14 @@ module mapl3g_FieldBLAS
       module procedure assign_fptr_r8_rank2
    end interface assign_fptr 
 
-   interface convert_fptr_prec
-      module procedure convert_fptr_R4_to_R8
-      module procedure convert_fptr_R8_to_R4
-   end interface convert_fptr_prec
+   interface FieldsAreSameTypeKind
+      module procedure are_same_type_kind
+   end interface FieldsAreSameTypeKind
+
+   interface verify_typekind
+      module procedure verify_typekind_scalar
+      module procedure verify_typekind_array
+   end interface verify_typekind
 
 contains
 
@@ -131,7 +132,7 @@ contains
       character(len=*), parameter :: UNSUPPORTED_TK = &
          'Unsupported typekind in FieldCOPY() for '
    
-      conformable = FieldsAreConformable(x, y,_RC)
+      conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
       call FieldGetCptr(x, cptr_x, _RC)
       call ESMF_FieldGet(x, typekind = tk_x, _RC) 
@@ -140,7 +141,8 @@ contains
 
       call FieldGetCptr(y, cptr_y, _RC)
       call ESMF_FieldGet(y, typekind = tk_y, _RC) 
-      
+
+     !wdb  fixme convert between precisions ? get rid of extra cases
       y_is_double = (tk_y == ESMF_TYPEKIND_R8)
       _ASSERT(y_is_double .or. (tk_y == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'y.')
 
@@ -216,16 +218,6 @@ contains
       y_ptr=x_ptr
    end subroutine copy_r8_r8
 
-   logical function is_r4_identity(a)
-      real(kind=ESMF_KIND_R4), intent(in) :: a
-      is_r4_identity = (a == 1)
-   end function is_r4_identity
-   
-   logical function is_r8_identity(a) 
-      real(kind=ESMF_KIND_R8), intent(in) :: a
-      is_r8_identity = (a == 1)
-   end function is_r8_identity
-   
    subroutine scale_r4(a, x, rc)
       real(kind=ESMF_KIND_R4), intent(in) :: a
       type(ESMF_Field), intent(inout) :: x
@@ -234,11 +226,8 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
       integer :: status
 
-      if(.not. is_identity(a)) then
-         call assign_fptr(x, x_ptr, _RC)
-         ! sscal BLAS
-         x_ptr = a * x_ptr
-      end if
+      call assign_fptr(x, x_ptr, _RC)
+      x_ptr = a * x_ptr
 
       _RETURN(_SUCCESS)
    end subroutine scale_r4
@@ -251,11 +240,8 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
       integer :: status
 
-      if(.not. is_identity(a)) then
-         call assign_fptr(x, x_ptr, _RC)
-         ! dscal BLAS
-         x_ptr = a * x_ptr
-      end if
+      call assign_fptr(x, x_ptr, _RC)
+      x_ptr = a * x_ptr
 
       _RETURN(_SUCCESS)
    end subroutine scale_r8
@@ -266,27 +252,20 @@ contains
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
 
-      type(c_ptr) :: x_cptr, y_cptr
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:), y_ptr(:)
-      integer(kind=ESMF_KIND_R8) :: n
-      logical :: same_tk, conformable
+      logical :: conformable
       integer :: status
 
-      call verify_typekind(x, ESMF_TYPEKIND_R4, _RC)
-      call verify_typekind(y, ESMF_TYPEKIND_R4, _RC)
+      call verify_typekind(x, ESMF_TYPEKIND_R4)
+      call verify_typekind(y, ESMF_TYPEKIND_R4)
 
-      conformable = FieldsAreConformable(x, y, _RC)
+      conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
       
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
-      ! saxpy 
-      if(is_identity(a)) then
-         y_ptr = y_ptr + x_ptr
-      else
-         y_ptr = y_ptr + a * x_ptr
-      end if
+      y_ptr = y_ptr + a * x_ptr
 
       _RETURN(_SUCCESS)
    end subroutine axpy_r4
@@ -297,27 +276,20 @@ contains
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
 
-      type(c_ptr) :: x_cptr, y_cptr
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:), y_ptr(:)
-      integer(kind=ESMF_KIND_R8) :: n
       integer :: status
       logical :: conformable
 
-      call verify_typekind(x, ESMF_TYPEKIND_R8, _RC)
-      call verify_typekind(y, ESMF_TYPEKIND_R8, _RC)
+      call verify_typekind(x, ESMF_TYPEKIND_R8)
+      call verify_typekind(y, ESMF_TYPEKIND_R8)
 
-      conformable = FieldsAreConformable(x, y,_RC)
+      conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
       
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
-      ! daxpy 
-      if(is_identity(a)) then
-         y_ptr = y_ptr + x_ptr
-      else
-         y_ptr = y_ptr + a * x_ptr
-      end if
+      y_ptr = y_ptr + a * x_ptr
 
       _RETURN(_SUCCESS)
    end subroutine axpy_r8
@@ -338,44 +310,43 @@ contains
 
       logical :: conformable
       integer :: dimcount
-      integer, allocatable :: localElementCount(:)
+      integer, allocatable :: local_element_count(:)
       integer(kind=ESMF_KIND_I8) :: n_gridded, n_ungridded
       integer(kind=ESMF_KIND_I8) :: fp_shape(2)
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
-      integer :: xi, yi, uni
+      integer :: ix, jy, kv
       integer :: status
 
       _ASSERT(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
       _ASSERT(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
 
-      call verify_typekind(x, ESMF_TYPEKIND_R4, _RC)
-      call verify_typekind(y, ESMF_TYPEKIND_R4, _RC)
+      call verify_typekind(x, ESMF_TYPEKIND_R4)
+      call verify_typekind(y, ESMF_TYPEKIND_R4)
 
-      conformable = FieldsAreConformable(x(1), x(2:), _RC)
+      conformable = FieldsAreConformable(x(1), x(2:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
-      conformable = FieldsAreConformable(x(1), y, _RC)
+      conformable = FieldsAreConformable(x(1), y)
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
-      localElementCount = FieldGetLocalElementCount(x(1), _RC)
+      local_element_count = FieldGetLocalElementCount(x(1), _RC)
       call ESMF_FieldGet(x(1), dimcount=dimcount, _RC)
 
-      n_gridded = product(localElementCount(1:dimcount))
-      n_ungridded = product(localElementCount(dimcount+1:))
+      n_gridded = product(local_element_count(1:dimcount))
+      n_ungridded = product(local_element_count(dimcount+1:))
       _ASSERT(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
       fp_shape = [n_gridded, n_ungridded]
 
 !      y = matmul(A, x)
-      do yi = 1, size(y)
-         !wdb  fixme call assign_fptr(y(yi), y_ptr, fp_shape, _RC)
-         call assign_fptr(y(yi), y_ptr, fp_shape, rc = status)
-         y_ptr(:,yi) = beta * y_ptr(:,yi)
+      do jy = 1, size(y)
+         call assign_fptr(y(jy), fp_shape, y_ptr, _RC)
+         y_ptr(:,jy) = beta * y_ptr(:,jy)
+!         call FieldSCAL(beta, y_ptr(:,jy), _RC)
 
-         do xi = 1, size(x)
-            !wdb  fixme call assign_fptr(x(xi), x_ptr, fp_shape, _RC)
-            call assign_fptr(x(xi), x_ptr, fp_shape, rc = status)
-            do uni = 1, n_ungridded
-               y_ptr(:,yi) = y_ptr(:,yi) + alpha * A(:,xi,yi) * x_ptr(:,uni)
+         do ix = 1, size(x)
+            call assign_fptr(x(ix), fp_shape, x_ptr, _RC)
+            do kv = 1, n_ungridded
+               y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
             end do
          end do
       end do
@@ -394,44 +365,43 @@ contains
 
       logical :: conformable
       integer :: dimcount
-      integer, allocatable :: localElementCount(:)
+      integer, allocatable :: local_element_count(:)
       integer(kind=ESMF_KIND_I8) :: n_gridded, n_ungridded
       integer(kind=ESMF_KIND_I8) :: fp_shape(2)
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:), y_ptr(:,:)
-      integer :: xi, yi, uni
+      integer :: ix, jy, kv
       integer :: status
 
       _ASSERT(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
       _ASSERT(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
 
-      call verify_typekind(x, ESMF_TYPEKIND_R8, _RC)
-      call verify_typekind(y, ESMF_TYPEKIND_R8, _RC)
+      call verify_typekind(x, ESMF_TYPEKIND_R8)
+      call verify_typekind(y, ESMF_TYPEKIND_R8)
 
-      conformable = FieldsAreConformable(x(1), x(2:), _RC)
+      conformable = FieldsAreConformable(x(1), x(2:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
-      conformable = FieldsAreConformable(x(1), y, _RC)
+      conformable = FieldsAreConformable(x(1), y)
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
-      localElementCount = FieldGetLocalElementCount(x(1), _RC)
+      local_element_count = FieldGetLocalElementCount(x(1), _RC)
       call ESMF_FieldGet(x(1), dimcount=dimcount, _RC)
 
-      n_gridded = product(localElementCount(1:dimcount))
-      n_ungridded = product(localElementCount(dimcount+1:))
+      n_gridded = product(local_element_count(1:dimcount))
+      n_ungridded = product(local_element_count(dimcount+1:))
       _ASSERT(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
       fp_shape = [n_gridded, n_ungridded]
 
 !      y = matmul(A, x)
-      do yi = 1, size(y)
-         !wdb  fixme call assign_fptr(y(yi), y_ptr, fp_shape, _RC)
-         call assign_fptr(y(yi), y_ptr, fp_shape, rc = status)
-         y_ptr(:,yi) = beta * y_ptr(:,yi)
+      do jy = 1, size(y)
+         call assign_fptr(y(jy), fp_shape, y_ptr, _RC)
+         y_ptr(:,jy) = beta * y_ptr(:,jy)
+!         call FieldSCAL(beta, y_ptr(:,jy), _RC)
 
-         do xi = 1, size(x)
-            !wdb  fixme call assign_fptr(x(xi), x_ptr, fp_shape, _RC)
-            call assign_fptr(x(xi), x_ptr, fp_shape, rc = status)
-            do uni = 1, n_ungridded
-               y_ptr(:,yi) = y_ptr(:,yi) + alpha * A(:,xi,yi) * x_ptr(:,uni)
+         do ix = 1, size(x)
+            call assign_fptr(x(ix), fp_shape, x_ptr, _RC)
+            do kv = 1, n_ungridded
+               y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
             end do
          end do
       end do
@@ -439,126 +409,138 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gemv_r8
 
-   subroutine verify_typekind_scalar(x, expected_tk, rc)
-      type(ESMF_Field), intent(in) :: x
+   subroutine get_typekind(x, expected_tks, actual_tk, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_TypeKind_Flag), intent(in) :: expected_tks(:)
+      type(ESMF_TypeKind_Flag), intent(out) :: actual_tk
+      type(ESMF_TypeKind_Flag) :: found_tk
+      integer, optional, intent(out) :: rc 
+      integer :: status
+      integer :: i
+      
+      do i = 1, size(expected_tks)
+         actual_tk = expected_tks(i)
+         call ESMF_FieldGet(x, typekind=found_tk, _RC)
+         if(actual_tk == found_tk) return
+      end do
+
+      _FAIL('Does not match any expected typekind')
+
+   end subroutine get_typekind
+
+    subroutine verify_typekind_scalar(x, expected_tk, rc)
+      type(ESMF_Field), intent(inout) :: x
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
       
       integer :: status
 
       type(ESMF_TypeKind_Flag) :: found_tk
-      logical :: is_expected_tk
       
       call ESMF_FieldGet(x, typekind=found_tk, _RC)
 
-      is_expected_tk = (found_tk == expected_tk)
-      _ASSERT(is_expected_tk, 'Found incorrect typekind.')
-      _RETURN(_SUCCESS)
+      _ASSERT((found_tk == expected_tk), 'Found incorrect typekind.')
+      _RETURN(_SUCCESS)   
    end subroutine verify_typekind_scalar
 
-   subroutine verify_typekind_rank1(x, expected_tk, rc)
-      type(ESMF_Field), intent(in) :: x(:)
+   subroutine verify_typekind_array(x, expected_tk, rc)
+      type(ESMF_Field), intent(inout) :: x(:)
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
       
       integer :: status
       integer :: i
-      
+
       do i = 1, size(x)
          call verify_typekind(x(i), expected_tk, _RC)
       end do
-      
-      _RETURN(_SUCCESS)
-   end subroutine verify_typekind_rank1
+      _RETURN(_SUCCESS)   
+   end subroutine verify_typekind_array
 
-   subroutine assign_fptr_r4_rank1(x, fptr, n, rc)
+!   subroutine verify_typekind_rank1(x, expected_tk, rc)
+!      type(ESMF_Field), intent(inout) :: x(:)
+!      type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
+!      integer, optional, intent(out) :: rc
+!      
+!      integer :: status
+!      integer :: i
+!      
+!      do i = 1, size(x)
+!         call verify_typekind(x(i), expected_tk, _RC)
+!      end do
+!      
+!      _RETURN(_SUCCESS)
+!   end subroutine verify_typekind_rank1
+
+   subroutine assign_fptr_r4_rank1(x, fptr, rc)
       type(ESMF_Field), intent(inout) :: x
-      real(kind=ESMF_KIND_R4), dimension(:), pointer, intent(out) :: fptr
-      integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
+      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       ! local declarations
       type(c_ptr) :: cptr
       integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
-      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      call FieldGetCptr(x, cptr, _RC)
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r4_rank1
 
-   subroutine assign_fptr_r8_rank1(x, fptr, n, rc)
+   subroutine assign_fptr_r8_rank1(x, fptr, rc)
       type(ESMF_Field), intent(inout) :: x
-      real(kind=ESMF_KIND_R8), dimension(:), pointer, intent(out) :: fptr
-      integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       ! local declarations
       type(c_ptr) :: cptr
       integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
-      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      call FieldGetCptr(x, cptr, _RC)
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8_rank1
 
-   subroutine assign_fptr_r4_rank2(x, fptr, n, rc)
+   subroutine assign_fptr_r4_rank2(x, fp_shape, fptr, rc)
       type(ESMF_Field), intent(inout) :: x
-      real(kind=ESMF_KIND_R4), dimension(:,:), pointer, intent(out) :: fptr
-      integer(ESMF_KIND_I8), dimension(:), intent(in) :: n
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       ! local declarations
       type(c_ptr) :: cptr
-      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
-      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      integer :: status
+
+      call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r4_rank2
 
-   subroutine assign_fptr_r8_rank2(x, fptr, n, rc)
+   subroutine assign_fptr_r8_rank2(x, fp_shape, fptr, rc)
       type(ESMF_Field), intent(inout) :: x
-      real(kind=ESMF_KIND_R8), dimension(:,:), pointer, intent(out) :: fptr
-      integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       ! local declarations
       type(c_ptr) :: cptr
-      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
-      call get_fptr_arguments(x, cptr, fp_shape, n, _RC)
+      integer :: status
+
+      call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8_rank2
-
-   subroutine get_fptr_arguments(x, cptr, fp_shape, n, rc)
-      type(ESMF_Field), intent(inout) :: x
-      type(c_ptr), intent(out) :: cptr
-      integer(ESMF_KIND_I8), allocatable, intent(out) :: fp_shape(:)
-      integer(ESMF_KIND_I8), dimension(:), optional, intent(in) :: n
-      integer, optional, intent(out) :: rc 
-
-      integer(ESMF_KIND_I8) :: local_size
-      integer :: status
-
-      if(present(n)) then
-         fp_shape = n
-      else
-         local_size = FieldGetLocalSize(x, _RC)
-         fp_shape = [ local_size ]
-      end if 
-      call FieldGetCptr(x, cptr, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine get_fptr_arguments
 
    subroutine get_cptr(x, cptr, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -737,155 +719,161 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_cptr_i8
 
-!wdb  fixme This is not implemented. Should it be?
-   subroutine convertprec(x, y, rc)
+   subroutine convert_prec(x, y, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
 
+      type(ESMF_TypeKind_Flag), parameter :: expected_tks(2) = [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8]
       type(ESMF_TypeKind_Flag) :: tk_x, tk_y
-
       integer :: status
 
-      if(areSameTypeKind(x, y)) then
-         call FieldCOPY(x, y, _RC)
-      else
-         call ESMF_FieldGet(y, typekind = tk_x, _RC)
-         call ESMF_FieldGet(y, typekind = tk_y, _RC)
+      call get_typekind(x, expected_tks, tk_x, _RC) 
+      call get_typekind(y, expected_tks, tk_y, _RC) 
 
-         if(tk_x == ESMF_TypeKind_Flag) then
-            call convert_prec_R4_to_R8(x, y, _RC)
-         else
-            call convert_prec_R8_to_R4(x, y, _RC)
-         end if
+      if(tk_x == tk_y) then
+         call FieldCOPY(x, y, _RC)
+      else if(tk_x == ESMF_TYPEKIND_R4) then
+         call convert_prec_R4_to_R8(x, y, _RC)
+      else
+         call convert_prec_R8_to_R4(x, y, _RC)
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine convertprec
+   end subroutine convert_prec
 
    subroutine convert_prec_R4_to_R8(x, y, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
+      integer :: status
 
-      real(kind+ESMF_KIND_R4), pointer :: x_ptr
-      real(kind+ESMF_KIND_R8), pointer :: y_ptr
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: y_ptr(:)
       
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
-      y_ptr = convert_fptr_prec(x_ptr)
+      y_ptr = x_ptr
 
+      _RETURN(_SUCCESS)
    end subroutine convert_prec_R4_to_R8
 
    subroutine convert_prec_R8_to_R4(x, y, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
+      integer :: status
 
-      real(kind+ESMF_KIND_R8), pointer :: x_ptr
-      real(kind+ESMF_KIND_R4), pointer :: y_ptr
+      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: y_ptr(:)
       
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
-      y_ptr = convert_fptr_prec(x_ptr)
+      y_ptr = x_ptr
 
-   end subroutine convert_prec_R4_to_R8
+      _RETURN(_SUCCESS)
+   end subroutine convert_prec_R8_to_R4
 
-   function convert_fptr_R4_to_R8(src_ptr) result(dest_ptr)
-      real(kind=ESMF_KIND_R4), intent(in) :: src_ptr
-      real(kind=ESMF_KIND_R8) :: dest_ptr
-
-      dest_ptr = real(src_ptr, ESMF_KIND_R8)
-
-   end function convert_fptr_R4_to_R8
-
-   function convert_fptr_R8_to_R4(src_ptr) result(dest_ptr)
-      real(kind=ESMF_KIND_R8), intent(in) :: src_ptr
-      real(kind=ESMF_KIND_R4) :: dest_ptr
-
-      dest_ptr = real(src_ptr, ESMF_KIND_R4)
-
-   end function convert_fptr_R8_to_R4
-
-   logical function areConformable_scalar_scalar(x, y, rc) result(conformable)
-      type(ESMF_Field), intent(in) :: x
-      type(ESMF_Field), intent(in) :: y
+   logical function are_conformable_scalar(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
-
-      integer :: status
       integer :: rank_x, rank_y
-      integer, allocatable :: localElementCount_x(:)
-      integer, allocatable :: localElementCount_y(:)
+      integer, dimension(:), allocatable :: count_x, count_y
+      integer :: status
 
-      conformable = .false. ! default
-      
+      conformable = .false.
+
       call ESMF_FieldGet(x, rank=rank_x, _RC)
       call ESMF_FieldGet(y, rank=rank_y, _RC)
 
-      conformable = (rank_x == rank_y)
-
-      if (.not. conformable) then
-         _RETURN(_SUCCESS)
+      if(rank_x == rank_y) then
+         count_x = FieldGetLocalElementCount(x, _RC)
+         count_y = FieldGetLocalElementCount(y, _RC)
+         conformable = all(count_x == count_y)
       end if
 
-      localElementCount_x = FieldGetLocalElementCount(x, _RC)
-      localElementCount_y = FieldGetLocalElementCount(y, _RC)
-
-      conformable = all(localElementCount_x == localElementCount_y)
-
       _RETURN(_SUCCESS)
-   end function areConformable_scalar_scalar
+   end function are_conformable_scalar
 
-   logical function areConformable_vector_vector(x, y, rc) result(conformable)
-      type(ESMF_Field), intent(in) :: x(:)
-      type(ESMF_Field), intent(in) :: y(:)
+   logical function are_conformable_array(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: j
+      logical :: element_not_conformable
 
-      conformable = (size(x) == size(y))
+      conformable = .false.
+      element_not_conformable = .false.
+
+      do j = 1, size(y)
+         element_not_conformable = .not. FieldsAreConformable(x, y(j), _RC)
+         if(element_not_conformable) return
+      end do
     
-      do j = 1, size(y)
-         if(.not. conformable) exit
-         conformable = FieldsAreConformable(x(j), y(j), _RC)
-      end do
+      conformable = .true.
 
       _RETURN(_SUCCESS)
-   end function areConformable_vector_vector
+   end function are_conformable_array
+!   logical function are_conformable_array_array(x, y) result(conformable)
+!      type(ESMF_Field), intent(inout) :: x(:)
+!      type(ESMF_Field), intent(inout) :: y(:)
+!
+!      integer :: status
+!      integer :: j
+!
+!      conformable = .false.
+!
+!      if(size(x) == 1) then
+!         do j = 1, size(y)
+!            if(.not. FieldsAreConformable(x(1), y(j))) return
+!         end do
+!      elseif(size(x) == size(y)) then
+!         do j = 1, size(y)
+!            if(.not. FieldsAreConformable(x(j), y(j))) return
+!         end do
+!      else
+!         return
+!      end if
+!
+!      conformable = .true.
+!
+!   end function are_conformable_array_array
+!
+!   logical function are_conformable_scalar_array(x, y, rc) result(conformable)
+!      type(ESMF_Field), intent(inout) :: x
+!      type(ESMF_Field), intent(inout) :: y(:)
+!      integer, optional, intent(out) :: rc
+!
+!      integer :: status
+!      integer :: j
+!
+!      do j = 1, size(y)
+!         conformable = FieldsAreConformable(x, y(j))
+!      end do
+!
+!      _RETURN(_SUCCESS)
+!   end function are_conformable_scalar_array
+!
+!   logical function are_conformable_array_scalar(x, y, rc) result(conformable)
+!      type(ESMF_Field), intent(inout) :: x(:)
+!      type(ESMF_Field), intent(inout) :: y
+!      integer, optional, intent(out) :: rc
+!
+!      integer :: status
+!
+!      conformable = FieldsAreConformable(y, x)
+!
+!      _RETURN(_SUCCESS)
+!   end function are_conformable_array_scalar
 
-   logical function areConformable_scalar_vector(x, y, rc) result(conformable)
-      type(ESMF_Field), intent(in) :: x
-      type(ESMF_Field), intent(in) :: y(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: j
-
-      do j = 1, size(y)
-         conformable = FieldsAreConformable(x, y(j), _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end function areConformable_scalar_vector
-
-   logical function areConformable_vector_scalar(x, y, rc) result(conformable)
-      type(ESMF_Field), intent(in) :: x(:)
-      type(ESMF_Field), intent(in) :: y
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      conformable = FieldsAreConformable(y, x, _RC)
-
-      _RETURN(_SUCCESS)
-   end function areConformable_vector_scalar
-
-   logical function areSameTypeKind(x, y, rc) result(same_tk)
-      type(ESMF_Field), intent(in) :: x
-      type(ESMF_Field), intent(in) :: y
+   logical function are_same_type_kind(x, y, rc) result(same_tk)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -898,28 +886,28 @@ contains
       same_tk = (tk_x == tk_y)
 
       _RETURN(_SUCCESS)
-   end function areSameTypeKind
+   end function are_same_type_kind
 
-   function getLocalElementCount(x, rc) result(element_count)
-      type(ESMF_Field), intent(in) :: x
+   function get_local_element_count(x, rc) result(element_count)
+      type(ESMF_Field), intent(inout) :: x
       integer, optional, intent(out) :: rc
       integer, allocatable :: element_count(:)
 
       integer :: status
       integer :: rank
 
-      element_count = [integer :: ] ! default
+!      element_count = [integer :: ] ! default
 
       call ESMF_FieldGet(x, rank=rank, _RC)
       allocate(element_count(rank))
       call ESMF_FieldGet(x, localElementCount=element_count, _RC)
 
       _RETURN(_SUCCESS)
-   end function getLocalElementCount
+   end function get_local_element_count
 
-   function getLocalSize(x, rc) result(sz)
+   function get_local_size(x, rc) result(sz)
       integer(kind=ESMF_KIND_I8) :: sz
-      type(ESMF_Field), intent(in) :: x
+      type(ESMF_Field), intent(inout) :: x
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -930,7 +918,7 @@ contains
       sz = int(product(element_count), kind=ESMF_KIND_I8)
 
       _RETURN(_SUCCESS)
-   end function getLocalSize
+   end function get_local_size
 
 !wdb   fixme Not implemented
 !   function sin(f, rc) result(sin_f)
