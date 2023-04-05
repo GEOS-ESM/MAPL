@@ -3896,7 +3896,7 @@ module NCIOMod
  
        if (isGridCapture) then
           call add_fvar(cf, 'lons', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lons', _RC)
-          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lats', _RC) 
+          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC) 
        end if
 
        if (ungrid_dim_max_size /= 0) then
