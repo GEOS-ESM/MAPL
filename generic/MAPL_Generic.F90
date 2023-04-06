@@ -2391,29 +2391,7 @@ contains
 
          ! Checkpoint the export state if required.
          !----------------------------------------
-
-         call       MAPL_GetResource( STATE, FILENAME, LABEL="EXPORT_CHECKPOINT_FILE:",                  RC=status )
-         if(status==ESMF_SUCCESS) then
-            call    MAPL_GetResource( STATE, FILETYPE, LABEL="EXPORT_CHECKPOINT_TYPE:",                  RC=status )
-            if ( status/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
-               call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=status )
-               _VERIFY(status)
-            end if
-            FILETYPE = ESMF_UtilStringLowerCase(FILETYPE,rc=status)
-            _VERIFY(status)
-#ifndef H5_HAVE_PARALLEL
-            nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
-            if(FILETYPE=='pnc4' .and. nwrgt1) then
-               if (mapl_am_i_root()) then
-                  print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               end if
-               _FAIL('needs informative message')
-            endif
-#endif
-            call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
-            _VERIFY(status)
-         endif
+         call checkpoint_export_state(_RC)
       end if
 
       call MAPL_TimerOff(STATE,"generic",_RC)
@@ -2439,6 +2417,33 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    contains
+
+      subroutine checkpoint_export_state(rc)
+         integer, optional,   intent(  out) :: RC     ! Error code:
+
+         call       MAPL_GetResource( STATE, FILENAME, LABEL="EXPORT_CHECKPOINT_FILE:",                  RC=status )
+         if(status==ESMF_SUCCESS) then
+            call    MAPL_GetResource( STATE, FILETYPE, LABEL="EXPORT_CHECKPOINT_TYPE:",                  RC=status )
+            if ( status/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
+               call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=status )
+               _VERIFY(status)
+            end if
+            FILETYPE = ESMF_UtilStringLowerCase(FILETYPE,rc=status)
+            _VERIFY(status)
+#ifndef H5_HAVE_PARALLEL
+            nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
+            if(FILETYPE=='pnc4' .and. nwrgt1) then
+               if (mapl_am_i_root()) then
+                  print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
+               end if
+               _FAIL('needs informative message')
+            endif
+#endif
+            call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
+                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+            _VERIFY(status)
+         endif
+      end subroutine checkpoint_export_state
 
       subroutine report_generic_profile( rc )
          integer, optional,   intent(  out) :: RC     ! Error code:
@@ -11208,13 +11213,10 @@ contains
       type(ESMF_State), pointer :: state
       class(MAPL_MetaComp), target :: this
       integer, intent(in) :: i
-   !   integer :: status, rc
 
       class(MaplGenericComponent), pointer :: child
 
       child => this%get_ith_child(i)
-    !  call MAPL_Get(this,INTERNAL_ESMF_STATE=state,rc=status)
-    !  _VERIFY(status)
       state => child%get_internal_state()
 
    end function get_child_internal_state
