@@ -2403,7 +2403,9 @@ contains
 #ifndef H5_HAVE_PARALLEL
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
-               print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
+               if (mapl_am_i_root()) then
+                  print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
+               end if
                _FAIL('needs informative message')
             endif
 #endif
