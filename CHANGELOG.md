@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `Comp_Testing_Driver.F90` in Apps
   - Created `subset_fields.py` to grab a subset of columns
   - Created shell script to perform subsetting, run the driver, and evaluate differences
+  - Instructions for use can be viewed under Apps/Comp_Testing_Info.md
 
 ### Changed
 
