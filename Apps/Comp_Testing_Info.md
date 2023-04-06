@@ -2,7 +2,7 @@
 The driver requires a dso for the component you are running. To ensure this file is produced, make sure that `TYPE SHARED` is listed as a dependency in the CMakeLists.txt for the component. Now, when the model is built again the file should be produced in the "lib" directory within the install directory within your build directory.
 # 2.
 Add a SetServices subroutine at the bottom of the component file, after the end of the module. For example:
-```
+```f90
 subroutine SetServices(gc, rc)
   use ESMF
   use SS2G_GridCompMod, only : mySetservices=>SetServices
