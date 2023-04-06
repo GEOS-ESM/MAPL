@@ -37,9 +37,7 @@ program comp_testing_driver
       call get_command_argument(1, filename)
       config = ESMF_ConfigCreate(_RC)
       call ESMF_ConfigLoadFile(config, filename, _RC)
-      call ESMF_ConfigGetAttribute(config, value=comp_name, label="COMPONENT_TO_RECORD:", _RC)
-      
-      call driver_component(filename, comp_name, _RC)
+      call run_component_driver(filename, _RC)
 
       ! finalize
       call t_p%stop('Comp_Testing_Driver.x')
@@ -47,12 +45,13 @@ program comp_testing_driver
       call ESMF_Finalize (_RC)
   end subroutine main
 
-  subroutine driver_component(filename, comp_name, rc)
-    character(len=*), intent(in) :: filename, comp_name
+  subroutine run_component_driver(filename, rc)
+    character(len=*), intent(in) :: filename
     integer, intent(out) :: rc
     integer :: status, root_id, user_RC, RUN_DT, i, j, nc_id, var_id
     integer :: NX, NY, item_count, field_count, phase
-    character(len=ESMF_MAXSTR) :: shared_obj, export_checkpoint, restart_file
+    character(len=ESMF_MAXSTR) :: comp_name, shared_obj
+    character(len=ESMF_MAXSTR) :: export_checkpoint, restart_file
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: time_interval
     type(ESMF_GridComp) :: temp_GC, GC
@@ -71,16 +70,14 @@ program comp_testing_driver
     type(ESMF_StateItem_Flag):: item_type
     type(ESMF_FieldBundle) :: field_bundle
     type(ESMF_Field), allocatable :: field_list(:)
-    
+
+    ! get attributes from config file
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
-    call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=restart_file, label="RESTART_FILE:", _RC)
-    call ESMF_ConfigGetAttribute(config, label="EXPORT_CHECKPOINT:", value=export_checkpoint, _RC)
-    call ESMF_ConfigGetAttribute(config, label = "LIBRARY_FILE:", value=shared_obj, _RC)
-    call ESMF_ConfigGetAttribute(config, value=phase, label="PHASE:", default=1, _RC)
-    
-    ! Create a clock, set current time to required time consistent with checkpoints used 
+    call get_config_attributes(config, comp_name, RUN_DT, restart_file, export_checkpoint, &
+                               shared_obj, phase, subset, NX, NY, _RC)
+
+    ! create a clock, set current time to required time consistent with checkpoints used 
     call formatter%open(restart_file, pFIO_Read, _RC)
     call ESMF_TimeIntervalSet(time_interval, s=RUN_DT, _RC)
     basic_metadata=formatter%read(_RC)
@@ -105,9 +102,6 @@ program comp_testing_driver
     export = mapl_obj%get_child_export_state(root_id)
 
     ! if subsetting, get appropriate lons and lats
-    call ESMF_ConfigGetAttribute(config, value=subset, label="SUBSET:", default=.false., _RC)
-    call ESMF_ConfigGetAttribute(config, value=NX, label = "NX:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=NY, label = "NX:", _RC)
     if (subset .and. NX*NY == 1) then
        call formatter%open(restart_file, pFIO_Read, _RC)
        call ESMF_GridGetCoord(grid, coordDim=1, farrayPtr=lons_field_ptr, _RC)
@@ -123,41 +117,34 @@ program comp_testing_driver
 
     call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC) 
 
-    ! allocate fields from export before file
-    status = nf90_open(export_checkpoint, nf90_nowrite, nc_id)
-    _VERIFY(status)
-
-    call ESMF_StateGet(export, itemCount = item_count, _RC)
-    allocate(item_name_list(item_count))
-    call ESMF_StateGet(export, itemNameList = item_name_list, _RC)
-    do i = 1, item_count
-       call ESMF_StateGet(export, itemName=item_name_list(i), itemType=item_type, _RC)
-       if (item_type == ESMF_STATEITEM_FIELD) then
-          call ESMF_StateGet(export, item_name_list(i), field, _RC)
-          status = nf90_inq_varid(nc_id, item_name_list(i), var_id)
-          if (status == 0) then
-             call MAPL_AllocateCoupling(field, _RC)
-          end if
-       else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
-          call ESMF_StateGet(export, item_name_list(i), field_bundle, _RC)
-          call ESMF_FieldBundleGet(field_bundle, fieldCount=field_count, _RC)
-          allocate(field_list(field_count))
-          allocate(field_name_list(field_count))
-          call ESMF_FieldBundleGet(field_bundle, fieldList=field_list, fieldNameList=field_name_list, _RC)
-          do j = 1, field_count
-             status = nf90_inq_varid(nc_id, field_name_list(j), var_id)
-             if (status == 0) then
-                call MAPL_AllocateCoupling(field_list(j), _RC)
-             end if
-          end do
-       end if
-    end do
-    
     call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, phase=phase, userRC=user_RC, _RC)
 
     call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC) 
 
     _RETURN(_SUCCESS)
-  end subroutine driver_component
+  end subroutine run_component_driver
+
+  subroutine get_config_attributes(config, comp_name, RUN_DT, restart_file, export_checkpoint, &
+                                   shared_obj, phase, subset, NX, NY, rc)
+    type(ESMF_Config), intent(inout) :: config
+    character(len=ESMF_MAXSTR), intent(inout) :: comp_name, shared_obj
+    character(len=ESMF_MAXSTR), intent(inout) :: export_checkpoint, restart_file
+    integer, intent(inout) :: NX, NY, phase, RUN_DT
+    logical, intent(inout) :: subset
+    integer, intent(out) :: rc
+    integer :: status
+
+    call ESMF_ConfigGetAttribute(config, value=comp_name, label="COMPONENT_TO_RECORD:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=restart_file, label="RESTART_FILE:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=export_checkpoint, label="EXPORT_CHECKPOINT:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=shared_obj, label = "LIBRARY_FILE:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=phase, label="PHASE:", default=1, _RC)
+    call ESMF_ConfigGetAttribute(config, value=subset, label="SUBSET:", default=.false., _RC)
+    call ESMF_ConfigGetAttribute(config, value=NX, label = "NX:", _RC)
+    call ESMF_ConfigGetAttribute(config, value=NY, label = "NX:", _RC)
+
+    _RETURN(_SUCCESS)
+  end subroutine get_config_attributes
 
 end program comp_testing_driver

@@ -147,7 +147,6 @@ module MAPL_GenericMod
    public MAPL_GenericSetServices
    public MAPL_GenericInitialize
    public MAPL_GenericRunChildren
-   public MAPL_AddDatabaseAttributes
    public MAPL_GenericFinalize
 
    public MAPL_AddInternalSpec
@@ -879,6 +878,7 @@ contains
       call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false.)
       call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
       if (comp_name == comp_to_record .and. (is_test_framework .or. is_test_framework_driver)) then
+         ! force skipReading and skipWriting in NCIO to be false
          call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
       end if
 
@@ -1839,23 +1839,9 @@ contains
 
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
-      call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='')
-      call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false.)
-      call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
-      call MAPL_GetResource(STATE, is_grid_capture, label='GRID_CAPTURE:', default=.false.)
-      call MAPL_GetResource(STATE, restore_export, label='RESTORE_EXPORT_STATE:', default=.false.)
-
-      if (method == ESMF_METHOD_INITIALIZE .and. comp_name == comp_to_record) then
-         call ESMF_AttributeSet(export, name="MAPL_RestoreExport", value=restore_export, _RC)
-      end if
-      if (method == ESMF_METHOD_RUN .and. comp_name == comp_to_record) then
-         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=is_grid_capture, _RC)
-
-         if (is_test_framework) then
-            call capture('before', phase, GC, import, export, clock, _RC)
-         else if (is_test_framework_driver) then
-            call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
-         end if
+      call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='', _RC)
+      if (comp_name == comp_to_record) then
+         call record_component('before', phase, method, GC, import, export, clock, _RC)
       end if
 
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
@@ -1871,14 +1857,8 @@ contains
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
       end if
       
-      if (method == ESMF_METHOD_RUN .and. comp_name == comp_to_record) then
-         call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=is_grid_capture, _RC)
-         if (is_test_framework) then
-            call capture('after', phase, GC, import, export, clock, _RC)
-         else if (is_test_framework_driver) then
-            call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
-            call ESMF_AttributeSet(export, name="MAPL_TestFramework", value=.true., _RC)
-         end if
+      if (comp_name == comp_to_record) then
+         call record_component('after', phase, method, GC, import, export, clock, _RC)
       end if
 
       call lgr%debug('Finished %a', stage_description)
@@ -1904,6 +1884,54 @@ contains
 
    end subroutine MAPL_GenericWrapper
 
+   subroutine get_test_framework_resource(STATE, is_test_framework, is_test_framework_driver, &
+                                          is_grid_capture, restore_export, rc)
+     type (MAPL_MetaComp), intent(inout) :: STATE
+     logical, intent(inout) :: is_test_framework, is_test_framework_driver
+     logical, intent(inout) :: is_grid_capture, restore_export
+     integer, intent(out) :: rc
+     integer :: status
+
+     call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false., _RC)
+     call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false., _RC)
+     call MAPL_GetResource(STATE, is_grid_capture, label='GRID_CAPTURE:', default=.false., _RC)
+     call MAPL_GetResource(STATE, restore_export, label='RESTORE_EXPORT_STATE:', default=.false., _RC)
+     _RETURN(_SUCCESS)
+   end subroutine get_test_framework_resource
+
+   subroutine record_component(POS, PHASE, METHOD, GC, IMPORT, EXPORT, CLOCK, RC)
+     character(len=*),       intent(IN   ) :: POS    ! Before or after
+     integer,                intent(IN   ) :: PHASE  ! Phase
+     type(ESMF_Method_Flag), intent(IN   ) :: METHOD ! Method
+     type(ESMF_GridComp),    intent(INOUT) :: GC     ! Gridded component
+     type(ESMF_State),       intent(INOUT) :: IMPORT ! Import state
+     type(ESMF_State),       intent(INOUT) :: EXPORT ! Export state
+     type(ESMF_Clock),       intent(INOUT) :: CLOCK  ! The clock
+     integer, optional,      intent(  OUT) :: RC     ! Error code:
+     
+     type (MAPL_MetaComp), pointer :: STATE
+     logical :: is_test_framework, is_test_framework_driver
+     logical :: is_grid_capture, restore_export
+     integer :: status
+
+     call MAPL_InternalStateGet (GC, STATE, _RC)
+     call get_test_framework_resource(STATE, is_test_framework, is_test_framework_driver, &
+                                      is_grid_capture, restore_export, _RC)
+
+     if (method == ESMF_METHOD_INITIALIZE) then
+        call ESMF_AttributeSet(export, name="MAPL_RestoreExport", value=restore_export, _RC)
+     else if (method == ESMF_METHOD_RUN) then
+        call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=is_grid_capture, _RC)
+        if (is_test_framework) then
+           call capture(POS, phase, GC, import, export, clock, _RC)
+        else if (is_test_framework_driver) then
+           ! force skipReading and skipWriting in NCIO to be false
+           call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+        end if
+     end if
+     _RETURN(_SUCCESS)
+   end subroutine record_component
+
    subroutine capture(POS, PHASE, GC, IMPORT, EXPORT, CLOCK, RC)
      character(len=*),    intent(IN   ) :: POS    ! Before or after
      integer,             intent(IN   ) :: PHASE  ! Run phase
@@ -1913,7 +1941,7 @@ contains
      type(ESMF_Clock),    intent(INOUT) :: CLOCK  ! The clock
      integer, optional,   intent(  OUT) :: RC     ! Error code:
      
-     type (MAPL_MetaComp),pointer :: STATE
+     type (MAPL_MetaComp), pointer :: STATE
      integer :: status
      character(len=ESMF_MAXSTR) :: filename, comp_name, time_label
      character(len=4) :: filetype
@@ -1939,6 +1967,7 @@ contains
 
      if (curr_time == target_time) then
         internal => state%get_internal_state()
+        ! force skipReading and skipWriting in NCIO to be false
         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
         write(phase_, '(i1)') phase
 
@@ -1952,6 +1981,7 @@ contains
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
              FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
      end if
+     _RETURN(_SUCCESS)
    end subroutine capture
 
    !=============================================================================
@@ -2161,41 +2191,6 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GenericRunChildren
-
-subroutine MAPL_AddDatabaseAttributes(filename, compPhase, runPhase, resolution, config, compiler, numFlags, flags, maplVers, compVers, rc)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: runPhase
-    character(len=*), optional, intent(in) :: compPhase, resolution, config, compiler
-    integer, intent(in) :: numFlags
-    character(len=*), optional, dimension(numFlags), intent(in) :: flags
-    character(len=*), optional, intent(in) :: maplVers, compVers
-    integer, optional, intent(out) :: rc
-    type(Netcdf4_Fileformatter) :: formatter
-    type(FileMetaData) :: metadata
-    integer :: status
-
-    print*, filename
-    if (MAPL_AM_I_ROOT()) then
-    
-    call formatter%open(filename, pFIO_READ, rc=status)
-    _VERIFY(status)
-    metadata = formatter%read(rc=status)
-    _VERIFY(status)
-
-    call metadata%add_attribute("component phase", compPhase) ! component phase?
-    call metadata%add_attribute("run phase", runPhase)
-    call metadata%add_attribute("resolution", resolution)
-    call metadata%add_attribute("configuration", config)
-    call metadata%add_attribute("compiler", compiler)
-    call metadata%add_attribute("optimization flags", flags)
-    call metadata%add_attribute("MAPL version", maplVers)
-    call metadata%add_attribute("component version", compVers)
-   
-    call formatter%close(rc=status)
-    _VERIFY(status)
-    end if
-    _RETURN(ESMF_SUCCESS)
-end subroutine MAPL_AddDatabaseAttributes
 
    !BOPI
    ! !IROUTINE: MAPL_GenericFinalize -- Finalizes the component and its children
