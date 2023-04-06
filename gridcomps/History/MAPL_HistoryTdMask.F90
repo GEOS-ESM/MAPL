@@ -38,8 +38,8 @@ contains
     character(len=ESMF_MAXPATHLEN), intent(in) :: mask_setup
     integer :: nx, ny
 
-    character(maxstr) :: ss
-    character(maxstr) :: s1, s2, s3, s4   
+    character(len=maxstr) :: ss
+    character(len=maxstr) :: s1, s2, s3, s4   
     type(ESMF_Time) :: startTime
     type(ESMF_TimeInterval) :: timeStep
     type(ESMF_Calendar) :: gregorianCalendar
@@ -88,7 +88,8 @@ contains
 
     integer :: i,j
     
-    ! s1. get esmf grid dim, default mask=.F.
+    ! s1. get esmf grid dim, set default mask=.F.
+    !
     call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
     call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
     call ESMF_DELayoutGet(layout, VM=vm, _RC)
@@ -109,7 +110,7 @@ contains
     this%mask=.false.
 
     ! s2. read in a series of swath files within time_span
-    !     - parse ob filename, dir, freq. from hist-input
+    !     - parse obs filename, dir, freq. from hist-input
     !     - read in lon/lat obs. data
     !
     start_time = this%mask_start
@@ -164,10 +165,9 @@ contains
              this%mask( II(i), JJ(i) ) = .true.
           endif
        enddo
-       write(6,123) (II(i), i=1,nx,100)
+!       write(6,123) (II(i), i=1,nx,100)
        write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
     endif
-    stop -1
 
     deallocate(obs_lons, obs_lats)
     deallocate(II, JJ)
@@ -175,6 +175,7 @@ contains
 
     include "/users/yyu11/sftp/myformat.inc"  
   end subroutine get_mask
+
 
 
   subroutine getData_timeinfo(mask_setup, obs_start, obs_end, obs_interval, mask_start, file_root)
@@ -199,7 +200,10 @@ contains
     integer :: idoy,ih,im,is    
     integer :: iyy, imm, idd
     integer :: k
-    
+
+!    type(ESMF_config) :: cf
+
+!    cf = ESMF_ConfigCreate(rc=rc)
     max_len=maxstr
     max_seg=100       ! segmane separated by ',' on each line
     allocate(string_pieces(max_seg))
@@ -255,7 +259,9 @@ contains
     read(string_pieces2(1), '(a)') file_root
     file_root=trim(file_root)//'.A'         ! hard-coded format for MODIS swath
     
-
+    deallocate(string_pieces)
+    deallocate(string_pieces2)
+    
     include "/users/yyu11/sftp/myformat.inc"  
   end subroutine getData_timeinfo
 
@@ -285,12 +291,12 @@ contains
     write(s,'(i4,i0.3,a1,2i0.2,a4)') iyy, idoy+1, '.', ih, im, '.nc4'
     fname=trim(this%mask_file_header)//trim(s)
     call get_ncfile_dimension(fname, Xdim, Ydim, ntime)
-  end subroutine get_filename_arraybound
+    call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     
+  end subroutine get_filename_arraybound
 
 
   subroutine get_ncfile_dimension(filename, nlon, nlat, tdim)
-!    use netcdf
     implicit none
     character(len=*), intent(in) :: filename
     integer, intent(out) :: nlat, nlon, tdim
@@ -300,7 +306,6 @@ contains
     character(len=100) :: lon_str, lat_str
     lon_str="cell_across_swath"
     lat_str="cell_along_swath"
-
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), rc=rc)
     if (rc/=0) then
@@ -327,7 +332,6 @@ contains
 
   
   subroutine get_v2d_netcdf(filename, name, array, Xdim, Ydim)
-    use netcdf
     implicit none
     character(len=*), intent(in) :: name, filename
     integer, intent(in) :: Xdim, Ydim
@@ -360,7 +364,6 @@ contains
     if(present(rc))  rc=status-nf90_noerr
   end subroutine check_nc_status
   
-
   
     subroutine split_string (string, mark, length_mx, &
        mxseg, nseg, str_piece, jstatus)
@@ -417,15 +420,15 @@ contains
           str_piece(l)=trim(str_piece(l))//string(iseg:iseg)
        enddo
     endif
-    nseg=nseg+1  ! must add one bc of eggs and '_'
+    nseg=nseg+1  ! must add one because of content and '_'
     if (nseg.gt.mxseg) then
        call error ('split_string', 'nseg exceeds mx', 1)
     endif
     str_piece(nseg+1:mxseg)='void'
+    deallocate(ipos)
     return
   end subroutine split_string
   
-
   subroutine error(insubroutine, message, ierr )
     character (len=*), intent (in) :: insubroutine
     character (len=*), intent (in) :: message
@@ -439,6 +442,5 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-
 
 end module MAPL_TimeDependentMaskMod
