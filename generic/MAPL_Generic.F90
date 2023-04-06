@@ -2443,6 +2443,7 @@ contains
                  FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
             _VERIFY(status)
          endif
+         _RETURN(_SUCCESS)
       end subroutine checkpoint_export_state
 
       subroutine report_generic_profile( rc )
