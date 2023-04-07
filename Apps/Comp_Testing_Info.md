@@ -13,14 +13,13 @@ subroutine SetServices(gc, rc)
 end subroutine SetServices
 ```
 # 3.
-Set up your configuration file. Note that the captured files follow the following format: `<component>_<state>_<before/after>_runPhase<1/2>`. This should be named COMP.rc and contain the following labels:
+Set up your configuration file, `COMP.rc`. An example file is available under `Apps/`. Note that the captured files always follow the following format: `<component>_<state>_<before/after>_runPhase<1/2>`.\
+\
+The file should first contain the component you want to test and the name of the component's dso file. The `EXPORT_CHECKPOINT:` label should be the captured export before file name for the phase you are testing. The `RESTART_FILE:` label is for the import restart file name. This will either be the captured import before file, or what you want the new file name to be for the subset of import state columns, if this is turned on with the `SUBSET:` flag. Next, set the run phase to test (some components will only have one phase).\
+\
+Then, you will need to enter the grid information for testing. Below are some examples.
 
 ```
-COMPONENT_TO_RECORD: <e.g., DU>
-LIBRARY_FILE: <e.g., libDU2G_GridComp.so>
-EXPORT_CHECKPOINT: <captured export before file name for the phase you are testing>
-RESTART_FILE: <import restart file name>
-PHASE: <1/2 (some components only have 1 phase)>
 # Grid information:
 # -----------------
 # For full comparison (e.g., on c24):
@@ -30,7 +29,7 @@ PHASE: <1/2 (some components only have 1 phase)>
   #IM_WORLD: 24
   #JM_WORLD: 144
 
-# For subset of columns (e.g., subset from c24):
+# For a subset of columns (e.g., subset from c24):
   #GRID_TYPE: LatLon
   #GRIDNAME: DC12x24-PC
   #LM: 72
@@ -45,38 +44,16 @@ PHASE: <1/2 (some components only have 1 phase)>
 
 NX: 1
 NY: 1
-
-RUN_DT: 900
-
-TEST_FRAMEWORK_DRIVER: .TRUE.
-SUBSET: <.TRUE./.FALSE. whether you are taking a subset of columns>
-GRID_CAPTURE: <.TRUE. when SUBSET: .TRUE.>
-RESTORE_EXPORT_STATE: <.TRUE./.FALSE. to perform export restart; required for some components to get 0 diff>
-
-DU_IMPORT_RESTART_FILE: <name of import captured before file; if subsetting, name of new file to be created from it>
-# Note: not all components have an internal state
-DU_INTERNAL_RESTART_FILE: <name of internal captured before file; if subsetting, name of new file to be created from it>
-DU_EXPORT_RESTART_FILE: <name of export captured before file; if subsetting, name of new file to be created from it>
-
-DU_IMPORT_CHECKPOINT_FILE: <name of driver checkpoint file to be produced>
-DU_IMPORT_CHECKPOINT_TYPE: default
-
-DU_EXPORT_CHECKPOINT_FILE: <name of driver checkpoint file to be produced>
-DU_EXPORT_CHECKPOINT_TYPE: default
-
-# Note: not all components have an internal state
-DU_INTERNAL_CHECKPOINT_FILE: <name of driver checkpoint file to be produced>
-DU_INTERNAL_CHECKPOINT_TYPE: default
-
-IMPORT_CAPTURE_BEFORE_FILE: <e.g., scratch/DU_import_before_runPhase2>
-IMPORT_CAPTURE_AFTER_FILE: <e.g., scratch/DU_import_after_runPhase2>
-EXPORT_CAPTURE_BEFORE_FILE: <e.g., scratch/DU_export_before_runPhase2>
-EXPORT_CAPTURE_AFTER_FILE: <e.g., scratch/DU_export_after_runPhase2>
-INTERNAL_CAPTURE_BEFORE_FILE: <e.g., scratch/DU_internal_before_runPhase2>
-INTERNAL_CAPTURE_AFTER_FILE: <e.g., scratch/DU_internal_after_runPhase2>
-
-# Set optics parameters (required for GOCART)
-# -------------------------------------------
+```
+\
+The `TEST_FRAMEWORK_DRIVER:` AND `RESTORE_EXPORT_STATE:` flags should always be turned on. `GRID_CAPTURE:` should be set to `.TRUE.` if subsetting is turned on.\
+\
+Then, enter the restart file names. Note that not all components have an internal state (e.g., GWD). These should be the name of the captured before files, or if subsetting, the name of the new files to be created from them. You should also enter the names of the checkpoint files to be produced from the driver. Then, enter the file paths for the captured files.\
+\
+Lastly, if running a GOCART component, you may need to set optics parameters:
+```
+# Set optics parameters (required for GOCART):
+# --------------------------------------------
 aerosol_monochromatic_optics_wavelength_in_nm_from_LUT: 470 550 670 870
 
 wavelengths_for_profile_aop_in_nm: 550
