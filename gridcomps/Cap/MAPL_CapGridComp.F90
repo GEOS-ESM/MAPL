@@ -31,7 +31,9 @@ module MAPL_CapGridCompMod
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use MAPL_ExternalGCStorage
+#ifdef BUILD_WITH_PFLOGGER
   use mapl_SimulationTime, only: set_reference_clock
+#endif
 
   use iso_fortran_env
 
