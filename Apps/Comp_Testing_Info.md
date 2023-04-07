@@ -15,7 +15,7 @@ end subroutine SetServices
 # 3.
 Set up your configuration file, `COMP.rc`. An example file is available under `Apps/`. Note that the captured files always follow the following format: `<component>_<state>_<before/after>_runPhase<1/2>`.\
 \
-The file should first contain the component you want to test and the name of the component's dso file. The `EXPORT_CHECKPOINT:` label should be the captured export before file name for the phase you are testing. The `RESTART_FILE:` label is for the import restart file name. This will either be the captured import before file, or what you want the new file name to be for the subset of import state columns, if this is turned on with the `SUBSET:` flag. Next, set the run phase to test (some components will only have one phase).\
+The file should first contain the component you want to test and the name of the component's dso file. The `EXPORT_CHECKPOINT:` label should be the captured export before file name for the phase you are testing. The `RESTART_FILE:` label is for the import restart file name. This will either be the captured import before file, or what you want the new file name to be for the subset of import state columns, if this is turned on with the `SUBSET:` flag. Note that at this time, the Sulphur component can only be run with subsetting turned off. Next, set the run phase to test (some components will only have one phase).\
 \
 Then, you will need to enter the grid information for testing. Below are some examples.
 
@@ -70,7 +70,7 @@ GRID_CAPTURE: <.TRUE. when SUBSET: .TRUE.>
 ```
 
 # 5.
-Some components may require additional files in your environment, such as: NI2G_instance_NI.rc. For Nitrates, it relies on radius and fnum set in Dust and Sulphur. Hence, these attributes must be set manually inside of NI2G_GridCompMod.F90 for the purposes of the driver. Note that Nitrates and Sulfates components can only be tested at 3 hour intervals from the model start time (for example, if the model starts at 21:00:00, it can be run at 24:00:00, 03:00:00, etc.) due to an alarm issue with GOCART: https://github.com/GEOS-ESM/GOCART/issues/146.
+Some components may require additional files in your environment, such as: NI2G_instance_NI.rc. For Nitrate, it relies on radius and fnum set in Dust and Sulphur. Hence, these attributes must be set manually inside of NI2G_GridCompMod.F90 for the purposes of the driver. Note that Nitrate and Sulphur components can only be tested at 3 hour intervals from the model start time (for example, if the model starts at 21:00:00, it can be run at 24:00:00, 03:00:00, etc.) due to an alarm issue with GOCART: https://github.com/GEOS-ESM/GOCART/issues/146.
 
 # 6.
 You are ready to test! Run the GEOS model until your captured files are created at the appropriate time step. Then, run the driver with `./comp_test.j`.
