@@ -1,3 +1,8 @@
+! Note: content of station_id_file:
+!       First line: txt
+!       Second line: [station_id,station_name,lat,lon,elev]
+!       ...
+!
 #include "MAPL_Generic.h"
 module StationSamplerMod
   use ESMF
