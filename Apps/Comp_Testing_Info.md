@@ -15,7 +15,7 @@ end subroutine SetServices
 # 3.
 Set up your configuration file, `COMP.rc`. An example file is available under `Apps/`. Note that the captured files always follow the following format: `<component>_<state>_<before/after>_runPhase<1/2>`.\
 \
-The file should first contain the component you want to test and the name of the component's dso file. The `EXPORT_CHECKPOINT:` label should be the captured export before file name for the phase you are testing. The `RESTART_FILE:` label is for the import restart file name. This will either be the captured import before file, or what you want the new file name to be for the subset of import state columns, if this is turned on with the `SUBSET:` flag. Note that at this time, the Sulphur component can only be run with subsetting turned off. Next, set the run phase to test (some components will only have one phase).\
+The file should first contain the component you want to test and the name of the component's dso file. The `RESTART_FILE:` label is for the import restart file name. This will either be the captured import before file, or what you want the new file name to be for the subset of import state columns, if this is turned on with the `SUBSET:` flag. Note that at this time, the Sulphur component can only be run with subsetting turned off. Next, set the run phase to test (some components will only have one phase).\
 \
 Then, you will need to enter the grid information for testing. Below are some examples.
 

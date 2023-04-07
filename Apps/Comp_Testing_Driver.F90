@@ -50,8 +50,7 @@ program comp_testing_driver
     integer, intent(out) :: rc
     integer :: status, root_id, user_RC, RUN_DT, i, j, nc_id, var_id
     integer :: NX, NY, item_count, field_count, phase
-    character(len=ESMF_MAXSTR) :: comp_name, shared_obj
-    character(len=ESMF_MAXSTR) :: export_checkpoint, restart_file
+    character(len=ESMF_MAXSTR) :: comp_name, shared_obj, restart_file
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: time_interval
     type(ESMF_GridComp) :: temp_GC, GC
@@ -74,8 +73,7 @@ program comp_testing_driver
     ! get attributes from config file
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
-    call get_config_attributes(config, comp_name, RUN_DT, restart_file, export_checkpoint, &
-                               shared_obj, phase, subset, NX, NY, _RC)
+    call get_config_attributes(config, comp_name, RUN_DT, restart_file, shared_obj, phase, subset, NX, NY, _RC)
 
     ! create a clock, set current time to required time consistent with checkpoints used 
     call formatter%open(restart_file, pFIO_Read, _RC)
@@ -124,11 +122,9 @@ program comp_testing_driver
     _RETURN(_SUCCESS)
   end subroutine run_component_driver
 
-  subroutine get_config_attributes(config, comp_name, RUN_DT, restart_file, export_checkpoint, &
-                                   shared_obj, phase, subset, NX, NY, rc)
+  subroutine get_config_attributes(config, comp_name, RUN_DT, restart_file, shared_obj, phase, subset, NX, NY, rc)
     type(ESMF_Config), intent(inout) :: config
-    character(len=ESMF_MAXSTR), intent(inout) :: comp_name, shared_obj
-    character(len=ESMF_MAXSTR), intent(inout) :: export_checkpoint, restart_file
+    character(len=ESMF_MAXSTR), intent(inout) :: comp_name, shared_obj, restart_file
     integer, intent(inout) :: NX, NY, phase, RUN_DT
     logical, intent(inout) :: subset
     integer, intent(out) :: rc
@@ -137,7 +133,6 @@ program comp_testing_driver
     call ESMF_ConfigGetAttribute(config, value=comp_name, label="COMPONENT_TO_RECORD:", _RC)
     call ESMF_ConfigGetAttribute(config, value=RUN_DT, label="RUN_DT:", _RC)
     call ESMF_ConfigGetAttribute(config, value=restart_file, label="RESTART_FILE:", _RC)
-    call ESMF_ConfigGetAttribute(config, value=export_checkpoint, label="EXPORT_CHECKPOINT:", _RC)
     call ESMF_ConfigGetAttribute(config, value=shared_obj, label = "LIBRARY_FILE:", _RC)
     call ESMF_ConfigGetAttribute(config, value=phase, label="PHASE:", default=1, _RC)
     call ESMF_ConfigGetAttribute(config, value=subset, label="SUBSET:", default=.false., _RC)
