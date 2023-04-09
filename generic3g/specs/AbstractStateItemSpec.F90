@@ -1,4 +1,7 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_AbstractStateItemSpec
+   use mapl_ErrorHandling
    implicit none
    private
 
@@ -32,6 +35,7 @@ module mapl3g_AbstractStateItemSpec
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
 
+      procedure :: make_action
    end type AbstractStateItemSpec
 
    abstract interface
@@ -178,5 +182,14 @@ contains
    end function is_active
 
 
+   function make_action(this, dst_spec, rc) result(action)
+      use mapl3g_ExtensionAction
+      class(ExtensionAction), allocatable :: action
+      class(AbstractStateItemSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      _FAIL('Subclass has not implemented make_action')
+   end function make_action
 
 end module mapl3g_AbstractStateItemSpec

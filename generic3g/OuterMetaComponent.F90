@@ -29,6 +29,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ConnectionSpec
    use mapl3g_ConnectionSpecVector
    use mapl3g_HierarchicalRegistry
+   use mapl3g_ExtensionAction
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_ErrorHandling
    use gFTL2_StringVector
@@ -64,6 +65,7 @@ module mapl3g_OuterMetaComponent
       type(ComponentSpec)                         :: component_spec
       type(OuterMetaComponent), pointer           :: parent_private_state
       type(HierarchicalRegistry) :: registry
+      class(ExtensionAction), allocatable :: action
 
    contains
       procedure :: set_esmf_config
@@ -584,6 +586,8 @@ contains
       type(MultiState) :: outer_states
 
       call this%registry%add_to_states(this%user_states, mode='user', _RC)
+      call this%registry%add_to_action(this%action, _RC)
+      
 !!$      call this%registry%create_extensions(this%extensions, this%user_states, _RC)
 
       outer_states = MultiState(importState=importState, exportState=exportState)
@@ -789,6 +793,10 @@ contains
       call ESMF_GridCompRun(this%user_gridcomp, importState=importState, exportState=exportState, &
            clock=clock, phase=phase_idx, userRC=userRC, _RC)
       _VERIFY(userRC)
+
+      if (allocated(this%action)) then
+         call this%action%run(_RC)
+      end if
 
 !!$      call this%state_extensions%run(_RC)
 
