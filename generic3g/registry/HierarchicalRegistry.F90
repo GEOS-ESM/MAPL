@@ -18,20 +18,19 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_ESMF_Utilities
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use mapl3g_ExtensionAction
+   use mapl3g_CopyAction
    implicit none
    private
   
    public :: HierarchicalRegistry
-
-   type :: ExtensionAction
-   end type ExtensionAction
 
 
    type StateExtension
       type(ActualConnectionPt) :: src_actual_pt
       type(ActualConnectionPt) :: dst_actual_pt
       ! type(ActionVector) :: actions
-      type(ExtensionAction) :: action
+      class(ExtensionAction), allocatable :: action
 !!$      class(AbstractAction), allocatable :: action
    end type StateExtension
 
@@ -62,7 +61,8 @@ module mapl3g_HierarchicalRegistry
       procedure :: has_subregistry
 
       procedure :: add_to_states
-
+      procedure :: add_to_action
+      
       procedure :: add_subregistry
       procedure :: get_subregistry_comp
       procedure :: get_subregistry_conn
@@ -519,7 +519,6 @@ contains
       extension_pt = actual_pt%extend()
       ! 4. Put spec in registry under actual_pt
       call this%add_item_spec(v_pt, spec, extension_pt, _RC)
-
       call this%add_state_extension(v_pt, extension_pt, spec, _RC)
 
       _RETURN(_SUCCESS)
@@ -533,8 +532,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateExtension) :: extension
-      type(ExtensionAction) :: action
+      class(ExtensionAction), allocatable :: action
       class(AbstractStateItemSpec), pointer :: src_spec
       type(ActualPtVector), pointer :: actual_pts
 
@@ -544,24 +542,11 @@ contains
       _ASSERT(associated(actual_pts), 'No actual pts found for v_pt')
       src_spec => this%get_item_spec(actual_pts%front(), _RC)
 
-      action = make_action(src_spec, dst_spec, _RC)
-      this%extension = StateExtension(actual_pts%front(), a_pt, action)
+      action = src_spec%make_action(dst_spec, _RC)
+      this%extension%action = action
 
       _RETURN(_SUCCESS)
    end subroutine add_state_extension
-
-   function make_action(src_spec, dst_spec, rc) result(action)
-      type(ExtensionAction) :: action
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      action = ExtensionAction()
-
-      _RETURN(_SUCCESS)
-   end function make_action
 
    subroutine connect_export_to_export(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), intent(inout) :: this
@@ -815,6 +800,19 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine allocate
+
+   subroutine add_to_action(this, action, rc)
+      class(HierarchicalRegistry), intent(in) :: this
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (allocated(this%extension%action)) then
+         action = this%extension%action
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine add_to_action
 
    subroutine add_to_states(this, multi_state, mode, rc)
       use esmf

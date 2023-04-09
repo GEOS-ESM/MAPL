@@ -6,6 +6,7 @@ module MockItemSpecMod
    use mapl3g_VariableSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
+   use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -29,7 +30,13 @@ module MockItemSpecMod
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+      procedure :: make_action
    end type MockItemSpec
+
+   type, extends(ExtensionAction) :: MockAction
+   contains
+      procedure :: run => mock_run
+   end type MockAction
 
    type, extends(AbstractActionSpec) :: MockActionSpec
       character(:), allocatable :: details
@@ -172,4 +179,23 @@ contains
       _RETURN(_SUCCESS)
    end function make_extension
    
+   function make_action(this, dst_spec, rc) result(action)
+      use mapl3g_ExtensionAction
+      class(ExtensionAction), allocatable :: action
+      class(MockItemSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      action = MockAction()
+
+      _RETURN(_SUCCESS)
+   end function make_action
+
+   subroutine mock_run(this, rc)
+      class(MockAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine mock_run
+
 end module MockItemSpecMod

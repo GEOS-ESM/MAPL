@@ -45,7 +45,8 @@ module mapl3g_Generic
    implicit none
    private
 
-   
+   public :: get_outer_meta_from_inner_gc
+  
    public :: MAPL_GridCompSetEntryPoint
    public :: MAPL_add_child
    public :: MAPL_run_child
@@ -59,7 +60,7 @@ module mapl3g_Generic
    public :: MAPL_AddInternalSpec
 !!$
 !!$   public :: MAPL_GetResource
-   
+
    ! Accessors
 !!$   public :: MAPL_GetConfig
 !!$   public :: MAPL_GetOrbit
@@ -83,11 +84,11 @@ module mapl3g_Generic
 
 
    ! Interfaces
-   
+
    interface MAPL_add_child
       module procedure :: add_child_by_name
    end interface MAPL_add_child
-      
+
    interface MAPL_run_child
       module procedure :: run_child_by_name
    end interface MAPL_run_child
@@ -139,14 +140,14 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       call outer_meta%add_child(child_name, setservices, config, _RC)
-      
+
       _RETURN(ESMF_SUCCESS)
    end subroutine add_child_by_name
 
 
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
    ! an inner gridcomp will call this on its child which is a wrapped user comp.
-   
+
    subroutine run_child_by_name(gridcomp, child_name, clock, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name

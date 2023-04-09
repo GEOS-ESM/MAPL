@@ -10,6 +10,8 @@ module mapl3g_FieldSpec
    use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use mapl3g_ExtensionAction
+   use mapl3g_CopyAction
    use esmf
    use nuopc
 
@@ -47,6 +49,7 @@ module mapl3g_FieldSpec
       procedure :: can_connect_to
       procedure :: requires_extension
       procedure :: make_extension
+      procedure :: make_action
       procedure :: add_to_state
 
       procedure :: check_complete
@@ -173,9 +176,28 @@ contains
               ungriddedLBound= this%ungridded_dims%get_lbounds(),  &
               ungriddedUBound= this%ungridded_dims%get_ubounds(),  &
               _RC)
-      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
-      _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
+         call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+         _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
+         if (allocated(this%default_value)) then
+            if (this%typekind == ESMF_TYPEKIND_R4) then
+               block
+                 real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+                 call ESMF_FieldGet(this%payload, farrayptr=x, _RC)
+                 x = this%default_value
+               end block
+            elseif (this%typekind == ESMF_TYPEKIND_R8) then
+               block
+                 real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+                 call ESMF_FieldGet(this%payload, farrayptr=x, _RC)
+                 x = this%default_value
+               end block
+            else
+               _FAIL('unsupported typekind')
+            end if
+         end if
+          
+         
          call this%set_allocated()
       end if
 
@@ -306,5 +328,23 @@ contains
       check_complete = (fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
    end function check_complete
+
+   function make_action(this, dst_spec, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(FieldSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type (dst_spec)
+      type is (FieldSpec)
+         action = CopyAction(this%payload, dst_spec%payload)
+      class default
+         _FAIL('Dst spec is incompatible with FieldSpec.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_action
 
 end module mapl3g_FieldSpec

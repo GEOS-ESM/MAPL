@@ -9,12 +9,26 @@ module mapl3g_CopyAction
    implicit none
 
    type, extends(ExtensionAction) :: CopyAction
+      private
       type(ESMF_Field) :: f_in, f_out
    contains
       procedure :: run
    end type CopyAction
 
+   interface CopyAction
+      module procedure new_CopyAction
+   end interface CopyAction
+
 contains
+
+   function new_CopyAction(f_in, f_out) result(action)
+      type(CopyAction) :: action
+      type(ESMF_Field), intent(in) :: f_in
+      type(ESMF_Field), intent(in) :: f_out
+
+      action%f_in = f_in
+      action%f_out = f_out
+   end function new_CopyAction
 
    subroutine run(this, rc)
       class(CopyAction), intent(inout) :: this
