@@ -174,7 +174,7 @@ contains
     !real(real64) :: crs12(3),crs23(3),crs34(3),crs41(3)
     !real(real64) :: d12,d23,d34,d41
     !logical :: signs(4)
-    !! a1 -> a2 -> a3 -> a4 so a4 connects to a1
+    ! a1 -> a2 -> a3 -> a4 so a4 connects to a1
 
     !p1c=convert_to_cart(p1)
     !a1c=convert_to_cart(a1)

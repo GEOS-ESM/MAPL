@@ -1,16 +1,20 @@
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
 
 #define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-
-
-!BOP
-
-! !MODULE: FileIO_Shared -- A Module that contains shared subroutines/functions needed by NetCDF and Binary IO
-
-
-! !INTERFACE:
-
+!
+!>
+!### MODULE: `FileIO_Shared`
+!
+! Author: GMAO SI-Team
+!
+! `FileIO_Shared` -- A Module that contains shared subroutines/functions needed by NetCDF and Binary IO
+!
 module FileIOSharedMod
 
   use ESMF

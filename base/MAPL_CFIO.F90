@@ -1,4 +1,8 @@
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 #include "MAPL_Generic.h"
 #define MPI_NULL_TAG 99
 
@@ -7,19 +11,28 @@
 #define DEALOC2_(A) if(associated(A)) then; deallocate(A, stat=STATUS); _VERIFY(STATUS); NULLIFY(A); endif
 
 #include "unused_dummy.H"
-
+!
+!>
+!### MODULE: `MAPL_CFIOMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_CFIO` provides _Climate and Forecast_ (CF)
+! compliant I/O methods for high level ESMF data types by using the
+! CFIO Library. It currently includes read-write support for ESMF
+! Bundles and States, and read-only support for ESMF Fields and
+! Fortran arrays. The API consists of 4 basic methods:
+!
+!- MAPL_CFIORead
+!- MAPL_CFIOCreate
+!- MAPL_CFIOWrite
+!- MAPL_CFIODestroy
+!
 module MAPL_CFIOMod
    use MAPL_ExceptionHandling
-!BOP
-
-! !MODULE: MAPL_CFIO --- CF Compliant I/O for ESMF
 
 ! !DESCRIPTION:  
-!
 ! \input{MAPL_CFIODescr.tex}
-!
-
-! !USES:
 !
   use ESMF
   use MAPL_BaseMod
@@ -93,8 +106,6 @@ module MAPL_CFIOMod
   public MAPL_CFIO
   public collections
 
-!EOP
-
 ! !METHOD OVERLOADING:
 
 !                     MAPL Consistent Naming Convention
@@ -165,9 +176,6 @@ module MAPL_CFIOMod
      integer               :: JM = 0 
   end type StoredGlobalCoords
      
-  !BOP
-  !BOC
-
   type :: MCFIO_Variable
      integer :: request_id
      integer :: num_dimensions
@@ -247,8 +255,7 @@ module MAPL_CFIOMod
      
      
   end type MAPL_CFIO
-  !EOC
-  !EOP
+
   integer, parameter :: trans_tag=9999
 
   integer, parameter :: CFIOMaxAge=60
@@ -264,14 +271,35 @@ module MAPL_CFIOMod
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!BOP
- 
-! !IROUTINE: MAPL_CFIOCreate --- Creates a MAPL CFIO Object
+!>
+! The subroutine `MAPL_CFIOCreateFromBundle` creates a `MAPL_CFIO`
+!  object from a Bundle. The `MAPL_CFIO` objects
+! is opaque and its properties can only be set by this method at
+! creation. Currently, its properties cannot be queried. The object
+! is used only as a handle in write operations. It is not needed for
+! reading. 
 !
-! !IIROUTINE: MAPL_CFIOCreateFromBundle --- Creates MAPL CFIO Object from a Bundle
-
+! Its non-optional arguments associate a _NAME_, an ESMF 
+! _BUNDLE_, and a _CLOCK_ with the object. An ESMF TimeInterval
+! _OFFSET_ is an optional argument that sets an offset between the
+! time on the clock when eriting and the time stamp used for the data
+! (defaults to no offset).
 !
-! !INTERFACE:
+! The _format_ optional argument determines whether the write
+! will use the linked self-describing format (SDF) library (HDF or
+! netcdf) or write GrADS readable flat files. Currently only the SDF
+! library option is supported.
+!
+! The remaining (optional) arguments are especialized and used
+! primarily to support `MAPL_History`, or to provide documentation in
+! the form of character strings that will be placed in corresponding
+! attributes in the SDF file.
+!
+!#### HIstory
+! 
+!- 19Apr2007 Todling
+!   - Added ability to write out ak/bk
+!   - Added experiment ID as optional argument
 !
   subroutine MAPL_CFIOCreateFromBundle ( MCFIO, NAME, CLOCK, BUNDLE, OFFSET,      &
                                          OUTPUT_GRID, CHUNKSIZE, FREQUENCY, LEVELS, DESCR,    &
@@ -313,41 +341,6 @@ contains
     character(len=*),optional,   pointer     :: vectorList(:,:)
     type(ESMF_ItemOrder_Flag),   optional,   intent(IN)  :: itemOrder
     integer,         optional,   intent(OUT) :: RC
-
-#ifdef ___PROTEX___
-!
-   !DESCRIPTION:
-
-   Creates a MAPL\_CFIO object from a Bundle. The MAPL\_CFIO objects
-   is opaque and its properties can only be set by this method at
-   creation. Currently, its properties cannot be queried. The object
-   is used only as a handle in write operations. It is not needed for
-   reading. 
-  
-   Its non-optional arguments associate a {\tt NAME}, an ESMF {\tt
-   BUNDLE}, and a {\tt CLOCK} with the object. An ESMF TimeInterval
-   {\tt OFFSET} is an optional argument that sets an offset between the
-   time on the clock when eriting and the time stamp used for the data
-   (defaults to no offset).
-
-   The {\tt format} optional argument determines whether the write
-   will use the linked self-describing format (SDF) library (HDF or
-   netcdf) or write GrADS readable flat files. Currently only the SDF
-   library option is supported.
-
-   The remaining (optional) arguments are especialized and used
-   primarily to support MAPL\_History, or to provide documentation in
-   the form of character strings that will be placed in corresponding
-   attributes in the SDF file.
-
-  !REVISION HISTORY:
- 
-    19Apr2007 Todling  - Added ability to write out ak/bk
-                       - Added experiment ID as optional argument
-
-#endif
-!
-!EOP
 
 ! Locals
 !-------
@@ -1596,11 +1589,36 @@ contains
   end subroutine MAPL_CFIOOpenWrite
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!BOP
+!>
+! The subroutine `MAPL_CFIOCreateFromState`
+! creates a `MAPL_CFIO` object from a State. States are written by
+! "serializing" all Fields in them, whether they are directly in
+! the State or are contained within a hierarchy of embedded Bundles
+! and States, into a single Bundle.
+!
+! The Method optionally returns a pointer to the serialized ESMF
+! Bundle, but this is not needed for `MAPL_Write`
+! operations. Otherwise arguments are the same as for
+! CreateFromBundle.
+!
+! Its non-optional arguments associate a _NAME_, an ESMF _BUNDLE_,
+! and a _CLOCK_ with the object. An ESMF TimeInterval
+! _OFFSET_ is an optional argument that sets an offset between the
+! time on the clock when eriting and the time stamp used for the data
+! (defaults to no offset).
+!
+! The _format_ optional argument determines whether the write
+! will use the linked self-describing format (SDF) library (HDF or
+! netcdf) or write GrADS readable flat files. Currently only the SDF
+! library option is supported.
 
-! !IIROUTINE: MAPL_CFIOCreateFromState --- Creates MAPL CFIO Object from a State
+! The remaining (optional) arguments are especialized and used
+! primarily to support _MAPL_History_, or to provide documentation in
+! the form of character strings that will be placed in corresponding
+! attributes in the SDF file.
 
-! !INTERFACE:
+!#### History
+!- 12Jun2007 Todling  Added EXPID as opt argument
 !
   subroutine MAPL_CFIOCreateFromState ( MCFIO, NAME, CLOCK, STATE, OFFSET,  &
                                         OUTPUT_GRID, CHUNKSIZE, FREQUENCY, &
@@ -1610,9 +1628,6 @@ contains
                                         FORMAT, EXPID, DEFLATE, GC,  ORDER, &
                                         NumCores, nbits, TM, Conservative,  RC )
 
-!
-! !ARGUMENTS:
-!
     type(MAPL_CFIO),             intent(OUT) :: MCFIO
     character(LEN=*),            intent(IN)  :: NAME
     type(ESMF_State),            intent(INout)  :: STATE
@@ -1644,44 +1659,6 @@ contains
     integer,         optional,   intent(IN)  :: CONSERVATIVE
     integer, optional,           intent(OUT) :: RC
 !
-#ifdef ___PROTEX___
-
-    !DESCRIPTION: 
-
-     Creates a MAPL\_CFIO object from a State. States are written by
-     ``serializing'' all Fields in them, whether they are directly in
-     the State or are contained within a hierarchy of embedded Bundles
-     and States, into a single Bundle.
-
-     The Method optionally returns a pointer to the serialized ESMF
-     Bundle, but this is not needed for MAPL\_Write
-     operations. Otherwise arguments are the same as for
-     CreateFromBundle.
-
-   Its non-optional arguments associate a {\tt NAME}, an ESMF {\tt
-   BUNDLE}, and a {\tt CLOCK} with the object. An ESMF TimeInterval
-   {\tt OFFSET} is an optional argument that sets an offset between the
-   time on the clock when eriting and the time stamp used for the data
-   (defaults to no offset).
-
-   The {\tt format} optional argument determines whether the write
-   will use the linked self-describing format (SDF) library (HDF or
-   netcdf) or write GrADS readable flat files. Currently only the SDF
-   library option is supported.
-
-   The remaining (optional) arguments are especialized and used
-   primarily to support MAPL\_History, or to provide documentation in
-   the form of character strings that will be placed in corresponding
-   attributes in the SDF file.
-
-  !REVISION HISTORY:
- 
-   12Jun2007 Todling  Added EXPID as opt argument
-
-#endif
-
-!EOP
-
     character(len=ESMF_MAXSTR)     :: Iam="MAPL_CFIOCreateFromState"
     integer                        :: STATUS
 
@@ -1741,56 +1718,42 @@ contains
     
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!BOP
-
-! !IROUTINE: MAPL_CFIOWrite --- Writing Methods
-! !IIROUTINE: MAPL_CFIOWriteBundle --- Writes an ESMF Bundle 
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIOWriteBundlePost`
+! writes an ESMF Bundle to a File. Only the `MAPL_CFIO` object is
+! a required argument as pointers to the actual data to be
+! written is recorded in it during creation.
 !
+! *CLOCK, BUNDLE* can be used to override the choice
+! made at creation, but this is of dubious value, particularly
+! for *BUNDLE* since it must be excatly conformant with the
+! creation *BUNDLE*. *NBITS* if the number of bits of 
+! the mantissa to retain. This is used to write files with degraded
+! precision, which can then be compressed with standard utilities.
+! The default is no degradation of precision.
+!
+! **A note about compression.** NetCDF-4, HDF-4 and HDF-5 all
+! support transparent internal GZIP compression of the data being
+! written. However, very little is gained by compressing float
+! point fields from earth system models. Compression yields can
+! be greatly increased by setting to zero bits in the mantissa of float
+! numbers. On average 50\% compression can be achieved, while
+! preserving a meaningful accuracy in the fields. Unlike
+! classical CF compression by means of *scale_factor* and
+! *add_offset* attributes, internal GZIP compression
+! requires no special handling by the users of the data. In fact,
+! they do not even need to know that the data is compressed! At this
+! point, `MAPL_CFIO` does not activate this GZIP compression
+! feature in the files being written, but the resulting precision 
+! degredaded files can be compressed offline with the HDF-4 
+! *hrepack* utility.
+
+
   subroutine MAPL_CFIOWriteBundlePost( MCFIO, PrePost, RC )
-!
-! !ARGUMENTS:
 !
     type(MAPL_CFIO  ),               intent(INOUT) :: MCFIO
     logical,               optional, intent(IN   ) :: PrePost
     integer,               optional, intent(  OUT) :: RC
-!
-#ifdef ___PROTEX___
-
- !DESCRIPTION:  
-
-       Writes an ESMF Bundle to a File. Only the MAPL\_CFIO object is
-       a required argument as pointers to the actual data to be
-       written is recorded in it during creation.
-
-       {\tt CLOCK, BUNDLE} can be used to override the choice
-       made at creation, but this is of dubious value, particularly
-       for {\tt BUNDLE} since it must be excatly conformant with the
-       creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of 
-       the mantissa to retain. This is used to write files with degraded
-       precision, which can then be compressed with standard utilities.
-       The default is no degradation of precision.
-
-       {\bf A note about compression.} NetCDF-4, HDF-4 and HDF-5 all
-       support transparent internal GZIP compression of the data being
-       written. However, very little is gained by compressing float
-       point fields from earth system models. Compression yields can
-       be greatly increased by setting to zero bits in the mantissa of float
-       numbers. On average 50\% compression can be achieved, while
-       preserving a meaningful accuracy in the fields. Unlike
-       classical CF compression by means of {\tt scale\_factor} and
-       {\tt add\_offset} attributes, internal GZIP compression
-       requires no special handling by the users of the data. In fact,
-       they do not even need to know that the data is compressed! At this
-       point, MAPL\_CFIO does not activate this GZIP compression
-       feature in the files being written, but the resulting precision 
-       degredaded files can be compressed offline with the HDF-4 
-       {\tt hrepack} utility.
-
-#endif
-
-!EOP
 
     integer                    :: status
 
@@ -1805,9 +1768,7 @@ contains
     logical                    :: PrePost_
     integer                    :: globalcount(3)
     type(ESMF_VM)              :: vm 
-
 !                              ---
-
     _ASSERT(MCFIO%CREATED, 'MCFIO%CREATED is false')
 
     if (present(PrePost)) then
@@ -2505,18 +2466,38 @@ contains
   end subroutine MAPL_CFIOWriteBundleWrite
 
 !===========================================================================
-
-!BOP
-
-! !IROUTINE: MAPL_CFIOWrite --- Writing Methods
-! !IIROUTINE: MAPL_CFIOWriteBundle --- Writes an ESMF Bundle 
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIOWriteBundle`
+! writes an ESMF Bundle to a File. Only the `MAPL_CFIO` object is
+! a required argument as pointers to the actual data to be
+! written is recorded in it during creation.
 !
+! *CLOCK, BUNDLE* can be used to override the choice
+! made at creation, but this is of dubious value, particularly
+! for *BUNDLE* since it must be excatly conformant with the
+! creation *BUNDLE*. *NBITS* if the number of bits of
+! the mantissa to retain. This is used to write files with degraded
+! precision, which can then be compressed with standard utilities.
+! The default is no degradation of precision.
+!
+! **A note about compression.* NetCDF-4, HDF-4 and HDF-5 all
+! support transparent internal GZIP compression of the data being
+! written. However, very little is gained by compressing float
+! point fields from earth system models. Compression yields can
+! be greatly increased by setting to zero bits in the mantissa of float
+! numbers. On average 50\% compression can be achieved, while
+! preserving a meaningful accuracy in the fields. Unlike
+! classical CF compression by means of *scale_factor* and
+! *add_offset* attributes, internal GZIP compression
+! requires no special handling by the users of the data. In fact,
+! they do not even need to know that the data is compressed! At this
+! point, `MAPL_CFIO` does not activate this GZIP compression
+! feature in the files being written, but the resulting precision
+! degredaded files can be compressed offline with the HDF-4
+! *hrepack* utility.
+
   subroutine MAPL_CFIOWriteBundle( MCFIO, CLOCK, Bundle, &
                                    VERBOSE, NBITS, created, RC    )
-!
-! !ARGUMENTS:
 !
     type(MAPL_CFIO  ),                 intent(INOUT) :: MCFIO
     type(ESMF_CLOCK),       optional,  intent(INOUT) :: CLOCK
@@ -2526,42 +2507,6 @@ contains
     logical,                optional,  intent(IN   ) :: created
     integer,                optional,  intent(  OUT) :: RC
 !
-#ifdef ___PROTEX___
-
- !DESCRIPTION:  
-
-       Writes an ESMF Bundle to a File. Only the MAPL\_CFIO object is
-       a required argument as pointers to the actual data to be
-       written is recorded in it during creation.
-
-       {\tt CLOCK, BUNDLE} can be used to override the choice
-       made at creation, but this is of dubious value, particularly
-       for {\tt BUNDLE} since it must be excatly conformant with the
-       creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of 
-       the mantissa to retain. This is used to write files with degraded
-       precision, which can then be compressed with standard utilities.
-       The default is no degradation of precision.
-
-       {\bf A note about compression.} NetCDF-4, HDF-4 and HDF-5 all
-       support transparent internal GZIP compression of the data being
-       written. However, very little is gained by compressing float
-       point fields from earth system models. Compression yields can
-       be greatly increased by setting to zero bits in the mantissa of float
-       numbers. On average 50\% compression can be achieved, while
-       preserving a meaningful accuracy in the fields. Unlike
-       classical CF compression by means of {\tt scale\_factor} and
-       {\tt add\_offset} attributes, internal GZIP compression
-       requires no special handling by the users of the data. In fact,
-       they do not even need to know that the data is compressed! At this
-       point, MAPL\_CFIO does not activate this GZIP compression
-       feature in the files being written, but the resulting precision 
-       degredaded files can be compressed offline with the HDF-4 
-       {\tt hrepack} utility.
-
-#endif
-
-!EOP
-
     integer                    :: status
     logical                    :: isCreated
 
@@ -2607,16 +2552,38 @@ contains
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!BOP
-
-! !IIROUTINE: MAPL_CFIOWriteState --- Writes an ESMF State
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIOWriteState`
+! serializes an ESMF state into a Bundle and writes it to a file.
+! Only the `MAPL_CFIO` object is a required argument as pointers to
+! the actual data to be written is recorded in it during creation.
+!
+! *CLOCK, BUNDLE* can be used to override the choice
+! made at creation, but this is of dubious value, particularly
+! for *BUNDLE* since it must be excatly conformant with the
+! creation *BUNDLE*. *NBITS* if the number of bits of 
+! the mantissa to retain. This is used to write files with degraded
+! precision, which can then be compressed with standard utilities.
+! The default is no degradation of precision.
+!
+! **A note about compression.** NetCDF-4, HDF-4 and HDF-5 all
+! support transparent internal GZIP compression of the data being
+! written. However, very little is gained by compressing float
+! point fields from earth system models. Compression yields can
+! be greatly increased by setting to zero bits in the mantissa of float
+! numbers. On average `50%` compression can be achieved, while
+! preserving a meaningful accuracy in the fields. Unlike
+! classical CF compression by means of *scale_factor* and
+! *add_offset* attributes, internal GZIP compression
+! requires no special handling by the users of the data. In fact,
+! they do not even need to know that the data is compressed! At this
+! point, `MAPL_CFIO` does not activate this GZIP compression
+! feature in the files being written, but the resulting precision 
+! degredaded files can be compressed offline with the HDF-4 
+! *hrepack* utility.
 !
   subroutine MAPL_CFIOWriteState ( MCFIO, CLOCK, State, &
                                    VERBOSE, NBITS, RC   )
-!
-! !ARGUMENTS:
 !
     type(MAPL_CFIO),             intent(INOUT) :: MCFIO
     type(ESMF_State),            intent(INout) :: STATE
@@ -2625,42 +2592,6 @@ contains
     logical, optional,           intent(  IN)  :: VERBOSE
     integer, optional,           intent(  IN)  :: NBITS
 !
-#ifdef ___PROTEX___
-
-    !DESCRIPTION:
-
-     Serializes an ESMF state into a Bundle and writes it to a file.
-     Only the MAPL\_CFIO object is a required argument as pointers to
-     the actual data to be written is recorded in it during creation.
-
-     {\tt CLOCK, BUNDLE} can be used to override the choice
-     made at creation, but this is of dubious value, particularly
-     for {\tt BUNDLE} since it must be excatly conformant with the
-     creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of 
-     the mantissa to retain. This is used to write files with degraded
-     precision, which can then be compressed with standard utilities.
-     The default is no degradation of precision.
-
-     {\bf A note about compression.} NetCDF-4, HDF-4 and HDF-5 all
-     support transparent internal GZIP compression of the data being
-     written. However, very little is gained by compressing float
-     point fields from earth system models. Compression yields can
-     be greatly increased by setting to zero bits in the mantissa of float
-     numbers. On average 50\% compression can be achieved, while
-     preserving a meaningful accuracy in the fields. Unlike
-     classical CF compression by means of {\tt scale\_factor} and
-     {\tt add\_offset} attributes, internal GZIP compression
-     requires no special handling by the users of the data. In fact,
-     they do not even need to know that the data is compressed! At this
-     point, MAPL\_CFIO does not activate this GZIP compression
-     feature in the files being written, but the resulting precision 
-     degredaded files can be compressed offline with the HDF-4 
-     {\tt hrepack} utility.
-
-#endif
-
-!EOP
-
     character(len=*), parameter  :: Iam="MAPL_CFIOWriteState"
     integer                      :: STATUS
 
@@ -2700,20 +2631,67 @@ contains
  end subroutine MAPL_CFIOWriteState
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!BOP
-
-! !IROUTINE: MAPL_CFIORead --- Reading Methods
-! !IIROUTINE: MAPL_CFIOReadBundle --- Reads an ESMF Bundle
-
-! !INTERFACE:
+!>
+! The subroutine MAPL_CFIOReadBundle`
+! reads an ESMF Bundle from a file on a given time. The file is
+! open, read from, and closed on exit. The arguments are:
+!
+!- **FILETMPL** A GrADS-style file name template. In its simplest
+!   form is the full path name for the file to be read. However, it
+!   can contain the following tokens which will be expanded from
+!   the current time in {\em TIME}:
+!   - **%y4** 4 digits for year
+!   - **%m2** 2 digits for month, to expand to 01, 02, .., 12
+!   - **%m3** 3 digits for month, to expand to jan, feb, mar, ..., dec
+!   - **%d2** 2 digits for day
+!   - **%h2** 2 digits for hour
+!   - **%n2** 2 digits for minutes
+!   Example: if FILETMPL = `'forecast.%y4-%m2-%d2_%h2z.nc4'`, and the clock
+!   says it is 18Z on 05 February 2007, the template will expand in the
+!   following file name: `'forecast.2007-02-05_18Z.nc4'`
+!- **TIME** The ESMF time to read from the file
+!- **BUNDLE** An ESMF Bundle to read the data in. When the Bundle is empty
+!   one field is added for each variable present in the input file, and the
+!   necessary memory allocated according to the ESMF grid present in the Bundle.
+!- **[NOREAD]** If .TRUE., no data is actually read into the Bundle. This is
+!   useful to define a Bundle with the same variables as presented in the
+!   file, which in turn can be used to created a `MAPL_CFIO` object for
+!   writing.
+!- **[RC]** Error return code; set to `ESMF_SUCCESS` if all is well.    
+!- **[VERBOSE]** If .TRUE., prints progress messages to STDOUT; useful
+!   for debugging.
+!- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+!   has no effect.
+!- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+!   in time. Useful for reading climatological files. For example, if the
+!   input file has 12 monthly means from January to December of 2001, setting
+!   this option to .TRUE. allows one to read this data for any other year. See 
+!   note below regarding issues with reading monthly mean data.
+!- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+!   actual times on file. In such cases, the data for the bracketing times are
+!   read and the data is properly interpolated in time. The input time, though,
+!   need to be within the range of times present on file 
+!   (unless *TIME_IS_CYCLIC* is specified).
+!- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+!   file. By default, all variables are read from the file. This option allows
+!   one to read a subset of vafriables. Example: `ONLY_VARS='u,v,ps'`.
+!
+! **A note about storing monthly climatological data.** As per the CF
+! conventions, month is not a well defined unit of time, as the time
+! step is not constant throughout the year. When storing 12 months
+! of climatological data one way around it is to use an average
+! number of hours: use 732 or 730 hours depending on whether the year
+! recorded in the file is a leap-year or not.
+!
+!#### Design Issues
+! The input argument *TIME* should be replaced with *CLOCK*
+! for consistency with the rest of the API. One should also provide
+! an interface involving the MAPL CFIO object.
 !
   subroutine MAPL_CFIOReadBundle ( FILETMPL, TIME, BUNDLE, NOREAD, RC, &
                                    VERBOSE, FORCE_REGRID, ONLY_VARS, ONLY_LEVS, &
                                    TIME_IS_CYCLIC, TIME_INTERP, conservative, &
                                    voting, ignoreCase, doParallel, GSImode, getFrac, EXPID, collection_id )
-!
-! !ARGUMENTS:
 !
     character(len=*),            intent(IN   ) :: FILETMPL
     type(ESMF_TIME),             intent(INout) :: TIME
@@ -2735,81 +2713,6 @@ contains
     integer, optional,           intent(IN)    :: getFrac
     integer, optional,           intent(IN)    :: collection_id
 !
-#ifdef ___PROTEX___
-    !DESCRIPTION: 
-
-     Reads an ESMF Bundle from a file on a given time. The file is
-     open, read from, and closed on exit. The arguments are:
-\bd
-     \item[FILETMPL] A GrADS-style file name template. In its simplest
-     form is the full path name for the file to be read. However, it
-     can contain the following tokens which will be expanded from
-     the current time in {\em TIME}:
-   \bd
-        \item[\%y4] 4 digits for year
-        \item[\%m2] 2 digits for month, to expand to 01, 02, .., 12
-        \item[\%m3] 3 digits for month, to expand to jan, feb, mar, ..., dec
-        \item[\%d2] 2 digits for day
-        \item[\%h2] 2 digits for hour
-        \item[\%n2] 2 digits for minutes
-   \ed
-    Example: if FILETMPL = ``forecast.\%y4-\%m2-\%d2\_%h2z.nc4'', and the clock
-    says it is 18Z on 05 February 2007, the template will expand in the
-    following file name: ``forecast.2007-02-05\_18Z.nc4''
-%
-    \item[TIME] The ESMF time to read from the file
-%
-    \item[BUNDLE] An ESMF Bundle to read the data in. When the Bundle is empty
-    one field is added for each variable present in the input file, and the
-    necessary memory allocated according to the ESMF grid present in the Bundle.
-%
-    \item[{[NOREAD]}] If .TRUE., no data is actually read into the Bundle. This is
-    useful to define a Bundle with the same variables as presented in the
-    file, which in turn can be used to created a MAPL\_CFIO object for
-    writing.
-%
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
-%
-    \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
-     for debugging.
-%
-    \item[{[FORCE\_REGRID]}] Obsolete; kept for backward compatibility but
-    has no effect.
-%
-    \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
-    in time. Useful for reading climatological files. For example, if the
-    input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
-    note below regarding issues with reading monthly mean data.
-%
-    \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
-    actual times on file. In such cases, the data for the bracketing times are
-    read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
-   (unless {\tt TIME\_IS\_CYCLIC} is specified).
-%
-    \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
-    file. By default, all variables are read from the file. This option allows
-    one to read a subset of vafriables. Example: ONLY\_VARS=``u,v,ps''.
-%
-\ed
-
-    {\bf A note about storing monthly climatological data.} As per the CF
-    conventions, month is not a well defined unit of time, as the time
-    step is not constant throughout the year. When storing 12 months
-    of climatological data one way around it is to use an average
-    number of hours: use 732 or 730 hours depending on whether the year
-    recorded in the file is a leap-year or not.
-
-     !DESIGN ISSUES:
-
-     The input argument {\tt TIME} should be replaced with {\tt CLOCK}
-     for consistency with the rest of the API. One should also provide
-     an interface involving the MAPL CFIO object.
-
-#endif
-
-!EOP
 !--------------------------------------------------------------------------------
     character(len=*), parameter  :: Iam="MAPL_CFIOReadBundle"
     integer                      :: STATUS
@@ -3672,18 +3575,59 @@ CONTAINS
   end subroutine MAPL_CFIOReadBundle
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!BOP
-
-! !IIROUTINE: MAPL_CFIOReadState --- Reads an ESMF State
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIOReadState`
+! serializes an ESMF state into a Bundle and reads its content from
+! a file. The file is open, read from, and closed on exit. The
+! arguments are:
+!- **FILETMPL** A GrADS-style file name template. In its simplest
+!   form is the full path name for the file to be read. However, it
+!   can contain the following tokens which will be expanded from
+!   the current time in *TIME*:
+!   - **%y4** 4 digits for year
+!   - **%m2** 2 digits for month, to expand to 01, 02, .., 12
+!   - **%m3** 3 digits for month, to expand to jan, feb, mar, ..., dec
+!   - **%d2** 2 digits for day
+!   - **%h2** 2 digits for hour
+!   - **%n2** 2 digits for minutes
+!   Example: if FILETMPL = `'forecast.%y4-%m2-%d2_%h2z.nc4'`, and the clock
+!   says it is 18Z on 05 February 2007, the template will expand in the
+!   following file name: `'forecast.2007-02-05_18Z.nc4'`
+!- **TIME** The ESMF time to read from the file
+!- **STATE** An ESMF State to read the data in. Usually used in conjubction
+!   with ONLY_VARS.
+!- **[NOREAD]** If .TRUE., no data is actually read into the Bundle. This is
+!   useful to define a Bundle with the same variables as presented in the
+!   file, which in turn can be used to created a `MAPL_CFIO` object for
+!   writing.
+!- **[RC]** Error return code; set to `ESMF_SUCCESS` if all is well.    
+!- **[VERBOSE]** If .TRUE., prints progress messages to STDOUT; useful
+!   for debugging.
+!- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+!   has no effect.
+!- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+!   in time. Useful for reading climatological files. For example, if the
+!   input file has 12 monthly means from January to December of 2001, setting
+!   this option to .TRUE. allows one to read this data for any other year. See 
+!   note below regarding issues with reading monthly mean data.
+!- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+!   actual times on file. In such cases, the data for the bracketing times are
+!   read and the data is properly interpolated in time. The input time, though,
+!   need to be within the range of times present on file 
+!   (unless *TIME_IS_CYCLIC* is specified).
+!- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+!   file. By default, all variables are read from the file. This option allows
+!   one to read a subset of vafriables. Example: `ONLY\_VARS='u,v,ps'`.
+!
+!#### Design Issue
+! The input argument *TIME* should be replaced with *CLOCK*
+! for consistency with the rest of the API. One should also provide
+! an interface involving the MAPL CFIO object.
 !
   subroutine MAPL_CFIOReadState ( FILETMPL, TIME, STATE, NOREAD, RC, &
                                   VERBOSE, FORCE_REGRID, ONLY_VARS,  &
                                   TIME_IS_CYCLIC, TIME_INTERP,       &
                                   conservative, voting, ignoreCase, doParallel, getFrac )
-!
-! !ARGUMENTS:
 !
     character(len=*),            intent(IN   ) :: FILETMPL
     type(ESMF_TIME),             intent(INout) :: TIME
@@ -3699,78 +3643,7 @@ CONTAINS
     logical, optional,           intent(IN)    :: ignoreCase
     logical, optional,           intent(IN)    :: doParallel
     integer, optional,           intent(IN)    :: getFrac
-    character(len=*), optional,  intent(IN   ) :: ONLY_VARS ! comma separated,
-                                                            ! no spaces
-!
-#ifdef ___PROTEX___
-!
-    !DESCRIPTION: 
-
-     Serializes an ESMF state into a Bundle and reads its content from
-     a file. The file is open, read from, and closed on exit. The
-     arguments are:
-\bd
-     \item[FILETMPL] A GrADS-style file name template. In its simplest
-     form is the full path name for the file to be read. However, it
-     can contain the following tokens which will be expanded from
-     the current time in {\em TIME}:
-   \bd
-        \item[\%y4] 4 digits for year
-        \item[\%m2] 2 digits for month, to expand to 01, 02, .., 12
-        \item[\%m3] 3 digits for month, to expand to jan, feb, mar, ..., dec
-        \item[\%d2] 2 digits for day
-        \item[\%h2] 2 digits for hour
-        \item[\%n2] 2 digits for minutes
-   \ed
-    Example: if FILETMPL = ``forecast.\%y4-\%m2-\%d2\_%h2z.nc4'', and the clock
-    says it is 18Z on 05 February 2007, the template will expand in the
-    following file name: ``forecast.2007-02-05\_18Z.nc4''
-%
-    \item[TIME] The ESMF time to read from the file
-%
-    \item[STATE] An ESMF State to read the data in. Usually used in conjubction
-    with ONLY\_VARS.
-%
-    \item[{[NOREAD]}] If .TRUE., no data is actually read into the Bundle. This is
-    useful to define a Bundle with the same variables as presented in the
-    file, which in turn can be used to created a MAPL\_CFIO object for
-    writing.
-%
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
-%
-    \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
-     for debugging.
-%
-    \item[{[FORCE\_REGRID]}] Obsolete; kept for backward compatibility but
-    has no effect.
-%
-    \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
-    in time. Useful for reading climatological files. For example, if the
-    input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
-    note below regarding issues with reading monthly mean data.
-%
-    \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
-    actual times on file. In such cases, the data for the bracketing times are
-    read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
-   (unless {\tt TIME\_IS\_CYCLIC} is specified).
-%
-    \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
-    file. By default, all variables are read from the file. This option allows
-    one to read a subset of vafriables. Example: ONLY\_VARS=``u,v,ps''.
-%
-\ed
-
-     !DESIGN ISSUES:
-
-     The input argument {\tt TIME} should be replaced with {\tt CLOCK}
-     for consistency with the rest of the API. One should also provide
-     an interface involving the MAPL CFIO object.
-
-#endif
-
-!EOP
+    character(len=*), optional,  intent(IN   ) :: ONLY_VARS !! comma separated, no spaces
 
     character(len=*), parameter  :: Iam="MAPL_CFIOReadState"
     integer                      :: STATUS
@@ -3819,22 +3692,58 @@ CONTAINS
  end subroutine MAPL_CFIOReadState
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!>
+! The subroutine `MAPL_CFIOReadField`
+! reads a variable from a file and stores it on an ESMF Field.
+! The file is open, read from, and closed on exit. The
+! arguments are:
+!- **VARN** The variable name.
+!- **FILETMPL** A GrADS-style file name template. In its simplest
+!   form is the full path name for the file to be read. However, it
+!   can contain the following tokens which will be expanded from
+!   the current time in *TIME*:
+!   - **%y4** 4 digits for year
+!   - **%m2** 2 digits for month, to expand to 01, 02, .., 12
+!   - **%m3** 3 digits for month, to expand to jan, feb, mar, ..., dec
+!   - **%d2** 2 digits for day
+!   - **%h2** 2 digits for hour
+!   - **%n2** 2 digits for minutes
+!   Example: if FILETMPL = `'forecast.%y4-%m2-%d2_%h2z.nc4'`, and the clock
+!   says it is 18Z on 05 February 2007, the template will expand in the
+!   following file name: `forecast.2007-02-05_18Z.nc4'`
+!- **TIME** The ESMF time to read from the file
+!- **[RC]** Error return code; set to `ESMF_SUCCESS` if all is well.    
+!- **[VERBOSE]** If .TRUE., prints progress messages to STDOUT; useful
+!   for debugging.
+!- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+!   has no effect.
+!- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+!   in time. Useful for reading climatological files. For example, if the
+!   input file has 12 monthly means from January to December of 2001, setting
+!   this option to .TRUE. allows one to read this data for any other year. See 
+!   note below regarding issues with reading monthly mean data.
+!- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+!   actual times on file. In such cases, the data for the bracketing times are
+!   read and the data is properly interpolated in time. The input time, though,
+!   need to be within the range of times present on file 
+!   (unless *TIME_IS_CYCLIC* is specified).
+!- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+!   file. By default, all variables are read from the file. This option allows
+!   one to read a subset of vafriables. Example: `ONLY\_VARS='u,v,ps'`.
 
-!BOP
-
-! !IIROUTINE: MAPL_CFIOReadField --- Reads an ESMF Field
-
-! !INTERFACE:
+!#### Design Issues
+! The input argument {\tt TIME} should be replaced with *CLOCK*
+! for consistency with the rest of the API. The input *GRID* is not necessary
+! as it can be found inside the field. One should also provide
+! an interface involving the MAPL CFIO object.
 !
   subroutine MAPL_CFIOReadField     ( VARN, FILETMPL, TIME,       FIELD, RC, &
                                       VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC, &
                                       TIME_INTERP,                           &
                                       conservative , voting, ignoreCase, doParallel, getFrac)
 !
-! !ARGUMENTS:
-!
-    character(len=*),            intent(IN   ) :: VARN       ! Variable name
-    character(len=*),            intent(IN   ) :: FILETMPL   ! File name
+    character(len=*),            intent(IN   ) :: VARN       !! Variable name
+    character(len=*),            intent(IN   ) :: FILETMPL   !! File name
     type(ESMF_TIME),             intent(INout) :: TIME
     type(ESMF_FIELD),            intent(INout) :: FIELD
     integer, optional,           intent(  OUT) :: RC
@@ -3848,71 +3757,6 @@ CONTAINS
     logical, optional,           intent(IN)    :: doParallel
     integer, optional,           intent(IN)    :: getFrac
 !
-#ifdef ___PROTEX___
-
-    !DESCRIPTION: 
-
-     Reads a variable from a file and stores it on an ESMF Field.
-     The file is open, read from, and closed on exit. The
-     arguments are:
-\bd
-     \item[VARN] The variable name.
-%
-     \item[FILETMPL] A GrADS-style file name template. In its simplest
-     form is the full path name for the file to be read. However, it
-     can contain the following tokens which will be expanded from
-     the current time in {\em TIME}:
-   \bd
-        \item[\%y4] 4 digits for year
-        \item[\%m2] 2 digits for month, to expand to 01, 02, .., 12
-        \item[\%m3] 3 digits for month, to expand to jan, feb, mar, ..., dec
-        \item[\%d2] 2 digits for day
-        \item[\%h2] 2 digits for hour
-        \item[\%n2] 2 digits for minutes
-   \ed
-    Example: if FILETMPL = ``forecast.\%y4-\%m2-\%d2\_%h2z.nc4'', and the clock
-    says it is 18Z on 05 February 2007, the template will expand in the
-    following file name: ``forecast.2007-02-05\_18Z.nc4''
-%
-    \item[TIME] The ESMF time to read from the file
-%
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
-%
-    \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
-     for debugging.
-%
-    \item[{[FORCE\_REGRID]}] Obsolete; kept for backward compatibility but
-    has no effect.
-%
-    \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
-    in time. Useful for reading climatological files. For example, if the
-    input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
-    note below regarding issues with reading monthly mean data.
-%
-    \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
-    actual times on file. In such cases, the data for the bracketing times are
-    read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
-   (unless {\tt TIME\_IS\_CYCLIC} is specified).
-%
-    \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
-    file. By default, all variables are read from the file. This option allows
-    one to read a subset of vafriables. Example: ONLY\_VARS=``u,v,ps''.
-%
-\ed
-
-     !DESIGN ISSUES:
-
-     The input argument {\tt TIME} should be replaced with {\tt CLOCK}
-     for consistency with the rest of the API. The input {\tt GRID} is not necessary
-     as it can be found inside the field. One should also provide
-     an interface involving the MAPL CFIO object.
-
-#endif
-
-!EOP
-
     character(len=*), parameter  :: Iam="MAPL_CFIOReadField"
     integer                      :: STATUS
     type(ESMF_GRID)              :: GRID
@@ -3961,21 +3805,58 @@ CONTAINS
   end subroutine MAPL_CFIOReadField
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!BOP
-
-! !IIROUTINE: MAPL_CFIOReadArray3D --- Reads a 3D Fortran Array
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIOReadArray3D`
+! reads a variable from a file and stores it on an 3D Fortrran array.
+! The file is open, read from, and closed on exit. The
+! arguments are:
+!- **VARN** The variable name.
+!- **FILETMPL** A GrADS-style file name template. In its simplest
+!   form is the full path name for the file to be read. However, it
+!   can contain the following tokens which will be expanded from
+!   the current time in *TIME*:
+!   - **%y4** 4 digits for year
+!   - **%m2** 2 digits for month, to expand to 01, 02, .., 12
+!   - **%m3** 3 digits for month, to expand to jan, feb, mar, ..., dec
+!   - **%d2** 2 digits for day
+!   - **%h2** 2 digits for hour
+!   - **%n2** 2 digits for minutes
+!   Example: if FILETMPL = `'forecast.%y4-%m2-%d2_%h2z.nc4'`, and the clock
+!   says it is 18Z on 05 February 2007, the template will expand in the
+!   following file name: ``forecast.2007-02-05\_18Z.nc4''
+!- **TIME** The ESMF time to read from the file
+!- **GRID** The ESMF grid associated with the Field. The data will be 
+!   (horizontally) interpolated to this grid if necessary.
+!- **[RC]** Error return code; set to `ESMF_SUCCESS` if all is well.    
+!- **[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
+!   for debugging.
+!- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+!   has no effect.
+!- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+!   in time. Useful for reading climatological files. For example, if the
+!   input file has 12 monthly means from January to December of 2001, setting
+!   this option to .TRUE. allows one to read this data for any other year. See 
+!   note below regarding issues with reading monthly mean data.
+!- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+!   actual times on file. In such cases, the data for the bracketing times are
+!   read and the data is properly interpolated in time. The input time, though,
+!   need to be within the range of times present on file 
+!   (unless *TIME_IS_CYCLIC* is specified).
+!- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+!   file. By default, all variables are read from the file. This option allows
+!   one to read a subset of vafriables. Example: `ONLY_VARS='u,v,ps'`.
+!
+!#### Design Issues
+! The input argument *TIME* should be replaced with *CLOCK*
+! for consistency with the rest of the API.  One should also
+! provide an interface involving the MAPL CFIO object.
 !
   subroutine MAPL_CFIOReadArray3D ( VARN, FILETMPL, TIME, GRID, farrayPtr, RC, &
                                     VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC,     &
                                     TIME_INTERP, conservative, voting, ignoreCase, doParallel, getFrac )
 !
-! !ARGUMENTS:
-!
-    character(len=*),            intent(IN   ) :: VARN       ! Variable name
-    character(len=*),            intent(IN   ) :: FILETMPL   ! File name
+    character(len=*),            intent(IN   ) :: VARN       !! Variable name
+    character(len=*),            intent(IN   ) :: FILETMPL   !! File name
     type(ESMF_TIME),             intent(INout) :: TIME
     type(ESMF_GRID),             intent(IN   ) :: GRID
     real, pointer                              :: farrayPtr(:,:,:)
@@ -3990,73 +3871,6 @@ CONTAINS
     logical, optional,           intent(IN)    :: doParallel
     integer, optional,           intent(IN)    :: getFrac
 !
-#ifdef ___PROTEX___
-
-    !DESCRIPTION: 
-
-     Reads a variable from a file and stores it on an 3D Fortrran array.
-     The file is open, read from, and closed on exit. The
-     arguments are:
-\bd
-     \item[VARN] The variable name.
-%
-     \item[FILETMPL] A GrADS-style file name template. In its simplest
-     form is the full path name for the file to be read. However, it
-     can contain the following tokens which will be expanded from
-     the current time in {\em TIME}:
-   \bd
-        \item[\%y4] 4 digits for year
-        \item[\%m2] 2 digits for month, to expand to 01, 02, .., 12
-        \item[\%m3] 3 digits for month, to expand to jan, feb, mar, ..., dec
-        \item[\%d2] 2 digits for day
-        \item[\%h2] 2 digits for hour
-        \item[\%n2] 2 digits for minutes
-   \ed
-    Example: if FILETMPL = ``forecast.\%y4-\%m2-\%d2\_%h2z.nc4'', and the clock
-    says it is 18Z on 05 February 2007, the template will expand in the
-    following file name: ``forecast.2007-02-05\_18Z.nc4''
-%
-    \item[TIME] The ESMF time to read from the file
-%
-    \item[GRID] The ESMF grid associated with the Field. The data will be 
-    (horizontally) interpolated to this grid if necessary.
-%
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
-%
-    \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
-     for debugging.
-%
-    \item[{[FORCE\_REGRID]}] Obsolete; kept for backward compatibility but
-    has no effect.
-%
-    \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
-    in time. Useful for reading climatological files. For example, if the
-    input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
-    note below regarding issues with reading monthly mean data.
-%
-    \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
-    actual times on file. In such cases, the data for the bracketing times are
-    read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
-   (unless {\tt TIME\_IS\_CYCLIC} is specified).
-%
-    \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
-    file. By default, all variables are read from the file. This option allows
-    one to read a subset of vafriables. Example: ONLY\_VARS=``u,v,ps''.
-%
-\ed
-
-     !DESIGN ISSUES:
-
-     The input argument {\tt TIME} should be replaced with {\tt CLOCK}
-     for consistency with the rest of the API.  One should also
-     provide an interface involving the MAPL CFIO object.
-
-#endif
-
-!EOP
-
     character(len=*), parameter  :: Iam="MAPL_CFIOReadArray3D"
     integer                      :: STATUS
 
@@ -4064,7 +3878,6 @@ CONTAINS
 
     real    :: const = 0.0
     integer :: ios, k
-
 !                            ----
 
 !   Special case: when filename is "/dev/null" it is assumed the user 
@@ -4111,20 +3924,58 @@ CONTAINS
   end subroutine MAPL_CFIOReadArray3D
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!BOP
-
-! !IIROUTINE: MAPL_CFIOReadArray2D --- Reads a 2D Fortran Array
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIOReadArray2D`
+! reads a variable from a file and stores it on an 2D Fortrran array.
+! The file is open, read from, and closed on exit. The
+! arguments are:
+!- **VARN** The variable name.
+!- **FILETMPL** A GrADS-style file name template. In its simplest
+!   form is the full path name for the file to be read. However, it
+!   can contain the following tokens which will be expanded from
+!   the current time in *TIME*:
+!   - **%y4** 4 digits for year
+!   - **%m2** 2 digits for month, to expand to 01, 02, .., 12
+!   - **%m3** 3 digits for month, to expand to jan, feb, mar, ..., dec
+!   - **%d2** 2 digits for day
+!   - **%h2** 2 digits for hour
+!   - **%n2** 2 digits for minutes
+!   Example: if FILETMPL = `'forecast.%y4-%m2-%d2_%h2z.nc4'`, and the clock
+!   says it is 18Z on 05 February 2007, the template will expand in the
+!   following file name: ``forecast.2007-02-05\_18Z.nc4''
+!- **TIME** The ESMF time to read from the file
+!- **GRID** The ESMF grid associated with the Field. The data will be
+!   (horizontally) interpolated to this grid if necessary.
+!- **[RC]** Error return code; set to `ESMF_SUCCESS` if all is well.
+!- **[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
+!   for debugging.
+!- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+!   has no effect.
+!- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+!   in time. Useful for reading climatological files. For example, if the
+!   input file has 12 monthly means from January to December of 2001, setting
+!   this option to .TRUE. allows one to read this data for any other year. See
+!   note below regarding issues with reading monthly mean data.
+!- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+!   actual times on file. In such cases, the data for the bracketing times are
+!   read and the data is properly interpolated in time. The input time, though,
+!   need to be within the range of times present on file
+!   (unless *TIME_IS_CYCLIC* is specified).
+!- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+!   file. By default, all variables are read from the file. This option allows
+!   one to read a subset of vafriables. Example: `ONLY_VARS='u,v,ps'`.
+!
+!#### Design Issues
+! The input argument *TIME* should be replaced with *CLOCK*
+! for consistency with the rest of the API.  One should also
+! provide an interface involving the MAPL CFIO object.
 !
   subroutine MAPL_CFIOReadArray2D ( VARN, FILETMPL, TIME, GRID, farrayPtr, RC, &
                                     VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC,     &
                                     TIME_INTERP , conservative, voting, ignoreCase, doParallel, getFrac)
 !
-! !ARGUMENTS:
-!
-    character(len=*),            intent(IN)  :: VARN       ! Variable name
-    character(len=*),            intent(IN)  :: FILETMPL   ! File name
+    character(len=*),            intent(IN)  :: VARN       !! Variable name
+    character(len=*),            intent(IN)  :: FILETMPL   !! File name
     type(ESMF_TIME),             intent(INout)  :: TIME
     type(ESMF_GRID),             intent(IN)  :: GRID
     real, pointer                            :: farrayPtr(:,:)
@@ -4138,73 +3989,6 @@ CONTAINS
     logical, optional,           intent(IN)    :: ignoreCase
     logical, optional,           intent(IN)    :: doParallel
     integer, optional,           intent(IN)    :: getFrac
-!
-#ifdef ___PROTEX___
-
-    !DESCRIPTION: 
-
-     Reads a variable from a file and stores it on an 3D Fortrran array.
-     The file is open, read from, and closed on exit. The
-     arguments are:
-\bd
-     \item[VARN] The variable name.
-%
-     \item[FILETMPL] A GrADS-style file name template. In its simplest
-     form is the full path name for the file to be read. However, it
-     can contain the following tokens which will be expanded from
-     the current time in {\em TIME}:
-   \bd
-        \item[\%y4] 4 digits for year
-        \item[\%m2] 2 digits for month, to expand to 01, 02, .., 12
-        \item[\%m3] 3 digits for month, to expand to jan, feb, mar, ..., dec
-        \item[\%d2] 2 digits for day
-        \item[\%h2] 2 digits for hour
-        \item[\%n2] 2 digits for minutes
-   \ed
-    Example: if FILETMPL = ``forecast.\%y4-\%m2-\%d2\_%h2z.nc4'', and the clock
-    says it is 18Z on 05 February 2007, the template will expand in the
-    following file name: ``forecast.2007-02-05\_18Z.nc4''
-%
-    \item[TIME] The ESMF time to read from the file
-%
-    \item[GRID] The ESMF grid associated with the Field. The data will be 
-    (horizontally) interpolated to this grid if necessary.
-%
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
-%
-    \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
-     for debugging.
-%
-    \item[{[FORCE\_REGRID]}] Obsolete; kept for backward compatibility but
-    has no effect.
-%
-    \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
-    in time. Useful for reading climatological files. For example, if the
-    input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
-    note below regarding issues with reading monthly mean data.
-%
-    \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
-    actual times on file. In such cases, the data for the bracketing times are
-    read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
-   (unless {\tt TIME\_IS\_CYCLIC} is specified).
-%
-    \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
-    file. By default, all variables are read from the file. This option allows
-    one to read a subset of vafriables. Example: ONLY\_VARS=``u,v,ps''.
-%
-\ed
-
-     !DESIGN ISSUES:
-
-     The input argument {\tt TIME} should be replaced with {\tt CLOCK}
-     for consistency with the rest of the API.  One should also
-     provide an interface involving the MAPL CFIO object.
-
-#endif
-
-!EOP
 
     character(len=*), parameter  :: Iam="MAPL_CFIOReadArray2D"
     integer                      :: STATUS
@@ -4217,7 +4001,6 @@ CONTAINS
     integer                 :: gridRank
 
 !                            ----
-
 
 !   Special case: when filename is "/dev/null" it is assumed the user 
 !   wants to set the variable to a constant
@@ -4280,26 +4063,16 @@ CONTAINS
    end subroutine MAPL_CFIOReadArray2D
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!BOP
-! !IROUTINE: MAPL_CFIODestroy --- Destroys MAPL CFIO Object
-
-! !INTERFACE:
+!>
+! The subroutine `MAPL_CFIODestroy`
+! destroys a MAPL CFIO object. It closes any file associated with
+! it and deallocates memory.
 !
   subroutine MAPL_CFIODestroy( MCFIO, RC )
 !
-! !ARGUMENTS:
-!
   type(MAPL_CFIO),             intent(INOUT) :: MCFIO
   integer, optional,           intent(  OUT) :: RC
-
-! !DESCRIPTION: 
 !
-!    Destroys a MAPL CFIO object. It closes any file associated with
-!    it and deallocates memory.
-
-!EOP
-
   integer :: status
 
   if(associated(MCFIO%Krank     )) deallocate(MCFIO%Krank     )   
@@ -4336,26 +4109,17 @@ CONTAINS
   _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIODestroy
 
-
-!BOP
-! !IROUTINE: MAPL_CFIOClose --- Close file in MAPL CFIO Object
-
-! !INTERFACE:
+!------------------------------------------------------------------------------
+!>
+! The subroutine `MAPL_CFIOClose` only closes the file in MAPL CFIO Object
+! (not a full destroy).
 !
   subroutine MAPL_CFIOClose( MCFIO, filename, RC )
-!
-! !ARGUMENTS:
 !
   type(MAPL_CFIO),             intent(INOUT) :: MCFIO
   character(len=*), optional,  intent(IN   ) :: filename
   integer, optional,           intent(  OUT) :: RC
-
-! !DESCRIPTION: 
 !
-!    Not a full destroy; only closes the file.
-
-!EOP
-
   integer :: status
 
   if (MCFIO%myPE == mCFIO%RootRank) then
@@ -4371,11 +4135,11 @@ CONTAINS
   _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOClose
 
-
-
-  subroutine MAPL_CFIOSet( MCFIO, Root, Psize, fName, Krank, IOWorker, globalComm, newFormat, collectionID, fraction, RC )
+!------------------------------------------------------------------------------
+!>
+! The subroutine `MAPL_CFIOSet` sets the member variables of a  MAPL CFIO Object.
 !
-! !ARGUMENTS:
+  subroutine MAPL_CFIOSet( MCFIO, Root, Psize, fName, Krank, IOWorker, globalComm, newFormat, collectionID, fraction, RC )
 !
   type(MAPL_CFIO),             intent(INOUT) :: MCFIO
   integer, optional,           intent(IN   ) :: Root, Psize
@@ -4387,14 +4151,7 @@ CONTAINS
   integer, optional,           intent(IN   ) :: collectionID
   integer, optional,           intent(IN   ) :: fraction
   integer, optional,           intent(  OUT) :: RC
-
-! !DESCRIPTION: 
 !
-!    Not a full destroy; only closes the file.
-
-!EOP
-
-
   if(present(Root)) then
      mCFIO%Root = Root
   endif
