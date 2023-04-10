@@ -125,14 +125,15 @@ type is(T) ;\
 !=============================================================================
 !END FPP macros for repeated (type-dependent) code
 !=============================================================================
-
+!>
+!### Module `MAPL_ResourceMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_ResourceMod` provides subroutines get scalar and array
+! resources from ESMF_Config objects.
+!
 module MAPL_ResourceMod
-
-   !BOP
-   ! !MODULE: MAPL_ResourceMod
-   !
-   ! !DESCRIPTION:  MAPL\_ResourceMod provides subroutines get scalar and array
-   ! resources from ESMF_Config objects.
 
    ! !USES:
 
@@ -178,6 +179,7 @@ module MAPL_ResourceMod
 
 contains
 
+   !>
    ! Set do_print & print_nondefault_only based on config and if default is present
    ! Print only (do_print) only if printrc is 0 or 1
    ! Print only nondefault values if printrc == 0 and if default is present
@@ -204,6 +206,7 @@ contains
 
    end subroutine get_print_settings
 
+   !>
    ! Check if vector contains string
    logical function vector_contains_str(vector, string)
       type(StringVector), intent(in) :: vector
@@ -224,6 +227,7 @@ contains
 
    end function vector_contains_str
 
+   !>
    ! Check if resource has already been printed (vector contains label) or should be printed
    subroutine set_do_print(label, do_print)
       character(*), intent(in) :: label
@@ -246,6 +250,7 @@ contains
 
    end subroutine set_do_print
 
+   !>
    ! MAPL searches for labels with certain prefixes as well as just the label itself
    pure function get_labels_with_prefix(label, component_name) result(labels_with_prefix)
       character(len=*), intent(in) :: label
@@ -268,6 +273,7 @@ contains
 
    end function get_labels_with_prefix
 
+   !>
    ! If possible, find label or label with prefix. Out: label found (logical)  ! version of label found,
    subroutine get_actual_label(config, label, label_is_present, actual_label, unusable, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
@@ -303,6 +309,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_actual_label
 
+   !>
    ! Find value of scalar variable in config
    subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
@@ -415,6 +422,7 @@ contains
 
    end subroutine MAPL_GetResource_config_scalar
 
+   !>
    ! Find value of array variable in config
    subroutine MAPL_GetResource_config_array(config, vals, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
@@ -536,6 +544,7 @@ contains
 
    end subroutine MAPL_GetResource_config_array
 
+   !>
    ! Print the resource value
    subroutine print_resource(type_string, label, formatted_value, value_is_default, rc)
       character(len=*), intent(in) :: type_string
@@ -562,6 +571,7 @@ contains
 
    end subroutine print_resource
 
+   !>
    ! Create array format string from scalar format string
    pure function array_format(scalar_format, array_size_string)
       character(len=*), intent(in) :: scalar_format
@@ -572,6 +582,7 @@ contains
 
    end function array_format
 
+   !>
    ! Create format string for array of strings
    pure function string_array_format(array_size_string)
       character(len=*), intent(in) :: array_size_string
@@ -584,6 +595,7 @@ contains
 
    end function string_array_format
    
+   !>
    ! Compare all the strings in two string arrays
    pure function compare_all(astrings, bstrings)
       character(len=*), dimension(:), intent(in) :: astrings
@@ -601,6 +613,7 @@ contains
          
    end function compare_all
 
+   !>
    ! Test if two logicals are equivalent
    ! Basically a wrapper function for use in are_equal generic function
    pure elemental function are_equivalent(a, b) result(res)
