@@ -1,0 +1,26 @@
+- component: A/<user>
+  exports:
+    E_A1: {status: complete, typekind: R4}
+
+- component: A
+  exports:
+    E_A1: {status: complete, typekind: R4}
+    E_A1(0): {status: complete, typekind: R8}
+
+- component: B/<user>
+  imports:
+    I_B1: {status: complete, typekind: R8, value: 1.}
+
+- component: B
+  imports:
+    I_B1: {status: complete, typekind: R8}
+
+- component: <user>
+  imports: {}
+  exports: {}
+  internals: {}
+- component: <root>
+  exports:
+    A/E_A1: {status: complete}
+    A/E_A1(0): {status: complete, typekind: R8}
+  
