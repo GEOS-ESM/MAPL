@@ -3458,8 +3458,8 @@ ENDDO PARSER
             end if
          elseif (list(n)%collection_is_masked) then
             if (list(n)%unit.eq.0) then
-               !call list(n)%station_sampler%close_file_handle(_RC)
-               !call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               call list(n)%td_mask%close_file_handle(_RC)
+               call list(n)%td_mask%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if            
@@ -3611,19 +3611,22 @@ ENDDO PARSER
          call list(n)%trajectory%append_file(current_time,_RC)
       end if
       if (list(n)%observation_spec /= '') then
-         call ESMF_ClockGet(clock,currTime=current_time,_RC)
          if (list(n)%observation_spec == 'station') then
+            call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call list(n)%station_sampler%append_file(current_time,_RC)
          endif
       end if
       if (list(n)%collection_is_masked) then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          time_span(1)=Current_time
-         sec = MAPL_nsecf( list%frequency )
+         sec = MAPL_nsecf( list(n)%frequency )
          call ESMF_timeintervalSet(timestep_local, s=sec, _RC)
          time_span(2)=Current_time+timestep_local
          call ESMF_FieldBundleGet(list(n)%bundle,grid=grid_in,_RC)
          call list(n)%td_mask%get_mask(time_span,grid_in,_RC)
+
+         !if (mapl_am_i_root(vm))  write(6,*) 'nail af  call list(n)%td_mask%get_mask'
+         write(6,*) 'nail af  call list(n)%td_mask%get_mask'
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -3671,18 +3674,20 @@ ENDDO PARSER
     integer                         :: nlist, n
     type (MAPL_MetaComp), pointer :: GENSTATE
 
-
+    write(6,*) 'ck: line 1, finalize' 
 ! Begin...
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, _RC)
-
+    write(6,*) 'ck: af  call MAPL_GetObjectFromGC'
+    
 ! Retrieve the pointer to the state
 
     call ESMF_GridCompGetInternalState(gc, wrap, status)
     IntState => wrap%ptr
     list => IntState%list
     nlist = size(list)
-
+    write(6,*) 'ck: af  call ESMF_GridCompGetInternalState'
+    
 ! Close UNITs of GEOSgcm History Data
 ! -----------------------------------
 
@@ -3694,17 +3699,21 @@ ENDDO PARSER
             CALL MAPL_CFIOdestroy (list(n)%mcfio, _RC)
          end if
       ELSE
+         write(6,*) 'ck: bf call free_file'
          if( list(n)%unit.ne.0 ) call FREE_FILE( list(n)%unit )
+         write(6,*) 'ck: af call free_file'
       END if
       if(list(n)%monthly) then
          !ALT need some logic if alarm if not ringing
          if (.not. ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
             if (.not. list(n)%partial) then
+               write(6,*) 'ck: in montly, bf call ESMF_CplCompWriteRestart'               
                call ESMF_CplCompWriteRestart (INTSTATE%CCS(n), &
                     importState=INTSTATE%CIM(n), &
                     exportState=INTSTATE%GIM(n), &
                     clock=CLOCK,           &
                     userRC=STATUS)
+               write(6,*) 'ck: in montly, af call ESMF_CplCompWriteRestart'                              
                _VERIFY(STATUS)
             end if
          end if
@@ -3720,10 +3729,12 @@ ENDDO PARSER
    enddo
 #endif
 
-
+    write(6,*) 'ck: bf call  MAPL_GenericFinalize'
     call  MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, _RC )
-
-
+    write(6,*) 'ck: af call  MAPL_GenericFinalize'
+    
+!    write(6,*)  1.0/acos(1.d0)
+!    rc=1; _VERIFY(rc)
     _RETURN(ESMF_SUCCESS)
   end subroutine Finalize
 

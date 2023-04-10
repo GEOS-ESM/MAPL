@@ -2,8 +2,10 @@
 module MAPL_TimeDependentMaskMod
   use ESMF
   use netcdf
+  use MAPL_CommsMod
   use mapl_MaplGrid, only : MAPL_GridGet
   use MAPL_Base, only : MAPL_GetHorzIJIndex, MAPL_GetGlobalHorzIJIndex
+  use pFIO_NetCDF4_FileFormatterMod
   use MAPL_ErrorHandlingMod
   implicit none
   private
@@ -18,9 +20,14 @@ module MAPL_TimeDependentMaskMod
      type(ESMF_Time) :: mask_start
      type(ESMF_Time) :: mask_end
      type(ESMF_Time) :: mask_freq
+     !
+     type(NetCDF4_FileFormatter) :: formatter
+     character(LEN=ESMF_MAXPATHLEN) :: ofile ! output file_name
    contains
      procedure :: get_mask
      procedure :: get_filename_arraybound
+     procedure :: create_file_handle
+     procedure :: close_file_handle
   end type TimeDependentMask
 
   interface TimeDependentMask
@@ -53,131 +60,11 @@ contains
 
     call getData_timeinfo(mask_setup, tdmask%obs_start, tdmask%obs_end, &
          tdmask%obs_interval, tdmask%mask_start, tdmask%mask_file_header)
-
+    tdmask%ofile=''
+    
   end function new_TimeDependentMask
 
-
-  subroutine get_mask(this, time_span, grid, rc)
-    implicit none
-    class(TimeDependentMask), intent(inout) :: this
-    type(ESMF_Time), intent (in) :: time_span(2)
-    type(ESMF_grid), intent (inout) :: grid  ! CS or LL from model/bundle
-    integer, optional, intent(out) :: rc
-
-    integer :: status
-    integer :: IM, JM, LM, IM_WORLD, JM_WORLD, COUNTS(3)
-    type(ESMF_DistGrid) :: distGrid
-    type(ESMF_DElayout) :: layout
-    type(ESMF_VM) :: VM
-    integer :: myid
-    integer :: ndes
-    integer :: dimCount
-    
-    integer :: Xdim, Ydim, nx, npts
-    character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
-    type(ESMF_time) :: start_time
-    type(ESMF_time) :: start_time_aux
-    character(len=ESMF_MAXPATHLEN) :: fname    
-
-    real, allocatable :: obs_lons(:)
-    real, allocatable :: obs_lats(:)
-    real, allocatable :: lons(:,:)
-    real, allocatable :: lats(:,:)
-    integer, allocatable :: II(:)
-    integer, allocatable :: JJ(:)
-
-    integer :: i,j
-    
-    ! s1. get esmf grid dim, set default mask=.F.
-    !
-    call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
-    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-    call ESMF_DELayoutGet(layout, VM=vm, _RC)
-    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
-    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-    IM= COUNTS(1)
-    JM= COUNTS(2)
-    LM= COUNTS(3)
-    call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
-    IM_WORLD= COUNTS(1)
-    JM_WORLD= COUNTS(2)
-
-    write(6,121) 'myid,ndes', myid,ndes
-    write(6,121) 'IM,JM,LM', IM,JM,LM
-    write(6,121) 'IM_WORLD,JM_WORLD', IM_WORLD,JM_WORLD
-
-    allocate(this%mask(IM_WORLD, JM_WORLD))
-    this%mask=.false.
-
-    ! s2. read in a series of swath files within time_span
-    !     - parse obs filename, dir, freq. from hist-input
-    !     - read in lon/lat obs. data
-    !
-    start_time = this%mask_start
-    if (start_time < time_span(1)) then
-       do while ( start_time <= time_span(1) )
-          start_time = start_time + this%obs_interval
-       enddo
-    endif
-    start_time_aux=start_time
-
-    ! allocate arrays
-    nx=0
-    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
-       call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
-       nx = nx + Xdim*Ydim
-       write(6,121) 'nx increase', Xdim*Ydim
-       write(6,102) 'fname', trim(fname)
-       start_time = start_time + this%obs_interval
-    enddo
-    write(6,121) 'nx final:', nx
-    allocate(obs_lons(nx), obs_lats(nx))
-    allocate(II(nx), JJ(nx))
-    
-    ! fill in arrays [repeat loop]
-    nx=0
-    start_time=start_time_aux
-    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
-       call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
-       if(Xdim>0) then
-          allocate(lons(Xdim,Ydim), lats(Xdim,Ydim))
-          call get_v2d_netcdf(fname, 'clon', lons, Xdim, Ydim)
-          call get_v2d_netcdf(fname, 'clat', lats, Xdim, Ydim)
-          npts = Xdim*Ydim
-          obs_lons(nx+1:nx+npts) = reshape(lons, [npts])
-          obs_lats(nx+1:nx+npts) = reshape(lats, [npts])
-          nx = nx + npts
-          deallocate(lons, lats)
-       endif
-       start_time = start_time + this%obs_interval
-    enddo
-    this%mask_start=start_time
-    !! write(6,203) obs_lons(1:nx:100)
-
-
-    ! s3. find index [loc/global] via bisect for CS/LL
-    !
-    if (nx >0) then
-       call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
-       !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
-       do i=1, nx
-          if ( II(i)>0 .AND. JJ(i)>0 ) then
-             this%mask( II(i), JJ(i) ) = .true.
-          endif
-       enddo
-!       write(6,123) (II(i), i=1,nx,100)
-       write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
-    endif
-
-    deallocate(obs_lons, obs_lats)
-    deallocate(II, JJ)
-    deallocate(this%mask)
-
-    include "/users/yyu11/sftp/myformat.inc"  
-  end subroutine get_mask
-
-
-
+  
   subroutine getData_timeinfo(mask_setup, obs_start, obs_end, obs_interval, mask_start, file_root)
     !
     ! Exact timeinfo from mask_setup
@@ -265,8 +152,136 @@ contains
     include "/users/yyu11/sftp/myformat.inc"  
   end subroutine getData_timeinfo
 
+  
+  subroutine get_mask(this, time_span, grid, rc)
+    implicit none
+    class(TimeDependentMask), intent(inout) :: this
+    type(ESMF_Time), intent (in) :: time_span(2)
+    type(ESMF_grid), intent (inout) :: grid  ! CS or LL from model/bundle
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+    integer :: IM, JM, LM, IM_WORLD, JM_WORLD, COUNTS(3)
+    type(ESMF_DistGrid) :: distGrid
+    type(ESMF_DElayout) :: layout
+    type(ESMF_VM) :: VM
+    integer :: myid
+    integer :: ndes
+    integer :: dimCount
+    
+    integer :: Xdim, Ydim, nx, npts
+    character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
+    type(ESMF_time) :: start_time
+    type(ESMF_time) :: start_time_aux
+    character(len=ESMF_MAXPATHLEN) :: fname    
+
+    real, allocatable :: obs_lons(:)
+    real, allocatable :: obs_lats(:)
+    real, allocatable :: lons(:,:)
+    real, allocatable :: lats(:,:)
+    integer, allocatable :: II(:)
+    integer, allocatable :: JJ(:)
+
+    integer :: i,j
+    
+    ! s1. get esmf grid dim, set default mask=.F.
+    !
+    call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
+    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+    call ESMF_DELayoutGet(layout, VM=vm, _RC)
+    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+    IM= COUNTS(1)
+    JM= COUNTS(2)
+    LM= COUNTS(3)
+    call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
+    IM_WORLD= COUNTS(1)
+    JM_WORLD= COUNTS(2)
+
+    write(6,121) 'myid,ndes', myid,ndes
+    write(6,121) 'IM,JM,LM', IM,JM,LM
+    write(6,121) 'IM_WORLD,JM_WORLD', IM_WORLD,JM_WORLD
+
+    allocate(this%mask(IM_WORLD, JM_WORLD))
+    this%mask=.false.
+
+    ! s2. read in a series of swath files within time_span
+    !     - parse obs filename, dir, freq. from hist-input
+    !     - read in lon/lat obs. data
+    !
+    start_time = this%mask_start
+    if (start_time < time_span(1)) then
+       do while ( start_time <= time_span(1) )
+          start_time = start_time + this%obs_interval
+       enddo
+    endif
+    start_time_aux=start_time
+
+    ! allocate arrays
+    nx=0
+    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
+       call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
+       nx = nx + Xdim*Ydim
+       write(6,121) 'nx increase', Xdim*Ydim
+       write(6,102) 'fname', trim(fname)
+       start_time = start_time + this%obs_interval
+    enddo
+    write(6,121) 'nx final:', nx
+
+    if (nx > 0) then
+       allocate(obs_lons(nx), obs_lats(nx))
+       allocate(II(nx), JJ(nx))
+    end if
+    
+    ! fill in arrays [repeat loop]
+    nx=0
+    start_time=start_time_aux
+    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
+       call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
+       if(Xdim>0) then
+          allocate(lons(Xdim,Ydim), lats(Xdim,Ydim))
+          call get_v2d_netcdf(fname, 'clon', lons, Xdim, Ydim)
+          call get_v2d_netcdf(fname, 'clat', lats, Xdim, Ydim)
+          npts = Xdim*Ydim
+          obs_lons(nx+1:nx+npts) = reshape(lons, [npts])
+          obs_lats(nx+1:nx+npts) = reshape(lats, [npts])
+          nx = nx + npts
+          deallocate(lons, lats)
+       endif
+       start_time = start_time + this%obs_interval
+    enddo
+    this%mask_start=start_time
+    !! write(6,203) obs_lons(1:nx:100)
 
 
+    ! s3. find index [loc/global] via bisect for CS/LL
+    !
+    if (nx >0) then
+       call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
+       !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
+       do i=1, nx
+          if ( II(i)>0 .AND. JJ(i)>0 ) then
+             this%mask( II(i), JJ(i) ) = .true.
+          endif
+       enddo
+!       write(6,123) (II(i), i=1,nx,100)
+!       write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
+    endif
+
+    write(6,*) 'nail end of  get_mask : 1'
+
+    if (nx > 0) then    
+       deallocate(obs_lons, obs_lats)
+       deallocate(II, JJ)
+    endif
+    deallocate(this%mask)
+
+    write(6,*) 'nail end of  get_mask : 2'
+    
+    include "/users/yyu11/sftp/myformat.inc"  
+  end subroutine get_mask
+
+  
   subroutine  get_filename_arraybound (this, obs_time, fname, Xdim, Ydim)
     class(TimeDependentMask), intent(in) :: this
     type(ESMF_time), intent(in) :: obs_time
@@ -296,6 +311,35 @@ contains
   end subroutine get_filename_arraybound
 
 
+  subroutine create_file_handle(this,filename,rc)
+    class(TimeDependentMask), intent(inout) :: this
+    character(len=*), intent(inout) :: filename  ! for ouput nc
+    integer, optional, intent(out) :: rc
+    integer :: status
+
+    this%ofile = trim(filename)
+
+    if (.not. mapl_am_I_root()) then
+       _RETURN(_SUCCESS)
+    end if
+    call this%formatter%create(trim(filename),_RC)
+    _RETURN(_SUCCESS)
+  end subroutine create_file_handle
+
+
+  subroutine close_file_handle(this,rc)
+    class(TimeDependentMask), intent(inout) :: this
+    integer, optional, intent(out) :: rc
+    integer :: status
+    if (trim(this%ofile) /= '') then
+       if (mapl_am_i_root()) then
+          call this%formatter%close(_RC)
+       end if
+    end if
+    _RETURN(_SUCCESS)
+  end subroutine close_file_handle  
+
+  
   subroutine get_ncfile_dimension(filename, nlon, nlat, tdim)
     implicit none
     character(len=*), intent(in) :: filename
@@ -327,7 +371,7 @@ contains
     call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
     call check_nc_status(nf90_close(ncid), _RC)
     !! debug summary
-    write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+    write(6,*) "get_ncfile_dimension:  nlon, nlat, tdim = ", nlon, nlat, tdim
   end subroutine get_ncfile_dimension
 
   
