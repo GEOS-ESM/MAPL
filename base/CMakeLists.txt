@@ -55,6 +55,7 @@ set (srcs
   FieldUtilities.F90
   MAPL_Resource.F90
   MAPL_XYGridFactory.F90
+  sgp4_mod.F90                          TLE_mod.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
