@@ -182,7 +182,28 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-esmf_cfioeosmod">MODULE: <code>ESMF_CFIOEosMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p><code>ESMF_CFIOEosMod</code> - Source file for CFIO</p>
+<p>The module <code>ESMF_CFIOEosMod</code> provides data type definitions and interface
+ specifications. It provides all the necessary subroutines for users to 
+ write/read HDF format output using CF convention.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>Jan2004  Baoyu Yin  Initial design and prototyping.</li>
+<li>Apr2004  Baoyu Yin  Implementation</li>
+<li>Sep2004  Baoyu Yin  Modified return codes to make it more specific.</li>
+<li>Sep2004  Baoyu Yin  Moved some utility routines to ESMF_CFIOUtil.F90.</li>
+<li>Sep2004  Baoyu Yin  Modified station grid metadata.</li>
+<li>Sep2004  Baoyu Yin  Added ptopUnit to ptop for eta and sigma coordinates.</li>
+<li>Oct2004  Baoyu Yin  Migrated to Halem and fixed some bugs.</li>
+<li>Oct2004  Baoyu Yin  Added timeString to ESMF_CFIOSet and ESMF_CFIOEosVarWrite.
+   Rearranged the argument order in ESMF_CFIOEosVarWrite.</li>
+<li>Jan2005  Baoyu Yin  Fixed some memory problems. Fixed scaleFactor and offset
+   problem. Fixed standard_name problem in reading CFIO files.</li>
+<li>Mar2005  Baoyu Yin  Moved some utility routines into ESMF_CFIOUtil.F90
+   Modified error return codes.</li>
+</ul>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -190,12 +211,12 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
+                <li><a href='../module/esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
                 <li><a href='../module/esmf_cfiofilemod.html'>ESMF_CFIOFileMod</a></li>
                 <li><a href='../module/esmf_cfiogridmod.html'>ESMF_CFIOGridMod</a></li>
-                <li><a href='../module/esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
-                <li>ESMF_CFIOrGrADSMod</li>
                 <li>ESMF_CFIOwGrADSMod</li>
                 <li><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+                <li>ESMF_CFIOrGrADSMod</li>
             </ul>
           </li>
       </ul>
@@ -272,7 +293,7 @@
     private  subroutine ESMF_CFIOEosVarWrite3D_(cfio, vName, field, date, curTime, kbeg, kount, timeString, doComp, doChunk, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOEosVarWrite3D_</code> &ndash; Write a variable to a output file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -297,7 +318,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj  </p>
             </td>
         </tr>
         <tr>
@@ -312,7 +333,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>Variable name  </p>
             </td>
         </tr>
         <tr>
@@ -327,7 +348,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -342,7 +363,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -357,7 +378,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -372,7 +393,7 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write</p>
             </td>
         </tr>
         <tr>
@@ -387,7 +408,7 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -417,7 +438,7 @@
             <td>::</td>
             <td><strong>doComp</strong></td>
             <td>
-                
+                <p>do szip compression</p>
             </td>
         </tr>
         <tr>
@@ -432,7 +453,8 @@
             <td>::</td>
             <td><strong>doChunk</strong></td>
             <td>
-                
+                <p>do szip compression
+string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -447,7 +469,29 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:<br>
+0   all is well<br>
+ rc = -2  time is inconsistent with increment<br>
+ rc = -3  number of levels is incompatible with file<br>
+ rc = -4  im is incompatible with file<br>
+ rc = -5  jm is incompatible with file<br>
+ rc = -6  time must fall on a minute boundary<br>
+ rc = -7  error in diffdate<br>
+ rc = -12  error determining default precision<br>
+ rc = -13  error determining variable type<br>
+ rc = -15  data outside of valid range<br>
+ rc = -16  data outside of packing range<br>
+ rc = -17  data outside of pack and valid range<br>
+ rc = -38  error from NF90_PUT_VAR (dimension variable)<br>
+ rc = -40  error from NF90_INQ_VARID<br>
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)<br>
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)<br>
+ rc = -43  error from NF90_INQ_VARID (time variable)<br>
+ rc = -44  error from NF90_GET_ATT (time attribute)<br>
+ rc = -45  error from NF90_PUT_VAR<br>
+ rc = -46  error from NF90_GET_VAR<br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE<br>
+ rc = -53  error from NF90_GET_ATT  </p>
             </td>
         </tr>
     </tbody>
@@ -485,7 +529,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -500,7 +544,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -515,7 +559,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -530,7 +574,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -545,7 +589,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -560,7 +604,7 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write</p>
             </td>
         </tr>
         <tr>
@@ -575,7 +619,7 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -605,7 +649,7 @@
             <td>::</td>
             <td><strong>doComp</strong></td>
             <td>
-                
+                <p>do szip compression</p>
             </td>
         </tr>
         <tr>
@@ -620,7 +664,8 @@
             <td>::</td>
             <td><strong>doChunk</strong></td>
             <td>
-                
+                <p>do szip compression
+string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -635,7 +680,8 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:<br>
+0   all is well  </p>
             </td>
         </tr>
     </tbody>
@@ -648,7 +694,7 @@
     private  subroutine ESMF_CFIOEosVarWrite1D_(cfio, vName, field, date, curTime, timeString, doComp, doChunk, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOEosVarWrite1D_</code> &ndash; Write a variable to a output file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -673,7 +719,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -688,7 +734,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -703,7 +749,7 @@
             <td>::</td>
             <td><strong>field</strong>(:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -718,7 +764,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -733,7 +779,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -763,7 +809,7 @@
             <td>::</td>
             <td><strong>doComp</strong></td>
             <td>
-                
+                <p>do szip compression</p>
             </td>
         </tr>
         <tr>
@@ -778,7 +824,8 @@
             <td>::</td>
             <td><strong>doChunk</strong></td>
             <td>
-                
+                <p>do szip compression
+string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -793,7 +840,8 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:<br>
+0   all is well</p>
             </td>
         </tr>
     </tbody>
@@ -817,7 +865,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>ESMF_CFIOEosFileClose</code> &ndash; close an open CFIO stream.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -842,7 +890,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-
+<p>CFIO object</p>
             </td>
         </tr>
         <tr>
@@ -857,7 +905,9 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:<br>
+0   all is well<br>
+-54  error from NF90_CLOSE (file close)  </p>
             </td>
         </tr>
     </tbody>
@@ -872,7 +922,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>ESMF_CFIOEosFileCreate</code> &ndash; Create a CFIO output file with meta data</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -897,7 +947,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-
+<p>a CFIO object</p>
             </td>
         </tr>
         <tr>
@@ -912,7 +962,25 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:<br>
+0   all is well<br>
+-1 Time increment is 0<br>
+-2  allocate memory error  <br>
+-3  Num of int/char/real elements and Cnt don&rsquo;t match  <br>
+-12  error determining default precision<br>
+-18 incorrect time increment<br>
+-30 can&rsquo;t open file<br>
+-31 error from NF90_DEF_DIM<br>
+-32 error from NF90_DEF_VAR (dimension variable)<br>
+-33 error from NF90_PUT_ATT (dimension attribute)<br>
+-34 error from NF90_DEF_VAR (variable)<br>
+-35  error from NF90_PUT_ATT (variable attribute)<br>
+-36  error from NF90_PUT_ATT (global attribute)<br>
+-37  error from NF90_ENDDEF<br>
+-38  error from NF90_PUT_VAR (dimension variable)<br>
+-39 Num of real var elements and Cnt differ<br>
+-55  error from NF90_REDEF (enter define mode)<br>
+-56  error from NF90_ENDDEF (exit define mode)  </p>
             </td>
         </tr>
     </tbody>
@@ -942,7 +1010,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

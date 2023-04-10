@@ -168,6 +168,17 @@
 </h2>
     
 
+    <p><code>GetBegDateTime</code> - Get begin date/time of file</p>
+<p>This routine returns the begin date/begin time on file.
+ For a native CFIO file, it simply returns the value of
+ global attributes begin_date/begin_time. If these do no exist then
+ it attempts to parse the COARDS compliant time unit.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1999.11.01  da Silva  Initial code.</li>
+<li>1999.11.08  da Silva  Generic time coordinate variable (no name assumed).</li>
+<li>2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider variety of Units formats.</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +193,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-fid~18"></span>
+              <span class="anchor" id="variable-fid~5"></span>
               integer
             </td>
 <td></td>
@@ -192,12 +203,12 @@
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-                
+                <p>file ID</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-begdate"></span>
+              <span class="anchor" id="variable-begdate~2"></span>
               integer
             </td>
 <td></td>
@@ -207,12 +218,12 @@
             <td>::</td>
             <td><strong>begDate</strong></td>
             <td>
-                
+                <p>beginning date</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-begtime~4"></span>
+              <span class="anchor" id="variable-begtime~5"></span>
               integer
             </td>
 <td></td>
@@ -222,7 +233,7 @@
             <td>::</td>
             <td><strong>begTime</strong></td>
             <td>
-                
+                <p>beginning time</p>
             </td>
         </tr>
         <tr>
@@ -237,12 +248,12 @@
             <td>::</td>
             <td><strong>incSecs</strong></td>
             <td>
-                
+                <p>time increment in secs</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1103"></span>
+              <span class="anchor" id="variable-rc~52"></span>
               integer
             </td>
 <td></td>
@@ -252,7 +263,7 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>error return code</p>
             </td>
         </tr>
     </tbody>
@@ -311,23 +322,15 @@
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer </span><span class="n">fid</span><span class="w">      </span><span class="c">! file ID</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">fid</span><span class="w">      </span><span class="c">!! file ID</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer </span><span class="n">begDate</span><span class="w">  </span><span class="c">! beginning date</span>
-<span class="w">      </span><span class="kt">integer </span><span class="n">begTime</span><span class="w">  </span><span class="c">! beginning time</span>
-<span class="w">      </span><span class="kt">integer </span><span class="n">incSecs</span><span class="w">  </span><span class="c">! time increment in secs</span>
-<span class="w">      </span><span class="kt">integer </span><span class="n">rc</span><span class="w">       </span><span class="c">! error return code</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">begDate</span><span class="w">  </span><span class="c">!! beginning date</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">begTime</span><span class="w">  </span><span class="c">!! beginning time</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">incSecs</span><span class="w">  </span><span class="c">!! time increment in secs</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">rc</span><span class="w">       </span><span class="c">!! error return code</span>
 <span class="c">!</span>
-<span class="c">! !REVISION HISTORY:</span>
-<span class="c">!</span>
-<span class="c">!  1999.11.01  da Silva  Initial code.</span>
-<span class="c">!  1999.11.08  da Silva  Generic time coordinate variable (no name assumed).</span>
-<span class="c">!  2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider</span>
-<span class="c">!                        variety of Units formats.</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">      </span><span class="kt">integer </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">timeId</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">timInc</span><span class="w"></span>
@@ -525,7 +528,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

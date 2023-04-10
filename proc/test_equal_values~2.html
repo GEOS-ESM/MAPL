@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">37 statements</a>
+               title=" 0.1% of total for procedures.">33 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_UnlimitedEntity.pf"> Source File</a>
+              <a href="../src/Test_Attribute.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_unlimitedentity.pf.html'>Test_UnlimitedEntity.pf</a></li>
-              <li><a href='../module/test_unlimitedentity.html'>Test_UnlimitedEntity</a></li>
+              <li><a href='../sourcefile/test_attribute.pf.html'>Test_Attribute.pf</a></li>
+              <li><a href='../module/test_attribute.html'>Test_Attribute</a></li>
           <li class="active">test_equal_values</li>
         </ol>
       </div>
@@ -218,23 +218,20 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_equal_values</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Attribute</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Attribute</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="w"></span>
-<span class="w">     </span>
-<span class="w">      </span><span class="c">! test without initialization</span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">([.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.])</span><span class="w"></span>
-<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">([.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.])</span><span class="w"></span>
+<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">([.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.])</span><span class="w"></span>
+<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">([.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.])</span><span class="w"></span>
 
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
@@ -243,8 +240,8 @@
 
 <span class="w">      </span><span class="n">c1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="w"></span>
 <span class="w">      </span><span class="n">c2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="w"></span>
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
@@ -253,17 +250,13 @@
 
 <span class="w">      </span><span class="n">c1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;abcd&#39;</span><span class="w"></span>
 <span class="w">      </span><span class="n">c2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;abcde&#39;</span><span class="w"></span>
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">a</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">test_equal_values</span><span class="w"></span>
 </pre></div>
@@ -286,7 +279,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

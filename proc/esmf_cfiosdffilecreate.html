@@ -168,6 +168,7 @@
 </h2>
     
 
+    <p><code>ESMF_CFIOSdfFileCreate</code> &ndash; Create a CFIO output file with meta data</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +183,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cfio~7"></span>
+              <span class="anchor" id="variable-cfio~18"></span>
               type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
             </td>
 <td>intent(inout)</td>
@@ -192,12 +193,12 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO object</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1109"></span>
+              <span class="anchor" id="variable-rc~29"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -207,7 +208,25 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+-1 Time increment is 0   <br>
+-2  allocate memory error   <br>
+-3  Num of int/char/real elements and Cnt don&rsquo;t match   <br>
+-12  error determining default precision   <br>
+-18 incorrect time increment   <br>
+-30 can&rsquo;t open file   <br>
+-31 error from NF90_DEF_DIM   <br>
+-32 error from NF90_DEF_VAR (dimension variable)   <br>
+-33 error from NF90_PUT_ATT (dimension attribute)   <br>
+-34 error from NF90_DEF_VAR (variable)   <br>
+-35  error from NF90_PUT_ATT (variable attribute)   <br>
+-36  error from NF90_PUT_ATT (global attribute)   <br>
+-37  error from NF90_ENDDEF   <br>
+-38  error from NF90_VAR_PUT (dimension variable)   <br>
+-39 Num of real var elements and Cnt differ   <br>
+-55  error from NF90_REDEF (enter define mode)   <br>
+-56  error from NF90_ENDDEF (exit define mode)     </p>
             </td>
         </tr>
         <tr>
@@ -222,7 +241,7 @@
             <td>::</td>
             <td><strong>expid</strong></td>
             <td>
-                
+                <p>Experiment ID</p>
             </td>
         </tr>
     </tbody>
@@ -275,38 +294,33 @@
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOSdfFileCreate</span><span class="w"> </span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">expid</span><span class="p">)</span><span class="w"></span>
 <span class="c">!</span>
-<span class="c">! !ARGUMENTS:</span>
-<span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">       </span><span class="c">! a CFIO object</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">expid</span><span class="w">    </span><span class="c">! Experiment ID</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">       </span><span class="c">!! a CFIO object</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">expid</span><span class="w">    </span><span class="c">!! Experiment ID</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">! Error return code:</span>
-<span class="w">                      </span><span class="c">! 0   all is well</span>
-<span class="w">                      </span><span class="c">! -1 Time increment is 0</span>
-<span class="w">                      </span><span class="c">! -2  allocate memory error</span>
-<span class="w">                      </span><span class="c">! -3  Num of int/char/real elements and Cnt don&#39;t match</span>
-<span class="w">                      </span><span class="c">! -12  error determining default precision</span>
-<span class="w">                      </span><span class="c">! -18 incorrect time increment</span>
-<span class="w">                      </span><span class="c">! -30 can&#39;t open file</span>
-<span class="w">                      </span><span class="c">! -31 error from NF90_DEF_DIM</span>
-<span class="w">                      </span><span class="c">! -32 error from NF90_DEF_VAR (dimension variable)</span>
-<span class="w">                      </span><span class="c">! -33 error from NF90_PUT_ATT (dimension attribute)</span>
-<span class="w">                      </span><span class="c">! -34 error from NF90_DEF_VAR (variable)</span>
-<span class="w">                      </span><span class="c">! -35  error from NF90_PUT_ATT (variable attribute)</span>
-<span class="w">                      </span><span class="c">! -36  error from NF90_PUT_ATT (global attribute)</span>
-<span class="w">                      </span><span class="c">! -37  error from NF90_ENDDEF</span>
-<span class="w">                      </span><span class="c">! -38  error from NF90_VAR_PUT (dimension variable)</span>
-<span class="w">                      </span><span class="c">! -39 Num of real var elements and Cnt differ</span>
-<span class="w">                      </span><span class="c">! -55  error from NF90_REDEF (enter define mode)</span>
-<span class="w">                      </span><span class="c">! -56  error from NF90_ENDDEF (exit define mode)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">!! Error return code:     </span>
+<span class="w">                      </span><span class="c">!! 0   all is well     </span>
+<span class="w">                      </span><span class="c">!! -1 Time increment is 0     </span>
+<span class="w">                      </span><span class="c">!! -2  allocate memory error     </span>
+<span class="w">                      </span><span class="c">!! -3  Num of int/char/real elements and Cnt don&#39;t match     </span>
+<span class="w">                      </span><span class="c">!! -12  error determining default precision     </span>
+<span class="w">                      </span><span class="c">!! -18 incorrect time increment     </span>
+<span class="w">                      </span><span class="c">!! -30 can&#39;t open file     </span>
+<span class="w">                      </span><span class="c">!! -31 error from NF90_DEF_DIM     </span>
+<span class="w">                      </span><span class="c">!! -32 error from NF90_DEF_VAR (dimension variable)     </span>
+<span class="w">                      </span><span class="c">!! -33 error from NF90_PUT_ATT (dimension attribute)     </span>
+<span class="w">                      </span><span class="c">!! -34 error from NF90_DEF_VAR (variable)     </span>
+<span class="w">                      </span><span class="c">!! -35  error from NF90_PUT_ATT (variable attribute)     </span>
+<span class="w">                      </span><span class="c">!! -36  error from NF90_PUT_ATT (global attribute)     </span>
+<span class="w">                      </span><span class="c">!! -37  error from NF90_ENDDEF     </span>
+<span class="w">                      </span><span class="c">!! -38  error from NF90_VAR_PUT (dimension variable)     </span>
+<span class="w">                      </span><span class="c">!! -39 Num of real var elements and Cnt differ     </span>
+<span class="w">                      </span><span class="c">!! -55  error from NF90_REDEF (enter define mode)     </span>
+<span class="w">                      </span><span class="c">!! -56  error from NF90_ENDDEF (exit define mode)     </span>
 <span class="c">!</span>
-<span class="c">! !DESCRIPTION:</span>
-<span class="c">!     Create a CFIO output file with meta data</span>
-<span class="c">!EOP</span>
 <span class="c">!------------------------------------------------------------------------------</span>
 <span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"></span>
 <span class="w">       </span><span class="c">!integer :: maxLen</span>
@@ -520,7 +534,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

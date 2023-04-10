@@ -168,6 +168,16 @@
 </h2>
     
 
+    <p><code>CFIO_PutRealAtt</code> &ndash; Write a user-defined real attribute</p>
+<p>This routine allows the user to define a real
+ attribute in an open CFIO file.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.07.30  Lucchesi           Initial interface design.</li>
+<li>1998.07.30  Lucchesi           Initial coding.</li>
+<li>1998.09.24  Lucchesi           Changed error handling.</li>
+<li>1998.09.28  Lucchesi           Added support for multiple precisions</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +192,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-fid~14"></span>
+              <span class="anchor" id="variable-fid~9"></span>
               integer
             </td>
 <td></td>
@@ -192,12 +202,12 @@
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-                
+                <p>File handle</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~72"></span>
+              <span class="anchor" id="variable-name~2"></span>
               character(len=*)
             </td>
 <td></td>
@@ -207,12 +217,12 @@
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-                
+                <p>Name of attribute</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~84"></span>
+              <span class="anchor" id="variable-count~2"></span>
               integer
             </td>
 <td></td>
@@ -222,12 +232,12 @@
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-                
+                <p>Number of integers to write</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-buf~6"></span>
+              <span class="anchor" id="variable-buf~2"></span>
               real
             </td>
 <td></td>
@@ -237,12 +247,12 @@
             <td>::</td>
             <td><strong>buf</strong>(count)</td>
             <td>
-                
+                <p>Buffer with real values</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-prec~5"></span>
+              <span class="anchor" id="variable-prec~6"></span>
               integer
             </td>
 <td></td>
@@ -252,12 +262,14 @@
             <td>::</td>
             <td><strong>prec</strong></td>
             <td>
-                
+                <p>Desired precision of attribute value:
+  0 = 32 bit
+  1 = 64 bit</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1099"></span>
+              <span class="anchor" id="variable-rc~56"></span>
               integer
             </td>
 <td></td>
@@ -267,7 +279,14 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+  rc = 0    all is well   <br>
+  rc = -12  error determining default precision     </p>
+<p>NetCDF Errors     </p>
+<hr>
+<p>rc = -36  error from NF90_PUT_ATT (global attribute)   <br>
+  rc = -55  error from NF90_REDEF (enter define mode)   <br>
+  rc = -56  error from NF90_ENDDEF (exit define mode)     </p>
             </td>
         </tr>
     </tbody>
@@ -326,34 +345,27 @@
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">! File handle</span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">! Name of attribute</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">! Number of integers to write</span>
-<span class="w">      </span><span class="kt">real           </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">! Buffer with real values</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">prec</span><span class="w">       </span><span class="c">! Desired precision of attribute value:</span>
-<span class="w">                                </span><span class="c">!   0 = 32 bit</span>
-<span class="w">                                </span><span class="c">!   1 = 64 bit</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of integers to write</span>
+<span class="w">      </span><span class="kt">real           </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with real values</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">prec</span><span class="w">       </span><span class="c">!! Desired precision of attribute value:</span>
+<span class="w">                                </span><span class="c">!!   0 = 32 bit</span>
+<span class="w">                                </span><span class="c">!!   1 = 64 bit</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">! Error return code:</span>
-<span class="w">                         </span><span class="c">!   rc = 0    all is well</span>
-<span class="w">                         </span><span class="c">!   rc = -12  error determining default precision</span>
-<span class="w">                         </span><span class="c">!</span>
-<span class="w">                         </span><span class="c">!  NetCDF Errors</span>
-<span class="w">                         </span><span class="c">!  -------------</span>
-<span class="w">                         </span><span class="c">!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
-<span class="w">                         </span><span class="c">!   rc = -55  error from NF90_REDEF (enter define mode)</span>
-<span class="w">                         </span><span class="c">!   rc = -56  error from NF90_ENDDEF (exit define mode)</span>
+<span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
+<span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
+<span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision     </span>
+<span class="w">                         </span><span class="c">!!     </span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
+<span class="w">                         </span><span class="c">!!  -------------     </span>
+<span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
+<span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)     </span>
+<span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)     </span>
 
-<span class="c">! !REVISION HISTORY:</span>
 <span class="c">!</span>
-<span class="c">!  1998.07.30  Lucchesi           Initial interface design.</span>
-<span class="c">!  1998.07.30  Lucchesi           Initial coding.</span>
-<span class="c">!  1998.09.24  Lucchesi           Changed error handling.</span>
-<span class="c">!  1998.09.28  Lucchesi           Added support for multiple precisions</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="n">dummy32</span><span class="w"></span>
@@ -423,7 +435,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

@@ -168,6 +168,64 @@
 </h2>
     
 
+    <p>Integrates the earth<code>s orbit and stores the necessary
+ parameters to easily compute the earth</code>s position for each day
+ of the full (usually 4-year) intercalation cycle.
+ The orbital parameters are passed as arguments.
+ The full calendar intercalation cycle is obtained from the
+ ESMF clock passed as an argument. This becomes the orbit`s
+ attached clock. Currently we assume a single intercalation.</p>
+<p>A good introduction to celestial mechanics for understanding
+ this code can be found in Blanco &amp; McCuskey, 1961: &ldquo;Basic
+ Physics of the Solar System&rdquo;, hereafter BM.</p>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="nl">CLOCK</span><span class="p">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">orbit</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">depend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">calendar</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">clock</span><span class="w"></span>
+<span class="w">        </span><span class="n">This</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nf">year</span><span class="p">,</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">intercalation</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ECCENTRICITY</span><span class="p">:</span><span class="w"> </span><span class="n">Eccentricity</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Earth</span><span class="err">`</span><span class="n">s</span><span class="w"> </span><span class="n">orbit</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">PERIHELION</span><span class="p">:</span><span class="w"> </span><span class="n">Longitude</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">perihelion</span><span class="p">,</span><span class="w"> </span><span class="n">measured</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nf">degrees</span><span class="w"> </span><span class="k">from</span><span class="w"></span>
+<span class="w">             </span><span class="n">autumnal</span><span class="w"> </span><span class="n">equinox</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Earth</span><span class="err">`</span><span class="n">s</span><span class="w"> </span><span class="n">motion</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">OBLIQUITY</span><span class="p">:</span><span class="w"> </span><span class="n">Tilt</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Earth</span><span class="err">`</span><span class="n">s</span><span class="w"> </span><span class="n">rotation</span><span class="w"> </span><span class="n">axis</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
+<span class="w">            </span><span class="n">normal</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">plane</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">orbit</span><span class="p">.</span><span class="w"> </span><span class="ow">In</span><span class="w"> </span><span class="nf">degrees</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">EQUINOX</span><span class="p">:</span><span class="w"> </span><span class="nf">Day</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nf">year</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">vernal</span><span class="w"> </span><span class="n">equinox</span><span class="p">.</span><span class="w"></span>
+<span class="w">          </span><span class="n">Equinox</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">assumed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">occur</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="mi">0</span><span class="n">Z</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="nf">day</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"></span>
+<span class="w">          </span><span class="k">first</span><span class="w"> </span><span class="nf">year</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">EOT</span><span class="p">:</span><span class="w"> </span><span class="n">Apply</span><span class="w"> </span><span class="n">Equation</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nc">Time</span><span class="w"> </span><span class="n">correction</span><span class="vm">?</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORBIT_ANAL2B</span><span class="p">:</span><span class="w"> </span><span class="k">New</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="k">system</span><span class="w"> </span><span class="p">(</span><span class="n">analytic</span><span class="w"> </span><span class="n">two</span><span class="o">-</span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="n">allows</span><span class="w"> </span><span class="ow">some</span><span class="w"></span>
+<span class="w">               </span><span class="nc">time</span><span class="o">-</span><span class="k">varying</span><span class="w"> </span><span class="n">behavior</span><span class="p">,</span><span class="w"> </span><span class="n">namely</span><span class="p">,</span><span class="w"> </span><span class="n">linear</span><span class="w"> </span><span class="nc">time</span><span class="w"> </span><span class="n">variation</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">LAMBDAP</span><span class="p">,</span><span class="w"></span>
+<span class="w">               </span><span class="n">ECC</span><span class="p">,</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">OBQ</span><span class="p">.</span><span class="w"> </span><span class="k">If</span><span class="w"> </span><span class="p">.</span><span class="k">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">following</span><span class="w"> </span><span class="n">ORB2B</span><span class="w"> </span><span class="k">parameters</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">used</span><span class="w"></span>
+<span class="w">               </span><span class="ow">and</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="n">CLOCK</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">EOT</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.,</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ECCENTRICITY</span><span class="p">,</span><span class="w"></span>
+<span class="w">               </span><span class="n">OBLIQUITY</span><span class="p">,</span><span class="w"> </span><span class="n">PERIHELION</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">EQUINOX</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="ow">NOT</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="k">are</span><span class="w"></span>
+<span class="w">               </span><span class="n">replaced</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">relevant</span><span class="w"> </span><span class="n">ORB2B</span><span class="w"> </span><span class="k">parameters</span><span class="w"> </span><span class="n">below</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_YEARLEN</span><span class="p">:</span><span class="w"> </span><span class="n">Fixed</span><span class="w"> </span><span class="n">anomalistic</span><span class="w"> </span><span class="nf">year</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mean</span><span class="w"> </span><span class="n">solar</span><span class="w"> </span><span class="n">days</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_REF_YYYYMMDD</span><span class="p">:</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nc">date</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="k">parameters</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_REF_HHMMSS</span><span class="p">:</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="nc">time</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="k">parameters</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_ECC_REF</span><span class="p">:</span><span class="w"> </span><span class="n">Orbital</span><span class="w"> </span><span class="n">eccentricity</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">reference</span><span class="w"> </span><span class="nc">date</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_ECC_RATE</span><span class="p">:</span><span class="w"> </span><span class="n">Rate</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">orbital</span><span class="w"> </span><span class="n">eccentricity</span><span class="w"> </span><span class="n">per</span><span class="w"> </span><span class="n">Julian</span><span class="w"> </span><span class="n">century</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_OBQ_REF</span><span class="p">:</span><span class="w"> </span><span class="n">Earth</span><span class="s1">&#39;s obliquity (axial tilt) at reference date [degrees].</span>
+
+<span class="s1"> ORB2B_OBQ_RATE: Rate of change of obliquity [degrees per Julian century].</span>
+
+<span class="s1"> ORB2B_LAMBDAP_REF: Longitude of perihelion at reference date [degrees]</span>
+<span class="s1">                    from March equinox to perihelion in direction of earth&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">motion</span><span class="p">).</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_LAMBDAP_RATE</span><span class="p">:</span><span class="w"> </span><span class="n">Rate</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">LAMBDAP</span><span class="w"> </span><span class="o">[</span><span class="n">degrees per Julian century</span><span class="o">]</span><span class="w"></span>
+<span class="w">                     </span><span class="p">(</span><span class="n">Combines</span><span class="w"> </span><span class="k">both</span><span class="w"> </span><span class="n">equatorial</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">ecliptic</span><span class="w"> </span><span class="n">precession</span><span class="p">).</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_EQUINOX_YYYYMMDD</span><span class="p">:</span><span class="w"> </span><span class="n">March</span><span class="w"> </span><span class="n">equinox</span><span class="w"> </span><span class="nc">date</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="nl">ORB2B_EQUINOX_HHMMSS</span><span class="p">:</span><span class="w"> </span><span class="n">March</span><span class="w"> </span><span class="n">equinox</span><span class="w"> </span><span class="nc">time</span><span class="p">.</span><span class="w"></span>
+</code></pre></div>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +240,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~20"></span>
+              <span class="anchor" id="variable-clock~11"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(in)</td>
@@ -467,7 +525,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~238"></span>
+              <span class="anchor" id="variable-rc~108"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1027,7 +1085,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

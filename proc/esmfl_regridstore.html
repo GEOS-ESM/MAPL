@@ -168,6 +168,13 @@
 </h2>
     
 
+    <p>Given a srcFLD and its associated 3dGrid and a dstFLD and its associated
+ 3DGrid, the subroutine <code>ESMFL_RegridStore</code> creates their corresponding 
+ 2DGrids and a 2D routehandle.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>17Oct2005  Cruz  Initial code.</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -272,7 +279,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1225"></span>
+              <span class="anchor" id="variable-rc~1197"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -336,8 +343,6 @@
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">ESMFL_RegridStore</span><span class="w"> </span><span class="p">(</span><span class="n">srcFLD</span><span class="p">,</span><span class="w"> </span><span class="n">SRCgrid2D</span><span class="p">,</span><span class="w"> </span><span class="n">dstFLD</span><span class="p">,</span><span class="w"> </span><span class="n">DSTgrid2D</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                                 </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 <span class="c">!</span>
-<span class="c">! !USES:</span>
-<span class="c">!</span>
 <span class="w">   </span><span class="k">implicit NONE</span><span class="w"></span>
 
 <span class="c">! !ARGUMENTS:</span>
@@ -349,17 +354,6 @@
 <span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_RouteHandle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rh</span><span class="w"></span>
 <span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span><span class="w">  </span><span class="c">! should be intent IN</span>
 <span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
-
-<span class="c">! !DESCRIPTION:</span>
-<span class="c">!</span>
-<span class="c">! Given a srcFLD and its associated 3dGrid and a dstFLD and its associated</span>
-<span class="c">! 3DGrid create their corresponding 2DGrids and a 2D routehandle.</span>
-
-<span class="c">!EOP</span>
-<span class="c">!</span>
-<span class="c">! !REVISION HISTORY:</span>
-<span class="c">!</span>
-<span class="c">!  17Oct2005  Cruz  Initial code.</span>
 <span class="c">!</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
@@ -406,7 +400,7 @@
 <span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">   </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">srcARR</span><span class="p">,</span><span class="w"> </span><span class="n">RANK</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="c">! datamap - with rank=2!!!</span>
+<span class="w">   </span><span class="c">! datamap - with rank=2!</span>
 <span class="w">   </span><span class="k">call </span><span class="n">ESMF_FieldDataMapSetDefault</span><span class="p">(</span><span class="n">dmap</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 
@@ -683,7 +677,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

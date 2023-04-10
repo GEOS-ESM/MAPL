@@ -168,6 +168,32 @@
 </h2>
     
 
+    <p>The subroutine <code>MAPL_CFIOWriteBundlePost</code>
+writes an ESMF Bundle to a File. Only the <code>MAPL_CFIO</code> object is
+a required argument as pointers to the actual data to be
+written is recorded in it during creation.</p>
+<p><em>CLOCK, BUNDLE</em> can be used to override the choice
+made at creation, but this is of dubious value, particularly
+for <em>BUNDLE</em> since it must be excatly conformant with the
+creation <em>BUNDLE</em>. <em>NBITS</em> if the number of bits of 
+the mantissa to retain. This is used to write files with degraded
+precision, which can then be compressed with standard utilities.
+The default is no degradation of precision.</p>
+<p><strong>A note about compression.</strong> NetCDF-4, HDF-4 and HDF-5 all
+support transparent internal GZIP compression of the data being
+written. However, very little is gained by compressing float
+point fields from earth system models. Compression yields can
+be greatly increased by setting to zero bits in the mantissa of float
+numbers. On average 50\% compression can be achieved, while
+preserving a meaningful accuracy in the fields. Unlike
+classical CF compression by means of <em>scale_factor</em> and
+<em>add_offset</em> attributes, internal GZIP compression
+requires no special handling by the users of the data. In fact,
+they do not even need to know that the data is compressed! At this
+point, <code>MAPL_CFIO</code> does not activate this GZIP compression
+feature in the files being written, but the resulting precision 
+degredaded files can be compressed offline with the HDF-4 
+<em>hrepack</em> utility.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -212,7 +238,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~225"></span>
+              <span class="anchor" id="variable-rc~127"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -275,47 +301,9 @@
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CFIOWriteBundlePost</span><span class="p">(</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">,</span><span class="w"> </span><span class="n">PrePost</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="c">!</span>
-<span class="c">! !ARGUMENTS:</span>
-<span class="c">!</span>
 <span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_CFIO</span><span class="w">  </span><span class="p">),</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MCFIO</span><span class="w"></span>
 <span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PrePost</span><span class="w"></span>
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">               </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w"></span>
-<span class="c">!</span>
-<span class="cp">#ifdef ___PROTEX___</span>
-
-<span class="w"> </span><span class="c">!DESCRIPTION:  </span>
-
-<span class="w">       </span><span class="n">Writes</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">ESMF</span><span class="w"> </span><span class="n">Bundle</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">File</span><span class="p">.</span><span class="w"> </span><span class="k">Only </span><span class="n">the</span><span class="w"> </span><span class="n">MAPL</span><span class="err">\_</span><span class="n">CFIO</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="k">is</span>
-<span class="k">       </span><span class="n">a</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="n">argument</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">pointers</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">actual</span><span class="w"> </span><span class="k">data </span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="w"></span>
-<span class="w">       </span><span class="n">written</span><span class="w"> </span><span class="k">is </span><span class="n">recorded</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">during</span><span class="w"> </span><span class="n">creation</span><span class="p">.</span><span class="w"></span>
-
-<span class="w">       </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">BUNDLE</span><span class="err">}</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">override</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">choice</span><span class="w"></span>
-<span class="w">       </span><span class="n">made</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">creation</span><span class="p">,</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="k">is </span><span class="n">of</span><span class="w"> </span><span class="n">dubious</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="n">particularly</span><span class="w"></span>
-<span class="w">       </span><span class="n">for</span><span class="w"> </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="n">BUNDLE</span><span class="err">}</span><span class="w"> </span><span class="n">since</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">excatly</span><span class="w"> </span><span class="n">conformant</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"></span>
-<span class="w">       </span><span class="n">creation</span><span class="w"> </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="n">BUNDLE</span><span class="err">}</span><span class="p">.</span><span class="w"> </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="n">NBITS</span><span class="err">}</span><span class="w"> </span><span class="k">if </span><span class="n">the</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="n">of</span><span class="w"> </span>
-<span class="w">       </span><span class="n">the</span><span class="w"> </span><span class="n">mantissa</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">retain</span><span class="p">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="k">is </span><span class="n">used</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="k">write </span><span class="n">files</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">degraded</span><span class="w"></span>
-<span class="w">       </span><span class="nb">precision</span><span class="p">,</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="k">then </span><span class="n">be</span><span class="w"> </span><span class="n">compressed</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">utilities</span><span class="p">.</span><span class="w"></span>
-<span class="w">       </span><span class="n">The</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="k">is </span><span class="n">no</span><span class="w"> </span><span class="n">degradation</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="nb">precision</span><span class="p">.</span><span class="w"></span>
-
-<span class="w">       </span><span class="err">{\</span><span class="n">bf</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">note</span><span class="w"> </span><span class="n">about</span><span class="w"> </span><span class="n">compression</span><span class="p">.</span><span class="err">}</span><span class="w"> </span><span class="n">NetCDF</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">HDF</span><span class="o">-</span><span class="mi">4</span><span class="w"> </span><span class="nb">and </span><span class="n">HDF</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="k">all</span>
-<span class="k">       </span><span class="n">support</span><span class="w"> </span><span class="n">transparent</span><span class="w"> </span><span class="n">internal</span><span class="w"> </span><span class="n">GZIP</span><span class="w"> </span><span class="n">compression</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">data </span><span class="n">being</span><span class="w"></span>
-<span class="w">       </span><span class="n">written</span><span class="p">.</span><span class="w"> </span><span class="n">However</span><span class="p">,</span><span class="w"> </span><span class="n">very</span><span class="w"> </span><span class="n">little</span><span class="w"> </span><span class="k">is </span><span class="n">gained</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">compressing</span><span class="w"> </span><span class="nb">float</span>
-<span class="nb">       </span><span class="n">point</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">earth</span><span class="w"> </span><span class="nb">system </span><span class="n">models</span><span class="p">.</span><span class="w"> </span><span class="n">Compression</span><span class="w"> </span><span class="n">yields</span><span class="w"> </span><span class="n">can</span><span class="w"></span>
-<span class="w">       </span><span class="n">be</span><span class="w"> </span><span class="n">greatly</span><span class="w"> </span><span class="n">increased</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">setting</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">zero</span><span class="w"> </span><span class="n">bits</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">mantissa</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="nb">float</span>
-<span class="nb">       </span><span class="n">numbers</span><span class="p">.</span><span class="w"> </span><span class="n">On</span><span class="w"> </span><span class="n">average</span><span class="w"> </span><span class="mi">50</span><span class="err">\</span><span class="p">%</span><span class="w"> </span><span class="n">compression</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">achieved</span><span class="p">,</span><span class="w"> </span><span class="k">while</span>
-<span class="k">       </span><span class="n">preserving</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">meaningful</span><span class="w"> </span><span class="n">accuracy</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">fields</span><span class="p">.</span><span class="w"> </span><span class="n">Unlike</span><span class="w"></span>
-<span class="w">       </span><span class="n">classical</span><span class="w"> </span><span class="n">CF</span><span class="w"> </span><span class="n">compression</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">means</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="nb">scale</span><span class="err">\_</span><span class="n">factor</span><span class="err">}</span><span class="w"> </span><span class="nb">and</span><span class="w"></span>
-<span class="w">       </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="n">add</span><span class="err">\_</span><span class="n">offset</span><span class="err">}</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="n">internal</span><span class="w"> </span><span class="n">GZIP</span><span class="w"> </span><span class="n">compression</span><span class="w"></span>
-<span class="w">       </span><span class="n">requires</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">special</span><span class="w"> </span><span class="n">handling</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">data</span><span class="p">.</span><span class="w"> </span><span class="n">In</span><span class="w"> </span><span class="n">fact</span><span class="p">,</span><span class="w"></span>
-<span class="w">       </span><span class="n">they</span><span class="w"> </span><span class="k">do </span><span class="nb">not </span><span class="n">even</span><span class="w"> </span><span class="n">need</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">know</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">data is </span><span class="n">compressed</span><span class="c">! At this</span>
-<span class="w">       </span><span class="n">point</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL</span><span class="err">\_</span><span class="n">CFIO</span><span class="w"> </span><span class="n">does</span><span class="w"> </span><span class="nb">not </span><span class="n">activate</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">GZIP</span><span class="w"> </span><span class="n">compression</span><span class="w"></span>
-<span class="w">       </span><span class="n">feature</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="n">being</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">resulting</span><span class="w"> </span><span class="nb">precision </span>
-<span class="nb">       </span><span class="n">degredaded</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">compressed</span><span class="w"> </span><span class="n">offline</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">HDF</span><span class="o">-</span><span class="mi">4</span><span class="w"> </span>
-<span class="w">       </span><span class="err">{\</span><span class="n">tt</span><span class="w"> </span><span class="n">hrepack</span><span class="err">}</span><span class="w"> </span><span class="n">utility</span><span class="p">.</span><span class="w"></span>
-
-<span class="cp">#endif</span>
-
-<span class="c">!EOP</span>
 
 <span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 
@@ -330,9 +318,7 @@
 <span class="w">    </span><span class="kt">logical</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">PrePost_</span><span class="w"></span>
 <span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">globalcount</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span><span class="w"> </span>
-
 <span class="c">!                              ---</span>
-
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CREATED</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MCFIO%CREATED is false&#39;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">PrePost</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
@@ -564,7 +550,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

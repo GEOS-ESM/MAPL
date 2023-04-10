@@ -265,7 +265,20 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-esmf_cfioutilmod">MODULE: <code>ESMF_CFIOUtilMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p><code>ESMF_CFIOUtilMod</code> - utility subroutines for CFIO</p>
+<p>The module <code>ESMF_CFIOUtilMod</code> provides all the necessary utility subroutines for CFIO.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>Sep2004  Baoyu Yin  Modified from ESMF_CFIOMod.F90.</li>
+<li>Mar2005  Baoyu Yin  Integrated all routines of GFIO into CFIO.</li>
+<li>Apr2005  Baoyu Yin  Added Get_Missing routine</li>
+<li>Apr2006  da Silva   Incorporated m_StrTemplate to eliminate mpeu dependency.</li>
+<li>Jun2006  Baoyu yin  Added cyclic option to GetVar.</li>
+<li>Jul2006  da Silva   Eliminated read(str,fmt) to parse time; replaced
+   with more robust mod() calculations.</li>
+</ul>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -273,9 +286,9 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li>netcdf</li>
                 <li>ESMF_CFIOBaseMod</li>
                 <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
+                <li>netcdf</li>
             </ul>
           </li>
       </ul>
@@ -725,7 +738,19 @@ parameter
 
     </h3>
     
-  
+  <p><code>GetDateInt8</code> &mdash; Returns a new date/time from an initial date/time and offset</p>
+<p>This subroutine returns a new date and time in yyyymmdd
+ and hhmmss format given and initial date, time, and
+ offset in seconds.  The routine converts the input date
+ and time to julian seconds, adds the offset, and converts
+ back to yyyymmdd and hhmmss format.  This routine has been
+ tested for Y2K compiance.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.07.20  Lucchesi    Initial version.</li>
+<li>2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
+    constant no longer needed.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -750,7 +775,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_1</strong></td>
             <td>
-
+<p>Initial date in YYYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -765,7 +790,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_1</strong></td>
             <td>
-
+<p>Initial time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -780,7 +805,7 @@ parameter
             <td>::</td>
             <td><strong>offset</strong></td>
             <td>
-
+<p>Offset to add (in seconds)</p>
             </td>
         </tr>
         <tr>
@@ -795,7 +820,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_2</strong></td>
             <td>
-
+<p>New date in YYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -810,7 +835,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_2</strong></td>
             <td>
-
+<p>New time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -825,7 +850,7 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Return code. (&lt;0 = error)</p>
             </td>
         </tr>
     </tbody>
@@ -839,7 +864,19 @@ parameter
 
     </h3>
     
-  
+  <p><code>GetDateInt4</code> &mdash; Returns a new date/time from an initial date/time and offset</p>
+<p>This subroutine returns a new date and time in yyyymmdd
+ and hhmmss format given and initial date, time, and
+ offset in seconds.  The routine converts the input date
+ and time to julian seconds, adds the offset, and converts
+ back to yyyymmdd and hhmmss format.  This routine has been
+ tested for Y2K compiance.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.07.20  Lucchesi    Initial version.</li>
+<li>2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
+   constant no longer needed.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -864,7 +901,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_1</strong></td>
             <td>
-
+<p>Initial date in YYYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -879,7 +916,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_1</strong></td>
             <td>
-
+<p>Initial time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -894,7 +931,7 @@ parameter
             <td>::</td>
             <td><strong>offset</strong></td>
             <td>
-
+<p>Offset to add (in seconds)</p>
             </td>
         </tr>
         <tr>
@@ -909,7 +946,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_2</strong></td>
             <td>
-
+<p>New date in YYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -924,7 +961,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_2</strong></td>
             <td>
-
+<p>New time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -939,7 +976,7 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Return code. (&lt;0 = error)</p>
             </td>
         </tr>
     </tbody>
@@ -998,7 +1035,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~31"></span>
+              <span class="anchor" id="variable-name~17"></span>
               character(len=MVARLEN),
             </td>
               <td>public</td>
@@ -1015,7 +1052,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname"></span>
+              <span class="anchor" id="variable-vname~28"></span>
               character(len=MVARLEN),
             </td>
               <td>public</td>
@@ -1032,7 +1069,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~20"></span>
+              <span class="anchor" id="variable-count~8"></span>
               integer,
             </td>
               <td>public</td>
@@ -1049,7 +1086,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-next~32"></span>
+              <span class="anchor" id="variable-next~5"></span>
               type(<a href='../type/cnode.html'>cNode</a>),
             </td>
               <td>public,</td>
@@ -1098,7 +1135,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~32"></span>
+              <span class="anchor" id="variable-name~18"></span>
               character(len=MVARLEN),
             </td>
               <td>public</td>
@@ -1115,7 +1152,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~2"></span>
+              <span class="anchor" id="variable-vname~29"></span>
               character(len=MVARLEN),
             </td>
               <td>public</td>
@@ -1132,7 +1169,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~21"></span>
+              <span class="anchor" id="variable-count~9"></span>
               integer,
             </td>
               <td>public</td>
@@ -1166,7 +1203,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-next~33"></span>
+              <span class="anchor" id="variable-next~6"></span>
               type(<a href='../type/inode.html'>iNode</a>),
             </td>
               <td>public,</td>
@@ -1215,7 +1252,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~33"></span>
+              <span class="anchor" id="variable-name~19"></span>
               character(len=MVARLEN),
             </td>
               <td>public</td>
@@ -1232,7 +1269,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~3"></span>
+              <span class="anchor" id="variable-vname~30"></span>
               character(len=MVARLEN),
             </td>
               <td>public</td>
@@ -1249,7 +1286,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-count~22"></span>
+              <span class="anchor" id="variable-count~10"></span>
               integer,
             </td>
               <td>public</td>
@@ -1283,7 +1320,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-next~34"></span>
+              <span class="anchor" id="variable-next~7"></span>
               type(<a href='../type/rnode.html'>rNode</a>),
             </td>
               <td>public,</td>
@@ -1317,7 +1354,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>IdentifyDim</code> - Identify a cooridate variable</p><a href="../proc/identifydim.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1342,7 +1379,7 @@ parameter
             <td>::</td>
             <td><strong>dimName</strong></td>
             <td>
-
+<p>Name of the coordinate variable</p>
             </td>
         </tr>
         <tr>
@@ -1357,7 +1394,7 @@ parameter
             <td>::</td>
             <td><strong>dimUnits</strong></td>
             <td>
-
+<p>Units of the coordinate variable</p>
             </td>
         </tr>
     </tbody>
@@ -1452,7 +1489,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  <p>!       DiffDate = iabs (julsec2 - julsec1)</p>
+  <p><code>DiffDate</code> &mdash; Calculates the number of seconds between two times.</p><a href="../proc/diffdate.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1767,7 +1804,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_AttInquire</code> &ndash; Get information about an attribute</p><a href="../proc/cfio_attinquire.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1792,7 +1829,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -1807,7 +1844,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -1822,7 +1859,13 @@ parameter
             <td>::</td>
             <td><strong>type</strong></td>
             <td>
-
+<p>Code for attribute type <br>
+  0 = integer <br>
+  1 = real <br>
+  2 = character <br>
+  3 = 64-bit real <br>
+  4 = 64-bit integer <br>
+ -1 = other   </p>
             </td>
         </tr>
         <tr>
@@ -1837,7 +1880,7 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>Number of items (length of array)</p>
             </td>
         </tr>
         <tr>
@@ -1852,7 +1895,8 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:      <br>
+  rc = 0    all is well     </p><a href="../proc/cfio_attinquire.html#variable-rc~59" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -1867,7 +1911,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_Close</code> &ndash; Closes file</p><a href="../proc/cfio_close.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1892,7 +1936,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -1907,7 +1951,8 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:        <br>
+  rc = 0    all is well          </p><a href="../proc/cfio_close.html#variable-rc~54" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -1922,7 +1967,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_DimInquire</code> &ndash; Gets dimension information from a CFIO file.</p><a href="../proc/cfio_diminquire.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1962,7 +2007,7 @@ parameter
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-
+<p>Size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -1977,7 +2022,7 @@ parameter
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-
+<p>Size of latitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -1992,7 +2037,8 @@ parameter
             <td>::</td>
             <td><strong>km</strong></td>
             <td>
-
+<p>Size of vertical dimension
+  km=0 if surface-only file</p>
             </td>
         </tr>
         <tr>
@@ -2007,7 +2053,7 @@ parameter
             <td>::</td>
             <td><strong>lm</strong></td>
             <td>
-
+<p>Number of times</p>
             </td>
         </tr>
         <tr>
@@ -2022,7 +2068,7 @@ parameter
             <td>::</td>
             <td><strong>nvars</strong></td>
             <td>
-
+<p>Number of variables</p>
             </td>
         </tr>
         <tr>
@@ -2037,7 +2083,7 @@ parameter
             <td>::</td>
             <td><strong>ngatts</strong></td>
             <td>
-
+<p>Number of global attributes</p>
             </td>
         </tr>
         <tr>
@@ -2052,7 +2098,10 @@ parameter
             <td>::</td>
             <td><strong>vdir</strong></td>
             <td>
-
+<p>Positive vertical direction.  <br>
+If <code>-1</code>, level 1 in the file is TOA.  <br>
+If <code>1</code>, level 1 in the file is the surface.  <br>
+If <code>0</code>, the file has no vertical co-ordinate (default).</p>
             </td>
         </tr>
         <tr>
@@ -2067,7 +2116,9 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+ rc = 0    all is well   <br>
+ rc = -19  unable to identify coordinate variable     </p><a href="../proc/cfio_diminquire.html#variable-rc~50" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2082,7 +2133,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_GetAttNames</code> &ndash; Get global attribute names</p><a href="../proc/cfio_getattnames.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2107,7 +2158,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2122,7 +2173,8 @@ parameter
             <td>::</td>
             <td><strong>ngatts</strong></td>
             <td>
-
+<p>Expected number of attributes (input)
+Actual number of attributes (output if rc=-2)</p>
             </td>
         </tr>
         <tr>
@@ -2137,7 +2189,7 @@ parameter
             <td>::</td>
             <td><strong>aname</strong>(ngatts)</td>
             <td>
-
+<p>Array of attribute names</p>
             </td>
         </tr>
         <tr>
@@ -2152,7 +2204,10 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+ rc =  0  all is well   <br>
+ rc = -10  ngatts is incompatible with file   <br>
+ rc = -11  character string not long enough     </p><a href="../proc/cfio_getattnames.html#variable-rc~58" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2167,7 +2222,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_GetCharAtt</code> &ndash; Read a user-defined character attribute</p><a href="../proc/cfio_getcharatt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2192,7 +2247,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2207,7 +2262,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -2222,7 +2277,9 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>On input: Number of items in attribute
+On output: If rc = -1, count will contain
+       the correct number of attributes</p>
             </td>
         </tr>
         <tr>
@@ -2237,7 +2294,7 @@ parameter
             <td>::</td>
             <td><strong>buf</strong>(count)</td>
             <td>
-
+<p>Buffer with character values</p>
             </td>
         </tr>
         <tr>
@@ -2252,7 +2309,10 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+  rc = 0    all is well   <br>
+  rc = -1   invalid count   <br>
+  rc = -2   type mismatch     </p><a href="../proc/cfio_getcharatt.html#variable-rc~62" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2267,7 +2327,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_GetIntAtt</code> &ndash; Read a user-defined integer attribute</p><a href="../proc/cfio_getintatt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2292,7 +2352,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2307,7 +2367,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -2322,7 +2382,9 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>On input: Number of items in attribute
+On output: If rc = -1, count will contain
+       the correct count of this attribute</p>
             </td>
         </tr>
         <tr>
@@ -2337,7 +2399,7 @@ parameter
             <td>::</td>
             <td><strong>buf</strong>(count)</td>
             <td>
-
+<p>Buffer with integer values</p>
             </td>
         </tr>
         <tr>
@@ -2352,7 +2414,11 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+  rc = 0    all is well   <br>
+  rc = -1   invalid count   <br>
+  rc = -2   type mismatch   <br>
+  rc = -12  error determining default precision     </p><a href="../proc/cfio_getintatt.html#variable-rc~60" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2367,7 +2433,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_GetRealAtt</code> &ndash; Read a user-defined real attribute</p><a href="../proc/cfio_getrealatt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2392,7 +2458,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2407,7 +2473,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -2422,7 +2488,9 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>On input: Number of items in attribute
+On output: If rc = -1, count will contain
+       the correct number of attributes</p>
             </td>
         </tr>
         <tr>
@@ -2437,7 +2505,7 @@ parameter
             <td>::</td>
             <td><strong>buf</strong>(count)</td>
             <td>
-
+<p>Buffer with real values</p>
             </td>
         </tr>
         <tr>
@@ -2452,7 +2520,11 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+  rc = 0    all is well   <br>
+  rc = -1   invalid count   <br>
+  rc = -2   type mismatch   <br>
+  rc = -12  error determining default precision     </p><a href="../proc/cfio_getrealatt.html#variable-rc~61" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2467,7 +2539,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_GetVar</code> &ndash; Read a variable from the file</p><a href="../proc/cfio_getvar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2492,7 +2564,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2507,7 +2579,7 @@ parameter
             <td>::</td>
             <td><strong>vname</strong></td>
             <td>
-
+<p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -2522,7 +2594,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd</strong></td>
             <td>
-
+<p>Year-month-day, e.g., 19971003</p>
             </td>
         </tr>
         <tr>
@@ -2537,7 +2609,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss</strong></td>
             <td>
-
+<p>Hour-minute-second, e.g., 120000</p>
             </td>
         </tr>
         <tr>
@@ -2552,7 +2624,7 @@ parameter
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-
+<p>size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -2567,7 +2639,7 @@ parameter
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-
+<p>size of latitudinal  dimension</p>
             </td>
         </tr>
         <tr>
@@ -2582,7 +2654,8 @@ parameter
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-
+<p>first level to read; if 2-D grid
+ set kbeg = 0.</p>
             </td>
         </tr>
         <tr>
@@ -2597,7 +2670,7 @@ parameter
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-
+<p>number of levels to read</p>
             </td>
         </tr>
         <tr>
@@ -2612,7 +2685,7 @@ parameter
             <td>::</td>
             <td><strong>lm</strong></td>
             <td>
-
+<p>number of time steps</p>
             </td>
         </tr>
         <tr>
@@ -2627,7 +2700,7 @@ parameter
             <td>::</td>
             <td><strong>grid</strong>(im,jm,kount)</td>
             <td>
-
+<p>Gridded data read for this time</p>
             </td>
         </tr>
         <tr>
@@ -2642,7 +2715,7 @@ parameter
             <td>::</td>
             <td><strong>cyclic</strong></td>
             <td>
-
+<p>input file is cyclic or not</p>
             </td>
         </tr>
         <tr>
@@ -2672,7 +2745,17 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+ rc = 0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable     </p><a href="../proc/cfio_getvar.html#variable-rc~66" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2687,7 +2770,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_Open</code> &ndash; Opens an existing DAO gridded file</p><a href="../proc/cfio_open.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2712,7 +2795,7 @@ parameter
             <td>::</td>
             <td><strong>fname</strong></td>
             <td>
-
+<p>File name</p>
             </td>
         </tr>
         <tr>
@@ -2727,7 +2810,9 @@ parameter
             <td>::</td>
             <td><strong>fmode</strong></td>
             <td>
-
+<p>File mode:
+  0 for READ-WRITE
+  non-zero for READ-ONLY</p>
             </td>
         </tr>
         <tr>
@@ -2742,7 +2827,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2757,7 +2842,9 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:        <br>
+  rc = 0    All is well   <br>
+  rc = -39  error from ncopn (file open)     </p>
             </td>
         </tr>
     </tbody>
@@ -2772,7 +2859,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_PutCharAtt</code> &ndash; Write a user-defined character attribute</p><a href="../proc/cfio_putcharatt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2797,7 +2884,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2812,7 +2899,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -2827,7 +2914,7 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>Number of characters to write</p>
             </td>
         </tr>
         <tr>
@@ -2842,7 +2929,7 @@ parameter
             <td>::</td>
             <td><strong>buf</strong></td>
             <td>
-
+<p>Buffer containing string</p>
             </td>
         </tr>
         <tr>
@@ -2857,7 +2944,8 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+  rc = 0    all is well     </p><a href="../proc/cfio_putcharatt.html#variable-rc~57" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2872,7 +2960,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_PutIntAtt</code> &ndash; Write a user-defined integer attribute</p><a href="../proc/cfio_putintatt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2897,7 +2985,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -2912,7 +3000,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -2927,7 +3015,7 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>Number of integers to write</p>
             </td>
         </tr>
         <tr>
@@ -2942,7 +3030,7 @@ parameter
             <td>::</td>
             <td><strong>buf</strong>(count)</td>
             <td>
-
+<p>Buffer with integer values</p>
             </td>
         </tr>
         <tr>
@@ -2957,7 +3045,9 @@ parameter
             <td>::</td>
             <td><strong>prec</strong></td>
             <td>
-
+<p>Desired precision of attribute value:
+  0 = 32 bit
+  1 = 64 bit</p>
             </td>
         </tr>
         <tr>
@@ -2972,7 +3062,9 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+  rc = 0    all is well   <br>
+  rc = -12  error determining default precision     </p><a href="../proc/cfio_putintatt.html#variable-rc~55" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -2987,7 +3079,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_PutRealAtt</code> &ndash; Write a user-defined real attribute</p><a href="../proc/cfio_putrealatt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3012,7 +3104,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -3027,7 +3119,7 @@ parameter
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>Name of attribute</p>
             </td>
         </tr>
         <tr>
@@ -3042,7 +3134,7 @@ parameter
             <td>::</td>
             <td><strong>count</strong></td>
             <td>
-
+<p>Number of integers to write</p>
             </td>
         </tr>
         <tr>
@@ -3057,7 +3149,7 @@ parameter
             <td>::</td>
             <td><strong>buf</strong>(count)</td>
             <td>
-
+<p>Buffer with real values</p>
             </td>
         </tr>
         <tr>
@@ -3072,7 +3164,9 @@ parameter
             <td>::</td>
             <td><strong>prec</strong></td>
             <td>
-
+<p>Desired precision of attribute value:
+  0 = 32 bit
+  1 = 64 bit</p>
             </td>
         </tr>
         <tr>
@@ -3087,7 +3181,9 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+  rc = 0    all is well   <br>
+  rc = -12  error determining default precision     </p><a href="../proc/cfio_putrealatt.html#variable-rc~56" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -3102,7 +3198,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_PutVar</code> &ndash; Write a variable to the file</p><a href="../proc/cfio_putvar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3127,7 +3223,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -3142,7 +3238,7 @@ parameter
             <td>::</td>
             <td><strong>vname</strong></td>
             <td>
-
+<p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -3157,7 +3253,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd</strong></td>
             <td>
-
+<p>Year-month-day, e.g., 19971003</p>
             </td>
         </tr>
         <tr>
@@ -3172,7 +3268,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss</strong></td>
             <td>
-
+<p>Hour-minute-second, e.g., 120000</p>
             </td>
         </tr>
         <tr>
@@ -3187,7 +3283,7 @@ parameter
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-
+<p>size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -3202,7 +3298,7 @@ parameter
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-
+<p>size of latitudinal  dimension</p>
             </td>
         </tr>
         <tr>
@@ -3217,7 +3313,8 @@ parameter
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-
+<p>first level to write; if 2-D grid
+  use kbeg = 0.</p>
             </td>
         </tr>
         <tr>
@@ -3232,7 +3329,7 @@ parameter
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-
+<p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -3247,7 +3344,7 @@ parameter
             <td>::</td>
             <td><strong>grid</strong>(im,jm,kount)</td>
             <td>
-
+<p>Gridded data to write at this time</p>
             </td>
         </tr>
         <tr>
@@ -3277,7 +3374,19 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+ rc =  0  all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -15  data outside of valid range   <br>
+ rc = -16  data outside of packing range   <br>
+ rc = -17  data outside of pack and valid range     </p><a href="../proc/cfio_putvar.html#variable-rc~67" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -3292,7 +3401,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_SGetVar</code> &ndash; Read a variable from the file</p><a href="../proc/cfio_sgetvar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3317,7 +3426,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -3332,7 +3441,7 @@ parameter
             <td>::</td>
             <td><strong>vname</strong></td>
             <td>
-
+<p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -3347,7 +3456,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd</strong></td>
             <td>
-
+<p>Year-month-day, e.g., 19971003</p>
             </td>
         </tr>
         <tr>
@@ -3362,7 +3471,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss</strong></td>
             <td>
-
+<p>Hour-minute-second, e.g., 120000</p>
             </td>
         </tr>
         <tr>
@@ -3377,7 +3486,7 @@ parameter
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-
+<p>size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -3392,7 +3501,7 @@ parameter
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-
+<p>size of latitudinal  dimension</p>
             </td>
         </tr>
         <tr>
@@ -3407,7 +3516,8 @@ parameter
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-
+<p>first level to read; if 2-D grid
+ set kbeg = 0.</p>
             </td>
         </tr>
         <tr>
@@ -3422,7 +3532,7 @@ parameter
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-
+<p>number of levels to read</p>
             </td>
         </tr>
         <tr>
@@ -3437,7 +3547,7 @@ parameter
             <td>::</td>
             <td><strong>lm</strong></td>
             <td>
-
+<p>number of time steps</p>
             </td>
         </tr>
         <tr>
@@ -3452,7 +3562,7 @@ parameter
             <td>::</td>
             <td><strong>grid</strong>(im,kount)</td>
             <td>
-
+<p>Gridded data read for this time</p>
             </td>
         </tr>
         <tr>
@@ -3467,7 +3577,7 @@ parameter
             <td>::</td>
             <td><strong>cyclic</strong></td>
             <td>
-
+<p>input file is cyclic or not</p>
             </td>
         </tr>
         <tr>
@@ -3482,7 +3592,17 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+ rc = 0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable     </p><a href="../proc/cfio_sgetvar.html#variable-rc~65" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -3497,7 +3617,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>CFIO_SPutVar</code> &ndash; Write a variable to the file</p><a href="../proc/cfio_sputvar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3522,7 +3642,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -3537,7 +3657,7 @@ parameter
             <td>::</td>
             <td><strong>vname</strong></td>
             <td>
-
+<p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -3552,7 +3672,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd</strong></td>
             <td>
-
+<p>Year-month-day, e.g., 19971003</p>
             </td>
         </tr>
         <tr>
@@ -3567,7 +3687,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss</strong></td>
             <td>
-
+<p>Hour-minute-second, e.g., 120000</p>
             </td>
         </tr>
         <tr>
@@ -3582,7 +3702,7 @@ parameter
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-
+<p>size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -3597,7 +3717,7 @@ parameter
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-
+<p>size of latitudinal  dimension</p>
             </td>
         </tr>
         <tr>
@@ -3612,7 +3732,8 @@ parameter
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-
+<p>first level to write; if 2-D grid
+  use kbeg = 0.</p>
             </td>
         </tr>
         <tr>
@@ -3627,7 +3748,7 @@ parameter
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-
+<p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -3642,7 +3763,7 @@ parameter
             <td>::</td>
             <td><strong>grid</strong>(im,kount)</td>
             <td>
-
+<p>Gridded data to write at this time</p>
             </td>
         </tr>
         <tr>
@@ -3657,7 +3778,19 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+ rc =  0  all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -15  data outside of valid range   <br>
+ rc = -16  data outside of packing range   <br>
+ rc = -17  data outside of pack and valid range     </p><a href="../proc/cfio_sputvar.html#variable-rc~64" class="pull-right"><emph>Read more&hellip;</emph></a>
             </td>
         </tr>
     </tbody>
@@ -3757,7 +3890,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>GX_</code> - evaluate a GrADS style string template</p><a href="../proc/gx_.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3872,7 +4005,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>GetBegDateTime</code> - Get begin date/time of file</p><a href="../proc/getbegdatetime.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3897,7 +4030,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>file ID</p>
             </td>
         </tr>
         <tr>
@@ -3912,7 +4045,7 @@ parameter
             <td>::</td>
             <td><strong>begDate</strong></td>
             <td>
-
+<p>beginning date</p>
             </td>
         </tr>
         <tr>
@@ -3927,7 +4060,7 @@ parameter
             <td>::</td>
             <td><strong>begTime</strong></td>
             <td>
-
+<p>beginning time</p>
             </td>
         </tr>
         <tr>
@@ -3942,7 +4075,7 @@ parameter
             <td>::</td>
             <td><strong>incSecs</strong></td>
             <td>
-
+<p>time increment in secs</p>
             </td>
         </tr>
         <tr>
@@ -3957,7 +4090,7 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>error return code</p>
             </td>
         </tr>
     </tbody>
@@ -3972,7 +4105,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>GetDateInt4</code> &mdash; Returns a new date/time from an initial date/time and offset</p><a href="../proc/getdateint4.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3997,7 +4130,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_1</strong></td>
             <td>
-
+<p>Initial date in YYYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -4012,7 +4145,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_1</strong></td>
             <td>
-
+<p>Initial time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -4027,7 +4160,7 @@ parameter
             <td>::</td>
             <td><strong>offset</strong></td>
             <td>
-
+<p>Offset to add (in seconds)</p>
             </td>
         </tr>
         <tr>
@@ -4042,7 +4175,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_2</strong></td>
             <td>
-
+<p>New date in YYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -4057,7 +4190,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_2</strong></td>
             <td>
-
+<p>New time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -4072,7 +4205,7 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Return code. (&lt;0 = error)</p>
             </td>
         </tr>
     </tbody>
@@ -4087,7 +4220,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>GetDateInt8</code> &mdash; Returns a new date/time from an initial date/time and offset</p><a href="../proc/getdateint8.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4112,7 +4245,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_1</strong></td>
             <td>
-
+<p>Initial date in YYYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -4127,7 +4260,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_1</strong></td>
             <td>
-
+<p>Initial time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -4142,7 +4275,7 @@ parameter
             <td>::</td>
             <td><strong>offset</strong></td>
             <td>
-
+<p>Offset to add (in seconds)</p>
             </td>
         </tr>
         <tr>
@@ -4157,7 +4290,7 @@ parameter
             <td>::</td>
             <td><strong>yyyymmdd_2</strong></td>
             <td>
-
+<p>New date in YYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -4172,7 +4305,7 @@ parameter
             <td>::</td>
             <td><strong>hhmmss_2</strong></td>
             <td>
-
+<p>New time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
@@ -4187,7 +4320,7 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Return code. (&lt;0 = error)</p>
             </td>
         </tr>
     </tbody>
@@ -4202,7 +4335,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>GetDateTimeVec</code> - Get date/time of file samples</p><a href="../proc/getdatetimevec.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4227,7 +4360,7 @@ parameter
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-
+<p>file ID</p>
             </td>
         </tr>
         <tr>
@@ -4242,7 +4375,7 @@ parameter
             <td>::</td>
             <td><strong>begDate</strong></td>
             <td>
-
+<p>Beginning date</p>
             </td>
         </tr>
         <tr>
@@ -4257,7 +4390,7 @@ parameter
             <td>::</td>
             <td><strong>begTime</strong></td>
             <td>
-
+<p>Beginning time</p>
             </td>
         </tr>
         <tr>
@@ -4272,7 +4405,7 @@ parameter
             <td>::</td>
             <td><strong>incVec</strong>(:)</td>
             <td>
-
+<p>Vector of offsets (seconds)</p>
             </td>
         </tr>
         <tr>
@@ -4287,7 +4420,7 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>error return code     </p>
             </td>
         </tr>
     </tbody>
@@ -4302,7 +4435,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>ParseTimeUnits</code> &ndash; Parse the COARDS time units string</p><a href="../proc/parsetimeunits.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4327,7 +4460,7 @@ parameter
             <td>::</td>
             <td><strong>TimeUnits</strong></td>
             <td>
-
+<p>Units metadata string from the Time coord var</p>
             </td>
         </tr>
         <tr>
@@ -4342,7 +4475,7 @@ parameter
             <td>::</td>
             <td><strong>year</strong></td>
             <td>
-
+<p>4-digit year</p>
             </td>
         </tr>
         <tr>
@@ -4357,7 +4490,7 @@ parameter
             <td>::</td>
             <td><strong>month</strong></td>
             <td>
-
+<p>month</p>
             </td>
         </tr>
         <tr>
@@ -4372,7 +4505,7 @@ parameter
             <td>::</td>
             <td><strong>day</strong></td>
             <td>
-
+<p>day</p>
             </td>
         </tr>
         <tr>
@@ -4387,7 +4520,7 @@ parameter
             <td>::</td>
             <td><strong>hour</strong></td>
             <td>
-
+<p>hour</p>
             </td>
         </tr>
         <tr>
@@ -4402,7 +4535,7 @@ parameter
             <td>::</td>
             <td><strong>min</strong></td>
             <td>
-
+<p>minute</p>
             </td>
         </tr>
         <tr>
@@ -4417,7 +4550,7 @@ parameter
             <td>::</td>
             <td><strong>sec</strong></td>
             <td>
-
+<p>second</p>
             </td>
         </tr>
         <tr>
@@ -4432,7 +4565,9 @@ parameter
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>return code   <br>
+ 0 = no error   <br>
+-1 = problem parsing string     </p>
             </td>
         </tr>
     </tbody>
@@ -4447,7 +4582,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>addList</code> &ndash; put user defined attribute into a list.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4562,7 +4697,7 @@ parameter
             <td>::</td>
             <td><strong>iList</strong></td>
             <td>
-
+<p>int list</p>
             </td>
         </tr>
         <tr>
@@ -4577,7 +4712,7 @@ parameter
             <td>::</td>
             <td><strong>rList</strong></td>
             <td>
-
+<p>real list</p>
             </td>
         </tr>
         <tr>
@@ -4592,7 +4727,7 @@ parameter
             <td>::</td>
             <td><strong>cList</strong></td>
             <td>
-
+<p>char list</p>
             </td>
         </tr>
     </tbody>
@@ -4607,7 +4742,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>getList</code> &ndash; retrieve defined attributes from a list</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4632,7 +4767,7 @@ parameter
             <td>::</td>
             <td><strong>iList</strong></td>
             <td>
-
+<p>int list</p>
             </td>
         </tr>
         <tr>
@@ -4647,7 +4782,7 @@ parameter
             <td>::</td>
             <td><strong>nIntAtt</strong></td>
             <td>
-
+<p>num of int att</p>
             </td>
         </tr>
         <tr>
@@ -4677,7 +4812,7 @@ parameter
             <td>::</td>
             <td><strong>intAttCnts</strong>(:)</td>
             <td>
-
+<p>data count in int att</p>
             </td>
         </tr>
         <tr>
@@ -4692,7 +4827,7 @@ parameter
             <td>::</td>
             <td><strong>intAtts</strong>(:,:)</td>
             <td>
-
+<p>int attribute</p>
             </td>
         </tr>
         <tr>
@@ -4707,7 +4842,7 @@ parameter
             <td>::</td>
             <td><strong>rList</strong></td>
             <td>
-
+<p>char list</p>
             </td>
         </tr>
         <tr>
@@ -4722,7 +4857,7 @@ parameter
             <td>::</td>
             <td><strong>nRealAtt</strong></td>
             <td>
-
+<p>num of real att</p>
             </td>
         </tr>
         <tr>
@@ -4752,7 +4887,7 @@ parameter
             <td>::</td>
             <td><strong>realAttCnts</strong>(:)</td>
             <td>
-
+<p>data count in real att</p>
             </td>
         </tr>
         <tr>
@@ -4767,7 +4902,7 @@ parameter
             <td>::</td>
             <td><strong>realAtts</strong>(:,:)</td>
             <td>
-
+<p>real attribute</p>
             </td>
         </tr>
         <tr>
@@ -4782,7 +4917,7 @@ parameter
             <td>::</td>
             <td><strong>cList</strong></td>
             <td>
-
+<p>real list</p>
             </td>
         </tr>
         <tr>
@@ -4797,7 +4932,7 @@ parameter
             <td>::</td>
             <td><strong>nCharAtt</strong></td>
             <td>
-
+<p>num of char att</p>
             </td>
         </tr>
         <tr>
@@ -4827,7 +4962,7 @@ parameter
             <td>::</td>
             <td><strong>charAttCnts</strong>(:)</td>
             <td>
-
+<p>data count in char att</p>
             </td>
         </tr>
         <tr>
@@ -4842,7 +4977,7 @@ parameter
             <td>::</td>
             <td><strong>charAtts</strong>(:)</td>
             <td>
-
+<p>char att</p>
             </td>
         </tr>
         <tr>
@@ -4872,7 +5007,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>getMaxLenCnt</code> &ndash; get length of a list and max number of data in the nodes</p><a href="../proc/getmaxlencnt.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4972,7 +5107,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  <p>!  uc_class=uppercase(tmpl_class)</p>
+  <p><code>strTemplate_</code> - expanding a format template to a string</p><a href="../proc/strtemplate_.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -5102,7 +5237,7 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>strToInt</code> - convert timeString to integer date and time</p><a href="../proc/strtoint.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -5127,7 +5262,7 @@ parameter
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-
+<p>string expression of data and time</p>
             </td>
         </tr>
         <tr>
@@ -5187,7 +5322,7 @@ parameter
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

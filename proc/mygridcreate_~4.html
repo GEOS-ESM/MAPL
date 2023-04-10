@@ -109,12 +109,12 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/utCFIO_Nbits.F90"> Source File</a>
+              <a href="../src/utDistIO.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/utcfio_nbits.f90.html'>utCFIO_Nbits.F90</a></li>
-              <li><a href='../program/utcfio~2.html'>utCFIO</a></li>
+              <li><a href='../sourcefile/utdistio.f90.html'>utDistIO.F90</a></li>
+              <li><a href='../program/utdistio.html'>utDistIO</a></li>
           <li class="active">MyGridCreate_</li>
         </ol>
       </div>
@@ -182,7 +182,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-vm~9"></span>
+              <span class="anchor" id="variable-vm~8"></span>
               type(ESMF_VM),
             </td>
 <td>intent(in)</td>
@@ -197,7 +197,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1277"></span>
+              <span class="anchor" id="variable-rc~1243"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -215,7 +215,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-grid~78"></span>
+          <span class="anchor" id="variable-grid~72"></span>
           type(ESMF_Grid)
         </small>
       </h3>
@@ -300,18 +300,18 @@
 <span class="c">! Get the IMXY vector</span>
 <span class="c">! -------------------</span>
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">imxy</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">GEOS_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 
 <span class="c">! Get the JMXY vector</span>
 <span class="c">! -------------------</span>
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">jmxy</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">ny</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">  </span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">GEOS_GET_LOCAL_DIMS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">deltaX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="n">pi</span><span class="o">/</span><span class="n">IM_WORLD</span><span class="w"></span>
 <span class="w">    </span><span class="n">deltaY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pi</span><span class="o">/</span><span class="p">(</span><span class="n">JM_WORLD</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="n">deltaZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">MAPL_Am_I_Root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GEOS_Am_I_Root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">       print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;nx : imxy = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; : &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">imxy</span><span class="w"></span>
 <span class="w">       </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ny : jmxy = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; : &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jmxy</span><span class="w"></span>
 <span class="w">    </span><span class="k">endif</span><span class="w"></span>
@@ -372,7 +372,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

@@ -180,6 +180,8 @@
     </div>
 
 
+    <p>Given an ESMF Config object and a filename, reads the corresponding file into
+a MAPL SimpleBundle.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -194,7 +196,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~27"></span>
+              <span class="anchor" id="variable-filename~25"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -224,7 +226,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~4"></span>
+              <span class="anchor" id="variable-grid~5"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
             </td>
 <td>intent(in)</td>
@@ -239,7 +241,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-time"></span>
+              <span class="anchor" id="variable-time~2"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(inout)</td>
@@ -254,7 +256,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-verbose~2"></span>
+              <span class="anchor" id="variable-verbose~4"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -314,7 +316,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-unusable~355"></span>
+              <span class="anchor" id="variable-unusable~341"></span>
               class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
             </td>
 <td>intent(in),</td>
@@ -329,7 +331,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1206"></span>
+              <span class="anchor" id="variable-rc~1216"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -347,11 +349,11 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-self~29"></span>
+          <span class="anchor" id="variable-self~4"></span>
           type(<a href='../type/mapl_simplebundle.html'>MAPL_SimpleBundle</a>)
         </small>
       </h3>
-      
+      <p>Simple Bundle</p>
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -401,9 +403,7 @@
 <span class="w">                                  </span><span class="n">only_vars</span><span class="p">,</span><span class="w"> </span><span class="n">expid</span><span class="p">,</span><span class="w"> </span><span class="n">voting</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span><span class="w"></span>
 
-<span class="c">! !ARGUMENTS:</span>
-
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SimpleBundle</span><span class="p">)</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="c">! Simple Bundle</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SimpleBundle</span><span class="p">)</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w"> </span><span class="c">!! Simple Bundle</span>
 
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span><span class="w"></span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_name</span><span class="w"></span>
@@ -416,12 +416,6 @@
 <span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w">          </span><span class="k">optional</span><span class="p">,</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">voting</span><span class="w"></span>
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
-<span class="c">!  !DESCRIPTION:</span>
-<span class="c">!</span>
-<span class="c">!   Given an ESMF Config object and a filename, reads the corresponding file into</span>
-<span class="c">!    a MAPL SimpleBundle.</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-----------------------------------------------------------------------------</span>
 
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
@@ -460,7 +454,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

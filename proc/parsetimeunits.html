@@ -168,6 +168,16 @@
 </h2>
     
 
+    <p><code>ParseTimeUnits</code> &ndash; Parse the COARDS time units string</p>
+<p>This subroutine takes as input the COARDS metadata time
+ units string and parses out the date included in the string.
+ This date typically represents the first time in a COARDS
+ HDF files.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>2000.10.18  Lucchesi  Initial coding.</li>
+<li>2001.08.13  Lucchesi  Modified to better parse time:units string (needed for lats4d support)</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -192,12 +202,12 @@
             <td>::</td>
             <td><strong>TimeUnits</strong></td>
             <td>
-                
+                <p>Units metadata string from the Time coord var</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-year~2"></span>
+              <span class="anchor" id="variable-year"></span>
               integer
             </td>
 <td></td>
@@ -207,12 +217,12 @@
             <td>::</td>
             <td><strong>year</strong></td>
             <td>
-                
+                <p>4-digit year</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-month~2"></span>
+              <span class="anchor" id="variable-month"></span>
               integer
             </td>
 <td></td>
@@ -222,12 +232,12 @@
             <td>::</td>
             <td><strong>month</strong></td>
             <td>
-                
+                <p>month</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-day~2"></span>
+              <span class="anchor" id="variable-day"></span>
               integer
             </td>
 <td></td>
@@ -237,12 +247,12 @@
             <td>::</td>
             <td><strong>day</strong></td>
             <td>
-                
+                <p>day</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hour~4"></span>
+              <span class="anchor" id="variable-hour"></span>
               integer
             </td>
 <td></td>
@@ -252,12 +262,12 @@
             <td>::</td>
             <td><strong>hour</strong></td>
             <td>
-                
+                <p>hour</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-min~8"></span>
+              <span class="anchor" id="variable-min"></span>
               integer
             </td>
 <td></td>
@@ -267,12 +277,12 @@
             <td>::</td>
             <td><strong>min</strong></td>
             <td>
-                
+                <p>minute</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sec~2"></span>
+              <span class="anchor" id="variable-sec"></span>
               integer
             </td>
 <td></td>
@@ -282,12 +292,12 @@
             <td>::</td>
             <td><strong>sec</strong></td>
             <td>
-                
+                <p>second</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1107"></span>
+              <span class="anchor" id="variable-rc~63"></span>
               integer
             </td>
 <td></td>
@@ -297,7 +307,9 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>return code   <br>
+ 0 = no error   <br>
+-1 = problem parsing string     </p>
             </td>
         </tr>
     </tbody>
@@ -356,27 +368,21 @@
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">TimeUnits</span><span class="w">      </span><span class="c">! Units metadata string from the Time coord var</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">TimeUnits</span><span class="w">      </span><span class="c">!! Units metadata string from the Time coord var</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">year</span><span class="w">               </span><span class="c">! 4-digit year</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">month</span><span class="w">              </span><span class="c">! month</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">day</span><span class="w">                </span><span class="c">! day</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">hour</span><span class="w">               </span><span class="c">! hour</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="nb">min</span><span class="w">                </span><span class="c">! minute</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">sec</span><span class="w">                </span><span class="c">! second</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">                 </span><span class="c">! return code</span>
-<span class="w">                                        </span><span class="c">!  0 = no error</span>
-<span class="w">                                        </span><span class="c">! -1 = problem parsing string</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">year</span><span class="w">               </span><span class="c">!! 4-digit year</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">month</span><span class="w">              </span><span class="c">!! month</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">day</span><span class="w">                </span><span class="c">!! day</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">hour</span><span class="w">               </span><span class="c">!! hour</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="nb">min</span><span class="w">                </span><span class="c">!! minute</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">sec</span><span class="w">                </span><span class="c">!! second</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">                 </span><span class="c">!! return code     </span>
+<span class="w">                                        </span><span class="c">!!  0 = no error     </span>
+<span class="w">                                        </span><span class="c">!! -1 = problem parsing string     </span>
 
-<span class="c">! !REVISION HISTORY:</span>
 <span class="c">!</span>
-<span class="c">!  2000.10.18  Lucchesi       Initial coding.</span>
-<span class="c">!  2001.08.13  Lucchesi       Modified to better parse time:units string (needed for lats4d</span>
-<span class="c">!support)</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 
@@ -480,7 +486,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

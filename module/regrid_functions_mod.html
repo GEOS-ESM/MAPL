@@ -144,7 +144,7 @@
             <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-ii_out">II_Out</a>
             <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-jj_in">JJ_In</a>
             <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-jj_out">JJ_Out</a>
-            <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-w">W</a>
+            <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-w~2">W</a>
         </div>
       </div>
     </div>
@@ -196,7 +196,13 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-regrid_functions_mod">MODULE: <code>regrid_functions_mod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p>The module <code>regrid_functions_mod</code> contains functions for regridding.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>09 Jan 2017 - S. D. Eastham - Initial version</li>
+</ul>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -204,8 +210,8 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li>netcdf</li>
                 <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
+                <li>netcdf</li>
             </ul>
           </li>
       </ul>
@@ -229,7 +235,7 @@
             <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-ii_out">II_Out</a>
             <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-jj_in">JJ_In</a>
             <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-jj_out">JJ_Out</a>
-            <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-w">W</a>
+            <a class="list-group-item" href="../module/regrid_functions_mod.html#variable-w~2">W</a>
         </div>
       </div>
     </div>
@@ -362,7 +368,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-w"></span>
+              <span class="anchor" id="variable-w~2"></span>
               real(kind=sp),
             </td>
               <td>public,</td>
@@ -395,7 +401,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The subroutine <code>Assert</code> checks if the output value is valid.</p><a href="../proc/assert.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -480,7 +486,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>Cleanup</code> closes any remaining open files.</p><a href="../proc/cleanup.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -520,7 +526,9 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>GetLUN</code> finds a valid logical unit number in the
+ range 1-100. IMPORTANT: This is the minimal-effort version of this
+ routine, and extremely slow!</p><a href="../proc/getlun.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -575,7 +583,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>ReadInput</code> reads the input options file.</p><a href="../proc/readinput.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -720,7 +728,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The subroutine <code>Set_fID</code> sets the file ID shadow variables.</p><a href="../proc/set_fid.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -790,7 +798,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>genGridName</code> returns the name of a grid based on
+ certain parameters. This mimics the MAPL behavior.</p><a href="../proc/gengridname.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -950,7 +959,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>nXYtoVec</code> estimate the X/Y mid-point vectors
+ based on as little data as possible.</p><a href="../proc/nxytovec.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1065,7 +1075,10 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>parseGridName</code> determines a grid specification
+ based on a string. The string can either be a standardized MAPL grid
+ name (eg DE0180xPC0091, CF0024x6C) or a small number of shorthand
+ options:</p><a href="../proc/parsegridname.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1180,7 +1193,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>readTileFile</code> reads a tile file and stores the
+ relevant data in module variables for later use.</p><a href="../proc/readtilefile.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1265,7 +1279,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>readTileFileNC</code> reads a Tempest NetCDF tile file
+ and stores the relevant data in module variables for later use.</p><a href="../proc/readtilefilenc.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1405,7 +1420,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>regridData</code> regrids from lat-lon to cubed-sphere,
+  using tile file data already read in.</p><a href="../proc/regriddata.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1490,7 +1506,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

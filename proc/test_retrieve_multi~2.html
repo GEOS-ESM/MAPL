@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">11 statements</a>
+               title=" 0.1% of total for procedures.">54 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_StringGridFactoryMap.pf"> Source File</a>
+              <a href="../src/Test_RegridderManager.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_stringgridfactorymap.pf.html'>Test_StringGridFactoryMap.pf</a></li>
-              <li><a href='../module/test_stringgridfactorymap.html'>Test_StringGridFactoryMap</a></li>
+              <li><a href='../sourcefile/test_regriddermanager.pf.html'>Test_RegridderManager.pf</a></li>
+              <li><a href='../module/test_regridderfactoryregistry.html'>Test_RegridderFactoryRegistry</a></li>
           <li class="active">test_retrieve_multi</li>
         </ol>
       </div>
@@ -218,18 +218,71 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_retrieve_multi</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringGridFactoryMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">registry</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">g_A</span><span class="p">,</span><span class="w"> </span><span class="n">g_B</span><span class="p">,</span><span class="w"> </span><span class="n">g_C</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder_spec</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderFactorySpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec_AB</span><span class="p">,</span><span class="w"> </span><span class="n">spec_BC</span><span class="p">,</span><span class="w"> </span><span class="n">spec_CB</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderFactoryRegistry</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">registry</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MockGridFactory</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MockGridFactory</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MockGridFactory</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractRegridderFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">to_string</span><span class="p">())</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">to_string</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="n">g_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridEmptyCreate</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">g_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridEmptyCreate</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">g_C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridEmptyCreate</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">g_A</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridType&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">g_B</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridType&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">g_C</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridType&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">regridder_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">g_A</span><span class="p">,</span><span class="w"> </span><span class="n">g_B</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">spec_AB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderFactorySpec</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec_AB</span><span class="p">,</span><span class="w"> </span><span class="n">MockRegridderFactory</span><span class="p">(</span><span class="s1">&#39;A to B&#39;</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">regridder_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">g_B</span><span class="p">,</span><span class="w"> </span><span class="n">g_C</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">spec_BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderFactorySpec</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec_BC</span><span class="p">,</span><span class="w"> </span><span class="n">MockRegridderFactory</span><span class="p">(</span><span class="s1">&#39;B to C&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">regridder_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">g_C</span><span class="p">,</span><span class="w"> </span><span class="n">g_B</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">spec_CB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderFactorySpec</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">registry</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec_CB</span><span class="p">,</span><span class="w"> </span><span class="n">MockRegridderFactory</span><span class="p">(</span><span class="s1">&#39;C to B&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">spec_AB</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">factory</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">regridder_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegridderSpec</span><span class="p">(</span><span class="n">g_C</span><span class="p">,</span><span class="w"> </span><span class="n">g_A</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">regridder</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">factory</span><span class="p">%</span><span class="n">make_regridder</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">MockRegridder</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;A to B::C -&gt; A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">regridder</span><span class="p">%</span><span class="n">get_name</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">class </span><span class="n">default</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">throw</span><span class="p">(</span><span class="s1">&#39;incorrect type of regridder returned&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">spec_BC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">factory</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">regridder</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">factory</span><span class="p">%</span><span class="n">make_regridder</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">MockRegridder</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;B to C::C -&gt; A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">regridder</span><span class="p">%</span><span class="n">get_name</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">class </span><span class="n">default</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">throw</span><span class="p">(</span><span class="s1">&#39;incorrect type of regridder returned&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">registry</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">spec_CB</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">factory</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">regridder</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">factory</span><span class="p">%</span><span class="n">make_regridder</span><span class="p">(</span><span class="n">regridder_spec</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">MockRegridder</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;C to B::C -&gt; A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">regridder</span><span class="p">%</span><span class="n">get_name</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">class </span><span class="n">default</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">throw</span><span class="p">(</span><span class="s1">&#39;incorrect type of regridder returned&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">test_retrieve_multi</span><span class="w"></span>
 </pre></div>
@@ -252,7 +305,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

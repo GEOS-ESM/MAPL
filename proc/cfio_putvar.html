@@ -168,6 +168,26 @@
 </h2>
     
 
+    <p><code>CFIO_PutVar</code> &ndash; Write a variable to the file</p>
+<p>This routine is used to write a variable to an open CFIO
+ stream.  Multiple vertical levels can be written at one
+ time provided they are contiguous in memory.  Date and time
+ must be consistent with the time increment and the starting
+ date/time as defined in CFIO_Create.  Times must fall on
+ minute boundaries to allow GrADS to work.  Error checking is
+ done for dimensions that are out of bounds.</p>
+<h4 id="history">HIstory</h4>
+<ul>
+<li>1997.10.13 da Silva/Lucchesi   Initial interface design.</li>
+<li>1998.02.10 Lucchesi  Added support for applications running with 64-bit reals.</li>
+<li>1998.03.30 Lucchesi  Documentation expanded.  Clean-up of code.</li>
+<li>1998.07.02 Lucchesi  Replaced vid with vname in argument list &amp; made related mods to code.</li>
+<li>1998.09.24 Lucchesi  Changed error codes, removed DIM_CHECK if-def</li>
+<li>1998.10.27 Lucchesi  Added support for packing and range checks</li>
+<li>1998.12.15 Lucchesi  Added support for skipping times (allTimes)</li>
+<li>1999.01.04 Lucchesi  Fixed bug in skipping times (allTimes)/also changed variable initialization.</li>
+<li>1999.07.13 Lucchesi  Changes for REAL or INT time dimension</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +202,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-fid~15"></span>
+              <span class="anchor" id="variable-fid~19"></span>
               integer
             </td>
 <td></td>
@@ -192,12 +212,12 @@
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-                
+                <p>File handle</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~4"></span>
+              <span class="anchor" id="variable-vname~5"></span>
               character(len=*)
             </td>
 <td></td>
@@ -207,12 +227,12 @@
             <td>::</td>
             <td><strong>vname</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-yyyymmdd~2"></span>
+              <span class="anchor" id="variable-yyyymmdd~4"></span>
               integer
             </td>
 <td></td>
@@ -222,7 +242,7 @@
             <td>::</td>
             <td><strong>yyyymmdd</strong></td>
             <td>
-                
+                <p>Year-month-day, e.g., 19971003</p>
             </td>
         </tr>
         <tr>
@@ -237,7 +257,7 @@
             <td>::</td>
             <td><strong>hhmmss</strong></td>
             <td>
-                
+                <p>Hour-minute-second, e.g., 120000</p>
             </td>
         </tr>
         <tr>
@@ -252,7 +272,7 @@
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-                
+                <p>size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -267,12 +287,12 @@
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-                
+                <p>size of latitudinal  dimension</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kbeg~2"></span>
+              <span class="anchor" id="variable-kbeg~18"></span>
               integer
             </td>
 <td></td>
@@ -282,12 +302,13 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write; if 2-D grid
+  use kbeg = 0.</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kount~2"></span>
+              <span class="anchor" id="variable-kount~18"></span>
               integer
             </td>
 <td></td>
@@ -297,12 +318,12 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~47"></span>
+              <span class="anchor" id="variable-grid~9"></span>
               real
             </td>
 <td></td>
@@ -312,7 +333,7 @@
             <td>::</td>
             <td><strong>grid</strong>(im,jm,kount)</td>
             <td>
-                
+                <p>Gridded data to write at this time</p>
             </td>
         </tr>
         <tr>
@@ -332,7 +353,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1100"></span>
+              <span class="anchor" id="variable-rc~67"></span>
               integer
             </td>
 <td></td>
@@ -342,7 +363,31 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+ rc =  0  all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -15  data outside of valid range   <br>
+ rc = -16  data outside of packing range   <br>
+ rc = -17  data outside of pack and valid range     </p>
+<p>NetCDF Errors     </p>
+<hr>
+<p>rc = -38  error from NF90_PUT_VAR (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -45  error from NF90_PUT_VAR   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE   <br>
+ rc = -53  error from NF90_GET_ATT     </p>
             </td>
         </tr>
     </tbody>
@@ -404,65 +449,49 @@
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">                 </span><span class="c">! File handle</span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">! Variable name</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">            </span><span class="c">! Year-month-day, e.g., 19971003</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">hhmmss</span><span class="w">              </span><span class="c">! Hour-minute-second, e.g., 120000</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">                 </span><span class="c">!! File handle</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">            </span><span class="c">!! Year-month-day, e.g., 19971003</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">hhmmss</span><span class="w">              </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 
-<span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">                 </span><span class="c">! size of longitudinal dimension</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">jm</span><span class="w">                 </span><span class="c">! size of latitudinal  dimension</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">kbeg</span><span class="w">               </span><span class="c">! first level to write; if 2-D grid</span>
-<span class="w">                                         </span><span class="c">!   use kbeg = 0.</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">kount</span><span class="w">              </span><span class="c">! number of levels to write</span>
-<span class="w">      </span><span class="kt">real            </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">! Gridded data to write at this time</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">                 </span><span class="c">!! size of longitudinal dimension</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">jm</span><span class="w">                 </span><span class="c">!! size of latitudinal  dimension</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">kbeg</span><span class="w">               </span><span class="c">!! first level to write; if 2-D grid</span>
+<span class="w">                                         </span><span class="c">!!   use kbeg = 0.</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">kount</span><span class="w">              </span><span class="c">!! number of levels to write</span>
+<span class="w">      </span><span class="kt">real            </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data to write at this time</span>
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w">      </span><span class="n">useFaceDim</span><span class="w"></span>
 
 
 <span class="c">! !OUTPUT PARAMETERS:</span>
 
-<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">! Error return code:</span>
-<span class="w">                         </span><span class="c">!  rc =  0  all is well</span>
-<span class="w">                         </span><span class="c">!  rc = -2  time is inconsistent with increment</span>
-<span class="w">                         </span><span class="c">!  rc = -3  number of levels is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -4  im is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -5  jm is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -6  time must fall on a minute boundary</span>
-<span class="w">                         </span><span class="c">!  rc = -7  error in diffdate</span>
-<span class="w">                         </span><span class="c">!  rc = -12  error determining default precision</span>
-<span class="w">                         </span><span class="c">!  rc = -13  error determining variable type</span>
-<span class="w">                         </span><span class="c">!  rc = -15  data outside of valid range</span>
-<span class="w">                         </span><span class="c">!  rc = -16  data outside of packing range</span>
-<span class="w">                         </span><span class="c">!  rc = -17  data outside of pack and valid range</span>
-<span class="w">                         </span><span class="c">!</span>
-<span class="w">                         </span><span class="c">!  NetCDF Errors</span>
-<span class="w">                         </span><span class="c">!  -------------</span>
-<span class="w">                         </span><span class="c">!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
-<span class="w">                         </span><span class="c">!  rc = -40  error from NF90_INQ_VARID</span>
-<span class="w">                         </span><span class="c">!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
-<span class="w">                         </span><span class="c">!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
-<span class="w">                         </span><span class="c">!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
-<span class="w">                         </span><span class="c">!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
-<span class="w">                         </span><span class="c">!  rc = -45  error from NF90_PUT_VAR</span>
-<span class="w">                         </span><span class="c">!  rc = -46  error from NF90_GET_VAR</span>
-<span class="w">                         </span><span class="c">!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
-<span class="w">                         </span><span class="c">!  rc = -53  error from NF90_GET_ATT</span>
-
-<span class="c">! !REVISION HISTORY:</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:     </span>
+<span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
+<span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
+<span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
+<span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
+<span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
+<span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
+<span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range     </span>
+<span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range     </span>
+<span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range     </span>
+<span class="w">                         </span><span class="c">!!     </span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
+<span class="w">                         </span><span class="c">!!  -------------     </span>
+<span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
+<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -45  error from NF90_PUT_VAR     </span>
+<span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
+<span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
+<span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT     </span>
 <span class="c">!</span>
-<span class="c">!  1997.10.13 da Silva/Lucchesi   Initial interface design.</span>
-<span class="c">!  1998.02.10 Lucchesi            Added support for applications running with</span>
-<span class="c">!                                 64-bit reals.</span>
-<span class="c">!  1998.03.30 Lucchesi            Documentation expanded.  Clean-up of code.</span>
-<span class="c">!  1998.07.02 Lucchesi            Replaced vid with vname in argument list &amp;</span>
-<span class="c">!                                 made related mods to code.</span>
-<span class="c">!  1998.09.24 Lucchesi            Changed error codes, removed DIM_CHECK if-def</span>
-<span class="c">!  1998.10.27 Lucchesi            Added support for packing and range checks</span>
-<span class="c">!  1998.12.15 Lucchesi            Added support for skipping times (allTimes)</span>
-<span class="c">!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also</span>
-<span class="c">!                                 changed variable initialization.</span>
-<span class="c">!  1999.07.13 Lucchesi            Changes for REAL or INT time dimension</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">      </span><span class="kt">integer </span><span class="n">timeid</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">timeType</span><span class="w"></span>
@@ -812,7 +841,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

@@ -168,6 +168,28 @@
 </h2>
     
 
+    <p><code>MAPL_GenericSetServices</code> performs the following tasks:
+- Allocate an instance of MAPL_GenericState, wrap it, and set it as the
+   GC&rsquo;s internal state.
+- Exract the grid and configuration from the GC and save them in the
+   generic state.
+- Set GC&rsquo;s IRF methods to the generic versions
+- If there are children
+   - Allocate a gridded comoponent and an import and export state for each child
+   - Create each child&rsquo;s GC using the natural grid and the inherited configuration.
+   - Create each child&rsquo;s Import and Export states. These are named
+      <code>GCNames(I)//"_IMPORT"</code> and <code>GCNames(I)//"_EXPORT"</code>.
+   - Invoke each child&rsquo;s set services.
+   - Add each item in each child&rsquo;s export state to GC&rsquo;s export state.
+   - Add each item in each child&rsquo;s import state to GC&rsquo;s import,
+      eliminating duplicates.</p>
+<p>Since <code>MAPL_GenericSetServices</code> calls SetServices for the children,
+ which may be generic themselves, the routine must be recursive.</p>
+<p>The optional arguments describe the component&rsquo;s children. There can be any
+ number of children but they must be of one of the types specified by the
+ five SetServices entry points passed. If SSptr is not specified there can
+ only be five children, one for each {\tt SSn}, and the names must be in
+ <code>SSn</code> order.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +204,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~20"></span>
+              <span class="anchor" id="variable-gc~5"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -192,12 +214,12 @@
             <td>::</td>
             <td><strong>GC</strong></td>
             <td>
-                
+                <p>Gridded component</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~38"></span>
+              <span class="anchor" id="variable-rc~3"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -207,7 +229,7 @@
             <td>::</td>
             <td><strong>RC</strong></td>
             <td>
-                
+                <p>Return code</p>
             </td>
         </tr>
     </tbody>
@@ -261,49 +283,8 @@
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">MAPL_GenericSetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="c">!ARGUMENTS:</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w">                  </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">  </span><span class="c">! Gridded component</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                              </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span><span class="c">! Return code</span>
-
-<span class="w">      </span><span class="c">! !DESCRIPTION: {\tt MAPL\_GenericSetServices} performs the following tasks:</span>
-
-<span class="w">      </span><span class="c">!\begin{itemize}</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!  Allocate an instance of MAPL\_GenericState, wrap it, and set it as the</span>
-<span class="w">      </span><span class="c">!  GC&#39;s internal state.</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!  Exract the grid and configuration from the GC and save them in the</span>
-<span class="w">      </span><span class="c">!  generic state.</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!  Set GC&#39;s IRF methods to the generic versions</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!  If there are children</span>
-<span class="w">      </span><span class="c">!\begin{itemize}</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!   Allocate a gridded comoponent and an import and export state for each child</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!   Create each child&#39;s GC using the natural grid and the inherited configuration.</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!  Create each child&#39;s Import and Export states. These are named</span>
-<span class="w">      </span><span class="c">!  {\tt GCNames(I)//&quot;\_IMPORT&quot;} and {\tt GCNames(I)//&quot;\_EXPORT&quot;}</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!   Invoke each child&#39;s set services.</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!   Add each item in each child&#39;s export state to GC&#39;s export state.</span>
-<span class="w">      </span><span class="c">!\item</span>
-<span class="w">      </span><span class="c">!   Add each item in each child&#39;s import state to GC&#39;s import,</span>
-<span class="w">      </span><span class="c">!   eliminating duplicates.</span>
-<span class="w">      </span><span class="c">!\end{itemize}</span>
-<span class="w">      </span><span class="c">!\end{itemize}</span>
-<span class="w">      </span><span class="c">! Since {\tt MAPL\_GenericSetServices} calls SetServices for the children,</span>
-<span class="w">      </span><span class="c">! which may be generic themselves, the routine must be recursive.</span>
-<span class="w">      </span><span class="c">!</span>
-<span class="w">      </span><span class="c">! The optional arguments describe the component&#39;s children. There can be any</span>
-<span class="w">      </span><span class="c">!  number of children but they must be of one of the types specified by the</span>
-<span class="w">      </span><span class="c">!  five SetServices entry points passed. If SSptr is not specified there can</span>
-<span class="w">      </span><span class="c">!  only be five children, one for each {\tt SSn}, and the names must be in</span>
-<span class="w">      </span><span class="c">!  {\tt SSn} order.</span>
-<span class="w">      </span><span class="c">!EOPI</span>
-
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w">                  </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">  </span><span class="c">!! Gridded component</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                              </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span><span class="c">!! Return code</span>
 
 <span class="w">      </span><span class="c">! ErrLog Variables</span>
 <span class="w">      </span><span class="c">!-----------------</span>
@@ -538,7 +519,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">31 statements</a>
+               title=" 0.1% of total for procedures.">32 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Regrid_Util.F90"> Source File</a>
+              <a href="../src/time_ave_util.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/regrid_util.f90.html'>Regrid_Util.F90</a></li>
-              <li><a href='../program/regrid_util.html'>Regrid_Util</a></li>
+              <li><a href='../sourcefile/time_ave_util.f90.html'>time_ave_util.F90</a></li>
+              <li><a href='../program/time_ave.html'>time_ave</a></li>
           <li class="active">get_file_levels</li>
         </ol>
       </div>
@@ -182,7 +182,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~14"></span>
+              <span class="anchor" id="variable-filename~15"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -212,7 +212,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1021"></span>
+              <span class="anchor" id="variable-rc~1099"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -295,15 +295,17 @@
 <span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">create</span><span class="p">(</span><span class="n">basic_metadata</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span><span class="w"></span>
 <span class="w">      </span><span class="n">lev_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_level_name</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_coordinate_info</span><span class="p">(</span><span class="n">lev_name</span><span class="p">,</span><span class="n">coords</span><span class="o">=</span><span class="n">levs</span><span class="p">,</span><span class="n">coordUnits</span><span class="o">=</span><span class="n">lev_units</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="n">long_name</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="n">standard_name</span><span class="o">=</span><span class="n">standard_name</span><span class="p">,</span><span class="n">coordinate_attr</span><span class="o">=</span><span class="n">vcoord</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">standard_name</span><span class="o">=</span><span class="n">standard_name</span><span class="p">,</span><span class="n">coordinate_attr</span><span class="o">=</span><span class="n">vcoord</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="n">plevs</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">levs</span><span class="w"></span>
 <span class="w">      </span><span class="n">vertical_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VerticalData</span><span class="p">(</span><span class="n">levels</span><span class="o">=</span><span class="n">plevs</span><span class="p">,</span><span class="n">vunit</span><span class="o">=</span><span class="n">lev_units</span><span class="p">,</span><span class="n">vcoord</span><span class="o">=</span><span class="n">vcoord</span><span class="p">,</span><span class="n">standard_name</span><span class="o">=</span><span class="n">standard_name</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="n">long_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                      </span><span class="n">force_no_regrid</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">force_no_regrid</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">nullify</span><span class="p">(</span><span class="n">plevs</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="o">=</span><span class="err">_</span><span class="n">SUCCESS</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
 
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_file_levels</span><span class="w"></span>
+<span class="k">   end subroutine </span><span class="n">get_file_levels</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -324,7 +326,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

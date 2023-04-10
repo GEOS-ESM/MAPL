@@ -168,6 +168,7 @@
 </h2>
     
 
+    <p><code>ESMF_CFIOSdfFileOpen</code> &ndash; open a CFIO file, and get CFIO meta data into a cfio Object.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +183,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cfio~8"></span>
+              <span class="anchor" id="variable-cfio~19"></span>
               type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
             </td>
 <td>intent(inout)</td>
@@ -192,7 +193,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO object</p>
             </td>
         </tr>
         <tr>
@@ -207,12 +208,13 @@
             <td>::</td>
             <td><strong>fmode</strong></td>
             <td>
-                
+                <p>0 for READ-WRITE
+non-zero for READ-ONLY</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1110"></span>
+              <span class="anchor" id="variable-rc~30"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -222,7 +224,27 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+-1   invalid count   <br>
+-2   type mismatch   <br>
+-12  error determining default precision   <br>
+-10  ngatts is incompatible with file   <br>
+-11  character string not long enough   <br>
+-19  unable to identify coordinate variable   <br>
+-36  error from NF90_PUT_ATT (global attribute)   <br>
+-39  error from ncopn (file open)   <br>
+-40  error from NF90_INQ_VARID   <br>
+-41  error from NF90_INQ_DIMID (lat or lon)   <br>
+-42  error from NF90_INQ_DIMID (lev)   <br>
+-43  error from NF90_INQ_VARID (time variable)   <br>
+-47  error from NF90_INQ_DIMID (time)   <br>
+-48  error from NF90_INQUIRE   <br>
+-51  error from NF90_GET_ATT (global attribute)   <br>
+-52  error from NF90_INQUIRE_VARIABLE   <br>
+-53  error from NF90_GET_ATT   <br>
+-57  error from NF90_INQ_ATTNAME   <br>
+-58  error from NF90_INQUIRE_ATTRIBUTE     </p>
             </td>
         </tr>
         <tr>
@@ -237,12 +259,12 @@
             <td>::</td>
             <td><strong>expid</strong></td>
             <td>
-                
+                <p>Experiment ID</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-cyclic~3"></span>
+              <span class="anchor" id="variable-cyclic~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -252,7 +274,7 @@
             <td>::</td>
             <td><strong>cyclic</strong></td>
             <td>
-                
+                <p>cyclic input file</p>
             </td>
         </tr>
     </tbody>
@@ -304,49 +326,43 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOSdfFileOpen</span><span class="w"> </span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">fmode</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">expid</span><span class="p">,</span><span class="w"> </span><span class="n">cyclic</span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!</span>
-<span class="c">! !ARGUMENTS:</span>
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmode</span><span class="w">              </span><span class="c">! 0 for READ-WRITE</span>
-<span class="w">                                                </span><span class="c">! non-zero for READ-ONLY</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expid</span><span class="w">   </span><span class="c">! Experiment ID</span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cyclic</span><span class="w">           </span><span class="c">! cyclic input file</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmode</span><span class="w">              </span><span class="c">!! 0 for READ-WRITE</span>
+<span class="w">                                                </span><span class="c">!! non-zero for READ-ONLY</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expid</span><span class="w">   </span><span class="c">!! Experiment ID</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cyclic</span><span class="w">           </span><span class="c">!! cyclic input file</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">! Error return code:</span>
-<span class="w">                                                </span><span class="c">! 0   all is well</span>
-<span class="w">                         </span><span class="c">! -1   invalid count</span>
-<span class="w">                         </span><span class="c">! -2   type mismatch</span>
-<span class="w">                         </span><span class="c">! -12  error determining default precision</span>
-<span class="w">                         </span><span class="c">! -10  ngatts is incompatible with file</span>
-<span class="w">                         </span><span class="c">! -11  character string not long enough</span>
-<span class="w">                         </span><span class="c">! -19  unable to identify coordinate variable</span>
-<span class="w">                         </span><span class="c">! -36  error from NF90_PUT_ATT (global attribute)</span>
-<span class="w">                         </span><span class="c">! -39  error from ncopn (file open)</span>
-<span class="w">                         </span><span class="c">! -40  error from NF90_INQ_VARID</span>
-<span class="w">                         </span><span class="c">! -41  error from NF90_INQ_DIMID (lat or lon)</span>
-<span class="w">                         </span><span class="c">! -42  error from NF90_INQ_DIMID (lev)</span>
-<span class="w">                         </span><span class="c">! -43  error from NF90_INQ_VARID (time variable)</span>
-<span class="w">                         </span><span class="c">! -47  error from NF90_INQ_DIMID (time)</span>
-<span class="w">                         </span><span class="c">! -48  error from NF90_INQUIRE</span>
-<span class="w">                         </span><span class="c">! -51  error from NF90_GET_ATT (global attribute)</span>
-<span class="w">                         </span><span class="c">! -52  error from NF90_INQUIRE_VARIABLE</span>
-<span class="w">                         </span><span class="c">! -53  error from NF90_GET_ATT</span>
-<span class="w">                         </span><span class="c">! -57  error from NF90_INQ_ATTNAME</span>
-<span class="w">                         </span><span class="c">! -58  error from NF90_INQUIRE_ATTRIBUTE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">!! Error return code:     </span>
+<span class="w">                                                </span><span class="c">!! 0   all is well     </span>
+<span class="w">                         </span><span class="c">!! -1   invalid count     </span>
+<span class="w">                         </span><span class="c">!! -2   type mismatch     </span>
+<span class="w">                         </span><span class="c">!! -12  error determining default precision     </span>
+<span class="w">                         </span><span class="c">!! -10  ngatts is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!! -11  character string not long enough     </span>
+<span class="w">                         </span><span class="c">!! -19  unable to identify coordinate variable     </span>
+<span class="w">                         </span><span class="c">!! -36  error from NF90_PUT_ATT (global attribute)     </span>
+<span class="w">                         </span><span class="c">!! -39  error from ncopn (file open)     </span>
+<span class="w">                         </span><span class="c">!! -40  error from NF90_INQ_VARID     </span>
+<span class="w">                         </span><span class="c">!! -41  error from NF90_INQ_DIMID (lat or lon)     </span>
+<span class="w">                         </span><span class="c">!! -42  error from NF90_INQ_DIMID (lev)     </span>
+<span class="w">                         </span><span class="c">!! -43  error from NF90_INQ_VARID (time variable)     </span>
+<span class="w">                         </span><span class="c">!! -47  error from NF90_INQ_DIMID (time)     </span>
+<span class="w">                         </span><span class="c">!! -48  error from NF90_INQUIRE     </span>
+<span class="w">                         </span><span class="c">!! -51  error from NF90_GET_ATT (global attribute)     </span>
+<span class="w">                         </span><span class="c">!! -52  error from NF90_INQUIRE_VARIABLE     </span>
+<span class="w">                         </span><span class="c">!! -53  error from NF90_GET_ATT     </span>
+<span class="w">                         </span><span class="c">!! -57  error from NF90_INQ_ATTNAME     </span>
+<span class="w">                         </span><span class="c">!! -58  error from NF90_INQUIRE_ATTRIBUTE     </span>
 
 <span class="c">!</span>
 <span class="c">! !INPUT/OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">    </span><span class="c">! a CFIO object</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">    </span><span class="c">!! a CFIO object</span>
 <span class="c">!</span>
-<span class="c">! !DESCRIPTION:</span>
-<span class="c">!     open a CFIO file, and get CFIO meta data into a cfio Object.</span>
-<span class="c">!EOP</span>
 <span class="c">!------------------------------------------------------------------------------</span>
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngatts</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">ii</span><span class="p">,</span><span class="w"> </span><span class="n">iv</span><span class="w"></span>
 <span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">amiss</span><span class="w"></span>
@@ -1104,7 +1120,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

@@ -68,7 +68,7 @@ module pFIO_UtilitiesMod
 
 contains
 
-!!! length
+!-- length
 
    integer function serialize_buffer_length_string(str, rc) result(length)
       character(len=*),  intent(in) :: str
@@ -171,7 +171,7 @@ contains
       _RETURN(_SUCCESS)
    end function serialize_buffer_length_logical_1d
 
-!!! serializing
+!-> serializing
 
    function serialize_string(str, rc) result(buffer)
       integer(kind=INT32), allocatable :: buffer(:)
@@ -315,7 +315,7 @@ contains
       _RETURN(_SUCCESS)
    end function serialize_logical_1d
 
-!!! deserializing
+!-> deserializing
 
    subroutine deserialize_string(buffer, str, rc)
       integer(kind=INT32), intent(in) :: buffer(:)

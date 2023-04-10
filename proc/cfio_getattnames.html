@@ -168,6 +168,15 @@
 </h2>
     
 
+    <p><code>CFIO_GetAttNames</code> &ndash; Get global attribute names</p>
+<p>This routine allows the user to get the names of
+ global attributes.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.08.05  Lucchesi           Initial interface design.</li>
+<li>1998.08.05  Lucchesi           Initial coding.</li>
+<li>1998.09.24  Lucchesi           Changed error handling.</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +191,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-fid~6"></span>
+              <span class="anchor" id="variable-fid~11"></span>
               integer
             </td>
 <td></td>
@@ -192,7 +201,7 @@
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-                
+                <p>File handle</p>
             </td>
         </tr>
         <tr>
@@ -207,7 +216,8 @@
             <td>::</td>
             <td><strong>ngatts</strong></td>
             <td>
-                
+                <p>Expected number of attributes (input)
+Actual number of attributes (output if rc=-2)</p>
             </td>
         </tr>
         <tr>
@@ -222,12 +232,12 @@
             <td>::</td>
             <td><strong>aname</strong>(ngatts)</td>
             <td>
-                
+                <p>Array of attribute names</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1091"></span>
+              <span class="anchor" id="variable-rc~58"></span>
               integer
             </td>
 <td></td>
@@ -237,7 +247,14 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+ rc =  0  all is well   <br>
+ rc = -10  ngatts is incompatible with file   <br>
+ rc = -11  character string not long enough     </p>
+<p>NetCDF Errors     </p>
+<hr>
+<p>rc = -48  error from NF90_INQUIRE   <br>
+  rc = -57  error from NF90_INQ_ATTNAME     </p>
             </td>
         </tr>
     </tbody>
@@ -296,33 +313,27 @@
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">! File handle</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
 <span class="c">!</span>
 <span class="c">! !INPUT/OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer     </span><span class="n">ngatts</span><span class="w">        </span><span class="c">! Expected number of attributes (input)</span>
-<span class="w">                                </span><span class="c">! Actual number of attributes (output if rc=-2)</span>
+<span class="w">      </span><span class="kt">integer     </span><span class="n">ngatts</span><span class="w">        </span><span class="c">!! Expected number of attributes (input)</span>
+<span class="w">                                </span><span class="c">!! Actual number of attributes (output if rc=-2)</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">aname</span><span class="p">(</span><span class="n">ngatts</span><span class="p">)</span><span class="w">  </span><span class="c">! Array of attribute names</span>
-<span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">       </span><span class="c">! Error return code:</span>
-<span class="w">                         </span><span class="c">!  rc =  0  all is well</span>
-<span class="w">                         </span><span class="c">!  rc = -10  ngatts is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -11  character string not long enough</span>
-<span class="w">                         </span><span class="c">!</span>
-<span class="w">                         </span><span class="c">!  NetCDF Errors</span>
-<span class="w">                         </span><span class="c">!  -------------</span>
-<span class="w">                         </span><span class="c">!   rc = -48  error from NF90_INQUIRE</span>
-<span class="w">                         </span><span class="c">!   rc = -57  error from NF90_INQ_ATTNAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">aname</span><span class="p">(</span><span class="n">ngatts</span><span class="p">)</span><span class="w">  </span><span class="c">!! Array of attribute names</span>
+<span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">       </span><span class="c">!! Error return code:     </span>
+<span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
+<span class="w">                         </span><span class="c">!!  rc = -10  ngatts is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -11  character string not long enough     </span>
+<span class="w">                         </span><span class="c">!!     </span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
+<span class="w">                         </span><span class="c">!!  -------------     </span>
+<span class="w">                         </span><span class="c">!!   rc = -48  error from NF90_INQUIRE     </span>
+<span class="w">                         </span><span class="c">!!   rc = -57  error from NF90_INQ_ATTNAME     </span>
 
-<span class="c">! !REVISION HISTORY:</span>
 <span class="c">!</span>
-<span class="c">!  1998.08.05  Lucchesi           Initial interface design.</span>
-<span class="c">!  1998.08.05  Lucchesi           Initial coding.</span>
-<span class="c">!  1998.09.24  Lucchesi           Changed error handling.</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">      </span><span class="kt">integer </span><span class="n">ngattsFile</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
@@ -378,7 +389,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

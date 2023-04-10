@@ -220,7 +220,16 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-esmf_cfiodownbit3d_"></span><h3>private  subroutine ESMF_CFIODownBit3D_(x, xr, nbits, undef, flops, rc)  
 </h3></div>
     <div class="panel-body">
-        
+        <p><code>ESMF_CFIODownBit</code> - GRIB-based compression pre-conditioner </p>
+<p>This routine returns a lower precision version of the input array
+  <code>x</code> which retains <code>nbits</code> of precision. See routine
+  <code>ESMF\_CFIODownBit2D</code> for additional details. This version for
+  rank 3 arrays, calls <code>ESMF\_CFIODownBit2D()</code> for each vertical
+  level.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>06Dec2006  da Silva  Initial version.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -245,7 +254,7 @@
             <td>::</td>
             <td><strong>x</strong>(:,:,:)</td>
             <td>
-                
+                <p>input array </p>
             </td>
         </tr>
         <tr>
@@ -260,7 +269,8 @@
             <td>::</td>
             <td><strong>xr</strong>(:,:,:)</td>
             <td>
-                
+                <p>precision reduced array; can</p>
+<p>if it has same kind</p>
             </td>
         </tr>
         <tr>
@@ -275,7 +285,8 @@
             <td>::</td>
             <td><strong>nbits</strong></td>
             <td>
-                
+                <p>number of bits per word to retain
+- no action if nbits&lt;1</p>
             </td>
         </tr>
         <tr>
@@ -305,7 +316,8 @@
             <td>::</td>
             <td><strong>flops</strong></td>
             <td>
-                
+                <p>if true, uses slower float point
+ based algorithm</p>
             </td>
         </tr>
         <tr>
@@ -320,7 +332,9 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>error code
+ = 0 - all is well
+/= 0 - something went wrong </p>
             </td>
         </tr>
     </tbody>
@@ -334,7 +348,31 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-esmf_cfiodownbit2d_"></span><h3>private  subroutine ESMF_CFIODownBit2D_(x, xr, nbits, undef, flops, rc)  
 </h3></div>
     <div class="panel-body">
-        
+        <p><code>ESMF_CFIODownBit</code> - GRIB-based compression pre-conditioner </p>
+<p>This routine returns a lower precision version of the input array
+ <code>x</code> which retains <code>nbits</code> of precision. Two algorithms are
+ implemented: 1) a fast one writen in C which downgrades precision
+ by shifting <code>xbits = 24 - nbits</code> bits of the mantissa, and 2) a slower
+ float point based algorithm which is the same algorithm as GRIB 
+ with fixed number of bits packing. Notice that as in GRIB the scaling 
+ factor is forced to be a power of 2 rather than a generic float.<br>
+ Using this power of 2 binary scaling has the advantage of improving 
+ the GZIP compression rates.</p>
+<p>This routine returns an array of the same type and kind as the input array, 
+ so no data compression has taken place. The goal here is to reduce the
+ entropy in the input array, thereby improving compression rates 
+ by the lossless algorithms implemented internally by HDF-4/5 when writing 
+ these data to a file. In fact, these GZIP&rsquo;ed and pre-conditioned files 
+ have sizes comparable to the equivalent GRIB file, while being a bonafide 
+ self-describing HDF/NetCDF file.</p>
+<p></p><div class="alert alert-success" role="alert"><h4>Todo</h4><p>:
+ Perhaps implement GRIB decimal scaling (variable number of bits).
+</p></div>
+<p>
+<h4 id="history">History</h4>
+<ul>
+<li>06Dec2006  da Silva  Initial version.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -359,7 +397,7 @@
             <td>::</td>
             <td><strong>x</strong>(:,:)</td>
             <td>
-                
+                <p>input array</p>
             </td>
         </tr>
         <tr>
@@ -374,7 +412,9 @@
             <td>::</td>
             <td><strong>xr</strong>(:,:)</td>
             <td>
-                
+                <p>precision reduced array; can
+ share storage with input array
+ if it has same kind</p>
             </td>
         </tr>
         <tr>
@@ -389,7 +429,7 @@
             <td>::</td>
             <td><strong>nbits</strong></td>
             <td>
-                
+                <p>number of bits per word to retain</p>
             </td>
         </tr>
         <tr>
@@ -404,7 +444,7 @@
             <td>::</td>
             <td><strong>undef</strong></td>
             <td>
-                
+                <p>missing value</p>
             </td>
         </tr>
         <tr>
@@ -419,7 +459,8 @@
             <td>::</td>
             <td><strong>flops</strong></td>
             <td>
-                
+                <p>if true, uses slower float point
+ based algorithm</p>
             </td>
         </tr>
         <tr>
@@ -434,7 +475,9 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>error code
+ = 0 - all is well
+/= 0 - something went wrong</p>
             </td>
         </tr>
     </tbody>
@@ -458,7 +501,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

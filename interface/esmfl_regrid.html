@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title="<p> 0.0% of total for procedures.</p>Including implementation: 620 statements,  1.4% of total for procedures.">6 statements</a>
+               title="<p> 0.0% of total for procedures.</p>Including implementation: 619 statements,  1.4% of total for procedures.">6 statements</a>
           </li>
 
             <li id="source-file">
@@ -224,7 +224,42 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-bundleregrid"></span><h3>private  subroutine BundleRegrid(srcBUN, dstBUN, rc)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>BundleRegrid</code>
+ regrids a source bundle (srcBUN) into a destination bundle (dstBUN)
+ using hinterp. A bundle is thought of as being comprised of n 2D
+ slices (nslices) distributed among the n PEs (ns_per_pe). The
+ limits among each ns_per_pe region are given by n1 and n2 which
+ are functions of mype (the local PE):</p>
+<div class="codehilite"><pre><span></span><code><span class="w">                                                     </span><span class="n">slice_pe</span><span class="w"></span>
+<span class="w">           </span><span class="mi">1</span><span class="w"> </span><span class="o">---</span><span class="w"> </span><span class="n">n1</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w">  </span><span class="o">-</span><span class="w">                     </span><span class="o">--&gt;</span><span class="w">    </span><span class="mi">0</span><span class="w"></span>
+<span class="w">           </span><span class="mi">2</span><span class="w"> </span><span class="o">---</span><span class="w">            </span><span class="o">|</span><span class="w">                    </span><span class="o">--&gt;</span><span class="w">    </span><span class="mi">0</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">             </span><span class="o">|</span><span class="n">_</span><span class="w">  </span><span class="n">ns_per_pe</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w">         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">             </span><span class="o">|</span><span class="w">                           </span><span class="mi">0</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">             </span><span class="o">|</span><span class="w">                           </span><span class="mi">0</span><span class="w"></span>
+<span class="w">             </span><span class="o">---</span><span class="w"> </span><span class="n">n2</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w">  </span><span class="o">-</span><span class="w">                            </span><span class="mi">0</span><span class="w"></span>
+<span class="w">             </span><span class="o">---</span><span class="w"> </span><span class="n">n1</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">                               </span><span class="mi">1</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">             </span><span class="o">---</span><span class="w"> </span><span class="n">n2</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">                               </span><span class="mi">1</span><span class="w"></span>
+<span class="w">             </span><span class="o">---</span><span class="w"> </span><span class="n">n1</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">                               </span><span class="mi">2</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">          </span><span class="n">ns</span><span class="w"> </span><span class="o">---</span><span class="w">                                  </span><span class="n">slice_pe</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">              </span><span class="p">.</span><span class="w">                                         </span><span class="p">.</span><span class="w"></span>
+<span class="w">     </span><span class="n">nslices</span><span class="w"> </span><span class="o">---</span><span class="w"> </span><span class="n">n2</span><span class="p">(</span><span class="n">pe</span><span class="o">=</span><span class="n">n</span><span class="p">)</span><span class="w">                        </span><span class="o">--&gt;</span><span class="w">   </span><span class="n">npe</span><span class="w"></span>
+</code></pre></div>
+
+<p>Each slice is gathered, regridded (hinterp), and scattered on
+ a PE determined by a slice-to-PE map (slice_pe) to &ldquo;load balance&rdquo;
+ the work of the serial hinterp function.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>24Apr2006  Cruz  Initial code.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -249,7 +284,7 @@
             <td>::</td>
             <td><strong>srcBUN</strong></td>
             <td>
-                
+                <p>source bundle</p>
             </td>
         </tr>
         <tr>
@@ -264,7 +299,7 @@
             <td>::</td>
             <td><strong>dstBUN</strong></td>
             <td>
-                
+                <p>destination bundle</p>
             </td>
         </tr>
         <tr>
@@ -279,7 +314,7 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>return code</p>
             </td>
         </tr>
     </tbody>
@@ -293,7 +328,11 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-stateregrid"></span><h3>private  subroutine StateRegrid(srcSTA, dstSTA, rc)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>StateRegrid</code> regrids a state.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>19Apr2006  Cruz  Initial code.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -348,7 +387,7 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>return code</p>
             </td>
         </tr>
     </tbody>
@@ -362,7 +401,11 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-fieldregrid1"></span><h3>private  subroutine FieldRegrid1(srcFLD, Sgrid2D, dstFLD, Dgrid2D, vm, rh, fname, rc)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>FieldRegrid1</code> regrids 3D fields using ESMF_FieldRegrid.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>17Oct2005  Cruz  Initial code.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -506,7 +549,12 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-bundleregrid1"></span><h3>private  subroutine BundleRegrid1(srcBUN, Sgrid2D, dstBUN, Dgrid2D, vm, rh, rc)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>BundleRegrid1</code> 
+ regrids members of a bundle using ESMF_FieldRegrid.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>17Apr2006  Cruz  Initial code.</li>
+</ul>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -645,7 +693,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

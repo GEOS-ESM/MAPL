@@ -168,6 +168,19 @@
 </h2>
     
 
+    <p><code>GetDateInt4</code> &mdash; Returns a new date/time from an initial date/time and offset</p>
+<p>This subroutine returns a new date and time in yyyymmdd
+ and hhmmss format given and initial date, time, and
+ offset in seconds.  The routine converts the input date
+ and time to julian seconds, adds the offset, and converts
+ back to yyyymmdd and hhmmss format.  This routine has been
+ tested for Y2K compiance.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.07.20  Lucchesi    Initial version.</li>
+<li>2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
+   constant no longer needed.</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +195,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-yyyymmdd_1"></span>
+              <span class="anchor" id="variable-yyyymmdd_1~2"></span>
               integer
             </td>
 <td></td>
@@ -192,7 +205,7 @@
             <td>::</td>
             <td><strong>yyyymmdd_1</strong></td>
             <td>
-                
+                <p>Initial date in YYYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -207,12 +220,12 @@
             <td>::</td>
             <td><strong>hhmmss_1</strong></td>
             <td>
-                
+                <p>Initial time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-offset~9"></span>
+              <span class="anchor" id="variable-offset~2"></span>
               integer
             </td>
 <td></td>
@@ -222,12 +235,12 @@
             <td>::</td>
             <td><strong>offset</strong></td>
             <td>
-                
+                <p>Offset to add (in seconds)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-yyyymmdd_2"></span>
+              <span class="anchor" id="variable-yyyymmdd_2~2"></span>
               integer
             </td>
 <td></td>
@@ -237,7 +250,7 @@
             <td>::</td>
             <td><strong>yyyymmdd_2</strong></td>
             <td>
-                
+                <p>New date in YYYYMMDD format</p>
             </td>
         </tr>
         <tr>
@@ -252,12 +265,12 @@
             <td>::</td>
             <td><strong>hhmmss_2</strong></td>
             <td>
-                
+                <p>New time in HHMMSS format</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1104"></span>
+              <span class="anchor" id="variable-rc~69"></span>
               integer
             </td>
 <td></td>
@@ -267,7 +280,7 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Return code. (&lt;0 = error)</p>
             </td>
         </tr>
     </tbody>
@@ -321,41 +334,20 @@
     <div class="highlight"><pre><span></span><span class="w">       </span><span class="k">subroutine </span><span class="n">GetDateInt4</span><span class="w"> </span><span class="p">(</span><span class="n">yyyymmdd_1</span><span class="p">,</span><span class="n">hhmmss_1</span><span class="p">,</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                          </span><span class="n">yyyymmdd_2</span><span class="p">,</span><span class="n">hhmmss_2</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!</span>
-<span class="c">! !USES:</span>
-<span class="c">!</span>
-
 <span class="w">       </span><span class="k">implicit none</span><span class="w"></span>
-
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-
-<span class="w">       </span><span class="kt">integer </span><span class="n">yyyymmdd_1</span><span class="w">               </span><span class="c">! Initial date in YYYYYMMDD format</span>
-<span class="w">       </span><span class="kt">integer </span><span class="n">hhmmss_1</span><span class="w">                 </span><span class="c">! Initial time in HHMMSS format</span>
-<span class="w">       </span><span class="kt">integer </span><span class="n">offset</span><span class="w">                   </span><span class="c">! Offset to add (in seconds)</span>
-
+<span class="w">       </span><span class="kt">integer </span><span class="n">yyyymmdd_1</span><span class="w">               </span><span class="c">!! Initial date in YYYYYMMDD format</span>
+<span class="w">       </span><span class="kt">integer </span><span class="n">hhmmss_1</span><span class="w">                 </span><span class="c">!! Initial time in HHMMSS format</span>
+<span class="w">       </span><span class="kt">integer </span><span class="n">offset</span><span class="w">                   </span><span class="c">!! Offset to add (in seconds)</span>
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">       </span><span class="kt">integer </span><span class="n">yyyymmdd_2</span><span class="w">               </span><span class="c">! New date in YYYYMMDD format</span>
-<span class="w">       </span><span class="kt">integer </span><span class="n">hhmmss_2</span><span class="w">                 </span><span class="c">! New time in HHMMSS format</span>
-<span class="w">       </span><span class="kt">integer </span><span class="n">rc</span><span class="w">                       </span><span class="c">! Return code. (&lt;0 = error)</span>
+<span class="w">       </span><span class="kt">integer </span><span class="n">yyyymmdd_2</span><span class="w">               </span><span class="c">!! New date in YYYYMMDD format</span>
+<span class="w">       </span><span class="kt">integer </span><span class="n">hhmmss_2</span><span class="w">                 </span><span class="c">!! New time in HHMMSS format</span>
+<span class="w">       </span><span class="kt">integer </span><span class="n">rc</span><span class="w">                       </span><span class="c">!! Return code. (&lt;0 = error)</span>
 <span class="c">!</span>
-<span class="c">! !DESCRIPTION:   This subroutine returns a new date and time in yyyymmdd</span>
-<span class="c">!                 and hhmmss format given and initial date, time, and</span>
-<span class="c">!                 offset in seconds.  The routine converts the input date</span>
-<span class="c">!                 and time to julian seconds, adds the offset, and converts</span>
-<span class="c">!                 back to yyyymmdd and hhmmss format.  This routine has been</span>
-<span class="c">!                 tested for Y2K compiance.</span>
-<span class="c">!</span>
-<span class="c">! !REVISION HISTORY:</span>
-<span class="c">!</span>
-<span class="c">!  1998.07.20  Lucchesi    Initial version.</span>
-<span class="c">!  2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate</span>
-<span class="c">!                        constant no longer needed.</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">       </span><span class="kt">integer</span><span class="p">(</span><span class="nb">Kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="n">offsetLong</span><span class="w"></span>
@@ -385,7 +377,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

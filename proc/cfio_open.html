@@ -168,6 +168,20 @@
 </h2>
     
 
+    <p><code>CFIO_Open</code> &ndash; Opens an existing DAO gridded file</p>
+<p>This routine opens an existing DAO gridded file.  The file
+ mode will be read/write.  If the application already knows
+ the contents of the file, it may begin interaction with the
+ file using the returned file handle.  Otherwise, the file
+ handle can be used with the &ldquo;inquire&rdquo; routines to gather
+ information about the contents.  A negative return code
+ indicates there were problems opening the file.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1998.07.02   Lucchesi             Initial interface design.</li>
+<li>1998.07.07   Lucchesi             Initial coding.</li>
+<li>1998.12.09   Lucchesi             Corrected for ncopn bug.</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -192,12 +206,12 @@
             <td>::</td>
             <td><strong>fname</strong></td>
             <td>
-                
+                <p>File name</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-fmode"></span>
+              <span class="anchor" id="variable-fmode~3"></span>
               integer
             </td>
 <td></td>
@@ -207,12 +221,14 @@
             <td>::</td>
             <td><strong>fmode</strong></td>
             <td>
-                
+                <p>File mode:
+  0 for READ-WRITE
+  non-zero for READ-ONLY</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-fid~11"></span>
+              <span class="anchor" id="variable-fid~6"></span>
               integer
             </td>
 <td></td>
@@ -222,12 +238,12 @@
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-                
+                <p>File handle</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1096"></span>
+              <span class="anchor" id="variable-rc~53"></span>
               integer
             </td>
 <td></td>
@@ -237,7 +253,9 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:        <br>
+  rc = 0    All is well   <br>
+  rc = -39  error from ncopn (file open)     </p>
             </td>
         </tr>
     </tbody>
@@ -289,7 +307,6 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">CFIO_Open</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fname</span><span class="p">,</span><span class="w"> </span><span class="n">fmode</span><span class="p">,</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-
 <span class="c">!</span>
 <span class="c">! !USES:</span>
 <span class="c">!</span>
@@ -300,25 +317,20 @@
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
 
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">   </span><span class="n">fname</span><span class="w">         </span><span class="c">! File name</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">fmode</span><span class="w">         </span><span class="c">! File mode:</span>
-<span class="w">                                    </span><span class="c">!   0 for READ-WRITE</span>
-<span class="w">                                    </span><span class="c">!   non-zero for READ-ONLY</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">   </span><span class="n">fname</span><span class="w">         </span><span class="c">!! File name</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">fmode</span><span class="w">         </span><span class="c">!! File mode:</span>
+<span class="w">                                    </span><span class="c">!!   0 for READ-WRITE</span>
+<span class="w">                                    </span><span class="c">!!   non-zero for READ-ONLY</span>
 
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
 
-<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">            </span><span class="c">! File handle</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">             </span><span class="c">! Error return code:</span>
-<span class="w">                                    </span><span class="c">!   rc = 0    All is well</span>
-<span class="w">                                    </span><span class="c">!   rc = -39  error from ncopn (file open)</span>
-<span class="c">! !REVISION HISTORY:</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">            </span><span class="c">!! File handle</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">             </span><span class="c">!! Error return code:          </span>
+<span class="w">                                    </span><span class="c">!!   rc = 0    All is well     </span>
+<span class="w">                                    </span><span class="c">!!   rc = -39  error from ncopn (file open)     </span>
 <span class="c">!</span>
-<span class="c">!  1998.07.02   Lucchesi             Initial interface design.</span>
-<span class="c">!  1998.07.07   Lucchesi             Initial coding.</span>
-<span class="c">!  1998.12.09   Lucchesi             Corrected for ncopn bug.</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 
@@ -356,7 +368,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

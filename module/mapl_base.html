@@ -239,7 +239,10 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-mapl_base">MODULE: <code>MAPL_Base</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p>The module <code>MAPL_Base</code> provides a collection assorted
+ utilities and constants used throughout the MAPL Library.</p>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -2861,7 +2864,87 @@ parameter
     public module function MAPL_LatLonGridCreate(Name, VM, Config, ConfigFile, Nx, Ny, IM_World, BegLon, DelLon, JM_World, BegLat, DelLat, LM_World, rc) result(Grid)  
 
     </h3>
-  
+  <p><code>MAPL_LatLonGridCreate</code> &mdash; Create regular Lat/Lon Grid</p>
+<p>This routine creates a distributed ESMF grid where the horizontal
+ coordinates are regular longitudes and latitudes. The grid is
+ created on the user specified <strong>VM</strong>, or on the current VM if the user
+ does not specify one. The layout and the coordinate information can
+ be provided with a `ESMF_Config attribute, a resource file name
+ or specified through the argument list.</p>
+<h3 id="using-resource-files">Using resource files</h3>
+<p>The <strong>resource file</strong> has a syntax similar to a GrADS
+ control file.  Here is an example defining a typical GEOS-5 1x1.25
+ grid with 72 layers:</p>
+<div class="codehilite"><pre><span></span><code>       GDEF: LatLon 
+       IDEF: 32  
+       JDEF: 16  
+       LDEF:  1  
+       XDEF: 288 LINEAR -180. 1.25
+       YDEF: 181 LINEAR -90. 1.
+       ZDEF:  72 LINEAR 1 1
+</code></pre></div>
+
+<p>More generally,</p>
+<div class="codehilite"><pre><span></span><code>       GDEF: LatLon
+       IDEF: Nx 
+       JDEF: Ny
+       LDEF: Nz
+       XDEF: IM_World XCoordType BegLon, DelLon
+       YDEF: JM_World YCoordType BegLat, DelLat
+       ZDEF: LM_World ZCoordType 1        1
+</code></pre></div>
+
+<p>The attribute <strong>GDEF</strong> must always be <code>LatLon</code> for  Lat/Lon grids.
+ The remaining parameters are:
+- <strong>Nx</strong> is the number of processors used to decompose the X dimension
+- <strong>Ny</strong> is the number of processors used to decompose the Y dimension
+- <strong>Nz</strong> is the number of processors used to decompose the Z dimension;
+   must be 1 for now.
+- <strong>IM_World</strong> is the number of longitudinal grid points; if <code>IM_World=0</code> then
+   the grid has no zonal dimension.
+- <strong>XCoordType</strong> must be set to LINEAR
+- <strong>BegLon</strong> is the longitude (in degrees) of the {\em center} of the first gridbox
+- <strong>DelLon</strong> is the constant mesh size (in degrees); if <code>DelLon&lt;1</code> then a
+   global grid is assumed.
+- <strong>JM_World</strong> is the number of meridional grid points; if <code>JM_World=0</code> then
+   the grid has no meridional dimension.
+- <strong>YCoordType</strong> must be set to LINEAR
+- <strong>BegLat</strong> s the latitude (in degrees) of the <em>center</em> of the first gridbox
+- <strong>DelLat</strong> s the constant mesh size (in degrees); if <code>DelLat&lt;1</code> then a
+   global grid is assumed.
+- <strong>LM_World</strong> is the number of vertical grid points; <code>LM_World=0</code> then the grid has no
+   vertical dimension.</p>
+<p>As of this writing, only the size of the vertical grid <code>LM_World</code> needs to be specified.</p>
+<h3 id="passing-an-esmf-config">Passing an ESMF Config</h3>
+<p>The <code>ESMF_Config</code> object <code>Config</code>, when specified, must
+ contain the same information as the resource file above.</p>
+<h3 id="providing-parameters-explicitly-through-the-argument-list">Providing parameters explicitly through the argument list</h3>
+<p>Alternatively, one can specify coordinate information in the argument
+ list; their units and meaning is as in the resource file above. In
+ this case you must specify at least <code>Nx, Ny, IM_World, JM_World</code>, and
+ <code>LM_World</code>. The other parameters have default values
+- <strong>BegLon</strong> defaults to -180. (the date line)
+- <strong>DelLon</strong> defaults to -1. (meaning a global grid)
+- <strong>BegLat</strong> defaults to -90. (the south pole)
+- <strong>DelLat</strong> deaults to -1. (meaning a global grid)</p>
+<h3 id="restrictions">Restrictions</h3>
+<p>The current implementation imposes the following restrictions:
+1. Only uniform longitude/latitude grids are supported (no Gaussian grids).
+2. Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported
+   (no Lat-Lev or Lon-Lev grids supprted yet).
+3. No vertical decomposition yet (<code>Nz=1</code>).</p>
+<h3 id="future-enhancements">Future enhancements</h3>
+<p>The <code>IDEF/JDEF/LDEF</code> records in the resource file should be
+ extended as to allow specification of a more general distribution.
+ For consistency with the <code>XDEF/YDEF/ZDEF</code> records a similar
+ syntax could be adopted. For example,</p>
+<div class="codehilite"><pre><span></span><code>       IDEF 4   LEVELS  22 50 50 22
+       XDEF 144 LINEAR -180 2.5
+</code></pre></div>
+
+<p>would indicate that longitudes would be decomposed in 4 PETs,
+ with the first PET having 22 grid points, the second 50 gridpoints,
+ and so on.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4536,7 +4619,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~12"></span>
+              <span class="anchor" id="variable-comm~6"></span>
               integer,
             </td>
               <td>public</td>
@@ -4553,7 +4636,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rank~3"></span>
+              <span class="anchor" id="variable-rank"></span>
               integer,
             </td>
               <td>public</td>
@@ -4587,7 +4670,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-size~37"></span>
+              <span class="anchor" id="variable-size~15"></span>
               integer,
             </td>
               <td>public</td>
@@ -4633,7 +4716,7 @@ parameter
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

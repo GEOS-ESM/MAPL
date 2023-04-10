@@ -267,7 +267,65 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-mapl_genericmod">MODULE: <code>MAPL_GenericMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p><code>MAPLGeneric</code> allows the user to easily build ESMF gridded
+ components.  It has its own SetServices, Initialize, Run, and Finalize
+ (IRF) methods, and thus is itself a valid gridded component, although somewhat
+ non-standard since it makes its IRF methods public. An instance of
+ <code>MAPL_Generic</code> does no useful work, but can be used as a null <code>MAPL_Generic</code> component.</p>
+<p>The standard way to use MAPL_Generic is as an aid in building ESMF gridded
+ components. A MAPL/ESMF gridded component built in this way will always have
+ its own SetServices, which will call the subroutine MAPL_GenericSetServices.
+ When MAPL_GenericSetServices is called it sets the
+ component&rsquo;s IRF methods to the generic versions, MAPL_GenericInitialize, MAPL_GenericFinalize, and
+ MAPL_GenericRun.  Any (or all) of
+ these may be used as default methods by a gridded component. (As we will see below,
+ using all three default IRF methods in this way need not be equivalent to instanciating
+ a null component.) If for any of the
+ three IRF methods the default version is inadequate, it can simply be overrided
+ by having the component register its own method after the call to MAPL_GenericSetServices.</p>
+<p>The generic IRF methods perform a number of useful functions, including
+ creating, allocating, and initializing the components Import, Export,
+ and Internal states. It would be a shame to waste this capability when a component
+ needs to write its own version of an IRF method. A common situation is that the component wants support
+ in performing these functions, but needs to do some (usually small) additional specialized
+ work; for example, it may need to do some special initializations. In this case,
+ one would write a light version of the IRF method that does the specialized work
+ and <em>calls directly</em> the corresponding MAPL_Generic method to do the boilerplate.
+ This is why MAPL_Generic, unlike a standard ESMF gridded component, makes its
+ IRF methods public and why we added the <code>Generic</code> modifier (i.e., MAPL_GenericInitialize,
+ rather than MAPL_Initialize), to emphasize that they are directly callable IRF methods.</p>
+<p>MAPL_Generic may also be viewed as a fairly standard Fortran 90 <code>class</code>, which
+ defines and makes public an opaque object that we refer to as a <code>MAPL_Generic State</code>.
+ This object can be created only in association with a standard ESMF Gridded Component (GC),
+ by making a MAPL_GenericSetServices call.  This object can be obtained through an ESMF GC method
+ which is currently provided with MAPL. The MAPL_Generic State is, therefore, just another thing that
+ lives in the ESMF GC, like the grid and the configuration. The MAPL_Generic State
+ is private, but user components can access its contents through public
+ MAPL_Generic methods (Get, Set, etc). The bulk of MAPL_Generic consists of methods that act
+ on this object.</p>
+<p>MAPL_GenericSetServices and MAPL_Generic IRF methods cannot create their own ESMF grid.
+ The grid must be inherited from the parent or created by the component
+ either in its own SetServices or in its Initialize, if it is writing one.
+ In any case, an important assumption of MAPL is that the grid must  already be 
+ <em>present in the component and initialized</em> when MAPL_GenericSetServices is invoked.
+ The same is true of the configuration.</p>
+<p>In MAPL_Generic, we distinguish between <em>simple (leaf)</em>
+ gridded compnents and <em>composite</em> gridded components, which contain other
+ (<em>child</em>) gridded components.  We also define three types of services,
+ which can be registered by the component&rsquo;s SetServices routine.</p>
+<ul>
+<li><strong>Functional services:</strong> These are the standard EMSF callable IRF methods for
+   the component.</li>
+<li><strong>Data services:</strong> These are descriptions of the component&rsquo;s import, export,
+   and internal states, which can be manipulated by MAPL_Generic.</li>
+<li><strong>Child services:</strong> These are the services of the component&rsquo;s children and
+   their connectivity.</li>
+<li><strong>Profiling Services:</strong> These are profiling counters (clocks) that can be used
+   by the component and are automatically reported by generic finalize.</li>
+</ul>
+<p>MAPL_GenericSetServices provides generic versions of all these, as described below.</p>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -275,38 +333,38 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
-                <li><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
-                <li><a href='../module/mapl_memutilsmod.html'>MAPL_MemUtilsMod</a></li>
+                <li><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
+                <li><a href='<a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a>'>mpi</a></li>
+                <li><a href='../module/mapl_abstractgridfactorymod.html'>MAPL_AbstractGridFactoryMod</a></li>
+                <li><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
+                <li>gFTL_StringVector</li>
+                <li>netcdf</li>
+                <li><a href='../module/mapl_maplgrid.html'>mapl_MaplGrid</a></li>
+                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
                 <li><a href='../module/mapl_locstreammod.html'>MAPL_LocStreamMod</a></li>
+                <li><a href='../module/mapl_memutilsmod.html'>MAPL_MemUtilsMod</a></li>
+                <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+                <li><a href='../module/maplgeneric.html'>MaplGeneric</a></li>
+                <li><a href='../module/mapl_profmod.html'>MAPL_ProfMod</a></li>
+                <li><a href='../module/mapl_profiler.html'>mapl_Profiler</a></li>
+                <li><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
                 <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
                 <li><a href='../module/mapl_stringtemplate.html'>MAPL_StringTemplate</a></li>
-                <li><a href='../module/mapl_profiler.html'>mapl_Profiler</a></li>
-                <li><a href='../module/mapl_iomod.html'>MAPL_IOMod</a></li>
-                <li><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
-                <li><a href='../module/mapl_profmod.html'>MAPL_ProfMod</a></li>
-                <li><a href='../module/mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
-                <li><a href='../module/mapl_runentrypoint.html'>MAPL_RunEntryPoint</a></li>
-                <li><a href='../module/mapl_genericcplcompmod.html'>MAPL_GenericCplCompMod</a></li>
-                <li><a href='<a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a>'>mpi</a></li>
-                <li><a href='../module/maplshared.html'>MaplShared</a></li>
-                <li><a href='../module/maplgeneric.html'>MaplGeneric</a></li>
                 <li><a href='../module/mapl_configmod.html'>MAPL_ConfigMod</a></li>
-                <li><a href='../module/mapl_abstractgridfactorymod.html'>MAPL_AbstractGridFactoryMod</a></li>
-                <li><a href='../module/pfio_clientmanagermod.html'>pFIO_ClientManagerMod</a></li>
-                <li><a href='../module/pfio.html'>pFIO</a></li>
-                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
-                <li><a href='../module/mapl_gridmanagermod.html'>MAPL_GridManagerMod</a></li>
-                <li><a href='../module/pflogger.html'>pflogger</a></li>
-                <li><a href='../module/mapl_resourcemod.html'>MAPL_ResourceMod</a></li>
                 <li><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
+                <li><a href='../module/mapl_iomod.html'>MAPL_IOMod</a></li>
+                <li><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
+                <li><a href='../module/maplshared.html'>MaplShared</a></li>
                 <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
-                <li><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
+                <li><a href='../module/mapl_resourcemod.html'>MAPL_ResourceMod</a></li>
                 <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fC_005fBINDING.html#ISO_005fC_005fBINDING">iso_c_binding</a>'>iso_c_binding</a></li>
-                <li>netcdf</li>
-                <li>gFTL_StringVector</li>
+                <li><a href='../module/mapl_gridmanagermod.html'>MAPL_GridManagerMod</a></li>
+                <li><a href='../module/mapl_runentrypoint.html'>MAPL_RunEntryPoint</a></li>
                 <li><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
-                <li><a href='../module/mapl_maplgrid.html'>mapl_MaplGrid</a></li>
+                <li><a href='../module/pflogger.html'>pflogger</a></li>
+                <li><a href='../module/pfio.html'>pFIO</a></li>
+                <li><a href='../module/mapl_genericcplcompmod.html'>MAPL_GenericCplCompMod</a></li>
+                <li><a href='../module/pfio_clientmanagermod.html'>pFIO_ClientManagerMod</a></li>
             </ul>
           </li>
       </ul>
@@ -2613,7 +2671,8 @@
     private  subroutine MAPL_StateAddInternalSpec(GC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, DATATYPE, NUM_SUBTILES, REFRESH_INTERVAL, AVERAGING_INTERVAL, DEFAULT, RESTART, HALOWIDTH, PRECISION, FRIENDLYTO, ADD2EXPORT, ATTR_RNAMES, ATTR_INAMES, ATTR_RVALUES, ATTR_IVALUES, UNGRIDDED_DIMS, FIELD_TYPE, STAGGERING, ROTATION, RC)  
 
     </h3>
-  
+  <p><code>MAPL_StateAddInternalSpec</code> &mdash; Sets specifications for an item in the
+<code>INTERNAL</code> state.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -3350,7 +3409,24 @@
     private  subroutine MAPL_GenericStateGet(STATE, IM, JM, LM, VERTDIM, NX, NY, NX0, NY0, LAYOUT, GCNames, LONS, LATS, grid, ORBIT, RUNALARM, IMPORTspec, EXPORTspec, INTERNALspec, INTERNAL_ESMF_STATE, TILETYPES, TILEKIND, TILELATS, TILELONS, TILEAREA, LOCSTREAM, EXCHANGEGRID, CLOCK, NumInitPhases, NumRunPhases, GCS, CCS, GIM, GEX, CF, HEARTBEAT, childrens_names, childrens_gridcomps, childrens_import_states, childrens_export_states, RC)  
 
     </h3>
-  
+  <p>This is the way of querying the opaque {\em MAPL_Generic}
+ state object. The arguments are:
+- <strong>STATE</strong> The MAPL object to be queried.
+- <strong>IM</strong> Size of the first horizontal dimension (X) of local arrays.
+- <strong>JM</strong> Size of the second horizontal dimension (Y) of local arrays.
+- <strong>LM</strong>  Size of the vertical dimension.
+- <strong>VERTDIM</strong> Position of the vertical dimension of 2 or higher dimensional arrays.
+- <strong>NX</strong> Size of the DE array dimension aligned with the first horizontal dimension of arrays
+- <strong>NY</strong> Size of the DE array dimension aligned with the second horizontal dimension of arrays
+- <strong>NX0, NY0</strong> Coordinates of current DE.
+- <strong>LONS</strong> X coordinates of array locations. Currently longitude in radians.
+- <strong>LATS</strong> Y coordinates of array locations. Currently latitude in radians.
+- <strong>INTERNAL_ESMF_STATE</strong> The gridded component&rsquo;s INTERNAL state.
+- <strong>GCNames</strong> Names of the children.
+- <strong>GCS</strong> The child gridded components.
+- <strong>GIM</strong> The childrens&rsquo; IMPORT states.
+- <strong>GEX</strong> The childrens&rsquo; EXPORT states.
+- <strong>CCS</strong> Array of child-to-child couplers.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -4147,7 +4223,10 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
     private  subroutine MAPL_InternalStateGet(GC, MAPLOBJ, RC)  
 
     </h3>
-  
+  <p>This is the recommended way of getting the opaque MAPL Generic
+state object from the gridded component (GC). It can be called at any time
+<em>after</em> <code>MAPL_GenericSetServices</code> has been called on GC.
+Note that you get a pointer to the object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -6583,7 +6662,7 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-export_state~3"></span>
+              <span class="anchor" id="variable-export_state"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
               <td>public</td>
@@ -6600,7 +6679,7 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-import_state~3"></span>
+              <span class="anchor" id="variable-import_state"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
               <td>public</td>
@@ -6702,7 +6781,7 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~2"></span>
+              <span class="anchor" id="variable-grid~40"></span>
               type(<a href='../type/maplgrid.html'>MaplGrid</a>),
             </td>
               <td>public</td>
@@ -6772,7 +6851,7 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/compositecomponent.html#boundprocedure-add_child'>add_child</a></strong>
+                  :: <strong><a href='../type/compositecomponent.html#boundprocedure-add_child~3'>add_child</a></strong>
 <small>Function</small>                </td>
                 <td></td>
               </tr>
@@ -6804,7 +6883,7 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-finalize~4'>finalize</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-finalize~10'>finalize</a></strong>
  =>
                     stub
 <small>Subroutine</small>                </td>
@@ -6824,7 +6903,7 @@ $      call meta_lgr%warning(&lsquo;obsolete interface MAPL_GetLogger()&rsquo;)<
                 <td>
 generic,
                   public
-                  :: <strong><a href='../type/mapl_metacomp.html#boundprocedure-get_child~2'>get_child</a></strong>
+                  :: <strong><a href='../type/mapl_metacomp.html#boundprocedure-get_child~5'>get_child</a></strong>
  =>
                     <a href='../type/compositecomponent.html#boundprocedure-get_child_by_name'>get_child_by_name</a>, <a href='../type/compositecomponent.html#boundprocedure-get_child_by_index'>get_child_by_index</a>
                 </td>
@@ -6906,7 +6985,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-get_grid'>get_grid</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-get_grid~2'>get_grid</a></strong>
 <small>Function</small>                </td>
                 <td></td>
               </tr>
@@ -6946,7 +7025,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-get_logger~2'>get_logger</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-get_logger'>get_logger</a></strong>
 <small>Function</small>                </td>
                 <td></td>
               </tr>
@@ -6954,7 +7033,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/compositecomponent.html#boundprocedure-get_num_children~2'>get_num_children</a></strong>
+                  :: <strong><a href='../type/compositecomponent.html#boundprocedure-get_num_children~4'>get_num_children</a></strong>
 <small>Function</small>                </td>
                 <td></td>
               </tr>
@@ -6978,7 +7057,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-initialize~7'>initialize</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-initialize~45'>initialize</a></strong>
  =>
                     stub
 <small>Subroutine</small>                </td>
@@ -7006,7 +7085,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-run~5'>run</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-run~9'>run</a></strong>
  =>
                     stub
 <small>Subroutine</small>                </td>
@@ -7016,7 +7095,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-run_child~3'>run_child</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-run_child~2'>run_child</a></strong>
  =>
                     stub_child
 <small>Subroutine</small>                </td>
@@ -7042,7 +7121,7 @@ generic,
                 <td>
                     procedure
                     ,                  public
-                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-set_logger~2'>set_logger</a></strong>
+                  :: <strong><a href='../type/maplgenericcomponent.html#boundprocedure-set_logger'>set_logger</a></strong>
 <small>Subroutine</small>                </td>
                 <td></td>
               </tr>
@@ -7959,7 +8038,8 @@ generic,
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>For each entry in <code>NAMES</code> marks the export spec
+to not be deferred during <code>MAPL_GenericInitialize</code>.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -8654,7 +8734,7 @@ generic,
 </h3></div>
     <div class="panel-body">
           
-  <p>$  call MAPL_TimerOn(STATE,&rdquo;generic&rdquo;, rc=status);if(MAPL_Verify(status,&rdquo;/home/runner/work/MAPL/MAPL/Ford/../generic/MAPL_Generic.F90&rdquo;,876 ,rc)) return</p><a href="../proc/mapl_genericinitialize.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+  <p>$  call MAPL_TimerOn(STATE,&rdquo;generic&rdquo;, rc=status);if(MAPL_Verify(status,&rdquo;/home/runner/work/MAPL/MAPL/Ford/../generic/MAPL_Generic.F90&rdquo;,851 ,rc)) return</p><a href="../proc/mapl_genericinitialize.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -9194,7 +9274,21 @@ generic,
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>MAPL_GenericSetServices</code> performs the following tasks:
+- Allocate an instance of MAPL_GenericState, wrap it, and set it as the
+   GC&rsquo;s internal state.
+- Exract the grid and configuration from the GC and save them in the
+   generic state.
+- Set GC&rsquo;s IRF methods to the generic versions
+- If there are children
+   - Allocate a gridded comoponent and an import and export state for each child
+   - Create each child&rsquo;s GC using the natural grid and the inherited configuration.
+   - Create each child&rsquo;s Import and Export states. These are named
+      <code>GCNames(I)//"_IMPORT"</code> and <code>GCNames(I)//"_EXPORT"</code>.
+   - Invoke each child&rsquo;s set services.
+   - Add each item in each child&rsquo;s export state to GC&rsquo;s export state.
+   - Add each item in each child&rsquo;s import state to GC&rsquo;s import,
+      eliminating duplicates.</p><a href="../proc/mapl_genericsetservices.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -9219,7 +9313,7 @@ generic,
             <td>::</td>
             <td><strong>GC</strong></td>
             <td>
-
+<p>Gridded component</p>
             </td>
         </tr>
         <tr>
@@ -9234,7 +9328,7 @@ generic,
             <td>::</td>
             <td><strong>RC</strong></td>
             <td>
-
+<p>Return code</p>
             </td>
         </tr>
     </tbody>
@@ -10865,7 +10959,7 @@ $       root_composite = ConcreteComposite(MAPLOBJ)</p>
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

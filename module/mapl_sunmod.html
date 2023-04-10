@@ -229,7 +229,13 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-mapl_sunmod">MODULE: <code>MAPL_SunMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p>This class is intended to manage the sun<code>s position and provide
+ the insolation at the top of the atmosphere. The main method
+ is</code>GEOS_SunGetInsolation<code>, which depends on an Orbit object.
+ The Orbit object defines this class and has public opaque type</code>GEOS_SunOrbit`.
+ Methods are provided for creating it, destroying it, and making various queries.</p>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -237,15 +243,15 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
-                <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
-                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
-                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
                 <li><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
-                <li>netcdf</li>
-                <li><a href='../module/pflogger.html'>pflogger</a></li>
+                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
                 <li><a href='../module/mapl_iomod.html'>MAPL_IOMod</a></li>
                 <li><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
+                <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                <li><a href='../module/pflogger.html'>pflogger</a></li>
+                <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+                <li>netcdf</li>
+                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
             </ul>
           </li>
       </ul>
@@ -488,7 +494,49 @@ parameter
     private recursive subroutine SOLAR_1D(LONS, LATS, ORBIT, ZTH, SLR, INTV, CLOCK, TIME, currTime, DIST, ZTHB, ZTHD, ZTH1, ZTHN, ZTHP, STEPSIZE, RC)  
 
     </h3>
-  
+  <p><code>GEOS_SunGetInsolation</code> returns the cosine of the solar zenith angle and the
+ insolation at the top of the atmosphere for the given reference time, latitudes,
+ longitudes, and orbit.  It is overloaded to accept either 1d or 2d
+ FORTRAN arrays or ESMF arrays of lats and lons and to produce the
+ corresponding outputs.</p>
+<p>The reference time is obtained as follows. If CurrTime is specified, it is used;
+ otherwise, if the optional clock is specified, it is set to the time
+ on that clock. If neither currTime nor clock are given, the time on the attached
+ clock is used.</p>
+<p>If the optional time interval is specified, the return values are averages
+ over that interval following the reference time. In this case, the cosine of
+ the solar zenith angle is an insolation-weighted average. The straight average
+ of the zenith angle and the average over the daylight part of the
+ interval (ZTHB,ZTHD) and the values at the beginning and end of the interval
+ (ZTH1,ZTHN) are also optionally available. The last two are supported only for
+ first two (non-ESMF) overloads.
+ PMN Jun 2020: Added optional ZTHP, like ZTHB a pure average of the cosine of the
+ solar zenith angle, except that for ZTHP the value averaged is allowed to be
+ negative (below the horizon). It will be used for Photolysis calculations.
+ Not implemented for ESMF overload.</p>
+<p>If the interval is not specified, the values are instantaneous values valid at
+ the reference time.</p>
+<p>The optional <em>TIME</em> argument is used to return some specialized
+ insolations. For example, the orbit at any of four Equinox or Solstice
+ positions. If <em>TIME</em> is present, only the time of day is used from the clock,
+ and a time interval, if specified, must be less than 24 hours. It can also be
+ used to return daily-mean insolation for the date on the clock, or the annual-mean
+ insolation for the year on the clock.</p>
+<p>The <em>TIME</em> argument can be any of the following:</p>
+<div class="codehilite"><pre><span></span><code>      MAPL_SunAutumnalEquinox
+      MAPL_SunWinterSolstice
+      MAPL_SunVernalEquinox
+      MAPL_SunSummerSolstice
+      MAPL_SunDailyMean
+      MAPL_SunAnnualMean
+</code></pre></div>
+
+<p></p><div class="alert alert-info" role="alert"><h4>Note</h4><p>If ORBIT%EOT is .TRUE., an Equation of Time correction will be
+ applied. This shifts the actual daylight period w.r.t. to mean solar
+ noon, to account for small but cumulative eccentricity and obliquity
+ effects on the actual length of the solar day.
+</p></div>
+<p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1272,7 +1320,17 @@ parameter
     private  subroutine MAPL_SunGetSolarConstantByYearDoY(Year, DayOfYear, SC, HK, rc)  
 
     </h3>
-  
+  <p>Given the year and day-of-year, this function returns the CMIP5 solar constant
+ and the 8 band fractions for the Chou solar code. These are based on annual
+ values from 1610 to 2008 and a repeating cycle after 2008. For dates prior
+ tp 1 January 1610, it returns the value at the start of 1610.</p>
+<p>DayOfYear is expected to have a value of 1.00 at 0:00 UTC Jan 1 and leap years
+ are acounted for by repeating the 366th day on January first of the following year.</p>
+<p>The SC values have been multiplied by .9965 to calibrate to the SOURCE/TIM scale.
+ The SC values include the &ldquo;background&rdquo; variation.</p>
+<p></p><div class="alert alert-danger" role="alert"><h4>Bug</h4><p>Band values for RRTMG not implemented
+</p></div>
+<p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1453,7 +1511,12 @@ parameter
     private  subroutine MAPL_SunGetSolarConstantFromNetcdfFile(CLOCK, fileName, SC, HK, MESOPHOT, JCALC4, rc)  
 
     </h3>
-  
+  <p>Acquire the solar constant and the eight band fractions for the Chou solar code
+ from an external NetCDF file.  The initial configuration assumes monthly values
+ beginning in January, and does not interpolate beyond the range of available data.</p>
+<p></p><div class="alert alert-danger" role="alert"><h4>Bug</h4><p>Band values for RRTMG not implemented
+</p></div>
+<p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1581,7 +1644,10 @@ parameter
     private  subroutine MAPL_SunGetSolarConstantFromNRLFile(CLOCK, filename_in, SC, MG, SB, PersistSolar, rc)  
 
     </h3>
-  
+  <p>Acquire the TSI, Mg, and SB from file.</p>
+<p></p><div class="alert alert-danger" role="alert"><h4>Bug</h4><p>Band values for RRTMG not implemented
+</p></div>
+<p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1741,7 +1807,8 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The function <code>MAPL_SunOrbitCreated</code> returns <code>.true.</code> 
+if the given orbit object has been initilized.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1801,7 +1868,13 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Integrates the earth<code>s orbit and stores the necessary
+ parameters to easily compute the earth</code>s position for each day
+ of the full (usually 4-year) intercalation cycle.
+ The orbital parameters are passed as arguments.
+ The full calendar intercalation cycle is obtained from the
+ ESMF clock passed as an argument. This becomes the orbit`s
+ attached clock. Currently we assume a single intercalation.</p><a href="../proc/mapl_sunorbitcreate.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2131,7 +2204,8 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The function <code>MAPL_SunOrbitCreateFromConfig</code> works like <code>MAPL_SunOrbitCreate()</code>
+ but gets orbital parameters from Config CF.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2226,7 +2300,13 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+a day around the specified time. The routine is accurate enough for most purposes, but
+does not solve for precise sunrise/sunset times influenced by changes in the orbital
+parameters between those times. The time input does NOT need to be noon &mdash; it is used
+simply to evaluate the solar declination needed for the daylight duration calculation.
+In order of preference, time is taken from currTime, if present, or else the currTime
+of CLOCK, if present, or else the currTime of the ORBIT&rsquo;s associated clock.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2341,7 +2421,14 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+its MAXIMUM at the summer solstice. The routine is accurate enough for most purposes,
+but does not solve for precise sunrise/sunset times influenced by changes in the orbital
+parameters between those times. The time input does NOT need to be noon &mdash; it is used
+simply to evaluate the obliquity needed for the maximum daylight duration calculation.
+In order of preference, time is taken from currTime, if present, or else the currTime
+of CLOCK, if present, or else the currTime of the ORBIT&rsquo;s associated clock.
+Note: Unless ORBIT_ANAL2B, the obliquity is fixed and the time is irrelevant.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2456,7 +2543,10 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Returns the local solar hour angle (in radians) at the single time and
+ multiple longitudes specified. In order of preference, time is taken
+ from TIME, if present, or else the CURRTIME of CLOCK, if present, or
+ else the CURRTIME of the ORBIT&rsquo;s associated clock.</p><a href="../proc/mapl_sungetlocalsolarhourangle.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2586,7 +2676,8 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>The routine <code>MAPL_SunOrbitDestroy</code> Destroys a <em>GEOS_SunOrbit</em> object,
+deallocating the space used to save the ephemeris.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2641,7 +2732,10 @@ parameter
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Query for quantities in an orbit object.
+ Optionally returns the parameters of the orbit and its
+ associated <code>ESMF_Clock</code>. It fails
+ if the orbit has not been created.</p><a href="../proc/mapl_sunorbitquery.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2906,7 +3000,7 @@ parameter
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

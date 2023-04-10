@@ -226,7 +226,52 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_cfioreadstate"></span><h3>private  subroutine MAPL_CFIOReadState(FILETMPL, TIME, STATE, NOREAD, RC, VERBOSE, FORCE_REGRID, ONLY_VARS, TIME_IS_CYCLIC, TIME_INTERP, conservative, voting, ignoreCase, doParallel, getFrac)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>MAPL_CFIOReadState</code>
+ serializes an ESMF state into a Bundle and reads its content from
+ a file. The file is open, read from, and closed on exit. The
+ arguments are:
+- <strong>FILETMPL</strong> A GrADS-style file name template. In its simplest
+   form is the full path name for the file to be read. However, it
+   can contain the following tokens which will be expanded from
+   the current time in <em>TIME</em>:
+   - <strong>%y4</strong> 4 digits for year
+   - <strong>%m2</strong> 2 digits for month, to expand to 01, 02, .., 12
+   - <strong>%m3</strong> 3 digits for month, to expand to jan, feb, mar, &hellip;, dec
+   - <strong>%d2</strong> 2 digits for day
+   - <strong>%h2</strong> 2 digits for hour
+   - <strong>%n2</strong> 2 digits for minutes
+   Example: if FILETMPL = <code>'forecast.%y4-%m2-%d2_%h2z.nc4'</code>, and the clock
+   says it is 18Z on 05 February 2007, the template will expand in the
+   following file name: <code>'forecast.2007-02-05_18Z.nc4'</code>
+- <strong>TIME</strong> The ESMF time to read from the file
+- <strong>STATE</strong> An ESMF State to read the data in. Usually used in conjubction
+   with ONLY_VARS.
+- <strong>[NOREAD]</strong> If .TRUE., no data is actually read into the Bundle. This is
+   useful to define a Bundle with the same variables as presented in the
+   file, which in turn can be used to created a <code>MAPL_CFIO</code> object for
+   writing.
+- <strong>[RC]</strong> Error return code; set to <code>ESMF_SUCCESS</code> if all is well.  <br>
+- <strong>[VERBOSE]</strong> If .TRUE., prints progress messages to STDOUT; useful
+   for debugging.
+- <strong>[FORCE_REGRID]</strong> Obsolete; kept for backward compatibility but
+   has no effect.
+- <strong>[TIME_IS_CYCLIC]</strong>  If .TRUE. it says that the input file is periodic
+   in time. Useful for reading climatological files. For example, if the
+   input file has 12 monthly means from January to December of 2001, setting
+   this option to .TRUE. allows one to read this data for any other year. See 
+   note below regarding issues with reading monthly mean data.
+- <strong>[TIME_INTERP]</strong> If .TRUE., the input file does not have to coincide with the
+   actual times on file. In such cases, the data for the bracketing times are
+   read and the data is properly interpolated in time. The input time, though,
+   need to be within the range of times present on file 
+   (unless <em>TIME_IS_CYCLIC</em> is specified).
+- <strong>[ONLY_VARS]</strong> A list of comma separated vafriables to be read from the
+   file. By default, all variables are read from the file. This option allows
+   one to read a subset of vafriables. Example: <code>ONLY\_VARS='u,v,ps'</code>.</p>
+<h4 id="design-issue">Design Issue</h4>
+<p>The input argument <em>TIME</em> should be replaced with <em>CLOCK</em>
+ for consistency with the rest of the API. One should also provide
+ an interface involving the MAPL CFIO object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -356,7 +401,7 @@
             <td>::</td>
             <td><strong>ONLY_VARS</strong></td>
             <td>
-                
+                <p>comma separated, no spaces</p>
             </td>
         </tr>
         <tr>
@@ -475,7 +520,60 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_cfioreadbundle"></span><h3>private  subroutine MAPL_CFIOReadBundle(FILETMPL, TIME, BUNDLE, NOREAD, RC, VERBOSE, FORCE_REGRID, ONLY_VARS, ONLY_LEVS, TIME_IS_CYCLIC, TIME_INTERP, conservative, voting, ignoreCase, doParallel, GSImode, getFrac, EXPID, collection_id)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine MAPL_CFIOReadBundle`
+ reads an ESMF Bundle from a file on a given time. The file is
+ open, read from, and closed on exit. The arguments are:</p>
+<ul>
+<li><strong>FILETMPL</strong> A GrADS-style file name template. In its simplest
+   form is the full path name for the file to be read. However, it
+   can contain the following tokens which will be expanded from
+   the current time in {\em TIME}:</li>
+<li><strong>%y4</strong> 4 digits for year</li>
+<li><strong>%m2</strong> 2 digits for month, to expand to 01, 02, .., 12</li>
+<li><strong>%m3</strong> 3 digits for month, to expand to jan, feb, mar, &hellip;, dec</li>
+<li><strong>%d2</strong> 2 digits for day</li>
+<li><strong>%h2</strong> 2 digits for hour</li>
+<li><strong>%n2</strong> 2 digits for minutes
+   Example: if FILETMPL = <code>'forecast.%y4-%m2-%d2_%h2z.nc4'</code>, and the clock
+   says it is 18Z on 05 February 2007, the template will expand in the
+   following file name: <code>'forecast.2007-02-05_18Z.nc4'</code></li>
+<li><strong>TIME</strong> The ESMF time to read from the file</li>
+<li><strong>BUNDLE</strong> An ESMF Bundle to read the data in. When the Bundle is empty
+   one field is added for each variable present in the input file, and the
+   necessary memory allocated according to the ESMF grid present in the Bundle.</li>
+<li><strong>[NOREAD]</strong> If .TRUE., no data is actually read into the Bundle. This is
+   useful to define a Bundle with the same variables as presented in the
+   file, which in turn can be used to created a <code>MAPL_CFIO</code> object for
+   writing.</li>
+<li><strong>[RC]</strong> Error return code; set to <code>ESMF_SUCCESS</code> if all is well.    </li>
+<li><strong>[VERBOSE]</strong> If .TRUE., prints progress messages to STDOUT; useful
+   for debugging.</li>
+<li><strong>[FORCE_REGRID]</strong> Obsolete; kept for backward compatibility but
+   has no effect.</li>
+<li><strong>[TIME_IS_CYCLIC]</strong>  If .TRUE. it says that the input file is periodic
+   in time. Useful for reading climatological files. For example, if the
+   input file has 12 monthly means from January to December of 2001, setting
+   this option to .TRUE. allows one to read this data for any other year. See 
+   note below regarding issues with reading monthly mean data.</li>
+<li><strong>[TIME_INTERP]</strong> If .TRUE., the input file does not have to coincide with the
+   actual times on file. In such cases, the data for the bracketing times are
+   read and the data is properly interpolated in time. The input time, though,
+   need to be within the range of times present on file 
+   (unless <em>TIME_IS_CYCLIC</em> is specified).</li>
+<li><strong>[ONLY_VARS]</strong> A list of comma separated vafriables to be read from the
+   file. By default, all variables are read from the file. This option allows
+   one to read a subset of vafriables. Example: <code>ONLY_VARS='u,v,ps'</code>.</li>
+</ul>
+<p><strong>A note about storing monthly climatological data.</strong> As per the CF
+ conventions, month is not a well defined unit of time, as the time
+ step is not constant throughout the year. When storing 12 months
+ of climatological data one way around it is to use an average
+ number of hours: use 732 or 730 hours depending on whether the year
+ recorded in the file is a leap-year or not.</p>
+<h4 id="design-issues">Design Issues</h4>
+<p>The input argument <em>TIME</em> should be replaced with <em>CLOCK</em>
+ for consistency with the rest of the API. One should also provide
+ an interface involving the MAPL CFIO object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -784,7 +882,48 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_cfioreadfield"></span><h3>private  subroutine MAPL_CFIOReadField(VARN, FILETMPL, TIME, FIELD, RC, VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC, TIME_INTERP, conservative, voting, ignoreCase, doParallel, getFrac)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>MAPL_CFIOReadField</code>
+ reads a variable from a file and stores it on an ESMF Field.
+ The file is open, read from, and closed on exit. The
+ arguments are:
+- <strong>VARN</strong> The variable name.
+- <strong>FILETMPL</strong> A GrADS-style file name template. In its simplest
+   form is the full path name for the file to be read. However, it
+   can contain the following tokens which will be expanded from
+   the current time in <em>TIME</em>:
+   - <strong>%y4</strong> 4 digits for year
+   - <strong>%m2</strong> 2 digits for month, to expand to 01, 02, .., 12
+   - <strong>%m3</strong> 3 digits for month, to expand to jan, feb, mar, &hellip;, dec
+   - <strong>%d2</strong> 2 digits for day
+   - <strong>%h2</strong> 2 digits for hour
+   - <strong>%n2</strong> 2 digits for minutes
+   Example: if FILETMPL = <code>'forecast.%y4-%m2-%d2_%h2z.nc4'</code>, and the clock
+   says it is 18Z on 05 February 2007, the template will expand in the
+   following file name: <code>forecast.2007-02-05_18Z.nc4'</code>
+- <strong>TIME</strong> The ESMF time to read from the file
+- <strong>[RC]</strong> Error return code; set to <code>ESMF_SUCCESS</code> if all is well.  <br>
+- <strong>[VERBOSE]</strong> If .TRUE., prints progress messages to STDOUT; useful
+   for debugging.
+- <strong>[FORCE_REGRID]</strong> Obsolete; kept for backward compatibility but
+   has no effect.
+- <strong>[TIME_IS_CYCLIC]</strong>  If .TRUE. it says that the input file is periodic
+   in time. Useful for reading climatological files. For example, if the
+   input file has 12 monthly means from January to December of 2001, setting
+   this option to .TRUE. allows one to read this data for any other year. See 
+   note below regarding issues with reading monthly mean data.
+- <strong>[TIME_INTERP]</strong> If .TRUE., the input file does not have to coincide with the
+   actual times on file. In such cases, the data for the bracketing times are
+   read and the data is properly interpolated in time. The input time, though,
+   need to be within the range of times present on file 
+   (unless <em>TIME_IS_CYCLIC</em> is specified).
+- <strong>[ONLY_VARS]</strong> A list of comma separated vafriables to be read from the
+   file. By default, all variables are read from the file. This option allows
+   one to read a subset of vafriables. Example: <code>ONLY\_VARS='u,v,ps'</code>.</p>
+<h4 id="design-issues">Design Issues</h4>
+<p>The input argument {\tt TIME} should be replaced with <em>CLOCK</em>
+ for consistency with the rest of the API. The input <em>GRID</em> is not necessary
+ as it can be found inside the field. One should also provide
+ an interface involving the MAPL CFIO object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -809,7 +948,7 @@
             <td>::</td>
             <td><strong>VARN</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -824,7 +963,7 @@
             <td>::</td>
             <td><strong>FILETMPL</strong></td>
             <td>
-                
+                <p>File name</p>
             </td>
         </tr>
         <tr>
@@ -1018,7 +1157,49 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_cfioreadarray3d"></span><h3>private  subroutine MAPL_CFIOReadArray3D(VARN, FILETMPL, TIME, GRID, farrayPtr, RC, VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC, TIME_INTERP, conservative, voting, ignoreCase, doParallel, getFrac)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>MAPL_CFIOReadArray3D</code>
+ reads a variable from a file and stores it on an 3D Fortrran array.
+ The file is open, read from, and closed on exit. The
+ arguments are:
+- <strong>VARN</strong> The variable name.
+- <strong>FILETMPL</strong> A GrADS-style file name template. In its simplest
+   form is the full path name for the file to be read. However, it
+   can contain the following tokens which will be expanded from
+   the current time in <em>TIME</em>:
+   - <strong>%y4</strong> 4 digits for year
+   - <strong>%m2</strong> 2 digits for month, to expand to 01, 02, .., 12
+   - <strong>%m3</strong> 3 digits for month, to expand to jan, feb, mar, &hellip;, dec
+   - <strong>%d2</strong> 2 digits for day
+   - <strong>%h2</strong> 2 digits for hour
+   - <strong>%n2</strong> 2 digits for minutes
+   Example: if FILETMPL = <code>'forecast.%y4-%m2-%d2_%h2z.nc4'</code>, and the clock
+   says it is 18Z on 05 February 2007, the template will expand in the
+   following file name: <code>`forecast.2007-02-05\_18Z.nc4''
+- **TIME** The ESMF time to read from the file
+- **GRID** The ESMF grid associated with the Field. The data will be 
+   (horizontally) interpolated to this grid if necessary.
+- **[RC]** Error return code; set to</code>ESMF_SUCCESS<code>if all is well.    
+- **[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
+   for debugging.
+- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+   has no effect.
+- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+   in time. Useful for reading climatological files. For example, if the
+   input file has 12 monthly means from January to December of 2001, setting
+   this option to .TRUE. allows one to read this data for any other year. See 
+   note below regarding issues with reading monthly mean data.
+- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+   actual times on file. In such cases, the data for the bracketing times are
+   read and the data is properly interpolated in time. The input time, though,
+   need to be within the range of times present on file 
+   (unless *TIME_IS_CYCLIC* is specified).
+- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+   file. By default, all variables are read from the file. This option allows
+   one to read a subset of vafriables. Example:</code>ONLY_VARS=&rsquo;u,v,ps&rsquo;`.</p>
+<h4 id="design-issues">Design Issues</h4>
+<p>The input argument <em>TIME</em> should be replaced with <em>CLOCK</em>
+ for consistency with the rest of the API.  One should also
+ provide an interface involving the MAPL CFIO object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1043,7 +1224,7 @@
             <td>::</td>
             <td><strong>VARN</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -1058,7 +1239,7 @@
             <td>::</td>
             <td><strong>FILETMPL</strong></td>
             <td>
-                
+                <p>File name</p>
             </td>
         </tr>
         <tr>
@@ -1267,7 +1448,49 @@
     <div class="panel-heading codesum"><span class="anchor" id="proc-mapl_cfioreadarray2d"></span><h3>private  subroutine MAPL_CFIOReadArray2D(VARN, FILETMPL, TIME, GRID, farrayPtr, RC, VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC, TIME_INTERP, conservative, voting, ignoreCase, doParallel, getFrac)  
 </h3></div>
     <div class="panel-body">
-        
+        <p>The subroutine <code>MAPL_CFIOReadArray2D</code>
+ reads a variable from a file and stores it on an 2D Fortrran array.
+ The file is open, read from, and closed on exit. The
+ arguments are:
+- <strong>VARN</strong> The variable name.
+- <strong>FILETMPL</strong> A GrADS-style file name template. In its simplest
+   form is the full path name for the file to be read. However, it
+   can contain the following tokens which will be expanded from
+   the current time in <em>TIME</em>:
+   - <strong>%y4</strong> 4 digits for year
+   - <strong>%m2</strong> 2 digits for month, to expand to 01, 02, .., 12
+   - <strong>%m3</strong> 3 digits for month, to expand to jan, feb, mar, &hellip;, dec
+   - <strong>%d2</strong> 2 digits for day
+   - <strong>%h2</strong> 2 digits for hour
+   - <strong>%n2</strong> 2 digits for minutes
+   Example: if FILETMPL = <code>'forecast.%y4-%m2-%d2_%h2z.nc4'</code>, and the clock
+   says it is 18Z on 05 February 2007, the template will expand in the
+   following file name: <code>`forecast.2007-02-05\_18Z.nc4''
+- **TIME** The ESMF time to read from the file
+- **GRID** The ESMF grid associated with the Field. The data will be
+   (horizontally) interpolated to this grid if necessary.
+- **[RC]** Error return code; set to</code>ESMF_SUCCESS<code>if all is well.
+- **[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
+   for debugging.
+- **[FORCE_REGRID]** Obsolete; kept for backward compatibility but
+   has no effect.
+- **[TIME_IS_CYCLIC]**  If .TRUE. it says that the input file is periodic
+   in time. Useful for reading climatological files. For example, if the
+   input file has 12 monthly means from January to December of 2001, setting
+   this option to .TRUE. allows one to read this data for any other year. See
+   note below regarding issues with reading monthly mean data.
+- **[TIME_INTERP]** If .TRUE., the input file does not have to coincide with the
+   actual times on file. In such cases, the data for the bracketing times are
+   read and the data is properly interpolated in time. The input time, though,
+   need to be within the range of times present on file
+   (unless *TIME_IS_CYCLIC* is specified).
+- **[ONLY_VARS]** A list of comma separated vafriables to be read from the
+   file. By default, all variables are read from the file. This option allows
+   one to read a subset of vafriables. Example:</code>ONLY_VARS=&rsquo;u,v,ps&rsquo;`.</p>
+<h4 id="design-issues">Design Issues</h4>
+<p>The input argument <em>TIME</em> should be replaced with <em>CLOCK</em>
+ for consistency with the rest of the API.  One should also
+ provide an interface involving the MAPL CFIO object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1292,7 +1515,7 @@
             <td>::</td>
             <td><strong>VARN</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -1307,7 +1530,7 @@
             <td>::</td>
             <td><strong>FILETMPL</strong></td>
             <td>
-                
+                <p>File name</p>
             </td>
         </tr>
         <tr>
@@ -1526,7 +1749,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

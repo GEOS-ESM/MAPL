@@ -1,14 +1,23 @@
-!==============================================================================
-!BOP
-! !MODULE: ESMF_CFIOFileMod.F90 - Source file for CFIO File
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `ESMF_CFIOFileMod`
+!
+! Author: GMAO SI-Team
+!
+! `ESMF_CFIOFileMod` - Source file for CFIO File.
+!
+! The module `ESMF_CFIOFileMod` provides ESMF_CFIOFile type definitions 
+! and interface specifications.
+!
+!#### History
+!- Feb2007    Yin     Separated from ESMF_CFIOMod
+!
 
        module ESMF_CFIOFileMod
-
-!
-! !DESCRIPTION:
-!
-! The code in this file provides ESMF_CFIOFile type definitions and interface
-! specifications
 !
 !------------------------------------------------------------------------------
 ! !USES:
@@ -16,11 +25,6 @@
       use ESMF_CFIOGridMod
       use ESMF_CFIOVarInfoMod
 
-! !REVISION HISTORY:
-!
-!  Feb 2007    Yin     Separated from ESMF_CFIOMod
-!
-      implicit none
 !------------------------------------------------------------------------------
 ! !PUBLIC DATA TYPES:
 !
@@ -33,78 +37,75 @@
       public :: ESMF_CFIOGet             ! Get meta data
       public :: ESMF_CFIODestroy         ! destructor for a CFIO object
 
-!EOP
-!------------------------------------------------------------------------------
-! Define a new data type "ESMF_CFIO" -- a CFIO object(file) with file name,
-! CFIO variable objects, time, grid index and global attributes.
-
+      !>
+      ! Define a new data type `ESMF_CFIO` -- a CFIO object(file) with file name,
+      ! CFIO variable objects, time, grid index and global attributes.
       type ESMF_CFIO
 !         private
-         character(len=MLEN) :: cfioObjName   ! name for this CFIO object
-         character(len=MLEN) :: fName         ! file name in this CFIO obj.
-         character(len=MLEN) :: fNameTmplt    ! file name in this CFIO obj.
-         character(len=MLEN) :: expid         ! Experiment I
-         integer :: mVars                     ! total number of variables
-         type(ESMF_CFIOVarInfo), pointer :: varObjs(:)=>null() ! CFIO variable objects
-         integer :: mGrids                    ! total number of grids
-         type(ESMF_CFIOGrid), pointer :: grids(:)=>null()     ! CFIO variable grid
-         integer :: vdir                      ! The positive vertical direction
-         integer :: date                      ! yyyymmdd
-         integer :: begTime                   ! hhmmss
-         integer :: timeInc                   ! time step increment
-         integer :: tSteps                    ! total time steps
-         integer :: deflate                   ! gzip compress level
-         character(len=MLEN) :: title    ! A title for the data set
-         character(len=MLEN) :: source   ! Source of data, e.g. NASA/GMAO
-         character(len=MLEN) :: contact  ! Who to contact about the data set
-         character(len=MLEN) :: history  !
-         character(len=MLEN) :: convention ! CFIO
+         character(len=MLEN) :: cfioObjName   !! name for this CFIO object
+         character(len=MLEN) :: fName         !! file name in this CFIO obj.
+         character(len=MLEN) :: fNameTmplt    !! file name in this CFIO obj.
+         character(len=MLEN) :: expid         !! Experiment I
+         integer :: mVars                     !! total number of variables
+         type(ESMF_CFIOVarInfo), pointer :: varObjs(:)=>null() !! CFIO variable objects
+         integer :: mGrids                    !! total number of grids
+         type(ESMF_CFIOGrid), pointer :: grids(:)=>null()     !! CFIO variable grid
+         integer :: vdir                      !! The positive vertical direction
+         integer :: date                      !! yyyymmdd
+         integer :: begTime                   !! hhmmss
+         integer :: timeInc                   !! time step increment
+         integer :: tSteps                    !! total time steps
+         integer :: deflate                   !! gzip compress level
+         character(len=MLEN) :: title    !! A title for the data set
+         character(len=MLEN) :: source   !! Source of data, e.g. NASA/GMAO
+         character(len=MLEN) :: contact  !! Who to contact about the data set
+         character(len=MLEN) :: history  !!
+         character(len=MLEN) :: convention !! CFIO
          character(len=MLEN) :: institution
          character(len=MLEN) :: references
          character(len=MLEN) :: comment
 
-         integer :: nAttChar ! Number of char attributes
-         integer :: nAttReal ! Number of Real attributes
-         integer :: nAttInt  ! Number of int attributes
-         integer, pointer :: attCharCnts(:) => NULL()       ! length of char attributes
-         integer, pointer :: attRealCnts(:) => NULL()       ! length of real attributes
-         integer, pointer :: attIntCnts(:) => NULL()        ! length of int attributes
-         character(len=MLEN), pointer :: attCharNames(:) => NULL()! User defined char
-                                                       ! attribute name
-         character(len=MLEN), pointer :: attRealNames(:) => NULL()! Real attribute name
-         character(len=MLEN), pointer :: attIntNames(:) => NULL() ! int attribute name
-         character(len=MLEN), pointer :: attChars(:) => NULL() ! char attributes
-         real, pointer :: attReals(:,:) => NULL()           ! global real attributes
-         integer, pointer :: attInts(:,:) => NULL()         ! global integer attributes
+         integer :: nAttChar !! Number of char attributes
+         integer :: nAttReal !! Number of Real attributes
+         integer :: nAttInt  !! Number of int attributes
+         integer, pointer :: attCharCnts(:) => NULL()       !! length of char attributes
+         integer, pointer :: attRealCnts(:) => NULL()       !! length of real attributes
+         integer, pointer :: attIntCnts(:) => NULL()        !! length of int attributes
+         character(len=MLEN), pointer :: attCharNames(:) => NULL()!! User defined char
+                                                       !! attribute name
+         character(len=MLEN), pointer :: attRealNames(:) => NULL()!! Real attribute name
+         character(len=MLEN), pointer :: attIntNames(:) => NULL() !! int attribute name
+         character(len=MLEN), pointer :: attChars(:) => NULL() !! char attributes
+         real, pointer :: attReals(:,:) => NULL()           !! global real attributes
+         integer, pointer :: attInts(:,:) => NULL()         !! global integer attributes
 
-         integer :: prec                         ! Desired precision of data
-         integer :: fid                          ! file ID for internal use
-         integer :: sd_id                        ! file ID for EOS
-         logical :: isGridSet           ! True only if grid was passed in
+         integer :: prec                         !! Desired precision of data
+         integer :: fid                          !! file ID for internal use
+         integer :: sd_id                        !! file ID for EOS
+         logical :: isGridSet           !! True only if grid was passed in
          type(iNode), pointer :: iList => NULL()
          type(rNode), pointer :: rList => NULL()
          type(cNode), pointer :: cList => NULL()
-         logical :: isOpen = .false.             ! flag to check fName is opened or not
+         logical :: isOpen = .false.             !! flag to check fName is opened or not
 !         integer :: nSteps
-         logical :: isCyclic            ! flag for cyclic for input files
-         character(len=16) :: format    ! output/input format -- GrADS or SDF(HDF)
-                                        ! default is SDF.
+         logical :: isCyclic            !! flag for cyclic for input files
+         character(len=16) :: format    !! output/input format -- GrADS or SDF(HDF)
+                                        !! default is SDF.
          logical           :: useVertexCoordinates = .false.
          real              :: FormatVersion = 1.0
       end type ESMF_CFIO
-
 !
-!EOP
-      contains
-
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOCreate -- ESMF_CFIO object constructor   
-
-! !INTERFACE:
-      type (ESMF_CFIO) function ESMF_CFIOCreate (cfioObjName, rc) 
+      contains
+!------------------------------------------------------------------------------
+!>
+! `ESMF_CFIOCreate` -- ESMF_CFIO object constructor
 !
-! !ARGUMENTS:
+! Create a CFIO object and initialize vars.
+! The required global metadata title, institution, source, history, references,
+! and comment are set to unknown.
+!
+      type (ESMF_CFIO) function ESMF_CFIOCreate (cfioObjName, rc) 
 !
 ! !INPUT PARAMETERS:
 !
@@ -112,14 +113,9 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                                                ! 0   all is well
+      integer, intent(out), OPTIONAL :: rc      ! Error return code:      
+                                                ! 0   all is well  
 !
-! !DESCRIPTION:
-!     Create a CFIO object and initialize vars . The required global metadata
-!     title, institution, source, history, references, and comment are set to 
-!     unknown.
-!EOP
 !------------------------------------------------------------------------------
       type(ESMF_CFIO) :: cfio                   ! a CFIO object
       integer :: rtcode
@@ -171,10 +167,11 @@
       end function ESMF_CFIOCreate
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOSet  -- Set meta data for a CFIO object
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOSet`  -- Set meta data for a CFIO object
+!
+! Set meta data for a CFIO object with detailed information. 
+!
       subroutine ESMF_CFIOSet(cfio, cfioObjName, varObjs, grids, grid,      &
                               fName, title, source, contact, history,       &
                               convention, institution, references, comment, &
@@ -188,63 +185,49 @@
                               deflate, formatVersion,                    rc )
        implicit NONE
 
-! !ARGUMENTS:
 !
 ! !INPUT PARAMETERS:
 !
-       character(len=*), intent(in), OPTIONAL :: cfioObjName ! object name
-       type(ESMF_CFIOVarInfo), OPTIONAL :: varObjs(:)! variable objects 
-       type(ESMF_CFIOGrid), OPTIONAL :: grids(:)     ! grid array
+       character(len=*), intent(in), OPTIONAL :: cfioObjName !! object name
+       type(ESMF_CFIOVarInfo), OPTIONAL :: varObjs(:)!! variable objects 
+       type(ESMF_CFIOGrid), OPTIONAL :: grids(:)     !! grid array
        type(ESMF_CFIOGrid), OPTIONAL :: grid         
 
-       character(len=*), intent(in), OPTIONAL :: fName      ! File name
-       character(len=*), intent(in), OPTIONAL :: fNameTmplt ! File name
+       character(len=*), intent(in), OPTIONAL :: fName      !! File name
+       character(len=*), intent(in), OPTIONAL :: fNameTmplt !! File name
        character(len=*), intent(in), OPTIONAL :: title      
-       character(len=*), intent(in), OPTIONAL :: source     ! Source of data
-       character(len=*), intent(in), OPTIONAL :: contact    ! Who to contact 
-       character(len=*), intent(in), OPTIONAL :: history    !
-       character(len=*), intent(in), OPTIONAL :: convention ! CFIO or COARDS
-       character(len=*), intent(in), OPTIONAL :: institution! File name
+       character(len=*), intent(in), OPTIONAL :: source     !! Source of data
+       character(len=*), intent(in), OPTIONAL :: contact    !! Who to contact 
+       character(len=*), intent(in), OPTIONAL :: history    !!
+       character(len=*), intent(in), OPTIONAL :: convention !! CFIO or COARDS
+       character(len=*), intent(in), OPTIONAL :: institution!! File name
        character(len=*), intent(in), OPTIONAL :: references
        character(len=*), intent(in), OPTIONAL :: comment
 
-       integer, intent(in), OPTIONAL :: date          ! yyyymmdd
-       integer, intent(in), OPTIONAL :: begTime       ! hhmmss
-       integer, intent(in), OPTIONAL :: timeInc       ! time step increment
-       character(len=*), intent(in), OPTIONAL :: timeString 
-                                ! string expression of date and time  
-       integer, intent(in), OPTIONAL :: prec      ! Desired precision of data:
-                                                  ! 0 = 32 bit; 1 = 64 bit
+       integer, intent(in), OPTIONAL :: date          !! yyyymmdd
+       integer, intent(in), OPTIONAL :: begTime       !! hhmmss
+       integer, intent(in), OPTIONAL :: timeInc       !! time step increment
+       character(len=*), intent(in), OPTIONAL :: timeString !! string expression of date and time  
+       integer, intent(in), OPTIONAL :: prec      !! Desired precision of data:
+                                                  !! 0 = 32 bit; 1 = 64 bit
 
-       character(len=*), intent(in), OPTIONAL :: attCharNames(:) 
-                                    ! User defined global char attribute names
-       character(len=*), intent(in), OPTIONAL :: attRealNames(:)
-                                    ! User defined global real attribute names 
-       character(len=*), intent(in), OPTIONAL :: attIntNames(:)
-                                    ! User defined global int attribute names
-       integer, intent(in), OPTIONAL :: attCharCnts(:)! length of attributes
-       integer, intent(in), OPTIONAL :: attRealCnts(:)! length of attributes
-       integer, intent(in), OPTIONAL :: attIntCnts(:) ! length of attributes
+       character(len=*), intent(in), OPTIONAL :: attCharNames(:) !! User defined global char attribute names
+       character(len=*), intent(in), OPTIONAL :: attRealNames(:) !! User defined global real attribute names 
+       character(len=*), intent(in), OPTIONAL :: attIntNames(:) !! User defined global int attribute names
+       integer, intent(in), OPTIONAL :: attCharCnts(:) !! length of attributes
+       integer, intent(in), OPTIONAL :: attRealCnts(:) !! length of attributes
+       integer, intent(in), OPTIONAL :: attIntCnts(:)  !! length of attributes
 
-       character(len=*), intent(in), OPTIONAL :: attChars(:) 
-                                    ! User defined global char attribute 
-       real,      intent(in), OPTIONAL :: attReals(:,:) 
-                                    ! User defined global real attribute 
-       integer,   intent(in), OPTIONAL :: attInts(:,:)
-                                    ! User defined global int attribute 
+       character(len=*), intent(in), OPTIONAL :: attChars(:) !! User defined global char attribute 
+       real,      intent(in), OPTIONAL :: attReals(:,:) !! User defined global real attribute 
+       integer,   intent(in), OPTIONAL :: attInts(:,:) !! User defined global int attribute 
 
-       character(len=*), intent(in), OPTIONAL :: attCharName 
-                                    ! User defined global char attribute name
-       character(len=*), intent(in), OPTIONAL :: attRealName
-                                    ! User defined global real attribute name
-       character(len=*), intent(in), OPTIONAL :: attIntName
-                                    ! User defined global int attribute name
-       character(len=*), intent(in), OPTIONAL :: attChar 
-                                    ! User defined global char attribute 
-       real,    intent(in), OPTIONAL :: attReal(:)
-                                    ! User defined global real attribute 
-       integer, intent(in), OPTIONAL :: attInt(:)
-                                    ! User defined global int attribute 
+       character(len=*), intent(in), OPTIONAL :: attCharName !! User defined global char attribute name
+       character(len=*), intent(in), OPTIONAL :: attRealName !! User defined global real attribute name
+       character(len=*), intent(in), OPTIONAL :: attIntName !! User defined global int attribute name
+       character(len=*), intent(in), OPTIONAL :: attChar !! User defined global char attribute 
+       real,    intent(in), OPTIONAL :: attReal(:) !! User defined global real attribute 
+       integer, intent(in), OPTIONAL :: attInt(:) !! User defined global int attribute 
        character(len=*), intent(in), OPTIONAL :: format
        character(len=*), intent(in), OPTIONAL :: expid
        logical, intent(in), OPTIONAL :: isCyclic
@@ -255,27 +238,23 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer, intent(out), OPTIONAL :: rc 
-                                    ! Error return code:
-                                    ! 0   all is well
-                                    ! -1  can't allocate memory for grid(s)
-                                    ! -2  can't allocate memory: varObjs    
-                                    ! -3  can't allocate mem: attIntCnts   
-                                    ! -4  can't allocate mem: attIntNames  
-                                    ! -5  can't allocate memory: attInts    
-                                    ! -6  can't allocate mem: attRealCnts   
-                                    ! -7  can't allocate mem: attRealNames  
-                                    ! -8  can't allocate memory: attReals  
-                                    ! -9  can't allocate mem: attCharCnts  
-                                    ! -10  can't allocate mem: attCharNames  
-                                    ! -11  can't allocate memory: attChars  
+       integer, intent(out), OPTIONAL :: rc  !! Error return code:      
+                                    !! 0   all is well      
+                                    !! -1  can't allocate memory for grid(s)      
+                                    !! -2  can't allocate memory: varObjs      
+                                    !! -3  can't allocate mem: attIntCnts     
+                                    !! -4  can't allocate mem: attIntNames    
+                                    !! -5  can't allocate memory: attInts      
+                                    !! -6  can't allocate mem: attRealCnts     
+                                    !! -7  can't allocate mem: attRealNames    
+                                    !! -8  can't allocate memory: attReals    
+                                    !! -9  can't allocate mem: attCharCnts    
+                                    !! -10  can't allocate mem: attCharNames    
+                                    !! -11  can't allocate memory: attChars    
 ! !INPUT/OUTPUT PARAMETERS:
 !
-       type(ESMF_CFIO), intent(inout) :: cfio    ! a CFIO object
+       type(ESMF_CFIO), intent(inout) :: cfio    !! a CFIO object
 !
-! !DESCRIPTION:
-!     Set meta data for a CFIO object with detailed information. 
-!EOP
 !------------------------------------------------------------------------------
        integer :: iCnt, jCnt, count, rtcode
 
@@ -468,10 +447,11 @@
 
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIOGet -- Get meta data from a CFIO object
-
-! !INTERFACE:
+!>
+! `ESMF_CFIOGet` -- Get meta data from a CFIO object
+!
+! Get meta data from a CFIO file.
+!
       subroutine ESMF_CFIOGet (cfio, cfioObjName, nVars, varObjs, grid,     &
                               nGrids, grids, fName, title, source, contact, &
                               history, convention, institution, references, &
@@ -483,99 +463,82 @@
                               attRealCnt, attReal, attIntName, attIntCnt,   &
                               attInt, isOpen, format, fNameTmplt, rc )
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-       type(ESMF_CFIO), intent(in) :: cfio       ! a CFIO object
-       character(len=*), intent(in), OPTIONAL :: attCharName
-                                    ! User defined global char attribute name
-       character(len=*), intent(in), OPTIONAL :: attRealName
-                                    ! User defined global real attribute name
-       character(len=*), intent(in), OPTIONAL :: attIntName
-                                    ! User defined global int attribute name
+       type(ESMF_CFIO), intent(in) :: cfio       !! a CFIO object
+       character(len=*), intent(in), OPTIONAL :: attCharName !! User defined global char attribute name
+       character(len=*), intent(in), OPTIONAL :: attRealName !! User defined global real attribute name
+       character(len=*), intent(in), OPTIONAL :: attIntName !! User defined global int attribute name
 !
 ! !OUTPUT PARAMETERS:
 !
-       character(len=*), intent(out), OPTIONAL :: cfioObjName ! CFIO Obj name
-       integer, OPTIONAL :: nVars          ! number of variable objects
-       type(ESMF_CFIOVarInfo), pointer, OPTIONAL :: varObjs(:)! var objects
-       integer, OPTIONAL :: nGrids                   ! number of grids
-       type(ESMF_CFIOGrid), pointer, OPTIONAL :: grids(:)    ! grid array
+       character(len=*), intent(out), OPTIONAL :: cfioObjName !! CFIO Obj name
+       integer, OPTIONAL :: nVars          !! number of variable objects
+       type(ESMF_CFIOVarInfo), pointer, OPTIONAL :: varObjs(:)!! var objects
+       integer, OPTIONAL :: nGrids                   !! number of grids
+       type(ESMF_CFIOGrid), pointer, OPTIONAL :: grids(:)    !! grid array
        type(ESMF_CFIOGrid), pointer, OPTIONAL :: grid
-       character(len=*), intent(out), OPTIONAL :: fName      ! File name
-       character(len=*), intent(out), OPTIONAL :: fNameTmplt ! File name
+       character(len=*), intent(out), OPTIONAL :: fName      !! File name
+       character(len=*), intent(out), OPTIONAL :: fNameTmplt !! File name
        character(len=*), intent(out), OPTIONAL :: title
-       character(len=*), intent(out), OPTIONAL :: source     ! Source of data
-       character(len=*), intent(out), OPTIONAL :: contact    ! Who to contact
-       character(len=*), intent(out), OPTIONAL :: history    !
-       character(len=*), intent(out), OPTIONAL :: convention ! CFIO or COARDS
-       character(len=*), intent(out), OPTIONAL :: institution! File name
+       character(len=*), intent(out), OPTIONAL :: source     !! Source of data
+       character(len=*), intent(out), OPTIONAL :: contact    !! Who to contact
+       character(len=*), intent(out), OPTIONAL :: history    !!
+       character(len=*), intent(out), OPTIONAL :: convention !! CFIO or COARDS
+       character(len=*), intent(out), OPTIONAL :: institution!! File name
        character(len=*), intent(out), OPTIONAL :: references
        character(len=*), intent(out), OPTIONAL :: comment
-       integer, intent(out), OPTIONAL :: date          ! yyyymmdd
-       integer, intent(out), OPTIONAL :: begTime       ! hhmmss
-       integer, intent(out), OPTIONAL :: timeInc      ! time step increment
-       integer, intent(out), OPTIONAL :: nSteps       ! number of time steps
-       integer, intent(out), OPTIONAL :: prec     ! Desired precision of data:
-                                                  ! 0 = 32 bit; 1 = 64 bit
-       integer, intent(out), OPTIONAL :: nAttChar ! Number of char attributes
-       integer, intent(out), OPTIONAL :: nAttReal ! Number of Real attributes
-       integer, intent(out), OPTIONAL :: nAttInt  ! Number of int attributes
-       character(len=*), pointer, OPTIONAL :: attCharNames(:)
-                                    ! User defined global char attribute names
-       character(len=*), pointer, OPTIONAL :: attRealNames(:)
-                                    ! User defined global real attribute names
-       character(len=*), pointer, OPTIONAL :: attIntNames(:)
-                                    ! User defined global int attribute names
-       integer, pointer, OPTIONAL :: attCharCnts(:)! length of attributes
-       integer, pointer, OPTIONAL :: attRealCnts(:)! length of attributes
-       integer, pointer, OPTIONAL :: attIntCnts(:) ! length of attributes
-       character(len=*), pointer, OPTIONAL :: attChars(:)
-                                    ! User defined global char attribute
-       real,      pointer, OPTIONAL :: attReals(:,:)
-                                    ! User defined global real attribute
-       integer,   pointer, OPTIONAL :: attInts(:,:)
-                                    ! User defined global int attribute
+       integer, intent(out), OPTIONAL :: date          !! yyyymmdd
+       integer, intent(out), OPTIONAL :: begTime       !! hhmmss
+       integer, intent(out), OPTIONAL :: timeInc      !! time step increment
+       integer, intent(out), OPTIONAL :: nSteps       !! number of time steps
+       integer, intent(out), OPTIONAL :: prec     !! Desired precision of data:
+                                                  !! 0 = 32 bit; 1 = 64 bit
+       integer, intent(out), OPTIONAL :: nAttChar !! Number of char attributes
+       integer, intent(out), OPTIONAL :: nAttReal !! Number of Real attributes
+       integer, intent(out), OPTIONAL :: nAttInt  !! Number of int attributes
+       character(len=*), pointer, OPTIONAL :: attCharNames(:) !! User defined global char attribute names
+       character(len=*), pointer, OPTIONAL :: attRealNames(:) !! User defined global real attribute names
+       character(len=*), pointer, OPTIONAL :: attIntNames(:) !! User defined global int attribute names
+       integer, pointer, OPTIONAL :: attCharCnts(:)!! length of attributes
+       integer, pointer, OPTIONAL :: attRealCnts(:)!! length of attributes
+       integer, pointer, OPTIONAL :: attIntCnts(:) !! length of attributes
+       character(len=*), pointer, OPTIONAL :: attChars(:) !! User defined global char attribute
+       real,      pointer, OPTIONAL :: attReals(:,:) !! User defined global real attribute
+       integer,   pointer, OPTIONAL :: attInts(:,:) !! User defined global int attribute
 
        integer, intent(out), OPTIONAL :: attIntCnt
        integer, intent(out), OPTIONAL :: attRealCnt
        integer, intent(out), OPTIONAL :: attCharCnt
-       character(len=*), intent(out), OPTIONAL :: attChar
-                                    ! User defined global char attribute
-       real,    pointer, OPTIONAL :: attReal(:)
-                                    ! User defined global real attribute
-       integer, pointer, OPTIONAL :: attInt(:)
-                                    ! User defined global int attribute
+       character(len=*), intent(out), OPTIONAL :: attChar !! User defined global char attribute
+       real,    pointer, OPTIONAL :: attReal(:) !! User defined global real attribute
+       integer, pointer, OPTIONAL :: attInt(:) !! User defined global int attribute
        logical, intent(out), OPTIONAL :: isOpen
        character(len=*), intent(out), OPTIONAL :: format
 
-       integer, intent(out), OPTIONAL :: rc      ! Error return code:
-                         !  0   all is well
-                         ! -1  can't allocate memory for grid(s)
-                         ! -2  can't allocate memory: varObjs
-                         ! -3  can't allocate mem: attCharNames
-                         ! -4  can't allocate mem: attRealNames
-                         ! -5  can't allocate mem: attIntNames
-                         ! -6  can't allocate mem: attCharCnts
-                         ! -7  can't allocate mem: attRealCnts
-                         ! -8  can't allocate mem: attIntCnts
-                         ! -9  can't allocate mem: attChars
-                         ! -10  can't allocate mem: attReals
-                         ! -11  can't allocate mem: attInts
-                         ! -12  can't allocate mem: attInt
-                         !  rc = -19  unable to identify coordinate variable
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -53  error from NF90_GET_ATT
+       integer, intent(out), OPTIONAL :: rc      !! Error return code:    
+                         !!  0   all is well  
+                         !! -1  can't allocate memory for grid(s)  
+                         !! -2  can't allocate memory: varObjs    
+                         !! -3  can't allocate mem: attCharNames    
+                         !! -4  can't allocate mem: attRealNames    
+                         !! -5  can't allocate mem: attIntNames    
+                         !! -6  can't allocate mem: attCharCnts    
+                         !! -7  can't allocate mem: attRealCnts    
+                         !! -8  can't allocate mem: attIntCnts    
+                         !! -9  can't allocate mem: attChars    
+                         !! -10  can't allocate mem: attReals    
+                         !! -11  can't allocate mem: attInts    
+                         !! -12  can't allocate mem: attInt    
+                         !!  rc = -19  unable to identify coordinate variable    
+                         !!  rc = -40  error from NF90_INQ_VARID    
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)    
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)    
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)    
+                         !!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)    
+                         !!  rc = -48  error from NF90_INQUIRE    
+                         !!  rc = -53  error from NF90_GET_ATT    
 !
-! !DESCRIPTION:
-!     Get meta data from a CFIO file
-!EOP
 !------------------------------------------------------------------------------
        integer :: rtcode
        integer :: i
@@ -797,17 +760,14 @@
       end subroutine ESMF_CFIOGet
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: ESMF_CFIODestroy -- destructor for a CFIO object
-
-! !INTERFACE:
-      subroutine ESMF_CFIODestroy (cfio, rc)
+!>
+! `ESMF_CFIODestroy` -- destructor for a CFIO object
 !
-! !ARGUMENTS:
+      subroutine ESMF_CFIODestroy (cfio, rc)
 !
 ! !INPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      ! Error return code:
+      integer, intent(out), OPTIONAL :: rc      ! Error return code:      
                                                 ! 0   all is well
 !
 ! !INPUT/OUTPUT PARAMETERS:
@@ -815,9 +775,6 @@
       type(ESMF_CFIO), intent(inout) :: cfio       ! CFIO object
 
 !
-! !DESCRIPTION:
-!     destructor for a CFIO object
-!EOP
 !------------------------------------------------------------------------------
       integer :: rtcode
       integer :: i

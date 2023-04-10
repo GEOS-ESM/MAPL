@@ -1,17 +1,24 @@
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
 
 #define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 #define DEALOC__(A) if(associated(A))then;A=.false.;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 #include "unused_dummy.H"
 
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_LocStreamMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `MAPL_LocStreamMod` manipulates location streams.
+!
 module MAPL_LocStreamMod
-
-!=============================================================================
-  !BOP
-
-  ! !MODULE: MAPL_LocStreamMod -- Manipulate location streams
-
 
   ! !USES:
 
@@ -68,42 +75,42 @@ integer, parameter :: NumLocalVars =4
 
 
 type MAPL_GeoLocation
-   integer                    :: T ! 1st Type designation
-   real                       :: A ! Stream area
-   real                       :: X ! Stream coordinate
-   real                       :: Y ! Stream coordinate
+   integer                    :: T !! 1st Type designation
+   real                       :: A !! Stream area
+   real                       :: X !! Stream coordinate
+   real                       :: Y !! Stream coordinate
 end type MAPL_GeoLocation
 
 type MAPL_IndexLocation
-   integer                    :: I ! Global index into associated grid
-   integer                    :: J ! Global index into associated grid
-   real                       :: W ! Weight at I J
+   integer                    :: I !! Global index into associated grid
+   integer                    :: J !! Global index into associated grid
+   real                       :: W !! Weight at I J
 end type MAPL_IndexLocation
 
 type MAPL_Tiling
    character(len=MAPL_TileNameLength) :: NAME=""
    integer                            :: IM=0
    integer                            :: JM=0
-!!   type(MAPL_IndexLocation),  pointer  :: Global_IndexLocation(:)=>null() ! Locations in local PE
+!C   type(MAPL_IndexLocation),  pointer  :: Global_IndexLocation(:)=>null() !C Locations in local PE
 end type MAPL_Tiling
 
 type MAPL_LocStreamType
    character(len=ESMF_MAXSTR)         :: ROOTNAME=""
    character(len=MAPL_TileNameLength) :: NAME=""
-   integer                            :: NT_GLOBAL=0                     ! Total number locations
-   integer                            :: NT_LOCAL=0                      ! Number locations on local PE
-   integer                            :: N_GRIDS=0                       ! Number of associated grids
-   integer                            :: Current_tiling=-1               ! Grid tiling currently attached 
-   type(ESMF_GRID)                    :: GRID                            ! Grid currently attached
-   type(ESMF_GRID)                    :: TILEGRID                        ! the next best thing to LocStream grid
-   integer,                  pointer  :: GLOBAL_Id(:)           =>null() ! All Location Ids in file order
-   integer,                  pointer  :: LOCAL_Id (:)           =>null() ! Location Ids on local PE
-   type(MAPL_GeoLocation),   pointer  :: Global_GeoLocation  (:)=>null() ! All GeoLocations
-!!   type(MAPL_IndexLocation), pointer  :: Global_IndexLocation(:)=>null() ! All IndexLocations for attach grid
-   type(MAPL_GeoLocation),   pointer  :: Local_GeoLocation   (:)=>null() ! GeoLocations on local PE
-   type(MAPL_IndexLocation), pointer  :: Local_IndexLocation (:)=>null() ! Local IndexLocations for attach grid
-   type(MAPL_Tiling),        pointer  :: Tiling(:)              =>null() ! Grid associated tilings
-   real, pointer              :: D(:,:,:)=>null() ! Bilinear weights
+   integer                            :: NT_GLOBAL=0                     !! Total number locations
+   integer                            :: NT_LOCAL=0                      !! Number locations on local PE
+   integer                            :: N_GRIDS=0                       !! Number of associated grids
+   integer                            :: Current_tiling=-1               !! Grid tiling currently attached 
+   type(ESMF_GRID)                    :: GRID                            !! Grid currently attached
+   type(ESMF_GRID)                    :: TILEGRID                        !! the next best thing to LocStream grid
+   integer,                  pointer  :: GLOBAL_Id(:)           =>null() !! All Location Ids in file order
+   integer,                  pointer  :: LOCAL_Id (:)           =>null() !! Location Ids on local PE
+   type(MAPL_GeoLocation),   pointer  :: Global_GeoLocation  (:)=>null() !! All GeoLocations
+!C   type(MAPL_IndexLocation), pointer  :: Global_IndexLocation(:)=>null() !C All IndexLocations for attach grid
+   type(MAPL_GeoLocation),   pointer  :: Local_GeoLocation   (:)=>null() !! GeoLocations on local PE
+   type(MAPL_IndexLocation), pointer  :: Local_IndexLocation (:)=>null() !! Local IndexLocations for attach grid
+   type(MAPL_Tiling),        pointer  :: Tiling(:)              =>null() !! Grid associated tilings
+   real,                     pointer  :: D(:,:,:)=>null()                !! Bilinear weights
    logical                            :: IsTileAreaValid
    integer                            :: pfafstetter_catchments
 end type MAPL_LocStreamType
@@ -309,13 +316,13 @@ contains
   end subroutine MAPL_LocStreamGet
 
 !===================================================================
-
-
-!BOPI
-! !IROUTINE: MAPL_LocStreamCreate
-! !IIROUTINE: MAPL_LocStreamCreateFromFile --- Create from file
-
-  ! !INTERFACE:
+!>
+! Creates a location stream from a file. This does
+! not decompose the location stream; so the global stream is
+! described in each processor.  The stream can be decomposed
+! later in various ways. Currently we only decompose it by
+! "attaching" it to a decomposed grid.
+!
   subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, use_pfaf, RC)
 
     !ARGUMENTS:
@@ -328,13 +335,6 @@ contains
     logical,                    optional, intent(IN   ) :: NewGridNames
     logical,                    optional, intent(In   ) :: use_pfaf
     integer,                    optional, intent(  OUT) :: RC  
-
-! !DESCRIPTION: Creates a location stream from a file. This does
-! not decompose the location stream; so the global stream is
-! described in each processor.  The stream can be decomposed
-! later in various ways. Currently we only decompose it by 
-! "attaching" it to a decomposed grid.
-!EOPI
 
 ! Local variables
 
@@ -599,10 +599,10 @@ contains
        allocate(STREAM%GLOBAL_GEOLOCATION(STREAM%NT_GLOBAL), STAT=STATUS)
        _VERIFY(STATUS)
 
-!!       do N=1,STREAM%N_GRIDS
-!!          allocate(STREAM%TILING(N)%GLOBAL_IndexLocation(STREAM%NT_GLOBAL), STAT=STATUS)
-!!          _VERIFY(STATUS)
-!!       end do
+!C       do N=1,STREAM%N_GRIDS
+!C          allocate(STREAM%TILING(N)%GLOBAL_IndexLocation(STREAM%NT_GLOBAL), STAT=STATUS)
+!C          _VERIFY(STATUS)
+!C       end do
 
 ! Fill global stream parameters subject to mask
 !----------------------------------------------
@@ -617,13 +617,13 @@ contains
              STREAM%GLOBAL_GeoLocation(K)%A =      AVR(I,2)
              STREAM%GLOBAL_GeoLocation(K)%X =      AVR(I,3) * (MAPL_PI/180.)
              STREAM%GLOBAL_GeoLocation(K)%Y =      AVR(I,4) * (MAPL_PI/180.)
-!!             X = AVR(I,3)
-!!             Y = AVR(I,4)
-!!             do N=1,STREAM%N_GRIDS
-!!                STREAM%Tiling(N)%GLOBAL_IndexLocation(K)%I = nint(AVR(I,NumGlobalVars+1+NumLocalVars*(N-1)))
-!!                STREAM%Tiling(N)%GLOBAL_IndexLocation(K)%J = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
-!!                STREAM%Tiling(N)%GLOBAL_IndexLocation(K)%W =      AVR(I,NumGlobalVars+3+NumLocalVars*(N-1))
-!!             end do
+!C             X = AVR(I,3)
+!C             Y = AVR(I,4)
+!C             do N=1,STREAM%N_GRIDS
+!C                STREAM%Tiling(N)%GLOBAL_IndexLocation(K)%I = nint(AVR(I,NumGlobalVars+1+NumLocalVars*(N-1)))
+!C                STREAM%Tiling(N)%GLOBAL_IndexLocation(K)%J = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+!C                STREAM%Tiling(N)%GLOBAL_IndexLocation(K)%W =      AVR(I,NumGlobalVars+3+NumLocalVars*(N-1))
+!C             end do
           end if
        end do
 
@@ -1333,12 +1333,10 @@ contains
 
   end subroutine MAPL_LocStreamCreateFromFile
 
-
-
-!BOPI
-! !IIROUTINE: MAPL_LocStreamCreateFromStream --- Create from stream
-
-! !INTERFACE:
+!-------------------------------------------------------------------------------------
+!>
+! Creates a location stream as a subset of another according to mask.
+!
   subroutine MAPL_LocStreamCreateFromStream(LocStreamOut, LocStreamIn, NAME, MASK, RC)
 
 ! !ARGUMENTS:
@@ -1348,13 +1346,7 @@ contains
     integer,                    optional, intent(IN   ) :: MASK(:)
     integer,                    optional, intent(  OUT) :: RC  
 
-! !DESCRIPTION: Creates a location stream as a subset of another
-!   according to mask.
-
-!EOP
-
 ! Local variables
-
 
     integer                    :: STATUS
 
@@ -1530,7 +1522,7 @@ contains
 
     TILING => STREAM%TILING(STREAM%CURRENT_TILING)
 
-!!    STREAM%GLOBAL_INDEXLOCATION => TILING%GLOBAL_INDEXLOCATION
+!C    STREAM%GLOBAL_INDEXLOCATION => TILING%GLOBAL_INDEXLOCATION
 
 ! Put associated ESMF_LogRectGrid in stream and query grid info
 !--------------------------------------------------------------

@@ -185,7 +185,16 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-esmf_cfiosdfmod">MODULE: <code>ESMF_CFIOSdfMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p><code>ESMF_CFIOSdfMod</code> - Source file for CFIO.</p>
+<p>The module <code>ESMF_CFIOSdfMod</code> provides data type definitions and interface
+ specifications. It provides all the necessary subroutines for users to write/read
+ HDF format output using CF convention.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>Feb2007  Baoyu Yin  Modified from ESMF_CFIOSdfMod.F90. This is the SDF module for CFIO.</li>
+</ul>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -193,11 +202,11 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='../module/esmf_cfiofilemod.html'>ESMF_CFIOFileMod</a></li>
                 <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
-                <li><a href='../module/esmf_cfiogridmod.html'>ESMF_CFIOGridMod</a></li>
                 <li><a href='../module/esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
                 <li>netcdf</li>
+                <li><a href='../module/esmf_cfiofilemod.html'>ESMF_CFIOFileMod</a></li>
+                <li><a href='../module/esmf_cfiogridmod.html'>ESMF_CFIOGridMod</a></li>
                 <li><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
             </ul>
           </li>
@@ -278,7 +287,7 @@
     private  subroutine ESMF_CFIOSdfVarRead3D_(cfio, vName, field, date, curTime, kbeg, kount, xBeg, xCount, yBeg, yCount, timeString, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarRead3D_</code> &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -303,7 +312,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -318,7 +327,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -333,7 +342,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:,:)</td>
             <td>
-                
+                <p>array contains data     </p>
             </td>
         </tr>
         <tr>
@@ -348,7 +357,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -363,7 +372,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -378,7 +387,7 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write</p>
             </td>
         </tr>
         <tr>
@@ -393,7 +402,7 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -408,7 +417,7 @@
             <td>::</td>
             <td><strong>xBeg</strong></td>
             <td>
-                
+                <p>first point for lon </p>
             </td>
         </tr>
         <tr>
@@ -423,7 +432,7 @@
             <td>::</td>
             <td><strong>xCount</strong></td>
             <td>
-                
+                <p>number of points to read</p>
             </td>
         </tr>
         <tr>
@@ -438,7 +447,7 @@
             <td>::</td>
             <td><strong>yBeg</strong></td>
             <td>
-                
+                <p>first point for lat </p>
             </td>
         </tr>
         <tr>
@@ -453,7 +462,7 @@
             <td>::</td>
             <td><strong>yCount</strong></td>
             <td>
-                
+                <p>number of points to read</p>
             </td>
         </tr>
         <tr>
@@ -468,7 +477,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -483,7 +492,27 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -8  vname miss-match   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE     </p>
             </td>
         </tr>
     </tbody>
@@ -496,7 +525,7 @@
     private  subroutine ESMF_CFIOSdfVarRead2D_(cfio, vName, field, date, curTime, kbeg, kount, xBeg, xCount, yBeg, yCount, timeString, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarRead2D_</code> &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -521,7 +550,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -536,7 +565,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -551,7 +580,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -566,7 +595,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -581,7 +610,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -596,7 +625,7 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write</p>
             </td>
         </tr>
         <tr>
@@ -611,7 +640,7 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -626,7 +655,7 @@
             <td>::</td>
             <td><strong>xBeg</strong></td>
             <td>
-                
+                <p>first point for lon</p>
             </td>
         </tr>
         <tr>
@@ -641,7 +670,7 @@
             <td>::</td>
             <td><strong>xCount</strong></td>
             <td>
-                
+                <p>number of points to read</p>
             </td>
         </tr>
         <tr>
@@ -656,7 +685,7 @@
             <td>::</td>
             <td><strong>yBeg</strong></td>
             <td>
-                
+                <p>first point for lat</p>
             </td>
         </tr>
         <tr>
@@ -671,7 +700,7 @@
             <td>::</td>
             <td><strong>yCount</strong></td>
             <td>
-                
+                <p>number of points to read</p>
             </td>
         </tr>
         <tr>
@@ -686,7 +715,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -701,7 +730,27 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -8  vname miss-match   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE     </p>
             </td>
         </tr>
     </tbody>
@@ -714,7 +763,7 @@
     private  subroutine ESMF_CFIOSdfVarRead1D_(cfio, vName, field, date, curTime, xBeg, xCount, timeString, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarRead1D_</code> &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -739,7 +788,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -754,7 +803,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -769,7 +818,7 @@
             <td>::</td>
             <td><strong>field</strong>(:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -784,7 +833,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -799,7 +848,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -814,7 +863,7 @@
             <td>::</td>
             <td><strong>xBeg</strong></td>
             <td>
-                
+                <p>first point for lon</p>
             </td>
         </tr>
         <tr>
@@ -829,7 +878,7 @@
             <td>::</td>
             <td><strong>xCount</strong></td>
             <td>
-                
+                <p>number of points to read</p>
             </td>
         </tr>
         <tr>
@@ -844,7 +893,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -859,7 +908,8 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well</p>
             </td>
         </tr>
     </tbody>
@@ -882,7 +932,7 @@
     private  subroutine ESMF_CFIOSdfVarReadT3D_(cfio, vName, field, timeString, cfio2, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarReadT3D_</code> &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -907,7 +957,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -922,7 +972,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -937,7 +987,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -952,7 +1002,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -967,7 +1017,7 @@
             <td>::</td>
             <td><strong>cfio2</strong></td>
             <td>
-                
+                <p>second CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -982,7 +1032,27 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE   <br>
+ rc = -99  must specify date/curTime of timeString     </p>
             </td>
         </tr>
     </tbody>
@@ -995,7 +1065,7 @@
     private  subroutine ESMF_CFIOSdfVarReadT2D_(cfio, vName, field, timeString, cfio2, rc)  
 
     </h3>
-  
+  <p>ESMF_CFIOSdfVarReadT2D_` &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1020,7 +1090,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -1035,7 +1105,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -1050,7 +1120,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -1065,7 +1135,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -1080,7 +1150,7 @@
             <td>::</td>
             <td><strong>cfio2</strong></td>
             <td>
-                
+                <p>second CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -1095,7 +1165,27 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NV_GET_VARA   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE   <br>
+ rc = -99  must specify date/curTime of timeString     </p>
             </td>
         </tr>
     </tbody>
@@ -1108,7 +1198,7 @@
     private  subroutine ESMF_CFIOSdfVarReadT3D__(cfio, vName, date, curTime, field, rc, cfio2)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarReadT3D_</code> &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1133,7 +1223,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -1148,7 +1238,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -1163,7 +1253,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -1178,7 +1268,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -1193,7 +1283,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -1208,7 +1298,26 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE     </p>
             </td>
         </tr>
         <tr>
@@ -1223,7 +1332,7 @@
             <td>::</td>
             <td><strong>cfio2</strong></td>
             <td>
-                
+                <p>second CFIO obj</p>
             </td>
         </tr>
     </tbody>
@@ -1236,7 +1345,7 @@
     private  subroutine ESMF_CFIOSdfVarReadT2D__(cfio, vName, date, curTime, field, rc, cfio2)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarReadT2D_</code> &ndash; Read a variable from an existing file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1261,7 +1370,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -1276,7 +1385,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>variable name</p>
             </td>
         </tr>
         <tr>
@@ -1291,7 +1400,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -1306,7 +1415,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -1321,7 +1430,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -1336,7 +1445,26 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE     </p>
             </td>
         </tr>
         <tr>
@@ -1351,7 +1479,7 @@
             <td>::</td>
             <td><strong>cfio2</strong></td>
             <td>
-                
+                <p>second CFIO obj</p>
             </td>
         </tr>
     </tbody>
@@ -1374,7 +1502,7 @@
     private  subroutine ESMF_CFIOSdfVarWrite3D_(cfio, vName, field, date, curTime, kbeg, kount, timeString, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarWrite3D_</code> &ndash; Write a variable to a output file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1399,7 +1527,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj  </p>
             </td>
         </tr>
         <tr>
@@ -1414,7 +1542,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>Variable name  </p>
             </td>
         </tr>
         <tr>
@@ -1429,7 +1557,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -1444,7 +1572,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -1459,7 +1587,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -1474,7 +1602,7 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write</p>
             </td>
         </tr>
         <tr>
@@ -1489,7 +1617,7 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -1504,7 +1632,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -1519,7 +1647,29 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -15  data outside of valid range   <br>
+ rc = -16  data outside of packing range   <br>
+ rc = -17  data outside of pack and valid range   <br>
+ rc = -38  error from NF90_VAR_PUT (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -45  error from NF90_VAR_PUT   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE   <br>
+ rc = -53  error from NF90_GET_ATT     </p>
             </td>
         </tr>
     </tbody>
@@ -1532,7 +1682,7 @@
     private  subroutine ESMF_CFIOSdfVarWrite2D_(cfio, vName, field, date, curTime, kbeg, kount, timeString, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarWrite2D_</code> &ndash; Write a variable to a output file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1557,7 +1707,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -1572,7 +1722,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -1587,7 +1737,7 @@
             <td>::</td>
             <td><strong>field</strong>(:,:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -1602,7 +1752,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -1617,7 +1767,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -1632,7 +1782,7 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to write</p>
             </td>
         </tr>
         <tr>
@@ -1647,7 +1797,7 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to write</p>
             </td>
         </tr>
         <tr>
@@ -1662,7 +1812,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -1677,7 +1827,8 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well     </p>
             </td>
         </tr>
     </tbody>
@@ -1690,7 +1841,7 @@
     private  subroutine ESMF_CFIOSdfVarWrite1D_(cfio, vName, field, date, curTime, timeString, rc)  
 
     </h3>
-  
+  <p><code>ESMF_CFIOSdfVarWrite1D_</code> &ndash; Write a variable to a output file.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1715,7 +1866,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-                
+                <p>a CFIO obj</p>
             </td>
         </tr>
         <tr>
@@ -1730,7 +1881,7 @@
             <td>::</td>
             <td><strong>vName</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
@@ -1745,7 +1896,7 @@
             <td>::</td>
             <td><strong>field</strong>(:)</td>
             <td>
-                
+                <p>array contains data</p>
             </td>
         </tr>
         <tr>
@@ -1760,7 +1911,7 @@
             <td>::</td>
             <td><strong>date</strong></td>
             <td>
-                
+                <p>yyyymmdd</p>
             </td>
         </tr>
         <tr>
@@ -1775,7 +1926,7 @@
             <td>::</td>
             <td><strong>curTime</strong></td>
             <td>
-                
+                <p>hhmmss</p>
             </td>
         </tr>
         <tr>
@@ -1790,7 +1941,7 @@
             <td>::</td>
             <td><strong>timeString</strong></td>
             <td>
-                
+                <p>string expression for date and time</p>
             </td>
         </tr>
         <tr>
@@ -1805,7 +1956,8 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+0   all is well</p>
             </td>
         </tr>
     </tbody>
@@ -1829,7 +1981,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>ESMF_CFIOSdfFileClose</code> &ndash; close an open CFIO stream.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1854,7 +2006,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-
+<p>CFIO object</p>
             </td>
         </tr>
         <tr>
@@ -1869,7 +2021,9 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+0   all is well   <br>
+-54  error from ncclos (file close)     </p>
             </td>
         </tr>
     </tbody>
@@ -1884,7 +2038,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>ESMF_CFIOSdfFileCreate</code> &ndash; Create a CFIO output file with meta data</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1909,7 +2063,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-
+<p>a CFIO object</p>
             </td>
         </tr>
         <tr>
@@ -1924,7 +2078,25 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+0   all is well   <br>
+-1 Time increment is 0   <br>
+-2  allocate memory error   <br>
+-3  Num of int/char/real elements and Cnt don&rsquo;t match   <br>
+-12  error determining default precision   <br>
+-18 incorrect time increment   <br>
+-30 can&rsquo;t open file   <br>
+-31 error from NF90_DEF_DIM   <br>
+-32 error from NF90_DEF_VAR (dimension variable)   <br>
+-33 error from NF90_PUT_ATT (dimension attribute)   <br>
+-34 error from NF90_DEF_VAR (variable)   <br>
+-35  error from NF90_PUT_ATT (variable attribute)   <br>
+-36  error from NF90_PUT_ATT (global attribute)   <br>
+-37  error from NF90_ENDDEF   <br>
+-38  error from NF90_VAR_PUT (dimension variable)   <br>
+-39 Num of real var elements and Cnt differ   <br>
+-55  error from NF90_REDEF (enter define mode)   <br>
+-56  error from NF90_ENDDEF (exit define mode)     </p>
             </td>
         </tr>
         <tr>
@@ -1939,7 +2111,7 @@
             <td>::</td>
             <td><strong>expid</strong></td>
             <td>
-
+<p>Experiment ID</p>
             </td>
         </tr>
     </tbody>
@@ -1954,7 +2126,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p><code>ESMF_CFIOSdfFileOpen</code> &ndash; open a CFIO file, and get CFIO meta data into a cfio Object.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1979,7 +2151,7 @@
             <td>::</td>
             <td><strong>cfio</strong></td>
             <td>
-
+<p>a CFIO object</p>
             </td>
         </tr>
         <tr>
@@ -1994,7 +2166,8 @@
             <td>::</td>
             <td><strong>fmode</strong></td>
             <td>
-
+<p>0 for READ-WRITE
+non-zero for READ-ONLY</p>
             </td>
         </tr>
         <tr>
@@ -2009,7 +2182,27 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-
+<p>Error return code:   <br>
+0   all is well   <br>
+-1   invalid count   <br>
+-2   type mismatch   <br>
+-12  error determining default precision   <br>
+-10  ngatts is incompatible with file   <br>
+-11  character string not long enough   <br>
+-19  unable to identify coordinate variable   <br>
+-36  error from NF90_PUT_ATT (global attribute)   <br>
+-39  error from ncopn (file open)   <br>
+-40  error from NF90_INQ_VARID   <br>
+-41  error from NF90_INQ_DIMID (lat or lon)   <br>
+-42  error from NF90_INQ_DIMID (lev)   <br>
+-43  error from NF90_INQ_VARID (time variable)   <br>
+-47  error from NF90_INQ_DIMID (time)   <br>
+-48  error from NF90_INQUIRE   <br>
+-51  error from NF90_GET_ATT (global attribute)   <br>
+-52  error from NF90_INQUIRE_VARIABLE   <br>
+-53  error from NF90_GET_ATT   <br>
+-57  error from NF90_INQ_ATTNAME   <br>
+-58  error from NF90_INQUIRE_ATTRIBUTE     </p>
             </td>
         </tr>
         <tr>
@@ -2024,7 +2217,7 @@
             <td>::</td>
             <td><strong>expid</strong></td>
             <td>
-
+<p>Experiment ID</p>
             </td>
         </tr>
         <tr>
@@ -2039,7 +2232,7 @@
             <td>::</td>
             <td><strong>cyclic</strong></td>
             <td>
-
+<p>cyclic input file</p>
             </td>
         </tr>
     </tbody>
@@ -2069,7 +2262,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

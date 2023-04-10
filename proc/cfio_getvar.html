@@ -168,6 +168,20 @@
 </h2>
     
 
+    <p><code>CFIO_GetVar</code> &ndash; Read a variable from the file</p>
+<p>This routine will read one or more levels of &ldquo;vname&rdquo;
+ into the buffer passed in as &ldquo;grid.&rdquo;  &ldquo;fid&rdquo; is the file
+ handle returned by Cfio_open.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>1997.10.13 da Silva/Lucchesi   Initial interface design.</li>
+<li>1998.07.07 Lucchesi  Combined two GetVar routines into this one.</li>
+<li>1998.09.24 Lucchesi  Updated error codes.</li>
+<li>1999.06.21 Lucchesi  Bug fixed.  Unable to read HDF-EOS files because was still looking for &ldquo;lon&rdquo; and &ldquo;lat&rdquo;</li>
+<li>1999.06.21 Lucchesi  Added a check for time too early.</li>
+<li>1999.11.02 da Silva  Made LATS4D compatible.</li>
+<li>2006.06.08 byin      Added cyclic option</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +196,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-fid~10"></span>
+              <span class="anchor" id="variable-fid~18"></span>
               integer
             </td>
 <td></td>
@@ -192,12 +206,12 @@
             <td>::</td>
             <td><strong>fid</strong></td>
             <td>
-                
+                <p>File handle</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~3"></span>
+              <span class="anchor" id="variable-vname~4"></span>
               character(len=*)
             </td>
 <td></td>
@@ -207,12 +221,12 @@
             <td>::</td>
             <td><strong>vname</strong></td>
             <td>
-                
+                <p>Variable name</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-yyyymmdd"></span>
+              <span class="anchor" id="variable-yyyymmdd~3"></span>
               integer
             </td>
 <td></td>
@@ -222,7 +236,7 @@
             <td>::</td>
             <td><strong>yyyymmdd</strong></td>
             <td>
-                
+                <p>Year-month-day, e.g., 19971003</p>
             </td>
         </tr>
         <tr>
@@ -237,7 +251,7 @@
             <td>::</td>
             <td><strong>hhmmss</strong></td>
             <td>
-                
+                <p>Hour-minute-second, e.g., 120000</p>
             </td>
         </tr>
         <tr>
@@ -252,7 +266,7 @@
             <td>::</td>
             <td><strong>im</strong></td>
             <td>
-                
+                <p>size of longitudinal dimension</p>
             </td>
         </tr>
         <tr>
@@ -267,12 +281,12 @@
             <td>::</td>
             <td><strong>jm</strong></td>
             <td>
-                
+                <p>size of latitudinal  dimension</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kbeg"></span>
+              <span class="anchor" id="variable-kbeg~17"></span>
               integer
             </td>
 <td></td>
@@ -282,12 +296,13 @@
             <td>::</td>
             <td><strong>kbeg</strong></td>
             <td>
-                
+                <p>first level to read; if 2-D grid
+ set kbeg = 0.</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kount"></span>
+              <span class="anchor" id="variable-kount~17"></span>
               integer
             </td>
 <td></td>
@@ -297,12 +312,12 @@
             <td>::</td>
             <td><strong>kount</strong></td>
             <td>
-                
+                <p>number of levels to read</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lm~14"></span>
+              <span class="anchor" id="variable-lm~3"></span>
               integer
             </td>
 <td></td>
@@ -312,12 +327,12 @@
             <td>::</td>
             <td><strong>lm</strong></td>
             <td>
-                
+                <p>number of time steps</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~46"></span>
+              <span class="anchor" id="variable-grid~8"></span>
               real
             </td>
 <td></td>
@@ -327,12 +342,12 @@
             <td>::</td>
             <td><strong>grid</strong>(im,jm,kount)</td>
             <td>
-                
+                <p>Gridded data read for this time</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-cyclic"></span>
+              <span class="anchor" id="variable-cyclic~4"></span>
               logical
             </td>
 <td></td>
@@ -342,7 +357,7 @@
             <td>::</td>
             <td><strong>cyclic</strong></td>
             <td>
-                
+                <p>input file is cyclic or not</p>
             </td>
         </tr>
         <tr>
@@ -362,7 +377,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1095"></span>
+              <span class="anchor" id="variable-rc~66"></span>
               integer
             </td>
 <td></td>
@@ -372,7 +387,28 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                
+                <p>Error return code:   <br>
+ rc = 0   all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -19  unable to identify coordinate variable     </p>
+<p>NetCDF Errors     </p>
+<hr>
+<p>rc = -38  error from NF90_PUT_VAR (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -48  error from NF90_INQUIRE   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE     </p>
             </td>
         </tr>
     </tbody>
@@ -433,60 +469,47 @@
 <span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">              </span><span class="c">! File handle</span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">! Variable name</span>
-<span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">         </span><span class="c">! Year-month-day, e.g., 19971003</span>
-<span class="w">      </span><span class="kt">integer          </span><span class="n">hhmmss</span><span class="w">         </span><span class="c">! Hour-minute-second, e.g., 120000</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">              </span><span class="c">! size of longitudinal dimension</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">jm</span><span class="w">              </span><span class="c">! size of latitudinal  dimension</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">kbeg</span><span class="w">            </span><span class="c">! first level to read; if 2-D grid</span>
-<span class="w">                                      </span><span class="c">!  set kbeg = 0.</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">kount</span><span class="w">           </span><span class="c">! number of levels to read</span>
-<span class="w">      </span><span class="kt">integer         </span><span class="n">lm</span><span class="w">              </span><span class="c">! number of time steps</span>
-<span class="w">      </span><span class="kt">logical </span><span class="n">cyclic</span><span class="w">     </span><span class="c">!  input file is cyclic or not</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">              </span><span class="c">!! File handle</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">         </span><span class="c">!! Year-month-day, e.g., 19971003</span>
+<span class="w">      </span><span class="kt">integer          </span><span class="n">hhmmss</span><span class="w">         </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">              </span><span class="c">!! size of longitudinal dimension</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">jm</span><span class="w">              </span><span class="c">!! size of latitudinal  dimension</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">kbeg</span><span class="w">            </span><span class="c">!! first level to read; if 2-D grid</span>
+<span class="w">                                      </span><span class="c">!!  set kbeg = 0.</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">kount</span><span class="w">           </span><span class="c">!! number of levels to read</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">lm</span><span class="w">              </span><span class="c">!! number of time steps</span>
+<span class="w">      </span><span class="kt">logical </span><span class="n">cyclic</span><span class="w">     </span><span class="c">!!  input file is cyclic or not</span>
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w">      </span><span class="n">useFaceDim</span><span class="w"></span>
 
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">      </span><span class="kt">real         </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">! Gridded data read for this time</span>
-<span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">! Error return code:</span>
-<span class="w">                         </span><span class="c">!  rc = 0   all is well</span>
-<span class="w">                         </span><span class="c">!  rc = -2  time is inconsistent with increment</span>
-<span class="w">                         </span><span class="c">!  rc = -3  number of levels is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -4  im is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -5  jm is incompatible with file</span>
-<span class="w">                         </span><span class="c">!  rc = -6  time must fall on a minute boundary</span>
-<span class="w">                         </span><span class="c">!  rc = -7  error in diffdate</span>
-<span class="w">                         </span><span class="c">!  rc = -12  error determining default precision</span>
-<span class="w">                         </span><span class="c">!  rc = -13  error determining variable type</span>
-<span class="w">                         </span><span class="c">!  rc = -19  unable to identify coordinate variable</span>
-<span class="w">                         </span><span class="c">!</span>
-<span class="w">                         </span><span class="c">!  NetCDF Errors</span>
-<span class="w">                         </span><span class="c">!  -------------</span>
-<span class="w">                         </span><span class="c">!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
-<span class="w">                         </span><span class="c">!  rc = -40  error from NF90_INQ_VARID</span>
-<span class="w">                         </span><span class="c">!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
-<span class="w">                         </span><span class="c">!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
-<span class="w">                         </span><span class="c">!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
-<span class="w">                         </span><span class="c">!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
-<span class="w">                         </span><span class="c">!  rc = -46  error from NF90_GET_VAR</span>
-<span class="w">                         </span><span class="c">!  rc = -48  error from NF90_INQUIRE</span>
-<span class="w">                         </span><span class="c">!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
-
-
-<span class="c">! !REVISION HISTORY:</span>
+<span class="w">      </span><span class="kt">real         </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data read for this time</span>
+<span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:     </span>
+<span class="w">                         </span><span class="c">!!  rc = 0   all is well     </span>
+<span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
+<span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
+<span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
+<span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
+<span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
+<span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable     </span>
+<span class="w">                         </span><span class="c">!!     </span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
+<span class="w">                         </span><span class="c">!!  -------------     </span>
+<span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
+<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
+<span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE     </span>
+<span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
 <span class="c">!</span>
-<span class="c">!  1997.10.13 da Silva/Lucchesi   Initial interface design.</span>
-<span class="c">!  1998.07.07 Lucchesi            Combined two GetVar routines into this one.</span>
-<span class="c">!  1998.09.24 Lucchesi            Updated error codes.</span>
-<span class="c">!  1999.06.21 Lucchesi            Bug fixed.  Unable to read HDF-EOS files</span>
-<span class="c">!                                 because was still looking for &quot;lon&quot; and &quot;lat&quot;</span>
-<span class="c">!  1999.06.21 Lucchesi            Added a check for time too early.</span>
-<span class="c">!  1999.11.02 da Silva            Made LATS4D compatible.</span>
-<span class="c">!  2006.06.08 byin                Added cyclic option</span>
-<span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-------------------------------------------------------------------------</span>
 
 <span class="w">      </span><span class="kt">integer </span><span class="n">begDate</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">,</span><span class="w"> </span><span class="n">seconds</span><span class="w"></span>
@@ -835,7 +858,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

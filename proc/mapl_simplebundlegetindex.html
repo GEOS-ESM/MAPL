@@ -168,6 +168,8 @@
 </h2>
     
 
+    <p>Finds the index of the first variable with name <code>vname</code>.
+This routine is case insensitive.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +184,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-self~28"></span>
+              <span class="anchor" id="variable-self~32"></span>
               type(<a href='../type/mapl_simplebundle.html'>MAPL_SimpleBundle</a>)
             </td>
 <td></td>
@@ -197,7 +199,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~81"></span>
+              <span class="anchor" id="variable-name~11"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -207,7 +209,7 @@
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-                
+                <p>variable name </p>
             </td>
         </tr>
         <tr>
@@ -227,7 +229,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1205"></span>
+              <span class="anchor" id="variable-rc~1215"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -264,7 +266,7 @@
           integer
         </small>
       </h3>
-      
+      <p>index of variable</p>
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -312,20 +314,13 @@
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">function </span><span class="n">MAPL_SimpleBundleGetIndex</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">quiet</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">iq</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">! !ARGUMENTS:</span>
-
-<span class="w">    </span><span class="kt">integer</span><span class="w">                                   </span><span class="kd">::</span><span class="w"> </span><span class="n">iq</span><span class="w">   </span><span class="c">! index of variable</span>
-
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SimpleBundle</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
-<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="c">! variable name </span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">iq</span><span class="w">    </span><span class="c">!! index of variable</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_SimpleBundle</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="w">  </span><span class="c">!! variable name </span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="w"></span>
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
-<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">quiet</span><span class="w"></span>
-<span class="w">    </span>
-<span class="c">!  !DESCRIPTION: Finds the index of the first variable with name {\tt vname}.</span>
-<span class="c">!                This routine is case insensitive.</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">quiet</span><span class="w"></span>
 <span class="c">!</span>
-<span class="c">!EOP</span>
 <span class="c">!-----------------------------------------------------------------------------</span>
 
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span><span class="w"></span>
@@ -403,7 +398,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

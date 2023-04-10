@@ -208,7 +208,15 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-mapl_simplebundlemod">MODULE: <code>MAPL_SimpleBundleMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p>The module <code>MAPL_SimpleBundleMod</code> implements a wrapper class around the 
+ ESMF_FieldBundle. By construction, this is NOT an opaque object.</p>
+<h4 id="history">History</h4>
+<ul>
+<li>April2010: Arlindo da Silva <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#114;&#108;&#105;&#110;&#100;&#111;&#46;&#100;&#97;&#115;&#105;&#108;&#118;&#97;&#64;&#110;&#97;&#115;&#97;&#46;&#103;&#111;&#118;">&#97;&#114;&#108;&#105;&#110;&#100;&#111;&#46;&#100;&#97;&#115;&#105;&#108;&#118;&#97;&#64;&#110;&#97;&#115;&#97;&#46;&#103;&#111;&#118;</a></li>
+<li>11Feb2011: Todling - remove ESMFL_BundleAddState since in MAPL_CFIO</li>
+</ul>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -216,14 +224,14 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
-                <li><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
-                <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
-                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
-                <li><a href='../module/mapl_maxminmod.html'>MAPL_MaxMinMod</a></li>
                 <li><a href='../module/mapl_cfiomod.html'>MAPL_CFIOMod</a></li>
                 <li><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
                 <li><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
+                <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                <li><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
+                <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
+                <li><a href='../module/mapl_maxminmod.html'>MAPL_MaxMinMod</a></li>
+                <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
             </ul>
           </li>
       </ul>
@@ -326,7 +334,7 @@
     private  function MAPL_SimpleBundleCreateEmpty(grid, rc, Levs, LevUnits, ptop, delp, name) result(self)  
 
     </h3>
-  
+  <p>Given inputs, create a SimpleBundle.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -381,7 +389,8 @@
             <td>::</td>
             <td><strong>Levs</strong>(:)</td>
             <td>
-                
+                <p>Vertical coordinates
+Constant levels</p>
             </td>
         </tr>
         <tr>
@@ -396,7 +405,7 @@
             <td>::</td>
             <td><strong>LevUnits</strong></td>
             <td>
-                
+                <p>Level units</p>
             </td>
         </tr>
         <tr>
@@ -411,7 +420,8 @@
             <td>::</td>
             <td><strong>ptop</strong></td>
             <td>
-                
+                <p>top pressure (Pa)
+Lagrangian Control Volume Info</p>
             </td>
         </tr>
         <tr>
@@ -426,7 +436,7 @@
             <td>::</td>
             <td><strong>delp</strong>(:,:,:)</td>
             <td>
-                
+                <p>layer thickness (Pa)</p>
             </td>
         </tr>
         <tr>
@@ -441,7 +451,7 @@
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-                
+                <p>name</p>
             </td>
         </tr>
     </tbody>
@@ -451,7 +461,7 @@
     Return Value
     <small>type(<a href='../type/mapl_simplebundle.html'>MAPL_SimpleBundle</a>)</small>
     </h4>
-    
+    <p>Simple Bundle !rename to simpleBundle</p>
 
           </li>
           <li class="list-group-item">
@@ -459,7 +469,12 @@
     private  function MAPL_SimpleBundleCreateFromBundle(Bundle, rc, Levs, LevUnits, ptop, delp, only_vars, strict, name) result(self)  
 
     </h3>
-  
+  <p>Given an ESMF Bundle, creates a corresponding Simple Bundle. The
+specification of a vertical grid is optional but useful in many
+cases. The 1-D <code>Levs</code> will default to the layer number, and units of &ldquo;1&rdquo;.
+Input parameters <code>(ptop,delp)</code> can be used to record the corresponding 
+Lagrangian Control Volume Grid. When <code>delp</code> is not specified, variables
+<code>DELP</code> or <code>delp</code> are used if present inside the bundle. </p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -484,7 +499,7 @@
             <td>::</td>
             <td><strong>Bundle</strong></td>
             <td>
-                
+                <p>ESMF Bundle</p>
             </td>
         </tr>
         <tr>
@@ -514,7 +529,8 @@
             <td>::</td>
             <td><strong>Levs</strong>(:)</td>
             <td>
-                
+                <p>Vertical coordinates
+Constant levels</p>
             </td>
         </tr>
         <tr>
@@ -529,7 +545,7 @@
             <td>::</td>
             <td><strong>LevUnits</strong></td>
             <td>
-                
+                <p>Level units</p>
             </td>
         </tr>
         <tr>
@@ -544,7 +560,8 @@
             <td>::</td>
             <td><strong>ptop</strong></td>
             <td>
-                
+                <p>top pressure (Pa)
+Lagrangian Control Volume Info</p>
             </td>
         </tr>
         <tr>
@@ -559,7 +576,7 @@
             <td>::</td>
             <td><strong>delp</strong>(:,:,:)</td>
             <td>
-                
+                <p>layer thickness (Pa)</p>
             </td>
         </tr>
         <tr>
@@ -574,7 +591,7 @@
             <td>::</td>
             <td><strong>only_vars</strong></td>
             <td>
-                
+                <p>comma separated field names</p>
             </td>
         </tr>
         <tr>
@@ -589,7 +606,7 @@
             <td>::</td>
             <td><strong>strict</strong></td>
             <td>
-                
+                <p>force name matching, ignored if only_vars is not present</p>
             </td>
         </tr>
         <tr>
@@ -604,7 +621,7 @@
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-                
+                <p>name</p>
             </td>
         </tr>
     </tbody>
@@ -614,7 +631,7 @@
     Return Value
     <small>type(<a href='../type/mapl_simplebundle.html'>MAPL_SimpleBundle</a>)</small>
     </h4>
-    
+    <p>Simple Bundle</p>
 
           </li>
           <li class="list-group-item">
@@ -622,7 +639,13 @@
     private  function MAPL_SimpleBundleCreateFromState(State, rc, Levs, LevUnits, ptop, delp, only_vars, strict, name) result(self)  
 
     </h3>
-  
+  <p>Given an ESMF Staete, creates a corresponding Simple Bundle.
+The specificatiopn of a vertical grid is optional but useful in many
+cases. The 1-D <code>Levs</code> will default to the layer number, and units of &ldquo;1&rdquo;.
+Input parameters <code>(ptop,delp)</code> can be used to record the corresponding 
+Lagrangian Control Volume Grid. When <code>delp</code> is not specified, variables
+<code>DELP</code> or <code>delp</code> are used if present inside the bundle. </p>
+<p><strong>IMPORTANT:</strong> It is assumed that the ESMF State has a single grid.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -647,7 +670,7 @@
             <td>::</td>
             <td><strong>State</strong></td>
             <td>
-                
+                <p>ESMF State</p>
             </td>
         </tr>
         <tr>
@@ -677,7 +700,8 @@
             <td>::</td>
             <td><strong>Levs</strong>(:)</td>
             <td>
-                
+                <p>Vertical coordinates
+Constant levels</p>
             </td>
         </tr>
         <tr>
@@ -692,7 +716,7 @@
             <td>::</td>
             <td><strong>LevUnits</strong></td>
             <td>
-                
+                <p>Level units</p>
             </td>
         </tr>
         <tr>
@@ -707,7 +731,8 @@
             <td>::</td>
             <td><strong>ptop</strong></td>
             <td>
-                
+                <p>top pressure (Pa)
+Lagrangian Control Volume Info</p>
             </td>
         </tr>
         <tr>
@@ -722,7 +747,7 @@
             <td>::</td>
             <td><strong>delp</strong>(:,:,:)</td>
             <td>
-                
+                <p>layer thickness (Pa)</p>
             </td>
         </tr>
         <tr>
@@ -737,7 +762,7 @@
             <td>::</td>
             <td><strong>only_vars</strong></td>
             <td>
-                
+                <p>comma separated field names</p>
             </td>
         </tr>
         <tr>
@@ -752,7 +777,7 @@
             <td>::</td>
             <td><strong>strict</strong></td>
             <td>
-                
+                <p>force name maching, ignored if only_vars is not present</p>
             </td>
         </tr>
         <tr>
@@ -767,7 +792,7 @@
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-                
+                <p>name</p>
             </td>
         </tr>
     </tbody>
@@ -777,7 +802,7 @@
     Return Value
     <small>type(<a href='../type/mapl_simplebundle.html'>MAPL_SimpleBundle</a>)</small>
     </h4>
-    
+    <p>Simple Bundle</p>
 
           </li>
     </ul>
@@ -795,7 +820,8 @@
     private  subroutine MAPL_SimpleBundleWrite1(self, filename, Clock, verbose, rc)  
 
     </h3>
-  
+  <p>Writes a MAPL SimpleBundle to file fiven an ESMF Clock object.
+The file opened, written to, and closed.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -893,7 +919,9 @@
     private  subroutine MAPL_SimpleBundleWrite2(self, filename, time, verbose, rc)  
 
     </h3>
-  
+  <p>Writes a MAPL SimpleBundle to file fiven an ESMF Time object.
+The file opened, written to, and closed.
+A fake timestep of 30 minutes is assumed.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1020,7 +1048,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~48"></span>
+              <span class="anchor" id="variable-name~23"></span>
               character(len=ESMF_MAXSTR),
             </td>
               <td>public</td>
@@ -1105,7 +1133,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~14"></span>
+              <span class="anchor" id="variable-grid~10"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
             </td>
               <td>public</td>
@@ -1117,12 +1145,12 @@
                 <td></td>
                 <td></td>
             <td>
-
+<p>Associated ESMF grid</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bundle"></span>
+              <span class="anchor" id="variable-bundle~2"></span>
               type(ESMF_FieldBundle),
             </td>
               <td>public,</td>
@@ -1134,7 +1162,7 @@
                 <td></td>
                 <td></td>
             <td>
-
+<p>Associated ESMF bundle</p>
             </td>
         </tr>
         <tr>
@@ -1190,7 +1218,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-coords~2"></span>
+              <span class="anchor" id="variable-coords"></span>
               type(SimpleGrid),
             </td>
               <td>public</td>
@@ -1202,7 +1230,7 @@
                 <td></td>
                 <td></td>
             <td>
-
+<p>Coordinate variables</p>
             </td>
         </tr>
     </tbody>
@@ -1224,7 +1252,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Finds the index of the first variable with name <code>vname</code>.
+This routine is case insensitive.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1264,7 +1293,7 @@
             <td>::</td>
             <td><strong>name</strong></td>
             <td>
-
+<p>variable name </p>
             </td>
         </tr>
         <tr>
@@ -1319,7 +1348,7 @@
     Return Value
     <small>integer</small>
     </h4>
-    
+    <p>index of variable</p>
 
     </div>
   </div>
@@ -1329,7 +1358,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Given an ESMF Config object and a filename, reads the corresponding file into
+a MAPL SimpleBundle.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1499,7 +1529,7 @@
     Return Value
     <small>type(<a href='../type/mapl_simplebundle.html'>MAPL_SimpleBundle</a>)</small>
     </h4>
-    
+    <p>Simple Bundle</p>
 
     </div>
   </div>
@@ -1514,7 +1544,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Destructor for the MAPL Simple Bundle.
+It is assumed that the bundle has been created from an ESMF Field Bundle.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1569,7 +1600,7 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Prints the global max/min for each variable in the Simple Bundle.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -1624,7 +1655,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

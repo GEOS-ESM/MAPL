@@ -168,6 +168,7 @@
 </h2>
     
 
+    <p><code>addList</code> &ndash; put user defined attribute into a list.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -182,7 +183,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-name~73"></span>
+              <span class="anchor" id="variable-name~67"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -212,7 +213,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~5"></span>
+              <span class="anchor" id="variable-vname~31"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -227,7 +228,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attint~3"></span>
+              <span class="anchor" id="variable-attint~5"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -242,7 +243,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attchar~3"></span>
+              <span class="anchor" id="variable-attchar~5"></span>
               character(len=MLEN),
             </td>
 <td>intent(in),</td>
@@ -257,7 +258,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-attreal~3"></span>
+              <span class="anchor" id="variable-attreal~5"></span>
               real,
             </td>
 <td>intent(in),</td>
@@ -272,7 +273,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ilist~3"></span>
+              <span class="anchor" id="variable-ilist"></span>
               type(<a href='../type/inode.html'>iNode</a>),
             </td>
 <td></td>
@@ -282,12 +283,12 @@
             <td>::</td>
             <td><strong>iList</strong></td>
             <td>
-                
+                <p>int list</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rlist~3"></span>
+              <span class="anchor" id="variable-rlist"></span>
               type(<a href='../type/rnode.html'>rNode</a>),
             </td>
 <td></td>
@@ -297,12 +298,12 @@
             <td>::</td>
             <td><strong>rList</strong></td>
             <td>
-                
+                <p>real list</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clist~3"></span>
+              <span class="anchor" id="variable-clist"></span>
               type(<a href='../type/cnode.html'>cNode</a>),
             </td>
 <td></td>
@@ -312,7 +313,7 @@
             <td>::</td>
             <td><strong>cList</strong></td>
             <td>
-                
+                <p>char list</p>
             </td>
         </tr>
     </tbody>
@@ -366,8 +367,6 @@
     <div class="highlight"><pre><span></span><span class="w">        </span><span class="k">subroutine </span><span class="n">addList</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">vName</span><span class="p">,</span><span class="w"> </span><span class="n">attInt</span><span class="p">,</span><span class="w"> </span><span class="n">attChar</span><span class="p">,</span><span class="w"> </span><span class="n">attReal</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                           </span><span class="n">iList</span><span class="p">,</span><span class="w"> </span><span class="n">rList</span><span class="p">,</span><span class="w"> </span><span class="n">cList</span><span class="p">)</span><span class="w"></span>
 <span class="c">!</span>
-<span class="c">! !ARGUMENTS:</span>
-<span class="c">!</span>
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
 <span class="w">           </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
@@ -379,13 +378,10 @@
 <span class="c">!</span>
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
-<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iList</span><span class="w">  </span><span class="c">! int list</span>
-<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rList</span><span class="w">  </span><span class="c">! real list</span>
-<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cList</span><span class="w">  </span><span class="c">! char list</span>
+<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iList</span><span class="w">  </span><span class="c">!! int list</span>
+<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rList</span><span class="w">  </span><span class="c">!! real list</span>
+<span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cList</span><span class="w">  </span><span class="c">!! char list</span>
 <span class="c">!</span>
-<span class="c">! !DESCRIPTION:</span>
-<span class="c">!     put user defined attribute into a list</span>
-<span class="c">!EOP</span>
 <span class="c">!------------------------------------------------------------------------------</span>
 <span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="w"></span>
 <span class="w">           </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rp</span><span class="p">,</span><span class="w"> </span><span class="n">rq</span><span class="w"></span>
@@ -506,7 +502,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

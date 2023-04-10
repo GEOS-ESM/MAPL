@@ -213,7 +213,9 @@
     </div>
 
     <div class="col-md-9" id='text'>
-      
+      <h3 id="module-mapl_locstreammod">MODULE: <code>MAPL_LocStreamMod</code></h3>
+<p>Author: GMAO SI-Team</p>
+<p>The module <code>MAPL_LocStreamMod</code> manipulates location streams.</p>
 <br>          <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Uses</h3>
@@ -221,16 +223,16 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
+                <li><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
+                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
+                <li><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
+                <li><a href='../module/mapl_iomod.html'>MAPL_IOMod</a></li>
                 <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                <li><a href='../module/mapl_hashmod.html'>MAPL_HashMod</a></li>
+                <li><a href='../module/mapl_shmemmod.html'>MAPL_ShmemMod</a></li>
                 <li><a href='../module/esmfl_mod.html'>ESMFL_MOD</a></li>
                 <li><a href='../module/mapl_commsmod.html'>MAPL_CommsMod</a></li>
-                <li><a href='../module/mapl_hashmod.html'>MAPL_HashMod</a></li>
-                <li><a href='<a href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fFORTRAN_005fENV.html">iso_fortran_env</a>'>iso_fortran_env</a></li>
                 <li><a href='../module/mapl_exceptionhandling.html'>MAPL_ExceptionHandling</a></li>
-                <li><a href='../module/mapl_constants.html'>MAPL_Constants</a></li>
-                <li><a href='../module/mapl_shmemmod.html'>MAPL_ShmemMod</a></li>
-                <li><a href='../module/mapl_iomod.html'>MAPL_IOMod</a></li>
-                <li><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
             </ul>
           </li>
       </ul>
@@ -338,18 +340,11 @@
     private  subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, use_pfaf, RC)  
 
     </h3>
-  <p>do N=1,STREAM%N_GRIDS
-   allocate(STREAM%TILING(N)%GLOBAL_IndexLocation(STREAM%NT_GLOBAL), STAT=STATUS)
-   if(MAPL_Verify(STATUS,&rdquo;/home/runner/work/MAPL/MAPL/Ford/../base/MAPL_LocStreamMod.F90&rdquo;,604 ,rc)) return
-end do</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nv">X</span> <span class="o">=</span> <span class="nv">AVR</span><span class="ss">(</span><span class="nv">I</span>,<span class="mi">3</span><span class="ss">)</span>
-  <span class="nv">Y</span> <span class="o">=</span> <span class="nv">AVR</span><span class="ss">(</span><span class="nv">I</span>,<span class="mi">4</span><span class="ss">)</span>
-  <span class="k">do</span> <span class="nv">N</span><span class="o">=</span><span class="mi">1</span>,<span class="nv">STREAM</span><span class="o">%</span><span class="nv">N_GRIDS</span>
-     <span class="nv">STREAM</span><span class="o">%</span><span class="nv">Tiling</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span><span class="o">%</span><span class="nv">GLOBAL_IndexLocation</span><span class="ss">(</span><span class="nv">K</span><span class="ss">)</span><span class="o">%</span><span class="nv">I</span> <span class="o">=</span> <span class="nv">nint</span><span class="ss">(</span><span class="nv">AVR</span><span class="ss">(</span><span class="nv">I</span>,<span class="nv">NumGlobalVars</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="nv">NumLocalVars</span><span class="o">*</span><span class="ss">(</span><span class="nv">N</span><span class="o">-</span><span class="mi">1</span><span class="ss">)))</span>
-     <span class="nv">STREAM</span><span class="o">%</span><span class="nv">Tiling</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span><span class="o">%</span><span class="nv">GLOBAL_IndexLocation</span><span class="ss">(</span><span class="nv">K</span><span class="ss">)</span><span class="o">%</span><span class="nv">J</span> <span class="o">=</span> <span class="nv">nint</span><span class="ss">(</span><span class="nv">AVR</span><span class="ss">(</span><span class="nv">I</span>,<span class="nv">NumGlobalVars</span><span class="o">+</span><span class="mi">2</span><span class="o">+</span><span class="nv">NumLocalVars</span><span class="o">*</span><span class="ss">(</span><span class="nv">N</span><span class="o">-</span><span class="mi">1</span><span class="ss">)))</span>
-     <span class="nv">STREAM</span><span class="o">%</span><span class="nv">Tiling</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span><span class="o">%</span><span class="nv">GLOBAL_IndexLocation</span><span class="ss">(</span><span class="nv">K</span><span class="ss">)</span><span class="o">%</span><span class="nv">W</span> <span class="o">=</span>      <span class="nv">AVR</span><span class="ss">(</span><span class="nv">I</span>,<span class="nv">NumGlobalVars</span><span class="o">+</span><span class="mi">3</span><span class="o">+</span><span class="nv">NumLocalVars</span><span class="o">*</span><span class="ss">(</span><span class="nv">N</span><span class="o">-</span><span class="mi">1</span><span class="ss">))</span>
-  <span class="k">end</span> <span class="k">do</span>
-</code></pre></div>
+  <p>Creates a location stream from a file. This does
+not decompose the location stream; so the global stream is
+described in each processor.  The stream can be decomposed
+later in various ways. Currently we only decompose it by
+&ldquo;attaching&rdquo; it to a decomposed grid.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -507,7 +502,7 @@ end do</p>
     private  subroutine MAPL_LocStreamCreateFromStream(LocStreamOut, LocStreamIn, NAME, MASK, RC)  
 
     </h3>
-  
+  <p>Creates a location stream as a subset of another according to mask.</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -2248,7 +2243,7 @@ end do</p>
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

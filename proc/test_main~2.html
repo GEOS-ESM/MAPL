@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">60 statements</a>
+               title=" 0.0% of total for procedures.">22 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_CFIO_Bundle.pf"> Source File</a>
+              <a href="../src/utDistIO.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_cfio_bundle.pf.html'>Test_CFIO_Bundle.pf</a></li>
-              <li><a href='../module/test_cfio_bundle.html'>Test_CFIO_Bundle</a></li>
+              <li><a href='../sourcefile/utdistio.f90.html'>utDistIO.F90</a></li>
+              <li><a href='../program/utdistio.html'>utDistIO</a></li>
           <li class="active">test_main</li>
         </ol>
       </div>
@@ -164,40 +164,14 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine test_main(this)  
+    <h2> subroutine test_main()  
 </h2>
     
 
 
     <h3>Arguments</h3>
-        <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-this~3669"></span>
-              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>this</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
+    <em>None</em>
+    <br>
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -243,133 +217,52 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_main</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">test_main</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="w"></span>
+<span class="c">!   Initialize framework</span>
+<span class="c">!   --------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_Initialize</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span><span class="o">=</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 
+<span class="w">    </span><span class="n">IamRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GEOS_am_I_root</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">vm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getVM</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="n">IamRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_am_I_root</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IamRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">       block</span>
-<span class="k">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span><span class="w"></span>
-<span class="w">         </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;tmp_CAP.rc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;NX: 4&#39;</span><span class="w"></span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;NY: 1&#39;</span><span class="w"></span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s2">&quot;GRIDNAME: &#39;PC144x91-DC&#39;&quot;</span><span class="w"></span>
-<span class="w">         </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">end block</span>
-<span class="k">    end if</span>
-
-<span class="k">    call </span><span class="n">MAPL_MemUtilsInit</span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-
+<span class="c">!   Get the global vm</span>
+<span class="c">!   -----------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_VMGetGlobal</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 
 <span class="c">!   Create a grid</span>
 <span class="c">!   -------------</span>
 <span class="w">    </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyGridCreate_</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="c">!   Create empty bundles</span>
-<span class="c">!   --------------------</span>
-<span class="c">!    fBundle = ESMF_FieldBundleCreate ( name=&#39;Francesca&#39;, grid=grid, rc=status )</span>
-<span class="c">!    @mpiassertEqual(0, STATUS, Iam)</span>
-<span class="w">    </span><span class="n">fBundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;PRECIP&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldBundleSet</span><span class="p">(</span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">dBundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldBundleCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Denise&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldBundleSet</span><span class="p">(</span><span class="n">dBundle</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!   Set the time as the one on the hardwired file name</span>
-<span class="c">!   --------------------------------------------------</span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CalendarSetDefault</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">ESMF_CALKIND_GREGORIAN</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="mi">2006</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="w"> </span><span class="nb">dTime</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="mi">2006</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span><span class="w">  </span><span class="n">h</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">fClock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ClockCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Clovis&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">timeStep</span><span class="o">=</span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                                </span><span class="n">startTime</span><span class="o">=</span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
+<span class="c">!   Get local im, jm</span>
+<span class="c">!   ----------------</span>
 
-<span class="c">!   Read Bundle from file on a clean slate</span>
-<span class="c">!   --------------------------------------</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IamRoot</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Reading &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">fFilename</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="w">  </span><span class="p">(</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">TimeString</span><span class="o">=</span><span class="n">string</span><span class="w">  </span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">string</span><span class="p">(</span><span class="mi">11</span><span class="p">:</span><span class="mi">11</span><span class="p">)</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IamRoot</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;time &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IamRoot</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Hello, World&#39;</span><span class="w"></span>
 
-
-<span class="w">    </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="w"></span>
-<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CFIORead</span><span class="p">(</span><span class="w"> </span><span class="n">fFilename</span><span class="p">,</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">NOREAD</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          call </span><span class="n">MAPL_MemUtilsWrite</span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;noRead&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">end if</span>
-
-<span class="k">       call </span><span class="n">MAPL_CFIORead</span><span class="p">(</span><span class="w"> </span><span class="n">fFilename</span><span class="p">,</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">          call </span><span class="n">MAPL_MemUtilsWrite</span><span class="p">(</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Read&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">end if</span>
-<span class="k">    end DO</span><span class="w"></span>
-
-
-<span class="cp">#if 0</span>
-<span class="c">! this the equivalent of ESMF_ioRead</span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_cfioRead</span><span class="w">  </span><span class="p">(</span><span class="w"> </span><span class="n">fFilename</span><span class="p">,</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="n">verbose</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">force_regrid</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w">   </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!   Next, create a bundle with same variables as the first one, and use</span>
-<span class="c">!    that to determine which variables to read from the second file</span>
-<span class="c">!   -------------------------------------------------------------------</span>
-
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_cfioRead</span><span class="w">  </span><span class="p">(</span><span class="w"> </span><span class="n">fFilename</span><span class="p">,</span><span class="w"> </span><span class="n">fTime</span><span class="p">,</span><span class="w"> </span><span class="n">dBundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="n">verbose</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">noRead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="n">only_vars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;phis,qv&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IamRoot</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Reading &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">fFilename</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_cfioRead</span><span class="w">  </span><span class="p">(</span><span class="w"> </span><span class="n">fFilename</span><span class="p">,</span><span class="w"> </span><span class="nb">dTime</span><span class="p">,</span><span class="w"> </span><span class="n">dBundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="n">verbose</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">force_regrid</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!   Setup data types need for write</span>
+<span class="c">!   Allocate and write global array</span>
 <span class="c">!   -------------------------------</span>
-<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">resolution</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">levels</span><span class="p">(</span><span class="n">KM_WORLD</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="w"> </span><span class="n">IM_WORLD</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">JM_WORLD</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="o">/</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">levels</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">KM_WORLD</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">IamRoot</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       allocate</span><span class="p">(</span><span class="n">gArr</span><span class="p">(</span><span class="n">IM_WORLD</span><span class="p">,</span><span class="n">JM_WORLD</span><span class="p">))</span><span class="w"></span>
+<span class="w">       </span><span class="n">gArr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">       </span><span class="k">open</span><span class="p">(</span><span class="n">lu</span><span class="p">,</span><span class="n">filen</span><span class="o">=</span><span class="n">dirname</span><span class="o">//</span><span class="s1">&#39;/global.dat&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ntimes</span><span class="w"></span>
+<span class="w">          </span><span class="k">write</span><span class="p">(</span><span class="n">lu</span><span class="p">)</span><span class="w"> </span><span class="n">gArr</span><span class="w"></span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">       close</span><span class="p">(</span><span class="n">lu</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end if</span><span class="w"></span>
 
-<span class="c">!   Write the same bundle to a differfent file</span>
-<span class="c">!   ------------------------------------------</span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_cfioCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Cindy&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">fTimeStep</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="p">,</span><span class="w"> </span><span class="n">descr</span><span class="o">=</span><span class="s1">&#39;Bundle Write Test&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
+<span class="c">!   Next, scatter array</span>
+<span class="c">!   -------------------</span>
+<span class="w">    </span><span class="k">call</span><span class="w"> </span>
 
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_cfioWrite</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">fClock</span><span class="p">,</span><span class="w"> </span><span class="n">fBundle</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                          </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="err">@</span><span class="n">mpiassertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_cfioDestroy</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="cp">#else</span>
-<span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;calling Finalize&#39;</span><span class="w"></span>
-<span class="cp">#endif</span>
-
+<span class="c">!   All done</span>
+<span class="c">!   --------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_Finalize</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span>
-<span class="w"> </span><span class="k">end subroutine </span><span class="n">test_main</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">test_main</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -390,7 +283,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>

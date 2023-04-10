@@ -168,6 +168,32 @@
 </h2>
     
 
+    <p>The subroutine <code>MAPL_EQsatSET</code> set behavior of MAPL_EQsat.
+ <code>MAPL_EQsatSet</code> can be used to set three parameters that control
+ the behavior of the working routine, MAPL_EQsat.</p>
+<p>If <strong>UseTable</strong> is true, tabled values of the saturation vapor pressures are used,
+ instead of the <code>exact</code> calculations.
+ These tables are automatically generated at a 0.01K resolution for whatever
+ vapor pressure formulation is being used. If never set, MAPL_EQsat will use the tables.
+ If not specified, the table behavior is left unmodified.</p>
+<p><strong>Formulation</strong> sets the saturation vapor pressure function to use
+ to use in generating tables or for <code>exact</code> calculations.
+ Three formulations of saturation vapor pressure are supported:
+- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat), 
+- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and 
+- Murphy and Koop (2005, QJRMS) (MAPL_UseMurphyKoopQsat).</p>
+<p>If it has not been set, the formulation is Starr (MAPL_UseStarrQsat).
+ If not specified, the formulation is left unmodified.</p>
+<p><strong>Subdivisions</strong> sets the number of subdivisions per degree in the saturation
+ vapor pressure tables. If never set, it is 100; if not specified, it is left unmodified.</p>
+<p><strong>MixingRatio</strong> sets whether MAPL_EQsat will return saturation mixing ratio (true)
+ or saturation specific humidity (false) when the pressure is present
+ (see MAPL_EQsat documentation). If never set, it is false; 
+ if not specified, it is left unmodified.</p>
+<p>MAPL_EQsatSET also initializes the tables. If MAPL_EQsatSET is
+ not called and tables are required, they will be initialized the first time
+ one of the  MAPL_EQsat functions is called. The tables are reset with every call
+ to MAPL_EQsatSET.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -297,43 +323,6 @@
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Subdivisions</span><span class="w"></span>
 <span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MixingRatio</span><span class="w"></span>
 
-<span class="c">! !DESCRIPTION: </span>
-<span class="c">!  MAPL\_EQsatSet can be used to set three parameters that control</span>
-<span class="c">!  the behavior of the working routine, MAPL\_EQsat:\newline</span>
-<span class="c">!</span>
-<span class="c">!  If {\tt \bf UseTable} is true, tabled values of the saturation vapor pressures are used,</span>
-<span class="c">!  instead of the ``exact&#39;&#39; calculations.</span>
-<span class="c">!  These tables are automatically generated at a 0.01K resolution for whatever</span>
-<span class="c">!  vapor pressure formulation is being used. If never set, MAPL\_EQsat will use the tables.</span>
-<span class="c">!  If not specified, the table behavior is left unmodified.\newline</span>
-<span class="c">!</span>
-<span class="c">!  {\tt \bf Formulation} sets the saturation vapor pressure function to use</span>
-<span class="c">!  to use in generating tables or for ``exact&#39;&#39; calculations.</span>
-<span class="c">!  Three formulations of saturation vapor pressure are supported:</span>
-<span class="c">! \begin{itemize} </span>
-<span class="c">!  \item the Starr code, as was used in NSIPP-1 (MAPL\_UseStarrQsat), </span>
-<span class="c">!  \item the Goff-Gratch formulation, as used in CAM (MAPL\_UseGoffGratchQsat), and </span>
-<span class="c">!  \item Murphy and Koop (2005, QJRMS) (MAPL\_UseMurphyKoopQsat).</span>
-<span class="c">! \end{itemize}</span>
-<span class="c">!  If it has not been set, the formulation is Starr (MAPL\_UseStarrQsat).</span>
-<span class="c">!  If not specified, the formulation is left unmodified.\newline</span>
-<span class="c">!</span>
-<span class="c">! {\tt \bf Subdivisions} sets the number of subdivisions per degree in the saturation</span>
-<span class="c">!  vapor pressure tables. If never set, it is 100; if not specified, it is left unmodified.</span>
-<span class="c">!  \newline</span>
-<span class="c">!</span>
-<span class="c">!  {\tt \bf MixingRatio} sets whether MAPL\_EQsat will return saturation mixing ratio (true)</span>
-<span class="c">!  or saturation specific humidity (false) when the pressure is present</span>
-<span class="c">!  (see MAPL\_EQsat documentation). If never set, it is false; </span>
-<span class="c">!  if not specified, it is left unmodified.\newline</span>
-<span class="c">!</span>
-<span class="c">!  MAPL\_EQsatSET also initializes the tables. If MAPL\_EQsatSET is</span>
-<span class="c">!  not called and tables are required, they will be initialized the first time</span>
-<span class="c">!  one of the  MAPL\_EQsat functions is called. The tables are reset with every call</span>
-<span class="c">!  to MAPL\_EQsatSET.\newline</span>
-
-<span class="c">!EOPI</span>
-
 <span class="c">! Set the global flags</span>
 
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">UseTable</span><span class="w">   </span><span class="p">))</span><span class="w"> </span><span class="n">UTBL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UseTable</span><span class="w"></span>
@@ -439,7 +428,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-03T16:38:52.910787             </p>
+ on 2023-04-10T16:23:33.657765             </p>
           </div>
         </div>
         <br>
