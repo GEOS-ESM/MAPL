@@ -17,6 +17,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.37.0] - 2023-04-03
+
+### Added
+
+- New feature in History to allow the accumulation in non-instantaneous collections to be reset independently of the writing frequency if requested.
+- new macro `_RETURN_IF(cond)` to provide a succinct early return in procedures with return codes.
+
+### Fixed
+
+- Fixed bug in CubedSphereGridFactory when constructing a grid from a file
+- Cleaned up cubed-sphere grid factory and NCIO to produce files with consistent capitalization and types for the stretching factor
+
+## [2.36.0] - 2023-03-23
+
+### Added
+
+- Added config array overload to `MAPL_GetResource`
+- Implemented new generic XY grid factory to create regional grids on any input set of 2D lons and lats
+  - **NOTE**: This grid factory is experimental and the API may change or it might be superseded by another grid factory
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.25.1
+  - ESMA_env v4.8.0 → v4.9.1 (Move to Baselibs 7.8.1: ESMF v8.4.1)
+  - ESMA_cmake v3.24.0 → v3.28.0 (Detection of additional sites, updated Intel Fortran flags, updates for Python3 support)
+- Converted files in `Python/MAPL` to Python 3.
+  - **NOTE 1**: This will require changes to codes that call MAPL's Python layer.
+  - **NOTE 2**: If building with F2PY support, you will need to use ESMA_cmake v3.28.0 or later if using in a mixed Python 2/3 environment.
+
+## [2.35.3] - 2023-03-17
+
+### Fixed
+
+- Fixed bug in climatologies with ExtDataV2 when wrapping around the year
+
+### Added
+
+- Added Ford documentation
+
 ## [2.35.2] - 2023-03-06
 
 ### Changed
