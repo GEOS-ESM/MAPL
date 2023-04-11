@@ -17,7 +17,7 @@ contains
    ! is to pass.
    subroutine test_add_one_field()
       type(StateSpec) :: state_spec
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
 
       call state_spec%add_item('A', &
                  FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown'))
@@ -37,7 +37,7 @@ contains
       class(AbstractStateItemSpec), pointer :: item_spec
 
       type(FieldSpec) :: field_spec
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
 
       field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown')
       call state_spec%add_item('A', field_spec)
@@ -60,7 +60,7 @@ contains
       type(FieldSpec) :: field_spec
 
       type(ESMF_Grid) :: grid
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
       type(ESMF_Info) :: info
       type(ESMF_State) :: state
       type(MultiState) :: multi_state
@@ -72,7 +72,7 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', rc=status)
       call ESMF_InfoGetFromHost(grid, info, rc=status)
       call ESMF_InfoSet(info, '/MAPL/GEOM/VERTICAL', 'CENTER', rc=status)
-      geom = ESMF_GeomCreate(grid)
+      geom = ESMF_GeomBaseCreate(grid)
       field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', '')
       call field_spec%create(rc=status)
       call field_spec%allocate(rc=status)

@@ -155,7 +155,7 @@ contains
    function make_ItemSpec(this, geom, rc) result(item_spec)
       class(AbstractStateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_GeomBase), intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -180,7 +180,7 @@ contains
    function make_FieldSpec(this, geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_GeomBase), intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status

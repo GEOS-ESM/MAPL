@@ -28,7 +28,7 @@ module mapl3g_Generic
    use :: mapl3g_AbstractStateItemSpec
    use mapl_InternalConstantsMod
    use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_Geom, ESMF_GeomCreate
+   use :: esmf, only: ESMF_GeomBase, ESMF_GeomBaseCreate
    use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_Clock
@@ -419,7 +419,7 @@ contains
 
    subroutine MAPL_GridCompSetGeom(gridcomp, geom, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_GeomBase), intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -438,11 +438,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomCreate(grid, _RC)
+      geom = ESMF_GeomBaseCreate(grid, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -455,11 +455,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomCreate(mesh, _RC)
+      geom = ESMF_GeomBaseCreate(mesh, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -472,11 +472,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomCreate(xgrid, _RC)
+      geom = ESMF_GeomBaseCreate(xgrid, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -489,11 +489,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_Geom) :: geom
+      type(ESMF_GeomBase) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomCreate(locstream, _RC)
+      geom = ESMF_GeomBaseCreate(locstream, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)

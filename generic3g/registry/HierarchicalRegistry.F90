@@ -18,21 +18,16 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_ESMF_Utilities
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+
+   use mapl3g_StateExtension
+   use mapl3g_ExtensionVector
    use mapl3g_ExtensionAction
-   use mapl3g_CopyAction
+
    implicit none
    private
   
    public :: HierarchicalRegistry
 
-
-   type StateExtension
-      type(ActualConnectionPt) :: src_actual_pt
-      type(ActualConnectionPt) :: dst_actual_pt
-      ! type(ActionVector) :: actions
-      class(ExtensionAction), allocatable :: action
-!!$      class(AbstractAction), allocatable :: action
-   end type StateExtension
 
 
    type, extends(AbstractRegistry) :: HierarchicalRegistry
@@ -46,7 +41,7 @@ module mapl3g_HierarchicalRegistry
       ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
 
-      type(StateExtension) :: extension
+      type(ExtensionVector) :: extensions
 
    contains
 
@@ -61,7 +56,7 @@ module mapl3g_HierarchicalRegistry
       procedure :: has_subregistry
 
       procedure :: add_to_states
-      procedure :: add_to_action
+      procedure :: get_extensions
       
       procedure :: add_subregistry
       procedure :: get_subregistry_comp
@@ -543,7 +538,7 @@ contains
       src_spec => this%get_item_spec(actual_pts%front(), _RC)
 
       action = src_spec%make_action(dst_spec, _RC)
-      this%extension%action = action
+      call this%extensions%push_back(StateExtension(action))
 
       _RETURN(_SUCCESS)
    end subroutine add_state_extension
@@ -801,18 +796,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine add_to_action(this, action, rc)
+   function get_extensions(this) result(extensions)
+      type(ExtensionVector) :: extensions
       class(HierarchicalRegistry), intent(in) :: this
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
 
-      integer :: status
-
-      if (allocated(this%extension%action)) then
-         action = this%extension%action
-      end if
-      _RETURN(_SUCCESS)
-   end subroutine add_to_action
+      extensions = this%extensions
+   end function get_extensions
 
    subroutine add_to_states(this, multi_state, mode, rc)
       use esmf

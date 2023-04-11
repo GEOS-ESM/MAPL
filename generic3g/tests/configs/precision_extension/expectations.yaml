@@ -1,19 +1,33 @@
 - component: A/<user>
   exports:
-    E_A1: {status: complete, typekind: R4}
+    E_A1: {status: complete, typekind: R4, value: 1.}
+    E_A3: {status: complete, typekind: R4, value: 7.}
+  imports:
+    I_A2: {status: complete, typekind: R8, value: 5.}
 
 - component: A
   exports:
-    E_A1: {status: complete, typekind: R4}
-    E_A1(0): {status: complete, typekind: R8}
+    E_A1: {status: complete, typekind: R4, value: 1.}
+    E_A3: {status: complete, typekind: R4, value: 7.}
+    E_A1(0): {status: complete, typekind: R8, value: 1.}
+    E_A3(0): {status: complete, typekind: R8, value: 7.}
+  imports:
+    I_A2: {status: complete, typekind: R8, value: 5.}
 
 - component: B/<user>
+  exports:
+    E_B2: {status: complete, typekind: R4, value: 5.}
   imports:
     I_B1: {status: complete, typekind: R8, value: 1.}
+    I_B3: {status: complete, typekind: R8, value: 7.}
 
 - component: B
+  exports:
+    E_B2: {status: complete, typekind: R4, value: 5.}
+    E_B2(0): {status: complete, typekind: R8, value: 5.}
   imports:
-    I_B1: {status: complete, typekind: R8}
+    I_B1: {status: complete, typekind: R8, value: 1.}
+    I_B3: {status: complete, typekind: R8, value: 7.}
 
 - component: <user>
   imports: {}
@@ -21,6 +35,9 @@
   internals: {}
 - component: <root>
   exports:
-    A/E_A1: {status: complete}
-    A/E_A1(0): {status: complete, typekind: R8}
-  
+    A/E_A1: {status: complete, typekind: R4, value: 1.}
+    A/E_A3: {status: complete, typekind: R4, value: 7.}
+    A/E_A1(0): {status: complete, typekind: R8, value: 1.}
+    A/E_A3(0): {status: complete, typekind: R8, value: 7.}
+    B/E_B2: {status: complete, typekind: R4, value: 5.}
+    B/E_B2(0): {status: complete, typekind: R8, value: 5.}
