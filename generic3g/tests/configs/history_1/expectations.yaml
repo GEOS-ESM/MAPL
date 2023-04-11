@@ -4,61 +4,61 @@
 #   - annotate whether field is "complete"
 
 - component: root/A/<user>
-  exports:
+  export:
     E_A1: {status: complete}
     E_A2: {status: gridset}
 
 - component: root/A
-  exports:
+  export:
     E_A1: {status: complete}
     E_A2: {status: gridset}
 
 - component: root/B/<user>
-  exports:
+  export:
     E_B1: {status: gridset}
     E_B2: {status: complete}
 
 - component: root/B
-  exports:
+  export:
     E_B1: {status: gridset}
     E_B2: {status: complete}
 
 - component: root/<user>
-  exports: {}
+  export: {}
 
 - component: root
-  exports:
+  export:
     "A/E_A1": {status: complete}
     "A/E_A2": {status: gridset}
     "B/E_B1": {status: gridset}
     "B/E_B2": {status: complete}
 
 - component: history/collection_1/<user>
-  imports: {}
+  import: {}
 #    "A/E_A1": {status: complete}
 #    "B/E_B2": {status: complete}
 
 - component: history/collection_1
-  imports:
+  import:
     "A/E_A1": {status: complete}
     "B/E_B2": {status: complete}
 
 - component: history/<user>
-  imports: {}
+  import: {}
 
 - component: history
-  imports:
+  import:
     "A/E_A1": {status: complete}
     "B/E_B2": {status: complete}
 
 - component: <user>
-  imports: {}
-  exports: {}
-  internals: {}
+  import: {}
+  export: {}
+  internal: {}
 
 - component: <root>
-  imports: {}
-  exports:
+  import: {}
+  export:
     "A/E_A1": {status: complete}
     "A/E_A2": {status: gridset}
     "B/E_B1": {status: gridset}

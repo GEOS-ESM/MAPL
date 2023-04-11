@@ -4,55 +4,55 @@
 #   - annotate whether field is "complete"
 
 - component: parent/child_A/<user>
-  imports:
+  import:
     I_A1: {status: gridset}
-  exports:
+  export:
     E_A1: {status: gridset}
-  internals:
+  internal:
     Z_A1: {status: complete}
 
 - component: parent/child_A
-  imports:
+  import:
     I_A1: {status: gridset}
-  exports:
+  export:
     E_A1: {status: gridset}
 
 - component: parent/child_B/<user>
-  imports:
+  import:
     I_B1: {status: gridset}
-  exports:
+  export:
     E_B1: {status: gridset}
-  internals:
+  internal:
     Z_B1: {status: complete}
 - component: parent/child_B
-  imports:
+  import:
     I_B1: {status: gridset}
-  exports:
+  export:
     E_B1: {status: gridset}
 
 - component: parent/<user>
-  imports: {}
-  exports: {}
-  internals: {}
+  import: {}
+  export: {}
+  internal: {}
 
 - component: parent
-  imports:
+  import:
     "child_A/I_A1": {status: gridset}  # unsatisfied
     "child_B/I_B1": {status: gridset}  # unsatisfied
-  exports:
+  export:
     "child_A/E_A1": {status: gridset}
-    "child_B/E_B1": {status: gridset} # re-exports
+    "child_B/E_B1": {status: gridset} # re-export
 
 - component: <user>
-  imports: {}
-  exports: {}
-  internals: {}
+  import: {}
+  export: {}
+  internal: {}
 
 - component: <root>
-  imports:
+  import:
     "child_A/I_A1": {status: gridset}  # unsatisfied
     "child_B/I_B1": {status: gridset}  # unsatisfied
-  exports:
+  export:
     "child_A/E_A1": {status: gridset}
-    "child_B/E_B1": {status: gridset} # re-exports
+    "child_B/E_B1": {status: gridset} # re-export
   

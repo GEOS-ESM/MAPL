@@ -4,41 +4,41 @@
 #   - annotate whether field is "complete"
 
 - component: child_A/<user>
-  imports:
+  import:
     I_A1: {status: gridset}
-  exports:
+  export:
     E_A1: {status: complete}
     Z_A1: {status: complete}
-  internals:
+  internal:
     Z_A1: {status: complete}
 - component: child_A
-  imports:
+  import:
     I_A1: {status: gridset}
-  exports:
+  export:
     E_A1: {status: complete}
     Z_A1: {status: complete}
 
 - component: child_B/<user>
-  imports:
+  import:
     I_B1: {status: complete}
-  exports:
+  export:
     E_B1: {status: gridset}
-  internals:
+  internal:
     Z_B1: {status: complete}
 - component: child_B
-  imports:
+  import:
     I_B1: {status: complete}
-  exports:
+  export:
     E_B1: {status: gridset}
 - component: <user>
-  imports: {}
-  exports: {}
-  internals: {}
+  import: {}
+  export: {}
+  internal: {}
 - component: <root>
-  imports:
+  import:
     "child_A/I_A1": {status: gridset}  # unsatisfied
-  exports:
+  export:
     "child_A/E_A1": {status: complete}
-    "child_A/Z_A1": {status: complete} # re-exports
-    "child_B/E_B1": {status: gridset} # re-exports
+    "child_A/Z_A1": {status: complete} # re-export
+    "child_B/E_B1": {status: gridset} # re-export
   
