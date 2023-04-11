@@ -1,14 +1,24 @@
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
-module MAPL_HistoryGridCompMod
-
-!BOP
-
-! !MODULE: MAPL_HistoryGridCompMod
-
+!
+!>
+!### MODULE: `MAPL_HistoryGridCompMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_HistoryGridCompMod` contains the `Initialize`, `Run` and `Finalize` methods for `History`.
+! The three methods are called at the level of CAP.
+!
+  module MAPL_HistoryGridCompMod
+!
 ! !USES:
-
+!
   use ESMF
   use ESMFL_Mod
   use MAPL_BaseMod
@@ -54,11 +64,6 @@ module MAPL_HistoryGridCompMod
 ! !PUBLIC MEMBER FUNCTIONS:
 
   public SetServices
-
-! !DESCRIPTION:
-!                \input{MAPL_HistoryDescr.tex}
-!
-!EOP
 
   type :: SpecWrapper
      type (MAPL_VarSpec),              pointer :: SPEC(:)
@@ -140,9 +145,12 @@ module MAPL_HistoryGridCompMod
 contains
 
 !=====================================================================
+!>
+! Sets Initialize, Run and Finalize services for the `MAPL_HistoryGridComp` component.
+!
   subroutine SetServices ( gc, rc )
-    type(ESMF_GridComp), intent(inout) :: gc     ! composite gridded component
-    integer, optional               :: rc     ! return code
+    type(ESMF_GridComp), intent(inout) :: gc     !! composite gridded component
+    integer, intent(out), optional     :: rc     !! return code
 
     integer                         :: status
     type (HISTORY_wrap)             :: wrap
@@ -179,82 +187,68 @@ contains
   end subroutine SetServices
 
 !======================================================
-! BOP
-! !IROUTINE: Initialize -- Initializes MAPL History Lists for Diagnostic Output
-
-! !INTERFACE:
-
-  subroutine Initialize ( gc, import, dumexport, clock, rc )
-
-! !ARGUMENTS:
-
-    type(ESMF_GridComp), intent(inout)    :: gc     ! composite gridded component
-    type(ESMF_State),       intent(inout) :: import ! import state
-    type(ESMF_State),       intent(inout) :: dumexport ! export state
-    type(ESMF_Clock),       intent(inout) :: clock  ! the clock
-      integer, intent(out), OPTIONAL        :: rc     ! Error code:
-
-! !DESCRIPTION:
+!>
 ! Initialize initializes MAPL History Lists for Diagnostic Output.
 ! Diagnostics have the following attributes:
 !
-! \begin{description}
-! \item[1)] Diagnostics may be "instantaneous" or "time-averaged"
-! \item[2)] Diagnostics have a "frequency" and an associated "ref_date" and "ref_time"
-!           from which the frequency is based.  An "end_date" and "end_time" may also be used
-!           to turn off diagnostics after a given date and time.
-! \item[3)] Time-Averaged Diagnostics have an associated accumulation interval, "acc_interval",
-!           which may be <= to the diagnostic "frequency"
-! \item[4)] Diagnostics are "time-stamped" with the center of the time-averaged period.
-! \item[5)] The default "acc_interval" is the diagnostic "frequency"
-! \item[6)] The default "ref_date" is the beginning date of the experiment
-! \item[7)] The default "ref_time" is 0z
-! \item[8)] The default "end_date" and "end_time" is disabled
-! \end{description}
+!1. Diagnostics may be `instantaneous` or `time-averaged`
+!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time` 
+!    from which the frequency is based. An `end_date` and `end_time` may also be 
+!    used to turn off diagnostics after a given date and time.
+!3. Time-Averaged Diagnostics have an associated accumulation interval, 
+!    `acc_interval`, which may be <= to the diagnostic `frequency`
+!4. Diagnostics are `time-stamped` with the center of the time-averaged period.
+!5. The default `acc_interval` is the diagnostic `frequency`
+!6. The default `ref_date` is the beginning date of the experiment
+!7. The default `ref_time` is 0z
+!8.  The default `end_date` and `end_time` is disabled
 !
 ! Through the use of History Lists, the user may define the type of diagnostic output desired.
 ! History Lists contain the following attributes:
 !
-! \begin{description}
-! \item[filename]     Character string defining the filename of a particular diagnostic output stream.
-! \item[template]     Character string defining the time stamping template following GrADS convensions. The default value depends on the duration of the file.
-! \item[format]       Character string defining file format ("flat" or "CFIO"). Default = "flat".
-! \item[mode]         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
-! \item[descr]        Character string equal to the list description. Defaults to "expdsc".
-! \item[commment]     Character string defining a comment.
+!- **filename**:     Character string defining the filename of a particular diagnostic output stream.
+!- **template**:     Character string defining the time stamping template following GrADS convensions. 
+!    The default value depends on the duration of the file.
+!- **format**:       Character string defining file format ("flat" or "CFIO"). Default = "flat".
+!- **mode**:         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
+!- **descr**:        Character string equal to the list description. Defaults to "expdsc".
+!- **commment**:     Character string defining a comment.
 !                     Defaults to "NetCDF-4". Can be globally set for all collections with "COMMENT:"
-! \item[contact]      Character string defining a contact.
-!                     Defaults to "http://gmao.gsfc.nasa.gov". Can be globally set for all collections with "CONTACT:"
-! \item[conventions]  Character string defining the conventions.
-!                     Defaults to "CF". Can be globally set for all collections with "CONVENTIONS:"
-! \item[institution]  Character string defining an institution.
-!                     Defaults to "NASA Global Modeling and Assimilation Office". Can be globally set for all collections with "INSTITUTION:"
-! \item[references]   Character string defining references.
-!                     Defaults to "see MAPL documentation". Can be globally set for all collections with "REFERENCES:"
-! \item[source]       Character string defining source.
-!                     Defaults to "unknown". Can be globally set for all collections with "SOURCE:"
-! \item[frequency]    Integer (HHMMSS) for the frequency of output.  Default = 060000.
-! \item[acc_interval] Integer (HHMMSS) for the acculation interval (<= frequency) for time-averaged diagnostics.
-!                     Default = Diagnostic Frequency.
-! \item[ref_date]     Integer (YYYYMMDD) reference date from which the frequency is based.
-!                     Default is the Experiment beginning date.
-! \item[ref_time]     Integer (HHMMSS) reference time from which the frequency is based.
-!                     Default is 000000.
-! \item[end_date]     Integer (YYYYMMDD) ending date to stop diagnostic output.  Default is disabled.
-! \item[end_time]     Integer (HHMMSS) ending time to stop diagnostic output. Default is disabled.
-! \item[duration]     Integer (HHMMSS) for the duration of each file.  Default = frequency (1 time-record per file).
-! \item[fields]       Paired character strings for the diagnostic Name and its associated Gridded Component.
-! \item[subset]       Optional subset (lonMin lonMax latMin latMax) for the output
-! \item[xyoffset]     Optional Flag for Grid Staggering (0:DcPc, 1:DePc, 2:DcPe, 3:DePe)
-! \item[levels]       Optional list of output levels (Default is all levels on Native Grid).
-! \item[vvars]        Optional Field (and Transform) to use for Vertical Interpolation (eg., 'log(PLE)' , 'DYN' ).
-! \item[vunit]        Optional Units to use for Vertical Index of Output File.
-! \item[vscale]       Optional Scaling to use between Output Unit and VVARS unit.
-! \end{description}
+!- **contact**:      Character string defining a contact.
+!    Defaults to "http://gmao.gsfc.nasa.gov". Can be globally set for all collections with "CONTACT:"
+!- **conventions**:  Character string defining the conventions.
+!    Defaults to "CF". Can be globally set for all collections with "CONVENTIONS:"
+!- **institution**:  Character string defining an institution.
+!    Defaults to "NASA Global Modeling and Assimilation Office". Can be globally set for all collections with "INSTITUTION:"
+!- **references**:   Character string defining references.
+!    Defaults to "see MAPL documentation". Can be globally set for all collections with "REFERENCES:"
+!- **source**:       Character string defining source.
+!    Defaults to "unknown". Can be globally set for all collections with "SOURCE:"
+!- **frequency**:    Integer (HHMMSS) for the frequency of output.  Default = 060000.
+!- **acc_interval**: Integer (HHMMSS) for the acculation interval (<= frequency) for time-averaged diagnostics.
+!    Default = Diagnostic Frequency.
+!- **ref_date**:     Integer (YYYYMMDD) reference date from which the frequency is based.
+!    Default is the Experiment beginning date.
+!- **ref_time**:     Integer (HHMMSS) reference time from which the frequency is based.
+!    Default is 000000.
+!- **end_date**:     Integer (YYYYMMDD) ending date to stop diagnostic output.  Default is disabled.
+!- **end_time**:     Integer (HHMMSS) ending time to stop diagnostic output. Default is disabled.
+!- **duration**:     Integer (HHMMSS) for the duration of each file.  Default = frequency (1 time-record per file).
+!- **fields**:       Paired character strings for the diagnostic Name and its associated Gridded Component.
+!- **subset**:       Optional subset (lonMin lonMax latMin latMax) for the output
+!- **xyoffset**:     Optional Flag for Grid Staggering (0:DcPc, 1:DePc, 2:DcPe, 3:DePe)
+!- **levels**:       Optional list of output levels (Default is all levels on Native Grid).
+!- **vvars**:        Optional Field (and Transform) to use for Vertical Interpolation (eg., 'log(PLE)' , 'DYN' ).
+!- **vunit**:        Optional Units to use for Vertical Index of Output File.
+!- **vscale**:       Optional Scaling to use between Output Unit and VVARS unit.
 !
-! !REVISION HISTORY:
-!   14Jan2005 Todling  Implemented GRADS template-ready CFIO filename.
-! EOP
+  subroutine Initialize ( gc, import, dumexport, clock, rc )
+
+    type(ESMF_GridComp), intent(inout)    :: gc        !! composite gridded component
+    type(ESMF_State),       intent(inout) :: import    !! import state
+    type(ESMF_State),       intent(inout) :: dumexport !! export state
+    type(ESMF_Clock),       intent(inout) :: clock     !! the clock
+    integer, intent(out), OPTIONAL        :: rc        !! Error code:
 
     integer                         :: status
 
@@ -766,8 +760,19 @@ contains
        list(n)%regex = (useRegex /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
                                       label=trim(string) // 'frequency:',_RC )
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_interval, default=list(n)%frequency, &
                                       label=trim(string) // 'acc_interval:',_RC )
+
+       call ESMF_ConfigFindLabel(cfg,label= trim(string) // 'acc_ref_time',isPresent = isPresent, _RC)
+       if (isPresent) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%acc_ref_time, default=000000, &
+                                         label=trim(string) // 'acc_ref_time:',_RC )
+          _ASSERT(is_valid_time(list(n)%ref_time),'Invalid acc_ref_time')
+          list(n)%acc_offset = get_acc_offset(currTime,list(n)%acc_ref_time,_RC)
+       else
+          list(n)%acc_offset = 0
+       end if
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_date, default=nymdc, &
                                       label=trim(string) // 'ref_date:',_RC )
@@ -1604,9 +1609,9 @@ ENDDO PARSER
        if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
           sec = 0
        else if (list(n)%timeStampStart) then
-          sec = MAPL_nsecf(list(n)%acc_interval)
+          sec = MAPL_nsecf(list(n)%frequency)
        else
-          sec = MAPL_nsecf(list(n)%acc_interval) / 2
+          sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
     end do
@@ -2085,6 +2090,7 @@ ENDDO PARSER
                           UNGRIDDED_COORDS = ungridded_coord,               &
                           ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
                           COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          offset = list(n)%acc_offset, &
                           VLOCATION  = VLOCATION,                           &
                           GRID       = GRID,                                &
                           FIELD_TYPE = FIELD_TYPE,                          &
@@ -2115,6 +2121,7 @@ ENDDO PARSER
                           UNGRIDDED_UNIT = ungridded_unit,                  &
                           ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
                           COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          offset = list(n)%acc_offset, &
                           VLOCATION  = VLOCATION,                           &
                           GRID       = GRID,                                &
                           FIELD_TYPE = FIELD_TYPE,                          &
@@ -2124,7 +2131,6 @@ ENDDO PARSER
                   if (allocated(ungridded_coord)) deallocate(ungridded_coord)
 
                else
-
                   call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,     &
                        SHORT_NAME = SHORT_NAME,                            &
                        LONG_NAME  = LONG_NAME,                             &
@@ -2143,6 +2149,7 @@ ENDDO PARSER
                        DIMS       = DIMS,                                  &
                        ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),  &
                        COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),  &
+                       offset = list(n)%acc_offset, &
                        VLOCATION  = VLOCATION,                             &
                        GRID       = GRID,                                  &
                        FIELD_TYPE = FIELD_TYPE,                            &
@@ -3157,18 +3164,16 @@ ENDDO PARSER
  end subroutine Initialize
 
 !======================================================
-
-
+!>
+! Run the `MAPL_HistoryGridComp` component.
+!
  subroutine Run ( gc, import, export, clock, rc )
-
-! !ARGUMENTS:
 
     type(ESMF_GridComp),    intent(inout) :: gc
     type(ESMF_State),       intent(inout) :: import
     type(ESMF_State),       intent(inout) :: export
     type(ESMF_Clock),       intent(inout) :: clock
     integer, optional,      intent(  out) :: rc
-
 
 ! Locals
 
@@ -3581,15 +3586,15 @@ ENDDO PARSER
  end subroutine Run
 
 !======================================================
-
+!> 
+! Finanlize the `MAPL_HistoryGridComp` component.
+!  
   subroutine Finalize ( gc, import, export, clock, rc )
 
-! !ARGUMENTS:
-
-    type(ESMF_GridComp), intent(inout)    :: gc     ! composite gridded component
-    type(ESMF_State),       intent(inout) :: import ! import state
-    type(ESMF_State),       intent(  out) :: export ! export state
-    type(ESMF_Clock),       intent(inout) :: clock  ! the clock
+    type(ESMF_GridComp), intent(inout)    :: gc     !! composite gridded component
+    type(ESMF_State),       intent(inout) :: import !! import state
+    type(ESMF_State),       intent(  out) :: export !! export state
+    type(ESMF_Clock),       intent(inout) :: clock  !! the clock
 
     integer, intent(out), OPTIONAL        :: rc     ! Error code:
                                                      ! = 0 all is well
@@ -5078,13 +5083,41 @@ ENDDO PARSER
           call ESMF_StateGet(src, itemNames(n), bundle(1), _RC)
           call ESMF_StateAdd(dst, bundle, _RC)
        end if
-    end do
+    end do 
 
     deallocate(itemTypes)
     deallocate(itemNames)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine CopyStateItems
+
+  function get_acc_offset(current_time,ref_time,rc) result(acc_offset)
+     integer :: acc_offset
+     type(ESMF_Time), intent(in) :: current_time
+     integer, intent(in) :: ref_time
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     integer :: hour,minute,second,year,month,day,diff_sec
+     type(ESMF_Time) :: new_time
+     type(ESMF_TimeInterval) :: t_int
+
+     call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+     call MAPL_UnpackTime(ref_time,hour,minute,second)
+     call ESMF_TimeSet(new_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+     t_int = new_time - current_time
+
+     call ESMF_TimeIntervalGet(t_int,s=diff_sec,_RC)
+     if (diff_sec == 0) then
+        acc_offset = 0
+     else if (diff_sec > 0) then
+        acc_offset = diff_sec - 86400
+     else if (diff_sec < 0) then
+        acc_offset = diff_sec
+     end if
+     _RETURN(_SUCCESS)
+  end function
+
 
 end module MAPL_HistoryGridCompMod
 

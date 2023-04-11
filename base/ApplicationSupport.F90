@@ -81,6 +81,8 @@ module MAPL_ApplicationSupport
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
       use pflogger, only: INFO, WARNING
+      use PFL_Formatter, only: get_sim_time
+      use mapl_SimulationTime, only: fill_time_dict
 
       use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
@@ -110,6 +112,7 @@ module MAPL_ApplicationSupport
       end if
 
       call pfl_initialize()
+      get_sim_time => fill_time_dict
 
       if (logging_configuration_file /= '') then
          call logging%load_file(logging_configuration_file)

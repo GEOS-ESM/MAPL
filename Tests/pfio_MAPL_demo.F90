@@ -1,20 +1,21 @@
+
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 !------------------------------------------------------------------------------
 !># Standalone Program for Testing PFIO
 !
-!> Program to write out several records of 2D & 3D geolocated variables in a netCDF file.
-!! It mimics the prgramming steps of MAPL_Cap and can be used as reference to implement
-!! PFIO in a non-GEOS model.
-!!
-!! Usage:
-!!
-!!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores
-!!   and use 1 MultiGroup with 5 backend processes, then the execution command is:
-!!
-!!      mpiexec -np 56 pfio_MAPL_demo.x --npes_model 28 --oserver_type multigroup --nodes_output_server 1 --npes_backend_pernode 5
+! Program to write out several records of 2D & 3D geolocated variables in a netCDF file.
+! It mimics the prgramming steps of MAPL_Cap and can be used as reference to implement
+! PFIO in a non-GEOS model.
+!
+!#### Usage:
+!
+!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores
+!   and use 1 MultiGroup with 5 backend processes, then the execution command is:
+!```
+! mpiexec -np 56 pfio_MAPL_demo.x --npes_model 28 --oserver_type multigroup --nodes_output_server 1 --npes_backend_pernode 5
+!```
 !------------------------------------------------------------------------------
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
 program main
       use, intrinsic :: iso_fortran_env, only: REAL32
       use mpi
@@ -157,7 +158,9 @@ program main
 !------------------------------------------------------------------------------
 CONTAINS
 !------------------------------------------------------------------------------
-!> Create a subcommunicator
+!>
+! `create_member_subcommunicator` -- Create a subcommunicator
+!
    integer function create_member_subcommunicator(comm, n_members, npes_member, rc) result(subcommunicator)
       use MAPL_SimpleCommSplitterMod
       integer, intent(in) :: comm
@@ -177,7 +180,9 @@ CONTAINS
 
    end function create_member_subcommunicator
 !------------------------------------------------------------------------------
-!> Initialized MPI is MPI_Init has not been called yet.
+!>
+! `initialize_mpi` -- Initialized MPI is MPI_Init has not been called yet.
+!
    subroutine initialize_mpi(comm)
       integer, intent(in) :: comm
       logical :: mpi_already_initialized
@@ -196,7 +201,9 @@ CONTAINS
 
    end subroutine initialize_mpi
 !------------------------------------------------------------------------------
-!> Initialize the IO Server using the command line options
+!>
+! `initialize_ioserver` -- Initialize the IO Server using the command line options
+!
    subroutine initialize_ioserver(comm)
       integer, intent(in) :: comm
       call ioserver_manager%initialize(comm, &
@@ -214,7 +221,9 @@ CONTAINS
       _VERIFY(status)
    end subroutine initialize_ioserver
 !------------------------------------------------------------------------------
-!> Perfom the domain decomposition
+!>
+! `perform_domain_deposition` -- Perfom the domain decomposition
+!
    subroutine perform_domain_deposition()
       integer, allocatable :: proc_sizes(:)
       integer :: ierr
@@ -255,7 +264,9 @@ CONTAINS
       print '(a7,i5,a5,4i5)', 'pe_id: ', pe_id, '-->', i1, i2, j1, j2
    end subroutine perform_domain_deposition
 !------------------------------------------------------------------------------
-!> Create the file metada using PFIO methods and the file collection identifier
+!>
+! `create_file_metada` -- Create the file metada using PFIO methods and the file collection identifier
+!
    subroutine create_file_metada()
       !--------------------------------------------------------------
       ! ---> Define dimensions and create variables for a netCDF file
@@ -334,7 +345,9 @@ CONTAINS
       hist_id = o_clients%add_hist_collection(fmd)
    end subroutine create_file_metada
 !------------------------------------------------------------------------------
-!> Run the model and write out the data
+!>
+! `run_model` -- Run the model and write out the data
+!
    subroutine run_model()
       day = 1
       num_steps = 18
@@ -399,7 +412,9 @@ CONTAINS
       enddo
    end subroutine run_model
 !------------------------------------------------------------------------------
-!> PFIO utility routine to create a variable and set attributes
+!>
+! `add_fvar` -- PFIO utility routine to create a variable and set attributes
+!
    subroutine add_fvar(cf, vname, vtype, dims, units, long_name ,rc)
       type(FileMetadata), intent(inout) :: cf
       integer,          intent(in) :: vtype
@@ -431,9 +446,12 @@ CONTAINS
       _VERIFY(status)
    end subroutine add_fvar
 !------------------------------------------------------------------------------
-!> For a given number of grid points alonag a dimension and a number of
-!! available processors for that diemsion,, !! determine the number of
-!! grid points assigned to each processor.
+!>
+! `decompose_dim` --
+! For a given number of grid points along a dimension and a number of
+! available processors for that diemsion,, !! determine the number of
+! grid points assigned to each processor.
+!
    subroutine decompose_dim(dim_world, dim_array, num_procs )
 !
       integer, intent(in)  :: dim_world                !! total number of grid points
@@ -450,8 +468,11 @@ CONTAINS
       enddo
    end subroutine decompose_dim
 !------------------------------------------------------------------------------
-!> Given the total number of available processors and the number of dimensions,
-!! determine the number of processors along each dimension.
+!>
+! `decompose_proc` --
+!  Given the total number of available processors and the number of dimensions,
+! determine the number of processors along each dimension.
+!
    subroutine decompose_proc(num_procs, proc_sizes)
 !
       integer, intent(in)  :: num_procs      !! number of processors
@@ -467,8 +488,11 @@ CONTAINS
       END DO
    end subroutine decompose_proc
 !------------------------------------------------------------------------------
-!> Determime the indices of the local domain corners
-!! with respect to the global domain.
+!>
+! `mapping_domain` --
+! Determime the indices of the local domain corners
+! with respect to the global domain.
+!
    subroutine mapping_domain(map_proc, map_domainX, map_domainY, &
                         points_per_procX, points_per_procY, NX, NY, &
                         proc_id, global_indexX, global_indexY)
@@ -523,7 +547,9 @@ CONTAINS
       enddo
    end subroutine mapping_domain
 !------------------------------------------------------------------------------
-!> Arbitrary set values for a field
+!>
+! `set_tracer` -- Arbitrary set values for a field
+!
    subroutine set_tracer(var)
       real , intent(out) ::    var(i1:i2, j1:j2)
       integer :: i, j
@@ -537,7 +563,9 @@ CONTAINS
 
    end subroutine set_tracer
 !------------------------------------------------------------------------------
-!> Arbitrary set values for the temperature field.
+!>
+! `set_temperature` -- Arbitrary set values for the temperature field.
+!
    subroutine set_temperature(var)
 
       real , intent(out) ::    var(i1:i2, j1:j2)
