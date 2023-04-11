@@ -15,11 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated programs using FLAP for command line parsing to use fArgParse instead
+
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+- Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
 
 ## [2.37.0] - 2023-04-03
 
