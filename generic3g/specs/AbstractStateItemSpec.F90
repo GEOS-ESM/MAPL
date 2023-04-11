@@ -40,18 +40,6 @@ module mapl3g_AbstractStateItemSpec
 
    abstract interface
 
-!!$      subroutine I_initialize(this, geom, var_spec, unusable, rc)
-!!$         use esmf, only: ESMF_Geom
-!!$         use mapl3g_VariableSpec, only: VariableSpec
-!!$         use mapl_KeywordEnforcer, only: KeywordEnforcer
-!!$         import AbstractStateItemSpec
-!!$         class(AbstractStateItemSpec), intent(inout) :: this
-!!$         type(ESMF_Geom), intent(in) :: geom
-!!$         type(VariableSpec), intent(in) :: var_spec
-!!$         class(KeywordEnforcer), optional, intent(in) :: unusable
-!!$         integer, optional, intent(out) :: rc
-!!$      end subroutine I_initialize
-
       subroutine I_connect(this, src_spec, rc)
          use mapl3g_ConnectionSpec
          import AbstractStateItemSpec

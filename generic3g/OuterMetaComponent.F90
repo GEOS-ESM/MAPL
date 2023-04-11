@@ -30,6 +30,8 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ConnectionSpecVector
    use mapl3g_HierarchicalRegistry
    use mapl3g_ExtensionAction
+   use mapl3g_StateExtension
+   use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_ErrorHandling
    use gFTL2_StringVector
@@ -50,7 +52,7 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_Geom), allocatable            :: geom
+      type(ESMF_GeomBase), allocatable            :: geom
       type(MultiState)                            :: user_states
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
@@ -65,7 +67,7 @@ module mapl3g_OuterMetaComponent
       type(ComponentSpec)                         :: component_spec
       type(OuterMetaComponent), pointer           :: parent_private_state
       type(HierarchicalRegistry) :: registry
-      class(ExtensionAction), allocatable :: action
+      type(ExtensionVector) :: state_extensions
 
    contains
       procedure :: set_esmf_config
@@ -528,7 +530,7 @@ contains
       subroutine advertise_variable(var_spec, registry, geom, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(HierarchicalRegistry), intent(inout) :: registry
-         type(ESMF_Geom), intent(in) :: geom
+         type(ESMF_GeomBase), intent(in) :: geom
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -586,10 +588,8 @@ contains
       type(MultiState) :: outer_states
 
       call this%registry%add_to_states(this%user_states, mode='user', _RC)
-      call this%registry%add_to_action(this%action, _RC)
+      this%state_extensions = this%registry%get_extensions()
       
-!!$      call this%registry%create_extensions(this%extensions, this%user_states, _RC)
-
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)
 
@@ -781,9 +781,10 @@ contains
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status, userRC, i
       integer :: phase_idx
-
+      type(StateExtension), pointer :: extension
+      
       phase_idx = 1
       if (present(phase_name)) then
          _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
@@ -794,11 +795,10 @@ contains
            clock=clock, phase=phase_idx, userRC=userRC, _RC)
       _VERIFY(userRC)
 
-      if (allocated(this%action)) then
-         call this%action%run(_RC)
-      end if
-
-!!$      call this%state_extensions%run(_RC)
+      do i = 1, this%state_extensions%size()
+         extension => this%state_extensions%of(i)
+         call extension%run(_RC)
+      end do
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run
@@ -964,7 +964,7 @@ contains
 
    subroutine set_geom(this, geom)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_GeomBase), intent(in) :: geom
 
       this%geom = geom
 

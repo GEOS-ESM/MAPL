@@ -67,6 +67,17 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
+
+# Temporary support for older ESMF Geom
+option (ESMF_SUPPORT_GEOM "Set to use newer ESMF which replaced ESMF_GeomBase with ESMF_Geom" ON)
+message(WARNING "Future versions of ESMF will replace MAPL_GeomBase with MAPL_Geom")
+if (ESMF_SUPPORT_GEOM)
+  add_compile_definitions(ESMF_GeomBase=ESMF_Geom)
+  add_compile_definitions(ESMF_GeomBaseGet=ESMF_GeomGet)
+  add_compile_definitions(ESMF_GeomBaseType_Flag=ESMF_GeomType_Flag)
+  add_compile_definitions(ESMF_GeomBaseCreate=ESMF_GeomCreate)
+endif()
+
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()

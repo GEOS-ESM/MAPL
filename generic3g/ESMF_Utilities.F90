@@ -169,7 +169,7 @@ contains
    end subroutine get_substate
 
    subroutine info_get_from_geom(geom, info, rc)
-      type(ESMF_Geom), intent(inout) :: geom
+      type(ESMF_GeomBase), intent(inout) :: geom
       type(ESMF_Info), intent(out) :: info
       integer, optional, intent(out) :: rc
 
@@ -181,17 +181,17 @@ contains
 
       select case(geom%gbcp%type%type)
       case (ESMF_GEOMTYPE_GRID%type) ! Grid
-         call ESMF_GeomGet(geom, grid=grid, _RC)
+         call ESMF_GeomBaseGet(geom, grid=grid, _RC)
          call ESMF_InfoGetFromHost(grid, info, _RC)
       case (ESMF_GEOMTYPE_LOCSTREAM%type) ! locstream
-         call ESMF_GeomGet(geom, locstream=locstream, _RC)
+         call ESMF_GeomBaseGet(geom, locstream=locstream, _RC)
          call ESMF_InfoGetFromHost(locstream, info, _RC)
       case (ESMF_GEOMTYPE_MESH%type) ! locstream
-         call ESMF_GeomGet(geom, mesh=mesh, _RC)
+         call ESMF_GeomBaseGet(geom, mesh=mesh, _RC)
          call ESMF_InfoGetFromHost(mesh, info, _RC)
       case (ESMF_GEOMTYPE_XGRID%type) ! locstream
          _FAIL('ESMF Does not support info on ESMF_XGrid.')
-!!$         call ESMF_GeomGet(geom, xgrid=xgrid, _RC)
+!!$         call ESMF_GeomBaseGet(geom, xgrid=xgrid, _RC)
 !!$         call ESMF_InfoGetFromHost(xgrid, info, _RC)
       case default
          _FAIL('uninitialized geom?')
