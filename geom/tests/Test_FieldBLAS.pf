@@ -1,0 +1,962 @@
+#include "MAPL_Generic.h"
+
+! MACROS FOR TROUBLESHOOTING
+
+#ifdef SUCCESSFUL 
+#  undef SUCCESSFUL 
+#endif
+
+#define SUCCESSFUL 0
+
+#ifdef SUCCESS
+#  undef SUCCESS
+#endif
+
+#define SUCCESS(RC) (RC == SUCCESSFUL)
+
+#ifdef MSG
+#  undef MSG
+#endif
+
+#define MSG(DETAIL, STATUS) DETAIL // ': ' // rc_to_string(STATUS)
+
+#ifdef SET_RC
+#  undef SET_RC
+#endif
+
+#define SET_RC(RC, ST) if(present(RC)) RC = ST
+
+#ifdef RUNNING
+#  undef RUNNING
+#endif
+
+#define RUNNING(NAME) write(*, *) 'Running ' // NAME // ' ...'
+
+#ifdef PASSED
+#  undef PASSED
+#endif
+
+#define PASSED(NAME) write(*, *) ' passed.'
+
+! START MODULE TEST_FIELDSBLAS
+module Test_FieldBLAS
+
+! USE MODULES
+   use mapl3g_FieldBLAS
+   use ESMF
+   use funit
+   use MAPL_ExceptionHandling
+
+   implicit none
+
+! INTERFACES
+   interface mk_field
+      module procedure mk_field_r4
+      module procedure mk_field_r8
+   end interface mk_field
+
+   interface initialize_array
+      module procedure initialize_array_R4
+      module procedure initialize_array_R8
+   end interface initialize_array
+
+   interface write_array
+      module procedure write_array1dR4
+      module procedure write_array2dR4
+      module procedure write_array1dR8
+      module procedure write_array2dR8
+   end interface write_array
+
+   interface difference_string
+      module procedure difference_scalar
+      module procedure difference_array
+   end interface difference_string
+!   
+! VARIABLES
+   integer :: i
+   type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
+   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
+   integer, parameter :: MAX_INDEX_DEFAULT(*) = [4, 4]
+   integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1]
+   integer, parameter :: DIMR4_DEFAULT(*) = [4, 4]
+   integer, parameter :: DIMR8_DEFAULT(*) = [4, 4]
+   integer, parameter :: SIZE_R4 = 16
+   integer, parameter :: SIZE_R8 = 16
+
+   real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R4)], DIMR4_DEFAULT)
+   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT) 
+   
+   type(ESMF_Field) :: XR4
+   type(ESMF_Field) :: XR8
+   type(ESMF_Field) :: YR4
+   type(ESMF_Field) :: YR8
+   
+contains
+
+   ! HELPER TO CONVERT RC (INTEGER) TO STRING
+   function rc_to_string(rc) result(string)
+      integer, intent(in) :: rc
+      character(len=16) :: string 
+      string = ''
+      write(string, '(i16)') rc
+      string = trim(string)
+   end function rc_to_string
+
+   ! MAKE GRID FOR FIELDS
+   function mk_grid(regDecomp, minIndex, maxIndex, indexflag, grid_name, rc) result(grid)
+      integer, dimension(:), intent(in) :: regDecomp
+      integer, dimension(:), intent(in) :: minIndex
+      integer, dimension(:), intent(in) :: maxIndex
+      type(ESMF_Index_Flag), intent(in) :: indexflag
+      character(len=*), intent(in) :: grid_name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Grid) :: grid
+
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(regDecomp = regDecomp, maxIndex = maxIndex, minIndex = minIndex, indexflag = indexflag, name = grid_name, rc = status)
+      SET_RC(rc, status)
+   end function mk_grid
+   
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4)
+   function mk_field_r4(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+      real(kind=ESMF_KIND_R4), dimension(:,:), target, intent(in) :: farray
+      integer, dimension(:), intent(in) :: regDecomp
+      integer, dimension(:), intent(in) :: minIndex
+      integer, dimension(:), intent(in) :: maxIndex
+      type(ESMF_Index_Flag), intent(in) :: indexflag
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: ptr
+
+      integer :: status
+
+      field = mk_field_common(tk = ESMF_TYPEKIND_R4, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, rc = status)
+      if(SUCCESS(status)) then
+         call ESMF_FieldGet(field, farrayPtr = ptr, rc = status)
+         if(SUCCESS(status)) ptr => farray
+      end if
+      SET_RC(rc, status)
+   end function mk_field_r4
+
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8)
+   function mk_field_r8(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+      real(kind=ESMF_KIND_R8), dimension(:,:), target, intent(in) :: farray
+      integer, dimension(:), intent(in) :: regDecomp
+      integer, dimension(:), intent(in) :: minIndex
+      integer, dimension(:), intent(in) :: maxIndex
+      type(ESMF_Index_Flag), intent(in) :: indexflag
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: ptr
+
+      integer :: status
+
+      field = mk_field_common(tk = ESMF_TYPEKIND_R8, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, rc = status)
+      if(SUCCESS(status)) then
+         call ESMF_FieldGet(field, farrayPtr = ptr, rc = status)
+         if(SUCCESS(status)) ptr => farray
+      end if
+      SET_RC(rc, status)
+   end function mk_field_r8
+
+   function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+      type(ESMF_TypeKind_Flag), intent(in) :: tk
+      integer, dimension(:), intent(in) :: regDecomp
+      integer, dimension(:), intent(in) :: minIndex
+      integer, dimension(:), intent(in) :: maxIndex
+      type(ESMF_Index_Flag), intent(in) :: indexflag
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+      character(len=*), parameter :: GRID_SUFFIX = '_grid'
+      character(len=*), parameter :: FIELD_SUFFIX = '_field'
+      
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = mk_grid(regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, grid_name = name // GRID_SUFFIX, rc = status)
+      if(SUCCESS(status)) field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, rc=status)
+      SET_RC(rc, status)
+   end function mk_field_common
+
+   @Before
+   subroutine set_up_data()
+      implicit none
+
+      integer :: status
+
+      real(kind=ESMF_KIND_R4), parameter :: ADD_R4 = 100.0
+      real(kind=ESMF_KIND_R8), parameter :: ADD_R8 = 100.0
+      real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
+
+      allocate(y4array, source=R4_ARRAY_DEFAULT)
+      allocate(y8array, source=R8_ARRAY_DEFAULT)
+      y4array = y4array + ADD_R4
+      y8array = y8array + ADD_R8
+
+      XR4 = mk_field(R4_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4', rc = status)
+
+      YR4 = mk_field(y4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4', rc = status)
+
+      XR8 = mk_field(R8_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', rc = status)
+
+      YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', rc = status)
+
+   end subroutine set_up_data
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL32)
+   subroutine test_FieldCOPY_R4()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldCOPY_R4'
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+      
+      RUNNING(TEST_NAME)
+
+      x = XR4
+      y = YR4
+
+      call FieldCOPY(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Copy failed', status))
+      
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get source data pointer', status))
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get destination data pointer', status))
+
+      @assertEqual(x_ptr, y_ptr)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldCOPY_R4
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL64)
+   subroutine test_FieldCOPY_R8()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldCOPY_R8'
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+      
+      RUNNING(TEST_NAME)
+
+      x = XR8 
+      y = YR8
+
+      call FieldCOPY(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Copy failed', status))
+      
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get source data pointer', status))
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get destination data pointer', status))
+
+      @assertEqual(x_ptr, y_ptr)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldCOPY_R8
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL32 -> REAL64)
+   subroutine test_FieldCOPY_R4R8()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldCOPY_R4R8'
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+      
+      RUNNING(TEST_NAME)
+
+      x = XR4 
+      y = YR8
+
+      call FieldCOPY(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Copy failed', status))
+      
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get source data pointer', status))
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get destination data pointer', status))
+
+      @assertEqual(x_ptr, y_ptr)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldCOPY_R4R8
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL64 -> REAL32)
+   subroutine test_FieldCOPY_R8R4()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldCOPY_R8R4'
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+      
+      RUNNING(TEST_NAME)
+
+      x = XR8
+      y = YR4
+
+      call FieldCOPY(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Copy failed', status))
+      
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get source data pointer', status))
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get destination data pointer', status))
+
+      @assertTrue(all(are_almost_equal(x_ptr, y_ptr)), MSG('Values differ above threshold.', status))
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldCOPY_R8R4
+
+   @Test
+   ! Basic test of FieldSCAL subroutine (REAL32)
+   subroutine test_FieldSCAL_R4()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldSCAL_R4'
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      integer :: status, rc
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get initial x_ptr', status))
+      x_array = x_ptr
+
+      call FieldSCAL(a, x, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Scale failed', status))
+
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get data pointer', status))
+
+      @assertEqual(x_ptr, a*x_array)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldSCAL_R4
+
+   @Test
+   ! Basic test of FieldSCAL subroutine (REAL64)
+   subroutine test_FieldSCAL_R8()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldSCAL_R8'
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      integer :: status, rc
+
+      RUNNING(TEST_NAME)
+
+      x = XR8
+
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get initial x_ptr', status))
+      x_array = x_ptr
+
+      call FieldSCAL(a, x, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Scale failed', status))
+
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Failed to get data pointer', status))
+
+      @assertEqual(x_ptr, a*x_array)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldSCAL_R8
+
+   @Test
+   !
+   subroutine test_FieldAXPY_R4()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldAXPY_R4'
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: y_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+      y = YR4
+
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get initial x_ptr', status))
+      x_array = x_ptr
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get initial y_ptr', status))
+      y_array = y_ptr
+
+      call FieldAXPY(a, x, y, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed affine transformation', status))
+      
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get final x_ptr', status))
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get final y_ptr', status))
+
+      @assertEqual(y_ptr, a*x_array+y_array)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldAXPY_R4
+
+   @Test
+   !
+   subroutine test_FieldAXPY_R8()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldAXPY_R8'
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: y_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      RUNNING(TEST_NAME)
+
+      x = XR8
+      y = YR8
+
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get initial x_ptr', status))
+      x_array = x_ptr
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get initial y_ptr', status))
+      y_array = y_ptr
+
+      call FieldAXPY(a, x, y, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed affine transformation', status))
+      
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get final x_ptr', status))
+
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+      _ASSERT(status == ESMF_SUCCESS, MSG('Failed to get final y_ptr', status))
+
+      @assertEqual(y_ptr, a*x_array+y_array)
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldAXPY_R8
+
+   @Test
+   subroutine test_FieldGetLocalElementCount()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldGetLocalElementCount'
+      type(ESMF_Field) :: x
+      integer :: rank
+      integer, allocatable :: expected_count(:)
+      integer, allocatable :: actual_count(:)
+      integer :: status
+      
+      RUNNING(TEST_NAME)
+
+      x = XR4
+
+      call ESMF_FieldGet(x, rank=rank, rc = status)
+      @assertTrue(SUCCESS(status), message=MSG('Failed to get x field rank', status))
+      allocate(expected_count(rank))
+      call ESMF_FieldGet(x, localElementCount=expected_count, rc = status)
+      @assertTrue(SUCCESS(status), message=MSG('Failed to get expected_count', status))
+      actual_count = FieldGetLocalElementCount(x, rc = status)
+      @assertTrue(SUCCESS(status), message=MSG('FieldGetLocalElementCount failed to get element count', status))
+      @assertEqual(actual_count, expected_count)
+      if(allocated(expected_count)) deallocate(expected_count)
+   
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldGetLocalElementCount
+
+   @Test
+    !
+   subroutine test_FieldGetLocalSize()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldGetLocalSize'
+      type(ESMF_Field) :: x
+      integer :: status
+      integer :: rank
+      integer :: expected_size
+      integer :: actual_size
+      integer, allocatable :: element_count(:)
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+
+      call ESMF_FieldGet(x, rank=rank, rc = status)
+      @assertTrue(SUCCESS(status), message=MSG('Failed to get x field rank', status))
+      allocate(element_count(rank))
+      call ESMF_FieldGet(x, localElementCount=element_count, rc = status)
+      @assertTrue(SUCCESS(status), message=MSG('Failed to get element_count', status))
+      expected_size = sum(element_count)
+      actual_size=FieldGetLocalSize(x, rc = status)
+      @assertTrue(SUCCESS(status), message=MSG('Failed to get actual size', status))
+      @assertEqual(actual_size, expected_size)
+      if(allocated(element_count)) deallocate(element_count)
+
+      PASSED(TEST_NAME)
+   end subroutine test_FieldGetLocalSize
+
+   @Test
+   ! Test getting the c_ptr for a field
+   !wdb fixme  Should test more extensively for different ranks
+   !wdb fixme  Should test for ESMF_KIND_I4 and ESMF_KIND_I8
+   !wdb fixme  Should check c_cptr from tested method against independent test
+
+   subroutine test_FieldGetCptr()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldGetCptr'
+      type(ESMF_Field) :: x
+      type(c_ptr) :: cptr
+      integer :: status
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+      call FieldGetCptr(x, cptr, rc = status)
+      @assertTrue(SUCCESS(status), message='Unable to get c_ptr for rank-2 ESMF_KIND_R4 field')
+      
+      x = XR8
+      call FieldGetCptr(x, cptr, rc = status)
+      @assertTrue(SUCCESS(status), message='Unable to get c_ptr for rank-2 ESMF_KIND_R8 field')
+
+      PASSED(TEST_NAME)
+   end subroutine test_FieldGetCptr
+
+   @Test
+   !wdb fixme  Probably should test for non-conformable fields
+   subroutine test_FieldsAreConformableR4()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldsAreConformableR4'
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+      logical :: are_conformable
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+      y = YR4
+      are_conformable = .FALSE.
+      are_conformable = FieldsAreConformable(x, y, rc = status)
+      @assertTrue(are_conformable)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldsAreConformableR4
+
+   !wdb fixme  Probably should test for non-conformable fields
+   @Test
+   subroutine test_FieldsAreConformableR8()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldsAreConformableR8'
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+      logical :: are_conformable
+
+      RUNNING(TEST_NAME)
+
+      x = XR8
+      y = YR8
+      are_conformable = .FALSE.
+      are_conformable = FieldsAreConformable(x, y, rc = status)
+      @assertTrue(are_conformable)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_FieldsAreConformableR8
+
+   @Test
+   !
+   subroutine test_FieldsAreSameTypeKind()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldsAreSameTypeKind'
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+      logical :: are_same_typekind
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+      y = YR4
+      are_same_typekind = .FALSE.
+      are_same_typekind = FieldsAreSameTypeKind(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+      @assertTrue(are_same_typekind) 
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+
+      x = XR8
+      y = YR8
+      are_same_typekind = .FALSE.
+      are_same_typekind = FieldsAreSameTypeKind(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+      @assertTrue(are_same_typekind)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+
+      y = YR4
+      are_same_typekind = .TRUE.
+      are_same_typekind = FieldsAreSameTypeKind(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+      @assertFalse(are_same_typekind)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+
+      are_same_typekind = .TRUE.
+      are_same_typekind = FieldsAreSameTypeKind(y, x, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+      @assertFalse(FieldsAreSameTypeKind(y, x, rc = status))
+      _ASSERT(SUCCESS(status), MSG('Call failed', status))
+
+      PASSED(TEST_NAME)
+   end subroutine test_FieldsAreSameTypeKind
+
+   @Test
+   subroutine test_FieldConvertPrec_R4R8()
+      integer, parameter :: NROWS = 4
+      integer, parameter :: NCOLS = NROWS
+      type(ESMF_Field) :: r4_field, r8_field
+      real(kind=ESMF_KIND_R4) :: r4_data(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8) :: r8_data(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8) :: r8_converted(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8), pointer :: r8_pointer(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: r4_pointer(:,:) !wdb fixme delete
+      real(kind=ESMF_KIND_R4), allocatable :: r4_values(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: r8_values(:,:)
+      integer :: rc, status
+
+      call initialize_array(r4_data, 0.0, 1.0)
+      write(*, *) 'r4_data'
+      call write_array(r4_data)
+      r8_data = 0.0
+      write(*, *) 'r8_data'
+      call write_array(r8_data)
+      r8_converted = r4_data
+      write(*, *) 'r8_converted'
+      call write_array(r8_converted)
+
+      !wdb fixme delete
+      write(*, *) 'r4_data shape is: ', shape(r4_data)
+      write(*, *) 'r8_data shape is: ', shape(r8_data)
+      write(*, *) 'r8_converted shape is: ', shape(r8_converted)
+      !wdb fixme end delete
+      
+      r4_field = mk_field(r4_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
+         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
+         name = 'XR4', rc = status)
+      r8_field = mk_field(r8_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
+         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
+         name = 'YR8', rc = status)
+
+      call FieldConvertPrec(r4_field, r8_field, _RC)
+      call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
+      !wdb fixme delete
+      call ESMF_FieldGet(r4_field, farrayPtr = r4_pointer, _RC)
+      write(*, *) 'r4_pointer'
+      call write_array(r4_pointer)
+      r4_values = r4_pointer
+      write(*, *) 'r4_values'
+      call write_array(r4_values)
+      r8_values = r8_pointer
+      write(*, *) 'r8_values'
+      call write_array(r8_values)
+      write(*, *) 'r4_values shape is:', shape(r4_values)
+      write(*, *) 'r8_values shape is:', shape(r8_values)
+      !wdb fixme end delete
+!      @assertEqual(r8_converted, r8_pointer)
+
+   end subroutine test_FieldConvertPrec_R4R8
+
+   !@Test
+   !
+   subroutine test_FieldClone()
+      character(len=*), parameter :: TEST_NAME = 'test_FieldClone'
+      type(ESMF_Field) :: x, y
+
+      type(ESMF_ArraySpec) :: arrayspec
+      type(ESMF_Grid) :: grid
+      type(ESMF_StaggerLoc) :: staggerloc
+      integer, allocatable :: gridToFieldMap(:)
+      integer, allocatable :: ungriddedLBound(:)
+      integer, allocatable :: ungriddedUBound(:)
+      integer, allocatable :: totalLWidth(:,:)
+      integer, allocatable :: totalUWidth(:,:)
+
+      RUNNING(TEST_NAME)
+
+      x = XR4
+      call FieldClone(x, y, rc = status)
+      _ASSERT(SUCCESS(status), MSG('Clone failed:', status))
+
+      PASSED(TEST_NAME)
+   end subroutine test_FieldClone
+
+!wdb setup routines
+   subroutine initialize_array_R4(x, xmin, xrange)
+      real(ESMF_KIND_R4), intent(inout) :: x(:,:)
+      real(ESMF_KIND_R4), intent(in) :: xmin
+      real(ESMF_KIND_R4), intent(in) :: xrange
+      integer :: rc
+
+      _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
+      call random_number(x)
+      x = xrange * x + xmin
+
+   end subroutine initialize_array_R4
+
+   subroutine initialize_array_R8(x, xmin, xrange)
+      real(ESMF_KIND_R8), intent(inout) :: x(:,:)
+      real(ESMF_KIND_R8), intent(in) :: xmin
+      real(ESMF_KIND_R8), intent(in) :: xrange
+      integer :: rc
+
+      _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
+      call random_number(x)
+      x = xrange * x + xmin
+
+   end subroutine initialize_array_R8
+
+   elemental function are_almost_equal(x, y) result(almost_equal)
+      real(kind=ESMF_KIND_R4), parameter :: EPS = epsilon(real(1.0, kind=ESMF_KIND_R4))
+      real(kind=ESMF_KIND_R8), intent(in) :: x
+      real(kind=ESMF_KIND_R4), intent(in) :: y
+      logical :: almost_equal
+
+      if(y==0) then
+         almost_equal = (x==0)
+      elseif
+         almost_equal = (abs(x-y)/abs(y) < EPS)
+      end if
+
+   end function are_almost_equal
+
+   @Test
+   subroutine test_almost_equal_scalar()
+      character(len=*), parameter :: TEST_NAME = 'test_almost_equal_scalar'
+      real(kind=ESMF_KIND_R8), parameter :: X = 1.0 / 3.0
+      real(kind=ESMF_KIND_R4) :: y
+
+      RUNNING(TEST_NAME)
+
+      y = X
+      @assertTrue(are_almost_equal(X, y), difference_string(X, y))
+
+      PASSED(TEST_NAME)
+      
+   end subroutine test_almost_equal_scalar
+      
+!   @Test
+   subroutine test_almost_equal_array()
+      character(len=*), parameter :: TEST_NAME = 'test_almost_equal_array'
+      integer, parameter :: N = 3
+      real(kind=ESMF_KIND_R8), parameter :: DENOMS(N) = [3.0, 5.0, 7.0]
+      real(kind=ESMF_KIND_R8), parameter :: X(N) = 1.0 / DENOMS
+      real(kind=ESMF_KIND_R4) :: y(N)
+      integer :: i
+
+      RUNNING(TEST_NAME)
+
+      y = X
+
+      @assertTrue(all(are_almost_equal(x, y)), difference_string(x, y))
+
+      PASSED(TEST_NAME)
+
+   end subroutine test_almost_equal_array
+
+!wdb fixme delete debugging routine
+!   @test
+   subroutine test_pointer_size()
+      character(len=*), parameter :: TEST_NAME = 'test_pointer_size'
+      real(ESMF_KIND_R4), target :: x(16,16)
+      real(ESMF_KIND_R4), pointer :: xptr(:,:)
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer, allocatable :: shape_x(:)
+      integer, allocatable :: shape_xptr(:)
+      integer :: rc, status
+
+      RUNNING(TEST_NAME)
+      
+      write(*, *) 'BEFORE:'
+      shape_x = shape(x)
+      write(*, *) 'Shape x: ', shape_x
+      xptr => x
+      shape_xptr = shape(xptr)
+      @assertEqual(shape_x, shape_xptr)
+      write(*, *) 'Shape xptr: ', shape_xptr
+
+      grid = ESMF_GridCreateNoPeriDim(regDecomp = [2, 2], maxIndex = [16, 16], &
+         indexflag = INDEX_FLAG_DEFAULT, rc = status)
+      @assertEqual(status, 0)
+      field = ESMF_FieldCreate(grid = grid, typekind = ESMF_TYPEKIND_R4, rc = status)
+      @assertEqual(status, 0)
+      call ESMF_FieldGet(field, farrayPtr = xptr, rc = status)
+      @assertEqual(status, 0)
+      write(*, *) 'GET: Shape xptr: ', shape(xptr)
+      xptr => x
+      write(*, *) 'SET: Shape xptr: ', shape(xptr)
+
+      PASSED(TEST_NAME)
+   end subroutine test_pointer_size
+
+!wdb debugging procedures
+   subroutine write_array2dR4(array, fmtin)
+      real(kind=ESMF_KIND_R4), intent(in) :: array(:,:)
+      character(len=*), optional, intent(in) :: fmtin
+      integer :: i
+
+      do i=1, size(array, 1)
+         call write_array(array(i,:), fmtin)
+      end do
+      write(*,*)
+
+   end subroutine write_array2dR4
+
+   subroutine write_array1dR4(array, fmtin)
+      real(kind=ESMF_KIND_R4), intent(in) :: array(:)
+      character(len=*), optional, intent(in) :: fmtin
+      character(len=*), parameter :: FMT = '(E)'
+      character(len=:), allocatable :: fmtout
+      integer :: i
+
+      fmtout = FMT
+      if(present(fmtin)) fmtout = fmtin
+
+      do i = 1, size(array)
+         write(*, fmt=fmtout, advance='NO') array(i)
+      end do
+      write(*, *)
+
+   end subroutine write_array1dR4
+
+   subroutine write_array2dR8(array, fmtin)
+      real(kind=ESMF_KIND_R8), intent(in) :: array(:,:)
+      character(len=*), optional, intent(in) :: fmtin
+      integer :: i
+
+      do i=1, size(array, 1)
+         call write_array(array(i,:), fmtin)
+      end do
+      write(*,*)
+
+   end subroutine write_array2dR8
+
+   subroutine write_array1dR8(array, fmtin)
+      real(kind=ESMF_KIND_R8), intent(in) :: array(:)
+      character(len=*), optional, intent(in) :: fmtin
+      character(len=*), parameter :: FMT = '(D)'
+      character(len=:), allocatable :: fmtout
+      integer :: i
+
+      fmtout = FMT
+      if(present(fmtin)) fmtout = fmtin
+
+      do i = 1, size(array)
+         write(*, fmt=fmtout, advance='NO') array(i)
+      end do
+      write(*, *)
+
+   end subroutine write_array1dR8
+
+   function difference_scalar(x, y) result(string)
+      character(len=*), parameter :: fmt_ = '(D)'
+      real(kind=ESMF_KIND_R8), intent(in) :: x
+      real(kind=ESMF_KIND_R4), intent(in) :: y
+      character(len=:), allocatable :: string
+      character(len=32) :: string_
+      write(string_, fmt=fmt_) abs(x-y)
+      string = trim(string_)
+   end function difference_scalar
+
+   function difference_array(x, y) result(string)
+      character(len=*), parameter :: fmt_ = '(D)'
+      real(kind=ESMF_KIND_R8), intent(in) :: x(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: y(:)
+      character(len=:), allocatable :: string
+      character(len=32) :: string_
+      write(string_, fmt=fmt_) maxval(abs(x-y))
+      string = trim(string_)
+   end function difference_array
+end module Test_FieldBLAS
+!   @Test
+!   !
+!   subroutine test_FieldGEMV_R4()
+!      character(len=*), parameter :: TEST_NAME = 'test_FieldGEMV_R4'
+!      real(kind=ESMF_KIND_R4), parameter :: alpha = 3.0
+!      real(kind=ESMF_KIND_R4), parameter :: A(*,*,*)
+!      type(ESMF_Field) :: x
+!      real(kind=ESMF_KIND_R4), parameter :: beta = 2.0
+!      type(ESMF_Field) :: y
+!      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+!      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+!      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: y_array
+!      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+!      integer :: status, rc
+
+!      RUNNING(TEST_NAME)
+!      allocate(x_array, source = R4_ARRAY_DEFAULT)
+!      allocate(y_array, source = R4_ARRAY_DEFAULT)
+!      y_array = y_array + 100
+
+!      do while(.TRUE.)
+!         x = mk_field(x_array, rc = status)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         y = mk_field(y_array, rc = status)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         call FieldAXPY(a, x, y, rc = status)
+!         if(status /= ESMF_SUCCESS) exit
+!         
+!         call ESMF_FieldGet(x, farrayPtr = x_ptr, rc = status)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         call ESMF_FieldGet(y, farrayPtr = y_ptr, rc = status)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         @assertEqual(y_ptr, a*x_array+y_array)
+!         exit
+!      end do
+!
+!      PASSED(TEST_NAME)
+!   end subroutine test_FieldGEMV_R4
+
+!   @Test
+!   !
+!   subroutine test_FieldSpread()
+!      character(len=*), parameter :: TEST_NAME = 'test_FieldSpread'
+!      RUNNING(TEST_NAME)
+!      PASSED(TEST_NAME)
+!   end subroutine test_FieldSpread
