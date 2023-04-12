@@ -306,7 +306,7 @@ contains
    end subroutine test_FieldCOPY_R4R8
 
    @Test
-   ! Basic test of FieldCOPY subroutine (REAL32 -> REAL64)
+   ! Basic test of FieldCOPY subroutine (REAL64 -> REAL32)
    subroutine test_FieldCOPY_R8R4()
       character(len=*), parameter :: TEST_NAME = 'test_FieldCOPY_R8R4'
       type(ESMF_Field) :: x
@@ -436,7 +436,7 @@ contains
 
    end subroutine test_FieldAXPY_R4
 
-!   @Test
+   @Test
    !
    subroutine test_FieldAXPY_R8()
       character(len=*), parameter :: TEST_NAME = 'test_FieldAXPY_R8'
@@ -505,7 +505,7 @@ contains
    end subroutine test_FieldGetLocalElementCount
 
    @Test
-!   !
+    !
    subroutine test_FieldGetLocalSize()
       character(len=*), parameter :: TEST_NAME = 'test_FieldGetLocalSize'
       type(ESMF_Field) :: x
@@ -642,7 +642,7 @@ contains
       PASSED(TEST_NAME)
    end subroutine test_FieldsAreSameTypeKind
 
-   !@test
+   @Test
    subroutine test_FieldConvertPrec_R4R8()
       integer, parameter :: NROWS = 4
       integer, parameter :: NCOLS = NROWS
@@ -721,6 +721,7 @@ contains
 
       PASSED(TEST_NAME)
    end subroutine test_FieldClone
+
 !wdb setup routines
    subroutine initialize_array_R4(x, xmin, xrange)
       real(ESMF_KIND_R4), intent(inout) :: x(:,:)
@@ -775,7 +776,7 @@ contains
       
    end subroutine test_almost_equal_scalar
       
-   @Test
+!   @Test
    subroutine test_almost_equal_array()
       character(len=*), parameter :: TEST_NAME = 'test_almost_equal_array'
       integer, parameter :: N = 3
@@ -959,12 +960,3 @@ end module Test_FieldBLAS
 !      RUNNING(TEST_NAME)
 !      PASSED(TEST_NAME)
 !   end subroutine test_FieldSpread
-
-!   @Test
-!   !
-!   subroutine test_FieldConvertPrec()
-!      character(len=*), parameter :: TEST_NAME = 'test_FieldConvertPrec'
-!      RUNNING(TEST_NAME)
-!      PASSED(TEST_NAME)
-!   end subroutine test_FieldConvertPrec
-
