@@ -1,7 +1,3 @@
-!wdb  return if
-!wdb  use asserts in tests
-!wdb  use setup procedures to create fields
-
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldBLAS
@@ -43,8 +39,8 @@ module mapl3g_FieldBLAS
    
 
    ! Misc utiliities
-!   public :: FieldSpread
-!   public :: FieldClone
+   public :: FieldSpread
+   public :: FieldClone
    public :: FieldConvertPrec
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
@@ -99,6 +95,14 @@ module mapl3g_FieldBLAS
       module procedure convert_prec
    end interface FieldConvertPrec
    
+   interface FieldSpread
+      module procedure spread_scalar
+   end interface FieldSpread
+
+   interface FieldClone
+      module procedure clone
+   end interface FieldClone
+
    interface assign_fptr 
       module procedure assign_fptr_r4_rank1
       module procedure assign_fptr_r8_rank1
@@ -117,6 +121,7 @@ module mapl3g_FieldBLAS
 
 contains
 
+   !wdb fixme  Is this a deep copy?
    subroutine copy(x, y, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
@@ -131,8 +136,9 @@ contains
       logical :: y_is_double
       character(len=*), parameter :: UNSUPPORTED_TK = &
          'Unsupported typekind in FieldCOPY() for '
-   
+    
       conformable = FieldsAreConformable(x, y)
+      !wdb fixme need to pass RC
       _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
       call FieldGetCptr(x, cptr_x, _RC)
       call ESMF_FieldGet(x, typekind = tk_x, _RC) 
@@ -277,8 +283,8 @@ contains
       integer, optional, intent(out) :: rc
 
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:), y_ptr(:)
-      integer :: status
       logical :: conformable
+      integer :: status
 
       call verify_typekind(x, ESMF_TYPEKIND_R8)
       call verify_typekind(y, ESMF_TYPEKIND_R8)
@@ -355,6 +361,7 @@ contains
    end subroutine gemv_r4
 
    ! Double precision version (R8) of gemv. See gemv_r4 (single precision)
+
    subroutine gemv_r8(alpha, A, x, beta, y, rc)
       real(kind=ESMF_KIND_R8), intent(in) :: alpha
       real(kind=ESMF_KIND_R8), intent(in) :: A(:,:,:)
@@ -408,6 +415,56 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gemv_r8
+
+   function spread_scalar(source, ncopies, rc) result(vector)
+      type(ESMF_Field), intent(inout) :: source
+      integer, intent(in) :: ncopies
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field), allocatable :: vector(:)
+      integer :: i
+      integer :: status
+
+      _ASSERT(ncopies > 0, 'ncopies must be positive')
+      
+      allocate(vector(ncopies))
+
+      do i=1, ncopies
+         call FieldCOPY(source, vector(i), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function spread_scalar
+
+   subroutine clone(x, y, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+      
+      character(len=*), parameter :: CLONE='_clone'
+      type(ESMF_ArraySpec) :: arrayspec
+      type(ESMF_Grid) :: grid
+      type(ESMF_StaggerLoc) :: staggerloc
+      integer, allocatable :: gridToFieldMap(:)
+      integer, allocatable :: ungriddedLBound(:)
+      integer, allocatable :: ungriddedUBound(:)
+      integer, allocatable :: totalLWidth(:,:)
+      integer, allocatable :: totalUWidth(:,:)
+      character(len=:), allocatable :: name
+
+      call ESMF_FieldGet(x, arrayspec=arrayspec, grid=grid, &
+         staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
+         ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, &
+         totalLWidth=totalLWidth, totalUWidth=totalUWidth, _RC)
+
+      name = name // CLONE
+
+      y = ESMF_FieldCreate(grid, arrayspec, staggerloc=staggerloc, &
+         gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
+         ungriddedUBound=ungriddedUBound, totalLWidth=totalLWidth, &
+         totalUWidth=totalUWidth, name=name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine clone
 
    subroutine get_typekind(x, expected_tks, actual_tk, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -483,9 +540,9 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
-      call FieldGetCptr(x, cptr, _RC)
       local_size = FieldGetLocalSize(x, _RC)
       fp_shape = [ local_size ]
+      call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
@@ -502,9 +559,9 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
-      call FieldGetCptr(x, cptr, _RC)
       local_size = FieldGetLocalSize(x, _RC)
       fp_shape = [ local_size ]
+      call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
 
       _RETURN(_SUCCESS)
@@ -728,8 +785,10 @@ contains
       type(ESMF_TypeKind_Flag) :: tk_x, tk_y
       integer :: status
 
-      call get_typekind(x, expected_tks, tk_x, _RC) 
-      call get_typekind(y, expected_tks, tk_y, _RC) 
+      call ESMF_FieldGet(x, typekind=tk_x, _RC)
+      _ASSERT(is_valid_typekind(tk_x, expected_tks), 'Unexpected typekind')
+      call ESMF_FieldGet(y, typekind=tk_y, _RC)
+      _ASSERT(is_valid_typekind(tk_y, expected_tks), 'Unexpected typekind')
 
       if(tk_x == tk_y) then
          call FieldCOPY(x, y, _RC)
@@ -741,37 +800,51 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine convert_prec
+   
+   function is_valid_typekind(actual_tk, valid_tks) result(is_valid)
+      type(ESMF_TypeKind_Flag), intent(in) :: actual_tk
+      type(ESMF_TypeKind_Flag), intent(in) :: valid_tks(:)
+      logical :: is_valid
+      integer :: i
 
-   subroutine convert_prec_R4_to_R8(x, y, rc)
-      type(ESMF_Field), intent(inout) :: x
-      type(ESMF_Field), intent(inout) :: y
+      is_valid = .FALSE.
+      do i = 1, size(valid_tks)
+         is_valid = (actual_tk == valid_tks(i))
+         if(is_valid) return
+      end do
+
+   end function is_valid_typekind
+
+   subroutine convert_prec_R4_to_R8(original, converted, rc)
+      type(ESMF_Field), intent(inout) :: original
+      type(ESMF_Field), intent(inout) :: converted
       integer, optional, intent(out) :: rc
       integer :: status
 
-      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
-      real(kind=ESMF_KIND_R8), pointer :: y_ptr(:)
-      
-      call assign_fptr(x, x_ptr, _RC)
-      call assign_fptr(y, y_ptr, _RC)
+      real(kind=ESMF_KIND_R4), pointer :: original_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: converted_ptr(:)
 
-      y_ptr = x_ptr
+      call assign_fptr(original, original_ptr, _RC)
+      call assign_fptr(converted, converted_ptr, _RC)
+
+      converted_ptr = original_ptr
 
       _RETURN(_SUCCESS)
    end subroutine convert_prec_R4_to_R8
 
-   subroutine convert_prec_R8_to_R4(x, y, rc)
-      type(ESMF_Field), intent(inout) :: x
-      type(ESMF_Field), intent(inout) :: y
+   subroutine convert_prec_R8_to_R4(original, converted, rc)
+      type(ESMF_Field), intent(inout) :: original
+      type(ESMF_Field), intent(inout) :: converted
       integer, optional, intent(out) :: rc
       integer :: status
 
-      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
-      real(kind=ESMF_KIND_R4), pointer :: y_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: original_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: converted_ptr(:)
       
-      call assign_fptr(x, x_ptr, _RC)
-      call assign_fptr(y, y_ptr, _RC)
+      call assign_fptr(original, original_ptr, _RC)
+      call assign_fptr(converted, converted_ptr, _RC)
 
-      y_ptr = x_ptr
+      converted_ptr = original_ptr
 
       _RETURN(_SUCCESS)
    end subroutine convert_prec_R8_to_R4
