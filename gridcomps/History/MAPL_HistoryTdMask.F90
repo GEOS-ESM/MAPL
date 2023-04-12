@@ -169,7 +169,7 @@ contains
     integer :: ndes
     integer :: dimCount
     
-    integer :: Xdim, Ydim, nx, npts
+    integer :: Xdim, Ydim, nx, npts, nx_0
     character(len=ESMF_MAXPATHLEN) :: s1, s2, s3, s4
     type(ESMF_time) :: start_time
     type(ESMF_time) :: start_time_aux
@@ -182,7 +182,7 @@ contains
     integer, allocatable :: II(:)
     integer, allocatable :: JJ(:)
 
-    integer :: i,j
+    integer :: i, j, k
     
     ! s1. get esmf grid dim, set default mask=.F.
     !
@@ -219,18 +219,19 @@ contains
 
     ! allocate arrays
     nx=0
-    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end)
+    do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end )
        call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
        nx = nx + Xdim*Ydim
        write(6,121) 'nx increase', Xdim*Ydim
        write(6,102) 'fname', trim(fname)
        start_time = start_time + this%obs_interval
     enddo
+    nx_0 = nx
     write(6,121) 'nx final:', nx
 
-    if (nx > 0) then
-       allocate(obs_lons(nx), obs_lats(nx))
-       allocate(II(nx), JJ(nx))
+    if (nx_0 > 0) then
+       allocate(obs_lons(nx_0), obs_lats(nx_0))
+       allocate(II(nx_0), JJ(nx_0))
     end if
     
     ! fill in arrays [repeat loop]
@@ -251,31 +252,40 @@ contains
        start_time = start_time + this%obs_interval
     enddo
     this%mask_start=start_time
+    if (nx /= nx_0)  STOP 'failed in MAPL_HistoryTdMask.F90: nx /= nx_0'
     !! write(6,203) obs_lons(1:nx:100)
 
 
     ! s3. find index [loc/global] via bisect for CS/LL
     !
-    if (nx >0) then
+    if (nx > 0  .AND. nx.EQ.nx_0 ) then
+       !
+       !-   12-Apr-2023:
+       !    Find a bug when using MAPL_GetGlobalHorzIJIndex
+       !    code hangs, appears to associated with lingering memory
+       !    from allcoate/deallcoate therein
+       
        call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
        !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
+
+       enddo
+       stop -1
+       
        do i=1, nx
           if ( II(i)>0 .AND. JJ(i)>0 ) then
              this%mask( II(i), JJ(i) ) = .true.
           endif
        enddo
-!       write(6,123) (II(i), i=1,nx,100)
-!       write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
-    endif
+       write(6,123) (II(i), i=1,nx,100)
+       write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
 
-    write(6,*) 'nail end of  get_mask : 1'
-
-    if (nx > 0) then    
        deallocate(obs_lons, obs_lats)
        deallocate(II, JJ)
     endif
+ 
+    
     deallocate(this%mask)
-
+    
     write(6,*) 'nail end of  get_mask : 2'
     
     include "/users/yyu11/sftp/myformat.inc"  
