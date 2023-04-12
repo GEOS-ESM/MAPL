@@ -38,7 +38,7 @@ module MAPL_LoadBalanceMod
 
   character*30 :: Iam="MAPL_LoadBalanceMod in line "
 
-!!!===============================================================
+!---------------------------------------------------------------------------
 
 !  EXAMPLE
 
@@ -79,7 +79,7 @@ module MAPL_LoadBalanceMod
 !      ENDDO
 !      ...
 
-!!!===============================================================
+!---------------------------------------------------------------------------
 
 contains
 
@@ -185,7 +185,7 @@ contains
     _RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceWork4
 
-!!!===============================================================
+!---------------------------------------------------------------------------
 
   subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
     real(kind=MAPL_R8), intent(INOUT) :: A(:)
@@ -289,7 +289,7 @@ contains
     _RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceWork8
 
-!!!===============================================================
+!---------------------------------------------------------------------------
 
   subroutine MAPL_BalanceCreate(OrgLen, Comm, MaxPasses, BalCond, &
                                 Handle, BalLen, BufLen, rc)
@@ -473,7 +473,7 @@ contains
 
   end subroutine MAPL_BalanceCreate
 
-!!!===============================================================
+!---------------------------------------------------------------------------
 
   subroutine MAPL_BalanceDestroy(Handle, rc)
     integer, optional, intent(IN ) :: Handle
@@ -505,7 +505,7 @@ contains
     _RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceDestroy
 
-!!!===============================================================
+!---------------------------------------------------------------------------
 
   subroutine MAPL_BalanceGet(Handle, BalLen, BufLen, Passes, Comm, rc)
     integer,           intent(IN ) :: Handle

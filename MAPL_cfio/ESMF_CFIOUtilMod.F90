@@ -1,26 +1,30 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 #include "unused_dummy.H"
-!==============================================================================
-!BOP
-! !MODULE: ESMF_CFIOUtil.F90 - utility subroutines for CFIO
-
+!
+!>
+!### MODULE: `ESMF_CFIOUtilMod`
+!
+! Author: GMAO SI-Team
+!
+! `ESMF_CFIOUtilMod` - utility subroutines for CFIO
+!
+! The module `ESMF_CFIOUtilMod` provides all the necessary utility subroutines for CFIO.
+!
+!#### History
+!- Sep2004  Baoyu Yin  Modified from ESMF_CFIOMod.F90.
+!- Mar2005  Baoyu Yin  Integrated all routines of GFIO into CFIO.
+!- Apr2005  Baoyu Yin  Added Get_Missing routine
+!- Apr2006  da Silva   Incorporated m_StrTemplate to eliminate mpeu dependency.
+!- Jun2006  Baoyu yin  Added cyclic option to GetVar.
+!- Jul2006  da Silva   Eliminated read(str,fmt) to parse time; replaced
+!   with more robust mod() calculations.
+!
        module ESMF_CFIOUtilMod
 !
-! !DESCRIPTION:
-!
-! providing utility subroutines for CFIO.
-!
-! This module provides all the necessary utility subroutines for CFIO.
-!
-! !REVISION HISTORY:
-!
-!  Sep2004  Baoyu Yin  Modified from ESMF_CFIOMod.F90.
-!  Mar2005  Baoyu Yin  Integrated all routines of GFIO into CFIO.
-!  Apr2005  Baoyu Yin  Added Get_Missing routine
-!  Apr2006  da Silva   Incorporated m_StrTemplate to eliminate mpeu dependency.
-!  Jun2006  Baoyu yin  Added cyclic option to GetVar.
-!  Jul2006  da Silva   Eliminated read(str,fmt) to parse time; replaced
-!                      with more robust mod() calculations.
-!------------------------------------------------------------------------------
 ! !USES:
 
       use ESMF_CFIOBaseMod
@@ -105,15 +109,12 @@
       contains
 
 
-!------------------------------------------------------------------------------!BOP
-! !ROUTINE: addList -- put user defined attribute into a list
-!
-! !INTERFACE:
+!------------------------------------------------------------------------------
+!>
+! `addList` -- put user defined attribute into a list.
 !
         subroutine addList(name, count, vName, attInt, attChar, attReal, &
                            iList, rList, cList)
-!
-! !ARGUMENTS:
 !
 ! !INPUT PARAMETERS:
 !
@@ -126,13 +127,10 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-           type(iNode), pointer, OPTIONAL :: iList  ! int list
-           type(rNode), pointer, OPTIONAL :: rList  ! real list
-           type(cNode), pointer, OPTIONAL :: cList  ! char list
+           type(iNode), pointer, OPTIONAL :: iList  !! int list
+           type(rNode), pointer, OPTIONAL :: rList  !! real list
+           type(cNode), pointer, OPTIONAL :: cList  !! char list
 !
-! !DESCRIPTION:
-!     put user defined attribute into a list
-!EOP
 !------------------------------------------------------------------------------
            type(iNode), pointer :: p, q
            type(rNode), pointer :: rp, rq
@@ -234,42 +232,36 @@
 
         end subroutine addList
 
-!------------------------------------------------------------------------------!BOP
-! !ROUTINE: getList -- retrieve attributes from a list
-!
-! !INTERFACE:
+!------------------------------------------------------------------------------
+!>
+! `getList` -- retrieve defined attributes from a list
 !
    subroutine getList(iList, nIntAtt, intAttNames, intAttCnts, intAtts,     &
                       rList, nRealAtt, realAttNames, realAttCnts, realAtts, &
                       cList, nCharAtt, charAttNames, charAttCnts, charAtts, vNames)
 !
-! !ARGUMENTS:
-!
 ! !INPUT PARAMETERS:
 !
-           type(iNode), pointer, OPTIONAL :: iList   ! int list
-           type(cNode), pointer, OPTIONAL :: cList   ! real list
-           type(rNode), pointer, OPTIONAL :: rList   ! char list
+           type(iNode), pointer, OPTIONAL :: iList   !! int list
+           type(cNode), pointer, OPTIONAL :: cList   !! real list
+           type(rNode), pointer, OPTIONAL :: rList   !! char list
 !
 ! !OUTPUT PARAMETERS:
 !
-           integer, OPTIONAL :: nIntAtt              ! num of int att
-           integer, OPTIONAL :: nRealAtt             ! num of real att
-           integer, OPTIONAL :: nCharAtt             ! num of char att
+           integer, OPTIONAL :: nIntAtt              !! num of int att
+           integer, OPTIONAL :: nRealAtt             !! num of real att
+           integer, OPTIONAL :: nCharAtt             !! num of char att
            character(len=MLEN), pointer, OPTIONAL :: intAttNames(:)
            character(len=MLEN), pointer, OPTIONAL :: realAttNames(:)
            character(len=MLEN), pointer, OPTIONAL :: charAttNames(:)
-           integer, OPTIONAL, pointer :: intAttCnts(:) !data count in int att
-           integer, OPTIONAL, pointer :: realAttCnts(:)!data count in real att
-           integer, OPTIONAL, pointer :: charAttCnts(:)!data count in char att
-           integer, OPTIONAL, pointer :: intAtts(:,:)  !int attribute
-           real, OPTIONAL, pointer :: realAtts(:,:)    !real attribute
-           character(len=MLEN), pointer, OPTIONAL :: charAtts(:) ! char att
+           integer, OPTIONAL, pointer :: intAttCnts(:) !!data count in int att
+           integer, OPTIONAL, pointer :: realAttCnts(:)!!data count in real att
+           integer, OPTIONAL, pointer :: charAttCnts(:)!!data count in char att
+           integer, OPTIONAL, pointer :: intAtts(:,:)  !!int attribute
+           real, OPTIONAL, pointer :: realAtts(:,:)    !!real attribute
+           character(len=MLEN), pointer, OPTIONAL :: charAtts(:) !! char att
            character(len=MLEN), pointer, OPTIONAL :: vNames(:)
 !
-! !DESCRIPTION:
-!     retrieve user defined attributes from a list
-!EOP
 !------------------------------------------------------------------------------
            type(iNode), pointer :: p    ! pointer for integer list
            type(rNode), pointer :: rp   ! pointer for real list
@@ -342,14 +334,13 @@
         end subroutine getList
 
 !------------------------------------------------------------------------------
-!BOP
-! !ROUTINE: getMaxLenCnt -- get length of a list and max number of data
-!                           in the nodes
+!>
+! `getMaxLenCnt` -- get length of a list and max number of data in the nodes
 !
-! !INTERFACE:
+! Get length of a list and max number of data in the nodes so that
+! maxLen/count can been used to allocate array.
+!
         subroutine getMaxLenCnt(maxLen, count, iList, rList, cList)
-!
-! !ARGUMENTS:
 !
 ! !INPUT PARAMETERS:
 !
@@ -362,10 +353,6 @@
            integer, intent(out) :: maxLen
            integer, intent(out) :: count
 !
-! !DESCRIPTION:
-!     get length of a list and max number of data in the nodes so that
-!     maxLen/count can been used to allocate array.
-!EOP
 !------------------------------------------------------------------------------
            type(iNode), pointer :: p     ! int pointer for int list
            type(rNode), pointer :: rp    ! real pointer for real list
@@ -414,17 +401,23 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
 !
-! !ROUTINE:  CFIO_DimInquire -- Gets dimension information from a CFIO file.
+! `CFIO_DimInquire` -- Gets dimension information from a CFIO file.
 !
-! !DESCRIPTION: This routine is used to get dimension information from
-!               an existing CFIO file.  This dimension information can
-!               subsequently be used to allocate arrays for reading data
-!               from the file.  For more complete information about the
-!               contents of a file, Cfio\_Inquire should be used.
-
-! !INTERFACE:
+! This routine is used to get dimension information from
+! an existing CFIO file.  This dimension information can
+! subsequently be used to allocate arrays for reading data
+! from the file.  For more complete information about the
+! contents of a file, Cfio\_Inquire should be used.
+!
+!#### History
+!- 1998.07.02  Lucchesi           Initial interface design.
+!- 1998.08.05  Lucchesi           Added "ngatts"
+!- 1998.09.24  Lucchesi           Revamped error codes
+!- 1998.12.22  Lucchesi           Added IdentifyDim and associated code
+!- 1999.01.04  Lucchesi           Changed variable initialization
+!- 2008.03.14  Kokron             Initialize stationFile to false
 !
       subroutine CFIO_DimInquire (fid,im,jm,km,lm,nvars,ngatts,vdir,rc)
 !
@@ -438,44 +431,31 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     im     ! Size of longitudinal dimension
-      integer     jm     ! Size of latitudinal dimension
-      integer     km     ! Size of vertical dimension
-                         !   km=0 if surface-only file
-      integer     lm     ! Number of times
-      integer     nvars  ! Number of variables
-      integer     ngatts ! Number of global attributes
-      integer, optional :: vdir   ! Positive vertical direction. If "-1", level 1 in
-                         !   the file is TOA. If "1", level 1 in the file is
-                         !   the surface. If 0, the file has no vertical
-                         !   co-ordinate (default).
-      integer, optional :: rc     ! Error return code:
-
-                         !  rc = 0    all is well
-                         !  rc = -19  unable to identify coordinate variable
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -53  error from NF90_GET_ATT
-
-
-
-! !REVISION HISTORY:
+      integer     im     !! Size of longitudinal dimension
+      integer     jm     !! Size of latitudinal dimension
+      integer     km     !! Size of vertical dimension
+                         !!   km=0 if surface-only file
+      integer     lm     !! Number of times
+      integer     nvars  !! Number of variables
+      integer     ngatts !! Number of global attributes
+      integer, optional :: vdir   !! Positive vertical direction.    
+                         !! If `-1`, level 1 in the file is TOA.    
+                         !! If `1`, level 1 in the file is the surface.    
+                         !! If `0`, the file has no vertical co-ordinate (default).
+      integer, optional :: rc     !! Error return code:     
+                         !!  rc = 0    all is well     
+                         !!  rc = -19  unable to identify coordinate variable     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!  rc = -40  error from NF90_INQ_VARID     
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
+                         !!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)     
+                         !!  rc = -48  error from NF90_INQUIRE     
+                         !!  rc = -53  error from NF90_GET_ATT     
 !
-!  1998.07.02  Lucchesi           Initial interface design.
-!  1998.08.05  Lucchesi           Added "ngatts"
-!  1998.09.24  Lucchesi           Revamped error codes
-!  1998.12.22  Lucchesi           Added IdentifyDim and associated code
-!  1999.01.04  Lucchesi           Changed variable initialization
-!  2008.03.14  Kokron             Initialize stationFile to false
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer dimId, i
@@ -628,13 +608,16 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+!  `GetDateTimeVec` - Get date/time of file samples
 !
-! !ROUTINE:  GetDateTimeVec - Get date/time of file samples
+! This routine returns the date/times on file.
 !
-! !DESCRIPTION: This routine returns the date/times on file.
-!
-! !INTERFACE:
+!#### History
+!- 1999.11.01  da Silva  Initial code.
+!- 1999.11.08  da Silva  Generic time coordinate variable (no name assumed).
+!- 2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider variety of Units formats.
+!- 2016.12.06  Eastham   Adapted to return the vector of offsets instead
 !
       subroutine GetDateTimeVec ( fid, begDate, begTime, incVec, rc )
 !
@@ -644,24 +627,15 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer fid      ! file ID
+      integer fid      !! file ID
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer               :: begDate   ! Beginning date
-      integer               :: begTime   ! Beginning time
-      integer(Kind=INT64) :: incVec(:) ! Vector of offsets (seconds)
-      integer               :: rc        ! error return code
+      integer               :: begDate   !! Beginning date
+      integer               :: begTime   !! Beginning time
+      integer(Kind=INT64) :: incVec(:) !! Vector of offsets (seconds)
+      integer               :: rc        !! error return code     
 !
-! !REVISION HISTORY:
-!
-!  1999.11.01  da Silva  Initial code.
-!  1999.11.08  da Silva  Generic time coordinate variable (no name assumed).
-!  2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider
-!                        variety of Units formats.
-!  2016.12.06  Eastham   Adapted to return the vector of offsets instead
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer i, timeId, hour, min, sec, corner(1)
@@ -833,16 +807,18 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `GetBegDateTime` - Get begin date/time of file
 !
-! !ROUTINE:  GetBegDateTime - Get begin date/time of file
+! This routine returns the begin date/begin time on file.
+! For a native CFIO file, it simply returns the value of
+! global attributes begin_date/begin_time. If these do no exist then
+! it attempts to parse the COARDS compliant time unit.
 !
-! !DESCRIPTION: This routine returns the begin date/begin time on file.
-!               For a native CFIO file, it simply returns the value of
-!  global attributes begin_date/begin_time. If these do no exist then
-!  it attempts to parse the COARDS compliant time unit.
-!
-! !INTERFACE:
+!#### History
+!- 1999.11.01  da Silva  Initial code.
+!- 1999.11.08  da Silva  Generic time coordinate variable (no name assumed).
+!- 2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider variety of Units formats.
 !
       subroutine GetBegDateTime ( fid, begDate, begTime, incSecs, rc )
 !
@@ -852,23 +828,15 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer fid      ! file ID
+      integer fid      !! file ID
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer begDate  ! beginning date
-      integer begTime  ! beginning time
-      integer incSecs  ! time increment in secs
-      integer rc       ! error return code
+      integer begDate  !! beginning date
+      integer begTime  !! beginning time
+      integer incSecs  !! time increment in secs
+      integer rc       !! error return code
 !
-! !REVISION HISTORY:
-!
-!  1999.11.01  da Silva  Initial code.
-!  1999.11.08  da Silva  Generic time coordinate variable (no name assumed).
-!  2000.10.18  Lucchesi  Added ParseTimeUnits subroutine to handle a wider
-!                        variety of Units formats.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer i, timeId, hour, min, sec, corner(1), timInc
@@ -1052,16 +1020,26 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `IdentifyDim` - Identify a cooridate variable
 !
-! !ROUTINE:  IdentifyDim - Identify a cooridate variable
+! This function attempts to identify a coordiante variable
+! from the name or units of the variable.  It does so by
+! attempting to match the units specified in the COARDS
+! conventions or by checking the name against commonly used
+! names.
 !
-! !DESCRIPTION: This function attempts to identify a coordiante variable
-!               from the name or units of the variable.  It does so by
-!               attempting to match the units specified in the COARDS
-!               conventions or by checking the name against commonly used
-!               names.
-! !INTERFACE:
+! RETURN VALUES:
+!*  0 = X dimension (longitude)
+!*  1 = Y dimension (latitude)
+!*  2 = Z dimension (level)
+!*  3 = Time
+!* -1 = Unable to determine dimension
+!
+!#### History
+!- 1998.12.22  Lucchesi       Initial coding.
+!- 1999.11.02  da Silva       Made LATS4D compatible,
+!- 2001.01.02  da Silva       Cimcurventing PGI bugs.
 !
       integer function IdentifyDim (dimName, dimUnits)
 !
@@ -1071,24 +1049,9 @@
 !
 ! !INPUT PARAMETERS:
 !
-      character*(*) dimName  ! Name of the coordinate variable
-      character*(*) dimUnits ! Units of the coordinate variable
+      character*(*) dimName  !! Name of the coordinate variable
+      character*(*) dimUnits !! Units of the coordinate variable
 !
-! !RETURN VALUES:
-!
-!     0 = X dimension (longitude)
-!     1 = Y dimension (latitude)
-!     2 = Z dimension (level)
-!     3 = Time
-!    -1 = Unable to determine dimension
-!
-! !REVISION HISTORY:
-!
-!  1998.12.22  Lucchesi       Initial coding.
-!  1999.11.02  da Silva       Made LATS4D compatible,
-!  2001.01.02  da Silva       Cimcurventing PGI bugs.
-!
-!EOP
 !-------------------------------------------------------------------------
 
         if (TRIM(dimUnits) .EQ. "degrees_north" ) then
@@ -1170,16 +1133,17 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `strToInt` - convert timeString to integer date and time
 !
-! !ROUTINE:  strToInt - convert timeString to integer date and time
+! This function attempts to identify a coordiante variable
+! from the name or units of the variable.  It does so by
+! attempting to match the units specified in the COARDS
+! conventions or by checking the name against commonly used
+! names.
 !
-! !DESCRIPTION: This function attempts to identify a coordiante variable
-!               from the name or units of the variable.  It does so by
-!               attempting to match the units specified in the COARDS
-!               conventions or by checking the name against commonly used
-!               names.
-! !INTERFACE:
+!#### History
+!- 2004.10.04  B. Yin         first version.
 !
         subroutine strToInt(timeString, date, begTime)
 !
@@ -1189,20 +1153,13 @@
 !
 ! !INPUT PARAMETERS:
 !
-      character(len=*), intent(in) :: timeString
-                                    ! string expression of data and time
-!
+      character(len=*), intent(in) :: timeString !! string expression of data and time
 !
 ! !OUTPUT PARAMETERS:
 !
       integer, intent(out) :: date
       integer, intent(out) :: begTime
-
-! !REVISION HISTORY:
 !
-!  2004.10.04  B. Yin         first version.
-!
-!EOP
 !-------------------------------------------------------------------------
        integer :: iCnt, jCnt, dLen
        character(len=MVARLEN) :: sDate, sTime
@@ -1238,23 +1195,23 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
-! !ROUTINE:  CFIO_Open -- Opens an existing DAO gridded file
+!>
+! `CFIO_Open` -- Opens an existing DAO gridded file
 !
+! This routine opens an existing DAO gridded file.  The file
+! mode will be read/write.  If the application already knows
+! the contents of the file, it may begin interaction with the
+! file using the returned file handle.  Otherwise, the file
+! handle can be used with the "inquire" routines to gather
+! information about the contents.  A negative return code
+! indicates there were problems opening the file.
 !
-! !DESCRIPTION: This routine opens an existing DAO gridded file.  The file
-!               mode will be read/write.  If the application already knows
-!               the contents of the file, it may begin interaction with the
-!               file using the returned file handle.  Otherwise, the file
-!               handle can be used with the "inquire" routines to gather
-!               information about the contents.  A negative return code
-!               indicates there were problems opening the file.
-!
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.02   Lucchesi             Initial interface design.
+!- 1998.07.07   Lucchesi             Initial coding.
+!- 1998.12.09   Lucchesi             Corrected for ncopn bug.
 !
       subroutine CFIO_Open ( fname, fmode, fid, rc )
-
 !
 ! !USES:
 !
@@ -1265,25 +1222,20 @@
 ! !INPUT PARAMETERS:
 !
 
-      character*(*)   fname         ! File name
-      integer         fmode         ! File mode:
-                                    !   0 for READ-WRITE
-                                    !   non-zero for READ-ONLY
+      character*(*)   fname         !! File name
+      integer         fmode         !! File mode:
+                                    !!   0 for READ-WRITE
+                                    !!   non-zero for READ-ONLY
 
 !
 ! !OUTPUT PARAMETERS:
 !
 
-      integer        fid            ! File handle
-      integer        rc             ! Error return code:
-                                    !   rc = 0    All is well
-                                    !   rc = -39  error from ncopn (file open)
-! !REVISION HISTORY:
+      integer        fid            !! File handle
+      integer        rc             !! Error return code:          
+                                    !!   rc = 0    All is well     
+                                    !!   rc = -39  error from ncopn (file open)     
 !
-!  1998.07.02   Lucchesi             Initial interface design.
-!  1998.07.07   Lucchesi             Initial coding.
-!  1998.12.09   Lucchesi             Corrected for ncopn bug.
-!EOP
 !-------------------------------------------------------------------------
 
 
@@ -1305,13 +1257,14 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_Close` -- Closes file
 !
-! !ROUTINE:  CFIO_Close -- Closes file
+! This routine is used to close an open CFIO stream.
 !
-! !DESCRIPTION: This routine is used to close an open CFIO stream.
-
-! !INTERFACE:
+!#### History
+!- 1997.10.13 da Silva/Lucchesi   Initial interface design.
+!- 1998.03.30  Lucchesi           Documentation expanded.  Clean-up of code. Added rc.
 !
       subroutine CFIO_Close ( fid, rc )
 !
@@ -1321,24 +1274,17 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid              ! File handle
+      integer        fid              !! File handle
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-
-                         !   rc = 0    all is well
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -54  error from ncclos (file close)
-! !REVISION HISTORY:
+      integer     rc     !! Error return code:          
+                         !!   rc = 0    all is well          
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -54  error from ncclos (file close)     
 !
-!  1997.10.13 da Silva/Lucchesi   Initial interface design.
-!  1998.03.30  Lucchesi           Documentation expanded.  Clean-up of code.
-!                                 Added rc.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       call ncclos (fid, rc)
@@ -1351,14 +1297,17 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_PutIntAtt` -- Write a user-defined integer attribute
 !
-! !ROUTINE:  CFIO_PutIntAtt -- Write a user-defined integer attribute
+! This routine allows the user to define an integer
+! attribute in an open CFIO file.
 !
-! !DESCRIPTION: This routine allows the user to define an integer
-!               attribute in an open CFIO file.
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
+!- 1998.09.28  Lucchesi           Added support for multiple precisions
 !
       subroutine CFIO_PutIntAtt ( fid, name, count, buf, prec, rc )
 !
@@ -1368,34 +1317,26 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
-      integer        count      ! Number of integers to write
-      integer        buf(count) ! Buffer with integer values
-      integer        prec       ! Desired precision of attribute value:
-                                !   0 = 32 bit
-                                !   1 = 64 bit
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
+      integer        count      !! Number of integers to write
+      integer        buf(count) !! Buffer with integer values
+      integer        prec       !! Desired precision of attribute value:
+                                !!   0 = 32 bit
+                                !!   1 = 64 bit
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-                         !   rc = 0    all is well
-                         !   rc = -12  error determining default precision
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                         !   rc = -55  error from NF90_REDEF (enter define mode)
-                         !   rc = -56  error from NF90_ENDDEF (exit define mode)
-
-! !REVISION HISTORY:
+      integer     rc     !! Error return code:     
+                         !!   rc = 0    all is well     
+                         !!   rc = -12  error determining default precision     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!  1998.09.28  Lucchesi           Added support for multiple precisions
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer(kind=INT32) dummy32
@@ -1449,14 +1390,17 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_PutRealAtt` -- Write a user-defined real attribute
 !
-! !ROUTINE:  CFIO_PutRealAtt -- Write a user-defined real attribute
+! This routine allows the user to define a real
+! attribute in an open CFIO file.
 !
-! !DESCRIPTION: This routine allows the user to define a real
-!               attribute in an open CFIO file.
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
+!- 1998.09.28  Lucchesi           Added support for multiple precisions
 !
       subroutine CFIO_PutRealAtt ( fid, name, count, buf, prec, rc )
 !
@@ -1466,34 +1410,27 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
-      integer        count      ! Number of integers to write
-      real           buf(count) ! Buffer with real values
-      integer        prec       ! Desired precision of attribute value:
-                                !   0 = 32 bit
-                                !   1 = 64 bit
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
+      integer        count      !! Number of integers to write
+      real           buf(count) !! Buffer with real values
+      integer        prec       !! Desired precision of attribute value:
+                                !!   0 = 32 bit
+                                !!   1 = 64 bit
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-                         !   rc = 0    all is well
-                         !   rc = -12  error determining default precision
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                         !   rc = -55  error from NF90_REDEF (enter define mode)
-                         !   rc = -56  error from NF90_ENDDEF (exit define mode)
+      integer     rc     !! Error return code:     
+                         !!   rc = 0    all is well     
+                         !!   rc = -12  error determining default precision     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
 
-! !REVISION HISTORY:
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!  1998.09.28  Lucchesi           Added support for multiple precisions
-!
-!EOP
 !-------------------------------------------------------------------------
 
       real(kind=REAL32) dummy32
@@ -1548,14 +1485,16 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_PutCharAtt` -- Write a user-defined character attribute
 !
-! !ROUTINE:  CFIO_PutCharAtt -- Write a user-defined character attribute
+! This routine allows the user to define a character (string)
+! attribute in an open CFIO file.
 !
-! !DESCRIPTION: This routine allows the user to define a character (string)
-!               attribute in an open CFIO file.
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
 !
       subroutine CFIO_PutCharAtt ( fid, name, count, buf, rc )
 !
@@ -1565,28 +1504,22 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
-      integer        count      ! Number of characters to write
-      character(len=MLEN) :: buf ! Buffer containing string
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
+      integer        count      !! Number of characters to write
+      character(len=MLEN) :: buf !! Buffer containing string
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-                         !   rc = 0    all is well
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                         !   rc = -55  error from NF90_REDEF (enter define mode)
-                         !   rc = -56  error from NF90_ENDDEF (exit define mode)
-! !REVISION HISTORY:
+      integer     rc     !! Error return code:     
+                         !!   rc = 0    all is well     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       _UNUSED_DUMMY(count)
@@ -1608,14 +1541,16 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_GetAttNames` -- Get global attribute names
 !
-! !ROUTINE:  CFIO_GetAttNames -- Get global attribute names
+! This routine allows the user to get the names of
+! global attributes.
 !
-! !DESCRIPTION: This routine allows the user to get the names of
-!               global attributes.
-!
-! !INTERFACE:
+!#### History
+!- 1998.08.05  Lucchesi           Initial interface design.
+!- 1998.08.05  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
 !
       subroutine CFIO_GetAttNames ( fid, ngatts, aname, rc )
 !
@@ -1625,33 +1560,27 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
+      integer        fid        !! File handle
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      integer     ngatts        ! Expected number of attributes (input)
-                                ! Actual number of attributes (output if rc=-2)
+      integer     ngatts        !! Expected number of attributes (input)
+                                !! Actual number of attributes (output if rc=-2)
 !
 ! !OUTPUT PARAMETERS:
 !
-      character*(*)  aname(ngatts)  ! Array of attribute names
-      integer   rc       ! Error return code:
-                         !  rc =  0  all is well
-                         !  rc = -10  ngatts is incompatible with file
-                         !  rc = -11  character string not long enough
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -48  error from NF90_INQUIRE
-                         !   rc = -57  error from NF90_INQ_ATTNAME
+      character*(*)  aname(ngatts)  !! Array of attribute names
+      integer   rc       !! Error return code:     
+                         !!  rc =  0  all is well     
+                         !!  rc = -10  ngatts is incompatible with file     
+                         !!  rc = -11  character string not long enough     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -48  error from NF90_INQUIRE     
+                         !!   rc = -57  error from NF90_INQ_ATTNAME     
 
-! !REVISION HISTORY:
 !
-!  1998.08.05  Lucchesi           Initial interface design.
-!  1998.08.05  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer ngattsFile, i
@@ -1691,16 +1620,30 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
 !
-! !ROUTINE:  CFIO_AttInquire -- Get information about an attribute
+! `CFIO_AttInquire` -- Get information about an attribute
 !
-! !DESCRIPTION: This routine allows the user to get information about
-!               a global attribute of an open CFIO file.  This is most
-!               useful for determining the number of values stored in an
-!               attribute.
+! This routine allows the user to get information about
+! a global attribute of an open CFIO file.  This is most
+! useful for determining the number of values stored in an
+! attribute.
 !
-! !INTERFACE:
+! @note
+! The returned integer "type" for 64-bit integer is not supported
+! in the current implementation of netCDF/HDF.  When a user writes a
+! 64-bit integer attribute using PutIntAtt, it is actually saved as
+! a 64-bit real by the HDF library.  Thus, upon reading the attribute,
+! there is no way for HDF/CFIO to distinguish it from a REAL number.
+! The user must realize this variable is really an integer and call
+! GetIntAtt to read it.  Even for a 64-bit integer, type=4 will never
+! be returned unless there are changed to HDF/netCDF.
+!@endnote
+!
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error codes, added type assignment.
 !
       subroutine CFIO_AttInquire ( fid, name, type, count, rc )
 !
@@ -1710,44 +1653,27 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer type       ! Code for attribute type
-                         !   0 = integer
-                         !   1 = real
-                         !   2 = character
-                         !   3 = 64-bit real
-                         !   4 = 64-bit integer
-                         !  -1 = other
-      integer count      ! Number of items (length of array)
-      integer rc         ! Error return code:
-                         !   rc = 0    all is well
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -58  error from NF90_INQUIRE_ATTRIBUTE
+      integer type       !! Code for attribute type   
+                         !!   0 = integer   
+                         !!   1 = real   
+                         !!   2 = character   
+                         !!   3 = 64-bit real   
+                         !!   4 = 64-bit integer   
+                         !!  -1 = other   
+      integer count      !! Number of items (length of array)
+      integer rc         !! Error return code:        
+                         !!   rc = 0    all is well     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -58  error from NF90_INQUIRE_ATTRIBUTE    
 
 !
-! !NOTES:  The returned integer "type" for 64-bit integer is not supported
-!          in the current implementation of netCDF/HDF.  When a user writes a
-!          64-bit integer attribute using PutIntAtt, it is actually saved as
-!          a 64-bit real by the HDF library.  Thus, upon reading the attribute,
-!          there is no way for HDF/CFIO to distinguish it from a REAL number.
-!          The user must realize this variable is really an integer and call
-!          GetIntAtt to read it.  Even for a 64-bit integer, type=4 will never
-!          be returned unless there are changed to HDF/netCDF.
-!
-!
-! !REVISION HISTORY:
-!
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error codes, added type assignment.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer nctype
@@ -1774,14 +1700,16 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_GetIntAtt` -- Read a user-defined integer attribute
 !
-! !ROUTINE:  CFIO_GetIntAtt -- Read a user-defined integer attribute
+! This routine allows the user to read an integer
+! attribute from an open CFIO file.
 !
-! !DESCRIPTION: This routine allows the user to read an integer
-!               attribute from an open CFIO file.
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.29  Lucchesi           Changed error handling.  Added 64-bit support.
 !
       subroutine CFIO_GetIntAtt ( fid, name, count, buf, rc )
 !
@@ -1791,36 +1719,30 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      integer        count      ! On input: Number of items in attribute
-                                ! On output: If rc = -1, count will contain
-                                !        the correct count of this attribute
+      integer        count      !! On input: Number of items in attribute
+                                !! On output: If rc = -1, count will contain
+                                !!        the correct count of this attribute
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer   buf(count) ! Buffer with integer values
-      integer   rc         ! Error return code:
-                           !   rc = 0    all is well
-                           !   rc = -1   invalid count
-                           !   rc = -2   type mismatch
-                           !   rc = -12  error determining default precision
-                           !
-                           !  NetCDF Errors
-                           !  -------------
-                           !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                           !   rc = -51  error from NF90_GET_ATT (global attribute)
-
-! !REVISION HISTORY:
+      integer   buf(count) !! Buffer with integer values
+      integer   rc         !! Error return code:     
+                           !!   rc = 0    all is well     
+                           !!   rc = -1   invalid count     
+                           !!   rc = -2   type mismatch     
+                           !!   rc = -12  error determining default precision     
+                           !!     
+                           !!  NetCDF Errors     
+                           !!  -------------     
+                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                           !!   rc = -51  error from NF90_GET_ATT (global attribute)     
+     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.29  Lucchesi           Changed error handling.  Added 64-bit support.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer length, type
@@ -1881,14 +1803,17 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_GetRealAtt` -- Read a user-defined real attribute
 !
-! !ROUTINE:  CFIO_GetRealAtt -- Read a user-defined real attribute
+! This routine allows the user to read a real
+! attribute from an open CFIO file.
 !
-! !DESCRIPTION: This routine allows the user to read a real
-!               attribute from an open CFIO file.
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.29  Lucchesi           Changed error handling.  Added 64-bit support.
+!- 1999.08.23  Lucchesi           Changed .OR. to .AND.
 !
       subroutine CFIO_GetRealAtt ( fid, name, count, buf, rc )
 !
@@ -1898,37 +1823,29 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      integer        count      ! On input: Number of items in attribute
-                                ! On output: If rc = -1, count will contain
-                                !        the correct number of attributes
+      integer        count      !! On input: Number of items in attribute
+                                !! On output: If rc = -1, count will contain
+                                !!        the correct number of attributes
 !
 ! !OUTPUT PARAMETERS:
 !
-      real     buf(count)  ! Buffer with real values
-      integer  rc          ! Error return code:
-                           !   rc = 0    all is well
-                           !   rc = -1   invalid count
-                           !   rc = -2   type mismatch
-                           !   rc = -12  error determining default precision
-                           !
-                           !  NetCDF Errors
-                           !  -------------
-                           !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                           !   rc = -51  error from NF90_GET_ATT (global attribute)
-
-! !REVISION HISTORY:
+      real     buf(count)  !! Buffer with real values
+      integer  rc          !! Error return code:     
+                           !!   rc = 0    all is well     
+                           !!   rc = -1   invalid count     
+                           !!   rc = -2   type mismatch     
+                           !!   rc = -12  error determining default precision     
+                           !!     
+                           !!  NetCDF Errors     
+                           !!  -------------     
+                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                           !!   rc = -51  error from NF90_GET_ATT (global attribute)     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.29  Lucchesi           Changed error handling.  Added 64-bit support.
-!  1999.08.23  Lucchesi           Changed .OR. to .AND.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer length, type
@@ -1990,14 +1907,16 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_GetCharAtt` -- Read a user-defined character attribute
 !
-! !ROUTINE:  CFIO_GetCharAtt -- Read a user-defined character attribute
+! This routine allows the user to read a character
+! attribute from an open CFIO file.
 !
-! !DESCRIPTION: This routine allows the user to read a character
-!               attribute from an open CFIO file.
-!
-! !INTERFACE:
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.29  Lucchesi           Changed error handling.
 !
       subroutine CFIO_GetCharAtt ( fid, name, count, buf, rc )
 !
@@ -2007,35 +1926,29 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-      integer        count      ! On input: Number of items in attribute
-                                ! On output: If rc = -1, count will contain
-                                !        the correct number of attributes
+      integer        count      !! On input: Number of items in attribute
+                                !! On output: If rc = -1, count will contain
+                                !!        the correct number of attributes
 !
 ! !OUTPUT PARAMETERS:
 !
-      character :: buf(count) ! Buffer with character values
-!      character(len=MLEN) :: buf ! Buffer with character values
-      integer   rc         ! Error return code:
-                           !   rc = 0    all is well
-                           !   rc = -1   invalid count
-                           !   rc = -2   type mismatch
-                           !
-                           !  NetCDF Errors
-                           !  -------------
-                           !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                           !   rc = -51  error from NF90_GET_ATT (global attribute)
-! !REVISION HISTORY:
+      character :: buf(count) !! Buffer with character values
+!      character(len=MLEN) :: buf !! Buffer with character values
+      integer   rc         !! Error return code:     
+                           !!   rc = 0    all is well     
+                           !!   rc = -1   invalid count     
+                           !!   rc = -2   type mismatch     
+                           !!     
+                           !!  NetCDF Errors     
+                           !!  -------------     
+                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                           !!   rc = -51  error from NF90_GET_ATT (global attribute)     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.29  Lucchesi           Changed error handling.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer length, type
@@ -2112,21 +2025,36 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `DiffDate` --- Calculates the number of seconds between two times.
 !
-! !ROUTINE: DiffDate --- Calculates the number of seconds between two times.
+! This function returns the number of seconds between two
+! times.  Each time is specified with two integers, one
+! representing a date in the format YYYYMMDD and one
+! representing a time in the format HHMMSS.  This function
+! determines the Julian day of each date using the "julday"
+! function from the book "Numerical Recipes in FORTRAN, the
+! art of scientific computing (2nd Ed.), by William H. Press,
+! Saul A. Teukolsky, William T. Vetterling, and Brian P.
+! Flannery (Cambridge University Press, 1992).  The difference
+! between the two times is then calculated and returned.  The
+! times need not be in chronological order as the function returns
+! the abs value.  -1 is returned in the event of an error.
 !
-! !INTERFACE:
+! RETURNED VALUE:
 !
-
+! Integer function returns number of seconds between the
+! the times given as input.  -1 is returned in the event
+! of an error.
+!
+!#### History
+!- 17Oct97   Lucchesi    Initial version.
+!- 2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit.  StartDate
+!    constant no longer needed.
+!
        integer(kind=INT64) function DiffDate (yyyymmhh_1,hhmmss_1,yyyymmhh_2,hhmmss_2)
 
-!
-! !USES:
-!
-
        implicit none
-
 !
 ! !INPUT PARAMETERS:
 !
@@ -2137,32 +2065,6 @@
        integer hhmmss_2                 ! Second time in HHMMSS format
 
 !
-! !OUTPUT PARAMETERS:
-!
-!                 Integer function returns number of seconds between the
-!                 the times given as input.  -1 is returned in the event
-!                 of an error.
-!
-! !DESCRIPTION:   This function returns the number of seconds between two
-!                 times.  Each time is specified with two integers, one
-!                 representing a date in the format YYYYMMDD and one
-!                 representing a time in the format HHMMSS.  This function
-!                 determines the Julian day of each date using the "julday"
-!                 function from the book "Numerical Recipes in FORTRAN, the
-!                 art of scientific computing (2nd Ed.), by William H. Press,
-!                 Saul A. Teukolsky, William T. Vetterling, and Brian P.
-!                 Flannery (Cambridge University Press, 1992).  The difference
-!                 between the two times is then calculated and returned.  The
-!                 times need not be in chronological order as the function returns
-!                 the abs value.  -1 is returned in the event of an error.
-!
-! !REVISION HISTORY:
-!
-!  17Oct97   Lucchesi    Initial version.
-!  2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit.  StartDate
-!                        constant no longer needed.
-!
-!EOP
 !-------------------------------------------------------------------------
 
        integer year1,mon1,day1,hour1,min1,sec1
@@ -2280,15 +2182,17 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `ParseTimeUnits` -- Parse the COARDS time units string
 !
-! !ROUTINE:  ParseTimeUnits -- Parse the COARDS time units string
+! This subroutine takes as input the COARDS metadata time
+! units string and parses out the date included in the string.
+! This date typically represents the first time in a COARDS
+! HDF files.
 !
-! !DESCRIPTION: This subroutine takes as input the COARDS metadata time
-!               units string and parses out the date included in the string.
-!               This date typically represents the first time in a COARDS
-!               HDF files.
-! !INTERFACE:
+!#### History
+!- 2000.10.18  Lucchesi  Initial coding.
+!- 2001.08.13  Lucchesi  Modified to better parse time:units string (needed for lats4d support)
 !
       subroutine ParseTimeUnits ( TimeUnits, year, month, day, hour, min, sec, rc )
 !
@@ -2298,27 +2202,21 @@
 !
 ! !INPUT PARAMETERS:
 !
-      character*(MAXCHR) TimeUnits      ! Units metadata string from the Time coord var
+      character*(MAXCHR) TimeUnits      !! Units metadata string from the Time coord var
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer        year               ! 4-digit year
-      integer        month              ! month
-      integer        day                ! day
-      integer        hour               ! hour
-      integer        min                ! minute
-      integer        sec                ! second
-      integer        rc                 ! return code
-                                        !  0 = no error
-                                        ! -1 = problem parsing string
+      integer        year               !! 4-digit year
+      integer        month              !! month
+      integer        day                !! day
+      integer        hour               !! hour
+      integer        min                !! minute
+      integer        sec                !! second
+      integer        rc                 !! return code     
+                                        !!  0 = no error     
+                                        !! -1 = problem parsing string     
 
-! !REVISION HISTORY:
 !
-!  2000.10.18  Lucchesi       Initial coding.
-!  2001.08.13  Lucchesi       Modified to better parse time:units string (needed for lats4d
-!support)
-!
-!EOP
 !-------------------------------------------------------------------------
 
 
@@ -2407,19 +2305,27 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_SPutVar` -- Write a variable to the file
 !
-! !ROUTINE:  CFIO_SPutVar -- Write a variable to the file
+! This routine is used to write a variable to an open CFIO
+! stream.  Multiple vertical levels can be written at one
+! time provided they are contiguous in memory.  Date and time
+! must be consistent with the time increment and the starting
+! date/time as defined in CFIO\_Create.  Times must fall on
+! minute boundaries to allow GrADS to work.  Error checking is
+! done for dimensions that are out of bounds.
 !
-! !DESCRIPTION: This routine is used to write a variable to an open CFIO
-!               stream.  Multiple vertical levels can be written at one
-!               time provided they are contiguous in memory.  Date and time
-!               must be consistent with the time increment and the starting
-!               date/time as defined in CFIO\_Create.  Times must fall on
-!               minute boundaries to allow GrADS to work.  Error checking is
-!               done for dimensions that are out of bounds.
-!
-! !INTERFACE:
+!#### History 
+!- 1997.10.13 da Silva/Lucchesi   Initial interface design.
+!- 1998.02.10 Lucchesi   Added support for applications running with 64-bit reals.
+!- 1998.03.30 Lucchesi   Documentation expanded.  Clean-up of code.
+!- 1998.07.02 Lucchesi   Replaced vid with vname in argument list & made related mods to code.
+!- 1998.09.24 Lucchesi   Changed err codes, removed DIM_CHECK if-def
+!- 1998.10.27 Lucchesi   Added support for packing and range checks
+!- 1998.12.15 Lucchesi   Added support for skipping times (allTimes)
+!- 1999.01.04 Lucchesi   Fixed bug in skipping times (allTimes)/also changed variable initialization.
+!- 1999.07.13 Lucchesi   Changes for REAL or INT time dimension
 !
       subroutine CFIO_SPutVar ( fid, vname, yyyymmdd, hhmmss, &
                                im, jm, kbeg, kount, grid,     &
@@ -2431,64 +2337,49 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid                 ! File handle
-      character*(*)  vname               ! Variable name
-      integer        yyyymmdd            ! Year-month-day, e.g., 19971003
-      integer        hhmmss              ! Hour-minute-second, e.g., 120000
+      integer        fid                 !! File handle
+      character*(*)  vname               !! Variable name
+      integer        yyyymmdd            !! Year-month-day, e.g., 19971003
+      integer        hhmmss              !! Hour-minute-second, e.g., 120000
 
-      integer         im                 ! size of longitudinal dimension
-      integer         jm                 ! size of latitudinal  dimension
-      integer         kbeg               ! first level to write; if 2-D grid
-                                         !   use kbeg = 0.
-      integer         kount              ! number of levels to write
-      real            grid(im,kount)  ! Gridded data to write at this time
+      integer         im                 !! size of longitudinal dimension
+      integer         jm                 !! size of latitudinal  dimension
+      integer         kbeg               !! first level to write; if 2-D grid
+                                         !!   use kbeg = 0.
+      integer         kount              !! number of levels to write
+      real            grid(im,kount)  !! Gridded data to write at this time
 
 
 ! !OUTPUT PARAMETERS:
 
-      integer        rc  ! Error return code:
-                         !  rc =  0  all is well
-                         !  rc = -2  time is inconsistent with increment
-                         ! rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -15  data outside of valid range
-                         !  rc = -16  data outside of packing range
-                         !  rc = -17  data outside of pack and valid range
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !  rc = -38  error from NF90_PUT_VAR (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -45  error from NF90_PUT_VAR
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !  rc = -53  error from NF90_GET_ATT
+      integer        rc  !! Error return code:     
+                         !!  rc =  0  all is well     
+                         !!  rc = -2  time is inconsistent with increment     
+                         !! rc = -3  number of levels is incompatible with file     
+                         !!  rc = -4  im is incompatible with file     
+                         !!  rc = -5  jm is incompatible with file     
+                         !!  rc = -6  time must fall on a minute boundary     
+                         !!  rc = -7  error in diffdate     
+                         !!  rc = -12  error determining default precision     
+                         !!  rc = -13  error determining variable type     
+                         !!  rc = -15  data outside of valid range     
+                         !!  rc = -16  data outside of packing range     
+                         !!  rc = -17  data outside of pack and valid range     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
+                         !!  rc = -40  error from NF90_INQ_VARID     
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
+                         !!  rc = -45  error from NF90_PUT_VAR     
+                         !!  rc = -46  error from NF90_GET_VAR     
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
+                         !!  rc = -53  error from NF90_GET_ATT     
 
-! !REVISION HISTORY:
 !
-!  1997.10.13 da Silva/Lucchesi   Initial interface design.
-!  1998.02.10 Lucchesi            Added support for applications running with
-!                                 64-bit reals.
-!  1998.03.30 Lucchesi            Documentation expanded.  Clean-up of code.
-!  1998.07.02 Lucchesi            Replaced vid with vname in argument list &
-!                                 made related mods to code.
-!  1998.09.24 Lucchesi            Changed err codes, removed DIM_CHECK if-def
-!  1998.10.27 Lucchesi            Added support for packing and range checks
-!  1998.12.15 Lucchesi            Added support for skipping times (allTimes)
-!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also
-!                                 changed variable initialization.
-!  1999.07.13 Lucchesi            Changes for REAL or INT time dimension
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer timeid, timeDimId, dimSize, timeType
@@ -2800,15 +2691,21 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_SGetVar` -- Read a variable from the file
 !
-! !ROUTINE:  CFIO_SGetVar -- Read a variable from the file
+! This routine will read one or more levels of "vname"
+! into the buffer passed in as "grid."  "fid" is the file
+! handle returned by Cfio_open.
 !
-! !DESCRIPTION: This routine will read one or more levels of "vname"
-!               into the buffer passed in as "grid."  "fid" is the file
-!               handle returned by Cfio\_open.
-!
-! !INTERFACE:
+!#### History
+!- 1997.10.13 da Silva/Lucchesi   Initial interface design.
+!- 1998.07.07 Lucchesi  Combined two GetVar routines into this one.
+!- 1998.09.24 Lucchesi  Updated error codes.
+!- 1999.06.21 Lucchesi  Bug fixed.  Unable to read HDF-EOS files because was still looking for "lon" and "lat"
+!- 1999.06.21 Lucchesi  Added a check for time too early.
+!- 1999.11.02 da Silva  Made LATS4D compatible.
+!- 2006.06.08 byin      Added cyclic option
 !
       subroutine CFIO_SGetVar ( fid, vname, yyyymmdd, hhmmss,&
                               im, jm, kbeg, kount, lm, grid, cyclic, rc )
@@ -2819,59 +2716,47 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid              ! File handle
-      character*(*)  vname            ! Variable name
-      integer        yyyymmdd         ! Year-month-day, e.g., 19971003
-      integer          hhmmss         ! Hour-minute-second, e.g., 120000
-      integer         im              ! size of longitudinal dimension
-      integer         jm              ! size of latitudinal  dimension
-      integer         kbeg            ! first level to read; if 2-D grid
-                                      !  set kbeg = 0.
-      integer         kount           ! number of levels to read
-      integer         lm              ! number of time steps
-      logical cyclic     !  input file is cyclic or not
+      integer        fid              !! File handle
+      character*(*)  vname            !! Variable name
+      integer        yyyymmdd         !! Year-month-day, e.g., 19971003
+      integer          hhmmss         !! Hour-minute-second, e.g., 120000
+      integer         im              !! size of longitudinal dimension
+      integer         jm              !! size of latitudinal  dimension
+      integer         kbeg            !! first level to read; if 2-D grid
+                                      !!  set kbeg = 0.
+      integer         kount           !! number of levels to read
+      integer         lm              !! number of time steps
+      logical cyclic     !!  input file is cyclic or not
 
 !
 ! !OUTPUT PARAMETERS:
 !
-      real         grid(im,kount)  ! Gridded data read for this time
-      integer  rc        ! Error return code:
-                         !  rc = 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !  rc = -38  error from NF90_PUT_VAR (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
+      real         grid(im,kount)  !! Gridded data read for this time
+      integer  rc        !! Error return code:     
+                         !!  rc = 0   all is well     
+                         !!  rc = -2  time is inconsistent with increment     
+                         !!  rc = -3  number of levels is incompatible with file     
+                         !!  rc = -4  im is incompatible with file     
+                         !!  rc = -5  jm is incompatible with file     
+                         !!  rc = -6  time must fall on a minute boundary     
+                         !!  rc = -7  error in diffdate     
+                         !!  rc = -12  error determining default precision     
+                         !!  rc = -13  error determining variable type     
+                         !!  rc = -19  unable to identify coordinate variable     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
+                         !!  rc = -40  error from NF90_INQ_VARID     
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
+                         !!  rc = -46  error from NF90_GET_VAR     
+                         !!  rc = -48  error from NF90_INQUIRE     
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
 
-
-! !REVISION HISTORY:
 !
-!  1997.10.13 da Silva/Lucchesi   Initial interface design.
-!  1998.07.07 Lucchesi            Combined two GetVar routines into this one.
-!  1998.09.24 Lucchesi            Updated error codes.
-!  1999.06.21 Lucchesi            Bug fixed.  Unable to read HDF-EOS files
-!                                 because was still looking for "lon" and "lat"
-!  1999.06.21 Lucchesi            Added a check for time too early.
-!  1999.11.02 da Silva            Made LATS4D compatible.
-!  2006.06.08 byin                Added cyclic option
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer begDate, begTime, seconds
@@ -3172,15 +3057,21 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+!`CFIO_GetVar` -- Read a variable from the file
 !
-! !ROUTINE:  CFIO_GetVar -- Read a variable from the file
+! This routine will read one or more levels of "vname"
+! into the buffer passed in as "grid."  "fid" is the file
+! handle returned by Cfio\_open.
 !
-! !DESCRIPTION: This routine will read one or more levels of "vname"
-!               into the buffer passed in as "grid."  "fid" is the file
-!               handle returned by Cfio\_open.
-!
-! !INTERFACE:
+!#### History
+!- 1997.10.13 da Silva/Lucchesi   Initial interface design.
+!- 1998.07.07 Lucchesi  Combined two GetVar routines into this one.
+!- 1998.09.24 Lucchesi  Updated error codes.
+!- 1999.06.21 Lucchesi  Bug fixed.  Unable to read HDF-EOS files because was still looking for "lon" and "lat"
+!- 1999.06.21 Lucchesi  Added a check for time too early.
+!- 1999.11.02 da Silva  Made LATS4D compatible.
+!- 2006.06.08 byin      Added cyclic option
 !
       subroutine CFIO_GetVar ( fid, vname, yyyymmdd, hhmmss,&
                               im, jm, kbeg, kount, lm, grid, cyclic, &
@@ -3192,60 +3083,47 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid              ! File handle
-      character*(*)  vname            ! Variable name
-      integer        yyyymmdd         ! Year-month-day, e.g., 19971003
-      integer          hhmmss         ! Hour-minute-second, e.g., 120000
-      integer         im              ! size of longitudinal dimension
-      integer         jm              ! size of latitudinal  dimension
-      integer         kbeg            ! first level to read; if 2-D grid
-                                      !  set kbeg = 0.
-      integer         kount           ! number of levels to read
-      integer         lm              ! number of time steps
-      logical cyclic     !  input file is cyclic or not
+      integer        fid              !! File handle
+      character*(*)  vname            !! Variable name
+      integer        yyyymmdd         !! Year-month-day, e.g., 19971003
+      integer          hhmmss         !! Hour-minute-second, e.g., 120000
+      integer         im              !! size of longitudinal dimension
+      integer         jm              !! size of latitudinal  dimension
+      integer         kbeg            !! first level to read; if 2-D grid
+                                      !!  set kbeg = 0.
+      integer         kount           !! number of levels to read
+      integer         lm              !! number of time steps
+      logical cyclic     !!  input file is cyclic or not
       logical ::      useFaceDim
 
 !
 ! !OUTPUT PARAMETERS:
 !
-      real         grid(im,jm,kount)  ! Gridded data read for this time
-      integer  rc        ! Error return code:
-                         !  rc = 0   all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -19  unable to identify coordinate variable
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !  rc = -38  error from NF90_PUT_VAR (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -48  error from NF90_INQUIRE
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-
-
-! !REVISION HISTORY:
+      real         grid(im,jm,kount)  !! Gridded data read for this time
+      integer  rc        !! Error return code:     
+                         !!  rc = 0   all is well     
+                         !!  rc = -2  time is inconsistent with increment     
+                         !!  rc = -3  number of levels is incompatible with file     
+                         !!  rc = -4  im is incompatible with file     
+                         !!  rc = -5  jm is incompatible with file     
+                         !!  rc = -6  time must fall on a minute boundary     
+                         !!  rc = -7  error in diffdate     
+                         !!  rc = -12  error determining default precision     
+                         !!  rc = -13  error determining variable type     
+                         !!  rc = -19  unable to identify coordinate variable     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
+                         !!  rc = -40  error from NF90_INQ_VARID     
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
+                         !!  rc = -46  error from NF90_GET_VAR     
+                         !!  rc = -48  error from NF90_INQUIRE     
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
 !
-!  1997.10.13 da Silva/Lucchesi   Initial interface design.
-!  1998.07.07 Lucchesi            Combined two GetVar routines into this one.
-!  1998.09.24 Lucchesi            Updated error codes.
-!  1999.06.21 Lucchesi            Bug fixed.  Unable to read HDF-EOS files
-!                                 because was still looking for "lon" and "lat"
-!  1999.06.21 Lucchesi            Added a check for time too early.
-!  1999.11.02 da Silva            Made LATS4D compatible.
-!  2006.06.08 byin                Added cyclic option
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer begDate, begTime, seconds
@@ -3579,19 +3457,27 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `CFIO_PutVar` -- Write a variable to the file
 !
-! !ROUTINE:  CFIO_PutVar -- Write a variable to the file
+! This routine is used to write a variable to an open CFIO
+! stream.  Multiple vertical levels can be written at one
+! time provided they are contiguous in memory.  Date and time
+! must be consistent with the time increment and the starting
+! date/time as defined in CFIO\_Create.  Times must fall on
+! minute boundaries to allow GrADS to work.  Error checking is
+! done for dimensions that are out of bounds.
 !
-! !DESCRIPTION: This routine is used to write a variable to an open CFIO
-!               stream.  Multiple vertical levels can be written at one
-!               time provided they are contiguous in memory.  Date and time
-!               must be consistent with the time increment and the starting
-!               date/time as defined in CFIO\_Create.  Times must fall on
-!               minute boundaries to allow GrADS to work.  Error checking is
-!               done for dimensions that are out of bounds.
-!
-! !INTERFACE:
+!#### HIstory
+!- 1997.10.13 da Silva/Lucchesi   Initial interface design.
+!- 1998.02.10 Lucchesi  Added support for applications running with 64-bit reals.
+!- 1998.03.30 Lucchesi  Documentation expanded.  Clean-up of code.
+!- 1998.07.02 Lucchesi  Replaced vid with vname in argument list & made related mods to code.
+!- 1998.09.24 Lucchesi  Changed error codes, removed DIM_CHECK if-def
+!- 1998.10.27 Lucchesi  Added support for packing and range checks
+!- 1998.12.15 Lucchesi  Added support for skipping times (allTimes)
+!- 1999.01.04 Lucchesi  Fixed bug in skipping times (allTimes)/also changed variable initialization.
+!- 1999.07.13 Lucchesi  Changes for REAL or INT time dimension
 !
       subroutine CFIO_PutVar ( fid, vname, yyyymmdd, hhmmss, &
                               im, jm, kbeg, kount, grid,     &
@@ -3604,65 +3490,49 @@
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid                 ! File handle
-      character*(*)  vname               ! Variable name
-      integer        yyyymmdd            ! Year-month-day, e.g., 19971003
-      integer        hhmmss              ! Hour-minute-second, e.g., 120000
+      integer        fid                 !! File handle
+      character*(*)  vname               !! Variable name
+      integer        yyyymmdd            !! Year-month-day, e.g., 19971003
+      integer        hhmmss              !! Hour-minute-second, e.g., 120000
 
-      integer         im                 ! size of longitudinal dimension
-      integer         jm                 ! size of latitudinal  dimension
-      integer         kbeg               ! first level to write; if 2-D grid
-                                         !   use kbeg = 0.
-      integer         kount              ! number of levels to write
-      real            grid(im,jm,kount)  ! Gridded data to write at this time
+      integer         im                 !! size of longitudinal dimension
+      integer         jm                 !! size of latitudinal  dimension
+      integer         kbeg               !! first level to write; if 2-D grid
+                                         !!   use kbeg = 0.
+      integer         kount              !! number of levels to write
+      real            grid(im,jm,kount)  !! Gridded data to write at this time
       logical ::      useFaceDim
 
 
 ! !OUTPUT PARAMETERS:
 
-      integer        rc  ! Error return code:
-                         !  rc =  0  all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -15  data outside of valid range
-                         !  rc = -16  data outside of packing range
-                         !  rc = -17  data outside of pack and valid range
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !  rc = -38  error from NF90_PUT_VAR (dimension variable)
-                         !  rc = -40  error from NF90_INQ_VARID
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error from NF90_GET_ATT (time attribute)
-                         !  rc = -45  error from NF90_PUT_VAR
-                         !  rc = -46  error from NF90_GET_VAR
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE
-                         !  rc = -53  error from NF90_GET_ATT
-
-! !REVISION HISTORY:
+      integer        rc  !! Error return code:     
+                         !!  rc =  0  all is well     
+                         !!  rc = -2  time is inconsistent with increment     
+                         !!  rc = -3  number of levels is incompatible with file     
+                         !!  rc = -4  im is incompatible with file     
+                         !!  rc = -5  jm is incompatible with file     
+                         !!  rc = -6  time must fall on a minute boundary     
+                         !!  rc = -7  error in diffdate     
+                         !!  rc = -12  error determining default precision     
+                         !!  rc = -13  error determining variable type     
+                         !!  rc = -15  data outside of valid range     
+                         !!  rc = -16  data outside of packing range     
+                         !!  rc = -17  data outside of pack and valid range     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
+                         !!  rc = -40  error from NF90_INQ_VARID     
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
+                         !!  rc = -45  error from NF90_PUT_VAR     
+                         !!  rc = -46  error from NF90_GET_VAR     
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
+                         !!  rc = -53  error from NF90_GET_ATT     
 !
-!  1997.10.13 da Silva/Lucchesi   Initial interface design.
-!  1998.02.10 Lucchesi            Added support for applications running with
-!                                 64-bit reals.
-!  1998.03.30 Lucchesi            Documentation expanded.  Clean-up of code.
-!  1998.07.02 Lucchesi            Replaced vid with vname in argument list &
-!                                 made related mods to code.
-!  1998.09.24 Lucchesi            Changed error codes, removed DIM_CHECK if-def
-!  1998.10.27 Lucchesi            Added support for packing and range checks
-!  1998.12.15 Lucchesi            Added support for skipping times (allTimes)
-!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also
-!                                 changed variable initialization.
-!  1999.07.13 Lucchesi            Changes for REAL or INT time dimension
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer timeid, timeDimId, dimSize, timeType
@@ -4011,51 +3881,40 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `GetDateInt8` --- Returns a new date/time from an initial date/time and offset
 !
-! !ROUTINE: GetDateInt8 --- Returns a new date/time from an initial date/time
-!                       and offset
+! This subroutine returns a new date and time in yyyymmdd
+! and hhmmss format given and initial date, time, and
+! offset in seconds.  The routine converts the input date
+! and time to julian seconds, adds the offset, and converts
+! back to yyyymmdd and hhmmss format.  This routine has been
+! tested for Y2K compiance.
 !
-! !INTERFACE:
+!#### History
+!- 1998.07.20  Lucchesi    Initial version.
+!- 2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
+!    constant no longer needed.
 !
-
        subroutine GetDateInt8 (yyyymmdd_1,hhmmss_1,offset, &
                           yyyymmdd_2,hhmmss_2,rc)
-
-!
-! !USES:
-!
 
        implicit none
 !
 ! !INPUT PARAMETERS:
 !
 
-       integer         yyyymmdd_1       ! Initial date in YYYYYMMDD format
-       integer         hhmmss_1         ! Initial time in HHMMSS format
-       integer(kind=INT64) offset           ! Offset to add (in seconds)
+       integer         yyyymmdd_1       !! Initial date in YYYYYMMDD format
+       integer         hhmmss_1         !! Initial time in HHMMSS format
+       integer(kind=INT64) offset           !! Offset to add (in seconds)
 
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer yyyymmdd_2               ! New date in YYYYMMDD format
-       integer hhmmss_2                 ! New time in HHMMSS format
-       integer rc                       ! Return code. (<0 = error)
+       integer yyyymmdd_2               !! New date in YYYYMMDD format
+       integer hhmmss_2                 !! New time in HHMMSS format
+       integer rc                       !! Return code. (<0 = error)
 !
-! !DESCRIPTION:   This subroutine returns a new date and time in yyyymmdd
-!                 and hhmmss format given and initial date, time, and
-!                 offset in seconds.  The routine converts the input date
-!                 and time to julian seconds, adds the offset, and converts
-!                 back to yyyymmdd and hhmmss format.  This routine has been
-!                 tested for Y2K compiance.
-!
-! !REVISION HISTORY:
-!
-!  1998.07.20  Lucchesi    Initial version.
-!  2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
-!                        constant no longer needed.
-!
-!EOP
 !-------------------------------------------------------------------------
       integer year1,mon1,day1,hour1,min1,sec1
       integer year2,mon2,day2,hour2,min2,sec2
@@ -4124,52 +3983,38 @@
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `GetDateInt4` --- Returns a new date/time from an initial date/time and offset
 !
-! !ROUTINE: GetDateInt4 --- Returns a new date/time from an initial date/time
-!                       and offset
+! This subroutine returns a new date and time in yyyymmdd
+! and hhmmss format given and initial date, time, and
+! offset in seconds.  The routine converts the input date
+! and time to julian seconds, adds the offset, and converts
+! back to yyyymmdd and hhmmss format.  This routine has been
+! tested for Y2K compiance.
 !
-! !INTERFACE:
+!#### History
+!- 1998.07.20  Lucchesi    Initial version.
+!- 2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
+!   constant no longer needed.
 !
-
        subroutine GetDateInt4 (yyyymmdd_1,hhmmss_1,offset, &
                           yyyymmdd_2,hhmmss_2,rc)
 
-!
-! !USES:
-!
-
        implicit none
-
 !
 ! !INPUT PARAMETERS:
 !
-
-       integer yyyymmdd_1               ! Initial date in YYYYYMMDD format
-       integer hhmmss_1                 ! Initial time in HHMMSS format
-       integer offset                   ! Offset to add (in seconds)
-
+       integer yyyymmdd_1               !! Initial date in YYYYYMMDD format
+       integer hhmmss_1                 !! Initial time in HHMMSS format
+       integer offset                   !! Offset to add (in seconds)
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer yyyymmdd_2               ! New date in YYYYMMDD format
-       integer hhmmss_2                 ! New time in HHMMSS format
-       integer rc                       ! Return code. (<0 = error)
+       integer yyyymmdd_2               !! New date in YYYYMMDD format
+       integer hhmmss_2                 !! New time in HHMMSS format
+       integer rc                       !! Return code. (<0 = error)
 !
-! !DESCRIPTION:   This subroutine returns a new date and time in yyyymmdd
-!                 and hhmmss format given and initial date, time, and
-!                 offset in seconds.  The routine converts the input date
-!                 and time to julian seconds, adds the offset, and converts
-!                 back to yyyymmdd and hhmmss format.  This routine has been
-!                 tested for Y2K compiance.
-!
-! !REVISION HISTORY:
-!
-!  1998.07.20  Lucchesi    Initial version.
-!  2010.05.11  Lucchesi  Integer for julian seconds changed to 64-bit. StartDate
-!                        constant no longer needed.
-!
-!EOP
 !-------------------------------------------------------------------------
 
        integer(Kind=INT64) offsetLong
@@ -4303,13 +4148,13 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !       NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !BOP -------------------------------------------------------------------
+!>
+! `strTemplate_` - expanding a format template to a string
 !
-! !IROUTINE: strTemplate_ - expanding a format template to a string
+!#### History
+!- 03Jun99 - Jing Guo <guo@dao.gsfc.nasa.gov> - initial prototype/prolog/code
+!- 08Jan01 - da Silva: moved uppercase() to outside select() to avoid coredump on Linux/PGI.
 !
-! !DESCRIPTION:
-!
-! !INTERFACE:
-
     subroutine strTemplate_(str,tmpl,class,xid,nymd,nhms,stat)
       implicit none
 
@@ -4334,13 +4179,6 @@
 
       integer,intent(out),optional :: stat
       ! error code
-
-! !REVISION HISTORY:
-!  03Jun99 - Jing Guo <guo@dao.gsfc.nasa.gov>
-!  - initial prototype/prolog/code
-!  08Jan01 - da Silva: moved uppercase() to outside select() to
-!                      avoid coredump on Linux/PGI.
-!EOP ___________________________________________________________________
 
   character(len=*),parameter :: myname_=myname//'::strTemplate_'
   character(len=16) :: tmpl_class,uc_class
@@ -4371,12 +4209,12 @@ end subroutine strTemplate_
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !       NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !BOP -------------------------------------------------------------------
+!>
+! `GX_` - evaluate a GrADS style string template
 !
-! !IROUTINE: GX_ - evaluate a GrADS style string template
+!#### History
+!- 01Jun99 - Jing Guo <guo@dao.gsfc.nasa.gov> - initial prototype/prolog/code
 !
-! !DESCRIPTION:
-!
-! !INTERFACE:
 
     subroutine GX_(str,tmpl,xid,nymd,nhms,stat)
       implicit none
@@ -4387,10 +4225,6 @@ end subroutine strTemplate_
       integer,optional,intent(in)  :: nhms
       integer,optional,intent(out) :: stat
 
-! !REVISION HISTORY:
-!  01Jun99 - Jing Guo <guo@dao.gsfc.nasa.gov>
-!  - initial prototype/prolog/code
-!EOP ___________________________________________________________________
 
   character(len=*),parameter :: myname_=myname//'::GX_'
 
@@ -4786,6 +4620,14 @@ end subroutine die
 
 #if defined(HDFEOS) || defined(HDFSD)
 
+!-------------------------------------------------------------------------------
+!>
+! The routine `EOS_Close` ...
+!
+!#### History
+!- 1997.10.13 da Silva/Lucchesi   Initial interface design.
+!- 1998.03.30  Lucchesi           Documentation expanded.  Clean-up of code. Added rc.
+!
       subroutine EOS_Close ( fid, rc )
 !
 ! !USES:
@@ -4794,24 +4636,17 @@ end subroutine die
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid              ! File handle
+      integer        fid              !! File handle
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-
-                         !   rc = 0    all is well
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -54  error from ncclos (file close)
-! !REVISION HISTORY:
+      integer     rc     !! Error return code:       
+                         !!   rc = 0    all is well  
+                         !!  
+                         !!  NetCDF Errors  
+                         !!  -------------  
+                         !!   rc = -54  error from ncclos (file close)  
 !
-!  1997.10.13 da Silva/Lucchesi   Initial interface design.
-!  1998.03.30  Lucchesi           Documentation expanded.  Clean-up of code.
-!                                 Added rc.
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer i
@@ -4833,7 +4668,17 @@ end subroutine die
       return
       end subroutine EOS_Close
 
-
+!-------------------------------------------------------------------------
+!>
+! The routine `EOS_PutIntAtt` ...
+!
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
+!- 1998.09.28  Lucchesi           Added support for multiple precisions
+!- 1999.01.29  Lucchesi           Converted API to SD for HDFEOS
+!
       subroutine EOS_PutIntAtt ( fid, name, count, buf, prec, rc )
 !
 ! !USES:
@@ -4842,35 +4687,27 @@ end subroutine die
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
-      integer        count      ! Number of integers to write
-      integer        buf(count) ! Buffer with integer values
-      integer        prec       ! Desired precision of attribute value:
-                                !   0 = 32 bit
-                                !   1 = 64 bit
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
+      integer        count      !! Number of integers to write
+      integer        buf(count) !! Buffer with integer values
+      integer        prec       !! Desired precision of attribute value:
+                                !!   0 = 32 bit
+                                !!   1 = 64 bit
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-                         !   rc = 0    all is well
-                         !   rc = -12  error determining default precision
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                         !   rc = -55  error from NF90_REDEF (enter define mode)
-                         !   rc = -56  error from NF90_ENDDEF (exit define mode)
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!   rc = -12  error determining default precision
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)
 
-! !REVISION HISTORY:
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!  1998.09.28  Lucchesi           Added support for multiple precisions
-!  1999.01.29  Lucchesi           Converted API to SD for HDFEOS
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer(kind=INT32) dummy32
@@ -4948,7 +4785,17 @@ end subroutine die
       return
       end subroutine EOS_PutIntAtt
 
-
+!----------------------------------------------------------------------------
+!>
+! The routine `EOS_PutRealAtt` ...
+!
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design.
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
+!- 1998.09.28  Lucchesi           Added support for multiple precisions
+!- 1999.01.29  Lucchesi           Converted API to SD for HDFEOS
+!
       subroutine EOS_PutRealAtt ( fid, name, count, buf, prec, rc )
 !
 ! !USES:
@@ -4957,35 +4804,26 @@ end subroutine die
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
-      integer        count      ! Number of integers to write
-      real           buf(count) ! Buffer with real values
-      integer        prec       ! Desired precision of attribute value:
-                                !   0 = 32 bit
-                                !   1 = 64 bit
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
+      integer        count      !! Number of integers to write
+      real           buf(count) !! Buffer with real values
+      integer        prec       !! Desired precision of attribute value:
+                                !!   0 = 32 bit
+                                !!   1 = 64 bit
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-                         !   rc = 0    all is well
-                         !   rc = -12  error determining default precision
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                         !   rc = -55  error from NF90_REDEF (enter define mode)
-                         !   rc = -56  error from NF90_ENDDEF (exit define mode)
-
-! !REVISION HISTORY:
+      integer     rc     !! Error return code:     
+                         !!   rc = 0    all is well     
+                         !!   rc = -12  error determining default precision     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!  1998.09.28  Lucchesi           Added support for multiple precisions
-!  1999.01.29  Lucchesi           Converted API to SD for HDFEOS
-!
-!EOP
 !-------------------------------------------------------------------------
 
 
@@ -5065,7 +4903,16 @@ end subroutine die
       end subroutine EOS_PutRealAtt
 
 
-
+!------------------------------------------------------------------------------------
+!>
+! The routine `EOS_PutCharAtt` ....
+!
+!#### History
+!- 1998.07.30  Lucchesi           Initial interface design. 
+!- 1998.07.30  Lucchesi           Initial coding.
+!- 1998.09.24  Lucchesi           Changed error handling.
+!- 1999.01.29  Lucchesi           Converted API to SD for HDFEOS
+!
       subroutine EOS_PutCharAtt ( fid, name, count, buf, rc )
 !
 ! !USES:
@@ -5074,29 +4921,22 @@ end subroutine die
 !
 ! !INPUT PARAMETERS:
 !
-      integer        fid        ! File handle
-      character*(*)  name       ! Name of attribute
-      integer        count      ! Number of characters to write
-      character(len=MLEN)      buf ! Buffer containing string
+      integer        fid        !! File handle
+      character*(*)  name       !! Name of attribute
+      integer        count      !! Number of characters to write
+      character(len=MLEN)      buf !! Buffer containing string
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     ! Error return code:
-                         !   rc = 0    all is well
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !   rc = -36  error from NF90_PUT_ATT (global attribute)
-                         !   rc = -55  error from NF90_REDEF (enter define mode)
-                         !   rc = -56  error from NF90_ENDDEF (exit define mode)
-! !REVISION HISTORY:
+      integer     rc     !! Error return code:     
+                         !!   rc = 0    all is well     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
 !
-!  1998.07.30  Lucchesi           Initial interface design.
-!  1998.07.30  Lucchesi           Initial coding.
-!  1998.09.24  Lucchesi           Changed error handling.
-!  1999.01.29  Lucchesi           Converted API to SD for HDFEOS
-!
-!EOP
 !-------------------------------------------------------------------------
 
       integer rct
@@ -5139,67 +4979,11 @@ end subroutine die
       return
       end subroutine EOS_PutCharAtt
 
-      subroutine EOS_PutVar ( fid, vname, yyyymmdd, hhmmss, &
-                              im, jm, kbeg, kount, grid,     &
-                              do_comp, do_chunk, rc )
+!-------------------------------------------------------------------------
+!>
+! The routine `EOS_PutVar` ...
 !
-! !USES:
-
-      Implicit NONE
-!#include "hlimits.h"
-!
-! !INPUT PARAMETERS:
-!
-      integer        fid                 ! File handle
-      character*(*)  vname               ! Variable name
-      integer        yyyymmdd            ! Year-month-day, e.g., 19971003
-      integer        hhmmss              ! Hour-minute-second, e.g., 120000
-
-      integer         im                 ! size of longitudinal dimension
-      integer         jm                 ! size of latitudinal  dimension
-      integer         kbeg               ! first level to write; if 2-D grid
-                                         !   use kbeg = 0.
-      integer         kount              ! number of levels to write
-      real            grid(im,jm,kount)  ! Gridded data to write at this time
-      logical         do_comp
-      logical         do_chunk
-      integer         comp_num           ! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT
-                                         ! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE
-                                         ! 5 --COMP_CODE_SZIP
-
-
-! !OUTPUT PARAMETERS:
-
-      integer        rc  ! Error return code:
-                         !  rc =  0  all is well
-                         !  rc = -2  time is inconsistent with increment
-                         !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file
-                         !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary
-                         !  rc = -7  error in diffdate
-                         !  rc = -12  error determining default precision
-                         !  rc = -13  error determining variable type
-                         !  rc = -15  data outside of valid range
-                         !  rc = -16  data outside of packing range
-                         !  rc = -17  data outside of pack and valid range
-                         !
-                         !  NetCDF Errors
-                         !  -------------
-                         !  rc = -32  error detaching from grid
-                         !  rc = -37  error attaching to grid (HDFEOS)
-                         !  rc = -38  error from NF90_PUT_VAR (dimension variable) NOTUSED
-                         !  rc = -40  variable not defined
-                         !  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon) NOTUSED
-                         !  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev) NOTUSED
-                         !  rc = -43  error from NF90_INQ_VARID (time variable)
-                         !  rc = -44  error reading time information
-                         !  rc = -45  error writing data
-                         !  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED
-                         !  rc = -53  error getting variable attributes
-
-! !REVISION HISTORY:
-!
+!#### History
 !  1997.10.13 da Silva/Lucchesi   Initial interface design.
 !  1998.02.10 Lucchesi            Added support for applications running with
 !                                 64-bit reals.
@@ -5211,7 +4995,66 @@ end subroutine die
 !  1999.01.29 Lucchesi            Converted API to SD for HDFEOS
 !  1999.05.27 Lucchesi            Updated error codes.
 !
-!EOP
+      subroutine EOS_PutVar ( fid, vname, yyyymmdd, hhmmss, &
+                              im, jm, kbeg, kount, grid,     &
+                              do_comp, do_chunk, rc )
+!
+! !USES:
+
+      Implicit NONE
+!#include "hlimits.h"
+!
+! !INPUT PARAMETERS:
+!
+      integer        fid                 !! File handle
+      character*(*)  vname               !! Variable name
+      integer        yyyymmdd            !! Year-month-day, e.g., 19971003
+      integer        hhmmss              !! Hour-minute-second, e.g., 120000
+
+      integer         im                 !! size of longitudinal dimension
+      integer         jm                 !! size of latitudinal  dimension
+      integer         kbeg               !! first level to write; if 2-D grid
+                                         !!   use kbeg = 0.
+      integer         kount              !! number of levels to write
+      real            grid(im,jm,kount)  !! Gridded data to write at this time
+      logical         do_comp
+      logical         do_chunk
+      integer         comp_num           !! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT    
+                                         !! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE    
+                                         !! 5 --COMP_CODE_SZIP    
+
+
+! !OUTPUT PARAMETERS:
+
+      integer        rc  !! Error return code:     
+                         !!  rc =  0  all is well     
+                         !!  rc = -2  time is inconsistent with increment     
+                         !!  rc = -3  number of levels is incompatible with file     
+                         !!  rc = -4  im is incompatible with file     
+                         !!  rc = -5  jm is incompatible with file     
+                         !!  rc = -6  time must fall on a minute boundary     
+                         !!  rc = -7  error in diffdate     
+                         !!  rc = -12  error determining default precision     
+                         !!  rc = -13  error determining variable type     
+                         !!  rc = -15  data outside of valid range     
+                         !!  rc = -16  data outside of packing range     
+                         !!  rc = -17  data outside of pack and valid range     
+                         !!     
+                         !!  NetCDF Errors     
+                         !!  -------------     
+                         !!  rc = -32  error detaching from grid     
+                         !!  rc = -37  error attaching to grid (HDFEOS)     
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable) NOTUSED     
+                         !!  rc = -40  variable not defined     
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon) NOTUSED     
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev) NOTUSED     
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
+                         !!  rc = -44  error reading time information     
+                         !!  rc = -45  error writing data     
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED     
+                         !!  rc = -53  error getting variable attributes     
+
+!
 !-------------------------------------------------------------------------
 
       integer timeid, dimSize, dimId

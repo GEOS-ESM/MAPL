@@ -31,6 +31,9 @@ module MAPL_CapGridCompMod
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use MAPL_ExternalGCStorage
+#ifdef BUILD_WITH_PFLOGGER
+  use mapl_SimulationTime, only: set_reference_clock
+#endif
 
   use iso_fortran_env
 
@@ -468,6 +471,10 @@ contains
         cap%nsteps = nsteps
         cap%compute_throughput = .true.
     end if
+
+#ifdef BUILD_WITH_PFLOGGER
+    call set_reference_clock(cap%clock)
+#endif
 
     call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,rc=status)
     _VERIFY(status)
@@ -1687,31 +1694,24 @@ contains
   end subroutine rewind_clock
 
 
-  ! !IROUTINE: MAPL_ClockInit -- Sets the clock
-
-  ! !INTERFACE:
+!------------------------------------------------------------------------------
+!>
+! This is a private routine that sets the start and
+! end times and the time interval of the application clock from the configuration.
+! This time interal is the ``heartbeat'' of the application.
+! The Calendar is set to Gregorian by default.
+! The start time is temporarily set to 1 interval before the time in the
+! configuration. Once the Alarms are set in intialize, the clock will
+! be advanced to guarantee it and its alarms are in the same state as they
+! were after the last advance before the previous Finalize.
+!
 
   subroutine MAPL_ClockInit ( MAPLOBJ, Clock, nsteps, rc)
-
-    ! !ARGUMENTS:
 
     type(MAPL_MetaComp), intent(inout) :: MAPLOBJ
     type(ESMF_Clock),    intent(  out) :: Clock
     integer,             intent(  out) :: nsteps
     integer, optional,   intent(  out) :: rc
-
-    !  !DESCRIPTION:
-
-    !   This is a private routine that sets the start and
-    !   end times and the time interval of the application clock from the configuration.
-    !   This time interal is the ``heartbeat'' of the application.
-    !   The Calendar is set to Gregorian by default.
-    !   The start time is temporarily set to 1 interval before the time in the
-    !   configuration. Once the Alarms are set in intialize, the clock will
-    !   be advanced to guarantee it and its alarms are in the same state as they
-    !   were after the last advance before the previous Finalize.
-    !
-
 
     type(ESMF_Time)          :: StartTime    ! Initial     Begin  Time of Experiment
     type(ESMF_Time)          :: EndTime      ! Final       Ending Time of Experiment

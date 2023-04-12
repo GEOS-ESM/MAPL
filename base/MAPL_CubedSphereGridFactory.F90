@@ -235,9 +235,11 @@ contains
                 this%target_lat/=MAPL_UNDEFINED_REAL) then
                call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon_degrees,rc=status)
+               call ESMF_InfoSet(infoh,'STRETCH_FACTOR',this%stretch_factor,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat_degrees,rc=status)
+               call ESMF_InfoSet(infoh,'TARGET_LON',this%target_lon_degrees,rc=status)
+               _VERIFY(status)
+               call ESMF_InfoSet(infoh,'TARGET_LAT',this%target_lat_degrees,rc=status)
                _VERIFY(status)
             end if
          else
@@ -246,7 +248,10 @@ contains
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
             _VERIFY(status)
          end if
-         call ESMF_AttributeSet(grid, name='GridType', value='Cubed-Sphere', rc=status)
+         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoSet(infoh,'GRID_TYPE','Cubed-Sphere',rc=status)
+         _VERIFY(status)
       else
          grid = ESMF_GridCreateNoPeriDim( &
               & name = this%grid_name, &

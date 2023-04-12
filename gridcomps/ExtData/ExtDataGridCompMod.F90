@@ -1,23 +1,30 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 !#include "MAPL_Exceptions.h"
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
-
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-
+!
+!>
+!### MODULE: `MAPL_ExtDataGridCompMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_ExtDataGridCompMod` - Implements Interface to External Data.
+!
+! This module is an ESMF gridded component implementing
+! an interface to boundary conditions and other types of external data
+! files.
+!
+! It was developed for GEOS-5 release Fortuna 2.0 and later.
+!
+!#### History
+!- 12Dec2009  da Silva  Design and first implementation.
+!
    MODULE MAPL_ExtDataGridCompMod
-
-!BOP
-! !MODULE: MAPL_ExtDataGridCompMod - Implements Interface to External Data
-!
-! !DESCRIPTION:
-!
-!  {\tt MAPL\_ExtDataGridComp} is an ESMF gridded component implementing
-!  an interface to boundary conditions and other types of external data
-!  files.
-!
-!  Developed for GEOS-5 release Fortuna 2.0 and later.
 !
 ! !USES:
 !
@@ -64,11 +71,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-!EOP
-!
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
 !
 !-------------------------------------------------------------------------
 
@@ -111,7 +113,7 @@
      logical                      :: doInterpolate = .true.
      logical                      :: isConst
      real                         :: Const
-     integer                      :: vartype ! MAPL_FieldItem or MAPL_BundleItem
+     integer                      :: vartype !! MAPL_FieldItem or MAPL_BundleItem
 
      type(ESMF_FieldBundle)       :: binterp1, binterp2
      type(ESMF_Time)              :: time1, time2
@@ -219,26 +221,19 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `SetServices` --- Sets IRF services for the MAPL_ExtData
 !
-! !IROUTINE: SetServices --- Sets IRF services for the MAPL_ExtData
+! Sets Initialize, Run and Finalize services.
 !
-! !INTERFACE:
-
+!#### History
+!- 12Dec2009  da Silva  Design and first implementation.
+!
    SUBROUTINE SetServices ( GC, RC )
 
-! !ARGUMENTS:
-
-    type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, optional                  :: RC  ! return code
-
-! !DESCRIPTION: Sets Initialize, Run and Finalize services.
+    type(ESMF_GridComp), intent(INOUT) :: GC  !! gridded component
+    integer, optional                  :: RC  !! return code
 !
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
 !   Local derived type aliases
@@ -295,13 +290,14 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+!  `Initialize_` --- Initialize MAPL_ExtData
 !
-! !IROUTINE:  Initialize_ --- Initialize MAPL_ExtData
+! This is a simple ESMF wrapper.
 !
-! !INTERFACE:
+!#### History
+!- 12Dec2009  da Silva  Design and first implementation.
 !
-
    SUBROUTINE Initialize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -314,20 +310,13 @@ CONTAINS
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout) :: GC      ! Grid Component
-   type(ESMF_State), intent(inout)    :: IMPORT  ! Import State
-   type(ESMF_State), intent(inout)    :: EXPORT  ! Export State
-   integer, intent(out)               :: rc      ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 -
-
-! !DESCRIPTION: This is a simple ESMF wrapper.
+   type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
+   type(ESMF_State), intent(inout)    :: IMPORT  !! Import State
+   type(ESMF_State), intent(inout)    :: EXPORT  !! Export State
+   integer, intent(out)               :: rc      !! Error return code:    
+                                                 !!  0 - all is well    
+                                                 !!  1 -    
 !
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
@@ -1187,13 +1176,14 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `Run_` --- Runs MAPL_ExtData
 !
-! !IROUTINE:  Run_ --- Runs MAPL_ExtData
+! This is a simple ESMF wrapper.
 !
-! !INTERFACE:
+!#### History
+!- 12Dec2009  da Silva  Design and first implementation.
 !
-
    SUBROUTINE Run_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -1202,24 +1192,17 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out) ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 -
-
-! !DESCRIPTION: This is a simple ESMF wrapper.
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out) ::  rc                   !! Error return code:    
+                                                 !!  0 - all is well    
+                                                 !!  1 -    
 !
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
@@ -1597,13 +1580,14 @@ CONTAINS
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
-!BOP
+!>
+! `Finalize_` --- Finalize MAPL_ExtData
 !
-! !IROUTINE:  Finalize_ --- Finalize MAPL_ExtData
+! This is a simple ESMF wrapper.
 !
-! !INTERFACE:
+!#### History
+!- 12Dec2009  da Silva  Design and first implementation.
 !
-
    SUBROUTINE Finalize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -1612,24 +1596,17 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK      ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK      !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out) ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 -
-
-! !DESCRIPTION: This is a simple ESMF wrapper.
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out) ::  rc                   !! Error return code:    
+                                                 !!  0 - all is well    
+                                                 !!  1 -    
 !
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
@@ -3780,6 +3757,61 @@ CONTAINS
 
   end subroutine MAPL_ExtDataEvaluateMask
 
+!----------------------------------------------------------------------------------
+!>
+! The routine `MAPL_ExtDataExtractIntegers`
+! extracts integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
+! of Chem_Util, this is provided for determining the numerically indexed regions over which an
+! emission might be applied.
+!           
+! In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
+! including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
+! allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
+! the (local copy of the) string, and the process is started over.
+!
+! The default delimiter is a comma (",").
+!           
+! "Unfilled" iValues are zero.
+!
+! Return codes:
+!- 1 Zero-length string.
+!- 2 iSize needs to be increased.
+!
+! @bug
+!-The routine works under the following assumptions:
+!- A non-zero return code does not stop execution. 
+!- Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
+!- A delimiter must be separated from another delimiter by at least one numeral.
+!- The delimiter cannot be a numeral or a negative sign.
+!- The character following a negative sign must be an allowed numeral.
+!- The first character must be an allowed numeral or a negative sign.
+!- The last character must be an allowed numeral.
+!- The blank character (" ") cannot serve as a delimiter.
+!@endbug
+!
+! Examples of strings that will work:
+!```
+!  "1"
+!  "-1"  
+!  "-1,2004,-3"
+!  "1+-2+3" 
+!  "-1A100A5"
+!```
+!
+! Examples of strings that will not work:
+!```
+!  "1,--2,3"
+!  "1,,2,3"
+!  "1,A,3"
+!  "1,-,2"
+!  "1,2,3,4,"
+!  "+1"
+!  "1 3 6"
+!```
+!
+!#### History
+!- Taken from chem utilities.
+!
   SUBROUTINE MAPL_ExtDataExtractIntegers(string,iSize,iValues,delimiter,verbose,rc)
 
 ! !USES:
@@ -3788,65 +3820,17 @@ CONTAINS
 
 ! !INPUT/OUTPUT PARAMETERS:
 
-  CHARACTER(LEN=*), INTENT(IN)   :: string     ! Character-delimited string of integers
+  CHARACTER(LEN=*), INTENT(IN)   :: string     !! Character-delimited string of integers
   INTEGER, INTENT(IN)            :: iSize
-  INTEGER, INTENT(INOUT)         :: iValues(iSize)! Space allocated for extracted integers
-  CHARACTER(LEN=*), OPTIONAL     :: delimiter     ! 1-character delimiter
-  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose    ! Let me know iValues as they are found.
-                                      ! DEBUG directive turns on the message even
-                                      ! if verbose is not present or if
-                                      ! verbose = .FALSE.
-  INTEGER, OPTIONAL, INTENT(OUT) :: rc            ! Return code
-! !DESCRIPTION:
+  INTEGER, INTENT(INOUT)         :: iValues(iSize) !! Space allocated for extracted integers
+  CHARACTER(LEN=*), OPTIONAL     :: delimiter      !! 1-character delimiter
+  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose    !! Let me know iValues as they are found.
+                                      !! DEBUG directive turns on the message even
+                                      !! if verbose is not present or if
+                                      !! verbose = .FALSE.
+  INTEGER, OPTIONAL, INTENT(OUT) :: rc            !! Return code
+
 !
-!  Extract integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
-!  of Chem_Util, this is provided for determining the numerically indexed regions over which an
-!  emission might be applied.
-!
-!  In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
-!  including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
-!  allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
-!  the (local copy of the) string, and the process is started over.
-!
-!  The default delimiter is a comma (",").
-!
-!  "Unfilled" iValues are zero.
-!
-!  Return codes:
-!  1 Zero-length string.
-!  2 iSize needs to be increased.
-!
-!  Assumptions/bugs:
-!
-!  A non-zero return code does not stop execution.
-!  Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
-!  A delimiter must be separated from another delimiter by at least one numeral.
-!  The delimiter cannot be a numeral or a negative sign.
-!  The character following a negative sign must be an allowed numeral.
-!  The first character must be an allowed numeral or a negative sign.
-!  The last character must be an allowed numeral.
-!  The blank character (" ") cannot serve as a delimiter.
-!
-!  Examples of strings that will work:
-!  "1"
-!  "-1"
-!  "-1,2004,-3"
-!  "1+-2+3"
-!  "-1A100A5"
-!  Examples of strings that will not work:
-!  "1,--2,3"
-!  "1,,2,3"
-!  "1,A,3"
-!  "1,-,2"
-!  "1,2,3,4,"
-!  "+1"
-!  "1 3 6"
-!
-! !REVISION HISTORY:
-!
-!  Taken from chem utilities.
-!
-!EOP
  CHARACTER(LEN=*), PARAMETER :: Iam = 'Chem_UtilExtractIntegers'
 
  INTEGER :: base,count,i,iDash,last,lenStr
