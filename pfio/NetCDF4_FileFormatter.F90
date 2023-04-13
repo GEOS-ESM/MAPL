@@ -287,7 +287,7 @@ contains
       else
          status = nf90_open(file, IOR(omode, NF90_SHARE), this%ncid)
       end if
-      !$omp end critical
+      
       if (status /= nf90_noerr) then
          write(error_unit, fmt='("nf90_open: returned error code (", I0,") opening ", A, " [", A,"]")') &
                status,trim(file),trim(nf90_strerror(status))
