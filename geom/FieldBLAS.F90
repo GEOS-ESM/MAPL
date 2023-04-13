@@ -995,11 +995,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_local_size
 
-!wdb   fixme Not implemented
-!   function sin(f, rc) result(sin_f)
-!      type(ESMF_Field), intent(inout) ::f
-!      integer, optional, intent(out) :: rc
-!      type(ESMF_Field) :: sin_f
-!   end function sin
-
 end module mapl3g_FieldBLAS
