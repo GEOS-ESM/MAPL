@@ -423,6 +423,8 @@ module MAPL_GriddedIOMod
               call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
               _VERIFY(status)
            end if
+        else
+           _FAIL("Time was not initialized for the GriddedIO class instance")
         end if
         _RETURN(ESMF_SUCCESS)
 
@@ -435,8 +437,12 @@ module MAPL_GriddedIOMod
 
         integer :: status
 
-        call this%timeInfo%setFrequency(frequency, rc=status)
-        _VERIFY(status)
+        if (this%timeInfo%is_initialized) then
+           call this%timeInfo%setFrequency(frequency, rc=status)
+           _VERIFY(status)
+        else
+           _FAIL("Time was not initialized for the GriddedIO class instance")
+        end if
 
         _RETURN(ESMF_SUCCESS)
 
