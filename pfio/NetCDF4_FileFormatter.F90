@@ -287,11 +287,11 @@ contains
       else
          status = nf90_open(file, IOR(omode, NF90_SHARE), this%ncid)
       end if
+      !$omp end critical
       if (status /= nf90_noerr) then
          write(error_unit, fmt='("nf90_open: returned error code (", I0,") opening ", A, " [", A,"]")') &
                status,trim(file),trim(nf90_strerror(status))
       end if
-      !$omp end critical
       _VERIFY(status)
 
       this%origin_file = file
@@ -519,6 +519,7 @@ contains
                _VERIFY(status)
             class default
                status = _FAILURE
+               _VERIFY(status)
             end select
          end if
          call var_iter%next()
@@ -676,10 +677,14 @@ contains
       integer, optional, intent(out) :: rc
       integer:: status
 
+      !$omp critical
       status=nf90_redef(this%ncid) 
+      !$omp end critical
       _VERIFY(status)
       call this%def_variables(cf, varname=varname, _RC)
+      !$omp critical
       status=nf90_enddef(this%ncid) 
+      !$omp end critical
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -1201,7 +1206,7 @@ contains
          else
             Fio_type = get_fio_type(xtype, rc=status); _VERIFY(status)
             Concrete_var = Variable(type=fio_type, dimensions=dim_string)
-            Allocate(var, source=concrete_var)
+            allocate(var, source=concrete_var)
          end if
 
          call this%inq_var_attributes(var, varid, rc=status)

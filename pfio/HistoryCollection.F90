@@ -62,7 +62,7 @@ contains
          call fm%write(this%fmd, rc=status)
          _VERIFY(status)
        else
-          call fm%open(trim(file_name), pFIO_WRITE)
+          call fm%open(trim(file_name), pFIO_WRITE, _RC)
        endif
        call this%formatters%insert( trim(file_name),fm)
        iter = this%formatters%find(trim(file_name))
