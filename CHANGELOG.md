@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add option to GriddedIO class so that if an unitilized time object is passed, the resulting file will not depend on time
+
 ### Fixed
 
 ### Removed
