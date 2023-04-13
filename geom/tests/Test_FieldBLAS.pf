@@ -703,15 +703,16 @@ contains
    subroutine test_FieldClone()
       character(len=*), parameter :: TEST_NAME = 'test_FieldClone'
       type(ESMF_Field) :: x, y
+      integer :: status, rc
 
-      type(ESMF_ArraySpec) :: arrayspec
-      type(ESMF_Grid) :: grid
-      type(ESMF_StaggerLoc) :: staggerloc
-      integer, allocatable :: gridToFieldMap(:)
-      integer, allocatable :: ungriddedLBound(:)
-      integer, allocatable :: ungriddedUBound(:)
-      integer, allocatable :: totalLWidth(:,:)
-      integer, allocatable :: totalUWidth(:,:)
+!      type(ESMF_ArraySpec) :: arrayspec
+!      type(ESMF_Grid) :: grid
+!      type(ESMF_StaggerLoc) :: staggerloc
+!      integer, allocatable :: gridToFieldMap(:)
+!      integer, allocatable :: ungriddedLBound(:)
+!      integer, allocatable :: ungriddedUBound(:)
+!      integer, allocatable :: totalLWidth(:,:)
+!      integer, allocatable :: totalUWidth(:,:)
 
       RUNNING(TEST_NAME)
 
@@ -755,7 +756,7 @@ contains
 
       if(y==0) then
          almost_equal = (x==0)
-      elseif
+      else
          almost_equal = (abs(x-y)/abs(y) < EPS)
       end if
 
@@ -783,7 +784,6 @@ contains
       real(kind=ESMF_KIND_R8), parameter :: DENOMS(N) = [3.0, 5.0, 7.0]
       real(kind=ESMF_KIND_R8), parameter :: X(N) = 1.0 / DENOMS
       real(kind=ESMF_KIND_R4) :: y(N)
-      integer :: i
 
       RUNNING(TEST_NAME)
 
@@ -794,42 +794,6 @@ contains
       PASSED(TEST_NAME)
 
    end subroutine test_almost_equal_array
-
-!wdb fixme delete debugging routine
-!   @test
-   subroutine test_pointer_size()
-      character(len=*), parameter :: TEST_NAME = 'test_pointer_size'
-      real(ESMF_KIND_R4), target :: x(16,16)
-      real(ESMF_KIND_R4), pointer :: xptr(:,:)
-      type(ESMF_Field) :: field
-      type(ESMF_Grid) :: grid
-      integer, allocatable :: shape_x(:)
-      integer, allocatable :: shape_xptr(:)
-      integer :: rc, status
-
-      RUNNING(TEST_NAME)
-      
-      write(*, *) 'BEFORE:'
-      shape_x = shape(x)
-      write(*, *) 'Shape x: ', shape_x
-      xptr => x
-      shape_xptr = shape(xptr)
-      @assertEqual(shape_x, shape_xptr)
-      write(*, *) 'Shape xptr: ', shape_xptr
-
-      grid = ESMF_GridCreateNoPeriDim(regDecomp = [2, 2], maxIndex = [16, 16], &
-         indexflag = INDEX_FLAG_DEFAULT, rc = status)
-      @assertEqual(status, 0)
-      field = ESMF_FieldCreate(grid = grid, typekind = ESMF_TYPEKIND_R4, rc = status)
-      @assertEqual(status, 0)
-      call ESMF_FieldGet(field, farrayPtr = xptr, rc = status)
-      @assertEqual(status, 0)
-      write(*, *) 'GET: Shape xptr: ', shape(xptr)
-      xptr => x
-      write(*, *) 'SET: Shape xptr: ', shape(xptr)
-
-      PASSED(TEST_NAME)
-   end subroutine test_pointer_size
 
 !wdb debugging procedures
    subroutine write_array2dR4(array, fmtin)
@@ -891,7 +855,7 @@ contains
    end subroutine write_array1dR8
 
    function difference_scalar(x, y) result(string)
-      character(len=*), parameter :: fmt_ = '(D)'
+      character(len=*), parameter :: fmt_ = '(E)'
       real(kind=ESMF_KIND_R8), intent(in) :: x
       real(kind=ESMF_KIND_R4), intent(in) :: y
       character(len=:), allocatable :: string
@@ -901,7 +865,7 @@ contains
    end function difference_scalar
 
    function difference_array(x, y) result(string)
-      character(len=*), parameter :: fmt_ = '(D)'
+      character(len=*), parameter :: fmt_ = '(E)'
       real(kind=ESMF_KIND_R8), intent(in) :: x(:)
       real(kind=ESMF_KIND_R4), intent(in) :: y(:)
       character(len=:), allocatable :: string

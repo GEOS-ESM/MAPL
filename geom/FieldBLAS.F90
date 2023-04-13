@@ -440,7 +440,7 @@ contains
       type(ESMF_Field), intent(inout) :: y
       integer, optional, intent(out) :: rc
       
-      character(len=*), parameter :: CLONE='_clone'
+      character(len=*), parameter :: CLONE_TAG = '_clone'
       type(ESMF_ArraySpec) :: arrayspec
       type(ESMF_Grid) :: grid
       type(ESMF_StaggerLoc) :: staggerloc
@@ -450,18 +450,20 @@ contains
       integer, allocatable :: totalLWidth(:,:)
       integer, allocatable :: totalUWidth(:,:)
       character(len=:), allocatable :: name
+      integer :: status
 
       call ESMF_FieldGet(x, arrayspec=arrayspec, grid=grid, &
          staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
          ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, &
          totalLWidth=totalLWidth, totalUWidth=totalUWidth, _RC)
 
-      name = name // CLONE
+      name = name // CLONE_TAG
 
       y = ESMF_FieldCreate(grid, arrayspec, staggerloc=staggerloc, &
          gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
-         ungriddedUBound=ungriddedUBound, totalLWidth=totalLWidth, &
-         totalUWidth=totalUWidth, name=name, _RC)
+         ungriddedUBound=ungriddedUBound, name=name, _RC)
+!         ungriddedUBound=ungriddedUBound, totalLWidth=totalLWidth, &
+!         totalUWidth=totalUWidth, name=name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine clone
