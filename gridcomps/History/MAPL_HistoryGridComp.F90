@@ -3618,10 +3618,12 @@ ENDDO PARSER
       end if
       if (list(n)%collection_is_masked) then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
-         time_span(1)=Current_time
          sec = MAPL_nsecf( list(n)%frequency )
          call ESMF_timeintervalSet(timestep_local, s=sec, _RC)
-         time_span(2)=Current_time+timestep_local
+
+         time_span(1)=Current_time - timestep_local
+         time_span(2)=Current_time
+
          call ESMF_FieldBundleGet(list(n)%bundle,grid=grid_in,_RC)
          call list(n)%td_mask%get_mask(time_span,grid_in,_RC)
 

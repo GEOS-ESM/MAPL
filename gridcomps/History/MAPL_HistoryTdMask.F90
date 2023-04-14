@@ -186,23 +186,32 @@ contains
     
     ! s1. get esmf grid dim, set default mask=.F.
     !
-    call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
-    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
-    call ESMF_DELayoutGet(layout, VM=vm, _RC)
-    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
-    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
-    IM= COUNTS(1)
-    JM= COUNTS(2)
-    LM= COUNTS(3)
-    call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
-    IM_WORLD= COUNTS(1)
-    JM_WORLD= COUNTS(2)
 
-    write(6,121) 'myid,ndes', myid,ndes
-    write(6,121) 'IM,JM,LM', IM,JM,LM
-    write(6,121) 'IM_WORLD,JM_WORLD', IM_WORLD,JM_WORLD
+!    call ESMF_GridGet(grid, DistGrid=distgrid, dimCount=dimCount, _RC)
+!    call ESMF_DistGridGet(distgrid, deLayout=LAYOUT, _RC)
+!    call ESMF_DELayoutGet(layout, VM=vm, _RC)
+!    call ESMF_VmGet(VM, localPet=myid, petCount=ndes, _RC)
+!    call MAPL_GridGet(grid, localCellCountPerDim=COUNTS, _RC)
+!    IM= COUNTS(1)
+!    JM= COUNTS(2)
+!    LM= COUNTS(3)
+!    call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
+!    IM_WORLD= COUNTS(1)
+!    JM_WORLD= COUNTS(2)
 
-    allocate(this%mask(IM_WORLD, JM_WORLD))
+!    call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS, _RC)
+!    IM_WORLD= COUNTS(1)
+!    JM_WORLD= COUNTS(2)
+
+!    write(6,121) 'myid,ndes', myid,ndes
+!    write(6,121) 'IM,JM,LM', IM,JM,LM
+!    write(6,121) 'IM_WORLD,JM_WORLD', IM_WORLD,JM_WORLD
+
+    
+    !    allocate(this%mask(IM_WORLD, JM_WORLD))
+        allocate(this%mask(72,72))
+
+
     this%mask=.false.
 
     ! s2. read in a series of swath files within time_span
@@ -210,30 +219,39 @@ contains
     !     - read in lon/lat obs. data
     !
     start_time = this%mask_start
-    if (start_time < time_span(1)) then
+    if (start_time <= time_span(1)) then
        do while ( start_time <= time_span(1) )
           start_time = start_time + this%obs_interval
        enddo
     endif
     start_time_aux=start_time
 
+    ! __ sub.1
     ! allocate arrays
     nx=0
     do while ( start_time <= time_span(2) .AND. start_time <= this%obs_end )
        call this%get_filename_arraybound (start_time, fname, Xdim, Ydim)
        nx = nx + Xdim*Ydim
-       write(6,121) 'nx increase', Xdim*Ydim
-       write(6,102) 'fname', trim(fname)
+
+       if (mapl_am_I_root()) then
+          write(6,121) 'nx increase', Xdim*Ydim
+          write(6,102) 'fname', trim(fname)
+       endif
        start_time = start_time + this%obs_interval
     enddo
     nx_0 = nx
-    write(6,121) 'nx final:', nx
+
+    if( MAPL_AM_I_ROOT() ) write(6,121) 'nx final:', nx
+    
 
     if (nx_0 > 0) then
        allocate(obs_lons(nx_0), obs_lats(nx_0))
        allocate(II(nx_0), JJ(nx_0))
     end if
+
+
     
+    ! __ sub.2     
     ! fill in arrays [repeat loop]
     nx=0
     start_time=start_time_aux
@@ -255,6 +273,7 @@ contains
     if (nx /= nx_0)  STOP 'failed in MAPL_HistoryTdMask.F90: nx /= nx_0'
     !! write(6,203) obs_lons(1:nx:100)
 
+    if( MAPL_AM_I_ROOT() ) write(6,*) 'bf call getglobal:'
 
     ! s3. find index [loc/global] via bisect for CS/LL
     !
@@ -264,30 +283,35 @@ contains
        !    Find a bug when using MAPL_GetGlobalHorzIJIndex
        !    code hangs, appears to associated with lingering memory
        !    from allcoate/deallcoate therein
-       
+       if( MAPL_AM_I_ROOT() ) write(6,*) 'inside block call getglobal:'
+
+       write(6,*) 'nail 1'
+       write(6,*) 'nx,nx_0',nx,nx_0
+       write(6,*) 'obs_lons(1:nx:10)', obs_lons(1:nx:1000)
+       write(6,*) 'obs_lats(1:nx:10)', obs_lats(1:nx:1000)
+             
        call  MAPL_GetGlobalHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=Grid,_RC)
        !call MAPL_GetHorzIJIndex(nx,II,JJ,lon=obs_lons,lat=obs_lats,grid=grid,_RC)
-
-       enddo
-       stop -1
        
        do i=1, nx
           if ( II(i)>0 .AND. JJ(i)>0 ) then
              this%mask( II(i), JJ(i) ) = .true.
           endif
        enddo
-       write(6,123) (II(i), i=1,nx,100)
-       write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
 
+       if (mapl_am_i_root()) then
+          write(6,123) (II(i), i=1,nx,100)
+          write(6,124) ((this%mask(i,j), i=1,IM_WORLD,5), j=1,JM_WORLD,5)
+          write(6,123) (JJ(i), i=1,nx,100)
+          write(6,*) 'i am head'
+       else
+          write(6,*) 'he is head'       
+       endif
+       
        deallocate(obs_lons, obs_lats)
        deallocate(II, JJ)
     endif
- 
-    
     deallocate(this%mask)
-    
-    write(6,*) 'nail end of  get_mask : 2'
-    
     include "/users/yyu11/sftp/myformat.inc"  
   end subroutine get_mask
 
@@ -381,7 +405,7 @@ contains
     call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
     call check_nc_status(nf90_close(ncid), _RC)
     !! debug summary
-    write(6,*) "get_ncfile_dimension:  nlon, nlat, tdim = ", nlon, nlat, tdim
+    if( MAPL_AM_I_ROOT() ) write(6,*) "get_ncfile_dimension:  nlon, nlat, tdim = ", nlon, nlat, tdim
   end subroutine get_ncfile_dimension
 
   
