@@ -540,11 +540,76 @@ contains
       call MAPL_GetRootGC(GC, meta%rootGC, _RC)
       call setup_children(meta, _RC)
 
+      call process_spec_dependence(meta, _RC)
       call meta%t_profiler%stop('generic',_RC)
 
       _RETURN(ESMF_SUCCESS)
 
    contains
+
+     subroutine process_spec_dependence(meta, rc)
+       type (MAPL_MetaComp), target, intent(inout) :: meta
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       integer :: k, i, j, nc, nvars
+       logical :: depends_on_children
+       character(len=:), allocatable :: depends_on(:)
+       character(len=ESMF_MAXSTR) :: SHORT_NAME, NAME
+       type (MAPL_VarSpec), pointer :: ex_specs(:), c_ex_specs(:)
+       type (MAPL_MetaComp), pointer :: cmeta
+       type(ESMF_GridComp), pointer :: childgridcomp
+
+       ! get the export specs
+       NULLIFY(ex_specs)
+       call  MAPL_StateGetVarSpecs(meta, export=ex_specs, _RC)
+       ! allow for possibility we do not have export specs
+       if (.not. associated(ex_specs)) _RETURN(ESMF_SUCCESS)
+
+       ! check for DEPENDS_ON_CHILDREN
+       do K=1,size(EX_SPECS)
+          call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, &
+               DEPENDS_ON_CHILDREN=DEPENDS_ON_CHILDREN, &
+               DEPENDS_ON=DEPENDS_ON, _RC)
+          if (DEPENDS_ON_CHILDREN) then
+!!!             mark SHORT_NAME in each child "alwaysAllocate"
+             nc = meta%get_num_children()
+             _ASSERT(nc > 0, 'DEPENDS_ON_CHILDREN requires at least 1 child')
+             do I=1, nc
+                childgridcomp => meta%get_child_gridcomp(i)
+                call MAPL_InternalStateRetrieve(childgridcomp, cmeta, _RC)
+                NULLIFY(c_ex_specs)
+                call  MAPL_StateGetVarSpecs(cmeta, export=c_ex_specs, _RC)
+                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
+                do j=1,size(c_ex_specs)
+                   call MAPL_VarSpecGet(c_ex_specs(j), SHORT_NAME=NAME, _RC)
+                   if (short_name == name) then
+                      call MAPL_VarSpecSet(c_ex_specs(j), alwaysAllocate=.true., _RC)
+                      exit
+                   end if
+                end do ! spec loop
+             end do
+          end if ! DEPENDS_ON_CHILDREN
+
+          if (allocated(depends_on)) then
+!!!             mark SHORT_NAME in each variable "alwaysAllocate"
+             nvars = size(depends_on)
+             _ASSERT(nvars > 0, 'DEPENDS_ON requires at least 1 var')
+             do I=1, nvars
+                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
+                do j=1,size(ex_specs)
+                   call MAPL_VarSpecGet(ex_specs(j), SHORT_NAME=NAME, _RC)
+                   if (short_name == name) then
+                      call MAPL_VarSpecSet(ex_specs(j), alwaysAllocate=.true., _RC)
+                      exit
+                   end if
+                end do ! spec loop
+             end do
+          end if ! DEPENDS_ON
+       end do
+
+       _RETURN(ESMF_SUCCESS)
+     end subroutine process_spec_dependence
 
       subroutine register_generic_entry_points(gc, rc)
          type(ESMF_GridComp), intent(inout) :: gc
@@ -3278,7 +3343,8 @@ contains
         HALOWIDTH, PRECISION, DEFAULT, UNGRIDDED_DIMS,   &
         UNGRIDDED_UNIT, UNGRIDDED_NAME,     &
         UNGRIDDED_COORDS,                     &
-        FIELD_TYPE, STAGGERING, ROTATION, RC )
+        FIELD_TYPE, STAGGERING, ROTATION, &
+        DEPENDS_ON, DEPENDS_ON_CHILDREN, RC )
 
       !ARGUMENTS:
       type (ESMF_GridComp)            , intent(INOUT)   :: GC
@@ -3301,6 +3367,8 @@ contains
       integer            , optional   , intent(IN)      :: FIELD_TYPE
       integer            , optional   , intent(IN)      :: STAGGERING
       integer            , optional   , intent(IN)      :: ROTATION
+      logical            , optional   , intent(IN)      :: DEPENDS_ON_CHILDREN
+      character (len=*)  , optional   , intent(IN)      :: DEPENDS_ON(:)
       integer            , optional   , intent(OUT)     :: RC
       !EOPI
 
@@ -3365,6 +3433,8 @@ contains
            FIELD_TYPE = FIELD_TYPE,                                              &
            STAGGERING = STAGGERING,                                              &
            ROTATION = ROTATION,                                                  &
+           DEPENDS_ON = DEPENDS_ON, &
+           DEPENDS_ON_CHILDREN = DEPENDS_ON_CHILDREN, &
            RC=status  )
       _VERIFY(status)
 

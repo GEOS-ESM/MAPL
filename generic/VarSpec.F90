@@ -801,6 +801,8 @@ contains
         GRID,                                     &
         doNotAllocate,                            &
         alwaysAllocate,                           &
+        depends_on_children,                      &
+        depends_on,                               &
         RC )
 
       type (MAPL_VarSpec ),             intent(IN )     :: SPEC
@@ -838,6 +840,8 @@ contains
       type(ESMF_Grid)    , optional   , intent(OUT)     :: GRID
       logical            , optional   , intent(OUT)     :: doNotAllocate
       logical            , optional   , intent(OUT)     :: alwaysAllocate
+      logical            , optional   , intent(OUT)     :: depends_on_children
+      character(len=:), allocatable, optional, intent(OUT) :: depends_on(:)
       integer            , optional   , intent(OUT)     :: RC
 
 
@@ -982,6 +986,14 @@ contains
       if(present(alwaysAllocate)) then
          alwaysAllocate = SPEC%SPECPtr%alwaysAllocate
       endif
+
+      if(present(depends_on_children)) then
+         depends_on_children =  SPEC%SPECPtr%depends_on_children
+      end if
+
+      if(present(depends_on)) then
+         depends_on =  SPEC%SPECPtr%depends_on
+      end if
 
       _RETURN(ESMF_SUCCESS)
 
