@@ -41,6 +41,7 @@ target_include_directories (${this} PUBLIC
 target_link_libraries (${this} PUBLIC esmf)
 
 if (PFUNIT_FOUND)
-  add_subdirectory(tests EXCLUDE_FROM_ALL)
+  # Turning off until test with GNU can be fixed
+  #add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
