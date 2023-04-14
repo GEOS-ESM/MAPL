@@ -384,7 +384,14 @@ module MAPL_GriddedIOMod
         call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+        ! Weird workaround for NAG 7.1.113
+#ifdef __NAG_COMPILER_RELEASE
+        associate (s => regrid_method_int_to_string(this%regrid_method))
+          call v%add_attribute('regrid_method', s)
+        end associate
+#else
         call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
+#endif
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
