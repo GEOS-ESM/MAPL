@@ -2297,7 +2297,6 @@ contains
   !............................................................................
 
   module subroutine MAPL_GridGetCorners(grid,gridCornerLons, gridCornerLats, RC)
-    use MAPL_CommsMod
     type (ESMF_Grid), intent(INOUT) :: GRID
     real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLons(:,:)
     real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
@@ -2326,7 +2325,6 @@ contains
          isPresent=hasLats, RC=STATUS)
     _VERIFY(status)
     if (hasLons .and. hasLats) then
-       if( MAPL_AM_I_ROOT() ) write(6,*) 'tt: haslons/haslats'
        call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
             itemcount=lsz, RC=STATUS)
        _VERIFY(STATUS)
@@ -2363,8 +2361,7 @@ contains
        end do
        deallocate(r8ptr)
     else
-       if( MAPL_AM_I_ROOT() ) write(6,*) 'tt: haslons/haslats : no'
-       
+
        call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
             farrayPtr=corner, rc=status)
        imc=size(corner,1)
@@ -3173,7 +3170,6 @@ contains
   end subroutine MAPL_GetHorzIJIndex
 
   module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
-    use MAPL_CommsMod
     implicit none
     !ARGUMENTS:
     integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
@@ -3206,40 +3202,24 @@ contains
     real    :: tolerance
     logical :: good_grid
 
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt1'
-    
     if (npts == 0 ) then
       _RETURN(_SUCCESS)
     endif
 
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt2'
-    
     if ( .not. present(grid)) then
       _ASSERT(.false., "need a cubed-sphere grid")
-   endif
-
-   if( MAPL_AM_I_ROOT() ) write(6,*) 'pt3'
-   
+    endif
     call MAPL_GridGet(grid, globalCellCountPerDim=dims,rc=status)
     _VERIFY(STATUS)
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt4'
-
-
     IM_World = dims(1)
     JM_World = dims(2)
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
     dalpha = 2.0d0*alpha/IM_WORLD  
 
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt4.1'    
     ! make sure the grid can be used in this subroutine
-!    good_grid = grid_is_ok(grid)
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt4.2'        
-!    _ASSERT( good_grid, "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
-
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt5'    
-    if( .NOT. MAPL_AM_I_ROOT() ) write(6,*) 'not root: af grid_is_ok(grid):', good_grid
-    
+    good_grid = grid_is_ok(grid)
+    _ASSERT( good_grid, "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
 
     allocate(lons(npts),lats(npts))
     if (present(lon) .and. present(lat)) then
@@ -3266,23 +3246,16 @@ contains
     xyz(2,:) = xyz(2,:)/max_abs
     xyz(3,:) = xyz(3,:)/max_abs
 
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt6'
-    
     x = xyz(1,:)
     y = xyz(2,:)
     z = xyz(3,:)
-    
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt7'    
 
     II = -1
     JJ = -1
 
     ! The edge points are assigned in the order of face 1,2,3,4,5,6
 
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt8'
     call calculate(x,y,z,II,JJ)
-    if( MAPL_AM_I_ROOT() ) write(6,*) 'pt9'
-    
 
     _RETURN(_SUCCESS)
 
@@ -3337,7 +3310,7 @@ contains
     end subroutine angle_to_index
 
     function grid_is_ok(grid) result(OK)
-       type(ESMF_Grid) :: grid
+       type(ESMF_Grid), intent(inout) :: grid
        logical :: OK
        integer :: I1, I2, J1, J2, j
        real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
@@ -3345,17 +3318,13 @@ contains
        real :: tolerance
  
        tolerance = epsilon(1.0)
-       if( MAPL_AM_I_ROOT() ) write(6,*) 'ck1'
        call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
-       if( MAPL_AM_I_ROOT() ) write(6,*) 'ck2'
        OK = .true. 
        ! check the edge of face 1 along longitude
        if ( I1 ==1 .and. J2<=IM_WORLD ) then
           allocate(corner_lons(I2-I1+2, J2-J1+2))
           allocate(corner_lats(I2-I1+2, J2-J1+2))
-          if( MAPL_AM_I_ROOT() ) write(6,*) 'ck2.1'
           call MAPL_GridGetCorners(Grid,corner_lons,corner_lats)
-          if( MAPL_AM_I_ROOT() ) write(6,*) 'ck3'
           if (J1 == 1) then
             accurate_lon = 1.750d0*MAPL_PI_R8 - shift
             if (abs(accurate_lon - corner_lons(1,1)) > tolerance) then
@@ -3381,13 +3350,10 @@ contains
                 exit
              endif
           enddo
-          if( MAPL_AM_I_ROOT() ) write(6,*) 'ck4'          
           deallocate(corner_lons, corner_lats)
        endif
-       return
-     end function grid_is_ok
+    end function
 
-     
   end subroutine MAPL_GetGlobalHorzIJIndex
 
   module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
