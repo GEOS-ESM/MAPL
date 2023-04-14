@@ -1536,8 +1536,9 @@ contains
    end subroutine get_esmf_grid_layout
 
    subroutine check_quad ( quad,vname,nvars,aliases,nalias,qloc )
+      integer :: nvars, nalias
       character(len=ESMF_MAXSTR)  quad(2), aliases(2,nalias), vname(nvars)
-      integer  nvars, nalias, qloc(2)
+      integer  qloc(2)
       integer  m,n
 
 ! Initialize Location of Quadratics
@@ -1640,9 +1641,7 @@ contains
 
       integer ndpm(12)
       data    ndpm /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
-      logical leap
       integer :: ny,nm,nd
-      leap(ny) = mod(ny,4).eq.0 .and. (mod(ny,100).ne.0 .or. mod(ny,400).eq.0)
 !***********************************************************************
 !
       ny = nymd / 10000
@@ -1656,10 +1655,10 @@ contains
             ny = ny - 1
          endif
          nd = ndpm(nm)
-         if (nm.eq.2 .and. leap(ny))  nd = 29
+         if (nm.eq.2 .and. is_leap_year(ny))  nd = 29
       endif
 
-      if (nd.eq.29 .and. nm.eq.2 .and. leap(ny))  go to 20
+      if (nd.eq.29 .and. nm.eq.2 .and. is_leap_year(ny))  go to 20
 
       if (nd.gt.ndpm(nm)) then
          nd = 1
@@ -1675,6 +1674,11 @@ contains
       return
 
    end function compute_incymd
+
+   logical function is_leap_year(year)
+      integer, intent(in) :: year
+      is_leap_year = (mod(year,4) == 0) .and. (mod(year,100) == 0 .or. mod(year,400) == 0)
+   end function is_leap_year
 
    subroutine usage(root)
       logical, intent(in) :: root
