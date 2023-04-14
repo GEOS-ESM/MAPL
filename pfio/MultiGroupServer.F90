@@ -611,7 +611,13 @@ contains
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
+       type (TimeProfiler), target :: writing_prof
+       type (ProfileReporter) :: reporter
+       character(:), allocatable :: report_lines(:)
 
+       writing_prof = TimeProfiler("wrting_file")
+       call writing_prof%start()
+       
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
        do while (.true.)
@@ -799,7 +805,9 @@ contains
             end select
             select type (q=>msg)
             class is (AbstractDataMessage)
+               call writing_prof%start(q%file_name,_RC)
                call thread_ptr%put_dataToFile(q, address, _RC)
+               call writing_prof%stop(q%file_name,_RC)
             end select
             call msg_iter%next()
          enddo
@@ -812,6 +820,16 @@ contains
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
        enddo
+
+       call writing_prof%stop()
+       report_lines = reporter%generate_report(writing_prof)
+       write(*,'(a)')'Writing individual file profile'
+       write(*,'(a)')'============='
+       do i = 1, size(report_lines)
+         write(*,'(a)') report_lines(i)
+       end do
+       write(*,'(a)') ''
+
        _RETURN(_SUCCESS)
      end subroutine start_back_writers
 
