@@ -16,6 +16,7 @@ module HistoryTrajectoryMod
    use MAPL_BaseMod
    use MAPL_CommsMod
    use MAPL_LocstreamRegridderMod
+   use sgp4_mod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -89,6 +90,30 @@ module HistoryTrajectoryMod
             call formatter%get_var("latitude",trajectory%lats,_RC)
          end if
 
+!         !! def getTrack ( tleFile, t_beg, t_end, dt_secs=60):
+!         ! getTrack from TLE
+!         filename=tleFile
+!         dt_secs=60
+!         t_beg=
+!         t_end=
+!         
+!         dt = t_end-t_beg
+!         n = 1 + int(dt.total_seconds() / dt_secs)
+!         Dt = timedelta(seconds=dt_secs)
+!         
+!         nymd = [ _getNYMD(t_beg), _getNYMD(t_end) ]
+!         nhms = [ _getNHMS(t_beg), _getNHMS(t_end) ]
+!         
+!         tyme = array([ t_beg + i * Dt for i in range(n) ])
+!         
+!         lon, lat, rc = sgp4_.sgp4track(n, tleFile, nymd, nhms, dt_secs)
+!    
+!         
+!         call Sgp4_Track(
+!
+!         lon, lat, rc = sgp4_.sgp4track(n, tleFile, nymd, nhms, dt_secs)
+         
+         
          call metadata%get_time_info(timeVector=trajectory%times,_RC)
          trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
          trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)

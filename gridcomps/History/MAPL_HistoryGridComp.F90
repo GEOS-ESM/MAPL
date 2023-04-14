@@ -873,12 +873,31 @@ contains
        end if
 
 ! Get an optional file containing a 1-D track for the output
+
+! YGYU add
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
+            label=trim(string) // 'observation_spec:', _RC)
+       
+       call ESMF_ConfigGetAttribute(cfg, list(n)%obs_time_bg, &
+            label=trim(list(n)%observation_spec)//'.bg_date', _RC)
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_time_bg, &
+!            label=trim(list(n)%observation_spec)//'.bg_date', _RC)       
+       write(6,*) 'obs_time_bg=', list(n)%obs_time_bg(1:2)
+       stop -1
+    
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_time_bg, count=2, default=[0, 0], &
+!            label=trim(list(n)%observation_spec)//'.bg_date', _RC)       
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_time_end, count=2, default=[0, 0], &
+!            label=trim(list(n)%observation_spec)//'.end_date', _RC)
+!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_dt_sec, default=0, &
+!            label=trim(list(n)%observation_spec)//'.freqency', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
-                                    label=trim(string) // 'track_file:', _RC)
+            label=trim(list(n)%observation_spec)//'.track_file:', _RC)
        if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
-                                    label=trim(string) // 'recycle_track:', _RC)
-
+            label=trim(list(n)%observation_spec)//'recycle_track:', _RC)
+       
+       
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &

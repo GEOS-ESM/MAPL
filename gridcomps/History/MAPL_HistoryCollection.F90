@@ -47,6 +47,9 @@ module MAPL_HistoryCollectionMod
      integer                            :: end_date
      integer                            :: end_time
      integer                            :: duration
+     integer                            :: obs_time_bg(2)
+     integer                            :: obs_time_end(2)
+     integer                            :: obs_dt_sec
      type(ESMF_Alarm)                   :: his_alarm ! when to write file
      type(ESMF_Alarm)                   :: seg_alarm ! segment alarm controls when to write to new file
      type(ESMF_Alarm)                   :: mon_alarm
@@ -107,6 +110,9 @@ module MAPL_HistoryCollectionMod
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
      character(len=ESMF_MAXSTR)         :: positive
+     character(len=ESMF_MAXSTR)         :: observation_spec
+     
+     
      type(HistoryCollectionGlobalAttributes) :: global_atts
      contains
         procedure :: AddGrid
