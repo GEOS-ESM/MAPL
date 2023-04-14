@@ -17,6 +17,16 @@ module MAPL_DownbitMod
 
 contains
 
+!--------------------------------------------------------------------------
+!>
+! The routine `DownBit3D` returns a lower precision version of the input array
+! `x` which retains `nbits_to_keep` of precision. 
+! See routine `ESMF_CFIODownBit2D` or additional details. This version for
+! rank 3 arrays, calls `ESMF_CFIODownBit2D()` for each vertical level.
+!
+!### History
+!- 06Dec2006  da Silva  Initial version.
+!
    subroutine DownBit3D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
      implicit NONE
@@ -24,36 +34,23 @@ contains
 !
 ! !INPUT PARAMETERS:
 !
-     real, intent(in)    ::  x(:,:,:)       ! input array
-     integer, intent(in) :: nbits_to_keep   ! number of bits per word to retain
-                                            ! - no action if nbits_to_keep<1
-     real, OPTIONAL, intent(in) :: undef    ! missing value
-     logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
-                                            !  based algorithm
+     real, intent(in)    ::  x(:,:,:)       !! input array
+     integer, intent(in) :: nbits_to_keep   !! number of bits per word to retain
+                                            !! - no action if nbits_to_keep<1
+     real, OPTIONAL, intent(in) :: undef    !! missing value
+     logical, OPTIONAL, intent(in) :: flops !! if true, uses slower float point
+                                            !!  based algorithm
      integer, optional, intent(in) :: mpi_comm
 !
 ! !OUTPUT PARAMETERS:
 !
-     real, intent(out)   :: xr(:,:,:) ! precision reduced array; can
-!                                       ! share storage with input array
-                                        ! if it has same kind
-     integer, optional, intent(out)  :: rc        ! error code
-                                        !  = 0 - all is well
-                                        ! /= 0 - something went wrong
+     real, intent(out)   :: xr(:,:,:)       !! precision reduced array; can
+                                            !! share storage with input array
+                                            !! if it has same kind
+     integer, optional, intent(out)  :: rc  !! error code
+                                            !!  = 0 - all is well
+                                            !! /= 0 - something went wrong
 !
-! !DESCRIPTION:
-!
-!  This routine returns a lower precision version of the input array
-!  {\tt x} which retains {\tt nbits_to_keep} of precision. See routine
-!  {\tt ESMF\_CFIODownBit2D} for additional details. This version for
-!  rank 3 arrays, calls {\tt ESMF\_CFIODownBit2D()} for each vertical
-!  level.
-!
-! !REVISION HISTORY:
-!
-!  06Dec2006  da Silva  Initial version.
-!
-!EOP
 !------------------------------------------------------------------------------
 
    integer :: k
@@ -65,6 +62,33 @@ contains
 
    end subroutine DownBit3D
 
+!---------------------------------------------------------------------------
+!>
+! This routine returns a lower precision version of the input array
+! `x` which retains `nbits_to_keep` of precision. Two algorithms are
+! implemented: 1) a fast one writen in C which downgrades precision
+! by shifting `xbits = 24 - nbits_to_keep` bits of the mantissa, and 2) a slower
+! float point based algorithm which is the same algorithm as GRIB
+! with fixed number of bits packing. Notice that as in GRIB the scaling
+! factor is forced to be a power of 2 rather than a generic float.
+! Using this power of 2 binary scaling has the advantage of improving
+! the GZIP compression rates.
+!
+! This routine returns an array of the same type and kind as the input array,
+! so no data compression has taken place. The goal here is to reduce the
+! entropy in the input array, thereby improving compression rates
+! by the lossless algorithms implemented internally by HDF-4/5 when writing
+! these data to a file. In fact, these GZIP'ed and pre-conditioned files
+! have sizes comparable to the equivalent GRIB file, while being a bonafide
+! self-describing HDF/NetCDF file.
+!
+! @todo
+! Perhaps implement GRIB decimal scaling (variable number of bits).
+!@endtodo
+!
+!#### History
+!- 06Dec2006  da Silva  Initial version.
+! 
    subroutine DownBit2D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
      implicit NONE
@@ -72,52 +96,22 @@ contains
 !
 ! !INPUT PARAMETERS:
 !
-     real, intent(in)    ::  x(:,:)         ! input array
-     integer, intent(in) :: nbits_to_keep   ! number of bits per word to retain
-     real, OPTIONAL, intent(in) :: undef    ! missing value
-     logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
-                                            !  based algorithm
+     real, intent(in)    ::  x(:,:)         !! input array
+     integer, intent(in) :: nbits_to_keep   !! number of bits per word to retain
+     real, OPTIONAL, intent(in) :: undef    !! missing value
+     logical, OPTIONAL, intent(in) :: flops !! if true, uses slower float point
+                                            !!  based algorithm
      integer, optional, intent(in) :: mpi_comm
 !
 ! !OUTPUT PARAMETERS:
 !
-     real, intent(out)   :: xr(:,:)   ! precision reduced array; can
-!                                       !  share storage with input array
-!                                       !  if it has same kind
-     integer, optional, intent(out)  :: rc        ! error code
-                                        !  = 0 - all is well
-                                        ! /= 0 - something went wrong
+     real, intent(out)   :: xr(:,:)          !! precision reduced array; can
+                                             !!  share storage with input array
+                                             !!  if it has same kind
+     integer, optional, intent(out)  :: rc   !! error code
+                                             !!  = 0 - all is well
+                                             !! /= 0 - something went wrong
 !
-! !DESCRIPTION:
-!
-!
-!  This routine returns a lower precision version of the input array
-!  {\tt x} which retains {\tt nbits_to_keep} of precision. Two algorithms are
-!  implemented: 1) a fast one writen in C which downgrades precision
-!  by shifting {\tt xbits = 24 - nbits_to_keep} bits of the mantissa, and 2) a slower
-!  float point based algorithm which is the same algorithm as GRIB
-!  with fixed number of bits packing. Notice that as in GRIB the scaling
-!  factor is forced to be a power of 2 rather than a generic float.
-!  Using this power of 2 binary scaling has the advantage of improving
-!  the GZIP compression rates.
-!
-!  This routine returns an array of the same type and kind as the input array,
-!  so no data compression has taken place. The goal here is to reduce the
-!  entropy in the input array, thereby improving compression rates
-!  by the lossless algorithms implemented internally by HDF-4/5 when writing
-!  these data to a file. In fact, these GZIP'ed and pre-conditioned files
-!  have sizes comparable to the equivalent GRIB file, while being a bonafide
-!  self-describing HDF/NetCDF file.
-!
-! !TO DO:
-!
-!  Perhaps implement GRIB decimal scaling (variable number of bits).
-!
-! !REVISION HISTORY:
-!
-!  06Dec2006  da Silva  Initial version.
-!
-!EOP
 !------------------------------------------------------------------------------
     integer   :: E, xbits, has_undef, passed_minmax
     real    :: scale, xmin, xmax, tol, undef_
