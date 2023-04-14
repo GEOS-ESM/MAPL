@@ -19,6 +19,7 @@ module pFIO_MessageVectorUtilMod
    use pFIO_MessageVectorMod
    use pFIO_ProtocolParserMod
    use pFIO_CollectiveStageDataMessageMod
+   use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
    private 
 
@@ -44,7 +45,7 @@ contains
         tmp =[tmp, parser%encode(msg)]
      enddo
 
-     if(size(tmp, kind=8) > huge(0)) then
+     if(size(tmp, kind=INT64) > huge(0)) then
        _FAIL("need to increase oserver's nfront")
      endif
 
