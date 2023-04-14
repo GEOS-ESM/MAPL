@@ -19,11 +19,6 @@ module Test_FieldBLAS
       module procedure initialize_array_R8
    end interface initialize_array
 
-   interface difference_string
-      module procedure difference_scalar
-      module procedure difference_array
-   end interface difference_string
-   
    integer :: i
    type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
    integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
@@ -435,8 +430,6 @@ contains
       real(kind=ESMF_KIND_R8) :: r8_data(NROWS,NCOLS)
       real(kind=ESMF_KIND_R8) :: r8_converted(NROWS,NCOLS)
       real(kind=ESMF_KIND_R8), pointer :: r8_pointer(:,:)
-      real(kind=ESMF_KIND_R4), allocatable :: r4_values(:,:)
-      real(kind=ESMF_KIND_R8), allocatable :: r8_values(:,:)
       integer :: rc, status
 
       call initialize_array(r4_data, 0.0, 1.0)
@@ -479,7 +472,7 @@ contains
       real(ESMF_KIND_R4), intent(inout) :: x(:,:)
       real(ESMF_KIND_R4), intent(in) :: xmin
       real(ESMF_KIND_R4), intent(in) :: xrange
-      integer :: rc, status
+      integer :: rc
 
       _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
       call random_number(x)
@@ -491,7 +484,7 @@ contains
       real(ESMF_KIND_R8), intent(inout) :: x(:,:)
       real(ESMF_KIND_R8), intent(in) :: xmin
       real(ESMF_KIND_R8), intent(in) :: xrange
-      integer :: rc, status
+      integer :: rc
 
       _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
       call random_number(x)
@@ -515,45 +508,28 @@ contains
 
    @Test
    subroutine test_almost_equal_scalar()
+      character(len=*), parameter :: MSG = 'Difference exceeds threshold'
       real(kind=ESMF_KIND_R8), parameter :: X = 1.0 / 3.0
       real(kind=ESMF_KIND_R4) :: y
 
       y = X
-      @assertTrue(are_almost_equal(X, y), trim(difference_string(X, y)))
+      @assertTrue(are_almost_equal(X, y), trim(MSG))
       
    end subroutine test_almost_equal_scalar
       
    @Test
    subroutine test_almost_equal_array()
       integer, parameter :: N = 3
+      character(len=*), parameter :: MSG = 'Difference exceeds threshold'
       real(kind=ESMF_KIND_R8), parameter :: DENOMS(N) = [3.0, 5.0, 7.0]
       real(kind=ESMF_KIND_R8), parameter :: X(N) = 1.0 / DENOMS
       real(kind=ESMF_KIND_R4) :: y(N)
 
       y = X
 
-      @assertTrue(all(are_almost_equal(x, y)), trim(difference_string(x, y)))
+      @assertTrue(all(are_almost_equal(x, y)), trim(MSG))
 
    end subroutine test_almost_equal_array
-
-
-   function difference_scalar(x, y) result(string)
-      character(len=*), parameter :: fmt_ = '(A,1X,E)'
-      character(len=*), parameter :: MSG = 'Difference is too large:'
-      real(kind=ESMF_KIND_R8), intent(in) :: x
-      real(kind=ESMF_KIND_R4), intent(in) :: y
-      character(len=(len_trim(MSG)+32)) :: string
-      write(string, fmt=fmt_) MSG, abs(x-y)
-   end function difference_scalar
-
-   function difference_array(x, y) result(string)
-      character(len=*), parameter :: fmt_ = '(A,1X,E)'
-      character(len=*), parameter :: MSG = 'Difference is too large:'
-      real(kind=ESMF_KIND_R8), intent(in) :: x(:)
-      real(kind=ESMF_KIND_R4), intent(in) :: y(:)
-      character(len=(len_trim(MSG)+32)) :: string
-      write(string, fmt=fmt_) MSG, maxval(abs(x-y))
-   end function difference_array
 
 end module Test_FieldBLAS
 !   @Test
