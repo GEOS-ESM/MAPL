@@ -1,13 +1,19 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
 #define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-
-!BOP
-
-! !MODULE: BinIO -- A Module to do I/O (ASCII+binary) until ESMF fully supports it
-
-
-! !INTERFACE:
-
+!
+!>
+!### MODULE: `BinIO`
+!
+! Author: GMAO SI-Team
+!
+! `BinIO` - A Module to do I/O (ASCII+binary) until ESMF fully supports it
+!
 module  BinIOMod
 
   use FileIOSharedMod, only: ArrDescr, MAPL_TileMaskGet, WRITE_PARALLEL, alloc_, dealloc_
@@ -222,7 +228,7 @@ module  BinIOMod
   end function getfileunit
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------------
   SUBROUTINE FREE_FILE(UNIT, RC)
     implicit none
     integer         , intent(out), OPTIONAL :: RC
@@ -255,7 +261,7 @@ module  BinIOMod
     _RETURN(ESMF_SUCCESS)
   END SUBROUTINE FREE_FILE
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------------
   subroutine MAPL_DestroyFile(unit,  RC )
     IMPLICIT NONE
     integer         , intent(in   )           :: unit
@@ -281,7 +287,7 @@ module  BinIOMod
     if(present(rc)) rc = 0
     return
   end subroutine MAPL_DestroyFile
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!---------------------------------------------------------------------------
 
   subroutine MAPL_StateVarRead(UNIT, STATE, NAME, arrdes, bootstrapable, RC)
     integer                     , intent(IN   ) :: UNIT

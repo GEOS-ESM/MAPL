@@ -1,11 +1,18 @@
-
-!----------------------------------------------------------------------------
-!BOP
-
-! !MODULE: MAPL_MaxMinMod --- Global Max/Min of Arrays
-
-! !INTERFACE:
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_MaxMinMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_MaxMinMo` --- Global Max/Min of Arrays
+!
+! This module implements functions for calculating/printing out the global min/max
+! of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
+!
    module MAPL_MaxMinMod
 
 
@@ -20,11 +27,6 @@
 !
       private
       public  MAPL_MaxMin
-
-! !DESCRIPTION:  This module implements functions for calculating/printing out the global min/max
-!                 of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
-
-!EOP
 
       interface MAPL_MaxMin
 

@@ -1,3 +1,9 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #define GET_POINTER ESMFL_StateGetPointerToData
@@ -20,85 +26,76 @@
 
 #include "unused_dummy.H"
 
-!=============================================================================
-
-
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_GenericMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPLGeneric` allows the user to easily build ESMF gridded
+! components.  It has its own SetServices, Initialize, Run, and Finalize
+! (IRF) methods, and thus is itself a valid gridded component, although somewhat
+! non-standard since it makes its IRF methods public. An instance of
+! `MAPL_Generic` does no useful work, but can be used as a null `MAPL_Generic` component.
+!
+! The standard way to use MAPL_Generic is as an aid in building ESMF gridded
+! components. A MAPL/ESMF gridded component built in this way will always have
+! its own SetServices, which will call the subroutine MAPL_GenericSetServices.
+! When MAPL_GenericSetServices is called it sets the
+! component's IRF methods to the generic versions, MAPL_GenericInitialize, MAPL_GenericFinalize, and
+! MAPL_GenericRun.  Any (or all) of
+! these may be used as default methods by a gridded component. (As we will see below,
+! using all three default IRF methods in this way need not be equivalent to instanciating
+! a null component.) If for any of the
+! three IRF methods the default version is inadequate, it can simply be overrided
+! by having the component register its own method after the call to MAPL_GenericSetServices.
+!
+! The generic IRF methods perform a number of useful functions, including
+! creating, allocating, and initializing the components Import, Export,
+! and Internal states. It would be a shame to waste this capability when a component
+! needs to write its own version of an IRF method. A common situation is that the component wants support
+! in performing these functions, but needs to do some (usually small) additional specialized
+! work; for example, it may need to do some special initializations. In this case,
+! one would write a light version of the IRF method that does the specialized work
+! and *calls directly* the corresponding MAPL_Generic method to do the boilerplate.
+! This is why MAPL_Generic, unlike a standard ESMF gridded component, makes its
+! IRF methods public and why we added the `Generic` modifier (i.e., MAPL_GenericInitialize,
+! rather than MAPL_Initialize), to emphasize that they are directly callable IRF methods.
+!
+! MAPL_Generic may also be viewed as a fairly standard Fortran 90 `class`, which
+! defines and makes public an opaque object that we refer to as a `MAPL_Generic State`.
+! This object can be created only in association with a standard ESMF Gridded Component (GC),
+! by making a MAPL_GenericSetServices call.  This object can be obtained through an ESMF GC method
+! which is currently provided with MAPL. The MAPL_Generic State is, therefore, just another thing that
+! lives in the ESMF GC, like the grid and the configuration. The MAPL_Generic State
+! is private, but user components can access its contents through public
+! MAPL_Generic methods (Get, Set, etc). The bulk of MAPL_Generic consists of methods that act
+! on this object.
+!
+! MAPL_GenericSetServices and MAPL_Generic IRF methods cannot create their own ESMF grid.
+! The grid must be inherited from the parent or created by the component
+! either in its own SetServices or in its Initialize, if it is writing one.
+! In any case, an important assumption of MAPL is that the grid must  already be 
+! *present in the component and initialized* when MAPL_GenericSetServices is invoked.
+! The same is true of the configuration.
+!
+! In MAPL_Generic, we distinguish between *simple (leaf)*
+! gridded compnents and *composite* gridded components, which contain other
+! (*child*) gridded components.  We also define three types of services,
+! which can be registered by the component's SetServices routine.
+!
+!- **Functional services:** These are the standard EMSF callable IRF methods for
+!   the component.
+!- **Data services:** These are descriptions of the component's import, export,
+!   and internal states, which can be manipulated by MAPL_Generic.
+!- **Child services:** These are the services of the component's children and
+!   their connectivity.
+!- **Profiling Services:** These are profiling counters (clocks) that can be used
+!   by the component and are automatically reported by generic finalize.
+!
+! MAPL_GenericSetServices provides generic versions of all these, as described below.
+!
 module MAPL_GenericMod
-
-   !BOP
-   ! !MODULE: MAPL_GenericMod
-   !
-   ! !DESCRIPTION:  MAPL\_Generic allows the user to easily build ESMF gridded
-   !  components.  It has its own SetServices, Initialize, Run, and Finalize
-   !  (IRF) methods, and thus is itself a valid gridded component, although somewhat
-   !  non-standard since it makes its IRF methods public. An instance of
-   !  MAPL\_Generic does no useful work, but can be used as a null MAPL\_Generic component.
-   !
-   !  The standard way to use MAPL\_Generic is as an aid in building ESMF gridded
-   !  components. A MAPL/ESMF gridded component built in this way will always have
-   !  its own SetServices, which will call the subroutine MAPL\_GenericSetServices.
-   !  When MAPL\_GenericSetServices is called it sets the
-   !  component's IRF methods to the generic versions, MAPL\_GenericInitialize, MAPL\_GenericFinalize, and
-   !  MAPL\_GenericRun.  Any (or all) of
-   !  these may be used as default methods by a gridded component. (As we will see below,
-   !  using all three default IRF methods in this way need not be equivalent to instanciating
-   !  a null component.) If for any of the
-   !  three IRF methods the default version is inadequate, it can simply be overrided
-   !  by having the component register its own method after the call to MAPL\_GenericSetServices.
-
-   !  The generic IRF methods perform a number of useful functions, including
-   !  creating, allocating, and initializing the components Import, Export,
-   !  and Internal states. It would be a shame to waste this capability when a component
-   !  needs to write its own version of an IRF method. A common situation is that the component wants support
-   !  in performing these functions, but needs to do some (usually small) additional specialized
-   !  work; for example, it may need to do some special initializations. In this case,
-   !  one would write a light version of the IRF method that does the specialized work
-   !  and {\it calls directly} the corresponding MAPL\_Generic method to do the boilerplate.
-   !  This is why MAPL\_Generic, unlike a standard ESMF gridded component, makes its
-   !  IRF methods public and why we added the ``Generic'' modifier (i.e., MAPL\_GenericInitialize,
-   !  rather than MAPL\_Initialize), to emphasize that they are directly callable IRF methods.
-   !
-   !  MAPL\_Generic may also be viewed as a fairly standard Fortran 90 ``class,'' which
-   !  defines and makes public an opaque object that we refer to as a ``MAPL\_Generic State.''
-   !  This object can be created only in association with a standard ESMF Gridded Component (GC),
-   !  by making a MAPL\_GenericSetServices call.  This object can be obtained through an ESMF GC method
-   !  which is currently provided with MAPL. The MAPL\_Generic State is, therefore, just another thing that
-   !  lives in the ESMF GC, like the grid and the configuration. The MAPL\_Generic State
-   !  is private, but user components can access its contents through public
-   !  MAPL\_Generic methods (Get, Set, etc). The bulk of MAPL\_Generic consists of methods that act
-   !  on this object.
-   !
-   !  MAPL\_GenericSetServices and MAPL\_Generic IRF methods cannot create their own ESMF grid.
-   !  The grid must be inherited from the parent or created by the component
-   !  either in its own SetServices or in its Initialize, if it is writing one.
-   !  In any case, an important assumption of MAPL is that the grid must  already be {\it present
-   !  in the component and initialized} when MAPL\_GenericSetServices is invoked.
-   !  The same is true of the configuration.
-   !
-   !  In MAPL\_Generic, we distinguish between {\em simple (leaf)}
-   !  gridded compnents and {\em composite} gridded components, which contain other
-   !  ({\em child}) gridded components.  We also define three types of services,
-   !  which can be registered by the component's SetServices routine.
-
-   !  \begin{itemize}
-   !    \item {\bf Functional services}:
-   !                   These are the standard EMSF callable IRF methods for
-   !         the component.
-   !
-   !    \item {\bf Data services:}
-   !                   These are descriptions of the component's import, export,
-   !         and internal states, which can be manipulated by MAPL\_Generic.
-   !
-   !    \item {\bf Child services:}
-   !                   These are the services of the component's children and
-   !         their connectivity.
-   !
-   !    \item {\bf Profiling Services:}
-   !                   These are profiling counters (clocks) that can be used
-   !         by the component and are automatically reported by generic finalize.
-   !  \end{itemize}
-
-   !   MAPL\_GenericSetServices provides generic versions of all these, as described below.
 
 
    ! !USES:
@@ -490,60 +487,38 @@ contains
    !=============================================================================
    !=============================================================================
    !=============================================================================
-   !=============================================================================
-
-
-
-   !BOPI
-   ! !IROUTINE: MAPL_GenericSetServices
-
-   ! !INTERFACE:
+!=============================================================================
+!>
+! `MAPL_GenericSetServices` performs the following tasks:
+!- Allocate an instance of MAPL\_GenericState, wrap it, and set it as the
+!   GC's internal state.
+!- Exract the grid and configuration from the GC and save them in the
+!   generic state.
+!- Set GC's IRF methods to the generic versions
+!- If there are children
+!   - Allocate a gridded comoponent and an import and export state for each child
+!   - Create each child's GC using the natural grid and the inherited configuration.
+!   - Create each child's Import and Export states. These are named
+!      `GCNames(I)//"_IMPORT"` and `GCNames(I)//"_EXPORT"`.
+!   - Invoke each child's set services.
+!   - Add each item in each child's export state to GC's export state.
+!   - Add each item in each child's import state to GC's import,
+!      eliminating duplicates.
+!
+! Since `MAPL_GenericSetServices` calls SetServices for the children,
+! which may be generic themselves, the routine must be recursive.
+!
+! The optional arguments describe the component's children. There can be any
+! number of children but they must be of one of the types specified by the
+! five SetServices entry points passed. If SSptr is not specified there can
+! only be five children, one for each {\tt SSn}, and the names must be in
+! `SSn` order.
+!
    recursive subroutine MAPL_GenericSetServices ( GC, RC )
 
       !ARGUMENTS:
-      type(ESMF_GridComp),                  intent(INOUT) :: GC  ! Gridded component
-      integer,                              intent(  OUT) :: RC  ! Return code
-
-      ! !DESCRIPTION: {\tt MAPL\_GenericSetServices} performs the following tasks:
-
-      !\begin{itemize}
-      !\item
-      !  Allocate an instance of MAPL\_GenericState, wrap it, and set it as the
-      !  GC's internal state.
-      !\item
-      !  Exract the grid and configuration from the GC and save them in the
-      !  generic state.
-      !\item
-      !  Set GC's IRF methods to the generic versions
-      !\item
-      !  If there are children
-      !\begin{itemize}
-      !\item
-      !   Allocate a gridded comoponent and an import and export state for each child
-      !\item
-      !   Create each child's GC using the natural grid and the inherited configuration.
-      !\item
-      !  Create each child's Import and Export states. These are named
-      !  {\tt GCNames(I)//"\_IMPORT"} and {\tt GCNames(I)//"\_EXPORT"}
-      !\item
-      !   Invoke each child's set services.
-      !\item
-      !   Add each item in each child's export state to GC's export state.
-      !\item
-      !   Add each item in each child's import state to GC's import,
-      !   eliminating duplicates.
-      !\end{itemize}
-      !\end{itemize}
-      ! Since {\tt MAPL\_GenericSetServices} calls SetServices for the children,
-      ! which may be generic themselves, the routine must be recursive.
-      !
-      ! The optional arguments describe the component's children. There can be any
-      !  number of children but they must be of one of the types specified by the
-      !  five SetServices entry points passed. If SSptr is not specified there can
-      !  only be five children, one for each {\tt SSn}, and the names must be in
-      !  {\tt SSn} order.
-      !EOPI
-
+      type(ESMF_GridComp),                  intent(INOUT) :: GC  !! Gridded component
+      integer,                              intent(  OUT) :: RC  !! Return code
 
       ! ErrLog Variables
       !-----------------
@@ -3776,12 +3751,11 @@ contains
    end subroutine MAPL_StateAddExportSpecFrmAll
 
 
-
-   !BOPI
-   ! !IROUTINE: MAPL_AddInternalSpec
-   ! !IIROUTINE: MAPL_StateAddInternalSpec --- Sets specifications for an item in the \texttt{INTERNAL} state
-
-   ! !INTERFACE:
+!------------------------------------------------------------------------
+!>
+! `MAPL_StateAddInternalSpec` --- Sets specifications for an item in the
+! `INTERNAL` state.
+!
    subroutine MAPL_StateAddInternalSpec(GC,                 &
         SHORT_NAME,         &
         LONG_NAME,          &
@@ -3835,12 +3809,6 @@ contains
       integer            , optional   , intent(IN)      :: STAGGERING
       integer            , optional   , intent(IN)      :: ROTATION
       integer            , optional   , intent(OUT)     :: RC
-
-      ! !DESCRIPTION:
-
-      !  Sets the specifications for an item in the {\tt INTERNAL} state.
-
-      !EOPI
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddInternalSpec"
       integer                               :: status
@@ -3933,19 +3901,17 @@ contains
    ! !IROUTINE: MAPL_DoNotDeferExport
 
    !INTERFACE:
+!----------------------------------------------------------------------------
+!>
+! For each entry in `NAMES` marks the export spec
+! to not be deferred during `MAPL_GenericInitialize`.
+!
    subroutine MAPL_DoNotDeferExport(GC, NAMES, RC)
       ! !ARGUMENTS:
 
       type (ESMF_GridComp)            , intent(INOUT)   :: GC
       character (len=*)               , intent(IN)      :: NAMES(:)
       integer            , optional   , intent(OUT)     :: RC
-
-      ! !DESCRIPTION:
-
-      !  For each entry in {\tt NAMES} marks the export spec
-      !  to not be deferred during {\tt MAPL\_GenericInitialize}.
-
-      !EOPI
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_DoNotDeferExport"
       integer                               :: status
@@ -4029,25 +3995,19 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_GridCompSetEntryPoint
 
-
-   !BOPI
-   ! !IROUTINE: MAPL_GetObjectFromGC
-   ! !IIROUTINE: MAPL_InternalStateGet
-
-   !INTERFACE:
+!-----------------------------------------------------------------------------------
+!>
+! This is the recommended way of getting the opaque MAPL Generic
+! state object from the gridded component (GC). It can be called at any time
+! *after* ` MAPL_GenericSetServices` has been called on GC.
+! Note that you get a pointer to the object.
+!
    subroutine MAPL_InternalStateGet ( GC, MAPLOBJ, RC)
 
       !ARGUMENTS:
       type(ESMF_GridComp),            intent(INout) :: GC ! Gridded component
       type (MAPL_MetaComp),                 pointer :: MAPLOBJ
       integer,              optional, intent(  OUT) :: RC ! Return code
-
-      ! !DESCRIPTION:
-      ! This is the recommended way of getting the opaque MAPL Generic
-      ! state object from the gridded component (GC). It can be called at any time
-      ! {\em after} {\tt MAPL\_GenericSetServices} has been called on GC.
-      ! Note that you get a pointer to the object.
-      !EOPI
 
       ! ErrLog Variables
 
@@ -4099,15 +4059,27 @@ contains
    !=============================================================================
    !=============================================================================
    !=============================================================================
-   !=============================================================================
-
-
-
-   !BOPI
-   ! !IROUTINE: MAPL_Get
-   ! !IIROUTINE: MAPL_GenericStateGet
-
-   !INTERFACE:
+!=============================================================================
+!>
+! This is the way of querying the opaque {\em MAPL\_Generic}
+! state object. The arguments are:
+!- **STATE** The MAPL object to be queried.
+!- **IM** Size of the first horizontal dimension (X) of local arrays.
+!- **JM** Size of the second horizontal dimension (Y) of local arrays.
+!- **LM**  Size of the vertical dimension.
+!- **VERTDIM** Position of the vertical dimension of 2 or higher dimensional arrays.
+!- **NX** Size of the DE array dimension aligned with the first horizontal dimension of arrays
+!- **NY** Size of the DE array dimension aligned with the second horizontal dimension of arrays
+!- **NX0, NY0** Coordinates of current DE.
+!- **LONS** X coordinates of array locations. Currently longitude in radians.
+!- **LATS** Y coordinates of array locations. Currently latitude in radians.
+!- **INTERNAL_ESMF_STATE** The gridded component's INTERNAL state.
+!- **GCNames** Names of the children.
+!- **GCS** The child gridded components.
+!- **GIM** The childrens' IMPORT states.
+!- **GEX** The childrens' EXPORT states.
+!- **CCS** Array of child-to-child couplers.
+! 
    subroutine MAPL_GenericStateGet (STATE, IM, JM, LM, VERTDIM,                &
         NX, NY, NX0, NY0, LAYOUT,                  &
         GCNames,                                   &
@@ -4167,45 +4139,6 @@ contains
       integer,              optional, intent(  OUT) :: NumInitPhases
       integer,              optional, intent(  OUT) :: NumRunPhases
       type (ESMF_Config),   optional, intent(  OUT) :: CF
-
-      ! !DESCRIPTION:
-      ! This is the way of querying the opaque {\em MAPL\_Generic}
-      ! state object. The arguments are:
-      !  \begin{description}
-      !   \item[STATE]
-      !    The MAPL object to be queried.
-      !   \item[IM]
-      !      Size of the first horizontal dimension (X) of local arrays.
-      !   \item[JM]
-      !      Size of the second horizontal dimension (Y) of local arrays.
-      !   \item[LM]
-      !      Size of the vertical dimension.
-      !   \item[VERTDIM]
-      !      Position of the vertical dimension of 2 or higher dimensional arrays.
-      !   \item[NX]
-      !      Size of the DE array dimension aligned with the first horizontal dimension of arrays
-      !   \item[NY]
-      !      Size of the DE array dimension aligned with the second horizontal dimension of arrays
-      !   \item[NX0, NY0]
-      !      Coordinates of current DE.
-      !   \item[LONS]
-      !      X coordinates of array locations. Currently longitude in radians.
-      !   \item[LATS]
-      !      Y coordinates of array locations. Currently latitude in radians.
-      !   \item[INTERNAL\_ESMF\_STATE]
-      !      The gridded component's INTERNAL state.
-      !   \item[GCNames]
-      !      Names of the children.
-      !   \item[GCS]
-      !      The child gridded components.
-      !   \item[GIM]
-      !      The childrens' IMPORT states.
-      !   \item[GEX]
-      !      The childrens' EXPORT states.
-      !   \item[CCS]
-      !      Array of child-to-child couplers.
-      !   \end{description}
-      !EOPI
 
       character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateGet"
       integer                               :: status
@@ -7087,24 +7020,17 @@ contains
    !=============================================================================
    !=============================================================================
    !=============================================================================
-   !=============================================================================
-
-
-
-   ! !IROUTINE: MAPL_WireComponent
-
-   ! !INTERFACE:
-
+!=============================================================================
+!>
+! The routine `MAPL_WireComponent` connects the child components, creates the couplers,
+! and adds child info to GC's import and export specs.
+!
    recursive subroutine MAPL_WireComponent(GC, RC)
 
       ! !ARGUMENTS:
 
       type(ESMF_GridComp), intent(INOUT) :: GC
       integer,   optional                :: RC      ! return code
-
-      ! !DESCRIPTION: This connects the child components, creates the couplers,
-      !               and adds child info to GC's import and export specs.
-
 
       !=============================================================================
       !
@@ -8667,20 +8593,16 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_AdjustIsNeeded
 
-   !BOPI
-
-   ! !INTERFACE:
-
+!-------------------------------------------------------------------------------
+!>
+! Shortcut for checking that field is allocated.
+!
    logical function MAPL_IsFieldAllocated(FIELD, RC)
 
       ! !ARGUMENTS:
 
       type(ESMF_Field),    intent(INout) :: FIELD  ! Field
       integer, optional,   intent(  OUT) :: RC     ! Error code:
-
-      ! !DESCRIPTION:  Shortcut for checking that field is allocated
-
-      !EOPI
 
       ! ErrLog Variables
 
