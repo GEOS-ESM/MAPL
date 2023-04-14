@@ -1,18 +1,19 @@
 cmake_minimum_required (VERSION 3.17)
 
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(NOT is_multi_config AND NOT (CMAKE_BUILD_TYPE OR DEFINED ENV{CMAKE_BUILD_TYPE}))
+  message (STATUS "Setting build type to 'Release' as none was specified.")
+  set (CMAKE_BUILD_TYPE Release CACHE STRING "Default Release-Choose the type of build.")
+endif ()
+
 project (
   MAPL
   VERSION 2.37.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-# Set the default build type to release
-if (NOT CMAKE_BUILD_TYPE)
-  message (STATUS "Setting build type to 'Release' as none was specified.")
-  set (CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "Aggressive")
-endif ()
+# Set the possible values of build type for cmake-gui
+set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "Aggressive")
 
 # mepo can now clone subrepos in three styles
 set (ESMA_CMAKE_DIRS
