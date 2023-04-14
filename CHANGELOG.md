@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.37.1] - 2023-04-14
+
+### Fixed
+
+ - Various nonstandard uses of Fortran caught by NAG compiler
+ - Various workarounds for NAG 7.1.113 where the compiler is wrong.
+
 ## [2.37.0] - 2023-04-03
 
 ### Added
