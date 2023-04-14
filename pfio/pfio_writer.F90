@@ -110,9 +110,9 @@ program main
                MPI_STAT, ierr)
 
         if (server_rank == -1 ) exit
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !---------------------------------------------------
         ! do somthing with server ( should match with server)
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !---------------------------------------------------
         call MPI_recv( msg_size, 1, MPI_INTEGER,    &
             server_rank, pFIO_s_tag, Inter_comm, &
                MPI_STAT, ierr)

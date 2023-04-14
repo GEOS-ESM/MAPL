@@ -26,7 +26,7 @@ The  main file in the `History` source code is `MAPL_HistoryGridComp.F90`
 that contains the `Initialize`, `Run` and `Finalize` methods for `History`.
 The three methods are called at the level of CAP.
 
-Additional information about the `History` griddec component can be found at:
+Additional information about the `History` gridded component can be found at:
 
 [MAPL History Component](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component)
 

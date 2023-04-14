@@ -1,6 +1,18 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_Generic.h"
-
+!
+!>
+!### MODULE: `mapl_RegridderSpec`
+!
+! Author: GMAO SI-Team
+!
 ! A RegridderSpec is used to indicate which subclass of regridder will be used.
+!
 module mapl_RegridderSpec
    use MAPL_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
@@ -57,14 +69,15 @@ contains
    end function newRegridderSpec
 
 
-   !---------------
-   ! Two regridders are equivalent if their specs are identical.  This
-   ! can be used to check if a given regridder is already contained in
-   ! the regridder_manager without instantiating the regridder.
-   ! Currently the implementation assumes that two regridders are identical
-   ! if the corresponding grids are the same and the same method is in use.
-   ! This will need to be changed to incorporate LocStreams.
-   !---------------
+!---------------
+!>
+! Two regridders are equivalent if their specs are identical.  This
+! can be used to check if a given regridder is already contained in
+! the regridder_manager without instantiating the regridder.
+! Currently the implementation assumes that two regridders are identical
+! if the corresponding grids are the same and the same method is in use.
+! This will need to be changed to incorporate LocStreams.
+!---------------
    logical function equals(a, b)
       use MAPL_GridManagerMod, only: get_factory_id
       class (RegridderSpec), intent(in) :: a
