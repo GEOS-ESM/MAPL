@@ -17,12 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Add logic to GriddedIO class so that if an unitialized time object is passed, the resulting file will not depend on time
+- Enable more tests in CircleCI
 
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.37.2] - 2023-04-17
+
+### Fixed
+
+- Pulled call MAPL_GridGetCorners out of the condition to avoid hang in MAPL_GetGlobalHorzIJIndex
+
 
 ## [2.37.1] - 2023-04-14
 
