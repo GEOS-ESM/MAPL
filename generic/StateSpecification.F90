@@ -478,7 +478,7 @@ contains
       else
          NULLIFY(TMP%SPECPTR%ATTR_INAMES)
       endif
-      TMP%SPECPTR%DEPENDS_ON    =  usableDEPENDS_ON
+      if(allocated(usabledepends_on)) TMP%SPECPTR%DEPENDS_ON    =  usableDEPENDS_ON
       TMP%SPECPTR%DEPENDS_ON_CHILDREN    =  usableDEPENDS_ON_CHILDREN
 
       call spec%var_specs%push_back(tmp)

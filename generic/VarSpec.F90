@@ -988,11 +988,13 @@ contains
       endif
 
       if(present(depends_on_children)) then
-         depends_on_children =  SPEC%SPECPtr%depends_on_children
+         depends_on_children = SPEC%SPECPtr%depends_on_children
       end if
 
       if(present(depends_on)) then
+         if(allocated(SPEC%SPECPtr%depends_on)) then
          depends_on =  SPEC%SPECPtr%depends_on
+         end if
       end if
 
       _RETURN(ESMF_SUCCESS)
