@@ -13,11 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Pulled call MAPL_GridGetCorners out of the condition to avoid hang in MAPL_GetGlobalHorzIJIndex
-
 ### Removed
 
 ### Deprecated
+
+## [2.37.2] - 2023-04-17
+
+### Fixed
+
+- Pulled call MAPL_GridGetCorners out of the condition to avoid hang in MAPL_GetGlobalHorzIJIndex
+
 
 ## [2.37.1] - 2023-04-14
 
