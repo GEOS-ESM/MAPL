@@ -47,9 +47,9 @@ module MAPL_HistoryCollectionMod
      integer                            :: end_date
      integer                            :: end_time
      integer                            :: duration
-     integer                            :: obs_time_bg(2)
-     integer                            :: obs_time_end(2)
-     integer                            :: obs_dt_sec
+     integer                            :: obs_beg_time(2)
+     integer                            :: obs_end_time(2)
+     integer                            :: obs_freq
      type(ESMF_Alarm)                   :: his_alarm ! when to write file
      type(ESMF_Alarm)                   :: seg_alarm ! segment alarm controls when to write to new file
      type(ESMF_Alarm)                   :: mon_alarm

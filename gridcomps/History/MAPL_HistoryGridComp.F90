@@ -878,25 +878,22 @@ contains
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%observation_spec, default="", &
             label=trim(string) // 'observation_spec:', _RC)
        
-       call ESMF_ConfigGetAttribute(cfg, list(n)%obs_time_bg, &
-            label=trim(list(n)%observation_spec)//'.bg_date', _RC)
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_time_bg, &
-!            label=trim(list(n)%observation_spec)//'.bg_date', _RC)       
-       write(6,*) 'obs_time_bg=', list(n)%obs_time_bg(1:2)
-       stop -1
-    
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_time_bg, count=2, default=[0, 0], &
-!            label=trim(list(n)%observation_spec)//'.bg_date', _RC)       
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_time_end, count=2, default=[0, 0], &
-!            label=trim(list(n)%observation_spec)//'.end_date', _RC)
-!       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_dt_sec, default=0, &
-!            label=trim(list(n)%observation_spec)//'.freqency', _RC)
+       call ESMF_ConfigGetAttribute(cfg, list(n)%obs_beg_time, &
+            label=trim(string)//trim(list(n)%observation_spec)//'.beg_date:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, list(n)%obs_end_time, &
+            label=trim(string)//trim(list(n)%observation_spec)//'.end_date:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_freq, default=-1, &
+            label=trim(string)//trim(list(n)%observation_spec)//'.frequency:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
-            label=trim(list(n)%observation_spec)//'.track_file:', _RC)
-       if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
+            label=trim(string)//trim(list(n)%observation_spec)//'.track_file:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
-            label=trim(list(n)%observation_spec)//'recycle_track:', _RC)
-       
+            label=trim(string)//trim(list(n)%observation_spec)//'recycle_track:', _RC)
+
+       if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.       
+       write(6,*) 'obs_beg_time=', list(n)%obs_beg_time(1:2)
+       write(6,*) 'obs_freq=', list(n)%obs_freq
+!       stop -1
+
        
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2383,8 +2380,14 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
+!             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
+             !             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+
+             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile), &
+                  obs_beg_time_int=list(n)%obs_beg_time, obs_end_time_int=list(n)%obs_end_time, &
+                  obs_freq=list(n)%obs_freq, _RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+             
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then

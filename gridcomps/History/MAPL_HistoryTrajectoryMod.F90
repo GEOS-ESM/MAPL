@@ -64,60 +64,104 @@ module HistoryTrajectoryMod
 
    contains
 
-      function HistoryTrajectory_from_file(filename,unusable,rc) result(trajectory)
+     function HistoryTrajectory_from_file(filename,obs_beg_time_int,obs_end_time_int,obs_freq,unusable,rc) &
+          result(trajectory)
          type(HistoryTrajectory) :: trajectory
          character(len=*), intent(in) :: filename
          class (KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: obs_beg_time_int(2)
+         integer, optional, intent(in) :: obs_end_time_int(2)
+         integer, optional, intent(in) :: obs_freq
+
          integer, optional, intent(out) :: rc
          integer :: status
 
          type(NetCDF4_FileFormatter) :: formatter
          type(FileMetadataUtils) :: metadata
          type(FileMetadata) :: basic_metadata
-         integer :: num_times
+         integer*8 :: num_times
 
+         integer :: nymd(2)
+         integer :: nhms(2)
+         type(ESMF_Time) :: esmfTime(2)
+         type(ESMF_TimeInterval) :: timeInterval
+         integer(ESMF_KIND_I8) :: s_i8
+         integer :: YEAR, MONTH, DAY, HH, MM, SS
+         integer :: obs_dt_sec
+         real*8, pointer :: tlon(:)
+         real*8, pointer :: tlat(:)
+         character(len=ESMF_MAXSTR) :: file_suffix
+         integer :: i, j
+         
          _UNUSED_DUMMY(unusable)
 
-         call formatter%open(trim(filename),pFIO_READ,_RC)
-         basic_metadata = formatter%read(_RC)
-         call metadata%create(basic_metadata,trim(filename))
-         num_times = metadata%get_dimension("time",_RC)
-         allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
-         if (metadata%is_var_present("longitude")) then
-            call formatter%get_var("longitude",trajectory%lons,_RC)
-         end if
-         if (metadata%is_var_present("latitude")) then
-            call formatter%get_var("latitude",trajectory%lats,_RC)
-         end if
+         j=INDEX(trim(filename),'.',back=.true.)
+         file_suffix=trim(filename(j+1:))
+         if( file_suffix /= 'tle' ) then
+            call formatter%open(trim(filename),pFIO_READ,_RC)
+            basic_metadata = formatter%read(_RC)
+            call metadata%create(basic_metadata,trim(filename))
+            num_times = metadata%get_dimension("time",_RC)
+            allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
+            if (metadata%is_var_present("longitude")) then
+               call formatter%get_var("longitude",trajectory%lons,_RC)
+            end if
+            if (metadata%is_var_present("latitude")) then
+               call formatter%get_var("latitude",trajectory%lats,_RC)
+            end if
+            call metadata%get_time_info(timeVector=trajectory%times,_RC)            
+         else
+            if (present(obs_beg_time_int) .AND. present(obs_end_time_int)) then
+               nymd(1)=obs_beg_time_int(1)
+               nhms(1)=obs_beg_time_int(2)
+               nymd(2)=obs_end_time_int(1)
+               nhms(2)=obs_end_time_int(2)
+            else
+               _ASSERT(.false., 'need obs_beg_time_int and obs_end_time_int')
+            endif
 
-!         !! def getTrack ( tleFile, t_beg, t_end, dt_secs=60):
-!         ! getTrack from TLE
-!         filename=tleFile
-!         dt_secs=60
-!         t_beg=
-!         t_end=
-!         
-!         dt = t_end-t_beg
-!         n = 1 + int(dt.total_seconds() / dt_secs)
-!         Dt = timedelta(seconds=dt_secs)
-!         
-!         nymd = [ _getNYMD(t_beg), _getNYMD(t_end) ]
-!         nhms = [ _getNHMS(t_beg), _getNHMS(t_end) ]
-!         
-!         tyme = array([ t_beg + i * Dt for i in range(n) ])
-!         
-!         lon, lat, rc = sgp4_.sgp4track(n, tleFile, nymd, nhms, dt_secs)
-!    
-!         
-!         call Sgp4_Track(
-!
-!         lon, lat, rc = sgp4_.sgp4track(n, tleFile, nymd, nhms, dt_secs)
+            i=obs_freq
+            obs_dt_sec= i/10000*3600 + mod(i,10000)/100*60 + mod(i,100) 
+
+            ! YGYU TODO:
+            !   add in base a time function to convert nymd, nhms to ESMF_time, vice versa
+
+            do i=1, 2
+               YEAR = nymd(i)/10000
+               MONTH = mod(nymd(i),10000)/100
+               DAY = mod(nymd(i),100)
+               HH = nhms(i)/10000
+               MM = mod(nhms(i),10000)/100
+               SS = mod(nhms(i),100)
+               call ESMF_TimeSet( esmfTime(i), YY = YEAR, MM = MONTH, DD = DAY, &
+                    H = HH, M = MM, S = SS, _RC )
+            enddo
+            timeInterval = esmfTime(2) - esmfTime(1)
+            call ESMF_TimeIntervalGet(timeInterval, s_i8 = s_i8)
+            num_times = 1 + s_i8 / obs_dt_sec
+            call SGP4_Track (tlon, tlat, filename, nymd, nhms, obs_dt_sec, rc)
+
+            write(6,*) 'obs_beg_time, obs_end_time', obs_beg_time_int, obs_end_time_int
+            write(6,*) 'obs_freq', obs_freq
+            write(6,*) 'obs_dt_sec', obs_dt_sec
+            write(6,*) 'num_times, size(tlon)', num_times, size(tlon)
+
+            _ASSERT(size(tlon).EQ.num_times, 'TLE dimension out of bound')
+            _ASSERT(rc.EQ.0, 'call SGP4_Track failed')
+
+            allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
+            trajectory%lons(:)=tlon(:)
+            trajectory%lats(:)=tlat(:)
+            write(6,*) 'tlon, tlat pt'
+            write(6,*) tlon(:)
+            write(6,*) tlat(:)
+         end if
          
-         
-         call metadata%get_time_info(timeVector=trajectory%times,_RC)
+
          trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
          trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
 
+         stop -1
          _RETURN(_SUCCESS)
 
       end function HistoryTrajectory_from_file
