@@ -102,12 +102,8 @@ workflows:
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
-      # Build GEOSgcm -- GCC -- only to main
+      # Build GEOSgcm -- GCC
       - ci/build:
-          filters:
-            branches:
-              only:
-                - main
           name: build-GEOSgcm-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
@@ -137,12 +133,8 @@ workflows:
           checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
 
-      # Build GEOSldas on gfortran -- only to main
+      # Build GEOSldas on gfortran
       - ci/build:
-          filters:
-            branches:
-              only:
-                - main
           name: build-GEOSldas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
@@ -156,12 +148,8 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
 
-      # Build GEOSadas (ifort only, needs a couple develop branches) -- only to main
+      # Build GEOSadas (ifort only, needs a couple develop branches)
       - ci/build:
-          filters:
-            branches:
-              only:
-                - main
           name: build-GEOSadas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
@@ -178,12 +166,8 @@ workflows:
           mepodevelop: false
           rebuild_procs: 1
 
-      # Run GCM (1 hour, no ExtData) -- only to main
+      # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
-          filters:
-            branches:
-              only:
-                - main
           name: run-GCM-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
@@ -196,18 +180,14 @@ workflows:
           baselibs_version: *baselibs_version
           bcs_version: *bcs_version
 
-      # Run Coupled GCM (1 hour, no ExtData) -- only to main
+      # Run Coupled GCM (1 hour, no ExtData)
       - ci/run_gcm:
-          filters:
-            branches:
-              only:
-                - main
           name: run-coupled-GCM-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [gfortran, ifort]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -216,12 +196,8 @@ workflows:
           gcm_ocean_type: MOM6
           change_layout: false
 
-      # Run MAPL Tutorials -- only to main
+      # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
-          filters:
-            branches:
-              only:
-                - main
           name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
           context:
             - docker-hub-creds
