@@ -1,12 +1,17 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 #include "MAPL_ErrLog.h"
 
-!BOP
-
-! !MODULE: MAPL_MemUtilsMod -- A Module to query/print memory use per processor (Adapted by WMP from FMS memuse utility)
-
-
-! !INTERFACE:
-
+!>
+!### MODULE: `MAPL_MemUtilsMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_MemUtilsMod` -- A Module to query/print memory use per processor (Adapted by WMP from FMS memuse utility)
+!
 module MAPL_MemUtilsMod
 
   use ESMF
@@ -141,7 +146,7 @@ module MAPL_MemUtilsMod
       _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_MemUtilsInit
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-----------------------------------------------------------------------
 !                                                                      !
 !MEMCPY routines: <nelems> real*8 words are copied from RHS to LHS     !
 !  Either side can have constant stride (lhs_stride, rhs_stride)       !
@@ -184,7 +189,7 @@ module MAPL_MemUtilsMod
 !T3E: we use the shmem routines on-processor to effect the transfer    !
 !     via the (faster) E-registers                                     !
 !                                                                      !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-----------------------------------------------------------------------
     subroutine memcpy_r8( lhs, rhs, dim, nelems, lhs_stride, rhs_stride )
 !base routine: handles constant stride memcpy
 !default strides are of course 1
