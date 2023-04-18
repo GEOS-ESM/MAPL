@@ -302,9 +302,10 @@ CONTAINS
                 lons(sayac1) = Lon * rad2deg
                 lats(sayac1) = Latgc * rad2deg
                 lats(sayac1) = Latgd * rad2deg
-                sayac1 = sayac1 + 1
+                ! ygyu check
+                print*, sayac1, lats(sayac1),lats(sayac1)  
 
-!                print*, sayac1, lats(sayac1),lats(sayac1)  
+                sayac1 = sayac1 + 1
 
              END DO ! propagating the case
  
@@ -394,6 +395,12 @@ CONTAINS
 
        Call Sgp4_track0(lons, lats, nymd, nhms, deltat, p, rc)   ! default is repeated
 
+       write(6,*) 'lons, lats from af Call Sgp4_track0'
+       write(6,*) lons
+       write(6,*) lats
+       stop -1
+
+       
        !!Call Sgp4_track0(lons, lats, nymd, nhms, deltat, p, rc)
         !print*,   "p%TICRDNO  = ", p%TICRDNO              ! TLE first line
         !print*,   "p%TSatNum  = ", p%TSatNum  
