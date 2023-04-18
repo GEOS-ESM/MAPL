@@ -73,8 +73,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          allocate(synth)
          synthWrap%ptr => synth
-         call ESMF_UserCompSetInternalState(gc,wrap_name,synthWrap,_RC)
-
+         call ESMF_UserCompSetInternalState(gc,wrap_name,synthWrap,status)
+         _VERIFY(status)
 
          call AddState(GC,CF,"IMPORT",_RC)
          call AddState(GC,CF,"EXPORT",_RC)
@@ -148,7 +148,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
 
-         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,_RC)
+         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
+         _VERIFY(status)
          synth => synthWrap%ptr
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
 
@@ -219,7 +220,8 @@ MODULE ExtDataUtRoot_GridCompMod
          call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, _RC )
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
 
-         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,_RC)
+         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
+         _VERIFY(status)
          synth => synthWrap%ptr
          call ESMF_GridCompGet(GC,grid=grid,_RC)
          call MAPL_GetPointer(internal,ptrR4,'lons',_RC)

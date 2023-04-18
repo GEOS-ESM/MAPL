@@ -2523,6 +2523,7 @@ ENDDO PARSER
       character(ESMF_MAXSTR) :: fldName, stateName
       logical :: expand
       integer :: k, i
+      integer :: n
 
       ! Restrictions:
       ! 1) we do not do wildcard expansion for vectors
@@ -3233,7 +3234,8 @@ ENDDO PARSER
 ! Retrieve the pointer to the state
 !----------------------------------
 
-    call ESMF_GridCompGetInternalState(gc, wrap, _RC)
+    call ESMF_GridCompGetInternalState(gc, wrap, status)
+    _VERIFY(status)
     IntState => wrap%ptr
 
 ! the collections

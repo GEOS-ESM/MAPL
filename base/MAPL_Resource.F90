@@ -493,12 +493,12 @@ contains
 
       SET_ARRAY_VALUE(real(real32), vals)
       if (do_print) then
-         MAKE_ARRAY_STRINGS(real(int32), vals,  TYPE_REAL32, FMT_REAL32)
+         MAKE_ARRAY_STRINGS(real(real32), vals,  TYPE_REAL32, FMT_REAL32)
       end if
 
       SET_ARRAY_VALUE(real(real64), vals)
       if (do_print) then
-         MAKE_ARRAY_STRINGS(real(int64), vals,  TYPE_REAL64, FMT_REAL64)
+         MAKE_ARRAY_STRINGS(real(real64), vals,  TYPE_REAL64, FMT_REAL64)
       end if
 
       SET_ARRAY_VALUE(logical, vals)
@@ -543,6 +543,7 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GetResource_config_array
+
 
    !>
    ! Print the resource value
