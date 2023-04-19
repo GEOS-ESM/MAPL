@@ -82,6 +82,8 @@ module MAPL_AbstractGridFactoryMod
       procedure(get_file_format_vars), deferred :: get_file_format_vars
       procedure(decomps_are_equal), deferred :: decomps_are_equal
       procedure(physical_params_are_equal), deferred :: physical_params_are_equal
+
+      procedure :: destroy
    end type AbstractGridFactory
 
    abstract interface
@@ -1031,5 +1033,18 @@ contains
       end if
 
    end function get_grid
+
+   ! Probably don't need to do anything more for subclasses unless they have
+   ! other objects that don't finalize well.  (NetCDF, ESMF, MPI, ...)
+   subroutine destroy(this, rc)
+      class(AbstractGridFactory), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       
+      integer :: status
+
+      call ESMF_GridDestroy(this%grid, noGarbage=.true., _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
 end module MAPL_AbstractGridFactoryMod

@@ -96,6 +96,7 @@ module MAPL_LatLonGridFactoryMod
       procedure :: generate_file_reference3D
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
+
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
