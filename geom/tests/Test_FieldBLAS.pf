@@ -1,5 +1,23 @@
 #include "MAPL_Generic.h"
 
+!===============================================================================
+
+#ifdef IF_PRESENT
+#  undef IF_PRESENT
+#endif
+
+#define IF_PRESENT(VAR, OPT, DEF) VAR = DEF; if(present(OPT)) VAR = OPT
+
+!===============================================================================
+
+#ifdef DEALL
+#  undef DEALL
+#endif
+
+#define DEALL(ALLO) if(allocated(ALLO)) deallocate(ALLO)
+
+!===============================================================================
+
 module Test_FieldBLAS
 
    use mapl3g_FieldBLAS
@@ -9,19 +27,40 @@ module Test_FieldBLAS
 
    implicit none
 
+   interface write_array
+      module procedure write_r4_array_2d
+      module procedure write_r4_array_1d
+      module procedure write_r8_array_2d
+      module procedure write_r8_array_1d
+!      module procedure write_r4_array_ptr_2d
+!      module procedure write_r4_array_ptr_1d
+   end interface write_array
+
    interface mk_field
-      module procedure mk_field_r4
-      module procedure mk_field_r8
+      module procedure mk_field_r4_array
+      module procedure mk_field_r4_constant
+      module procedure mk_field_r8_array
+      module procedure mk_field_r8_constant
    end interface mk_field
+
+   interface mk_field_ptr
+      module procedure mk_field_r4_ptr
+      module procedure mk_field_r8_ptr
+   end interface mk_field_ptr
 
    interface initialize_array
       module procedure initialize_array_R4
       module procedure initialize_array_R8
    end interface initialize_array
 
+!   interface initialize_array_pointer
+!      module procedure initialize_array_ptr_R4
+!      module procedure initialize_array_ptr_R8
+!   end interface initialize_array_pointer
+
    integer :: i
    type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
-   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
+   integer, parameter :: REG_DECOMP_DEFAULT(*) = [1, 1]
    integer, parameter :: MAX_INDEX_DEFAULT(*) = [4, 4]
    integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1]
    integer, parameter :: DIMR4_DEFAULT(*) = [4, 4]
@@ -57,49 +96,207 @@ contains
       _RETURN(_SUCCESS)
    end function mk_grid
    
-   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4)
-   function mk_field_r4(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4), ARRAY
+   function mk_field_r4_array(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
       real(kind=ESMF_KIND_R4), dimension(:,:), target, intent(in) :: farray
-      integer, dimension(:), intent(in) :: regDecomp
-      integer, dimension(:), intent(in) :: minIndex
-      integer, dimension(:), intent(in) :: maxIndex
-      type(ESMF_Index_Flag), intent(in) :: indexflag
-      character(len=*), intent(in) :: name
+      integer, dimension(:), optional, intent(in) :: regDecomp
+      integer, dimension(:), optional, intent(in) :: minIndex
+      integer, dimension(:), optional, intent(in) :: maxIndex
+      type(ESMF_Index_Flag), optional, intent(in) :: indexflag
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       type(ESMF_Field) :: field
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: ptr
 
+      integer, dimension(:), allocatable :: regDecomp_
+      integer, dimension(:), allocatable :: minIndex_
+      integer, dimension(:), allocatable :: maxIndex_
+      type(ESMF_Index_Flag) :: indexflag_
+      character(len=:), allocatable :: name_
+
       integer :: status
 
-      field = mk_field_common(tk = ESMF_TYPEKIND_R4, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
+      allocate(minIndex_(size(shape(farray)))) 
+      IF_PRESENT(regDecomp_, regDecomp, REG_DECOMP_DEFAULT)
+      IF_PRESENT(minIndex_, minIndex, 1)
+      IF_PRESENT(maxIndex_, maxIndex, shape(farray))
+      IF_PRESENT(indexflag_, indexflag, INDEX_FLAG_DEFAULT)
+      IF_PRESENT(name_, name, 'field_R4')
+      field = mk_field_common(ESMF_TYPEKIND_R4, regDecomp_, minIndex_, maxIndex_, indexflag_, name_, _RC)
       call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
       ptr => farray
 
       _RETURN(_SUCCESS)
-   end function mk_field_r4
+   end function mk_field_r4_array
 
-   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8)
-   function mk_field_r8(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4), POINTER
+   function mk_field_r4_ptr(farrayPtr, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+      real(kind=ESMF_KIND_R4), pointer, intent(in) :: farrayPtr(:,:)
+      integer, dimension(:), optional, intent(in) :: regDecomp
+      integer, dimension(:), optional, intent(in) :: minIndex
+      integer, dimension(:), optional, intent(in) :: maxIndex
+      type(ESMF_Index_Flag), optional, intent(in) :: indexflag
+      character(len=*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: ptr
+
+      integer :: rank
+      integer, dimension(:), allocatable :: regDecomp_
+      integer, dimension(:), allocatable :: minIndex_
+      integer, dimension(:), allocatable :: maxIndex_
+      type(ESMF_Index_Flag) :: indexflag_
+      character(len=:), allocatable :: name_
+
+      integer :: status
+
+      rank = size(shape(farrayPtr))
+      allocate(minIndex_(rank)) 
+
+      if(present(minIndex)) then
+         _ASSERT(size(minIndex) == rank, 'size(minIndex) /= rank of farrayPtr')
+      end if
+
+      if(present(maxIndex)) then
+         _ASSERT(size(maxIndex) == rank, 'size(maxIndex) /= rank of farrayPtr')
+      end if
+
+      IF_PRESENT(regDecomp_, regDecomp, REG_DECOMP_DEFAULT)
+      IF_PRESENT(minIndex_, minIndex, 1)
+      IF_PRESENT(maxIndex_, maxIndex, shape(farrayPtr))
+      IF_PRESENT(indexflag_, indexflag, INDEX_FLAG_DEFAULT)
+      IF_PRESENT(name_, name, 'field_R4')
+      field = mk_field_common(ESMF_TYPEKIND_R4, regDecomp_, minIndex_, maxIndex_, indexflag_, name_, _RC)
+      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
+      ptr => farrayPtr
+
+      _RETURN(_SUCCESS)
+   end function mk_field_r4_ptr
+
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8), ARRAY
+   function mk_field_r8_array(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
       real(kind=ESMF_KIND_R8), dimension(:,:), target, intent(in) :: farray
-      integer, dimension(:), intent(in) :: regDecomp
-      integer, dimension(:), intent(in) :: minIndex
-      integer, dimension(:), intent(in) :: maxIndex
-      type(ESMF_Index_Flag), intent(in) :: indexflag
-      character(len=*), intent(in) :: name
+      integer, dimension(:), optional, intent(in) :: regDecomp
+      integer, dimension(:), optional, intent(in) :: minIndex
+      integer, dimension(:), optional, intent(in) :: maxIndex
+      type(ESMF_Index_Flag), optional, intent(in) :: indexflag
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       type(ESMF_Field) :: field
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: ptr
 
+      integer, dimension(:), allocatable :: regDecomp_
+      integer, dimension(:), allocatable :: minIndex_
+      integer, dimension(:), allocatable :: maxIndex_
+      type(ESMF_Index_Flag) :: indexflag_
+      character(len=:), allocatable :: name_
+
       integer :: status
 
-      field = mk_field_common(tk = ESMF_TYPEKIND_R8, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
+      allocate(minIndex_(size(shape(farray)))) 
+      IF_PRESENT(regDecomp_, regDecomp, REG_DECOMP_DEFAULT)
+      IF_PRESENT(minIndex_, minIndex, 1)
+      IF_PRESENT(maxIndex_, maxIndex, shape(farray))
+      IF_PRESENT(indexflag_, indexflag, INDEX_FLAG_DEFAULT)
+      IF_PRESENT(name_, name, 'field_R8')
+      field = mk_field_common(ESMF_TYPEKIND_R8, regDecomp_, minIndex_, maxIndex_, indexflag_, name_, _RC)
       call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
       ptr => farray
 
       _RETURN(_SUCCESS)
-   end function mk_field_r8
+   end function mk_field_r8_array
+
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8), POINTER
+   function mk_field_r8_ptr(farrayPtr, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+      real(kind=ESMF_KIND_R8), pointer, intent(in) :: farrayPtr(:,:)
+      integer, dimension(:), optional, intent(in) :: regDecomp
+      integer, dimension(:), optional, intent(in) :: minIndex
+      integer, dimension(:), optional, intent(in) :: maxIndex
+      type(ESMF_Index_Flag), optional, intent(in) :: indexflag
+      character(len=*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: ptr
+
+      integer :: rank
+      integer, dimension(:), allocatable :: regDecomp_
+      integer, dimension(:), allocatable :: minIndex_
+      integer, dimension(:), allocatable :: maxIndex_
+      type(ESMF_Index_Flag) :: indexflag_
+      character(len=:), allocatable :: name_
+
+      integer :: status
+
+      rank = size(shape(farrayPtr))
+      allocate(minIndex_(rank)) 
+
+      if(present(minIndex)) then
+         _ASSERT(size(minIndex) == rank, 'size(minIndex) /= rank of farrayPtr')
+      end if
+
+      if(present(maxIndex)) then
+         _ASSERT(size(maxIndex) == rank, 'size(maxIndex) /= rank of farrayPtr')
+      end if
+
+      IF_PRESENT(regDecomp_, regDecomp, REG_DECOMP_DEFAULT)
+      IF_PRESENT(minIndex_, minIndex, 1)
+      IF_PRESENT(maxIndex_, maxIndex, shape(farrayPtr))
+      IF_PRESENT(indexflag_, indexflag, INDEX_FLAG_DEFAULT)
+      IF_PRESENT(name_, name, 'field_r8')
+      field = mk_field_common(ESMF_TYPEKIND_R8, regDecomp_, minIndex_, maxIndex_, indexflag_, name_, _RC)
+      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
+      ptr => farrayPtr
+
+      _RETURN(_SUCCESS)
+   end function mk_field_r8_ptr
+
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4), CONSTANT
+   function mk_field_r4_constant(m, n, value, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field) 
+      integer, intent(in) :: m, n
+      real(kind=ESMF_KIND_R4), intent(in) :: value
+      integer, dimension(:), optional, intent(in) :: regDecomp
+      integer, dimension(:), optional, intent(in) :: minIndex
+      integer, dimension(:), optional, intent(in) :: maxIndex
+      type(ESMF_Index_Flag), optional, intent(in) :: indexflag
+      character(len=*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      integer :: status
+
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
+      allocate(ptr(m,n))
+      ptr = value
+
+      field = mk_field_ptr(ptr, regDecomp, minIndex, maxIndex, indexflag, name, _RC)
+
+   end function mk_field_r4_constant
+
+   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8), CONSTANT
+   function mk_field_r8_constant(m, n, value, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field) 
+      integer, intent(in) :: m, n
+      real(kind=ESMF_KIND_R8), intent(in) :: value
+      integer, dimension(:), optional, intent(in) :: regDecomp
+      integer, dimension(:), optional, intent(in) :: minIndex
+      integer, dimension(:), optional, intent(in) :: maxIndex
+      type(ESMF_Index_Flag), optional, intent(in) :: indexflag
+      character(len=*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      integer :: status
+
+      real(kind=ESMF_KIND_R8), pointer :: ptr(:,:)
+      allocate(ptr(m, n))
+      ptr = value
+
+      field = mk_field_ptr(ptr, regDecomp, minIndex, maxIndex, indexflag, name, _RC)
+
+   end function mk_field_r8_constant
 
    function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
       type(ESMF_TypeKind_Flag), intent(in) :: tk
@@ -147,6 +344,14 @@ contains
          indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
 
    end subroutine set_up_data
+
+!   @Before
+   subroutine before_each()
+      integer, parameter :: NR=DIMR4_DEFAULT(1)
+      integer, parameter :: NC=DIMR4_DEFAULT(2)
+      real(ESMF_KIND_R4) :: x(NR, NC)
+      x = 0.0
+   end subroutine before_each
 
    @Test
    ! Basic test of FieldCOPY subroutine (REAL32)
@@ -423,27 +628,66 @@ contains
 !wdb fixme Enable assertEqual
    @Test
    subroutine test_FieldConvertPrec_R4R8()
-      integer, parameter :: NROWS = 4
-      integer, parameter :: NCOLS = NROWS
-      type(ESMF_Field) :: r4_field, r8_field
-      real(kind=ESMF_KIND_R4) :: r4_data(NROWS,NCOLS)
-      real(kind=ESMF_KIND_R8) :: r8_data(NROWS,NCOLS)
-      real(kind=ESMF_KIND_R8) :: r8_converted(NROWS,NCOLS)
-      real(kind=ESMF_KIND_R8), pointer :: r8_pointer(:,:)
+
+      real(kind=ESMF_KIND_R4), target :: r4_data(4, 4)
+      real(kind=ESMF_KIND_R4), pointer :: r4_data_ptr(:,:)
+
+      integer, parameter :: M = size(r4_data, 1)
+      integer, parameter :: N = size(r4_data, 2)
+
+      real(kind=ESMF_KIND_R8), pointer :: r8_data_ptr(:,:)
+
+      real(kind=ESMF_KIND_R8), target :: r8_converted_data(M,N)
+      real(kind=ESMF_KIND_R8), pointer :: r8_converted_data_ptr(:,:)
+
+      type(ESMF_Field) :: r4_field
+      type(ESMF_Field) :: r8_field
+      type(ESMF_Field) :: r8_converted_field
+
       integer :: rc, status
 
+      write(*,*)
+
       call initialize_array(r4_data, 0.0, 1.0)
-      r8_data = 0.0
-      r8_converted = r4_data
-      r4_field = mk_field(r4_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
-         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
-         name = 'XR4', _RC)
-      r8_field = mk_field(r8_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
-         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
-         name = 'YR8', _RC)
+      write(*, *) 'R4_DATA:'
+      call write_array(r4_data)
+
+      r4_data_ptr => r4_data
+!      call write_array(r4_data_ptr)
+      write(*, *) 'shape(r4_data_ptr) = ', shape(r4_data_ptr)
+
+      r4_field = mk_field_ptr(r4_data_ptr, name = 'XR4', _RC)
+      write(*, *) 'r4_field created'
+
+      allocate(r8_data_ptr(M,N))
+      r8_data_ptr = 0.0
+!      call write_array(r8_data_ptr)
+      write(*, *) 'shape(r8_data_ptr) = ', shape(r8_data_ptr)
+
+      r8_field = mk_field_ptr(r8_data_ptr, name = 'YR8', _RC)
+      write(*, *) 'r8_field created'
+
+      r8_converted_data = r4_data
+      write(*, *) 'R8_CONVERTED_DATA:'
+      call write_array(r8_converted_data)
+!      write(*, *) 'shape(r8_converted_data) = ', shape(r8_converted_data)
+
+      r8_converted_data_ptr => r8_converted_data
+!      call write_array(r8_converted_data_ptr)
+      write(*, *) 'shape(r8_converted_data_ptr) = ', shape(r8_data_ptr)
+
+      r8_converted_field = mk_field_ptr(r8_data_ptr, name = 'YR8_CONVERTED', _RC)
+      write(*, *) 'r8_converted_field created'
+
       call FieldConvertPrec(r4_field, r8_field, _RC)
-      call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
-!      @assertEqual(r8_converted, r8_pointer) !wdb fixme temporarily disabled
+
+      call ESMF_FieldGet(r8_field, farrayPtr = r8_data_ptr, _RC)
+      write(*, *) 'shape(r8_data_ptr) = ', shape(r8_data_ptr)
+
+      call ESMF_FieldGet(r8_converted_field, farrayPtr = r8_converted_data_ptr, _RC)
+      write(*, *) 'shape(r8_converted_data_ptr) = ', shape(r8_converted_data_ptr)
+
+      @assertEqual(r8_converted_data_ptr, r8_data_ptr)
 
    end subroutine test_FieldConvertPrec_R4R8
 
@@ -492,6 +736,30 @@ contains
 
    end subroutine initialize_array_R8
 
+!   subroutine initialize_array_ptr_R4(ptr, xmin, xrange)
+!      real(ESMF_KIND_R4), pointer, intent(inout) :: ptr(:,:)
+!      real(ESMF_KIND_R4), intent(in) :: xmin
+!      real(ESMF_KIND_R4), intent(in) :: xrange
+!      integer :: rc
+!      
+!      _ASSERT(allocated(ptr), 'Array pointer is not allocated.')
+!      call random_number(ptr)
+!      ptr = xrange * ptr + xmin
+!
+!   end subroutine initialize_array_ptr_R4
+!
+!   subroutine initialize_array_ptr_R8(ptr, xmin, xrange)
+!      real(ESMF_KIND_R8), pointer, intent(inout) :: ptr(:,:)
+!      real(ESMF_KIND_R8), intent(in) :: xmin
+!      real(ESMF_KIND_R8), intent(in) :: xrange
+!      integer :: rc
+!      
+!      _ASSERT(allocated(ptr), 'Array pointer is not allocated.')
+!      call random_number(ptr)
+!      ptr = xrange * ptr + xmin
+!
+!   end subroutine initialize_array_ptr_R8
+
    elemental function are_almost_equal(x, y) result(almost_equal)
       real(kind=ESMF_KIND_R4), parameter :: EPS = epsilon(real(1.0, kind=ESMF_KIND_R4))
       real(kind=ESMF_KIND_R8), intent(in) :: x
@@ -530,6 +798,69 @@ contains
       @assertTrue(all(are_almost_equal(x, y)), trim(MSG))
 
    end subroutine test_almost_equal_array
+
+   subroutine write_r4_array_2d(X)
+      real(kind=ESMF_KIND_R4), intent(in) :: X(:,:)
+      integer :: i
+
+      do i = 1, size(X, 1)
+         call write_array(X(i, :))
+      end do
+      write(*,*)
+
+   end subroutine write_r4_array_2d
+
+   subroutine write_r4_array_1d(v)
+      character(len=*), parameter :: FMT = '(E0.8,1X)'
+      real(kind=ESMF_KIND_R4), intent(in) :: v(:)
+      integer :: i
+      do i = 1,size(v)
+         write(*, fmt=FMT, advance='NO') v(i)
+      end do
+      write(*, *)
+   end subroutine write_r4_array_1d
+
+   subroutine write_r4_array_ptr_2d(X)
+      real(kind=ESMF_KIND_R4), pointer, intent(in) :: X(:,:)
+      integer :: i
+
+      do i = 1, size(X, 1)
+         call write_array(X(i, :))
+      end do
+      write(*,*)
+
+   end subroutine write_r4_array_ptr_2d
+
+   subroutine write_r4_array_ptr_1d(v)
+      character(len=*), parameter :: FMT = '(E0.8,1X)'
+      real(kind=ESMF_KIND_R4), pointer, intent(in) :: v(:)
+      integer :: i
+      do i = 1,size(v)
+         write(*, fmt=FMT, advance='NO') v(i)
+      end do
+      write(*, *)
+   end subroutine write_r4_array_ptr_1d
+   
+   subroutine write_r8_array_2d(X)
+      real(kind=ESMF_KIND_R8), intent(in) :: X(:,:)
+      integer :: i
+
+      do i = 1, size(X, 1)
+         call write_array(X(i, :))
+      end do
+      write(*,*)
+
+   end subroutine write_r8_array_2d
+
+   subroutine write_r8_array_1d(v)
+      character(len=*), parameter :: FMT = '(E0.16,1X)'
+      real(kind=ESMF_KIND_R8), intent(in) :: v(:)
+      integer :: i
+      do i = 1,size(v)
+         write(*, fmt=FMT, advance='NO') v(i)
+      end do
+      write(*, *)
+   end subroutine write_r8_array_1d
 
 end module Test_FieldBLAS
 !   @Test
