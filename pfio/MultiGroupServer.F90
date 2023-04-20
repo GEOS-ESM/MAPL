@@ -611,9 +611,13 @@ contains
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
-
+       type(AdvancedMeter) :: file_timer
+       real(kind=REAL64) :: time
+       character(len=:), allocatable :: filename
+ 
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
+       file_timer = AdvancedMeter(MpiTimerGauge())
        do while (.true.)
 
          ! 1) get collection id from captain
@@ -799,10 +803,17 @@ contains
             end select
             select type (q=>msg)
             class is (AbstractDataMessage)
+               filename =q%file_name
+               call file_timer%start()
                call thread_ptr%put_dataToFile(q, address, _RC)
+               call file_timer%stop()
             end select
             call msg_iter%next()
          enddo
+         time = file_timer%get_total()
+         write(*,"(A, F9.6, A)"), " It takes ", time, "s to write file "//filename
+         call file_timer%reset()
+
          call thread_ptr%clear_hist_collections()
          call thread_ptr%hist_collections%clear()
          deallocate (buffer_fmd)
