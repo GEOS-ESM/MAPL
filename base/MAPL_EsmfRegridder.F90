@@ -1493,7 +1493,8 @@ contains
            if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
         end if
         select case (spec%regrid_method)
-        case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC)
+!ALT        case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC )
+        case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC, REGRID_METHOD_VOTE )
 
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
@@ -1520,7 +1521,8 @@ contains
                 & factorList=factorList, factorIndexList=factorIndexList, &
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
-        case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
+!ALT        case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
+        case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_FRACTION)
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
                 & srcTermProcessing = srcTermProcessing, &
