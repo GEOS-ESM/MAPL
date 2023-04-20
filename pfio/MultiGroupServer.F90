@@ -614,6 +614,7 @@ contains
        type(AdvancedMeter) :: file_timer
        real(kind=REAL64) :: time
        character(len=:), allocatable :: filename
+       real :: file_size, speed
  
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
@@ -654,7 +655,8 @@ contains
          ! re-org data
          vars_map = StringAttributeMap()
          msg_map  = IntegerMessageMap()
-
+         file_size = 0.
+ 
          do i = 1, this%nfront
             s0 = 1
             f_d_m = ForwardDataAndMessage()
@@ -662,6 +664,7 @@ contains
             call f_d_m%deserialize(this%buffers(i)%buffer)
             deallocate(this%buffers(i)%buffer)
             if (size(f_d_m%idata) ==0) cycle
+            file_size = file_size + size(f_d_m%idata)
             iter = f_d_m%msg_vec%begin()
             do j = 1, f_d_m%msg_vec%size()
                msg => f_d_m%msg_vec%at(j)
@@ -811,7 +814,11 @@ contains
             call msg_iter%next()
          enddo
          time = file_timer%get_total()
-         write(*,"(A, F9.6, A)"), " It takes ", time, "s to write file "//filename
+         file_size = file_size*4./1000./1000. ! 4-byte integer, unit is converted to MB
+         speed = file_size/time
+         write(*, "(A, F12.6, A)")"Writing "//filename//"(size ", file_size, " Mb) on node "//i_to_string(this%node_rank)
+         write(*, "(A, F12.6, A)") "time : ", time,   " s    "//filename
+         write(*, "(A, F12.6, A)") "speed: ", speed,  " Mb/s "//filename
          call file_timer%reset()
 
          call thread_ptr%clear_hist_collections()
