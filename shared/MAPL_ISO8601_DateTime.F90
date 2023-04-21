@@ -128,10 +128,16 @@ module MAPL_ISO8601_DateTime
       integer :: month_
       integer :: day_
       logical :: is_valid_ = .FALSE.
+   contains
+      procedure, public, pass(this) :: year => get_year_field
+      procedure, public, pass(this) :: month => get_month_field
+      procedure, public, pass(this) :: day => get_day_field
+      procedure, public, pass(this) :: is_valid => valid_date
    end type date_fields
 
    interface date_fields
-      module procedure :: construct_date_fields
+      module procedure :: construct_date_fields_default
+      module procedure :: construct_date_fields_null
    end interface date_fields
 
    ! Derived type used to store fields from ISO 8601 Times
@@ -164,10 +170,18 @@ module MAPL_ISO8601_DateTime
       integer :: millisecond_
       integer :: timezone_offset_
       logical :: is_valid_ = .FALSE.
+   contains
+      procedure, public, pass(this) :: hour => get_hour_field
+      procedure, public, pass(this) :: minute => get_minute_field
+      procedure, public, pass(this) :: second => get_second_field
+      procedure, public, pass(this) :: millisecond => get_millisecond_field
+      procedure, public, pass(this) :: timezone_offset => get_timezone_offset_field
+      procedure, public, pass(this) :: is_valid => valid_time
    end type time_fields
 
    interface time_fields
-      module procedure :: construct_time_fields
+      module procedure :: construct_time_fields_default
+      module procedure :: construct_time_fields_null
    end interface time_fields
 
    ! Derived type used to store fields from ISO 8601 DateTimes
@@ -333,13 +347,18 @@ contains
 ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
    ! Strip delimiter from string
+   !wdb should this be more than 1 character PICKUP HERE
    pure function undelimit(string, delimiter) result(undelimited)
       character(len=*), intent(in) :: string
-      character, intent(in) :: delimiter
+      character, optional, intent(in) :: delimiter
       character(len=len(string)) :: undelimited
       integer :: i
       integer :: j
       
+      undelimited = string
+      if(.not. present(delimiter)) return
+      if(len_trim(delimiter) <= 0) return
+
       undelimited = ''
       j = 0
       do i=1,len(string)
@@ -466,9 +485,9 @@ contains
       type(date_fields), intent(in) :: date
       integer, parameter :: LB_DAY = 0
 
-      is_valid_date = is_valid_year(date%year_) .and. &
-         is_valid_month(date%month_) .and. &
-         is_between(LB_DAY, get_month_end(date%year_, date%month_)+1, date%day_)
+      is_valid_date = is_valid_year(date%year()) .and. &
+         is_valid_month(date%month()) .and. &
+         is_between(LB_DAY, get_month_end(date%year(), date%month())+1, date%day())
 
    end function is_valid_date
 
@@ -546,13 +565,40 @@ contains
 
    end function parse_date
 
+   ! Parse ISO 8601 Date string into date fields, check if valid date
+   ! and set is_valid_ flag
+   pure function parse_date_general(datestring, delimiter) result(fields)
+      character(len=*), intent(in) :: datestring
+      character, intent(in) :: delimiter
+      type(date_fields) :: fields
+      integer, parameter :: LENGTH = 8
+      integer, parameter :: YEAR_POSITION = 1
+      integer, parameter :: MONTH_POSITION = 5
+      integer, parameter :: DAY_POSITION = 7
+      integer :: year, month, day
+      character(len=LENGTH) :: undelimited
+
+      ! initialize fields to empty (is_valid_ .FALSE.)
+      fields = date_fields()
+
+      ! Eliminate delimiters so that there is one parsing block
+      undelimited=undelimit(datestring, DELIMITER)
+
+      if(len(undelimited) /= LENGTH) return
+
+      year = read_whole_number(undelimited(YEAR_POSITION:MONTH_POSITION-1))
+      month = read_whole_number(undelimited(MONTH_POSITION:DAY_POSITION-1))
+      day = read_whole_number(undelimited(DAY_POSITION:LENGTH))
+      fields = date_fields(year, month, day)
+
+   end function parse_date_general
+
    ! Parse ISO 8601 Time string into time fields, check if valid time
    ! and set is_valid_ flag
    pure function parse_time(timestring) result(fields)
       character(len=*), intent(in) :: timestring
       type(time_fields) :: fields
       integer, parameter :: LENGTH = 6
-      character, parameter :: TIME_PREFIX = 'T' ! debug
       character, parameter :: DELIMITER = ':'
       character, parameter :: DECIMAL_POINT = '.'
       integer, parameter :: FIELDWIDTH = 2
@@ -656,6 +702,92 @@ contains
       fields%is_valid_ = is_valid_time(fields)
    end function parse_time
 
+   ! Parse ISO 8601 Time string into time fields, check if valid time
+   ! and set is_valid_ flag
+   pure function parse_time_general(timestring, delimiter) result(fields)
+      character(len=*), intent(in) :: timestring
+      character, optional, intent(in) :: delimiter
+      type(time_fields) :: fields
+
+      character(len=:), allocatable :: timestring_
+      integer, parameter :: LENGTH = 6
+      character, parameter :: DECIMAL_POINT = '.'
+      integer, parameter :: FIELDWIDTH = 2
+      integer, parameter :: MS_WIDTH = 3
+      integer :: pos
+      character(len=:), allocatable :: undelimited
+      character :: c
+      character(len=LENGTH) :: offset
+      integer :: offset_minutes
+      integer :: undelimited_length
+      integer :: signum
+      integer :: hour
+      integer :: minute
+      integer :: second
+      integer :: millisecond
+      integer :: timezone_offset
+
+      fields = time_fields()
+      
+      timestring_ = trim(timestring)
+
+      ! Find timezone portion
+      pos = scan(timestring_, '-Z+')
+
+      if(.not. pos > 0) return
+
+      c = timestring_(pos:pos)
+
+      ! Check first character of timezone portion
+      select case(c)
+         case('Z')
+            signum = 0
+         case('-')
+            signum = -1
+         case('+')
+            signum = +1
+         case default
+            return
+      end select
+
+      ! Set timezone offset
+      if(signum == 0) then
+         if(pos /= len(timestring_)) return
+         timezone_offset = Z
+      else
+         offset = timestring_(pos+1:len(timestring_))
+         offset = undelimit(offset, delimiter)
+         offset_minutes = parse_timezone_offset(offset, FIELDWIDTH)
+         if(.not. is_whole_number(offset_minutes)) return
+         timezone_offset = signum * offset_minutes
+      end if
+
+      ! Select portion starting at fields%hour and ending before timezone
+      undelimited = adjustl(timestring_(1:pos-1))
+
+      ! Remove delimiter and decimal point
+      undelimited = undelimit(undelimited, delimiter)
+      undelimited=trim(undelimit(undelimited, DECIMAL_POINT))
+      undelimited_length = len(undelimited)
+
+      ! Check length of undelimited string with or without milliseconds
+      select case(undelimited_length)
+         case(LENGTH)
+            millisecond = 0
+         case(LENGTH+MS_WIDTH)
+            millisecond = read_whole_number(undelimited(7:9))
+         case default
+            return
+      end select
+
+      ! Read time fields      
+      hour = read_whole_number(undelimited(1:2))
+      minute = read_whole_number(undelimited(3:4))
+      second = read_whole_number(undelimited(5:6))
+
+      fields = time_fields(hour, minute, second, millisecond)
+
+   end function parse_time_general
 ! END STRING PARSERS
 
 
@@ -668,9 +800,9 @@ contains
       integer :: status
       fields = parse_date(trim(adjustl(isostring)))
       if(fields%is_valid_) then
-         date%year_ = fields%year_
-         date%month_ = fields%month_
-         date%day_ = fields%day_
+         date%year_ = fields%year()
+         date%month_ = fields%month()
+         date%day_ = fields%day()
       else
          _FAIL('Invalid ISO 8601 date string')
       end if
@@ -855,7 +987,7 @@ contains
 
 ! LOW-LEVEL CONSTRUCTORS
 
-   function construct_date_fields(year, month, day) result(fields)
+   function construct_date_fields_default(year, month, day) result(fields)
       integer, intent(in) :: year
       integer, intent(in) :: month
       integer, intent(in) :: day
@@ -863,9 +995,15 @@ contains
       fields%year_ = year
       fields%month_ = month
       fields%day_ = day
-   end function construct_date_fields
+      fields%is_valid_ = is_valid_date(fields)
+   end function construct_date_fields_default
 
-   pure function construct_time_fields(hour, minute, second, millisecond, &
+   function construct_date_fields_null() result(fields)
+      type(date_fields) :: fields
+      fields%is_valid_ = .FALSE.
+   end function construct_date_fields_null
+
+   pure function construct_time_fields_default(hour, minute, second, millisecond, &
       timezone_offset) result(fields)
       integer, intent(in) :: hour
       integer, intent(in) :: minute
@@ -878,7 +1016,13 @@ contains
       fields%second_ = second
       fields%millisecond_ = millisecond
       fields%timezone_offset_ = timezone_offset
-   end function construct_time_fields
+      fields%is_valid_ = is_valid_time(fields)
+   end function construct_time_fields_default
+
+   pure function construct_time_fields_null() result(fields)
+      type(time_fields) :: fields
+      fields%is_valid_ = .FALSE.
+   end function construct_time_fields_null
 
 ! END LOW-LEVEL CONSTRUCTORS
 
@@ -896,7 +1040,7 @@ contains
 
    integer function get_month(self)
       class(ISO8601Date), intent(in) :: self
-      get_month = self%month_
+      get_month = self%month()
    end function get_month
 
    integer function get_day(self)
@@ -1070,5 +1214,55 @@ contains
    end function convert_ISO8601_to_integer_time
 
 ! END HIGH-LEVEL CONVERSION PROCEDURES
+
+   integer function get_year_field(this)
+      class(date_fields), intent(in) :: this
+      get_year_field = this%year_
+   end function get_year_field
+
+   integer function get_month_field(this)
+      class(date_fields), intent(in) :: this
+      get_month_field = this%month_
+   end function get_month_field
+
+   integer function get_day_field(this)
+      class(date_fields), intent(in) :: this
+      get_month_field = this%day_
+   end function get_day_field
+
+   logical function valid_date(this)
+      class(date_fields), intent(in) :: this
+      valid_date = this%is_valid_
+   end function valid_date
+
+   integer function get_hour_field(this)
+      class(time_fields) :: intent(in) :: this
+      get_hour_field = this%hour_
+   end function
+
+   integer function get_minute_field(this)
+      class(time_fields) :: intent(in) :: this
+      get_minute_field = this%minute_
+   end function
+
+   integer function get_second_field(this)
+      class(time_fields) :: intent(in) :: this
+      get_second_field = this%second_
+   end function
+
+   integer function get_millisecond_field(this)
+      class(time_fields) :: intent(in) :: this
+      get_millisecond_field = this%millisecond_
+   end function
+
+   integer function get_timezone_offset_field(this)
+      class(time_fields) :: intent(in) :: this
+      get_timezone_offset_field = this%timezone_offset_
+   end function
+
+   logical function valid_time(this)
+      class(time_fields) :: intent(in) :: this
+      valid_time = this%is_valid_
+   end function
 
 end module MAPL_ISO8601_DateTime
