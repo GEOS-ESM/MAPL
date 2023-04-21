@@ -55,6 +55,7 @@ module pFIO_FileMetadataMod
       procedure :: modify_variable
       procedure :: has_dimension
       procedure :: has_variable
+      procedure :: merge
 
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
@@ -499,6 +500,51 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine add_var_attribute_1d
 
+   subroutine merge(this, meta,rc)
+      class (FileMetadata), target, intent(inout) :: this
+      class (FileMetadata), target, intent(in) :: meta
+      integer, optional, intent(out) :: rc
+      type (StringIntegerMap), pointer :: dims
+      type (StringVariableMap), pointer :: vars
+      type (StringAttributeMap), pointer :: atts
+      integer :: extent
+      type (StringIntegerMapIterator) :: dim_iter
+      type (StringVariableMapIterator):: var_iter
+      type (Variable), pointer :: var
+      character(len=:), pointer :: name      
+
+      ! merge dims
+      dims => meta%get_dimensions()
+      dim_iter = dims%begin()
+      do while (dim_iter /= dims%end())
+        name => dim_iter%get()
+        extent = dim_iter%value()
+        call this%add_dimension(name, extent)
+        call dim_iter%next()
+      end do      
+      
+      ! merge attribute
+      atts => meta%get_attributes()
+      att_iter = atts%begin()
+      do while (att_iter /= atts%end())
+        name => att_iter%get()
+        att => att_iter%value()
+        call this%add_attribute(name, att)
+        call att_iter%next() 
+      enddo 
+
+      ! merge variables
+      vars => meta%get_variables()
+      var_iter = vars%begin()
+      do while (var_iter /= vars%end())
+        name => var_iter%get()
+        var  => var_iter%value()
+        call this%add_variable(name, var)
+        call var_iter%next()
+      end do      
+
+      _RETURN(_SUCCESS)
+   end subroutine merge
 
    logical function equal(a, b)
       class (FileMetadata), target, intent(in) :: a
