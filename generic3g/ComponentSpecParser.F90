@@ -99,7 +99,7 @@ contains
 
             call to_typekind(typekind, attributes, _RC)
 
-            call to_float(default_value, attributes, 'default_value', _RC)
+            call val_to_float(default_value, attributes, 'default_value', _RC)
 
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
@@ -132,7 +132,7 @@ contains
          substate = name(:idx-1)
       end subroutine split
 
-      subroutine to_float(x, attributes, key, rc)
+      subroutine val_to_float(x, attributes, key, rc)
          real, allocatable, intent(out) :: x
          class(YAML_Node), intent(in) :: attributes
          character(*), intent(in) :: key
@@ -145,7 +145,7 @@ contains
          call attributes%get(x, 'default_value', _RC)
 
          _RETURN(_SUCCESS)
-      end subroutine to_float
+      end subroutine val_to_float
 
       subroutine to_typekind(typekind, attributes, rc)
          type(ESMF_TypeKind_Flag) :: typekind
