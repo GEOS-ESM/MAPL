@@ -614,7 +614,7 @@ contains
        type(AdvancedMeter) :: file_timer
        real(kind=REAL64) :: time
        character(len=:), allocatable :: filename
-       real :: file_size, speed
+       real(kind=REAL64) :: file_size, speed
  
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
@@ -816,9 +816,8 @@ contains
          time = file_timer%get_total()
          file_size = file_size*4./1000./1000. ! 4-byte integer, unit is converted to MB
          speed = file_size/time
-         write(*, "(A, F12.6, A)")"Writing "//filename//"(size ", file_size, " Mb) on node "//i_to_string(this%node_rank)
-         write(*, "(A, F12.6, A)") "time : ", time,   " s    "//filename
-         write(*, "(A, F12.6, A)") "speed: ", speed,  " Mb/s "//filename
+         write(*, "(A, F10.5, A, F10.5, A, F10.5,A)") "Writing time: ", time,   " s, speed: ", speed, " MB/s, size: ", &
+                                      file_size, " MB file "//filename// " on oserver node "//i_to_string(this%node_rank)
          call file_timer%reset()
 
          call thread_ptr%clear_hist_collections()
