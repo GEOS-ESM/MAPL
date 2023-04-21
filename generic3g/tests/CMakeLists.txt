@@ -32,6 +32,7 @@ add_pfunit_ctest(MAPL.generic3g.tests
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
 		OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 MAX_PES 4
                 )
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

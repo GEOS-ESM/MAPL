@@ -97,6 +97,7 @@ contains
 
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
 

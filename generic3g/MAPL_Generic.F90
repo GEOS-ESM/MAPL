@@ -442,7 +442,8 @@ contains
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomBaseCreate(grid, _RC)
+      !TODO - staggerloc not needed in nextgen ESMF
+      geom = ESMF_GeomBaseCreate(grid, ESMF_STAGGERLOC_INVALID, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
