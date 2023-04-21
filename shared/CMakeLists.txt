@@ -24,6 +24,8 @@ set (srcs
     Enumerators.F90
     MaplShared.F90
     TimeUtils.F90
+    DownBit.F90
+    ShaveMantissa.c
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
@@ -32,6 +34,8 @@ set (srcs
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 if (PFUNIT_FOUND)
   add_subdirectory (tests)

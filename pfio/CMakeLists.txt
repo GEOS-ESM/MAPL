@@ -10,8 +10,6 @@ endif()
 
 set (srcs
   # pFIO Files
-  pFIO_ShaveMantissa.c
-  DownBit.F90
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90

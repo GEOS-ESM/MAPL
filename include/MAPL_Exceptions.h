@@ -151,12 +151,6 @@
 #define __raise__(exception,description) print '(a,'': '',a)', "exception", description; _RETURN(exception)  
 
 !
-! ESMF Error codes are defined here
-!                     
-
-#include "ESMC_ReturnCodes.h"
-
-!
 ! Pre-defined MAPL error codes
 !
 

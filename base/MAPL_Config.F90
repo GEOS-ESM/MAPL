@@ -151,7 +151,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -159,7 +159,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -184,7 +184,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -192,7 +192,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -334,7 +334,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -342,7 +342,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -367,7 +367,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -375,7 +375,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -517,7 +517,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -525,7 +525,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -550,7 +550,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -558,7 +558,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -761,7 +761,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -769,7 +769,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -793,7 +793,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -801,7 +801,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine

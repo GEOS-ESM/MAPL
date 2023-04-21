@@ -19,5 +19,6 @@ module MaplShared
    use mapl_CommGroupDescriptionMod
    use mapl_AbstractCommSplitterMod
    use mapl_Enumerators
+   use mapl_DownbitMod
    
 end module MaplShared

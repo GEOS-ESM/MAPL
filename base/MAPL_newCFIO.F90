@@ -22,6 +22,7 @@ module MAPL_newCFIOMod
   use MAPL_ExtDataCOllectionManagerMod
   use gFTL_StringVector
   use gFTL_StringStringMap
+  use MAPL_DownbitMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -794,6 +795,12 @@ module MAPL_newCFIOMod
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
      class (AbstractGridFactory), pointer :: factory
+     real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
+     type(ESMF_VM) :: vm
+     integer :: mpi_comm
+
+     call ESMF_VMGetCurrent(vm,_RC)
+     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
 
      factory => get_factory(this%output_grid,rc=status)
      _VERIFY(status)
@@ -810,7 +817,8 @@ module MAPL_newCFIOMod
            call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
            _VERIFY(status)
            if (this%nbits < 24) then
-              call pFIO_DownBit(ptr2d,ptr2d,this%nbits,undef=MAPL_undef,rc=status)
+              allocate(temp_2d,source=ptr2d)
+              call DownBit(temp_2d,ptr2d,this%nbits,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
               _VERIFY(status)
            end if
         else
@@ -825,7 +833,8 @@ module MAPL_newCFIOMod
             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
             _VERIFY(status)
             if (this%nbits < 24) then
-               call pFIO_DownBit(ptr3d,ptr3d,this%nbits,undef=MAPL_undef,rc=status)
+               allocate(temp_3d,source=ptr3d)
+               call DownBit(temp_3d,ptr3d,this%nbits,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
                _VERIFY(status)
             end if
          else

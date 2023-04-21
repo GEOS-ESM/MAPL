@@ -90,11 +90,12 @@ module MAPL_ESMFFieldBundleWrite
             item%xname = trim(field_names(i))
             call items%push_back(item)
          enddo
+         call this%cfio%set_param(nbits=nbits,deflation=deflate)
          call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
          _VERIFY(status) 
          this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
-         call this%cfio%set_param(write_collection_id=collection_id,nbits=nbits,deflation=deflate)
+         call this%cfio%set_param(write_collection_id=collection_id)
          _RETURN(_SUCCESS)
 
       end subroutine create_from_bundle
