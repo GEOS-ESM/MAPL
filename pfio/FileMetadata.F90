@@ -507,17 +507,19 @@ contains
       type (StringIntegerMap), pointer :: dims
       type (StringVariableMap), pointer :: vars
       type (StringAttributeMap), pointer :: atts
-      integer :: extent
       type (StringIntegerMapIterator) :: dim_iter
       type (StringVariableMapIterator):: var_iter
-      type (Variable), pointer :: var
+      type (StringAttributeMapIterator) :: att_iter
+      type (Variable), pointer  :: var
+      type (Attribute), pointer :: att
       character(len=:), pointer :: name      
+      integer :: extent
 
       ! merge dims
       dims => meta%get_dimensions()
       dim_iter = dims%begin()
       do while (dim_iter /= dims%end())
-        name => dim_iter%get()
+        name => dim_iter%key()
         extent = dim_iter%value()
         call this%add_dimension(name, extent)
         call dim_iter%next()
@@ -527,7 +529,7 @@ contains
       atts => meta%get_attributes()
       att_iter = atts%begin()
       do while (att_iter /= atts%end())
-        name => att_iter%get()
+        name => att_iter%key()
         att => att_iter%value()
         call this%add_attribute(name, att)
         call att_iter%next() 
@@ -537,7 +539,7 @@ contains
       vars => meta%get_variables()
       var_iter = vars%begin()
       do while (var_iter /= vars%end())
-        name => var_iter%get()
+        name => var_iter%key()
         var  => var_iter%value()
         call this%add_variable(name, var)
         call var_iter%next()
