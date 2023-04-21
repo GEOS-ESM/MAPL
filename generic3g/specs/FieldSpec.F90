@@ -120,7 +120,7 @@ contains
       type(ESMF_GeomBase), intent(inout) :: geom
       integer, optional, intent(out) ::rc
 
-      type(ESMF_GeomBaseType_Flag) :: geom_type
+      type(ESMF_GeomType_Flag) :: geom_type
       type(ESMF_Grid) :: grid
       type(ESMF_Mesh) :: mesh
       type(ESMF_XGrid) :: xgrid
@@ -249,7 +249,7 @@ contains
       class(FieldSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
 
-      type(ESMF_GeomBaseType_Flag) :: geom_type
+      type(ESMF_GeomType_Flag) :: geom_type
       integer :: status
       
       requires_extension = .true.

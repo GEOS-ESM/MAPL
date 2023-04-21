@@ -819,6 +819,7 @@ contains
       associate ( &
            importState => this%user_states%importState, &
            exportState => this%user_states%exportState)
+
         call ESMF_GridCompFinalize(this%user_gridcomp, importState=importState, exportState=exportState, &
              clock=clock, userRC=userRC, _RC)
         _VERIFY(userRC)
