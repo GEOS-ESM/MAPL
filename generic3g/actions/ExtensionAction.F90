@@ -6,16 +6,16 @@ module mapl3g_ExtensionAction
 
    type, abstract :: ExtensionAction
    contains
-      procedure(I_run), deferred :: run
+      procedure(I_run_extension), deferred :: run
    end type ExtensionAction
 
 
    abstract interface
-      subroutine I_run(this, rc)
+      subroutine I_run_extension(this, rc)
          import ExtensionAction
          class(ExtensionAction), intent(inout) :: this
          integer, optional, intent(out) :: rc
-      end subroutine I_run
+      end subroutine I_run_extension
    end interface
 
 end module mapl3g_ExtensionAction

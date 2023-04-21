@@ -105,9 +105,10 @@ contains
       character(ESMF_MAXSTR) :: name
       integer :: itemCount
 
+#ifndef __GFORTRAN__
       write(unit,*, iostat=iostat, iomsg=iomsg) 'IMPORT:', this%importState
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
-
+#endif
    end subroutine write_multistate
 
  end module mapl3g_MultiState
