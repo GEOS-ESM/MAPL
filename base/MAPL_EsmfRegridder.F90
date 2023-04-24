@@ -942,8 +942,6 @@ contains
      _ASSERT(km == size(v_in,3),'inconsistent array shape')
       if (size(u_out) /= 0) then
          _ASSERT(km == size(u_out,3),'inconsistent array shape')
-      end if
-      if (size(u_out) /= 0) then
          _ASSERT(km == size(v_out,3),'inconsistent array shape')
       end if
 
