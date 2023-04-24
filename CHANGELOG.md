@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
--Fixed the handling of vector regridding for a subdomain with a local DE. Also fixed the no-de case involving vertical regridding
+### Fixed
+- Fixed the handling of vector regridding for a subdomain with a local DE. 
+- Fixed the no-de case involving vertical regridding
 
 ### Added
 
