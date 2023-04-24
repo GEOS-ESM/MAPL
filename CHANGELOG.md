@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Fixed the handling of vector regridding for a subdomain with a local DE. 
-- Fixed the no-de case involving vertical regridding
+- Fixed the handling of vector regridding for a subdomain with no-DE. 
+- Fixed the no-DE case related to vertical regridding.
 
 ### Added
 
