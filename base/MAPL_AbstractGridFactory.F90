@@ -80,6 +80,7 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_corner_bounds), deferred :: generate_file_corner_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
+      ! Following needs a better name:  Really lists file variable to _ignore_
       procedure(get_file_format_vars), deferred :: get_file_format_vars
       procedure(decomps_are_equal), deferred :: decomps_are_equal
       procedure(physical_params_are_equal), deferred :: physical_params_are_equal

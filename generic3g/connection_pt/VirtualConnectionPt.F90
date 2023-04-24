@@ -14,13 +14,16 @@ module mapl3g_VirtualConnectionPt
    type(ESMF_StateIntent_Flag), parameter :: ESMF_STATEINTENT_INTERNAL = ESMF_StateIntent_Flag(100)
   
    type :: VirtualConnectionPt
-      private
+!!$      private
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
       character(:), allocatable :: comp_name
    contains
       procedure :: get_state_intent
       procedure :: get_esmf_name
+      procedure :: get_full_name
+      procedure :: get_comp_name
+
       procedure :: add_comp_name
 
       procedure :: is_import
@@ -52,7 +55,7 @@ contains
       type(VirtualConnectionPt) :: v_pt
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
-      
+
       v_pt%state_intent = state_intent
       v_pt%short_name = short_name
       
@@ -89,7 +92,7 @@ contains
       character(*), intent(in) :: comp_name
 
       v_pt = this
-      v_pt%comp_name = comp_name
+      if (.not. allocated(v_pt%comp_name)) v_pt%comp_name = comp_name
       
    end function add_comp_name
 
@@ -115,11 +118,26 @@ contains
       character(:), allocatable :: name
       class(VirtualConnectionPt), intent(in) :: this
 
-      name = ''
-      if (allocated(this%comp_name)) name = this%comp_name // '::'
-      name = name // this%short_name
+      name = this%short_name
       
    end function get_esmf_name
+      
+   ! Important that name is different if either comp_name or short_name differ
+   function get_full_name(this) result(name)
+      character(:), allocatable :: name
+      class(VirtualConnectionPt), intent(in) :: this
+
+      name = this%short_name
+      if (allocated(this%comp_name)) name = this%comp_name // '/' // name
+      
+   end function get_full_name
+      
+   function get_comp_name(this) result(name)
+      character(:), allocatable :: name
+      class(VirtualConnectionPt), intent(in) :: this
+      name = ''
+      if (allocated(this%comp_name)) name = this%comp_name
+   end function get_comp_name
       
 
    logical function less_than(lhs, rhs)
@@ -133,7 +151,7 @@ contains
       if (rhs%state_intent < lhs%state_intent) return
 
       ! If intents are tied:
-      less_than = lhs%get_esmf_name() < rhs%get_esmf_name()
+      less_than = lhs%get_full_name() < rhs%get_full_name()
       
    end function less_than
 
@@ -177,7 +195,7 @@ contains
 
 
       write(unit, '("Virtual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
-           this%get_state_intent(), this%get_esmf_name()
+           this%get_state_intent(), this%get_full_name()
    end subroutine write_formatted
 
 end module mapl3g_VirtualConnectionPt

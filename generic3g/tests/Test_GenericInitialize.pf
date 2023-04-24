@@ -6,7 +6,7 @@ module Test_GenericInitialize
    use mapl3g_ESMF_Interfaces
    use mapl3g_ComponentBuilder
    use mapl3g_FieldSpec
-   use mapl3g_ExtraDimsSpec
+   use mapl3g_UngriddedDimsSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_StateSpec
    use mapl3g_FieldSpec
@@ -23,9 +23,9 @@ contains
       character(len=ESMF_MAXSTR) :: name
       integer :: status
 
-      type(ESMF_GeomBase) :: geom_base
+      type(ESMF_GeomBase) :: geom
 
-      field_spec = FieldSpec(ExtraDimsSpec(), geom_base, units='unknown')
+      field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown')
       field = builder%make_field('A', field_spec, rc=status)
       @assert_that(status, is(0))
 

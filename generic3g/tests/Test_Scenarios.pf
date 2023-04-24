@@ -1,0 +1,506 @@
+#define _VERIFY(status) \
+   if(status /= 0) then; \
+      call assert_that(status, is(0), location=SourceLocation(__FILE__,__LINE__)); \
+      if (anyExceptions()) return; \
+   endif
+#define _RC rc=status); _VERIFY(status
+
+
+module Test_Scenarios
+   use mapl3g_Generic
+   use mapl3g_GenericPhases
+   use mapl3g_MultiState
+   use mapl3g_OuterMetaComponent
+   use mapl3g_ChildComponent
+   use mapl3g_GenericConfig
+   use mapl3g_GenericGridComp
+   use mapl3g_UserSetServices
+   use mapl3g_ESMF_Utilities
+   use esmf
+   use nuopc
+   use yafyaml
+   ! testing framework
+   use ESMF_TestCase_mod
+   use ESMF_TestParameter_mod
+   use funit
+   implicit none
+
+
+   abstract interface
+      subroutine I_check_field(expectations, field, description, rc)
+         import YAML_Node, ESMF_Field
+         class(YAML_Node), intent(in) :: expectations
+         type(ESMF_Field), intent(inout) :: field
+         character(*), intent(in) :: description
+         integer, intent(out) :: rc
+      end subroutine I_check_field
+   end interface
+
+   @testParameter
+   type, extends(ESMF_TestParameter) :: ScenarioDescription
+      character(:), allocatable :: name
+      character(:), allocatable :: root
+      character(:), allocatable :: check_name
+      procedure(I_check_field), nopass, pointer :: check_field
+   contains
+      procedure :: tostring => tostring_description
+   end type ScenarioDescription
+
+
+   @testCase(constructor=Scenario, testParameters={get_parameters()})
+   type, extends(ESMF_TestCase) :: Scenario
+      character(:), allocatable :: scenario_name
+      character(:), allocatable :: scenario_root
+      character(:), allocatable :: check_name
+      procedure(I_check_field), nopass, pointer :: check_field
+
+      class(YAML_Node), allocatable :: expectations
+      type(ESMF_GridComp) :: outer_gc
+      type(MultiState) :: outer_states
+      type(ESMF_Grid) :: grid
+   contains
+      procedure :: setup
+      procedure :: tearDown
+   end type Scenario
+
+
+   interface Scenario
+      procedure :: new_Scenario
+   end interface
+
+
+   interface ScenarioDescription
+      procedure :: new_ScenarioDescription
+   end interface
+
+contains
+
+   function new_Scenario(desc) result(s)
+      type(ScenarioDescription), intent(in) :: desc
+      type(Scenario) :: s
+      s%scenario_name = desc%name
+      s%scenario_root = desc%root
+      s%check_name = desc%check_name
+      s%check_field => desc%check_field
+   end function new_Scenario
+
+   function new_ScenarioDescription(name, root, check_name, check_field) result(s)
+      type(ScenarioDescription) :: s
+      character(*), intent(in) :: name
+      character(*), intent(in) :: root
+      character(*), intent(in) :: check_name
+      procedure(I_check_field) :: check_field
+      s%name = name
+      s%root = root
+      s%check_name = check_name
+      s%check_field => check_field
+
+      call s%setNumPETsRequested(1)
+   end function new_ScenarioDescription
+
+   function get_parameters() result(params)
+      type(ScenarioDescription), allocatable :: params(:)
+
+      params = [ScenarioDescription:: ]
+      
+      params = [params, add_params('field exists', check_field_exists)]
+      params = [params, add_params('field exists', check_field_status)]
+      params = [params, add_params('field exists', check_field_typekind)]
+      params = [params, add_params('field exists', check_field_value)]
+      
+   contains
+
+      function add_params(check_name, check_field) result(params)
+         type(ScenarioDescription), allocatable :: params(:)
+         character(*), intent(in) :: check_name
+         procedure(I_check_field) :: check_field
+      
+         params = [ &
+              ScenarioDescription('scenario_1',              'parent.yaml',      check_name, check_field), &
+              ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_field), &
+              ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_field), &
+              ScenarioDescription('history_1',               'cap.yaml',         check_name, check_field), &
+              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field) &
+      ]
+      end function add_params
+   end function get_parameters
+
+
+   subroutine setup(this)
+      class(Scenario), intent(inout) :: this
+
+      type(Parser) :: p
+      class(Yaml_Node), allocatable :: yaml_cfg
+      type(GenericConfig) :: config
+      integer :: status, user_status
+      type(ESMF_Clock) :: clock
+      integer :: i
+      type(ESMF_State) :: importState, exportState
+      character(:), allocatable :: file_name
+
+      p = Parser()
+
+      file_name = './configs/' // this%scenario_name // '/' // this%scenario_root
+      yaml_cfg = p%load_from_file(file_name, _RC)
+
+      config = GenericConfig(yaml_cfg=yaml_cfg)
+
+      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', _RC)
+      @assert_that(status, is(0))
+
+      associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
+ 
+        outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
+        call ESMF_GridCompSetServices(outer_gc, setServices, userRC=user_status, _RC)
+        _VERIFY(user_status)
+        grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+        call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
+
+        importState = ESMF_StateCreate(_RC)
+        exportState = ESMF_StateCreate(_RC)
+        outer_states = MultiState(importState=importState, exportState=exportState)
+
+        do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+           associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+             call ESMF_GridCompInitialize(outer_gc, &
+                  importState=importState, exportState=exportState, clock=clock, &
+                  phase=phase, userRC=user_status, _RC)
+             _VERIFY(user_status)
+           end associate
+        end do
+
+        if (this%scenario_name == 'precision_extension') then
+           call ESMF_GridCompRun(outer_gc, & 
+                  importState=importState, exportState=exportState, clock=clock, &
+                  userRC=user_status, _RC)
+           _VERIFY(user_status)
+        end if
+
+      end associate
+
+      file_name = './configs/' // this%scenario_name // '/expectations.yaml'
+      this%expectations = p%load_from_file(file_name, _RC)
+
+                 
+   end subroutine setup
+
+   ! In theory we want to call finalize here and then destroy ESMF objects in this
+   subroutine teardown(this)
+      class(Scenario), intent(inout) :: this
+
+      integer :: status
+
+!!$      call ESMF_GridCompDestroy(this%outer_gc, _RC)
+
+!!$      call ESMF_StateDestroy(this%outer_states%importState,_RC)
+!!$      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
+      
+   end subroutine teardown
+
+   @test
+   subroutine test_anything(this)
+      class(Scenario), intent(inout) :: this
+
+      integer :: status
+      integer :: i
+      character(:), allocatable :: comp_path, item_name
+      class(YAML_NODE), pointer :: comp_expectations, expected_properties
+      type(MultiState) :: comp_states
+      class(YAML_NODE), pointer :: state_items
+      integer :: item_count, expected_item_count
+      type(ESMF_Field) :: field
+      type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
+      character(:), allocatable :: expected_status
+!!$
+!!$      components: do i = 1, this%expectations%size()
+!!$
+!!$         comp_expectations => this%expectations%of(i)
+!!$
+!!$         call comp_expectations%get(comp_path, 'component', _RC)
+!!$         call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
+!!$
+!!$         call check_items_in_state('import', _RC)
+!!$         call check_items_in_state('export', _RC)
+!!$         call check_items_in_state('internal', _RC)
+!!$            
+!!$      end do components
+!!$
+   contains
+
+     subroutine check_items_in_state(state_intent, rc)
+         character(*), intent(in) :: state_intent
+         integer, intent(out) :: rc
+
+         integer :: status
+         class(NodeIterator), allocatable :: iter
+         class(YAML_NODE), pointer :: state_items
+         type(ESMF_State) :: state
+
+         character(:), allocatable :: msg
+
+         rc = -1
+
+         if (.not. comp_expectations%has(state_intent)) then
+            rc = 0 ! that's ok
+            return
+         end if
+
+   
+         msg = comp_path // '::' // state_intent
+         state_items => comp_expectations%at(state_intent, _RC)
+         @assertTrue(state_items%is_mapping(), msg)
+
+         call comp_states%get_state(state, state_intent, _RC)
+
+         associate (e => state_items%end())
+           allocate(iter, source=state_items%begin())
+
+           do while (iter /= e)
+              item_name = to_string(iter%first(), _RC)
+              expected_properties => iter%second()
+              msg = comp_path // '::' // state_intent // '::' // item_name
+              call get_field(comp_states, state_intent, item_name, field, _RC)
+
+              associate (test_description => msg // '::' // this%check_name)
+                call this%check_field(expected_properties, field, test_description, _RC)
+              end associate
+
+              call iter%next()
+           end do
+           deallocate(iter)
+         end associate
+
+         rc = 0
+
+      end subroutine check_items_in_state
+      
+   end subroutine test_anything
+
+   
+   subroutine check_field_exists(expectations, field, description, rc)
+      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_Field), intent(inout) :: field
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      character(len=:), allocatable :: msg
+      msg = description
+
+      ! Will not get to here if the field does not exist
+      rc = 0
+   end subroutine check_field_exists
+      
+   subroutine check_field_status(expectations, field, description, rc)
+      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_Field), intent(inout) :: field
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      character(len=:), allocatable :: expected_field_status_str
+      type(ESMF_FieldStatus_Flag) :: expected_field_status
+      type(ESMF_FieldStatus_Flag) :: found_field_status
+      integer :: status
+      character(len=:), allocatable :: msg
+
+      msg = description
+
+      call expectations%get(expected_field_status_str, 'status', _RC)
+      expected_field_status = ESMF_FIELDSTATUS_GRIDSET
+      select case (expected_field_status_str)
+      case ('complete')
+         expected_field_status = ESMF_FIELDSTATUS_COMPLETE
+      case ('gridset')
+         expected_field_status = ESMF_FIELDSTATUS_GRIDSET
+      case default
+         _VERIFY(-1)
+      end select
+      
+      call ESMF_FieldGet(field, status=found_field_status, _RC)
+      @assert_that(msg // ' field status: ',expected_field_status == found_field_status, is(true()))
+
+      rc = 0
+   end subroutine check_field_status
+      
+   subroutine check_field_typekind(expectations, field, description, rc)
+      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_Field), intent(inout) :: field
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      character(len=:), allocatable :: expected_field_typekind_str
+      type(ESMF_TypeKind_Flag) :: expected_field_typekind
+      type(ESMF_TypeKind_Flag) :: found_field_typekind
+      integer :: status
+      character(len=:), allocatable :: msg
+
+      msg = description
+
+      if (.not. expectations%has('typekind')) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      call expectations%get(expected_field_typekind_str, 'typekind', _RC)
+      select case (expected_field_typekind_str)
+      case ('R4')
+         expected_field_typekind = ESMF_TYPEKIND_R4
+      case ('R8')
+         expected_field_typekind = ESMF_TYPEKIND_R8
+      case default
+         _VERIFY(-1)
+      end select
+      
+      call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
+      @assert_that(msg // ' field typekind: ',expected_field_typekind == found_field_typekind, is(true()))
+
+      rc = 0
+   end subroutine check_field_typekind
+      
+   subroutine check_field_value(expectations, field, description, rc)
+      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_Field), intent(inout) :: field
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      character(len=:), allocatable :: expected_field_typekind_str
+      real :: expected_field_value
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: status
+      character(len=:), allocatable :: msg
+
+      msg = description
+
+      if (.not. expectations%has('value')) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      call expectations%get(expected_field_value, 'value', _RC)
+      
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
+      if (typekind == ESMF_TYPEKIND_R4) then
+         block
+           real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+           call ESMF_FieldGet(field, farrayptr=x, _RC)
+           @assert_that(all(x == expected_field_value), is(true()))
+         end block
+      elseif (typekind == ESMF_TYPEKIND_R8) then
+         block
+           real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+           call ESMF_FieldGet(field, farrayptr=x, _RC)
+           @assert_that(all(x == expected_field_value), is(true()))
+         end block
+      else
+         _VERIFY(-1)
+      end if
+
+      rc = 0
+   end subroutine check_field_value
+
+
+
+   recursive subroutine get_substates(gc, states, component_path, substates, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      type(MultiState), intent(in) :: states
+      character(*), intent(in) :: component_path
+      type(MultiState), intent(out) :: substates
+      integer, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: child_name
+      type(ChildComponent) :: child
+      type(ESMF_GridComp) :: child_gc
+      type(MultiState) :: child_states
+      type(OuterMetaComponent), pointer :: outer_meta
+      integer :: idx
+
+      rc = 0
+      if (component_path == '<root>' .or. component_path == '') then
+         substates = states
+         return
+      end if
+
+      outer_meta => get_outer_meta(gc, _RC)
+
+      ! Parse path
+      idx = index(component_path, '/')
+      if (idx == 0) idx = len(component_path) + 1
+      child_name = component_path(:idx-1)
+      
+      if (child_name == '<user>') then
+         substates = outer_meta%get_user_states()
+         return
+      end if
+
+      ! Otherwise drill down 1 level.
+      child = outer_meta%get_child(child_name, _RC)
+
+      child_gc = child%get_outer_gridcomp()
+      child_states = child%get_states()
+
+      call get_substates(child_gc, child_states, component_path(idx+1:), &
+           substates, _RC)
+
+      return
+   end subroutine get_substates
+
+   subroutine get_field(states, state_intent, field_name, field, rc)
+      type(MultiState), intent(in) :: states
+      character(*), intent(in) :: state_intent
+      character(*), intent(in) :: field_name
+      type(ESMF_Field), intent(out) :: field
+      integer, intent(out) :: rc
+
+      type(ESMF_State) :: state
+      integer :: status
+
+      rc=0
+      call states%get_state(state, state_intent, _RC)
+      call ESMF_StateGet(state, field_name, field, _RC)
+
+      return
+   end subroutine get_field
+
+
+   function tostring_description(this) result(s)
+      character(:), allocatable :: s
+      class(ScenarioDescription), intent(in) :: this
+
+      s = this%name
+   end function tostring_description
+
+
+   recursive function num_fields(state, rc) result(n)
+      integer :: n
+      type(ESMF_State), intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: itemCount, i
+      character(ESMF_MAXSTR), allocatable :: itemNameList(:)
+      type(ESMF_StateItem_Flag) :: itemType
+      type(ESMF_State) :: substate
+
+      n = 0 ! default
+
+      call ESMF_StateGet(state, itemCount=itemCount, _RC)
+      allocate(itemNameList(itemCount))
+      call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
+      
+      do i = 1, itemCount
+         call ESMF_StateGet(state, itemName=trim(itemNameList(i)), itemType=itemType, _RC)
+
+         if (itemType == ESMF_STATEITEM_FIELD) then
+            n = n + 1
+         elseif (itemType == ESMF_STATEITEM_STATE) then
+            call ESMF_StateGet(state, trim(itemNameList(i)), substate, _RC)
+            n = n + num_fields(substate, _RC)
+         end if
+
+      end do
+
+      return
+   end function num_fields
+   
+
+end module Test_Scenarios

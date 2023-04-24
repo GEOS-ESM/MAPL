@@ -62,6 +62,7 @@ contains
          ! Mandatory generic initialize phases
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GRID, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_POST_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_RESTORE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
@@ -96,6 +97,7 @@ contains
 
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist,  _RC)
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
 
@@ -141,9 +143,11 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
       case (GENERIC_INIT_GRID)
-         call outer_meta%initialize_geom_base(importState, exportState, clock, _RC)
+         call outer_meta%initialize_geom(importState, exportState, clock, _RC)
       case (GENERIC_INIT_ADVERTISE)
          call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_POST_ADVERTISE)
+         call outer_meta%initialize_post_advertise(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
          call outer_meta%initialize_realize(importState, exportState, clock, _RC)
 !!$      case (GENERIC_INIT_RESTORE)

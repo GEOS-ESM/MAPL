@@ -1,6 +1,5 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
-
 set(srcs
   Generic3g.F90
 
@@ -24,6 +23,7 @@ set(srcs
 #  GenericCouplerComponent.F90
 #  CouplerComponentVector.F90
 
+  MultiState.F90
   InnerMetaComponent.F90
   OuterMetaComponent.F90
   OuterMetaComponent_setservices_smod.F90
@@ -35,6 +35,8 @@ set(srcs
   Validation.F90
 
   # ComponentSpecBuilder.F90
+
+  ESMF_Utilities.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
@@ -56,6 +58,7 @@ esma_add_library(${this}
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection_pt)
+add_subdirectory(actions)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

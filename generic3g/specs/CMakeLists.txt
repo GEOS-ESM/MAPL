@@ -1,16 +1,13 @@
 target_sources(MAPL.generic3g PRIVATE
   VariableSpec.F90
-  StateItemSpecTypeId.F90
+  StateItem.F90
   VariableSpecVector.F90
 
-  #  HorizontalStaggerLoc.F90
-
-  UngriddedDimSpec.F90
+  HorizontalDimsSpec.F90
   VerticalDimSpec.F90
+  UngriddedDimSpec.F90
   DimSpecVector.F90
-  ExtraDimsSpec.F90
-
-  ExtraDimsSpec.F90
+  UngriddedDimsSpec.F90
   GridSpec.F90
   
   AbstractStateItemSpec.F90

@@ -26,7 +26,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_SetServices
    public :: var_parse_ChildSpecMap
 
-   public :: parse_ExtraDimsSpec
+   public :: parse_UngriddedDimsSpec
    
 contains
 
@@ -41,7 +41,7 @@ contains
       end if
 
       if (config%has('connections')) then
-         spec%connections = process_connections_spec(config%of('connections'), _RC)
+         spec%connections = process_connections(config%of('connections'), _RC)
       end if
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
@@ -82,28 +82,105 @@ contains
 
          type(VariableSpec) :: var_spec
          class(NodeIterator), allocatable :: iter, e
-         character(:), pointer :: short_name
+         character(:), pointer :: name
+         character(:), allocatable :: short_name
+         character(:), allocatable :: substate
          class(YAML_Node), pointer :: attributes
+         type(ESMF_TypeKind_Flag) :: typekind
+         real, allocatable :: default_value
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
          do while (iter /= e)
-            short_name => to_string(iter%first())
+            name => to_string(iter%first())
             attributes => iter%second()
+
+            call split(name, short_name, substate)
+
+            call to_typekind(typekind, attributes, _RC)
+
+            call val_to_float(default_value, attributes, 'default_value', _RC)
+
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
-                 units=to_string(attributes%of('units')))
+                 units=to_string(attributes%of('units')), &
+                 typekind=typekind, &
+                 substate=substate, &
+                 default_value=default_value &
+                 )
             call var_specs%push_back(var_spec)
             call iter%next()
          end do
 
          _RETURN(_SUCCESS)
       end subroutine process_state_specs
+
+      subroutine split(name, short_name, substate)
+         character(*), intent(in) :: name
+         character(:), allocatable, intent(out) :: short_name
+         character(:), allocatable, intent(out) :: substate
+
+         integer :: idx
+
+         idx = index(name, '/')
+         if (idx == 0) then
+            short_name = name
+            return
+         end if
+
+         short_name = name(idx+1:)
+         substate = name(:idx-1)
+      end subroutine split
+
+      subroutine val_to_float(x, attributes, key, rc)
+         real, allocatable, intent(out) :: x
+         class(YAML_Node), intent(in) :: attributes
+         character(*), intent(in) :: key
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         _RETURN_UNLESS(attributes%has('default_value'))
+         allocate(x)
+         call attributes%get(x, 'default_value', _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine val_to_float
+
+      subroutine to_typekind(typekind, attributes, rc)
+         type(ESMF_TypeKind_Flag) :: typekind
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: typekind_str
+
+         typekind = ESMF_TYPEKIND_R4 ! GEOS default
+         if (.not. attributes%has('typekind')) then
+            _RETURN(_SUCCESS)
+         end if
+         call attributes%get(typekind_str, 'typekind', _RC)
+
+         select case (typekind_str)
+         case ('R4')
+            typekind = ESMF_TYPEKIND_R4
+         case ('R8')
+            typekind = ESMF_TYPEKIND_R8
+         case ('I4')
+            typekind = ESMF_TYPEKIND_I4
+         case ('I8')
+            typekind = ESMF_TYPEKIND_I8
+         case default
+            _FAIL('Unsupported typekind')
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine to_typekind
+
    end function process_var_specs
 
 
-   function process_connections_spec(config, rc) result(connections)
-      type(ConnectionSpecVector) :: connections
+   type(ConnectionSpecVector) function process_connections(config, rc) result(connections)
       class(YAML_Node), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
@@ -136,17 +213,29 @@ contains
          integer :: status
          character(:), allocatable :: src_name, dst_name
          character(:), allocatable :: src_comp, dst_comp
+         character(:), allocatable :: src_intent, dst_intent
 
-         call get_names(config, src_name, dst_name, _RC)
          call get_comps(config, src_comp, dst_comp, _RC)
 
+         if (config%has('all_unsatisfied')) then
+            connection = ConnectionSpec( &
+                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
+                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
+                 )
+            _RETURN(_SUCCESS)
+         end if
+            
+         call get_names(config, src_name, dst_name, _RC)
+         call get_intents(config, src_intent, dst_intent, _RC)
+
          associate ( &
-              src_pt => VirtualConnectionPt(state_intent='export', short_name=src_name), &
-              dst_pt => VirtualConnectionPt(state_intent='import', short_name=dst_name) )
+              src_pt => VirtualConnectionPt(state_intent=src_intent, short_name=src_name), &
+              dst_pt => VirtualConnectionPt(state_intent=dst_intent, short_name=dst_name) )
 
            connection = ConnectionSpec( &
                 ConnectionPt(src_comp, src_pt), &
                 ConnectionPt(dst_comp, dst_pt))
+
          end associate
 
          _RETURN(_SUCCESS)
@@ -194,8 +283,29 @@ contains
          _RETURN(_SUCCESS)
       end subroutine get_comps
 
+      subroutine get_intents(config, src_intent, dst_intent, rc)
+         class(YAML_Node), intent(in) :: config
+         character(:), allocatable :: src_intent
+         character(:), allocatable :: dst_intent
+         integer, optional, intent(out) :: rc
 
-   end function process_connections_spec
+         integer :: status
+
+         ! defaults
+         src_intent = 'export'
+         dst_intent = 'import'
+
+         if (config%has('src_intent')) then
+            call config%get(src_intent,'src_intent', _RC)
+         end if
+         if (config%has('dst_intent')) then
+            call config%get(dst_intent,'dst_intent', _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine get_intents
+
+   end function process_connections
 
    
    type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
@@ -315,14 +425,14 @@ contains
 
       
 
-   function parse_ExtraDimsSpec(config, rc) result(dims_spec)
-      use mapl3g_ExtraDimsSpec
-      type(ExtraDimsSpec) :: dims_spec
+   function parse_UngriddedDimsSpec(config, rc) result(dims_spec)
+      use mapl3g_UngriddedDimsSpec
+      type(UngriddedDimsSpec) :: dims_spec
       class(YAML_Node), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
-!!$      dims_spec = ExtraDimsSpec()
+!!$      dims_spec = UngriddedDimsSpec()
       
-   end function parse_ExtraDimsSpec
+   end function parse_UngriddedDimsSpec
    
 end module mapl3g_ComponentSpecParser

@@ -24,16 +24,23 @@ contains
 
       outer_meta => get_outer_meta(this%gridcomp, _RC)
 
-      call ESMF_GridCompRun(this%gridcomp, &
-           importState=this%import_state, exportState=this%export_state, clock=clock, &
-           phase=phase_idx, userRC=userRC, _RC)
-      _VERIFY(userRC)
+      associate ( &
+           importState => this%states%importState, &
+           exportState => this%states%exportState)
+
+        call ESMF_GridCompRun(this%gridcomp, &
+             importState=importState, &
+             exportState=exportState, &
+             clock=clock, &
+             phase=phase_idx, userRC=userRC, _RC)
+        _VERIFY(userRC)
+      end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine run_self
 
-   module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
+   recursive module subroutine initialize_self(this, clock, unusable, phase_idx, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       use mapl3g_GenericGridComp
@@ -48,10 +55,16 @@ contains
 
       outer_meta => get_outer_meta(this%gridcomp, _RC)
 
-      call ESMF_GridCompInitialize(this%gridcomp, &
-           importState=this%import_state, exportState=this%export_state, clock=clock, &
-           phase=phase_idx, userRC=userRC, _RC)
-      _VERIFY(userRC)
+      associate ( &
+           importState => this%states%importState, &
+           exportState => this%states%exportState)
+
+        call ESMF_GridCompInitialize(this%gridcomp, &
+             importState=importState, exportState=exportState, clock=clock, &
+             phase=phase_idx, userRC=userRC, _RC)
+        _VERIFY(userRC)
+
+      end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -73,13 +86,25 @@ contains
       outer_meta => get_outer_meta(this%gridcomp, _RC)
       phase = get_phase_index(outer_meta%get_phases(ESMF_METHOD_FINALIZE), phase_name=phase_name, _RC)
 
-      call ESMF_GridCompFinalize(this%gridcomp, &
-           importState=this%import_state, exportState=this%export_state, clock=clock, &
-           phase=phase, userRC=userRC, _RC)
-      _VERIFY(userRC)
+      associate ( &
+           importState => this%states%importState, &
+           exportState => this%states%exportState)
+
+        call ESMF_GridCompFinalize(this%gridcomp, &
+             importState=importState, exportState=exportState, clock=clock, &
+             phase=phase, userRC=userRC, _RC)
+        _VERIFY(userRC)
+      end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine finalize_self
+
+   module function get_states(this) result(states)
+      type(MultiState) :: states
+      class(ChildComponent), intent(in) :: this
+
+      states = this%states
+   end function get_states
 
 end submodule ChildComponent_run_smod
