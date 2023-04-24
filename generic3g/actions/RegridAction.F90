@@ -1,16 +1,20 @@
 module mapl3g_RegridAction
+   use mapl3g_ExtensionAction
+   implicit none
+   private
+
+   public :: RegridAction
 
    type, extends(AbstractAction) :: ScalarRegridAction
       class(AbstractRegridder), pointer :: regridder
       type(ESMF_Field) :: f_in, f_out
-!!$      character(:), allocatable :: fname_in, fname_out
    contains
       procedure :: run
    end type ScalarRegridAction
 
    type, extends(AbstractAction) :: VectorRegridAction
       class(AbstractRegridder), pointer :: regridder
-      character(:), allocatable :: fname_in(2), fname_out(2)
+      type(ESMF_Field) :: uv_in(2), uv_out(2)
    contains
       procedure :: run
    end type VectorRegridAction
@@ -28,14 +32,27 @@ contains
 
       type(ESMF_Grid) :: grid_in, grid_out
 
-      call ESMF_FieldGet(f_in, grid=grid_in, _RC)
-      call ESMF_FieldGet(f_out, grid=grid_out, _RC)
-
-      action%regridder => regridder_manager%get_regridder(grid_in, grid_out)
-
       action%f_in = f_in
       action%f_out = f_out
-      
+
+      get_grid(grid_in)
+      get_grid(grid_out)
+      action%regridder => regridder_manager%get_regridder(grid_in, grid_out)
+
+   end function new_RegridAction_scalar
+
+   function new_RegridAction_vector(uv_in, uv_out) then (action)
+      use mapl_RegridderManager
+
+      ptype(ESMF_Grid) :: grid_in, grid_out
+
+      action%uv_in = uv_in
+      action%uv_out = uv_out
+
+      get_grid(grid_in)
+      get_grid(grid_out)
+      action%regridder => regridder_manager%get_regridder(grid_in, grid_out)
+
    end function new_RegridAction_scalar
 
    
