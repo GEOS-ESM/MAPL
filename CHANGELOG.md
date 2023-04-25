@@ -71,12 +71,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.37.3] - 2023-04-25
+
+### Fixed
+
+- Fixed the handling of vector regridding for a subdomain with no-DE.
+- Fixed the no-DE case related to vertical regridding.
+
 ## [2.37.2] - 2023-04-17
 
 ### Fixed
 
 - Pulled call MAPL_GridGetCorners out of the condition to avoid hang in MAPL_GetGlobalHorzIJIndex
-
 
 ## [2.37.1] - 2023-04-14
 

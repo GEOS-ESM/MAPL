@@ -825,8 +825,10 @@ contains
 
       km = size(u_in,3)
       _ASSERT(km == size(v_in,3),'inconsistent array shape')
-      _ASSERT(km == size(u_out,3),'inconsistent array shape')
-      _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      if (size(u_out) /= 0) then
+         _ASSERT(km == size(u_out,3),'inconsistent array shape')
+         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      end if
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
@@ -938,8 +940,10 @@ contains
 
      km = size(u_in,3)
      _ASSERT(km == size(v_in,3),'inconsistent array shape')
-     _ASSERT(km == size(u_out,3),'inconsistent array shape')
-     _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      if (size(u_out) /= 0) then
+         _ASSERT(km == size(u_out,3),'inconsistent array shape')
+         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      end if
 
      im_src = size(u_in,1)
      jm_src = size(u_in,2)
@@ -1046,8 +1050,10 @@ contains
 
       km = size(u_in,3)
       _ASSERT(km == size(v_in,3),'inconsistent array shape')
-      _ASSERT(km == size(u_out,3),'inconsistent array shape')
-      _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      if (size(u_out) /= 0) then
+         _ASSERT(km == size(u_out,3),'inconsistent array shape')
+         _ASSERT(km == size(v_out,3),'inconsistent array shape')
+      end if
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
