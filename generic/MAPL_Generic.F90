@@ -580,11 +580,7 @@ contains
                 call MAPL_InternalStateRetrieve(childgridcomp, cmeta, _RC)
                 found = .false.
                 call  MAPL_StateGetVarSpecs(cmeta, export=c_ex_specs, _RC)
-                if (.not. associated(ex_specs)) then
-                   _ASSERT(associated(c_ex_specs), &
-                        'Component '//trim(cmeta%compname)// &
-                        'must have a valid export spec')
-                end if
+                _ASSERT(associated(c_ex_specs), 'Component '//trim(cmeta%compname)//' must have a valid export spec')
                 ! find the "correct" export spec (i.e. has the same SHORT_NAME)
                 do j=1,size(c_ex_specs)
                    call MAPL_VarSpecGet(c_ex_specs(j), SHORT_NAME=NAME, _RC)
