@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added virtual method to AbstractGridFactory(), `get_subset()` that is used by time dependent grids to return the corners of the  subset of the grid that is active during the current time interval.
 - Added ability to delete regridders and grid factories including proper destruction of associated ESMF routehandles and grids.
 - Added support for use of pFlogger simTime in logging (only if `-DBUILD_WITH_PFLOGGER=ON`)
   - Note: Due to bug in pFlogger v1.9.3 and older, you *must* specify a `dateFmt` in your logging configuration file in the
