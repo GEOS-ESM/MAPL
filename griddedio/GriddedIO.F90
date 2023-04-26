@@ -421,8 +421,7 @@ module MAPL_GriddedIOMod
         integer :: status
 
         if (this%timeInfo%is_initialized) then
-           v = this%timeInfo%define_time_variable(rc=status)
-           _VERIFY(status)
+           v = this%timeInfo%define_time_variable(_RC)
            call this%metadata%modify_variable('time',v,rc=status)
            _VERIFY(status)
            if (present(oClients)) then
