@@ -559,12 +559,14 @@ contains
        type (MAPL_VarSpec), pointer :: ex_specs(:), c_ex_specs(:)
        type (MAPL_MetaComp), pointer :: cmeta
        type(ESMF_GridComp), pointer :: childgridcomp
+       logical :: found
 
        ! get the export specs
-       NULLIFY(ex_specs)
        call  MAPL_StateGetVarSpecs(meta, export=ex_specs, _RC)
        ! allow for possibility we do not have export specs
-       if (.not. associated(ex_specs)) _RETURN(ESMF_SUCCESS)
+       if (.not. associated(ex_specs)) then
+          _RETURN(ESMF_SUCCESS)
+       end if
 
        ! check for DEPENDS_ON_CHILDREN
        do K=1,size(EX_SPECS)
@@ -578,16 +580,23 @@ contains
              do I=1, nc
                 childgridcomp => meta%get_child_gridcomp(i)
                 call MAPL_InternalStateRetrieve(childgridcomp, cmeta, _RC)
-                NULLIFY(c_ex_specs)
+                found = .false.
                 call  MAPL_StateGetVarSpecs(cmeta, export=c_ex_specs, _RC)
+                if (.not. associated(ex_specs)) then
+                   _ASSERT(associated(c_ex_specs), &
+                        'Component '//trim(cmeta%compname)// &
+                        'must have a valid export spec')
+                end if
                 ! find the "correct" export spec (i.e. has the same SHORT_NAME)
                 do j=1,size(c_ex_specs)
                    call MAPL_VarSpecGet(c_ex_specs(j), SHORT_NAME=NAME, _RC)
                    if (short_name == name) then
                       call MAPL_VarSpecSet(c_ex_specs(j), alwaysAllocate=.true., _RC)
+                      found = .true.
                       exit
                    end if
                 end do ! spec loop
+                _ASSERT(found, 'All children must have '//trim(short_name))
              end do
           end if ! DEPENDS_ON_CHILDREN
 
@@ -599,7 +608,7 @@ contains
                 ! find the "correct" export spec (i.e. has the same SHORT_NAME)
                 do j=1,size(ex_specs)
                    call MAPL_VarSpecGet(ex_specs(j), SHORT_NAME=NAME, _RC)
-                   if (short_name == name) then
+                   if (name == depends_on(i)) then
                       call MAPL_VarSpecSet(ex_specs(j), alwaysAllocate=.true., _RC)
                       exit
                    end if

@@ -172,7 +172,7 @@ contains
     character(len=ESMF_MAXSTR) :: useableUngrd_Name
     real                      , pointer :: usableUNGRIDDED_COORDS(:) => NULL()
     logical                    :: usableDEPENDS_ON_CHILDREN
-    character (len=:), allocatable :: usableDEPENDS_ON(:)
+!    character (len=:), allocatable :: usableDEPENDS_ON(:)
 
     INTEGER :: I
     integer :: szINAMES, szRNAMES, szIVALUES, szRVALUES
@@ -339,10 +339,6 @@ contains
        usablePRECISION=kind(0.0) ! default "real" kind
       endif
 
-      if(present(DEPENDS_ON)) then
-         usableDEPENDS_ON = DEPENDS_ON
-      end if
-
       usableDEPENDS_ON_CHILDREN = .false.
       if(present(DEPENDS_ON_CHILDREN)) then
          usableDEPENDS_ON_CHILDREN = DEPENDS_ON_CHILDREN
@@ -478,7 +474,11 @@ contains
       else
          NULLIFY(TMP%SPECPTR%ATTR_INAMES)
       endif
-      if(allocated(usabledepends_on)) TMP%SPECPTR%DEPENDS_ON    =  usableDEPENDS_ON
+
+      if(present(DEPENDS_ON)) then
+         TMP%SPECPTR%DEPENDS_ON = DEPENDS_ON
+      end if
+
       TMP%SPECPTR%DEPENDS_ON_CHILDREN    =  usableDEPENDS_ON_CHILDREN
 
       call spec%var_specs%push_back(tmp)
