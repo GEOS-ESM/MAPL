@@ -564,9 +564,7 @@ contains
        ! get the export specs
        call  MAPL_StateGetVarSpecs(meta, export=ex_specs, _RC)
        ! allow for possibility we do not have export specs
-       if (.not. associated(ex_specs)) then
-          _RETURN(ESMF_SUCCESS)
-       end if
+       _RETURN_IF(.not. associated(ex_specs))
 
        ! check for DEPENDS_ON_CHILDREN
        do K=1,size(EX_SPECS)
