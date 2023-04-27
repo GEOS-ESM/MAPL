@@ -12,7 +12,7 @@ contains
    @before
    subroutine setup()
       integer :: unit, status
-      
+
       open (newunit=unit, file = 'tmp.rc', access='sequential', form='formatted')
       write (unit,*) 'default.GRID_TYPE: grid_type_1'
       write (unit,*) 'other.GRID_TYPE: grid_type_2'
@@ -20,9 +20,9 @@ contains
 
       config = ESMF_ConfigCreate(rc=status)
       @assertEqual(0, status)
-      call ESMF_ConfigLoadFile (config, 'tmp.rc', rc=status)
+      call ESMF_ConfigLoadFile (config, 'tmp-does-not-exist.rc', rc=status)
       @assertEqual(0, status)
- 
+
    end subroutine setup
 
    @after
@@ -32,7 +32,7 @@ contains
       @assertEqual(0, status)
       open (newunit=unit, file = 'tmp.rc')
       close(unit, status='delete')
-     
+
    end subroutine teardown
    @test
    subroutine test_add_prototype()
@@ -56,7 +56,7 @@ contains
 
       ! Check that it actually failed
       @assertFalse(0 == status, 'made a grid even though there is no prototype')
-      
+
    end subroutine test_make_grid_no_prototype
 
    @test
@@ -92,13 +92,13 @@ contains
          return
       end if
       @assertEqual(0, status)
-      
+
       if ('mock' /= trim(grid_type)) then
          call grid_manager%delete(grid)
          return
       end if
       @assertEqual('grid_type_1', trim(grid_type))
-      
+
       call grid_manager%delete(grid)
 
    end subroutine test_grid_type
@@ -122,13 +122,13 @@ contains
          call grid_manager%delete(grid)
       end if
       @assertEqual(0, status)
-      
+
       if ('mock' /= trim(grid_name)) then
          call grid_manager%delete(grid)
          return
       end if
       @assertEqual('foo', trim(grid_name))
-      
+
       call grid_manager%delete(grid)
 
 
@@ -140,12 +140,12 @@ contains
          return
       end if
       @assertEqual(0, status)
-      
+
       if ('mock' /= trim(grid_name)) then
          call grid_manager%delete(grid)
       end if
       @assertEqual('bar', trim(grid_name))
-      
+
       call grid_manager%delete(grid)
 
    end subroutine test_make_grid_multi
