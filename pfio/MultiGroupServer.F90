@@ -47,6 +47,7 @@ module pFIO_MultiGroupServerMod
    use pFIO_FileMetadataMod
    use pFIO_IntegerMessageMapMod
    use mpi
+   use pFlogger, only: logging, Logger
 
    implicit none
    private
@@ -615,7 +616,9 @@ contains
        real(kind=REAL64) :: time
        character(len=:), allocatable :: filename
        real(kind=REAL64) :: file_size, speed
- 
+
+       class(Logger), pointer :: lgr
+
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
        file_timer = AdvancedMeter(MpiTimerGauge())
@@ -656,7 +659,7 @@ contains
          vars_map = StringAttributeMap()
          msg_map  = IntegerMessageMap()
          file_size = 0.
- 
+
          do i = 1, this%nfront
             s0 = 1
             f_d_m = ForwardDataAndMessage()
@@ -677,7 +680,7 @@ contains
                      attr_tmp = Attribute(buffer_v)
                      deallocate(buffer_v)
                      call vars_map%insert(i_to_string(q%request_id),attr_tmp)
-                     call attr_tmp%destroy() 
+                     call attr_tmp%destroy()
                      var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
@@ -814,10 +817,10 @@ contains
             call msg_iter%next()
          enddo
          time = file_timer%get_total()
-         file_size = file_size*4./1000./1000. ! 4-byte integer, unit is converted to MB
+         file_size = file_size*4./1024./1024. ! 4-byte integer, unit is converted to MB
          speed = file_size/time
-         write(*, "(A, F10.5, A, F10.5, A, F10.5,A)") "Writing time: ", time,   " s, speed: ", speed, " MB/s, size: ", &
-                                      file_size, " MB file "//filename// " on oserver node "//i_to_string(this%node_rank)
+         lgr => logging%get_logger('MAPL.pfio')
+         call lgr%info(" Writing time: %f12.3 s, speed: %f12.3 MB/s, size: %f12.3 MB, oserver node: %i0~, file: %a", time, speed, file_size, this%node_rank, filename)
          call file_timer%reset()
 
          call thread_ptr%clear_hist_collections()
