@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
+- Added support for "depends_on" and "depends_on_children" for export_specs. The typical usage on this feature is when the calculation of a variable involves other export variables, either from the same component (DEPEND_ON specifies the list on such variables), or in the children (in this case the expectation is that all of the children have the SAME export). In both cases MAPL performs automatic allocation of these export variables.
 - Added support for use of pFlogger simTime in logging (only if `-DBUILD_WITH_PFLOGGER=ON`)
   - Note: Due to bug in pFlogger v1.9.3 and older, you *must* specify a `dateFmt` in your logging configuration file in the
     formatter when using `simTime` (see [pFlogger issue #90](https://github.com/Goddard-Fortran-Ecosystem/pFlogger/issues/90))
@@ -100,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed message in _ASSERT statement in ESMFL_Mod.F90
 - Fixed bug in CubedSphereGridFactory when constructing a grid from a file
 - Cleaned up cubed-sphere grid factory and NCIO to produce files with consistent capitalization and types for the stretching factor
 

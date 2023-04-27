@@ -256,7 +256,7 @@ contains
 
       call ESMF_FieldBundleGet(BUNDLE, FIELDNAME=NameInBundle, isPresent=isPresent, rc=STATUS)
       _VERIFY(STATUS)
-      _ASSERT(.not. isPresent, trim(NameInBundle) // ' not found in bundle.')
+      _ASSERT(.not. isPresent, trim(NameInBundle) // ' found in bundle.')
 
 ! Get Field from State
 
