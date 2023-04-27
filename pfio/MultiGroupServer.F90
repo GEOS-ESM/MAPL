@@ -820,7 +820,7 @@ contains
          file_size = file_size*4./1024./1024. ! 4-byte integer, unit is converted to MB
          speed = file_size/time
          lgr => logging%get_logger('MAPL.pfio')
-         call lgr%info(" Writing time: %f12.3 s, speed: %f12.3 MB/s, size: %f12.3 MB, oserver node: %i0~, file: %a", time, speed, file_size, this%node_rank, filename)
+         call lgr%info(" Writing time: %f9.3 s, speed: %f9.3 MB/s, size: %f9.3 MB, at server node: %i0~, of rank: %i0~, file: %a", time, speed, file_size, this%node_rank, this%innode_rank, filename)
          call file_timer%reset()
 
          call thread_ptr%clear_hist_collections()
