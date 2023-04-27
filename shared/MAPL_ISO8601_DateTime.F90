@@ -64,6 +64,7 @@
 !      Rn/<interval>
 !      R/<interval>
 
+!wdb fixme need to enforce private (see commented out private statements and add to other type/variables
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
@@ -78,21 +79,18 @@ module MAPL_ISO8601_DateTime
    public :: convert_ISO8601_to_integer_time
    public :: convert_ISO8601_to_integer_date
 
-   interface operator(.divides.)
+   interface operator(.divides.) !wdb todo move
       module procedure :: divides
    end interface
 
    ! Error handling
-   integer, parameter :: INVALID = -1
+   integer, parameter :: INVALID = -1 !wdb todo move
 
    ! parameters for processing date, time, and datetime strings
-   integer, parameter :: NUM_DATE_FIELDS = 3
-   integer, parameter :: NUM_TIME_FIELDS = 5
-   character(len=10), parameter :: DIGIT_CHARACTERS = '0123456789'
+   character(len=10), parameter :: DIGIT_CHARACTERS = '0123456789' !wdb todo move
    character, parameter :: TIME_PREFIX = 'T'
-   integer, parameter :: MINUTES_PER_HOUR = 60
 
-   ! Timezone offset for Timezone Z
+   ! Timezone offset for Timezone Z wdb todo move
    integer, parameter :: Z = 0
 
    ! Constants for converting ISO 8601 datetime to integer format
@@ -122,7 +120,7 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_ISO8601Date
    end interface ISO8601Date
 
-   ! Derived type for communicating date fields internally
+   ! Derived type for communicating date fields internally wdbo todo move public
    type :: date_fields
       integer :: year_
       integer :: month_
@@ -135,21 +133,21 @@ module MAPL_ISO8601_DateTime
       procedure, public, pass(this) :: is_valid => valid_date
    end type date_fields
 
-   interface date_fields
+   interface date_fields !wdb todo move public
       module procedure :: construct_date_fields_default
       module procedure :: construct_date_fields_null
    end interface date_fields
 
    ! Derived type used to store fields from ISO 8601 Times
    type :: ISO8601Time
-      private
+!      private
       integer :: hour_
       integer :: minute_
       integer :: second_
       integer :: millisecond_
       ! Timezone is stored as offset from Z timezone in minutes
       ! Currently, only timezone Z offset is used.
-      integer :: timezone_offset_ = Z
+      integer :: timezone_offset_ = 0
    contains
       procedure, public :: get_hour
       procedure, public :: get_minute
@@ -162,7 +160,7 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_ISO8601Time
    end interface ISO8601Time
 
-   ! Derived type for communicating time fields internally
+   ! Derived type for communicating time fields internally wdb todo move public
    type :: time_fields
       integer :: hour_
       integer :: minute_
@@ -179,14 +177,14 @@ module MAPL_ISO8601_DateTime
       procedure, public, pass(this) :: is_valid => valid_time
    end type time_fields
 
-   interface time_fields
+   interface time_fields !wdb todo move public
       module procedure :: construct_time_fields_default
       module procedure :: construct_time_fields_null
    end interface time_fields
 
    ! Derived type used to store fields from ISO 8601 DateTimes
    type :: ISO8601DateTime
-      private
+!      private
       type(ISO8601Date) :: date_
       type(ISO8601Time) :: time_
    contains
@@ -209,7 +207,7 @@ module MAPL_ISO8601_DateTime
    ! Derived type used to store fields from ISO 8601 Durations
    ! Note that ISO 8601 Duration corresponds to ESMF Interval.
    type :: ISO8601Duration
-      private
+!      private
       integer :: years_
       integer :: months_
       integer :: days_
@@ -233,7 +231,7 @@ module MAPL_ISO8601_DateTime
    ! Note that ISO 8601 Interval is different than ESMF Interval.
    ! This has not been fully implemented
    type :: ISO8601Interval
-      private
+!      private
       type(ISO8601DateTime) :: start_datetime_
       type(ISO8601DateTime) :: end_datetime_
       integer :: repetitions_ = 1
@@ -252,6 +250,7 @@ contains
 
 ! NUMBER HANDLING PROCEDURES
 
+! wdb todo move START
    ! Return true if factor divides dividend evenly, false otherwise
    pure logical function divides(factor, dividend)
       integer, intent(in) :: factor
@@ -342,12 +341,12 @@ contains
    end function read_whole_number_indexed
 
 ! END NUMBER HANDLING PROCEDURES
-
+! wdb todo move all END
 
 ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
    ! Strip delimiter from string
-   !wdb should this be more than 1 character PICKUP HERE
+   !wdb todo should this be more than 1 character
    pure function undelimit(string, delimiter) result(undelimited)
       character(len=*), intent(in) :: string
       character, optional, intent(in) :: delimiter
@@ -410,7 +409,7 @@ contains
 
    end function get_month_end
 
-   ! Verify that y is a valid year according the ISO 8601 specification
+   ! Verify that y is a valid year according the ISO 8601 specification wdb fixme move?
    pure logical function is_valid_year(y)
       integer, intent(in) :: y
 ! Strict ISO8601 compliance does not allow years before 1583
@@ -449,7 +448,7 @@ contains
    end function is_valid_minute
 
    ! Verify that second is a valid second
-   ! ISO 8601 allows second=60 (for leap seconds)
+   ! ISO 8601 allows second=60 (for leap seconds) wdb fixme move?
    ! This function does not check if it is a valid leap second.
    pure logical function is_valid_second(second)
       integer, intent(in) :: second
@@ -460,7 +459,7 @@ contains
 
    ! Verify that millisecond is a valid millisecond values
    ! ISO 8601 allows fractional seconds, but it does not limit the fractional
-   ! part to millisecond.
+   ! part to millisecond. wdb fixme move?
    pure logical function is_valid_millisecond(millisecond)
       integer, intent(in) :: millisecond
       integer, parameter :: LB_MILLISECOND = -1
@@ -513,8 +512,9 @@ contains
    pure function parse_timezone_offset(offset, field_width) result(tzo)
       character(len=*), intent(in) :: offset
       integer, intent(in) :: field_width
-      integer :: offset_length
       integer :: tzo
+      integer, parameter :: MINUTES_PER_HOUR = 60
+      integer :: offset_length
       integer :: minutes
       integer :: hours
 
@@ -785,7 +785,7 @@ contains
       minute = read_whole_number(undelimited(3:4))
       second = read_whole_number(undelimited(5:6))
 
-      fields = time_fields(hour, minute, second, millisecond)
+      fields = time_fields(hour, minute, second, millisecond, timezone_offset)
 
    end function parse_time_general
 ! END STRING PARSERS
@@ -797,7 +797,7 @@ contains
       integer, intent(out) :: rc
       type(ISO8601Date) :: date
       type(date_fields) :: fields
-      integer :: status
+
       fields = parse_date(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          date%year_ = fields%year()
@@ -813,7 +813,7 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Time) :: time
       type(time_fields) :: fields
-      integer :: status
+
       fields = parse_time(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          time%hour_ = fields%hour_
@@ -986,8 +986,8 @@ contains
 
 
 ! LOW-LEVEL CONSTRUCTORS
-
-   function construct_date_fields_default(year, month, day) result(fields)
+!wdb todo move all
+   pure function construct_date_fields_default(year, month, day) result(fields)
       integer, intent(in) :: year
       integer, intent(in) :: month
       integer, intent(in) :: day
@@ -998,7 +998,7 @@ contains
       fields%is_valid_ = is_valid_date(fields)
    end function construct_date_fields_default
 
-   function construct_date_fields_null() result(fields)
+   pure function construct_date_fields_null() result(fields)
       type(date_fields) :: fields
       fields%is_valid_ = .FALSE.
    end function construct_date_fields_null
@@ -1040,7 +1040,7 @@ contains
 
    integer function get_month(self)
       class(ISO8601Date), intent(in) :: self
-      get_month = self%month()
+      get_month = self%month_
    end function get_month
 
    integer function get_day(self)
@@ -1215,54 +1215,55 @@ contains
 
 ! END HIGH-LEVEL CONVERSION PROCEDURES
 
-   integer function get_year_field(this)
+!wdb todo move all
+   pure integer function get_year_field(this)
       class(date_fields), intent(in) :: this
       get_year_field = this%year_
    end function get_year_field
 
-   integer function get_month_field(this)
+   pure integer function get_month_field(this)
       class(date_fields), intent(in) :: this
       get_month_field = this%month_
    end function get_month_field
 
-   integer function get_day_field(this)
+   pure integer function get_day_field(this)
       class(date_fields), intent(in) :: this
-      get_month_field = this%day_
+      get_day_field = this%day_
    end function get_day_field
 
-   logical function valid_date(this)
+   pure logical function valid_date(this)
       class(date_fields), intent(in) :: this
       valid_date = this%is_valid_
    end function valid_date
 
-   integer function get_hour_field(this)
-      class(time_fields) :: intent(in) :: this
+   pure integer function get_hour_field(this)
+      class(time_fields), intent(in) :: this
       get_hour_field = this%hour_
-   end function
+   end function get_hour_field
 
-   integer function get_minute_field(this)
-      class(time_fields) :: intent(in) :: this
+   pure integer function get_minute_field(this)
+      class(time_fields), intent(in) :: this
       get_minute_field = this%minute_
-   end function
+   end function get_minute_field
 
-   integer function get_second_field(this)
-      class(time_fields) :: intent(in) :: this
+   pure integer function get_second_field(this)
+      class(time_fields), intent(in) :: this
       get_second_field = this%second_
-   end function
+   end function get_second_field
 
-   integer function get_millisecond_field(this)
-      class(time_fields) :: intent(in) :: this
+   pure integer function get_millisecond_field(this)
+      class(time_fields), intent(in) :: this
       get_millisecond_field = this%millisecond_
-   end function
+   end function get_millisecond_field
 
-   integer function get_timezone_offset_field(this)
-      class(time_fields) :: intent(in) :: this
+   pure integer function get_timezone_offset_field(this)
+      class(time_fields), intent(in) :: this
       get_timezone_offset_field = this%timezone_offset_
-   end function
+   end function get_timezone_offset_field
 
-   logical function valid_time(this)
-      class(time_fields) :: intent(in) :: this
+   pure logical function valid_time(this)
+      class(time_fields), intent(in) :: this
       valid_time = this%is_valid_
-   end function
+   end function valid_time
 
 end module MAPL_ISO8601_DateTime

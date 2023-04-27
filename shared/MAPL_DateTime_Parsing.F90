@@ -83,6 +83,7 @@ module MAPL_DateTime_Parsing
 
    interface date_fields
       module procedure :: construct_date_fields_default
+      module procedure :: construct_date_fields_string
       module procedure :: construct_date_fields_null
    end interface date_fields
 
@@ -105,6 +106,7 @@ module MAPL_DateTime_Parsing
 
    interface time_fields
       module procedure :: construct_time_fields_default
+      module procedure :: construct_time_fields_string
       module procedure :: construct_time_fields_null
    end interface time_fields
 
@@ -213,13 +215,12 @@ contains
    !wdb todo should this be more than 1 character
    pure function undelimit(string, delimiter) result(undelimited)
       character(len=*), intent(in) :: string
-      character, optional, intent(in) :: delimiter
+      character,  intent(in) :: delimiter
       character(len=len(string)) :: undelimited
       integer :: i
       integer :: j
       
       undelimited = string
-      if(.not. present(delimiter)) return
       if(len_trim(delimiter) <= 0) return
 
       undelimited = ''
@@ -230,6 +231,23 @@ contains
         undelimited(j:j) = string(i:i)
       end do
    end function undelimit
+
+   pure function undelimit_all(string) result(undelimited)
+      character(len=*), intent(in) :: string
+      character(len=len_trim(string)) :: undelimited
+      character(len=len_trim(string)) :: trimmed
+      character :: ch
+      integer :: i
+
+      trimmed = trim(adjustl(string))
+      undelimited = ''
+
+      do i= 1, len(trimmed)
+         ch = trimmed(i:i)
+         if(is_digit(ch)) undelimited = undelimited // ch
+      end do
+
+   end function undelimit_all
 
 ! END LOW-LEVEL STRING PROCESSING PROCEDURES
 
@@ -521,6 +539,13 @@ contains
       fields%is_valid_ = is_valid_date(fields)
    end function construct_date_fields_default
 
+   pure function construct_date_fields_string(date_string, delimiter) result(fields)
+      character(len=*), intent(in) :: date_string
+      character(len=*), intent(in) :: delimiter
+      type(date_fields) :: fields
+      fields = parse_date(date_string, delimiter)
+   end function construct_date_fields_string
+
    pure function construct_date_fields_null() result(fields)
       type(date_fields) :: fields
       fields%is_valid_ = .FALSE.
@@ -541,6 +566,13 @@ contains
       fields%timezone_offset_ = timezone_offset
       fields%is_valid_ = is_valid_time(fields)
    end function construct_time_fields_default
+
+   pure function construct_time_fields_string(time_string, delimiter) result(fields)
+      character(len=*), intent(in) :: time_string
+      character(len=*), intent(in) :: delimiter
+      type(time_fields) :: fields
+      fields = parse_time(time_string, delimiter)
+   end function construct_time_fields_string
 
    pure function construct_time_fields_null() result(fields)
       type(time_fields) :: fields
@@ -601,5 +633,38 @@ contains
       class(time_fields), intent(in) :: this
       are_valid_time_fields = this%is_valid_
    end function are_valid_time_fields
+
+   subroutine convert_to_ISO8601DateTime(datetime_string, iso_string, rc)
+      character(len=*), intent(in) :: datetime_string
+      character(len=:), allocatable, intent(out) :: iso_string
+      integer, optional, intent(out) :: rc
+      integer, parameter :: YY = 1
+      integer, parameter :: MM = 2
+      integer, parameter :: DD = 3
+      integer, parameter :: HH = 4
+      integer, parameter :: M = 5
+      integer, parameter :: S = 6
+      integer, parameter :: N(S, 2) = reshape([1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [S, 2])
+      integer, parameter :: MIN_LEN = 14
+      character(len=*), parameter :: ISO_DD = '-'
+      character(len=*), parameter :: ISO_TD = ':'
+      character(len=*), parameter :: ISO_DTD = 'T'
+      character(len=*), parameter :: ISO_POINT = '.'
+      character(len=:), allocatable :: undelimited
+      integer :: undelimited_length
+      integer :: status
+      
+      undelimited = trim(adjustl(undelimit_all(datetime_string)))
+      undelimited_length=len(undelimited)
+      _ASSERT(undelimited_length >= MIN_LEN, 'datetime_string is too short')
+      iso_string =   undelimited(N(YY,1):N(YY,2)) // ISO_DD // &
+                     undelimited(N(MM,1):N(MM,2)) // ISO_DD // &
+                     undelimited(N(DD,1):N(DD,2)) // ISO_DTD // &
+                     undelimited(N(HH,1):N(HH,2)) // ISO_TD // &
+                     undelimited(N(M,1):N(M,2)) // ISO_TD // &
+                     undelimited(N(S,1):N(S,2))
+      if(undelimited_length > MIN_LEN) iso_string = iso_string // ISO_POINT // undelimited(MIN_LEN+1:undelimited_length)
+
+   end subroutine convert_to_ISO8601DateTime 
 
 end module MAPL_DateTime_Parsing
