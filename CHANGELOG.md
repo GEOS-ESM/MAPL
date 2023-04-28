@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Move ioserver_profler%stop call to the right palce
 - Caught an untrapped error condition when writing to NetCDF
 
 ### Removed
