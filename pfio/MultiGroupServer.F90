@@ -244,9 +244,6 @@ contains
          call this%threads%clear()
          call this%terminate_backend_server(_RC)
 
-         if (associated(ioserver_profiler)) then
-            call ioserver_profiler%stop(_RC)
-         endif
          call this%report_profile(_RC)
 
          deallocate(mask)
