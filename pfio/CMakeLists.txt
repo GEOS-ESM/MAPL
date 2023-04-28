@@ -112,6 +112,8 @@ else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
+find_package (PFLOGGER REQUIRED)
+
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
@@ -121,7 +123,7 @@ if (DUSTY)
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 
-target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
+target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
