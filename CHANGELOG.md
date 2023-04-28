@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make sure the files are closed when the time and speed appear in logfile
 - Enable more tests in CircleCI
 
 ### Fixed
