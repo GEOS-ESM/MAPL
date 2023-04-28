@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Add logic to GriddedIO class so that if an unitialized time object is passed, the resulting file will not depend on time
+- Make sure the files are closed when the time and speed appear in logfile
 - Enable more tests in CircleCI
 
 ### Fixed
