@@ -1314,6 +1314,7 @@ contains
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
+         logical :: RUN_AT_INTERVAL_START
          STATE%CLOCK = CLOCK
          call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, _RC)
          call ESMF_TimeIntervalGet(DELT, S=DELTSEC, _RC)
@@ -1334,6 +1335,7 @@ contains
          _ASSERT(MOD(DELTSEC,DTSECS)==0,'needs informative message')
 
          call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, _RC)
+         call MAPL_GetResource( STATE   , RUN_AT_INTERVAL_START, Label="RUN_AT_INTERVAL_START:", default=.false., _RC)
 
          _ASSERT(DT /= 0.0,'needs informative message')
 
@@ -1371,7 +1373,7 @@ contains
             ringTime = ringTime - (INT((ringTime - currTime)/TIMEINT)+1)*TIMEINT
          end if
 
-         ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
+         if (.not.RUN_AT_INTERVAL_START) ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
          ! we advance the clock AFTER run method
 
          ! make sure that ringTime is not in the past
@@ -5889,6 +5891,7 @@ contains
       class (AbstractGridFactory), allocatable :: file_factory
       character(len=ESMF_MAXSTR) :: grid_type
       logical :: empty
+      character(len=:), allocatable :: fname_by_face
 
       _UNUSED_DUMMY(CLOCK)
 
@@ -5936,7 +5939,6 @@ contains
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
             block
-              character(len=:), allocatable :: fname_by_face
               logical :: fexist
               integer :: i
 
@@ -5949,7 +5951,14 @@ contains
                     FileExists = FileExists .and. fexist
                  enddo
                  if ( .not. FileExists) then
-                    _VERIFY(-1)
+                    ! look for not by face restart
+                    inquire(FILE = FNAME, EXIST=FileExists)
+                    if (FileExists) then
+                       call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
+                      _VERIFY(status)
+                    else
+                      _VERIFY(-1)
+                    endif
                  else
                     ! just pick one face to deduce filetype, only in root
                     call MAPL_NCIOGetFileType(trim(fname_by_face),isNC4,rc=status)
@@ -6129,9 +6138,13 @@ contains
             !note this only works for geos cubed-sphere restarts currently because of
             !possible insufficent metadata in the other restarts to support the other grid factories
             if (trim(grid_type) == 'Cubed-Sphere') then
-               app_factory => get_factory(MPL%GRID%ESMFGRID)
-               allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
-               _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
+              !if (mpl%grid%read_restart_by_face) then
+              !    fname_by_face = get_fname_by_face(trim(fname), 1)
+              !    allocate(file_factory,source=grid_manager%make_factory(trim(fname_by_face)))
+              !else
+              !    allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
+              !endif
+              !_ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
             end if
             call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)

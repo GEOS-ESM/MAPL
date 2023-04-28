@@ -799,7 +799,9 @@ contains
             end select
             select type (q=>msg)
             class is (AbstractDataMessage)
-               call thread_ptr%put_dataToFile(q, address, _RC)
+              !call thread_ptr%put_dataToFile(q, address, _RC)
+               call thread_ptr%put_dataToFile(q, address, rc=status)
+               _ASSERT(status==0,'Problem with file: '//q%file_name//' and variable: '//q%var_name)
             end select
             call msg_iter%next()
          enddo

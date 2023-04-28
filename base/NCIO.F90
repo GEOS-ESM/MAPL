@@ -2773,12 +2773,12 @@ module NCIOMod
        _VERIFY(status)
        call ESMF_FieldBundleGet(bundle,grid=grid,rc=status)
        _VERIFY(status)
-       grid_file_match=compare_grid_file(metadata,grid,rc=status)
-       _VERIFY(status)
+      !grid_file_match=compare_grid_file(metadata,grid,rc=status)
+      !_VERIFY(status)
        flip = check_flip(metadata,rc=status)
        _VERIFY(status)
 
-       _ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
+      !_ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
     endif
     call ESMF_VMGetCurrent(vm,rc=status)
     _VERIFY(status)
