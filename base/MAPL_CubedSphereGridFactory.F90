@@ -822,14 +822,14 @@ contains
          equal = (a%im_world == this%im_world)
          if (.not. equal) return
 
-        !equal = (a%stretch_factor == this%stretch_factor)
-        !if (.not. equal) return
+         equal = (a%stretch_factor == this%stretch_factor)
+         if (.not. equal) return
 
-        !equal = (a%target_lon == this%target_lon)
-        !if (.not. equal) return
+         equal = (a%target_lon == this%target_lon)
+         if (.not. equal) return
 
-        !equal = (a%target_lat == this%target_lat)
-        !if (.not. equal) return
+         equal = (a%target_lat == this%target_lat)
+         if (.not. equal) return
 
       end select
 
