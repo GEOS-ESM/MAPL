@@ -1,3 +1,13 @@
+!wdb todo
+!I also have another request: Do we have a subroutine to convert
+!From:
+!integer: array(2) = [ 20010101 (YYYYMMDD) 010101 (HHMMSS) ]
+!
+!To:
+!ESMF_TIME: with gregorian calendar
+!
+!And vice versa.
+
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 module MAPL_NetCDF.F90
@@ -222,8 +232,9 @@ contains
 
    end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time
 
-   logical function is_time_unit(tunit)
+   function is_time_unit(tunit)
       character(len=*), intent(in) :: tunit
+      logical :: is_time_unit
       integer :: i
 
       is_time_unit = .TRUE.
@@ -242,8 +253,9 @@ contains
 
    end function lr_trim
 
-   integer function get_shift_sign(preposition)
+   function get_shift_sign(preposition)
       character(len=*), intent(in) :: preposition
+      integer :: get_shift_sign
       integer, parameter :: POSITIVE = 1
       get_shift_sign = 0
       if(lr_trim(preposition) == 'since') get_shift_sign = POSITIVE

@@ -547,6 +547,40 @@ contains
       @assertFalse(tf % is_valid(), 'tf should not be valid.')
    end subroutine test_are_valid_time_fields
 
+   @test
+   subroutine test_convert_to_ISO8601DateTime()
+      character, parameter :: t = 'T'
+      character, parameter :: f = 'F'
+      character, parameter :: r = 'R'
+      integer, parameter :: sz(2) = [7,3]
+      integer :: i, status
+      character(len=:), allocatable :: input, expected, actual, runtest
+      character(len=24) :: STRINGS(sz(1),sz(2)) = reshape([ &
+            '2023-04-23 21:05:37     ' ,  '2023-04-23T21:05:37     ',   t, &
+            '20230423 210537         ' ,  '2023-04-23T21:05:37     ',   t, &
+            '2023-04-23 21:5:37      ' ,  '2023-04-23T21:05:37     ',   r, &
+            '2023-4-23 21:05:37      ' ,  '2023-04-23T21:05:37     ',   r, &
+            '2023-4-23 21:5:37       ' ,  '2023-04-23T21:05:37     ',   r, &
+            '2023-04-23 21:05:37.337 ' ,  '2023-04-23T21:05:37.337 ',   t, &
+            '20230423210537337       ' ,  '2023-04-23T21:05:37.337 ',   t  ], sz)
+
+      do i = 1, size(STRINGS, 2)
+         input = trim(STRINGS(1,i))
+         expected = trim(STRINGS(2, i))
+         runtest = trim(STRINGS(3, i))
+         call convert_to_ISO8601DateTime(input, actual, rc = status)
+         select case(runtest)
+            case(t)
+               @assertEqual(expected, trim(actual), 'Datetime strings do not match.')
+            case(f)
+               @assertFalse(expected == trim(actual), 'Datetime strings do match.')
+            case(r)
+               @assertFalse(status == 0, 'Failed to catch illegal value.')
+         end select
+      end do
+
+   end subroutine test_convert_to_ISO8601DateTime
+
 end module test_MAPL_DateTime_Parsing
 
 !   @test

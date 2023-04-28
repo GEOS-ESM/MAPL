@@ -1,0 +1,100 @@
+!subroutine convert_NetCDF_DateTime_to_ESMF(int_time, units_string, interval, time0, unusable, time1, tunit, rc)
+!subroutine convert_ESMF_to_NetCDF_DateTime(tunit, t0, int_time, units_string, unusable, t1, interval, rc)
+!subroutine make_ESMF_TimeInterval(span, tunit, t0, interval, unusable, rc)
+!subroutine make_NetCDF_DateTime_int_time(interval, t0, tunit, int_time, unusable, rc)
+!subroutine make_NetCDF_DateTime_units_string(interval, t0, tunit, units_string, unusable, rc)
+!subroutine convert_ESMF_Time_to_NetCDF_DateTimeString(esmf_datetime, datetime_string, unusable, rc)
+!subroutine convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, datetime, unusable, rc)
+!function is_time_unit(tunit)
+!function lr_trim(string)
+!function get_shift_sign(preposition)
+!function split(string, delimiter)
+!function split_all(s, d) result(parts)
+!function join(strings, delimiter)
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+module test_MAPL_NetCDF
+   use MAPL_ExceptionHandling
+
+   use MAPL_KeywordEnforcerMod
+   use MAPL_DateTimeParsing.F90
+   use ESMF
+
+   implicit none
+
+contains
+
+subroutine test_convert_NetCDF_DateTime_to_ESMF()
+!(int_time, units_string, interval, time0, unusable, time1, tunit, rc)
+
+end subroutine test_convert_NetCDF_DateTime_to_ESMF
+
+subroutine test_convert_ESMF_to_NetCDF_DateTime()
+!(tunit, t0, int_time, units_string, unusable, t1, interval, rc)
+
+end subroutine test_convert_ESMF_to_NetCDF_DateTime
+
+subroutine test_make_ESMF_TimeInterval()
+!(span, tunit, t0, interval, unusable, rc)
+
+end subroutine test_make_ESMF_TimeInterval
+
+subroutine test_make_NetCDF_DateTime_int_time()
+!(interval, t0, tunit, int_time, unusable, rc)
+
+end subroutine test_make_NetCDF_DateTime_int_time
+
+subroutine test_make_NetCDF_DateTime_units_string()
+!(interval, t0, tunit, units_string, unusable, rc)
+
+end subroutine test_make_NetCDF_DateTime_units_string
+
+subroutine test_convert_ESMF_Time_to_NetCDF_DateTimeString()
+!(esmf_datetime, datetime_string, unusable, rc)
+
+end subroutine test_convert_ESMF_Time_to_NetCDF_DateTimeString
+
+subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time()
+!(datetime_string, datetime, unusable, rc)
+
+end subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time
+
+subroutine test_is_time_unit()
+!(tunit)
+
+end subroutine test_is_time_unit
+
+subroutine test_lr_trim()
+!(string)
+
+end subroutine test_lr_trim
+
+subroutine test_get_shift_sign()
+!(preposition)
+
+end subroutine test_get_shift_sign
+
+subroutine test_split()
+!(string, delimiter)
+
+end subroutine test_split
+
+subroutine test_split_all()
+!(s, d) result(parts)
+
+end subroutine test_split_all
+
+subroutine test_join()
+   character(len=:), allocatable :: strings
+   character(len=:), allocatable :: delimiter
+   character(len=:), allocatable :: join
+
+   strings = ['doe', 'ray', 'mi']
+   delimiter = ' '
+   join = join(strings, delimiter)
+   @asssertEqual(join, 'doe ray mi', 'Incorrect joined string')
+
+end subroutine test_join
+
+
+end module test_MAPL_NetCDF
