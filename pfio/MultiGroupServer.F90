@@ -816,6 +816,9 @@ contains
             end select
             call msg_iter%next()
          enddo
+         call thread_ptr%clear_hist_collections()
+         call thread_ptr%hist_collections%clear()
+
          time = file_timer%get_total()
          file_size = file_size*4./1024./1024. ! 4-byte integer, unit is converted to MB
          speed = file_size/time
@@ -823,8 +826,6 @@ contains
          call lgr%info(" Writing time: %f9.3 s, speed: %f9.3 MB/s, size: %f9.3 MB, at server node: %i0~:%i0~, file: %a", time, speed, file_size, this%node_rank, this%innode_rank, filename)
          call file_timer%reset()
 
-         call thread_ptr%clear_hist_collections()
-         call thread_ptr%hist_collections%clear()
          deallocate (buffer_fmd)
 
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
