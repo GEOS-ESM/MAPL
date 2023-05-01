@@ -282,15 +282,16 @@ contains
    subroutine finalize(this,rc)
       class(ServerManager), intent(inout) :: this
       integer, optional, intent(out) :: rc
+      integer :: status
       ! reporting here is for client_server in the same process which don't call start()
       ! problem here: all servers should coordinate to report one by one to avoid messy output
       if (associated(this%i_server)) then
-         call this%i_server%report_profile()
+         call this%i_server%report_profile(_RC)
          deallocate(this%i_server)
       endif
 
       if (associated(this%o_server)) then
-         call this%o_server%report_profile()
+         call this%o_server%report_profile(_RC)
          deallocate(this%o_server)
       endif
       call this%directory_service%free_directory_resources()
