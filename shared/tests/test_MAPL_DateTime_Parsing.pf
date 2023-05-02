@@ -6,7 +6,7 @@
 ! tested are not working completely.
 module test_MAPL_DateTime_Parsing
       use MAPL_ExceptionHandling
-      use MAPL_DateTime_Parsing
+      use MAPL_DateTime_Parsing 
       use pfunit
       implicit none
 
@@ -202,6 +202,28 @@ contains
       @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit(UNDELIMITED_TIME1,':')))
       @assertEqual('', trim(undelimit('',':')))
    end subroutine test_undelimit
+
+   @test
+   subroutine test_undelimit_all()
+      character(len=32), parameter :: UNDELIMITED_DATE = '20220720'
+      character(len=32), parameter :: DATE ='2022-07-20' 
+      character(len=32), parameter :: UNDELIMITED_TIME1 = '153437'
+      character(len=32), parameter :: TIME1 = '15:34:37'
+      character(len=32), parameter :: UNDELIMITED_TIME2 = '153437421'
+      character(len=32), parameter :: TIME2 = '15:34:37.421'
+      integer, parameter :: DATEWIDTH = len_trim(UNDELIMITED_DATE)
+      integer, parameter :: TIMEWIDTH1 = len_trim(UNDELIMITED_TIME1)
+      integer, parameter :: TIMEWIDTH2 = len_trim(UNDELIMITED_TIME2)
+
+      @assertEqual(trim(UNDELIMITED_DATE), trim(undelimit_all(DATE)))
+      @assertEqual(DATEWIDTH, len_trim(UNDELIMITED_DATE)) 
+      @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit_all(TIME1)))
+      @assertEqual(TIMEWIDTH1, len_trim(UNDELIMITED_TIME1))
+      @assertEqual(trim(UNDELIMITED_TIME2), trim(undelimit_all(TIME2)))
+      @assertEqual(TIMEWIDTH2, len_trim(UNDELIMITED_TIME2))
+      @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit_all(UNDELIMITED_TIME1)))
+      @assertEqual('', trim(undelimit_all('')))
+   end subroutine test_undelimit_all
 
    @test
    subroutine test_is_leap_year()
@@ -549,18 +571,19 @@ contains
 
    @test
    subroutine test_convert_to_ISO8601DateTime()
-      character, parameter :: t = 'T'
-      character, parameter :: f = 'F'
-      character, parameter :: r = 'R'
-      integer, parameter :: sz(2) = [7,3]
+      integer, parameter :: N = MAX_LEN
+      character(len=N), parameter :: t = 'T'
+      character(len=N), parameter :: f = 'F'
+      character(len=N), parameter :: r = 'R'
+      integer, parameter :: sz(2) = [3,6]
       integer :: i, status
-      character(len=24) :: input, expected, actual, runtest
-      character(len=24) :: STRINGS(sz(1),sz(2)) = reshape([ &
+      character(len=:), allocatable :: output
+      character(len=N) :: input, expected, actual, runtest
+      character(len=N) :: STRINGS(sz(1),sz(2)) = reshape([ &
             '2023-04-23 21:05:37     ' ,  '2023-04-23T21:05:37     ',   t, &
             '20230423 210537         ' ,  '2023-04-23T21:05:37     ',   t, &
-            '2023-04-23 21:5:37      ' ,  '2023-04-23T21:05:37     ',   r, &
             '2023-4-23 21:05:37      ' ,  '2023-04-23T21:05:37     ',   r, &
-            '2023-4-23 21:5:37       ' ,  '2023-04-23T21:05:37     ',   r, &
+            '2023-04-23 21:5:37      ' ,  '2023-04-23T21:05:37     ',   r, &
             '2023-04-23 21:05:37.337 ' ,  '2023-04-23T21:05:37.337 ',   t, &
             '20230423210537337       ' ,  '2023-04-23T21:05:37.337 ',   t  ], sz)
 
@@ -568,11 +591,14 @@ contains
          input = trim(STRINGS(1,i))
          expected = trim(STRINGS(2, i))
          runtest = trim(STRINGS(3, i))
-         call convert_to_ISO8601DateTime(input, actual, rc = status)
+         call convert_to_ISO8601DateTime(input, output, rc = status)
+         actual = trim(output)
          select case(runtest)
             case(t)
+               @assertEqual(status, 0, 'Convert failed')
                @assertEqual(expected, trim(actual), 'Datetime strings do not match.')
             case(f)
+               @assertEqual(status, 0, 'Convert failed')
                @assertFalse(expected == trim(actual), 'Datetime strings do match.')
             case(r)
                @assertFalse(status == 0, 'Failed to catch illegal value.')
@@ -582,28 +608,3 @@ contains
    end subroutine test_convert_to_ISO8601DateTime
 
 end module test_MAPL_DateTime_Parsing
-
-!   @test
-!   subroutine test_is_in_open_interval()
-!      integer, parameter :: lower = 36
-!      integer, parameter :: upper = 48
-!      integer, parameter :: delta = 6
-!      @assertTrue(is_in_open_interval(lower + delta [lower, upper]))
-!      @assertFalse(is_in_open_interval(lower, [lower, upper]))
-!      @assertFalse(is_in_open_interval(lower - 1, [lower, upper]))
-!      @assertFalse(is_in_open_interval(upper, [lower, upper]))
-!      @assertFalse(is_in_open_interval(upper + 1, [lower, upper]))
-!   end subroutine test_is_in_open_interval
-
-!   @test
-!   subroutine test_is_in_closed_interval()
-!      integer, parameter :: lower = 36
-!      integer, parameter :: upper = 48
-!      integer, parameter :: delta = 6
-!      @assertTrue(is_in_closed_interval(lower + delta [lower, upper]))
-!      @assertTrue(is_in_closed_interval(lower, [lower, upper]))
-!      @assertFalse(is_in_closed_interval(lower - 1, [lower, upper]))
-!      @assertTrue(is_in_closed_interval(upper, [lower, upper]))
-!      @assertFalse(is_in_closed_interval(upper + 1, [lower, upper]))
-!   end subroutine test_is_in_closed_interval
-!

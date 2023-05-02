@@ -46,6 +46,8 @@ module MAPL_DateTime_Parsing
 !   private 
    public :: date_fields
    public :: time_fields
+   public :: convert_to_ISO8601DateTime
+   public :: MAX_LEN
 
    interface operator(.divides.)
       module procedure :: divides
@@ -67,6 +69,8 @@ module MAPL_DateTime_Parsing
 
    ! Timezone offset for Timezone Z !wdb keep for now
    integer, parameter :: Z = 0
+
+   integer, parameter :: MAX_LEN = 1024
 
    ! Derived type for communicating date fields internally
    type :: date_fields
@@ -235,16 +239,22 @@ contains
    pure function undelimit_all(string) result(undelimited)
       character(len=*), intent(in) :: string
       character(len=len_trim(string)) :: undelimited
-      character(len=len_trim(string)) :: trimmed
+      character(len=len_trim(string)) :: ljustified
       character :: ch
-      integer :: i
+      integer :: trimmed_len
+      integer :: i, pos
 
-      trimmed = trim(adjustl(string))
+      ljustified = adjustl(string)
+      trimmed_len = len_trim(ljustified)
       undelimited = ''
+      pos = 0
 
-      do i= 1, len(trimmed)
-         ch = trimmed(i:i)
-         if(is_digit(ch)) undelimited = undelimited // ch
+      do i= 1, trimmed_len
+         ch = ljustified(i:i)
+         if(is_digit(ch)) then
+            pos = pos + 1
+            undelimited(pos:pos) = ch
+         end if
       end do
 
    end function undelimit_all
@@ -644,26 +654,32 @@ contains
       integer, parameter :: HH = 4
       integer, parameter :: M = 5
       integer, parameter :: S = 6
-      integer, parameter :: N(S, 2) = reshape([1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [S, 2])
+      integer, parameter :: N(2, S) = reshape([1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [2, S])
       integer, parameter :: MIN_LEN = 14
       character(len=*), parameter :: ISO_DD = '-'
       character(len=*), parameter :: ISO_TD = ':'
       character(len=*), parameter :: ISO_DTD = 'T'
       character(len=*), parameter :: ISO_POINT = '.'
-      character(len=:), allocatable :: undelimited
+      character(len=len(datetime_string)) :: undelimited
+      character(len=:), allocatable :: intermediate
       integer :: undelimited_length
-      integer :: status
       
-      undelimited = trim(adjustl(undelimit_all(datetime_string)))
-      undelimited_length=len(undelimited)
-      _ASSERT(undelimited_length >= MIN_LEN, 'datetime_string is too short')
-      iso_string =   undelimited(N(YY,1):N(YY,2)) // ISO_DD // &
-                     undelimited(N(MM,1):N(MM,2)) // ISO_DD // &
-                     undelimited(N(DD,1):N(DD,2)) // ISO_DTD // &
-                     undelimited(N(HH,1):N(HH,2)) // ISO_TD // &
-                     undelimited(N(M,1):N(M,2)) // ISO_TD // &
-                     undelimited(N(S,1):N(S,2))
-      if(undelimited_length > MIN_LEN) iso_string = iso_string // ISO_POINT // undelimited(MIN_LEN+1:undelimited_length)
+      iso_string = datetime_string
+      undelimited = adjustl(undelimit_all(datetime_string))
+      undelimited_length=len_trim(undelimited)
+      _ASSERT(undelimited_length >= MIN_LEN, 'datetime_string is too short: ' // trim(undelimited))
+
+      intermediate = undelimited(N(1,YY):N(2,YY)) // ISO_DD // &
+                     undelimited(N(1,MM):N(2,MM)) // ISO_DD // &
+                     undelimited(N(1,DD):N(2,DD)) // ISO_DTD // &
+                     undelimited(N(1,HH):N(2,HH)) // ISO_TD // &
+                     undelimited(N(1,M):N(2,M)) // ISO_TD // &
+                     undelimited(N(1,S):N(2,S))
+      if(undelimited_length > MIN_LEN) intermediate = intermediate // ISO_POINT // undelimited(MIN_LEN+1:undelimited_length)
+      
+      iso_string = intermediate
+
+      _RETURN(_SUCCESS)
 
    end subroutine convert_to_ISO8601DateTime 
 
