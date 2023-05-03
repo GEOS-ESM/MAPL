@@ -3307,17 +3307,16 @@ contains
        call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
        OK = .true. 
        ! check the edge of face 1 along longitude
+       allocate(corner_lons(I2-I1+2, J2-J1+2))
+       allocate(corner_lats(I2-I1+2, J2-J1+2))
+       call MAPL_GridGetCorners(Grid,corner_lons,corner_lats)
        if ( I1 ==1 .and. J2<=IM_WORLD ) then
-          allocate(corner_lons(I2-I1+2, J2-J1+2))
-          allocate(corner_lats(I2-I1+2, J2-J1+2))
-          call MAPL_GridGetCorners(Grid,corner_lons,corner_lats)
           if (J1 == 1) then
             accurate_lon = 1.750d0*MAPL_PI_R8 - shift
             if (abs(accurate_lon - corner_lons(1,1)) > tolerance) then
                print*, "accurate_lon: ", accurate_lon
                print*, "corner_lon  : ", corner_lons(1,1)
                print*, "Error: Grid should have pi/18 shift"
-               deallocate(corner_lons, corner_lats)
                OK = .false.
                return
             endif
@@ -3333,10 +3332,9 @@ contains
                 print*, "  1)Grid is NOT gnomonic_ed;"
                 print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
                 OK = .false.
-                exit
+                return
              endif
           enddo
-          deallocate(corner_lons, corner_lats)
        endif
     end function
 

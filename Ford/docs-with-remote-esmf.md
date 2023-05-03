@@ -6,8 +6,8 @@ coloured_edges: true
 graph_maxdepth: 4
 graph_maxnodes: 32
 include: ../include/
-         ../gFTL/install/GFTL-1.8/include/v1
-         ../gFTL/install/GFTL-1.8/include/v2
+         ../gFTL/install/GFTL-1.10/include/v1
+         ../gFTL/install/GFTL-1.10/include/v2
 exclude_dir: ../Ford
              ../Doxygen
              ../ESMA_cmake
