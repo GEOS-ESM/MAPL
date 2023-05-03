@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The option READ_RESTART_BY_FACE now can read the grid-based output from WRITE_RESTART_BY_FACE. num_readers or num_writers should be multiple of 6
+
 ### Removed
 
 ### Deprecated
