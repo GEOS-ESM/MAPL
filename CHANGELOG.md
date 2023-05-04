@@ -13,8 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The option READ_RESTART_BY_FACE now can read the grid-based output from WRITE_RESTART_BY_FACE. num_readers or num_writers should be multiple of 6
-
+- `READ_RESTART_BY_FACE` has been fixed and now can read restarts from full CS grids as well as restarts that have been separate by face via `WRITE_RESTART_BY_FACE`.    The current implementation requires that both `num_readers` and `num_writers` must be multiple of 6.
 ### Removed
 
 ### Deprecated
