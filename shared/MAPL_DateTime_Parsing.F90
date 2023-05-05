@@ -683,4 +683,25 @@ contains
 
    end subroutine convert_to_ISO8601DateTime 
 
+   function is_valid_datestring(datestring, string_format) result(tval)
+      character(len=*), intent(in) :: datestring
+      character(len=*), intent(in) :: string_format
+      logical :: tval
+      integer :: i
+
+      tval = .false.
+
+      if(len(datestring) /= len(string_format)) return
+
+      do i = 1, len_trim(string_format)
+         if(is_digit(string_format(i:i))) then
+            if(.not. is_digit(datestring(i:i))) return
+         else
+            if(datestring(i:i) /= string_format(i:i)) return
+         end if
+      end do
+
+      tval = .true.
+
+   end function is_valid_datestring
 end module MAPL_DateTime_Parsing

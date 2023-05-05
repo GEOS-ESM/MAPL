@@ -10,23 +10,48 @@
 
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module MAPL_NetCDF.F90
+module MAPL_NetCDF
 
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
-   use MAPL_DateTimeParsing.F90
+   use MAPL_DateTime_Parsing
    use ESMF
 
    implicit none
+
    public :: convert_NetCDF_DateTime_to_ESMF
    public :: convert_ESMF_to_NetCDF_DateTime
 
+   private
+   public :: make_ESMF_TimeInterval
+   public :: make_NetCDF_DateTime_int_time
+   public :: make_NetCDF_DateTime_units_string
+   public :: convert_ESMF_Time_to_NetCDF_DateTimeString 
+   public :: convert_to_integer
+   public :: convert_NetCDF_DateTimeString_to_ESMF_Time
+   public :: is_time_unit
+   public :: is_valid_netcdf_datetime_string
+   public :: get_shift_sign
+   public :: split
+   public :: split_all
+   public :: lr_trim
+
    character, parameter :: PART_DELIM = ' '
    character, parameter :: ISO_DELIM = 'T'
-   integer, parameter :: LEN_DATE = len('YYYY-MM-DD')
-   integer, parameter :: LEN_TIME = len('hh:mm:ss')
-   character(len=*), parameter :: TIME_UNITS =  ['years', 'months', 'days', 'hours', 'minutes', 'seconds', 'milliseconds']
+   character, parameter :: DATE_DELIM = '-'
+   character, parameter :: TIME_DELIM = ':'
+   character(len=*), parameter :: NETCDF_DATE = '0000' // DATE_DELIM // '00' // DATE_DELIM // '00'
+   character(len=*), parameter :: NETCDF_TIME = '00' // TIME_DELIM // '00' // TIME_DELIM // '00'
+   character(len=*), parameter :: NETCDF_DATETIME_FORMAT = NETCDF_DATE // PART_DELIM // NETCDF_TIME
+   integer, parameter :: LEN_DATE = len(NETCDF_DATE)
+   integer, parameter :: LEN_TIME = len(NETCDF_TIME)
+   integer, parameter :: LEN_NETCDF_DATETIME = len(NETCDF_DATETIME_FORMAT)
+   character(len=*), parameter :: TIME_UNITS(7) = &
+      [  'years       ', 'months      ', 'days        ', &
+         'hours       ', 'minutes     ', 'seconds     ', 'milliseconds'    ]
    character, parameter :: SPACE = ' '
+   type(ESMF_CalKind_Flag), parameter :: CALKIND_FLAG = ESMF_CALKIND_GREGORIAN
+   integer, parameter :: MAX_WIDTH = 10
 
 contains
 
@@ -34,15 +59,17 @@ contains
    subroutine convert_NetCDF_DateTime_to_ESMF(int_time, units_string, interval, time0, unusable, time1, tunit, rc)
       integer, intent(in) :: int_time
       character(len=*), intent(in) :: units_string
-      type(ESMF_TimeInterval), intent(out) :: interval
-      type(ESMF_Time), intent(out) :: time0
+      type(ESMF_TimeInterval), intent(inout) :: interval
+      type(ESMF_Time), intent(inout) :: time0
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Time), optional, intent(out) :: time1
+      type(ESMF_Time), optional, intent(inout) :: time1
       character(len=:), allocatable, optional, intent(out) :: tunit
       integer, optional, intent(out) :: rc
       character(len=:), allocatable :: tunit_
-      character(len=:), allocatable :: datetime_string
       character(len=len_trim(units_string)) :: parts(2)
+      character(len=len_trim(units_string)) :: head
+      character(len=len_trim(units_string)) :: tail
+      
       integer :: span, factor
       integer :: status
 
@@ -53,38 +80,41 @@ contains
 
       ! get time unit, tunit
       parts = split(lr_trim(units_string), PART_DELIM)
-      tunit_ = lr_trim(parts(1))
+      head = parts(1)
+      tail = parts(2)
+      tunit_ = lr_trim(head)
       _ASSERT(is_time_unit(tunit_), 'Unrecognized time unit')
       if(present(tunit)) tunit = tunit_
 
       ! get span
-      parts = split(lr_trim(parts(2)), PART_DELIM)
-      factor = get_shift_sign(parts(1))
+      parts = split(lr_trim(tail), PART_DELIM)
+      head = parts(1)
+      tail = parts(2)
+      
+      factor = get_shift_sign(head)
       _ASSERT(factor /= 0, 'Unrecognized preposition')
       span = factor * int_time
 
-      call convert_NetCDF_DateTimeString_to_ESMF_Time(lr_trim(parts(2)), t0, _RC)
-      call make_ESMF_TimeInterval(span, tunit_, t0, interval, _RC)
+      call convert_NetCDF_DateTimeString_to_ESMF_Time(lr_trim(tail), time0, _RC)
+      call make_ESMF_TimeInterval(span, tunit_, time0, interval, _RC)
 
-      ! get t1
-      if(present(t1)) t1 = t0 + interval
+      ! get time1
+      if(present(time1)) time1 = time0 + interval
 
       _RETURN(_SUCCESS)
 
    end subroutine convert_NetCDF_DateTime_to_ESMF
 
-! wdb split into two subroutines todo
    subroutine convert_ESMF_to_NetCDF_DateTime(tunit, t0, int_time, units_string, unusable, t1, interval, rc)
       character(len=*), intent(in) :: tunit
-      type(ESMF_Time),  intent(in) :: t0
+      type(ESMF_Time),  intent(inout) :: t0
       integer, intent(out) :: int_time
-      character(len=*), intent(out) :: units_string
+      character(len=:), allocatable, intent(out) :: units_string
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Time), optional, intent(in) :: t1
-      type(ESMF_TimeInterval), optional, intent(in) :: interval
+      type(ESMF_Time), optional, intent(inout) :: t1
+      type(ESMF_TimeInterval), optional, intent(inout) :: interval
       integer, optional, intent(out) :: rc
       type(ESMF_TimeInterval) :: interval_
-      integer(ESMF_KIND_I4) :: yy, mm, d, h, m, s
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -94,11 +124,11 @@ contains
       elseif(present(t1)) then
          interval_ = t1 - t0
       else
-         _ASSERT(has_two_inputs, 'Only one input argument present')
+         _FAIL( 'Only one input argument present')
       end if
 
-      call make_NetCDF_DateTime_int_time(interval_, t0, tunit_, int_time, rc)
-      call make_NetCDF_DateTime_units_string(interval_, t0, tunit_, units_string, rc)
+      call make_NetCDF_DateTime_int_time(interval_, t0, tunit, int_time, _RC)
+      call make_NetCDF_DateTime_units_string(t0, tunit, units_string, _RC)
 
       _RETURN(_SUCCESS)
       
@@ -107,8 +137,8 @@ contains
    subroutine make_ESMF_TimeInterval(span, tunit, t0, interval, unusable, rc)
       integer, intent(in) :: span
       character(len=*), intent(in) :: tunit
-      type(ESMF_Time), intent(in) :: t0
-      type(ESMF_TimeInterval), intent(out) :: interval
+      type(ESMF_Time), intent(inout) :: t0
+      type(ESMF_TimeInterval), intent(inout) :: interval
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
@@ -117,17 +147,17 @@ contains
 
       select case(lr_trim(tunit)) 
          case('years')
-            call ESMF_TimeIntervalSet(interval, startTime=t0 yy=span, _RC)
+            call ESMF_TimeIntervalSet(interval, startTime=t0, yy=span, _RC)
          case('months')
-            call ESMF_TimeIntervalSet(interval, startTime=t0 mm=span, _RC)
-         case('days')
-            call ESMF_TimeIntervalSet(interval, startTime=t0 d=span, _RC)
+            call ESMF_TimeIntervalSet(interval, startTime=t0, mm=span, _RC)
+!         case('days')
+!            call ESMF_TimeIntervalSet(interval, startTime=t0, d=span, _RC)
          case('hours')
-            call ESMF_TimeIntervalSet(interval, startTime=t0 h=span, _RC)
+            call ESMF_TimeIntervalSet(interval, startTime=t0, h=span, _RC)
          case('minutes')
-            call ESMF_TimeIntervalSet(interval, startTime=t0 m=span, _RC)
+            call ESMF_TimeIntervalSet(interval, startTime=t0, m=span, _RC)
          case('seconds')
-            call ESMF_TimeIntervalSet(interval, startTime=t0 s=span, _RC)
+            call ESMF_TimeIntervalSet(interval, startTime=t0, s=span, _RC)
          case default
             _FAIL('Unrecognized unit')
       end select
@@ -137,8 +167,8 @@ contains
    end subroutine make_ESMF_TimeInterval
 
    subroutine make_NetCDF_DateTime_int_time(interval, t0, tunit, int_time, unusable, rc)
-      type(ESMF_TimeInterval), intent(in) :: interval
-      type(ESMF_Time), intent(in) :: t0
+      type(ESMF_TimeInterval), intent(inout) :: interval
+      type(ESMF_Time), intent(inout) :: t0
       character(len=*), intent(in) :: tunit
       integer, intent(out) :: int_time
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -153,8 +183,8 @@ contains
             call ESMF_TimeIntervalGet(interval, t0, yy=int_time, _RC)
          case('months')
             call ESMF_TimeIntervalGet(interval, t0, mm=int_time, _RC)
-         case('days')
-            call ESMF_TimeIntervalGet(interval, t0, d=int_time, _RC)
+!         case('days')
+!            call ESMF_TimeIntervalGet(interval, t0, d=int_time, _RC)
          case('hours')
             call ESMF_TimeIntervalGet(interval, t0, h=int_time, _RC)
          case('minutes')
@@ -169,11 +199,10 @@ contains
 
    end subroutine make_NetCDF_DateTime_int_time
 
-   subroutine make_NetCDF_DateTime_units_string(interval, t0, tunit, units_string, unusable, rc)
-      type(ESMF_TimeInterval), intent(in) :: interval
-      type(ESMF_Time), intent(in) :: t0
+   subroutine make_NetCDF_DateTime_units_string(t0, tunit, units_string, unusable, rc)
+      type(ESMF_Time), intent(inout) :: t0
       character(len=*), intent(in) :: tunit
-      character(len=:), intent(out) :: units_string
+      character(len=:), allocatable, intent(out) :: units_string
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: preposition = 'since'
@@ -191,46 +220,139 @@ contains
    end subroutine make_NetCDF_DateTime_units_string
 
    subroutine convert_ESMF_Time_to_NetCDF_DateTimeString(esmf_datetime, datetime_string, unusable, rc)
-      type(ESMF_Time), intent(in) :: esmf_datetime
+      type(ESMF_Time), intent(inout) :: esmf_datetime
       character(len=:), allocatable, intent(out) :: datetime_string
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      character(len=:), allocatable :: parts(2)
-      character(len=:), allocatable :: date_string
-      character(len=:), allocatable :: time_string
-      integer :: status
+ 
+      character(len=*), parameter :: ERR_PRE = 'Failed to write string: '
+      integer :: yy, mm, dd, h, m, s
+      character(len=10) :: FMT
+      character(len=4) :: yy_string
+      character(len=2) :: mm_string
+      character(len=2) :: dd_string
+      character(len=2) :: h_string
+      character(len=2) :: m_string
+      character(len=2) :: s_string
+      character(len=LEN_NETCDF_DATETIME) :: tmp_string
+      integer :: status, iostatus
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_TimeGet(esmf_datetime, timeString=datetime_string, _RC)
-      parts = split(datetime_string, ISO_DELIM)
-      date_string = lr_trim(parts(1))
-      time_string = lr_trim(parts(2))
-      _ASSERT(len(date_string) == LEN_DATE, 'Incorrect date width')
-      _ASSERT(len(time_string) >= LEN_TIME, 'Incorrect time width')
-      time_string = time_string(1:LEN_TIME)
-      datetime_string = date_string //PART_DELIM// time_string
+      call ESMF_TimeGet(esmf_datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+      FMT='(BZ, I2.2)'
+      write(s_string, fmt=FMT, iostat=iostatus) s
+      _ASSERT(iostatus == 0, ERR_PRE // 'second')
+      write(m_string, fmt=FMT, iostat=iostatus) m
+      _ASSERT(iostatus == 0, ERR_PRE // 'minute')
+      write(h_string, fmt=FMT, iostat=iostatus) h
+      _ASSERT(iostatus == 0, ERR_PRE // 'hour')
+      write(dd_string, fmt=FMT, iostat=iostatus) dd
+      _ASSERT(iostatus == 0, ERR_PRE // 'day')
+      write(mm_string, fmt=FMT, iostat=iostatus) mm
+      _ASSERT(iostatus == 0, ERR_PRE // 'month')
+      FMT='(BZ, I4.4)'
+      write(yy_string, fmt=FMT, iostat=iostatus) yy
+      _ASSERT(iostatus == 0, ERR_PRE // 'year')
+
+      tmp_string = yy_string // DATE_DELIM // mm_string // DATE_DELIM // dd_string // PART_DELIM // &
+         h_string // TIME_DELIM // m_string // TIME_DELIM // s_string
+
+      datetime_string = tmp_string
       
       _RETURN(_SUCCESS)
 
    end subroutine convert_ESMF_Time_to_NetCDF_DateTimeString
-   
+
+   subroutine convert_to_integer(string_in, int_out, rc)
+      character(len=*), intent(in) :: string_in
+      integer, intent(out) :: int_out
+      integer, optional, intent(out) :: rc
+      integer :: stat
+
+      read(string_in, '(I)', iostat=stat) int_out
+
+      if(present(rc)) rc = stat
+
+   end subroutine convert_to_integer
+
    subroutine convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, datetime, unusable, rc)
       character(len=*), intent(in) :: datetime_string
-      type(ESMF_Time), intent(out) :: datetime
+      type(ESMF_Time), intent(inout) :: datetime
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      character(len=len(datetime_string)) :: iso_string
       integer :: status 
+      integer :: yy, mm, dd, h, m, s, i, j 
+      character(len=4) :: part
 
       _UNUSED_DUMMY(unusable)
 
-      call convert_to_ISO8601DateTime(datetime_string, iso_string, _RC)
-      call ESMF_TimeSet(datetime, trim(iso_string), _RC)
+      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), 'Invalid datetime string')
+
+      i = 1
+      j = i + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, yy, rc = status)
+      _ASSERT(status == 0, 'Unable to convert year string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, mm, rc = status)
+      _ASSERT(status == 0, 'Unable to convert month string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, dd, rc = status)
+      _ASSERT(status == 0, 'Unable to convert day string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, h, rc = status)
+      _ASSERT(status == 0, 'Unable to convert hour string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, m, rc = status)
+      _ASSERT(status == 0, 'Unable to convert minute string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, s, rc = status)
+      _ASSERT(status == 0, 'Unable to convert second string')
+      call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
+      call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
 
       _RETURN(_SUCCESS)
 
    end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time
+
+   function is_valid_netcdf_datetime_string(string) result(tval)
+      character(len=*), parameter :: DIGITS = '0123456789'
+      character(len=*), intent(in) :: string
+      logical :: tval
+      integer :: i
+
+      tval = .false.
+      
+      if(len(string) /= len(NETCDF_DATETIME_FORMAT)) return
+
+      do i=1, len(string)
+         if(scan(NETCDF_DATETIME_FORMAT(i:i), DIGITS) > 0) then
+            if(scan(string(i:i), DIGITS) <= 0) return
+         else
+            if(string(i:i) /= NETCDF_DATETIME_FORMAT(i:i)) return
+         end if
+      end do
+      
+      tval = .true.
+
+   end function is_valid_netcdf_datetime_string
 
    function is_time_unit(tunit)
       character(len=*), intent(in) :: tunit
@@ -264,112 +386,89 @@ contains
    function split(string, delimiter)
       character(len=*), intent(in) :: string
       character(len=*), intent(in) :: delimiter
-      character(len=len(string) :: split(2)
+      character(len=len(string)) :: split(2)
       integer start
  
       split = [string, '']
       start = index(string, delimiter)
       if(start < 1) return
-      split = [string(1:start - 1), string(start+len(delimiter),len(string))]
+      split = [string(1:(start - 1)), string((start+len(delimiter)):len(string))]
    end function split
 
-   function split_all(s, d) result(parts)
-      character(len=*), intent(in) :: s
-      character(len=*), intent(in) :: d
+   recursive function split_all(string, delimiter) result(parts)
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: delimiter
       character(len=:), allocatable :: parts(:)
       integer :: start
 
-      start = index(s, d)
+      start = index(string, delimiter)
 
       if(start == 0) then
-         parts = [s]
+         parts = [string]
       else
-         parts = [s(1:(start-1)), split_all(s((start+len(d)):len(s)), d)] 
+         parts = [string(1:(start-1)), split_all(string((start+len(delimiter)):len(string)), delimiter)] 
       end if
 
    end function split_all
 
-   function join(strings, delimiter)
-      character(len=*), intent(in) :: strings(:)
-      character(len=*), intent(in) :: delimiter
-      character(len=:), allocatable :: join
-      integer :: i
+end module MAPL_NetCDF
 
-      join = strings(1)
-      do i=2, size(strings)
-         join = delimiter  // join
-      end do
-
-   end function join
-end module MAPL_NetCDF.F90
-
-!   logical function has_delimiter(string, delimiter)
-!      character(len=*), intent(in) :: string
-!      character(len=*), intent(in) :: delimiter
-!
-!      has_delimiter = (index(string, delimiter) > 0)
-!   end function has_delimiter
-!   character, parameter :: DATE_DELIM :: '-'
-!   character, parameter :: TIME_DELIM :: ':'
-
-!   subroutine make_ESMF_DateTime(datetime_string, datetime, rc)
+!   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time_string(datetime_string, datetime, unusable, rc)
 !      character(len=*), intent(in) :: datetime_string
-!      type(ESMF_Time), intent(out) :: datetime
+!      type(ESMF_Time), intent(inout) :: datetime
+!      class (KeywordEnforcer), optional, intent(in) :: unusable
 !      integer, optional, intent(out) :: rc
-!      character(len=len(datetime_string)) :: parts(2)
-!      type(date_fields) :: date
-!      type(time_fields) :: time
-!      integer, parameter :: HAS_DATE = 1
-!      integer, parameter :: HAS_TIME = 2
-!      integer, parameter :: HAS_DATETIME = HAS_DATE + HAS_TIME
-!      integer :: i, case_
-!      integer :: status
+!      character(len=:), allocatable :: iso_string
+!      integer :: status 
 !
-!      parts = split(lr_trim(datetime_string), PART_DELIM)
-!      _ASSERT((len(parts(1)) == 0), 'First datetime fields missing')
+!      _UNUSED_DUMMY(unusable)
+!      call set_calendar(_RC)
+!      call convert_to_ISO8601DateTime(datetime_string, iso_string, _RC)
+!      call ESMF_TimeSet(datetime, trim(iso_string), _RC)
 !
-!      count_ = 0
-!      i = 1
-!      if(has_delimiter(parts(i), DATE_DELIM)) then
-!         date = date_fields(lr_trim(parts(i)), DATE_DELIM)
-!         _ASSERT(.not. date % is_null(), 'Invalid date')
-!         case_ = case_ + HAS_DATE
-!         i = 2
-!      end if
-!
-!      if(has_delimiter(parts(i), TIME_DELIM)) then
-!         time = time_fields(lr_trim(parts(i), TIME_DELIM)
-!         _ASSERT(.not. time % is_null(), 'Invalid time')
-!         case_ = case_ + HAS_TIME
-!      end if
-!
-!      _ASSERT((count_ > 0) .and. (count_ <= HAS_DATETIME), 'No date or time')
-!
-!      select case(case_)
-!         case(HAS_DATE)
-!            call ESMF_TimeSet(datetime, yy = date % year(), mm = date % month(), dd = date % day(), _RC)
-!         case(HAS_TIME)
-!            call ESMF_TimeSet(datetime, hh = time % hour(), m = time % minute(), s = time % second(), _RC)
-!         case(HAS_DATETIME)
-!            call ESMF_TimeSet(datetime, yy = date % year(), mm = date % month(), dd = date % day(), &
-!               hh = time % hour(), m = time % minute(), s = time % second(), _RC)
-!         case default
-!            _FAIL('No date or time')
-!      end select
-!      
 !      _RETURN(_SUCCESS)
-
-!   end function make_ESMF_DateTime
-
-!   function parse_timeunit(timeunit_name) result(timeunit)
-!      character(len=*), intent(in) :: timeunit_name
-!      type(time_unit) :: timeunit
-!      character(len=len(timeunit_name)) :: adj_name
-!      integer :: trimmed_length
 !
-!      adj_name = adjustl(timeunit_name)
-!      trimmed_length = len_trim(adj_name)
-!      if(adj_name(trimmed_length:trimmed_length)
-!      timeunit = get_time_unit(trim(timeunit_name))      
+!   end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time_string
+
+!   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time_datetime(datetime_string, datetime, unusable, rc)
+!      character(len=*), intent(in) :: datetime_string
+!      type(ESMF_Time), intent(inout) :: datetime
+!      class (KeywordEnforcer), optional, intent(in) :: unusable
+!      integer, optional, intent(out) :: rc
+!      integer :: status 
+!      type(ESMF_CalKind_Flag), parameter :: CALKIND_FLAG = ESMF_CALKIND_GREGORIAN
+!      character(len=:), allocatable :: parts(:)
+!      type(date_fields) :: datefields
+!      type(time_fields) :: timefields
+!      integer :: yy, mm, dd, h, m, s
 !
-!   end function parse_timeunit
+!      _UNUSED_DUMMY(unusable)
+!
+!      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), 'Invalid datetime string')
+!
+!      parts = split(datetime_string, PART_DELIM)
+!      _ASSERT(size(parts) == 2, 'parts should be 2')
+!      _ASSERT((len(parts(2)) > 0), 'Unable to split datetime_string')
+!
+!      print *, '[', parts(1), ', ', parts(2), ']'
+!
+!      datefields = date_fields(parts(1), DATE_DELIM)
+!      _ASSERT(datefields % is_valid(), 'Invalid date_fields')
+!
+!      timefields = time_fields(parts(2), TIME_DELIM)
+!      _ASSERT(timefields % is_valid(), 'Invalid time_fields')
+!
+!      yy = datefields % year()
+!      mm = datefields % month()
+!      dd = datefields % day()
+!
+!      h = datefields % hour()
+!      m = datefields % minute()
+!      s = datefields % second()
+!
+!      call set_calendar(_RC)
+!      call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, calkindflag=CALKIND_FLAG, _RC)
+!
+!      _RETURN(_SUCCESS)
+!
+!   end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time_datetime
