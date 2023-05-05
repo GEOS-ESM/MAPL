@@ -272,37 +272,5 @@ contains
       @assertEqual(expected, actual, 'Incorrect conversion: ' // str)
 
    end subroutine test_convert_to_integer
-!   function get_integer_from_string(string, first_index, last_index) result(ival)
-!      character(len=*), intent(in) :: string
-!      integer, intent(in) :: first_index, last_index
-!      integer :: ival, stat
-!      character(len=(last_index-first_index+1)) :: substring
-!
-!      substring = string(first_index:last_index)
-!      read(substring, fmt='(i)', iostat=stat) ival
-!      if(stat == 0) return 
-!      ival = -1
-!
-!   end function get_integer_from_string
-!
-!   @test
-!   subroutine test_esmf_time_from_iso_string()
-!      type(ESMF_Time) :: esmf_time
-!      character(len=*), parameter :: iso_string = '2012-10-24T18:00:00'
-!      integer(kind=ESMF_KIND_I4) :: yy, mm, dd, h, m, s
-!      type(ESMF_CalKind_Flag) :: CALKIND_FLAG_DEF = ESMF_CALKIND_GREGORIAN
-!      integer :: rc, status
-!
-!      yy = get_integer_from_string(iso_string, 1, 4)
-!      mm = get_integer_from_string(iso_string, 6, 7)
-!      dd =  get_integer_from_string(iso_string, 9, 10)
-!      h =  get_integer_from_string(iso_string, 12, 13)
-!      m =  get_integer_from_string(iso_string, 15, 16)
-!      s =  get_integer_from_string(iso_string, 18, 19)
-!
-!      call ESMF_TimeSet(esmf_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, calkindflag=CALKIND_FLAG_DEF, _RC)
-!      call ESMF_TimeSet(esmf_time, timeString='2012-10-24T18:00:00', _RC)
-!
-!   end subroutine test_esmf_time_from_iso_string
 
 end module test_MAPL_NetCDF
