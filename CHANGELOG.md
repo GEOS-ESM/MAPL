@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added module to process datetime strings from NetCDF to ESMF\_Time and ESMF\_TimeInterval variables and vice versa
 
 ### Changed
 
@@ -29,7 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     formatter when using `simTime` (see [pFlogger issue #90](https://github.com/Goddard-Fortran-Ecosystem/pFlogger/issues/90)).
     This is fixed in pFlogger v1.10.0
 - Add geom subdirectory and contents for MAPL Geom framework
-- Added module to process datetime strings from NetCDF to ESMF\_Time and ESMF\_TimeInterval variables and vice versa
 
 ### Changed
 
