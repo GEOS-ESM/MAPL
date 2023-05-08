@@ -147,12 +147,12 @@ contains
    @Test
    subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time()
       character(len=19), parameter:: netcdf_string='2023-01-31 14:04:37'
-      type(ESMF_Time) :: esmf_time
+      type(ESMF_Time) :: etime
       integer :: yy, mm, dd, h, m, s
       integer :: status, rc
 
-      call convert_NetCDF_DateTimeString_to_ESMF_Time(netcdf_string, esmf_time, _RC)
-      call ESMF_TimeGet(esmf_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      call convert_NetCDF_DateTimeString_to_ESMF_Time(netcdf_string, etime, _RC)
+      call ESMF_TimeGet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
       @assertEqual(2023, yy, 'Incorrect year')
       @assertEqual(01, mm, 'Incorrect month')
       @assertEqual(31, dd, 'Incorrect day')

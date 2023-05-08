@@ -275,7 +275,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: stat
 
-      read(string_in, '(I)', iostat=stat) int_out
+      read(string_in, '(I16)', iostat=stat) int_out
 
       if(present(rc)) rc = stat
 
@@ -396,10 +396,12 @@ contains
       character(len=len(string)) :: split(2)
       integer start
  
-      split = [string, '']
+      split = ['', '']
+      split(1) = string
       start = index(string, delimiter)
       if(start < 1) return
-      split = [string(1:(start - 1)), string((start+len(delimiter)):len(string))]
+      split(1) = string(1:(start - 1))
+      split(2) = string((start+len(delimiter)):len(string))
    end function split
 
    ! Split string into all substrings based on delimiter
