@@ -1368,6 +1368,7 @@ contains
          type(ESMF_Clock), intent(in) :: clock
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
+         character(len=3) :: alarm_ring_at_0
 
          STATE%CLOCK = CLOCK
          call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, _RC)
@@ -1426,8 +1427,15 @@ contains
             ringTime = ringTime - (INT((ringTime - currTime)/TIMEINT)+1)*TIMEINT
          end if
 
-         ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
-         ! we advance the clock AFTER run method
+         call MAPL_GetResource (STATE, alarm_ring_at_0, label='ALARM_RING_AT_0:', &
+              default="NO", __RC__ )
+
+         ! we back off current time with clock's dt since
+         ! we advance the clock AFTER run metho
+         ! if the alarm ring at 0, we don't back off the time.
+         if (alarm_ring_at_0 == "NO") then
+            ringTime = ringTime-TSTEP
+         endif
 
          ! make sure that ringTime is not in the past
          do while (ringTime < currTime)
