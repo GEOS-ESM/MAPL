@@ -53,10 +53,14 @@ contains
       supports = (spec%regrid_method == REGRID_METHOD_CONSERVE_HFLUX)
       if (.not. supports) return
 
+      ! From here it is an error if any prerequisites fail, as this is the only regridder
+      ! that can suport the selected method.
+      
       call MAPL_GridGet(spec%grid_in, localCellCountPerDim=counts_in, __RC__)
       call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts_out, __RC__)
 
       supports = all(mod(counts_in(1:2), counts_out(1:2)) == 0) .or. all(mod(counts_out, counts_in) == 0)
+      _ASSERT(supports, "HFlux regridder requires local domains to be properly nested.")
 
       _RETURN(_SUCCESS)
    end function supports
