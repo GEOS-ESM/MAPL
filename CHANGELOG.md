@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `subset_fields.py` to grab a subset of columns
   - Created shell script to perform subsetting, run the driver, and evaluate differences
   - Instructions for use can be viewed under Apps/Comp_Testing_Info.md
+- Added module to process datetime strings from NetCDF to ESMF\_Time and ESMF\_TimeInterval variables and vice versa
 
 ### Changed
 
