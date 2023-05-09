@@ -14,9 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `subset_fields.py` to grab a subset of columns
   - Created shell script to perform subsetting, run the driver, and evaluate differences
   - Instructions for use can be viewed under Apps/Comp_Testing_Info.md
-- Added support for use of pFlogger simTime in logging (only if `-DBUILD_WITH_PFLOGGER=ON`)
-  - Note: Due to bug in pFlogger v1.9.3 and older, you *must* specify a `dateFmt` in your logging configuration file in the
-    formatter when using `simTime` (see [pFlogger issue #90](https://github.com/Goddard-Fortran-Ecosystem/pFlogger/issues/90))
 
 ### Changed
 
@@ -25,6 +22,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.38.0] - 2023-05-01
+
+### Added
+
+- Printed time to write files to the disk in MultiGroupServer
+- Added merge function to Filemetadata to merge two meta objects
+- Added support for "DEPENDS_ON" and "DEPENDS_ON_CHILDREN" for export_specs. The typical usage on this feature is when the calculation of a variable involves other export variables, either from the same component (DEPENDS_ON specifies the list on such variables), or in the children (in this case the expectation is that all of the children have the SAME export). In both cases MAPL performs automatic allocation of these export variables.
+- Added support for use of pFlogger simTime in logging (only if `-DBUILD_WITH_PFLOGGER=ON`)
+  - Note: Due to bug in pFlogger v1.9.3 and older, you *must* specify a `dateFmt` in your logging configuration file in the
+    formatter when using `simTime` (see [pFlogger issue #90](https://github.com/Goddard-Fortran-Ecosystem/pFlogger/issues/90)).
+    This is fixed in pFlogger v1.10.0
+- Add geom subdirectory and contents for MAPL Geom framework
+
+### Changed
+
+- Add logic to GriddedIO class so that if an uninitialized time object is passed, the resulting file will not depend on time
+- Make sure the pfio files are closed when the time and speed appear in logfile
+- Enable more tests in CircleCI
+
+### Fixed
+
+- Move ioserver_profiler%stop call to the right place
+- Caught an untrapped error condition when writing to NetCDF
+
+## [2.37.3] - 2023-04-25
+
+### Fixed
+
+- Fixed the handling of vector regridding for a subdomain with no-DE.
+- Fixed the no-DE case related to vertical regridding.
+
+## [2.37.2] - 2023-04-17
+
+### Fixed
+
+- Pulled call MAPL_GridGetCorners out of the condition to avoid hang in MAPL_GetGlobalHorzIJIndex
+
+## [2.37.1] - 2023-04-14
+
+### Fixed
+
+ - Various nonstandard uses of Fortran caught by NAG compiler
+ - Various workarounds for NAG 7.1.113 where the compiler is wrong.
 
 ## [2.37.0] - 2023-04-03
 
@@ -35,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed message in _ASSERT statement in ESMFL_Mod.F90
 - Fixed bug in CubedSphereGridFactory when constructing a grid from a file
 - Cleaned up cubed-sphere grid factory and NCIO to produce files with consistent capitalization and types for the stretching factor
 
