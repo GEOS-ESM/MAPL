@@ -317,7 +317,6 @@ module NCIOMod
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
 
-
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
@@ -466,7 +465,7 @@ module NCIOMod
           _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-
+ 
                 if (arrdes%write_restart_by_oserver) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
@@ -2741,7 +2740,7 @@ module NCIOMod
     type(Netcdf4_Fileformatter)        :: formatter
     type(FileMetaData)                 :: metadata
     character(len=:), allocatable      :: fname_by_face
-    logical :: grid_file_match,flip
+    logical :: grid_file_match,flip, restore_export, isPresent
     type(ESMF_VM) :: vm
     integer :: comm
 
@@ -2810,6 +2809,15 @@ module NCIOMod
 !@            allocate(Mask(1))
          endif
       endif
+
+      restore_export = .false.
+      call ESMF_AttributeGet(bundle, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+      if (isPresent) then
+         call ESMF_AttributeGet(bundle, name='MAPL_RestoreExport', value=restore_export, _RC)
+      end if
+      if (restore_export) then
+         call MAPL_AllocateCoupling(field, _RC)
+      end if
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
@@ -2904,6 +2912,7 @@ module NCIOMod
     integer                            :: dna
     logical                            :: bootstrapable_
     logical                            :: isPresent
+    logical                            :: is_test_framework, restore_export
     character(len=:), allocatable      :: fname_by_face
     ! get a list of variables in the file so we can skip if the
     ! variable in the state is not in the file and it is bootstrapable
@@ -2993,6 +3002,13 @@ module NCIOMod
              end if
              skipReading = (RST == MAPL_RestartSkip .or.   &
                             RST == MAPL_RestartSkipInitial)
+
+             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             if (isPresent) then
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipReading = .false.
+             end if
+
              if (skipReading) cycle
              bootstrapable_ = bootstrapable .and. (RST == MAPL_RestartOptional)
 
@@ -3016,6 +3032,13 @@ module NCIOMod
                   RST = MAPL_RestartOptional
                end if
                skipReading = (RST == MAPL_RestartSkip)
+
+               call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+               if (isPresent) then
+                  call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                  if (is_test_framework) skipReading = .false.
+               end if
+
                if (skipReading) cycle
 
                ind= index(FieldName, '::')
@@ -3046,9 +3069,17 @@ module NCIOMod
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
                      call ESMF_AttributeSet ( field, name='RESTART', &
                              value=MAPL_RestartBootstrap, rc=status)
-
                   else
-                     _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                     restore_export = .false.
+                     call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+                     if (isPresent) then
+                        call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restore_export, _RC)
+                     end if
+                     if (restore_export) then
+                        if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
+                     else
+                        _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                     end if
                   end if
                end if
 
@@ -3073,6 +3104,13 @@ module NCIOMod
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
+
+             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             if (isPresent) then
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipReading = .false.
+             end if
+
              if (skipReading) cycle
              call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
              _VERIFY(STATUS)
@@ -3081,6 +3119,13 @@ module NCIOMod
                 _VERIFY(STATUS)
                 skipReading = (DNA /= 0)
              end if
+
+             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             if (isPresent) then
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipReading = .false.
+             end if
+
              if (skipReading) cycle
 
              ! now check if the field is in the list of available fields
@@ -3102,7 +3147,16 @@ module NCIOMod
                     call ESMF_AttributeSet ( field, name='RESTART', &
                             value=MAPL_RestartBootstrap, rc=status)
                 else
-                    _FAIL( "  Could not find field "//trim(Fieldname)//" in "//trim(filename))
+                   restore_export = .false.
+                   call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+                   if (isPresent) then
+                      call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restore_export, _RC)
+                   end if
+                   if (restore_export) then
+                      if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
+                   else
+                      _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                   end if
                 end if
              end if
 
@@ -3114,6 +3168,11 @@ module NCIOMod
 
     tile = arrdes%tile
 
+    call ESMF_AttributeGet(state, name='MAPL_RestoreExport', isPresent=isPresent, _RC)
+    if (isPresent) then
+       call ESMF_AttributeGet(state, name='MAPL_RestoreExport', value=restore_export, _RC)
+       call ESMF_AttributeSet(bundle_read, name="MAPL_RestoreExport", value=restore_export, _RC)
+    end if
     call MAPL_VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
     _VERIFY(STATUS)
 
@@ -3306,6 +3365,9 @@ module NCIOMod
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
+    type(ESMF_Field) :: lons_field, lats_field
+    logical :: isGridCapture
+    real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
@@ -3844,6 +3906,18 @@ module NCIOMod
 
        enddo
 
+       call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
+       if (isPresent) then
+          call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', value=isGridCapture, _RC)
+       else
+          isGridCapture = .false.
+       end if
+ 
+       if (isGridCapture) then
+          call add_fvar(cf, 'lons', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lons', _RC)
+          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC) 
+       end if
+
        if (ungrid_dim_max_size /= 0) then
           deallocate(unique_ungrid_dims)
           deallocate(ungriddim)
@@ -3928,8 +4002,38 @@ module NCIOMod
             _VERIFY(status)
          end if
        end if
-
+       
     enddo
+
+    call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
+    if (isPresent) then
+       call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', value=isGridCapture, _RC)
+    else
+       isGridCapture = .false.
+    end if
+    
+    if (isGridCapture) then
+       call ESMF_GridGet(arrdes%grid, name=fieldname, _RC)
+       lons_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lons', _RC)
+       lats_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lats', _RC)
+
+       call ESMF_GridGetCoord(grid=arrdes%grid, localDE=0, coordDim=1, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=grid_lons, _RC)
+       call ESMF_GridGetCoord(grid=arrdes%grid, localDE=0, coordDim=2, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=grid_lats, _RC)
+
+       call ESMF_FieldGet(lons_field, farrayPtr=lons_field_ptr, _RC)
+       call ESMF_FieldGet(lats_field, farrayPtr=lats_field_ptr, _RC)
+       
+       lons_field_ptr = grid_lons
+       lats_field_ptr = grid_lats
+
+       call ESMF_AttributeSet(lons_field, name="DIMS", value=MAPL_DimsHorzOnly, _RC)
+       call ESMF_AttributeSet(lats_field, name="DIMS", value=MAPL_DimsHorzOnly, _RC)
+
+       call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+       call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+    end if
 
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage(_RC)
@@ -4002,7 +4106,9 @@ module NCIOMod
     logical                            :: isPresent
     character(len=ESMF_MAXSTR)         :: positive
     logical                            :: flip
-
+    logical                            :: is_test_framework, isGridCapture
+    integer :: fieldIsValid
+    type(ESMF_Array) :: array
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
@@ -4052,7 +4158,6 @@ module NCIOMod
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
              _VERIFY(STATUS)
-
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
                 call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
@@ -4065,6 +4170,13 @@ module NCIOMod
              else
                 skipWriting = .true.
              end if
+
+             call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+             if (isPresent) then
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipWriting = .false.
+             end if
+
              if (skipWriting) cycle
              call ESMF_FieldBundleGet(bundle, fieldCount=nBundle, rc=STATUS)
              _VERIFY(STATUS)
@@ -4086,38 +4198,56 @@ module NCIOMod
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
              _VERIFY(STATUS)
+             call ESMF_FieldGet(field,array=array,rc=FieldIsValid)
+             
+             if (fieldIsValid == 0) then
+              
+                skipWriting = .false.
+                if (.not. forceWriteNoRestart_) then
+                   call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                   _VERIFY(STATUS)
+                   if (isPresent) then
+                      call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                      _VERIFY(STATUS)
+                      skipWriting = (RST == MAPL_RestartSkip)
+                   end if
+                else
+                   skipWriting = .true.
+                end if
+                
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+                if (isPresent) then
+                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                   if (is_test_framework) skipWriting = .false.
+                end if
+                
+                if (skipWriting) cycle
 
-             skipWriting = .false.
-             if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                   call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
                    _VERIFY(STATUS)
-                   skipWriting = (RST == MAPL_RestartSkip)
+                   skipWriting = (dna /= 0)
+                endif
+                
+                call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
+                if (isPresent) then
+                   call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
+                   if (is_test_framework) skipWriting = .false.
                 end if
-             else
-                skipWriting = .true.
-             end if
-             if (skipWriting) cycle
 
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
-             _VERIFY(STATUS)
-             if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                if (skipWriting) cycle
+
+                if (flip) then
+                   added_field = create_flipped_field(field,rc=status)
+                   _VERIFY(status)
+                else
+                   added_field = field
+                end if
+                call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
                 _VERIFY(STATUS)
-                skipWriting = (dna /= 0)
-             endif
-             if (skipWriting) cycle
-
-             if (flip) then
-                added_field = create_flipped_field(field,rc=status)
-                _VERIFY(status)
-             else
-                added_field = field
              end if
-             call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
-             _VERIFY(STATUS)
 
           end IF
        END IF
@@ -4128,6 +4258,12 @@ module NCIOMod
     deallocate(ITEMTYPES)
     deallocate(DOIT     )
 
+    call ESMF_AttributeGet(state, name='MAPL_GridCapture', isPresent=isPresent, _RC)
+    if (isPresent) then
+       call ESMF_AttributeGet(state, name='MAPL_GridCapture', value=isGridCapture, _RC)
+       call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
+    end if
+ 
     call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
     _VERIFY(STATUS)
 
