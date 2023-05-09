@@ -2760,7 +2760,7 @@ module NCIOMod
           call formatter%open(filename,pFIO_READ,rc=status)
           _VERIFY(STATUS)
        else
-          if(arrdes%read_restart_by_face) then
+          if(arrdes%read_restart_by_face .and. .not. arrdes%tile) then
              fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
              call formatter%open(trim(fname_by_face),pFIO_READ,comm=arrdes%face_readers_comm,info=info,rc=status)
              _VERIFY(STATUS)
@@ -2851,8 +2851,10 @@ module NCIOMod
      _VERIFY(status)
      file_lon_size = metadata%get_dimension("lon")
      file_lat_size = metadata%get_dimension("lat")
+     if (metadata%has_attribute("Cubed_Sphere_Face_Index")) file_lat_size = file_lat_size*6
      file_lev_size = metadata%get_dimension("lev")
      file_tile_size = metadata%get_dimension("tile")
+
      if (file_tile_size > 0) then
         match = (file_tile_size == grid_dims(1))
      else
@@ -3881,6 +3883,7 @@ module NCIOMod
                 fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
                 call formatter%create_par(trim(fname_by_face),comm=arrdes%face_writers_comm,info=info,rc=status)
                 _VERIFY(status)
+                call cf%add_attribute("Cubed_Sphere_Face_Index", arrdes%face_index, _RC)
              else
                 call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
