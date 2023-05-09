@@ -5921,7 +5921,7 @@ contains
             call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
-               print *,'Using parallel NetCDF for file: ',trim(FILENAME)
+               print *,'Using parallel NetCDF to write file: ',trim(FILENAME)
             end if
          endif
       else
@@ -6129,9 +6129,7 @@ contains
                     inquire(FILE = trim(fname_by_face), EXIST=fexist)
                     FileExists = FileExists .and. fexist
                  enddo
-                 if ( .not. FileExists) then
-                    _VERIFY(-1)
-                 else
+                 if (FileExists) then
                     ! just pick one face to deduce filetype, only in root
                     call MAPL_NCIOGetFileType(trim(fname_by_face),isNC4,rc=status)
                     _VERIFY(status)
@@ -6150,7 +6148,6 @@ contains
 
          call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, rc=status)
          _VERIFY(status)
-
          if (FileExists) then
             !if (AmIRoot) then
             !   call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
@@ -6321,7 +6318,7 @@ contains
             call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
-               print *,'Using parallel NetCDF for file: ',trim(FNAME)
+               print *,'Using parallel NetCDF to read file: ',trim(FNAME)
             end if
          endif
       else
