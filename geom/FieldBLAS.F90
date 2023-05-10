@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_FieldBLAS
+module mapl_FieldBLAS
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
@@ -995,4 +995,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_local_size
 
-end module mapl3g_FieldBLAS
+end module mapl_FieldBLAS

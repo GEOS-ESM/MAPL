@@ -1,0 +1,34 @@
+esma_set_this (OVERRIDE MAPL.regridder_mgr)
+
+set(srcs
+  regridder_mgr.F90
+  RoutehandleSpec.F90
+  RoutehandleSpecVector.F90
+  RoutehandleVector.F90
+  RoutehandleManager.F90
+  
+  RegridderSpec.F90
+  RegridderSpecVector.F90
+  Regridder.F90
+  RegridderVector.F90
+  
+  RegridderFactory.F90
+  RegridderFactoryVector.F90
+
+  RegridderManager.F90
+  )
+
+esma_add_library(${this}
+  SRCS ${srcs}
+  DEPENDENCIES MAPL.geom_mgr MAPL.pfio MAPL.base MAPL.shared MAPL.geom GFTL::gftl-v2
+  TYPE ${MAPL_LIBRARY_TYPE}
+  )
+
+target_include_directories (${this} PUBLIC
+  $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+target_link_libraries (${this} PUBLIC esmf)
+
+if (PFUNIT_FOUND)
+#  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()
+

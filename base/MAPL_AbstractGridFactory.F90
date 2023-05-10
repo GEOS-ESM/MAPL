@@ -869,11 +869,7 @@ contains
       allocate(basis(3,2,im,jm),stat=status)
       _VERIFY(status)
 
-      allocate(corners(im+1,jm+1,2),stat=status)
-      _VERIFY(status)
-
-      call MAPL_GridGetCorners(grid,corners(:,:,1),corners(:,:,2),rc=status)
-      _VERIFY(status)
+      call MAPL_GridGetCorners(grid,corners, _RC)
 
       call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=Xcenters, rc=status)

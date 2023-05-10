@@ -2284,7 +2284,28 @@ contains
 
   !............................................................................
 
-  module subroutine MAPL_GridGetCorners(grid,gridCornerLons, gridCornerLats, RC)
+  module subroutine MAPL_GridGetCorners_alloc(grid, corners, rc)
+    type (ESMF_Grid), intent(INOUT) :: grid
+    real(ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
+    integer, optional, intent(  out) :: rc
+
+    integer :: status
+    integer :: counts(5)
+    integer :: im, jm
+
+    call MAPL_GridGet(grid,localCellCountPerDim=counts, _RC)
+
+    im=counts(1)
+    jm=counts(2)
+ 
+    allocate(corners(im+1,jm+1,2), _STAT)
+    
+    call MAPL_GridGetCorners(grid, corners(:,:,1), corners(:,:,2), _RC)
+    
+    _RETURN(_SUCCESS)
+ end subroutine MAPL_GridGetCorners_alloc
+
+  module subroutine MAPL_GridGetCorners_lons_lats(grid,gridCornerLons, gridCornerLats, RC)
     type (ESMF_Grid), intent(INOUT) :: GRID
     real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLons(:,:)
     real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
@@ -2411,7 +2432,7 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_GridGetCorners
+   end subroutine MAPL_GridGetCorners_lons_lats
 
   !............................................................................
 

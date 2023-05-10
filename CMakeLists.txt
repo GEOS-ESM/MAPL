@@ -203,6 +203,8 @@ add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
 add_subdirectory (geom)
+add_subdirectory (geom_mgr)
+add_subdirectory (regridder_mgr)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)

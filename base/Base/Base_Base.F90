@@ -139,6 +139,11 @@ module MAPL_Base
   end interface MAPL_FieldBundleGet
 
 
+  interface MAPL_GridGetCorners
+     module procedure MAPL_GridGetCorners_alloc
+     module procedure MAPL_GridGetCorners_lons_lats
+  end interface MAPL_GridGetCorners
+
   interface
      module subroutine MAPL_AllocateCoupling(field, rc)
        use ESMF, only: ESMF_Field
@@ -569,14 +574,21 @@ module MAPL_Base
        integer, intent(OUT)         :: I1, IN, J1, JN
      end subroutine MAPL_GRID_INTERIOR
 
-     module subroutine MAPL_GridGetCorners(grid,gridCornerLons, gridCornerLats, RC)
+     module subroutine MAPL_GridGetCorners_alloc(grid, corners, rc)
+        use ESMF, only: ESMF_Grid, ESMF_KIND_R8
+        type (ESMF_Grid), intent(inout) :: grid
+        real(ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
+        integer, optional, intent(  out) :: RC
+     end subroutine MAPL_GridGetCorners_alloc
+
+     module subroutine MAPL_GridGetCorners_lons_lats(grid,gridCornerLons, gridCornerLats, rc)
        use ESMF, only: ESMF_Grid, ESMF_KIND_R8
        type (ESMF_Grid), intent(INOUT) :: GRID
        real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLons(:,:)
        real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
-       integer, optional, intent(  OUT) :: RC
+       integer, optional, intent(  OUT) :: rc
 
-     end subroutine MAPL_GridGetCorners
+    end subroutine MAPL_GridGetCorners_lons_lats
 
      !............................................................................
 
