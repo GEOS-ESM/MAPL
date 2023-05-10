@@ -13,7 +13,7 @@
       character(len=*), intent(in) :: var_name
       _TYPEDECLARE, intent(out) :: values _DIMENSIONS
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: group_name
+      character(len=*), optional, intent(in) :: group_name
 #if _RANK != 0
       integer, optional, intent(in) :: start(:)
       integer, optional, intent(in) :: count(:)
@@ -22,6 +22,7 @@
 
       integer :: status
       integer :: varid
+      integer :: ncid
 
       ncid = this%ncid
       if (present(group_name)) then
