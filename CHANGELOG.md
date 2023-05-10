@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added new option "RUN_AT_INTERVAL_START:" so force component alarms ring at start of the interval, default still to ring at the end
-
 ### Changed
 
 ### Fixed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.38.1] - 2023-05-10
+
+### Added
+
+- Added new option "RUN_AT_INTERVAL_START:" so force component alarms ring at start of the interval, default still to ring at the end
 
 ## [2.38.0] - 2023-05-01
 
