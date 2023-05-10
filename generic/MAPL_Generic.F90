@@ -1369,6 +1369,7 @@ contains
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
+         logical :: run_at_interval_start
          STATE%CLOCK = CLOCK
          call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, _RC)
          call ESMF_TimeIntervalGet(DELT, S=DELTSEC, _RC)
@@ -1389,6 +1390,7 @@ contains
          _ASSERT(MOD(DELTSEC,DTSECS)==0,'needs informative message')
 
          call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, _RC)
+         call MAPL_GetResource( STATE   , run_at_interval_start, Label="RUN_AT_INTERVAL_START:", default=.false., _RC)
 
          _ASSERT(DT /= 0.0,'needs informative message')
 
@@ -1426,7 +1428,7 @@ contains
             ringTime = ringTime - (INT((ringTime - currTime)/TIMEINT)+1)*TIMEINT
          end if
 
-         ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
+         if (.not.run_at_interval_start) ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
          ! we advance the clock AFTER run method
 
          ! make sure that ringTime is not in the past
