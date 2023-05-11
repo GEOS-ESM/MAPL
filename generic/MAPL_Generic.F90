@@ -654,7 +654,6 @@ contains
       type(ESMF_State), pointer :: internal_state
       class(DistributedProfiler), pointer :: m_p
       logical :: is_test_framework, is_test_framework_driver
-      type(ESMF_Info) :: infoh
       !=============================================================================
 
       ! Begin...
