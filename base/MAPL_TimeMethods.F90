@@ -34,6 +34,8 @@ module MAPL_TimeDataMod
   interface timeData
      module procedure new_time_data
   end interface timeData
+
+  public parse_time_string
 contains
 
   function am_i_initialized(this) result(logical_temp)
