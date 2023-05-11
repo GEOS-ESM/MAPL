@@ -6431,10 +6431,6 @@ contains
             call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
             _VERIFY(STATUS)
 
-            call ESMF_InfoGetFromHost(nestState,infoh,RC=STATUS)
-            call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
-            _VERIFY(STATUS)
-
             ! Put the BUNDLE in the state
             ! --------------------------
             call ESMF_StateAdd(STATE, (/nestState/), rc=status)

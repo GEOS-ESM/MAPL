@@ -3084,6 +3084,7 @@ module NCIOMod
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
+                     call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
                      call ESMF_InfoSet(infoh_field,'RESTART',MAPL_RestartBootstrap,rc=status)
                   else
                      restore_export = .false.
