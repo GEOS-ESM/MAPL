@@ -3400,7 +3400,7 @@ module NCIOMod
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
-    type(ESMF_Info) :: infoh
+    type(ESMF_Info) :: infoh, infoh_bundle, infoh_field
     type(ESMF_Field) :: lons_field, lats_field
     logical :: isGridCapture
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
@@ -4279,7 +4279,7 @@ module NCIOMod
                 call ESMF_InfoGetFromHost(state, infoh_state, _RC)
                 isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
                 if (isPresent) then
-                   call ESMF_InfoGet(state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                   call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                    if (is_test_framework) skipWriting = .false.
                 end if
 
@@ -4296,7 +4296,7 @@ module NCIOMod
                 call ESMF_InfoGetFromHost(state, infoh_state, _RC)
                 isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
                 if (isPresent) then
-                   call ESMF_InfoGet(state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                   call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
                    if (is_test_framework) skipWriting = .false.
                 end if
 
