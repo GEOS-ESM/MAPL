@@ -56,6 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added minimal support for NetCDF "groups".    `getvar*` can now optionally specify a `group_name` and the data will be returned from the named group rather than the default group.
+
 - New feature to allow for single component testing as code is refactored
   - Created `Comp_Testing_Driver.F90` in Apps
   - Created `subset_fields.py` to grab a subset of columns
