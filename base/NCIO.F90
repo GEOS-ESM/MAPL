@@ -321,7 +321,6 @@ module NCIOMod
     integer :: size_1d
     type (ESMF_Info)                   :: infoh
 
-
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
@@ -2747,7 +2746,7 @@ module NCIOMod
     type(Netcdf4_Fileformatter)        :: formatter
     type(FileMetaData)                 :: metadata
     character(len=:), allocatable      :: fname_by_face
-    logical :: grid_file_match,flip
+    logical :: grid_file_match,flip, restore_export, isPresent
     type(ESMF_VM) :: vm
     integer :: comm
     type(ESMF_INFO) :: infoh
@@ -2767,7 +2766,7 @@ module NCIOMod
           call formatter%open(filename,pFIO_READ,rc=status)
           _VERIFY(STATUS)
        else
-          if(arrdes%read_restart_by_face) then
+          if(arrdes%read_restart_by_face .and. .not. arrdes%tile) then
              fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
              call formatter%open(trim(fname_by_face),pFIO_READ,comm=arrdes%face_readers_comm,info=info,rc=status)
              _VERIFY(STATUS)
@@ -2820,6 +2819,16 @@ module NCIOMod
          endif
       endif
 
+      restore_export = .false.
+      call ESMF_InfoGetFromHost(bundle, infoh, _RC)
+      isPresent = ESMF_InfoIsPresent(infoh, 'MAPL_RestoreExport', _RC)
+      if (isPresent) then
+         call ESMF_InfoGet(infoh, key='MAPL_RestoreExport', value=restore_export, _RC)
+      end if
+      if (restore_export) then
+         call MAPL_AllocateCoupling(field, _RC)
+      end if
+
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
       if (flip) then
@@ -2860,8 +2869,10 @@ module NCIOMod
      _VERIFY(status)
      file_lon_size = metadata%get_dimension("lon")
      file_lat_size = metadata%get_dimension("lat")
+     if (metadata%has_attribute("Cubed_Sphere_Face_Index")) file_lat_size = file_lat_size*6
      file_lev_size = metadata%get_dimension("lev")
      file_tile_size = metadata%get_dimension("tile")
+
      if (file_tile_size > 0) then
         match = (file_tile_size == grid_dims(1))
      else
@@ -2887,7 +2898,7 @@ module NCIOMod
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
-    type (ESMF_Info)                     :: infoh
+    type (ESMF_Info)                     :: infoh_bundle, infoh_state, infoh_field
     integer                              :: status
     integer                              :: I, K
     integer                              :: J, ITEMCOUNT
@@ -2912,6 +2923,7 @@ module NCIOMod
     integer                            :: dna
     logical                            :: bootstrapable_
     logical                            :: isPresent
+    logical                            :: is_test_framework, restore_export
     character(len=:), allocatable      :: fname_by_face
     ! get a list of variables in the file so we can skip if the
     ! variable in the state is not in the file and it is bootstrapable
@@ -2991,18 +3003,26 @@ module NCIOMod
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+             call ESMF_InfoGetFromHost(bundle,infoh_bundle,rc=status)
              _VERIFY(STATUS)
-             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh_bundle,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
+                call ESMF_InfoGet(infoh_bundle,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip .or.   &
                             RST == MAPL_RestartSkipInitial)
+
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+             if (isPresent) then
+                call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipReading = .false.
+             end if
+
              if (skipReading) cycle
              bootstrapable_ = bootstrapable .and. (RST == MAPL_RestartOptional)
 
@@ -3017,17 +3037,25 @@ module NCIOMod
                _VERIFY(STATUS)
 
                skipReading = .false.
-               call ESMF_InfoGetFromHost(field,infoh,rc=status)
+               call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
                _VERIFY(STATUS)
-               isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
+               isPresent = ESMF_InfoIsPresent(infoh_field,'RESTART',rc=status)
                _VERIFY(STATUS)
                if (isPresent) then
-                  call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
+                  call ESMF_InfoGet(infoh_field,'RESTART',RST,rc=status)
                   _VERIFY(STATUS)
                else
                   RST = MAPL_RestartOptional
                end if
                skipReading = (RST == MAPL_RestartSkip)
+
+               call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+               isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+               if (isPresent) then
+                  call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                  if (is_test_framework) skipReading = .false.
+               end if
+
                if (skipReading) cycle
 
                ind= index(FieldName, '::')
@@ -3056,9 +3084,19 @@ module NCIOMod
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
-                     call ESMF_InfoSet(infoh,'RESTART',MAPL_RestartBootstrap,rc=status)
+                     call ESMF_InfoSet(infoh_field,'RESTART',MAPL_RestartBootstrap,rc=status)
                   else
-                     _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                     restore_export = .false.
+                     call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                     isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_RestoreExport', _RC)
+                     if (isPresent) then
+                        call ESMF_InfoGet(infoh_state, key='MAPL_RestoreExport', value=restore_export, _RC)
+                     end if
+                     if (restore_export) then
+                        if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
+                     else
+                        _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                     end if
                   end if
                end if
 
@@ -3074,25 +3112,41 @@ module NCIOMod
                end if
 
              skipReading = .false.
-             call ESMF_InfoGetFromHost(field,infoh,rc=status)
+             call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
              _VERIFY(STATUS)
-             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh_field,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
+                call ESMF_InfoGet(infoh_field,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
+
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+             if (isPresent) then
+                call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipReading = .false.
+             end if
+
              if (skipReading) cycle
-             isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh_field,'doNotAllocate',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_InfoGet(infoh,'doNotAllocate',DNA,rc=status)
+                call ESMF_InfoGet(infoh_field,'doNotAllocate',DNA,rc=status)
                 _VERIFY(STATUS)
                 skipReading = (DNA /= 0)
              end if
+
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+             if (isPresent) then
+                call ESMF_InfoGet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipReading = .false.
+             end if
+
              if (skipReading) cycle
 
              ! now check if the field is in the list of available fields
@@ -3111,11 +3165,21 @@ module NCIOMod
              else
                 if (bootStrapable .and. (RST == MAPL_RestartOptional)) then
                     call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
-                    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+                    call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
                     _VERIFY(STATUS)
-                    call ESMF_InfoSet(infoh,'RESTART',MAPL_RestartBootstrap,rc=status)
+                    call ESMF_InfoSet(infoh_field,'RESTART',MAPL_RestartBootstrap,rc=status)
                 else
-                    _FAIL( "  Could not find field "//trim(Fieldname)//" in "//trim(filename))
+                   restore_export = .false.
+                   call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                   isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_RestoreExport', _RC)
+                   if (isPresent) then
+                      call ESMF_InfoGet(infoh_state, key='MAPL_RestoreExport', value=restore_export, _RC)
+                   end if
+                   if (restore_export) then
+                      if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
+                   else
+                      _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                   end if
                 end if
              end if
 
@@ -3127,6 +3191,13 @@ module NCIOMod
 
     tile = arrdes%tile
 
+    call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+    isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_RestoreExport', _RC)
+    if (isPresent) then
+       call ESMF_InfoGet(infoh_state, key='MAPL_RestoreExport', value=restore_export, _RC)
+       call ESMF_InfoGetFromHost(bundle_read, infoh_bundle, _RC)
+       call ESMF_InfoSet(infoh_bundle, key="MAPL_RestoreExport", value=restore_export, _RC)
+    end if
     call MAPL_VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
     _VERIFY(STATUS)
 
@@ -3329,6 +3400,9 @@ module NCIOMod
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
     type(ESMF_Info) :: infoh
+    type(ESMF_Field) :: lons_field, lats_field
+    logical :: isGridCapture
+    real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
@@ -3875,6 +3949,19 @@ module NCIOMod
 
        enddo
 
+       call ESMF_InfoGetFromHost(bundle, infoh_bundle, _RC)
+       isPresent = ESMF_InfoIsPresent(infoh_bundle, 'MAPL_GridCapture', _RC)
+       if (isPresent) then
+          call ESMF_InfoGet(infoh_bundle, key='MAPL_GridCapture', value=isGridCapture, _RC)
+       else
+          isGridCapture = .false.
+       end if
+
+       if (isGridCapture) then
+          call add_fvar(cf, 'lons', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lons', _RC)
+          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC)
+       end if
+
        if (ungrid_dim_max_size /= 0) then
           deallocate(unique_ungrid_dims)
           deallocate(ungriddim)
@@ -3914,6 +4001,7 @@ module NCIOMod
                 fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
                 call formatter%create_par(trim(fname_by_face),comm=arrdes%face_writers_comm,info=info,rc=status)
                 _VERIFY(status)
+                call cf%add_attribute("Cubed_Sphere_Face_Index", arrdes%face_index, _RC)
              else
                 call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
@@ -3963,6 +4051,39 @@ module NCIOMod
        end if
 
     enddo
+
+    call ESMF_InfoGetFromHost(bundle, infoh_bundle, _RC)
+    isPresent = ESMF_InfoIsPresent(infoh_bundle, 'MAPL_GridCapture', _RC)
+    if (isPresent) then
+       call ESMF_InfoGet(infoh_bundle, key='MAPL_GridCapture', value=isGridCapture, _RC)
+    else
+       isGridCapture = .false.
+    end if
+
+    if (isGridCapture) then
+       call ESMF_GridGet(arrdes%grid, name=fieldname, _RC)
+       lons_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lons', _RC)
+       lats_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lats', _RC)
+
+       call ESMF_GridGetCoord(grid=arrdes%grid, localDE=0, coordDim=1, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=grid_lons, _RC)
+       call ESMF_GridGetCoord(grid=arrdes%grid, localDE=0, coordDim=2, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=grid_lats, _RC)
+
+       call ESMF_FieldGet(lons_field, farrayPtr=lons_field_ptr, _RC)
+       call ESMF_FieldGet(lats_field, farrayPtr=lats_field_ptr, _RC)
+
+       lons_field_ptr = grid_lons
+       lats_field_ptr = grid_lats
+
+       call ESMF_InfoGetFromHost(lons_field, infoh_field, _RC)
+       call ESMF_InfoSet(infoh_field, key="DIMS", value=MAPL_DimsHorzOnly, _RC)
+       call ESMF_InfoGetFromHost(lats_field, infoh_field, _RC)
+       call ESMF_InfoSet(infoh_field, key="DIMS", value=MAPL_DimsHorzOnly, _RC)
+
+       call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+       call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+    end if
 
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage(_RC)
@@ -4019,7 +4140,7 @@ module NCIOMod
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
-    type (ESMF_Info)                     :: infoh
+    type (ESMF_Info)                     :: infoh_field, infoh_bundle, infoh_state
     integer                              :: status
     integer                              :: I, J, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
@@ -4036,7 +4157,9 @@ module NCIOMod
     logical                            :: isPresent
     character(len=ESMF_MAXSTR)         :: positive
     logical                            :: flip
-
+    logical                            :: is_test_framework, isGridCapture
+    integer :: fieldIsValid
+    type(ESMF_Array) :: array
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
@@ -4072,13 +4195,13 @@ module NCIOMod
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoGetFromHost(state,infoh_state,rc=status)
     _VERIFY(STATUS)
-    call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
+    call ESMF_InfoGet(infoh_state,'POSITIVE',positive,rc=status)
     _VERIFY(status)
-    call ESMF_InfoGetFromHost(bundle_write,infoh,rc=status)
+    call ESMF_InfoGetFromHost(bundle_write,infoh_bundle,rc=status)
     _VERIFY(STATUS)
-    call ESMF_InfoSet(infoh,'POSITIVE',positive,rc=status)
+    call ESMF_InfoSet(infoh_bundle,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     flip = trim(positive)=="up"
 
@@ -4090,21 +4213,28 @@ module NCIOMod
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
              _VERIFY(STATUS)
-
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+                call ESMF_InfoGetFromHost(bundle,infoh_bundle,rc=status)
                 _VERIFY(STATUS)
-                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
+                isPresent = ESMF_InfoIsPresent(infoh_bundle,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
+                   call ESMF_InfoGet(infoh_bundle,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              else
                 skipWriting = .true.
              end if
+
+             call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+             isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+             if (isPresent) then
+                call ESMF_InfoSet(infoh_state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                if (is_test_framework) skipWriting = .false.
+             end if
+
              if (skipWriting) cycle
              call ESMF_FieldBundleGet(bundle, fieldCount=nBundle, rc=STATUS)
              _VERIFY(STATUS)
@@ -4126,41 +4256,60 @@ module NCIOMod
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
              _VERIFY(STATUS)
+             call ESMF_FieldGet(field,array=array,rc=FieldIsValid)
 
-             skipWriting = .false.
+             if (fieldIsValid == 0) then
 
-             call ESMF_InfoGetFromHost(field,infoh,rc=status)
-             _VERIFY(STATUS)
-             if (.not. forceWriteNoRestart_) then
-                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
-                _VERIFY(STATUS)
-                if (isPresent) then
-                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
+                skipWriting = .false.
+                if (.not. forceWriteNoRestart_) then
+                   call ESMF_InfoGetFromHost(field,infoh_field,rc=status)
                    _VERIFY(STATUS)
-                   skipWriting = (RST == MAPL_RestartSkip)
+                   isPresent = ESMF_InfoIsPresent(infoh_field,'RESTART',rc=status)
+                   _VERIFY(STATUS)
+                   if (isPresent) then
+                      call ESMF_InfoGet(infoh_field, key='RESTART', value=RST, rc=status)
+                      _VERIFY(STATUS)
+                      skipWriting = (RST == MAPL_RestartSkip)
+                   end if
+                else
+                   skipWriting = .true.
                 end if
-             else
-                skipWriting = .true.
-             end if
-             if (skipWriting) cycle
 
-             isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
-             _VERIFY(STATUS)
-             if (isPresent) then
-                call ESMF_InfoGet(infoh,'foNotAllocate',dna,rc=status)
+                call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+                if (isPresent) then
+                   call ESMF_InfoGet(state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                   if (is_test_framework) skipWriting = .false.
+                end if
+
+                if (skipWriting) cycle
+
+                call ESMF_InfoGetFromHost(field, infoh_field, _RC)
+                isPresent = ESMF_InfoIsPresent(infoh_field, 'doNotAllocate', _RC)
+                if (isPresent) then
+                   call ESMF_InfoGet(infoh_field, key='doNotAllocate', value=dna, rc=status)
+                   _VERIFY(STATUS)
+                   skipWriting = (dna /= 0)
+                endif
+
+                call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+                isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_TestFramework', _RC)
+                if (isPresent) then
+                   call ESMF_InfoGet(state, key='MAPL_TestFramework', value=is_test_framework, _RC)
+                   if (is_test_framework) skipWriting = .false.
+                end if
+
+                if (skipWriting) cycle
+
+                if (flip) then
+                   added_field = create_flipped_field(field,rc=status)
+                   _VERIFY(status)
+                else
+                   added_field = field
+                end if
+                call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
                 _VERIFY(STATUS)
-                skipWriting = (dna /= 0)
-             endif
-             if (skipWriting) cycle
-
-             if (flip) then
-                added_field = create_flipped_field(field,rc=status)
-                _VERIFY(status)
-             else
-                added_field = field
              end if
-             call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
-             _VERIFY(STATUS)
 
           end IF
        END IF
@@ -4170,6 +4319,14 @@ module NCIOMod
     deallocate(ITEMNAMES)
     deallocate(ITEMTYPES)
     deallocate(DOIT     )
+
+    call ESMF_InfoGetFromHost(state, infoh_state, _RC)
+    isPresent = ESMF_InfoIsPresent(infoh_state, 'MAPL_GridCapture', _RC)
+    if (isPresent) then
+       call ESMF_InfoGet(infoh_state, key='MAPL_GridCapture', value=isGridCapture, _RC)
+       call ESMF_InfoGetFromHost(bundle_write, infoh_bundle, _RC)
+       call ESMF_InfoSet(infoh_bundle, key="MAPL_GridCapture", value=isGridCapture, _RC)
+    end if
 
     call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
     _VERIFY(STATUS)
