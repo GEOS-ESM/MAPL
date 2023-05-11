@@ -654,6 +654,7 @@ contains
       type(ESMF_State), pointer :: internal_state
       class(DistributedProfiler), pointer :: m_p
       logical :: is_test_framework, is_test_framework_driver
+      type(ESMF_Info) :: infoh
       !=============================================================================
 
       ! Begin...
@@ -675,7 +676,8 @@ contains
       call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
       if (comp_name == comp_to_record .and. (is_test_framework .or. is_test_framework_driver)) then
          ! force skipReading and skipWriting in NCIO to be false
-         call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+         call ESMF_InfoGetFromHost(import,infoh,_RC)
+         call ESMF_InfoSet(infoh, key="MAPL_TestFramework", value=.true., _RC)
       end if
 
       ! Start my timer
@@ -1048,6 +1050,7 @@ contains
          type (MAPL_MetaPtr), allocatable :: CHLDMAPL(:)
          type(ESMF_State), pointer :: child_import_state
          type(ESMF_State), pointer :: child_export_state
+         type(ESMF_Info) :: infoh
          integer :: status
 
          ! Initialize the children
@@ -1491,7 +1494,8 @@ contains
             end if
          end if
 
-         call ESMF_AttributeSet(export,'POSITIVE',trim(positive),_RC)
+         call ESMF_InfoGetFromHost(export,infoh,RC=STATUS)
+         call ESMF_InfoSet(infoh,'POSITIVE',trim(positive),_RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine create_export_state_variables
@@ -1724,6 +1728,7 @@ contains
      type (MAPL_MetaComp), pointer :: STATE
      logical :: is_test_framework, is_test_framework_driver
      logical :: is_grid_capture, restore_export
+     type(ESMF_Info) :: infoh
      integer :: status
 
      call MAPL_InternalStateGet (GC, STATE, _RC)
@@ -1731,14 +1736,17 @@ contains
                                       is_grid_capture, restore_export, _RC)
 
      if (method == ESMF_METHOD_INITIALIZE) then
-        call ESMF_AttributeSet(export, name="MAPL_RestoreExport", value=restore_export, _RC)
+        call ESMF_InfoGetFromHost(export,infoh,RC=STATUS)
+        call ESMF_InfoSet(infoh, key="MAPL_RestoreExport", value=restore_export, _RC)
      else if (method == ESMF_METHOD_RUN) then
-        call ESMF_AttributeSet(import, name="MAPL_GridCapture", value=is_grid_capture, _RC)
+        call ESMF_InfoGetFromHost(import,infoh,RC=STATUS)
+        call ESMF_InfoSet(infoh, key="MAPL_GridCapture", value=is_grid_capture, _RC)
         if (is_test_framework) then
            call capture(POS, phase, GC, import, export, clock, _RC)
         else if (is_test_framework_driver) then
            ! force skipReading and skipWriting in NCIO to be false
-           call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+           call ESMF_InfoGetFromHost(import,infoh,RC=STATUS)
+           call ESMF_InfoSet(infoh, key="MAPL_TestFramework", value=.true., _RC)
         end if
      end if
      _RETURN(_SUCCESS)
@@ -1761,6 +1769,7 @@ contains
      integer :: hdr
      type(ESMF_Time) :: start_time, curr_time, target_time
      character(len=1) :: phase_
+     type(ESMF_Info) :: infoh
 
      call ESMF_GridCompGet(GC, NAME=comp_name, _RC)
      call MAPL_InternalStateGet (GC, STATE, _RC)
@@ -1780,7 +1789,8 @@ contains
      if (curr_time == target_time) then
         internal => state%get_internal_state()
         ! force skipReading and skipWriting in NCIO to be false
-        call ESMF_AttributeSet(import, name="MAPL_TestFramework", value=.true., _RC)
+        call ESMF_InfoGetFromHost(import,infoh,RC=STATUS)
+        call ESMF_InfoSet(infoh, key="MAPL_TestFramework", value=.true., _RC)
         write(phase_, '(i1)') phase
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
