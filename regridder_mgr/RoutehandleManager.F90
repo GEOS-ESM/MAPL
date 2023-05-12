@@ -5,13 +5,10 @@ module mapl_RoutehandleManager
    use mapl_RoutehandleSpec
    use mapl_RoutehandleSpecVector
    use mapl_RoutehandleVector
-   use mapl_GeomManager
    use mapl_ErrorHandlingMod
    implicit none
 
    public :: RoutehandleManager
-   public :: routehandle_manager
-   
 
    type :: RoutehandleManager
       private
@@ -23,11 +20,19 @@ module mapl_RoutehandleManager
       procedure :: delete_routehandle
    end type RoutehandleManager
 
-   ! Singleton
-   type(RoutehandleManager) :: routehandle_manager
-   
+   interface RoutehandleManager
+      module procedure :: new_RoutehandleManager
+   end interface RoutehandleManager
+
 contains
 
+   function new_RoutehandleManager() result(mgr)
+      type(RoutehandleManager) :: mgr
+
+      mgr%specs = RoutehandleSpecVector()
+      mgr%routehandles = RoutehandleVector()
+
+   end function new_RoutehandleManager
 
    function get_routehandle(this, spec, rc) result(routehandle)
       type(ESMF_Routehandle) :: routehandle
@@ -37,7 +42,6 @@ contains
 
       integer :: status
 
-      ! Note - find() ignores the rh component of MaplRoutehandle
       associate (b => this%specs%begin(), e => this%specs%end())
         associate ( iter => find(b, e, spec))
           if (iter /= this%specs%end()) then
@@ -66,7 +70,8 @@ contains
           _ASSERT(find(b, e, spec) /= e, "Spec not found in registry.")
       end associate
 
-      routehandle = make_RouteHandle(spec, _RC)
+      routehandle = make_routehandle(spec, _RC)
+
       call this%specs%push_back(spec)
       call this%routehandles%push_back(routehandle)
 

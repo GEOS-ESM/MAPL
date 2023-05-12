@@ -1,29 +1,62 @@
 module mapl_RegridderSpec
+   use esmf
+   use mapl_RegridderParam
+   use mapl_geom_mgr, only: MAPL_SameGeom
    implicit none
    private
 
    public :: RegridderSpec
+   public :: operator(==)
 
-   type, abstract :: RegridderSpec
+   type :: RegridderSpec
       private
-!!$      integer :: grid_id_in
-!!$      integer :: grid_id_out
+      class(RegridderParam), allocatable :: param
+      type(ESMF_Geom) :: geom_in
+      type(ESMF_Geom) :: geom_out
    contains
-      procedure(I_equal_to), deferred :: equal_to
-      generic :: operator(==) => equal_to
-!!$
-!!$      procedure :: set_grid_id_in
-!!$      procedure :: set_grid_id_out
-!!$      procedure :: get_grid_id_in
-!!$      procedure :: get_grid_id_outn
+      procedure :: get_param
+      procedure :: get_geom_in
+      procedure :: get_geom_out
    end type RegridderSpec
 
-   abstract interface
-      logical function I_equal_to(this, other)
-         import RegridderSpec
-         class(RegridderSpec), intent(in) :: this
-         class(RegridderSpec), intent(in) :: other
-      end function I_equal_to
+   interface operator(==)
+      module procedure equal_to
    end interface
 
+contains
+
+   function get_param(this) result(param)
+      class(RegridderParam), allocatable :: param
+      class(RegridderSpec), intent(in) :: this
+      param = this%param
+   end function get_param
+
+   function get_geom_in(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(RegridderSpec), intent(in) :: this
+      geom = this%geom_in
+   end function get_geom_in
+
+   function get_geom_out(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(RegridderSpec), intent(in) :: this
+      geom = this%geom_out
+   end function get_geom_out
+   
+   logical function equal_to(this, other) result(eq)
+      type(RegridderSpec), intent(in) :: this
+      type(RegridderSpec), intent(in) :: other
+
+      eq = this%param == other%param
+      if (.not. eq) return
+
+      eq = MAPL_SameGeom(this%geom_in, other%geom_in)
+      if (.not. eq) return
+
+      eq = MAPL_SameGeom(this%geom_out, other%geom_out)
+      if (.not. eq) return
+      
+   end function equal_to
+
+      
 end module mapl_RegridderSpec

@@ -11,6 +11,7 @@ esma_set_this (OVERRIDE MAPL.geom)
 #  StateSupplement.F90
 #  )
 set(srcs
+  VectorBasis.F90
   FieldBLAS.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
@@ -27,8 +28,7 @@ find_package (PFLOGGER REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-#  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
-  DEPENDENCIES MAPL.shared PFLOGGER::pflogger
+  DEPENDENCIES MAPL.base MAPL.shared
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 #add_subdirectory(specs)

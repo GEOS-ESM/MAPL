@@ -3,7 +3,6 @@ module mapl_RegridderSpecVector
 
 #define T RegridderSpec
 #define T_EQ(a,b) a==b 
-#define T_polymorphic
 #define Vector RegridderSpecVector
 #define VectorIterator RegridderSpecVectorIterator
 #define VectorRIterator RegridderSpecVectorRIterator
@@ -12,7 +11,6 @@ module mapl_RegridderSpecVector
 
 #undef T
 #undef T_EQ
-#undef T_polymorphic
 #undef Vector
 #undef VectorIterator
 #undef VectorRIterator

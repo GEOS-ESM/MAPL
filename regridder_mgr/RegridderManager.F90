@@ -8,7 +8,7 @@ module mapl_RegridderManager
    use mapl_RegridderFactoryVector
    use mapl_RegridderSpecVector
    use mapl_RegridderVector
-!!$   use mapl_EsmfRegridderFactory
+   use mapl_EsmfRegridderFactory
 
    use mapl_ErrorHandlingMod
    implicit none
@@ -36,11 +36,9 @@ contains
       type(RegridderManager) :: mgr
 
       ! Load default factories
-!!$      type(EsmfRegridderFactory) :: esmf_factory
-!!$      type(HorzizontalFluxRegridderFactory) :: horz_flux_factory
 
-!!$      call mgr%add_factory(EsmfRegridderFactory())
-!!$      call mgr%add_factory(HorzFluxRegridderFactory())
+      call mgr%add_factory(EsmfRegridderFactory())
+!!$      call mgr%add_factory(horzHorzFluxRegridderFactory())
 
    end function new_RegridderManager
 
@@ -128,7 +126,7 @@ contains
 
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
-         if (factory%supports(spec)) then
+         if (factory%supports(spec%get_param())) then
             regriddr = factory%make_regridder(spec, _RC)
             _RETURN(_SUCCESS)
          end if

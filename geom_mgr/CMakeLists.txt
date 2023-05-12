@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.geom_mgr)
 set(srcs
   geom_mgr.F90 # package
   GeomUtilities.F90
-  VectorBasis.F90
   
   GeomSpec.F90
   NullGeomSpec.F90

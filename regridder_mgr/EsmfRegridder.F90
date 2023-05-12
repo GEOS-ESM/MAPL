@@ -1,101 +1,172 @@
 #include "MAPL_Generic.h"
 
-module mapl3_EsmfRegridder
-   use mapl_Regridder
+module mapl_EsmfRegridder
+   use mapl_RegridderParam
    use mapl_RegridderSpec
-   use RouteHandleManager
+   use mapl_Regridder
+   use mapl_RoutehandleParam
+   use mapl_RoutehandleManager
+   use mapl_DynamicMask
+   use mapl_ErrorHandlingMod
+   use esmf
    implicit none
    private
 
    public :: EsmfRegridder
-   public :: EsmfRegridderSpec
+   public :: EsmfRegridderParam
 
-   type, extends(RegridderSpec) :: EsmfRegridderSpec
+   type, extends(RegridderParam) :: EsmfRegridderParam
       private
-      type(RouteHandleSpec) :: rh_spec
-      type(ESMF_DynamicMask) :: dynamic_mask
-      logical :: transpose
-   end type EsmfRegridderSpec
+      type(RoutehandleParam) :: routehandle_param
+      type(ESMF_Region_Flag) :: zeroregion
+      type(ESMF_TermOrder_Flag) :: termorder
+      logical :: checkflag
+      type(DynamicMask), allocatable :: dyn_mask
+   contains
+      procedure :: equal_to
+      procedure :: get_routehandle_param
+   end type EsmfRegridderParam
 
    type, extends(Regridder) :: EsmfRegridder
       private
-      type(ESMF_Geom) :: geom_in, geom_out
-      type(ESMF_RegridMethod_Flag) :: method
-
-      ! deferred initialization
-      type(ESMF_RouteHandle) :: routeHandle
-      type(ESMF_DynamicMask) :: dynamic_mask
+      type(ESMF_Routehandle) :: routehandle
+      type(RegridderSpec) :: regridder_spec
    contains
       procedure :: regrid_scalar
-      procedure :: update
-
-      ! Helper methods
-      procedure :: set_dynamic_mask
-
-      final :: destroy
    end type EsmfRegridder
 
-   generic :: EsmfRegridder => new_EsmfRegridder
-   generic :: EsmfRegridder => new_EsmfRegridder_from_spec
+
+   interface EsmfRegridderParam
+      procedure :: new_EsmfRegridderParam_simple
+      procedure :: new_EsmfRegridderParam
+   end interface EsmfRegridderParam
+
+   interface EsmfRegridder
+      procedure :: new_EsmfRegridder
+   end interface EsmfRegridder
    
 contains
 
-   function new_EsmfRegridder(geom_in, geom_out, method, transpose) result(regridder)
-      type(EsmfRegridder) :: regridder
-      type(ESMF_Geom), intent(in) :: geom_in, geom_out
-      type(ESMF_RegridMethod_Flag), intent(in) :: method
+   function new_EsmfRegridderParam_simple(regridmethod, zeroregion, termorder, checkflag, dyn_mask) result(param)
+      type(EsmfRegridderParam) :: param
+      type(ESMF_RegridMethod_Flag), optional, intent(in) :: regridmethod
+      type(ESMF_Region_Flag), optional, intent(in) :: zeroregion
+      type(ESMF_TermOrder_Flag), optional, intent(in) :: termorder
+      logical, optional, intent(in) :: checkflag
+      type(DynamicMask), optional, intent(in) :: dyn_mask
 
-      rh_spec = ...
-      call routehandle_manager%get_routeHandle(rh_spec, _RC)
+      param%routehandle_param = RoutehandleParam(regridmethod=regridmethod)
+      param = EsmfRegridderParam(RoutehandleParam(regridmethod=regridmethod), &
+           zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, dyn_mask=dyn_mask)
+      
+   end function new_EsmfRegridderParam_simple
 
-      regridder%geom_in = geom_in
-      regridder%geom_in = geom_out
-      regridder%method = method
+   function new_EsmfRegridderParam(routehandle_param, zeroregion, termorder, checkflag, dyn_mask) result(param)
+      type(EsmfRegridderParam) :: param
+      type(RoutehandleParam), intent(in) :: routehandle_param
+      type(ESMF_Region_Flag), optional, intent(in) :: zeroregion
+      type(ESMF_TermOrder_Flag), optional, intent(in) :: termorder
+      logical, optional, intent(in) :: checkflag
+      type(DynamicMask), optional, intent(in) :: dyn_mask
+
+      param%routehandle_param = routehandle_param
+
+      param%zeroregion = ESMF_REGION_TOTAL
+      if (present(zeroregion)) param%zeroregion = zeroregion
+
+      if (present(dyn_mask)) then
+         param%dyn_mask = dyn_mask
+         param%termorder = ESMF_TERMORDER_SRCSEQ
+      else
+         param%termorder = ESMF_TERMORDER_FREE
+      end if
+
+      if (present(termorder)) param%termorder = termorder
+
+      param%checkflag = .false.
+      if (present(checkflag)) param%checkflag = checkflag
+      
+   end function new_EsmfRegridderParam
+
+
+   function new_EsmfRegridder(routehandle, regridder_spec) result(regriddr)
+      type(EsmfRegridder) :: regriddr
+      type(ESMF_Routehandle), intent(in) :: routehandle
+      type(RegridderSpec), intent(in) :: regridder_spec
+
+      integer :: status
+
+      regriddr%routehandle = routehandle
+      regriddr%regridder_spec = regridder_spec
 
    end function new_EsmfRegridder
 
-   ! Set route hadle, dynamic mask, etc.
-   subroutine initialize(this, rc)
-
-      call ESMF_FieldRegridStore(...)
-      call this%set_dynamic_mask(_RC)
-      
-      _RETURN(_SUCCESS)
-   end subroutine initialize
-
+ 
    subroutine regrid_scalar(this, f_in, f_out, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
 
-      _ASSERT(FieldsAreConformable(x,y), ...)
+      integer :: status
 
+      select type (q => this%regridder_spec%get_param())
+      type is (EsmfRegridderParam)
+         call regrid_scalar_safe(this%routehandle, q, f_in, f_out, rc)
+      class default
+         _FAIL('Invalid subclass of RegridderParam.')
+      end select
 
-      call this%update_geoms(f_in, f_out, _RC)
-      
-
-      call ESMF_FieldRegrid(src_field=f_in, dst_field=f_out, &
-           routeHandle=this%routeHandle, &
-           ... &
-           )
-      
+      _RETURN(_SUCCESS)
    end subroutine regrid_scalar
 
+   subroutine regrid_scalar_safe(routehandle, param, f_in, f_out, rc)
+      type(ESMF_Routehandle), intent(inout) :: routehandle
+      type(EsmfRegridderParam), intent(in) :: param
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
 
-   subroutine update_geoms(this, f_in, f_out, rc)
-
-      call ESMF_FieldGet(f_in, geom=geom_in, _RC)
-      call ESMF_FieldGet(f_out, geom=geom_out, _RC)
-
-      new_id_in = MAPL_GetId(geom_in, _RC)
-      new_id_out = MAPL_GetId(geom_out, _RC)
-
-      _RETURN_IF( (new_id_in == this%id_in) .and. (new_id_out /= this%id_out ) )
-
-      this%id_in = new_id_in
-      this%id_out = new_id_out
-
-      call ESMF_RouteHandleDestroy(this%route_handle, _RC)
-      call this%create_route_handle(_RC)
+      call ESMF_FieldRegrid(f_in, f_out, &
+           routehandle=routehandle, &
+           dynamicMask=param%dyn_mask%esmf_mask, &
+           termorderflag=param%termorder, &
+           zeroregion=param%zeroregion, &
+           checkflag=param%checkflag, &
+           _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine update_geoms
+   end subroutine regrid_scalar_safe
 
-end module mapl3_EsmfRegridder
+
+   logical function equal_to(this, other)
+      class(EsmfRegridderParam), intent(in) :: this
+      class(RegridderParam), intent(in) :: other
+
+      equal_to = .false.
+
+      select type (q => other)
+      type is (EsmfRegridderParam)
+         if (.not. (this%routehandle_param ==  q%routehandle_param)) return
+         if (.not. this%zeroregion == q%zeroregion) return
+         if (.not. this%termorder == q%termorder) return
+         if (this%checkflag .neqv. q%checkflag) return
+         
+         if (allocated(this%dyn_mask) .neqv. allocated(q%dyn_mask)) return
+         if (this%dyn_mask /= q%dyn_mask) return
+      class default
+         return
+      end select
+
+      equal_to = .true.
+   end function equal_to
+
+
+   function get_routehandle_param(this) result(routehandle_param)
+      class(EsmfRegridderParam), intent(in) :: this
+      type(RoutehandleParam) :: routehandle_param
+
+      routehandle_param = this%routehandle_param
+   end function get_routehandle_param
+
+end module mapl_EsmfRegridder

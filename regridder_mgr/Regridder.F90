@@ -5,6 +5,7 @@ module mapl_Regridder
    use mapl_ErrorHandlingMod
    use mapl_geom_mgr
    use mapl_RegridderSpec
+   use mapl_VectorBasis
    implicit none
    private
 
