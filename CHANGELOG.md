@@ -17,6 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.39.0] - 2023-05-12
+
+### Added
+
+- Added minimal support for NetCDF "groups".    `getvar*` can now optionally specify a `group_name` and the data will be returned from the named group rather than the default group.
+
+- New feature to allow for single component testing as code is refactored
+  - Created `Comp_Testing_Driver.F90` in Apps
+  - Created `subset_fields.py` to grab a subset of columns
+  - Created shell script to perform subsetting, run the driver, and evaluate differences
+  - Instructions for use can be viewed under Apps/Comp_Testing_Info.md
+- Added module to process datetime strings from NetCDF to ESMF\_Time and ESMF\_TimeInterval variables and vice versa
+
+### Fixed
+
+- `READ_RESTART_BY_FACE` has been fixed and now can read restarts from full CS grids as well as restarts that have been separated by face via `WRITE_RESTART_BY_FACE`.    The current implementation requires that both `num_readers` and `num_writers` must be multiple of 6.
+- 'config.py' has been fixed. python3 requires // for integer divides.
+
 ## [2.38.1] - 2023-05-10
 
 ### Added
