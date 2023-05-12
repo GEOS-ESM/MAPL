@@ -16,6 +16,7 @@ set(srcs
   
   Regridder.F90
   RegridderVector.F90
+  NullRegridder.F90
   EsmfRegridder.F90
   
   RegridderFactory.F90

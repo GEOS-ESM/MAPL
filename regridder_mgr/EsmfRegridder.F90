@@ -7,6 +7,7 @@ module mapl_EsmfRegridder
    use mapl_RoutehandleParam
    use mapl_RoutehandleManager
    use mapl_DynamicMask
+   use mapl_NullRegridder
    use mapl_ErrorHandlingMod
    use esmf
    implicit none

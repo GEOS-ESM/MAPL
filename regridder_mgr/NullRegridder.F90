@@ -21,15 +21,16 @@ contains
 
    function new_NullRegridder() result(regriddr)
       type(NullRegridder) :: regriddr
+      
    end function new_NullRegridder
 
-   subroutine regrid_scalar(this, fv_in, fv_out, rc)
-      class(Regridder), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: fv_in, fv_out
+   subroutine regrid_scalar(this, f_in, f_out, rc)
+      class(NullRegridder), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
 
       _FAIL('Null regridder')
    end subroutine regrid_scalar
 
-end module mapl_Regridder
+end module mapl_NullRegridder
       

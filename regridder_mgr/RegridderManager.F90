@@ -3,6 +3,7 @@ module mapl_RegridderManager
 
    use mapl_RegridderSpec
    use mapl_Regridder
+   use mapl_NullRegridder
    use mapl_RegridderFactory
 
    use mapl_RegridderFactoryVector
@@ -124,6 +125,7 @@ contains
       integer :: i
       class(RegridderFactory), pointer :: factory
 
+      regriddr = NULL_REGRIDDER
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          if (factory%supports(spec%get_param())) then

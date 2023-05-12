@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Introduce prototype design for new geom agostig grid manager and regridder manager.
+  User code generally does not directly access these, but ExtData and History (and eventually generic3g) should replace references to the older manager layers in MAPL/base.
+
 ### Changed
 
 ### Fixed

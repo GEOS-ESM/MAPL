@@ -8,6 +8,7 @@ module mapl_EsmfRegridderFactory
    use mapl_EsmfRegridder
    use mapl_RegridderParam
    use mapl_RegridderSpec
+   use mapl_NullRegridder
    use mapl_ErrorHandlingMod
    implicit none
    private
@@ -54,6 +55,7 @@ contains
       integer :: status
       type(ESMF_Routehandle) :: routehandle
 
+      regriddr = NULL_REGRIDDER
       associate (p => spec%get_param())
         select type (p)
         type is (EsmfRegridderParam)
