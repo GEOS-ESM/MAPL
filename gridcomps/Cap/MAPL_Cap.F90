@@ -273,13 +273,22 @@ contains
       integer(kind=INT64) :: start_tick, stop_tick, tick_rate
       integer :: status
       class(Logger), pointer :: lgr
+      logical :: file_exists
 
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
 
-      call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
-      _VERIFY(status)
+      ! Look for a file called "ESMF.rc"
+      inquire(file='ESMF.rc', exist=file_exists)
+
+      ! If the file exists, we pass it into ESMF_Initialize, else, we
+      ! use the one from the command line arguments
+      if (file_exists) then
+         call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, _RC)
+      else
+         call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, _RC)
+      end if
 
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
