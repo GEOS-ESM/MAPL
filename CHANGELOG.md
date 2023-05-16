@@ -12,11 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
-	Fixed the handling of ungridded dims for averaged collections. Wehn the grid rank is 2, the code erroneously assigned vertical dimension to the ungridded dims
 
 ### Removed
 
 ### Deprecated
+
+## [2.39.1] - 2023-05-16
+
+### Fixed
+
+- Fixed the handling of ungridded dims for averaged collections. When the grid rank is 2, the code erroneously assigned vertical dimension to the ungridded dims
 
 ## [2.39.0] - 2023-05-12
 
