@@ -26,6 +26,7 @@ module mapl3g_Generic
    use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_AbstractStateItemSpec
+   use :: mapl3g_VerticalGeom
    use mapl_InternalConstantsMod
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_GeomBase, ESMF_GeomBaseCreate
@@ -68,6 +69,7 @@ module mapl3g_Generic
 !!$   public :: MAPL_GetLayout
 
    public :: MAPL_GridCompSetGeom
+   public :: MAPL_GridCompSetVerticalGeom
 
    interface MAPL_GridCompSetGeom
       module procedure MAPL_GridCompSetGeom
@@ -415,7 +417,20 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine add_internal_spec
 
+   subroutine MAPL_GridCompSetVerticalGeom(gridcomp, vertical_geom, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(VerticalGeom), intent(in) :: vertical_geom
+      integer, optional, intent(out) :: rc
 
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+
+      call outer_meta%set_vertical_geom(vertical_geom)
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_GridCompSetVerticalGeom
 
    subroutine MAPL_GridCompSetGeom(gridcomp, geom, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

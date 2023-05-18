@@ -12,6 +12,8 @@ module mapl3g_FieldSpec
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
    use mapl3g_CopyAction
+   use mapl3g_VerticalGeom
+   use mapl3g_VerticalDimSpec
    use esmf
    use nuopc
 
@@ -25,6 +27,8 @@ module mapl3g_FieldSpec
       private
 
       type(ESMF_GeomBase) :: geom
+      type(VerticalGeom) :: vertical_geom
+      type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
 
@@ -34,7 +38,7 @@ module mapl3g_FieldSpec
       character(:), allocatable :: units
       ! TBD
 !!$      type(FrequencySpec) :: freq_spec
-!!$      class(AbstractFrequencySpec), allocatable :: freq_spec
+!!$      class(AbstractFrequencySpec), allocatable :: freq_spep
 !!$      integer :: halo_width = 0
 
       type(ESMF_Field) :: payload
@@ -63,12 +67,14 @@ module mapl3g_FieldSpec
 contains
 
 
-   function new_FieldSpec_geom(geom, typekind, ungridded_dims, &
+   function new_FieldSpec_geom(geom, vertical_geom, vertical_dim, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
       type(ESMF_GeomBase), intent(in) :: geom
+      type(VerticalGeom), intent(in) :: vertical_geom
+      type(VerticalDimSpec), intent(in) :: vertical_dim
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDimsSpec), intent(in) :: ungridded_dims
 
@@ -78,6 +84,8 @@ contains
       real, optional, intent(in) :: default_value
 
       field_spec%geom = geom
+      field_spec%vertical_geom = vertical_geom
+      field_spec%vertical_dim = vertical_dim
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
 
@@ -168,33 +176,42 @@ contains
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
-      
+      integer, allocatable :: final_lbounds(:),final_ubounds(:)
+      integer :: num_levels, total_ungridded_dims
+
+      num_levels = this%vertical_geom%get_num_levels()
+      if (this%vertical_dim == VERTICAL_DIM_NONE) then
+         allocate(final_lbounds,source=this%ungridded_dims%get_lbounds())
+         allocate(final_ubounds,source=this%ungridded_dims%get_ubounds())
+      else
+         total_ungridded_dims = size(this%ungridded_dims%get_lbounds())
+         allocate(final_lbounds(total_ungridded_dims+1)) 
+         allocate(final_ubounds(total_ungridded_dims+1)) 
+         if (this%vertical_dim == VERTICAL_DIM_CENTER) then
+            final_lbounds(1)=1
+            final_lbounds(2:)=this%ungridded_dims%get_lbounds()
+            final_ubounds(1)=num_levels
+            final_ubounds(2:)=this%ungridded_dims%get_ubounds()
+         else if (this%vertical_dim == VERTICAL_DIM_EDGE) then
+            final_lbounds(1)=0
+            final_lbounds(2:)=this%ungridded_dims%get_lbounds()
+            final_ubounds(1)=num_levels
+            final_ubounds(2:)=this%ungridded_dims%get_ubounds()
+         end if
+      end if
+       
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_GRIDSET) then
 
          call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
-              ungriddedLBound= this%ungridded_dims%get_lbounds(),  &
-              ungriddedUBound= this%ungridded_dims%get_ubounds(),  &
+              ungriddedLBound= final_lbounds,  &
+              ungriddedUBound= final_ubounds,  &
               _RC)
          call ESMF_FieldGet(this%payload, status=fstatus, _RC)
          _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
          if (allocated(this%default_value)) then
-            if (this%typekind == ESMF_TYPEKIND_R4) then
-               block
-                 real(kind=ESMF_KIND_R4), pointer :: x(:,:)
-                 call ESMF_FieldGet(this%payload, farrayptr=x, _RC)
-                 x = this%default_value
-               end block
-            elseif (this%typekind == ESMF_TYPEKIND_R8) then
-               block
-                 real(kind=ESMF_KIND_R8), pointer :: x(:,:)
-                 call ESMF_FieldGet(this%payload, farrayptr=x, _RC)
-                 x = this%default_value
-               end block
-            else
-               _FAIL('unsupported typekind')
-            end if
+            call set_field_default(_RC)
          end if
           
          
@@ -202,6 +219,53 @@ contains
       end if
 
       _RETURN(ESMF_SUCCESS)
+
+      contains
+         subroutine set_field_default(rc)
+            integer, intent(out), optional :: rc
+            real(kind=ESMF_KIND_R4), pointer :: x_r4_1d(:),x_r4_2d(:,:),x_r4_3d(:,:,:),x_r4_4d(:,:,:,:)
+            real(kind=ESMF_KIND_R8), pointer :: x_r8_1d(:),x_r8_2d(:,:),x_r8_3d(:,:,:),x_r8_4d(:,:,:,:)
+            integer :: status, rank
+                
+            call ESMF_FieldGet(this%payload,rank=rank,_RC) 
+            if (this%typekind == ESMF_TYPEKIND_R4) then
+               if (rank == 1) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_1d,_RC)
+                  x_r4_1d = this%default_value   
+               else if (rank == 2) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_2d,_RC)
+                  x_r4_2d = this%default_value   
+               else if (rank == 3) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_3d,_RC)
+                  x_r4_3d = this%default_value   
+               else if (rank == 4) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r4_4d,_RC)
+                  x_r4_4d = this%default_value   
+               else
+                  _FAIL('unsupported rank')
+               end if
+            else if (this%typekind == ESMF_TYPEKIND_R8) then
+               if (rank == 1) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_1d,_RC)
+                  x_r8_1d = this%default_value   
+               else if (rank == 2) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_2d,_RC)
+                  x_r8_2d = this%default_value   
+               else if (rank == 3) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_3d,_RC)
+                  x_r8_3d = this%default_value   
+               else if (rank == 4) then
+                  call ESMF_FieldGet(this%payload,farrayptr=x_r8_4d,_RC)
+                  x_r8_4d = this%default_value   
+               else
+                  _FAIL('unsupported rank')
+               end if
+            else
+               _FAIL('unsupported typekind')
+            end if
+            _RETURN(ESMF_SUCCESS)
+         end subroutine set_field_default
+            
    end subroutine allocate
 
 

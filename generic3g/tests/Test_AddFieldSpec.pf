@@ -3,10 +3,11 @@ module Test_AddFieldSpec
    use mapl3g_UngriddedDimsSpec, only: UngriddedDimsSpec
    use mapl3g_FieldSpec, only: FieldSpec
    use mapl3g_StateSpec, only: StateSpec
-   use mapl3g_VerticalDimSpec, only: VERTICAL_DIM_CENTER
+   use mapl3g_VerticalDimSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_VerticalGeom
    use ESMF
    implicit none
 
@@ -18,9 +19,11 @@ contains
    subroutine test_add_one_field()
       type(StateSpec) :: state_spec
       type(ESMF_GeomBase) :: geom
+      type(VerticalGeom) :: vertical_geom
+      type(VerticalDimSpec) :: vertical_dim_spec
 
       call state_spec%add_item('A', &
-                 FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown'))
+                 FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown'))
 
    end subroutine test_add_one_field
    
@@ -38,8 +41,10 @@ contains
 
       type(FieldSpec) :: field_spec
       type(ESMF_GeomBase) :: geom
+      type(VerticalGeom) :: vertical_geom
+      type(VerticalDimSpec) :: vertical_dim_spec
 
-      field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown')
+      field_spec = FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', 'unknown')
       call state_spec%add_item('A', field_spec)
 
       ! Different name/key
@@ -61,6 +66,8 @@ contains
 
       type(ESMF_Grid) :: grid
       type(ESMF_GeomBase) :: geom
+      type(VerticalGeom) :: vertical_geom
+      type(VerticalDimSpec) :: vertical_dim_spec
       type(ESMF_Info) :: info
       type(ESMF_State) :: state
       type(MultiState) :: multi_state
@@ -73,7 +80,8 @@ contains
       call ESMF_InfoGetFromHost(grid, info, rc=status)
       call ESMF_InfoSet(info, '/MAPL/GEOM/VERTICAL', 'CENTER', rc=status)
       geom = ESMF_GeomBaseCreate(grid, ESMF_STAGGERLOC_INVALID)
-      field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', '')
+      vertical_dim_spec = VERTICAL_DIM_CENTER
+      field_spec = FieldSpec(geom, vertical_geom, vertical_dim_spec, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', '')
       call field_spec%create(rc=status)
       call field_spec%allocate(rc=status)
 

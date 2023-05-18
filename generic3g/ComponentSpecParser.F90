@@ -12,6 +12,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VariableSpecVector
    use mapl3g_ConnectionSpec
    use mapl3g_ConnectionSpecVector
+   use mapl3g_VerticalDimSpec
    use yaFyaml
    use esmf
    implicit none
@@ -88,6 +89,7 @@ contains
          class(YAML_Node), pointer :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
+         type(VerticalDimSpec) :: vertical_dim_spec
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -101,12 +103,15 @@ contains
 
             call val_to_float(default_value, attributes, 'default_value', _RC)
 
+            call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
+
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
                  units=to_string(attributes%of('units')), &
                  typekind=typekind, &
                  substate=substate, &
-                 default_value=default_value &
+                 default_value=default_value, &
+                 vertical_dim_spec = vertical_dim_spec &
                  )
             call var_specs%push_back(var_spec)
             call iter%next()
@@ -176,6 +181,35 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine to_typekind
+
+      subroutine to_VerticalDimSpec(vertical_dim_spec, attributes, rc)
+         type(VerticalDimSpec) :: vertical_dim_spec
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: vertical_str
+
+         vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
+         
+         if (.not. attributes%has('vertical_dim_spec')) then
+            _RETURN(_SUCCESS)
+         end if
+         call attributes%get(vertical_str, 'vertical_dim_spec', _RC)
+
+         select case (vertical_str)
+         case ('vertical_dim_none')
+            vertical_dim_spec = VERTICAL_DIM_NONE
+         case ('vertical_dim_center')
+            vertical_dim_spec = VERTICAL_DIM_CENTER
+         case ('vertical_dim_edge')
+            vertical_dim_spec = VERTICAL_DIM_EDGE
+         case default
+            _FAIL('Unsupported typekind')
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine to_VerticalDimSpec
 
    end function process_var_specs
 
