@@ -9,6 +9,7 @@ module Test_SimpleParentGridComp
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_MultiState
+   use mapl3g_VerticalGeom
    use mapl_KeywordEnforcer
    use esmf
    use nuopc
@@ -34,6 +35,7 @@ contains
       type(Parser) :: p
       type(GenericConfig) :: config
       integer :: i
+      type(VerticalGeom) :: vertical_geom
 
       rc = 0
       call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', _RC)
@@ -47,6 +49,8 @@ contains
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
+      vertical_geom = VerticalGeom(4)
+      call MAPL_GridCompSetVerticalGeom(outer_gc, vertical_geom, _RC)
 
       associate (import => states%importState, export => states%exportState)
         import = ESMF_StateCreate(_RC)

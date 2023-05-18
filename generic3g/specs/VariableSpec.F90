@@ -9,6 +9,7 @@ module mapl3g_VariableSpec
    use mapl3g_FieldSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
+   use mapl3g_VerticalGeom
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
    use esmf
@@ -57,7 +58,7 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        state_item, units, substate, typekind, default_value) result(var_spec)
+        state_item, units, substate, typekind, vertical_dim_spec, default_value) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -68,6 +69,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
       real, optional, intent(in) :: default_value
 
       var_spec%state_intent = state_intent
@@ -76,7 +78,7 @@ contains
 #if defined(_SET_OPTIONAL)
 #  undef _SET_OPTIONAL
 #endif
-#define _SET_OPTIONAL(attr) if (present(attr)) var_spec% attr = attr
+#define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(state_item)
@@ -84,6 +86,7 @@ contains
       _SET_OPTIONAL(substate)
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(default_value)
+      _SET_OPTIONAL(vertical_dim_spec)
 
    end function new_VariableSpec
 
@@ -152,10 +155,11 @@ contains
    ! This implementation ensures that an object is at least created
    ! even if failures are encountered.  This is necessary for
    ! robust error handling upstream.
-   function make_ItemSpec(this, geom, rc) result(item_spec)
+   function make_ItemSpec(this, geom, vertical_geom, rc) result(item_spec)
       class(AbstractStateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_GeomBase), intent(in) :: geom
+      type(VerticalGeom), intent(in) :: vertical_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -163,7 +167,7 @@ contains
       select case (this%state_item%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
-         item_spec = this%make_FieldSpec(geom, _RC)
+         item_spec = this%make_FieldSpec(geom, vertical_geom,  _RC)
 !!$      case (MAPL_STATEITEM_FIELDBUNDLE)
 !!$         allocate(FieldBundleSpec::item_spec)
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
@@ -177,10 +181,11 @@ contains
    end function make_ItemSpec
 
    
-   function make_FieldSpec(this, geom, rc) result(field_spec)
+   function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
       type(ESMF_GeomBase), intent(in) :: geom
+      type(VerticalGeom), intent(in) :: vertical_geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -192,7 +197,7 @@ contains
 
       units = get_units(this, _RC)
 
-      field_spec = new_FieldSpec_geom(geom=geom, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
+      field_spec = new_FieldSpec_geom(geom=geom, vertical_geom = vertical_geom, vertical_dim = this%vertical_dim_spec, typekind=this%typekind, ungridded_dims=this%ungridded_dims, &
            standard_name=this%standard_name, long_name=' ', units=units, default_value=this%default_value)
 
       _RETURN(_SUCCESS)

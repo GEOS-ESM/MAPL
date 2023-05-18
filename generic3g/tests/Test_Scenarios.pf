@@ -16,6 +16,7 @@ module Test_Scenarios
    use mapl3g_GenericGridComp
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
+   use mapl3g_VerticalGeom
    use esmf
    use nuopc
    use yafyaml
@@ -106,7 +107,8 @@ contains
       params = [params, add_params('field exists', check_field_exists)]
       params = [params, add_params('field exists', check_field_status)]
       params = [params, add_params('field exists', check_field_typekind)]
-      params = [params, add_params('field exists', check_field_value)]
+      !params = [params, add_params('field exists', check_field_value)]
+      params = [params, add_params('field exists', check_field_rank)]
       
    contains
 
@@ -120,7 +122,8 @@ contains
               ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_field), &
               ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_field), &
               ScenarioDescription('history_1',               'cap.yaml',         check_name, check_field), &
-              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field) &
+              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field), &
+              ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_field)  &
       ]
       end function add_params
    end function get_parameters
@@ -137,6 +140,7 @@ contains
       integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
+      type(VerticalGeom) :: vertical_geom
 
       p = Parser()
 
@@ -149,12 +153,14 @@ contains
       @assert_that(status, is(0))
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
- 
+
         outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
         call ESMF_GridCompSetServices(outer_gc, setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
         grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
         call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
+        vertical_geom = VerticalGeom(4)
+        call MAPL_GridCompSetVerticalGeom(outer_gc,vertical_geom,_RC)
 
         importState = ESMF_StateCreate(_RC)
         exportState = ESMF_StateCreate(_RC)
@@ -211,20 +217,20 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
-!!$
-!!$      components: do i = 1, this%expectations%size()
-!!$
-!!$         comp_expectations => this%expectations%of(i)
-!!$
-!!$         call comp_expectations%get(comp_path, 'component', _RC)
-!!$         call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
-!!$
-!!$         call check_items_in_state('import', _RC)
-!!$         call check_items_in_state('export', _RC)
-!!$         call check_items_in_state('internal', _RC)
-!!$            
-!!$      end do components
-!!$
+
+      components: do i = 1, this%expectations%size()
+
+         comp_expectations => this%expectations%of(i)
+
+         call comp_expectations%get(comp_path, 'component', _RC)
+         call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
+
+         call check_items_in_state('import', _RC)
+         call check_items_in_state('export', _RC)
+         call check_items_in_state('internal', _RC)
+            
+      end do components
+
    contains
 
      subroutine check_items_in_state(state_intent, rc)
@@ -397,6 +403,31 @@ contains
       rc = 0
    end subroutine check_field_value
 
+   subroutine check_field_rank(expectations, field, description, rc)
+      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_Field), intent(inout) :: field
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      integer :: expected_field_rank
+      integer :: rank
+      integer :: status
+      character(len=:), allocatable :: msg
+
+      msg = description
+
+      if (.not. expectations%has('rank')) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      call expectations%get(expected_field_rank, 'rank', _RC)
+      
+      call ESMF_FieldGet(field, rank=rank, _RC)
+      @assert_that(rank == expected_field_rank, is(true()))
+
+      rc = 0
+   end subroutine check_field_rank
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)

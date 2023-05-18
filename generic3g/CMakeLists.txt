@@ -34,6 +34,8 @@ set(srcs
   MAPL_Generic.F90
   Validation.F90
 
+  VerticalGeom.F90
+
   # ComponentSpecBuilder.F90
 
   ESMF_Utilities.F90
