@@ -34,12 +34,6 @@ module mapl3g_UngriddedDimSpec
       module procedure not_equal_to
    end interface operator(/=)
 
-   enum, bind(c)
-      enumerator :: V_STAGGER_LOC_NONE = 1
-      enumerator :: V_STAGGER_LOC_CENTER
-      enumerator :: V_STAGGER_LOC_EDGE
-   end enum
-
    character(*), parameter :: UNKNOWN_DIM_NAME = 'NONE'
    character(*), parameter :: UNKNOWN_DIM_UNITS = 'NONE'
    

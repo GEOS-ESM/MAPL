@@ -58,7 +58,7 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        state_item, units, substate, typekind, vertical_dim_spec, default_value) result(var_spec)
+        state_item, units, substate, typekind, vertical_dim_spec, ungridded_dims, default_value) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -70,6 +70,7 @@ contains
       character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
+      type(UngriddedDimsSpec), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
 
       var_spec%state_intent = state_intent
@@ -87,6 +88,7 @@ contains
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(vertical_dim_spec)
+      _SET_OPTIONAL(ungridded_dims)
 
    end function new_VariableSpec
 
