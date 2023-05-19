@@ -21,108 +21,137 @@ contains
 
    end subroutine set_up
 
+   function make_units_string(units, preposition, yy, mm, dd, h, m, s) result(units_string)
+      character(len=*), intent(in) :: units
+      character(len=*), intent(in) :: preposition
+      integer, intent(in) :: yy, mm, dd, h, m, s
+      character(len=32) :: units_string
+
+      character, parameter :: D = '-'
+      character, parameter :: T = ':'
+      character(len=*), parameter :: I2 = ', I2.2'
+      character(len=*), parameter :: OA = '(A' // ', 1X, A, 1X'
+      character(len=*), parameter :: YMD = ', I4.4'// D // I2 // D // I2
+      character(len=*), parameter :: HMS = ', 1X' // I2 // T // I2 // T // I2 // ')'
+!      character(len=*), parameter :: fmt_string = OA // YMD // HMS
+      integer :: status
+
+      character(len=*), parameter :: fmt_string = '(A, 1X, A, 1X, I4.4, "-", I2.2, "-", I2.2, 1X, I2.2, ":", I2.2, ":", I2.2)'
+      write(units_string, fmt=fmt_string, iostat=status) trim(units), trim(preposition), yy, mm, dd, h, m, s
+      if(status == 0) return
+
+      units_string = ''
+
+   end function make_units_string
+
+   logical function ESMF_Times_Equal(timeu, timev)
+      type(ESMF_Time), intent(in) :: timeu, timev
+      ESMF_Times_Equal = (timeu == timev)
+   end function ESMF_Times_Equal
+
    @Test
    subroutine test_convert_NetCDF_DateTime_to_ESMF()
       character(len=*), parameter :: expected_tunit = 'seconds'
       integer, parameter :: int_time = 1800
       character(len=*), parameter :: units_string = expected_tunit // ' since 2012-08-26 12:36:37'
-      character(len=*), parameter :: t0_iso_string = '2012-08-26T12:36:37'
-      character(len=*), parameter :: t1_iso_string = '2012-08-26T13:06:37'
+      character(len=*), parameter :: start_time_iso_string = '2012-08-26T12:36:37'
+      character(len=*), parameter :: time_iso_string = '2012-08-26T13:06:37'
       type(ESMF_TimeInterval) :: expected_interval
-      type(ESMF_Time) :: expected_time0
-      type(ESMF_Time) :: expected_time1
+      type(ESMF_Time) :: expected_start_time
+      type(ESMF_Time) :: expected_time
 
       type(ESMF_TimeInterval) :: interval
-      type(ESMF_Time) :: time0
-      type(ESMF_Time) :: time1
+      type(ESMF_Time) :: start_time
+      type(ESMF_Time) :: time
       character(len=:), allocatable :: tunit
       integer :: rc, status
 
-      call ESMF_TimeSet(expected_time0, timeString=t0_iso_string, _RC)
-      call ESMF_TimeSet(expected_time1, timeString=t1_iso_string, _RC)
-      call ESMF_TimeIntervalSet(expected_interval, startTime=expected_time0, s=int_time, _RC)
+      call ESMF_TimeSet(expected_start_time, timeString=start_time_iso_string, _RC)
+      call ESMF_TimeSet(expected_time, timeString=time_iso_string, _RC)
+      call ESMF_TimeIntervalSet(expected_interval, startTime=expected_start_time, s=int_time, _RC)
 
-      call convert_NetCDF_DateTime_to_ESMF(int_time, units_string, interval, time0, time1=time1, tunit=tunit, _RC)
-      @assertTrue(expected_time0 == time0, 'Mismatch for time0')
-      @assertTrue(expected_time1 == time1, 'Mismatch for time1')
+      call convert_NetCDF_DateTime_to_ESMF(int_time, units_string, interval, start_time, time=time, tunit=tunit, _RC)
+      @assertTrue(expected_start_time == start_time, 'Mismatch for start_time')
+      @assertTrue(expected_time == time, 'Mismatch for time')
       @assertTrue(expected_interval == interval, 'Mismatch for interval')
       
    end subroutine test_convert_NetCDF_DateTime_to_ESMF
 
    @Test
    subroutine test_convert_ESMF_to_NetCDF_DateTime()
-      character(len=*), parameter :: tunit = 'seconds'
-      character(len=*), parameter :: t0_iso_string = '2013-08-26T12:34:56'
-      type(ESMF_Time) :: t0
-      character(len=*), parameter :: t1_iso_string = '2013-08-26T13:04:56'
-      type(ESMF_Time) :: t1
+      character(len=*), parameter :: units = 'seconds'
+      character(len=*), parameter :: start_time_iso_string = '2013-08-26T12:34:56'
+      type(ESMF_Time) :: start_time
+      character(len=*), parameter :: time_iso_string = '2013-08-26T13:04:56'
+      type(ESMF_Time) :: time
       type(ESMF_TimeInterval) :: interval
-      integer, parameter :: span = 1800
-      character(len=*), parameter :: expected_units_string = tunit // ' since 2013-08-26 12:34:56'
-      integer, parameter :: expected_int_time = span
-      integer :: int_time
+      integer, parameter :: expected_duration = 1800
+      character(len=*), parameter :: expected_units_string = units // ' since 2013-08-26 12:34:56'
+      integer :: duration
       character(len=:), allocatable :: units_string
       integer :: rc, status
 
-      call ESMF_TimeSet(t0, t0_iso_string, _RC)
-      call ESMF_TimeSet(t1, t1_iso_string, _RC)
-      call ESMF_TimeIntervalSet(interval, startTime=t0, s=span, _RC)
+      call ESMF_TimeSet(start_time, start_time_iso_string, _RC)
+      call ESMF_TimeSet(time, time_iso_string, _RC)
+      call ESMF_TimeIntervalSet(interval, startTime=start_time, s=expected_duration, _RC)
 
-      call convert_ESMF_to_NetCDF_DateTime(tunit, t0, int_time, units_string, t1=t1, _RC)
-      @assertEqual(expected_int_time, int_time, 'Using t1, expected_int_time /= int_time')
-      @assertEqual(expected_units_string, units_string, 'Using t1, expected_units_strin g/= units_string')
+      call convert_ESMF_to_NetCDF_DateTime(units, start_time, duration, units_string, time=time, _RC)
+      @assertEqual(expected_duration, duration, 'Using time, expected_duration /= duration')
+      @assertEqual(expected_units_string, units_string, 'Using time, expected_units_strin g/= units_string')
 
-      call convert_ESMF_to_NetCDF_DateTime(tunit, t0, int_time, units_string, interval=interval, _RC)
-      @assertEqual(expected_int_time, int_time, 'Using interval, expected_int_time /= int_time')
+      call convert_ESMF_to_NetCDF_DateTime(units, start_time, duration, units_string, interval=interval, _RC)
+      @assertEqual(expected_duration, duration, 'Using interval, expected_duration /= duration')
       @assertEqual(expected_units_string, units_string, 'Using interval, expected_units_strin g/= units_string')
 
    end subroutine test_convert_ESMF_to_NetCDF_DateTime
 
    @Test
    subroutine test_make_ESMF_TimeInterval()
-      character(len=*), parameter :: tunit = 'seconds'
+      character(len=*), parameter :: units = 'seconds'
       character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
-      integer, parameter :: span = 1800
+      integer, parameter :: duration = 1800
       type(ESMF_TimeInterval) :: expected_interval
-      type(ESMF_Time) :: t0
+      type(ESMF_Time) :: start_time
       type(ESMF_TimeInterval) :: interval
       integer :: rc, status
 
-      call ESMF_TimeSet(t0, iso_string, _RC)
-      call ESMF_TimeIntervalSet(expected_interval, startTime=t0, s=span, _RC)
-      call make_ESMF_TimeInterval(span, tunit, t0, interval, _RC)
+      call ESMF_TimeSet(start_time, iso_string, _RC)
+      call ESMF_TimeIntervalSet(expected_interval, startTime=start_time, s=duration, _RC)
+      call make_ESMF_TimeInterval(duration, units, start_time, interval, _RC)
       @assertTrue(expected_interval == interval, 'ESMF_TimeInterval variables do not match.')
 
    end subroutine test_make_ESMF_TimeInterval
 
    @Test
-   subroutine test_make_NetCDF_DateTime_int_time()
+   subroutine test_make_NetCDF_DateTime_duration()
       character(len=*), parameter :: tunit = 'seconds'
       character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
       type(ESMF_TimeInterval) :: interval
-      type(ESMF_Time) :: t0
+      type(ESMF_Time) :: start_time
       integer, parameter :: expected_int_time = 1800
       integer :: int_time
       integer :: status, rc
 
-      call ESMF_TimeSet(t0, iso_string, _RC)
-      call ESMF_TimeIntervalSet(interval, startTime=t0, s=expected_int_time, _RC)
+      call ESMF_TimeSet(start_time, iso_string, _RC)
+      call ESMF_TimeIntervalSet(interval, startTime=start_time, s=expected_int_time, _RC)
 
-      call make_NetCDF_DateTime_int_time(interval, t0, tunit, int_time, _RC)
+      call make_NetCDF_DateTime_duration(interval, start_time, tunit, int_time, _RC)
       @assertEqual(expected_int_time, int_time, 'int_time does not match.') 
 
-   end subroutine test_make_NetCDF_DateTime_int_time
+   end subroutine test_make_NetCDF_DateTime_duration
 
    @Test
    subroutine test_make_NetCDF_DateTime_units_string()
-      type(ESMF_Time) :: t0
+      type(ESMF_Time) :: start_time
       character(len=*), parameter :: tunit = 'seconds'
       character(len=*), parameter :: expected = tunit // ' since 2012-08-26 08:36:37'
       character(len=:), allocatable :: actual
-      integer :: status, rc
+      integer :: status
 
-      call ESMF_TimeSet(t0, yy=2012, mm=08, dd=26, h=08, m=36, s=37, _RC)
-      call make_NetCDF_DateTime_units_string(t0, tunit, actual, _RC)
+      call ESMF_TimeSet(start_time, yy=2012, mm=08, dd=26, h=08, m=36, s=37, rc=status)
+      @assertEqual(status, 0, 'Failed to set ESMF_Time')
+      call make_NetCDF_DateTime_units_string(start_time, tunit, actual, rc=status)
+      @assertEqual(0, status, 'Failed to make units_string')
       @assertEqual(expected, actual, 'Strings don''t match: ' // expected // '/=' // actual)
    end subroutine test_make_NetCDF_DateTime_units_string
 
@@ -178,13 +207,6 @@ contains
       @assertFalse(is_time_unit('year'))
 
    end subroutine test_is_time_unit
-
-!   @Test
-   subroutine test_lr_trim()
-      @assertEqual('word', lr_trim(' word'))
-      @assertEqual('word', lr_trim('word '))
-      @assertEqual('word', lr_trim(' word '))
-   end subroutine test_lr_trim
 
 !   @test
    subroutine test_get_shift_sign()
@@ -272,5 +294,86 @@ contains
       @assertEqual(expected, actual, 'Incorrect conversion: ' // str)
 
    end subroutine test_convert_to_integer
+
+!   @test
+   subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_integer()
+      character, parameter :: D = '-'
+      character, parameter :: T = ':'
+      character(len=*), parameter :: I2 = ', I2.2'
+      character(len=*), parameter :: OA = '(A' // ', 1X, A, 1X'
+      character(len=*), parameter :: YMD = ', I4.4'// D // I2 // D // I2
+      character(len=*), parameter :: HMS = ', 1X' // I2 // T // I2 // T // I2 // ')'
+      character(len=*), parameter :: fmt_string = OA // YMD // HMS
+
+      integer :: duration
+      integer :: yy, mm, dd, h, m, s
+      character(len=:), allocatable :: units
+      character(len=:), allocatable :: preposition
+      character(len=32) :: units_string
+      type(ESMF_Time) :: time, esmf_time
+      integer :: status
+
+      duration=1800
+      yy = 1999
+      mm = 12
+      dd = 31
+      h = 23
+      m = 59
+      s = 59
+      units = 'seconds'
+      preposition = 'since'
+
+      units_string = make_units_string(units, preposition, yy, mm, dd, h, m, s)
+      @assertTrue(len_trim(units_string) > 0, 'Failed to make units_string')
+
+      call ESMF_TimeSet(esmf_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
+      @assertEqual(0, status, 'Unable to create expected ESMF_Time')
+
+      call convert_NetCDF_DateTime_to_ESMF_Time(duration, units_string, time, rc = status)
+      @assertEqual(0, status, 'Conversion failed')
+      
+      @assertTrue(ESMF_Times_Equal(esmf_time, time), 'ESMF_Times''s don''t match.')
+
+   end subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_integer
+
+!   @test
+   subroutine test_get_NetCDF_duration_from_ESMF_Time_integer()
+      type(ESMF_Time) :: time
+      character(len=:), allocatable :: units_string
+      integer :: duration, expected_duration
+      character(len=:), allocatable :: units
+      character(len=:), allocatable :: preposition
+      integer :: yy, mm, dd, h, m, s
+      integer :: status
+
+      expected_duration=1800
+      yy = 1999
+      mm = 12
+      dd = 31
+      h = 23
+      m = 29
+      s = 59
+      units = 'seconds'
+      preposition = 'since'
+
+      units_string = make_units_string(units, preposition, yy, mm, dd, h, m, s)
+      @assertTrue(len_trim(units_string) > 0, 'Failed to make units_string')
+
+      call ESMF_TimeSet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc = status)
+      @assertEqual(0, status, 'Failed to create time')
+
+      call get_NetCDF_duration_from_ESMF_Time(time, units_string, duration, rc=status)
+      @assertEqual(0, status, 'Failed to create time')
+      @assertEqual(expected_duration, duration, 'Expected duration does not match expected duration.')
+
+   end subroutine test_get_NetCDF_duration_from_ESMF_Time_integer
+
+!   @test
+   subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time_integer()
+   end subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time_integer
+
+!   @test
+   subroutine test_make_ESMF_TimeInterval_integer()
+   end subroutine test_make_ESMF_TimeInterval_integer
 
 end module test_MAPL_NetCDF
