@@ -298,7 +298,8 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          can_connect_to = all ([ &
-              this%ungridded_dims == src_spec%ungridded_dims &
+              this%ungridded_dims == src_spec%ungridded_dims, &
+              this%vertical_dim == src_spec%vertical_dim &
 !!$              this%vm == sourc%vm, &
 !!$              can_convert_units(this, src_spec) &
               ])

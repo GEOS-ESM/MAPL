@@ -13,6 +13,8 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ConnectionSpec
    use mapl3g_ConnectionSpecVector
    use mapl3g_VerticalDimSpec
+   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDimSpec
    use yaFyaml
    use esmf
    implicit none
@@ -90,6 +92,7 @@ contains
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
          type(VerticalDimSpec) :: vertical_dim_spec
+         type(UngriddedDimsSpec) :: ungridded_dims_spec
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -105,13 +108,16 @@ contains
 
             call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
 
+            call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
+
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
                  units=to_string(attributes%of('units')), &
                  typekind=typekind, &
                  substate=substate, &
                  default_value=default_value, &
-                 vertical_dim_spec = vertical_dim_spec &
+                 vertical_dim_spec = vertical_dim_spec, &
+                 ungridded_dims = ungridded_dims_spec &
                  )
             call var_specs%push_back(var_spec)
             call iter%next()
@@ -210,6 +216,32 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine to_VerticalDimSpec
+
+      subroutine to_UngriddedDimsSpec(ungridded_dims_spec,attributes,rc)
+         type(UngriddedDimsSpec) :: ungridded_dims_spec
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         class(YAML_Node), pointer :: dim_specs, dim_spec
+         character(len=:), allocatable :: dim_name
+         integer :: dim_size,i
+         type(UngriddedDimSpec) :: temp_dim_spec
+
+         if (.not.attributes%has('ungridded_dim_specs')) then
+            _RETURN(_SUCCESS)
+         end if
+         dim_specs => attributes%of('ungridded_dim_specs')
+         do i=1,dim_specs%size()
+            dim_spec => dim_specs%of(i) 
+            call dim_spec%get(dim_name,'dim_name',_RC)
+            call dim_spec%get(dim_size,'extent',_RC)            
+            temp_dim_spec = UngriddedDimSpec(dim_size)
+            call ungridded_dims_spec%add_dim_spec(temp_dim_spec,_RC)
+         end do 
+
+         _RETURN(_SUCCESS)
+      end subroutine to_UngriddedDimsSpec
 
    end function process_var_specs
 
