@@ -133,13 +133,14 @@
   type HISTORY_ExchangeListWrap
      type(HISTORY_ExchangeListType), pointer :: PTR
   end type HISTORY_ExchangeListWrap
-
+  
   integer, parameter :: MAPL_G2G = 1
   integer, parameter :: MAPL_T2G = 2
   integer, parameter :: MAPL_T2G2G = 3
 
   public HISTORY_ExchangeListWrap
 
+  type(samplerHQ) :: Hsampler
   include "mpif.h"
 
 contains
@@ -609,8 +610,13 @@ contains
                 end if
                 call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
                 call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
+             end if             
+             if (trim(grid_type)/='Swath') then
+                output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+             else
+                Hsampler = samplerHQ(clock, _RC)
+                output_grid = Hsampler%create_grid(grid_type, config, prefix=key//'.', currTime, _RC)
              end if
-             output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
           end do
@@ -2374,6 +2380,12 @@ ENDDO PARSER
              collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
+          !
+          ! ygyu
+          !
+          list(n)%sampler = Hsampler%create_sampler(list(n)%regrid_method, list(n)%bundle, _RC)
+          call list(n)%sampler%CreateFileMetaData
+
        end if
    end do
 
@@ -3581,6 +3593,16 @@ ENDDO PARSER
    deallocate(filename)
    deallocate(Writing)
    deallocate(Ignore)
+
+   
+   epoch_swath_grid_case: do n=1,nlist
+      if (trim(list(n)%output_grid_label)=='swathGrid') then
+         call Hsamlper%regrid_accumulate_on_xysubset(list(n)%sampler)
+         call Hsamlper%write_2_oserver(list(n)%sampler)   ! at epoch_alarm
+      endif
+   end do epoch_swath_grid_case
+   call Hsampler%destroy_regen_rh_ogrid         ! at epoch_alarm
+
 
    _RETURN(ESMF_SUCCESS)
  end subroutine Run
