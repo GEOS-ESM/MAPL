@@ -2383,7 +2383,7 @@ ENDDO PARSER
           !
           ! ygyu
           !
-          list(n)%sampler = Hsampler%create_sampler(list(n)%regrid_method, list(n)%bundle, _RC)
+          list(n)%sampler = Hsampler%create_sampler(list(n)%regrid_method, list(n)%bundle, vdata=list(n)%vdata,  _RC)
           call list(n)%sampler%CreateFileMetaData
 
        end if

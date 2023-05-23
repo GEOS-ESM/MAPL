@@ -1226,20 +1226,28 @@ contains
       type (Variable) :: v
       real(kind=REAL64), allocatable :: temp_coords(:)
 
+      character(len=ESMF_MAXSTR) :: key_lon
+      character(len=ESMF_MAXSTR) :: key_lat
+      character(len=ESMF_MAXSTR) :: key_time
+      
+      key_lon='cell_across_swath'
+      key_lat='cell_along_swath'
+      key_time='time'
+      
       ! Horizontal grid dimensions
-      call metadata%add_dimension('lon', this%im_world)
-      call metadata%add_dimension('lat', this%jm_world)
+      call metadata%add_dimension(key_lon, this%im_world)
+      call metadata%add_dimension(key_lat, this%jm_world)
 
       ! Coordinate variables
-      v = Variable(type=PFIO_REAL64, dimensions='lon,lat')
+      v = Variable(type=PFIO_REAL64, dimensions=trim(key_lon)//','//trim(key_lat))
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
-      call metadata%add_variable('lons', v)
+      call metadata%add_variable(key_lon, v)
 
-      v = Variable(type=PFIO_REAL64, dimensions='lon,lat')
+      v = Variable(type=PFIO_REAL64, dimensions=trim(key_lat)//','//trim(key_lat))
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
-      call metadata%add_variable('lats', v)
+      call metadata%add_variable(key_lat, v)
 
    end subroutine append_metadata
 
@@ -1250,7 +1258,16 @@ contains
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'lon,lat'   ! yaml, config, -->
+      character(len=ESMF_MAXSTR) :: key_lon
+      character(len=ESMF_MAXSTR) :: key_lat
+      character(len=ESMF_MAXSTR) :: key_time
+      
+      key_lon='cell_across_swath'
+      key_lat='cell_along_swath'
+      key_time='time'
+      
+!      vars = 'lon,lat'   ! yaml, config, -->
+      vars = trim(key_lon)//"'"//trim(key_lat)
 !      'atrack,xtrack'
 
    end function get_grid_vars

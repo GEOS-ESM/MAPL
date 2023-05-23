@@ -37,8 +37,15 @@ module MAPL_EpochSwathMod
      type(ESMF_FieldBundle)  :: input_bundle
      type(ESMF_FieldBundle)  :: output_bundle     
      type(ESMF_FieldBundle)  :: bundle_acc
+     type(ESMF_grid) :: input_grid
+     type(ESMF_grid) :: output_grid     
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
+     type(FileMetaData)      :: metadata
+     integer, allocatable :: chunking(:)
+
+     procedure :: set_default_chunking
+     procedure :: check_chunking
   end type sampler
 
   type :: epoch
@@ -46,7 +53,6 @@ module MAPL_EpochSwathMod
      type(ESMF_TimeInterval) :: timeStep
      integer                 :: xy_subset(2,2)
      type(ESMF_FieldBundle)  :: bundle_acc
-     type(FileMetaData)      :: metadata
      character(len=ESMF_MAXSTR) :: grid_type
      type(ESMF_grid) :: ogrid     
      type (ESMF_Config) :: config_grid
@@ -116,6 +122,41 @@ contains
   end function new_samplerHQ
 
 
+  function create_epoch_sampler (this, regrid_method, input_bundle, items, vdata, rc) result(sp)
+    type(samplerHQ), intent(inout)  :: this
+    integer, intent(in) :: regrid_method
+    type(ESMF_bundle), intent(in) :: input_bundle
+    type(sampler), intent(out) :: sp
+    type(GriddedIOitemVector), intent(in) :: items
+    type(VerticalData), intent(in), optional :: vdata
+    integer, intent(out), optional :: rc
+
+    integer :: status
+    type(ESMF_grid) :: input_grid
+
+    sp%input_bundle = input_bundle
+    sp%regrid_method = regrid_method
+    sp%items = items    
+
+    if (present(vdata)) then
+       sp%vdata=vdata
+    else
+       sp%vdata=VerticalData(_RC)
+    end if
+    
+    call ESMF_FieldBundleGet(input_bundle,grid=input_grid,rc=status)
+    sp%input_grid = input_grid
+    sp%output_grid = this%ogrid
+    sp%output_bundle = ESMF_FieldBundleCreate(_RC)
+    call ESMF_FieldBundleSet(sp%output_bundle,grid=sp%output_grid, _RC)
+    sp%bundle_acc = ESMF_FieldBundleCreate(_RC)
+    call ESMF_FieldBundleSet(sp%bundle_acc,grid=this%output_grid, _RC)
+
+    sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%ogrid,regrid_method,_RC)
+    
+  end function create_epoch_sampler
+  
+
   !!  function create_grid(this, grid_type, config_grid, key, currTime, _RC)  result(orgid)
   function gen_ogrid(this, grid_type, key, currTime, rc)  result(ogrid)  
     type(samplerHQ), intent(inout)  :: this
@@ -136,28 +177,6 @@ contains
     this%ptr%ogrid = ogrid
   end subroutine gen_ogrid
 
-
-  function create_epoch_sampler (this, regrid_method, input_bundle, items, vdata, rc) result(mysampler)
-    type(samplerHQ), intent(inout)  :: this
-    integer, intent(in) :: regrid_method
-    type(ESMF_bundle), intent(in) :: input_bundle
-    type(sampler), intent(out) :: mysampler
-    type(GriddedIOitemVector), intent(in) :: items
-    type(VerticalData), intent(in), optional :: vdata
-    integer, intent(out), optional :: rc
-
-    integer :: status
-    type(ESMF_grid) :: input_grid
-
-    mysampler%input_bundle = input_bundle
-    mysampler%regrid_method = regrid_method
-    mysampler%items = items    
-    if(present(vdata)) mysampler%vdata = vdata
-    
-    call ESMF_FieldBundleGet(input_bundle,grid=input_grid,rc=status)
-    mysampler%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%ogrid,regrid_method,_RC)
-    
-  end function create_epoch_sampler
 
 
      
@@ -439,4 +458,158 @@ contains
   end subroutine interp_accumulate_fields
 
 
+
+  subroutine CreateFileMetaData(this,new_output_bundle,rc)
+        class (sampler), intent(inout) :: this
+          integer, intent(out), optional :: rc
+
+        type(ESMF_Grid) :: input_grid
+        class (AbstractGridFactory), pointer :: factory
+
+        type(GriddedIOitemVectorIterator) :: iter
+        type(GriddedIOitem), pointer :: item
+        type(stringVector) :: order
+        integer :: metadataVarsSize
+        type(StringStringMapIterator) :: s_iter
+        character(len=:), pointer :: attr_name, attr_val
+        integer :: status
+
+        
+        factory => get_factory(this%output_grid,_RC)
+        call factory%append_metadata(this%metadata)
+
+        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
+        _VERIFY(status)
+        this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
+        _VERIFY(status)
+
+        !!call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
+        !!_VERIFY(status)
+
+        iter = this%items%begin()
+        if (.not.allocated(this%chunking)) then
+           call this%set_default_chunking(rc=status)
+           _VERIFY(status)
+        else
+           call this%check_chunking(this%vdata%lm,_RC)
+        end if
+
+        order = this%metadata%get_order(rc=status)
+        _VERIFY(status)
+        metadataVarsSize = order%size()
+
+        do while (iter /= this%items%end())
+           item => iter%get()
+           if (item%itemType == ItemTypeScalar) then
+              call this%CreateVariable_default(item%xname,rc=status)
+              _VERIFY(status)
+           else if (item%itemType == ItemTypeVector) then
+              call this%CreateVariable_default(item%xname,rc=status)
+              _VERIFY(status)
+              call this%CreateVariable_default(item%yname,rc=status)
+              _VERIFY(status)
+           end if
+           call iter%next()
+        enddo
+
+
+        ! Add newFields to new bundle
+        if (present(new_output_bundle)) then
+           write(6,*) 'ck inside if (present(new_output_bundle))'
+           iter = this%items%begin()
+           do while (iter /= this%items%end())
+              item => iter%get()
+              if (item%itemType == ItemTypeScalar) then
+                 call this%CreateVariable_newbundle(item%xname,new_output_bundle,_RC)
+              else if (item%itemType == ItemTypeVector) then
+                 call this%CreateVariable_newbundle(item%xname,new_output_bundle,_RC)
+                 call this%CreateVariable_newbundle(item%yname,new_output_bundle,_RC)
+              end if
+              call iter%next()
+           enddo
+        endif
+           
+        
+        _RETURN(_SUCCESS)
+
+     end subroutine CreateFileMetaData
+     
+     
+     subroutine set_default_chunking(this,rc)
+       class (sampler), intent(inout) :: this
+       integer, optional, intent(out) :: rc
+
+       integer ::  global_dim(3)
+       integer :: status
+
+       call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+       _VERIFY(status)
+       if (global_dim(1)*6 == global_dim(2)) then
+          allocate(this%chunking(5))
+          this%chunking(1) = global_dim(1)
+          this%chunking(2) = global_dim(1)
+          this%chunking(3) = 1
+          this%chunking(4) = 1
+          this%chunking(5) = 1
+       else
+          allocate(this%chunking(4))
+          this%chunking(1) = global_dim(1)
+          this%chunking(2) = global_dim(2)
+          this%chunking(3) = 1
+          this%chunking(4) = 1
+       endif
+       _RETURN(ESMF_SUCCESS)
+
+     end subroutine set_default_chunking
+
+
+     subroutine check_chunking(this,lev_size,rc)
+        class (sampler), intent(inout) :: this
+        integer, intent(in) :: lev_size
+        integer, optional, intent(out) :: rc
+
+        integer ::  global_dim(3)
+        integer :: status
+        character(len=5) :: c1,c2
+
+        call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+        _VERIFY(status)
+        if (global_dim(1)*6 == global_dim(2)) then
+           write(c2,'(I5)')global_dim(1)
+           write(c1,'(I5)')this%chunking(1)
+           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for Xdim "//c1//" must be less than or equal to "//c2)
+           write(c1,'(I5)')this%chunking(2)
+           _ASSERT(this%chunking(2) <= global_dim(1), "Chunk for Ydim "//c1//" must be less than or equal to "//c2)
+           _ASSERT(this%chunking(3) <= 6, "Chunksize for face dimension must be 6 or less")
+           if (lev_size > 0) then
+              write(c2,'(I5)')lev_size
+              write(c1,'(I5)')this%chunking(4)
+              _ASSERT(this%chunking(4) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+           end if
+           _ASSERT(this%chunking(5) == 1, "Time must have chunk size of 1")
+        else
+           write(c2,'(I5)')global_dim(1)
+           write(c1,'(I5)')this%chunking(1)
+           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for lon "//c1//" must be less than or equal to "//c2)
+           write(c2,'(I5)')global_dim(2)
+           write(c1,'(I5)')this%chunking(2)
+           _ASSERT(this%chunking(2) <= global_dim(2), "Chunk for lat "//c1//" must be less than or equal to "//c2)
+           if (lev_size > 0) then
+              write(c2,'(I5)')lev_size
+              write(c1,'(I5)')this%chunking(3)
+              _ASSERT(this%chunking(3) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+           end if
+           _ASSERT(this%chunking(4) == 1, "Time must have chunk size of 1")
+        endif
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine check_chunking
+
+
+     
+
+     
+     
 end module MAPL_EpochSwathMod
+
