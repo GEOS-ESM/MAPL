@@ -1039,16 +1039,16 @@ contains
    ! This procedure should only be called for time dependent grids.
    ! A default implementation is to fail for other grid types, so we do not 
    ! have to explicitly add methods to all of the existing subclasses.  
-   subroutine I_get_subset(this, interval, subset, rc)
+   subroutine get_subset(this, interval, subset, rc)
       class(AbstractGridFactory), intent(in) :: this
-      type(ESMF_Time), intent(in) :: interval
+      type(ESMF_Time), intent(in) :: interval(2)
       integer, intent(out) :: subset(2,2)
       integer, optional, intent(out) :: rc
          
       integer :: status
       
       _RETURN(_FAILURE)
-   end subroutine I_get_subset
+    end subroutine get_subset
 
    ! Probably don't need to do anything more for subclasses unless they have
    ! other objects that don't finalize well.  (NetCDF, ESMF, MPI, ...)
