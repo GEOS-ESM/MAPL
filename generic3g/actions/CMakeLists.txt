@@ -4,6 +4,6 @@ target_sources(MAPL.generic3g PRIVATE
   ExtensionVector.F90
 
   ExtensionAction.F90
-  ActionSequence.F90
+  ActionVector.F90
   CopyAction.F90
 )

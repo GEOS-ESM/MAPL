@@ -72,7 +72,6 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-
       call append_message(gc, 'wasFinal')
       
       _RETURN(ESMF_SUCCESS)

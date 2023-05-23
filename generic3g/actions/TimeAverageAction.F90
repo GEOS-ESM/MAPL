@@ -59,6 +59,9 @@ contains
          if (this%counter < this%spec%period) then
             this%f_out = MAPL_UNDEF
          else
+           this%f_out = WhereField(cond=this%denominator/=0, &
+                 where=this%f_sum/this%denominator, &
+                 elsewhere=FIELD_MAPL_UNDEF_R4, _RC) 
             where (this%denominator /= 0)
                this%f_out = this%f_sum / this%denominator
             elsewhere
