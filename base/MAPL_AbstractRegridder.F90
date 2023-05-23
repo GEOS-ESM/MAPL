@@ -92,6 +92,8 @@ module MAPL_AbstractRegridderMod
       procedure :: has_undef_value
       procedure :: get_regrid_method
 
+      ! Final
+      procedure :: destroy
    end type AbstractRegridder
 
 
@@ -1005,5 +1007,12 @@ contains
       class (AbstractRegridder), intent(in) :: this
       method = this%spec%regrid_method
    end function get_regrid_method
+
+   subroutine destroy(this, rc)
+      class(AbstractRegridder), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
 
 end module MAPL_AbstractRegridderMod

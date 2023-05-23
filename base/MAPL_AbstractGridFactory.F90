@@ -82,6 +82,9 @@ module MAPL_AbstractGridFactoryMod
       procedure(get_file_format_vars), deferred :: get_file_format_vars
       procedure(decomps_are_equal), deferred :: decomps_are_equal
       procedure(physical_params_are_equal), deferred :: physical_params_are_equal
+
+      procedure :: get_subset
+      procedure :: destroy
    end type AbstractGridFactory
 
    abstract interface
@@ -237,6 +240,7 @@ module MAPL_AbstractGridFactoryMod
          real, pointer, intent(in) :: fpointer(:,:,:)
          type(FileMetadata), intent(in), optional :: metaData
       end function generate_file_reference3D
+
 
    end interface
 
@@ -1031,5 +1035,32 @@ contains
       end if
 
    end function get_grid
+
+   ! This procedure should only be called for time dependent grids.
+   ! A default implementation is to fail for other grid types, so we do not 
+   ! have to explicitly add methods to all of the existing subclasses.  
+   subroutine I_get_subset(this, interval, subset, rc)
+      class(AbstractGridFactory), intent(in) :: this
+      type(ESMF_Time), intent(in) :: interval
+      integer, intent(out) :: subset(2,2)
+      integer, optional, intent(out) :: rc
+         
+      integer :: status
       
+      _RETURN(_FAILURE)
+   end subroutine I_get_subset
+
+   ! Probably don't need to do anything more for subclasses unless they have
+   ! other objects that don't finalize well.  (NetCDF, ESMF, MPI, ...)
+   subroutine destroy(this, rc)
+      class(AbstractGridFactory), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      call ESMF_GridDestroy(this%grid, noGarbage=.true., _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
 end module MAPL_AbstractGridFactoryMod
