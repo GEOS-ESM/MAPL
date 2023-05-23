@@ -121,6 +121,7 @@ contains
       use MAPL_LlcGridFactoryMod, only: LlcGridFactory
       use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
       use MAPL_XYGridFactoryMod, only: XYGridFactory
+      use MAPL_SwathGridFactoryMod, only : SwathGridFactory
 
       class (GridManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -133,7 +134,8 @@ contains
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
       type (XYGridFactory) :: xy_factory
- 
+      type (SwathGridFactory) :: swath_factory
+      
       ! This is a local variable to prevent the subroutine from running
       ! initialiazation twice. Calling functions have their own local variables
       ! to prevent calling this subroutine twice, but the initialization status
@@ -151,6 +153,7 @@ contains
          call this%prototypes%insert('llc',  llc_factory)
          call this%prototypes%insert('External', external_factory)
          call this%prototypes%insert('XY', xy_factory)
+         call this%prototypes%insert('Swath', swath_factory)         
          initialized = .true. 
       end if
 

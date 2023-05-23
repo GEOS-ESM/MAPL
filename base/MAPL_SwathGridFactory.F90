@@ -15,12 +15,13 @@ module MAPL_SwathGridFactoryMod
    use MAPL_ShmemMod
    use mapl_ErrorHandlingMod
    use MAPL_Constants
+   use MAPL_plain_netCDF_Time
 !   use MAPL_FileMetadataUtilsMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
    use netcdf
-   use MAPL_plain_netCDF_Time
+   !!use MAPL_plain_netCDF_Time
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -1256,11 +1257,10 @@ contains
       class (SwathGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
-      _UNUSED_DUMMY(this)
-
       character(len=ESMF_MAXSTR) :: key_lon
       character(len=ESMF_MAXSTR) :: key_lat
       character(len=ESMF_MAXSTR) :: key_time
+      _UNUSED_DUMMY(this)
       
       key_lon='cell_across_swath'
       key_lat='cell_along_swath'

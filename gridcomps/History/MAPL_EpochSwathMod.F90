@@ -3,30 +3,48 @@ module MAPL_EpochSwathMod
   use ESMF
   use MAPL_ErrorHandlingMod
   use netcdf
-  use MAPL_CommsMod
-  use mapl_MaplGrid, only : MAPL_GridGet
-  use MAPL_Base, only : MAPL_GetHorzIJIndex, MAPL_GetGlobalHorzIJIndex
-  use pFIO_NetCDF4_FileFormatterMod
-  use MAPL_GridManagerMod   
+!  use MAPL_CommsMod
+!  use mapl_MaplGrid, only : MAPL_GridGet
+!  use MAPL_Base, only : MAPL_GetHorzIJIndex, MAPL_GetGlobalHorzIJIndex
+!  use pFIO_NetCDF4_FileFormatterMod
+!  use MAPL_GridManagerMod   
+!  use MAPL_GriddedIOMod
+!  use mapl_RegridMethods
+!  use MAPL_GriddedIOitemVectorMod
+!  use MAPL_VerticalDataMod
 
+  use ESMFL_Mod
+  use MAPL_AbstractGridFactoryMod
+  use MAPL_AbstractRegridderMod
+  use MAPL_GridManagerMod
+  use MAPL_BaseMod
+  use MAPL_NewRegridderManager
+  use MAPL_RegridMethods
+  use MAPL_TimeDataMod
+  use MAPL_VerticalDataMod
+  use MAPL_Constants
+  use pFIO
+  use MAPL_GriddedIOItemVectorMod
+  use MAPL_GriddedIOItemMod
+  use MAPL_GriddedIOMod
+  use MAPL_ExceptionHandling
+  use pFIO_ClientManagerMod
+  use MAPL_DataCollectionMod
+  use MAPL_DataCollectionManagerMod
+  use gFTL_StringVector
+  use gFTL_StringStringMap
+  use MAPL_FileMetadataUtilsMod
+  use MAPL_DownbitMod
+  use, intrinsic :: ISO_C_BINDING
+  use, intrinsic :: iso_fortran_env, only: REAL64
+  use ieee_arithmetic, only: isnan => ieee_is_nan
+  use  MAPL_SwathGridFactoryMod
+  
   implicit none
   private
 
   public :: generic_sampler
 
-
-  !____ Using generic epoch
-  !
-  !!  type :: time_n_alarm
-  !!     type(ESMF_Clock)         :: clock
-  !!     type(ESMF_Alarm)         :: alarm
-  !!     type(ESMF_Time)          :: RingTime
-  !!     type(ESMF_TimeInterval)  :: Frequency
-  !!  end type time_n_alarm
-
-
-
-  !
   !__ clct_sampler for each collection
   !
   type :: sampler
@@ -43,7 +61,7 @@ module MAPL_EpochSwathMod
      type(VerticalData) :: vdata
      type(FileMetaData)      :: metadata
      integer, allocatable :: chunking(:)
-
+   contains
      procedure :: set_default_chunking
      procedure :: check_chunking
   end type sampler
@@ -65,9 +83,10 @@ module MAPL_EpochSwathMod
      type(ESMF_Alarm)         :: alarm
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: Frequency_epoch
-     type(ESMF_config) :: conf_grid_save
+     type(ESMF_config) :: config_grid_save
      type(ESMF_grid) :: ogrid
-
+     character(len=ESMF_MAXSTR) :: grid_type
+     
    contains
      procedure ::  init => init_epoch
      procedure ::  create_sampler => create_epoch_sampler
@@ -114,10 +133,9 @@ contains
     call hms_2_s (time_integer, sec, _RC)
     call ESMF_TimeIntervalSet(frequency_epoch, s=second, _RC)
     hq%frequency_epoch = frequency_epoch
-    hq%RingTime_epoch  = currTime
+    hq%RingTime  = currTime
     hq%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency_epoch, &
-         RingTime=hq%RingTime_epoch, sticky=.false., _RC )
-    hq%ptr => epoch_new
+         RingTime=hq%RingTime, sticky=.false., _RC )
 
   end function new_samplerHQ
 
@@ -125,7 +143,7 @@ contains
   function create_epoch_sampler (this, regrid_method, input_bundle, items, vdata, rc) result(sp)
     type(samplerHQ), intent(inout)  :: this
     integer, intent(in) :: regrid_method
-    type(ESMF_bundle), intent(in) :: input_bundle
+    type(ESMF_FieldBundle), intent(in) :: input_bundle
     type(sampler), intent(out) :: sp
     type(GriddedIOitemVector), intent(in) :: items
     type(VerticalData), intent(in), optional :: vdata
@@ -150,9 +168,9 @@ contains
     sp%output_bundle = ESMF_FieldBundleCreate(_RC)
     call ESMF_FieldBundleSet(sp%output_bundle,grid=sp%output_grid, _RC)
     sp%bundle_acc = ESMF_FieldBundleCreate(_RC)
-    call ESMF_FieldBundleSet(sp%bundle_acc,grid=this%output_grid, _RC)
+    call ESMF_FieldBundleSet(sp%bundle_acc,grid=sp%output_grid, _RC)
 
-    sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%ogrid,regrid_method,_RC)
+    sp%regrid_handle => new_regridder_manager%make_regridder(sp%input_grid,sp%output_grid,regrid_method,_RC)
     
   end function create_epoch_sampler
   
@@ -169,17 +187,14 @@ contains
     character(len=ESMF_MAXSTR) :: time_string
     integer :: status
 
-    this%ptr%grid_type = trim(grid_type)
+    this%grid_type = trim(grid_type)
     config_grid = this%config_grid_save
     call ESMF_TimeSet(currTime, time_string, _RC)
     call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
     ogrid = grid_manager%make_grid(config_grid, prefix=key//'.', _RC )
-    this%ptr%ogrid = ogrid
-  end subroutine gen_ogrid
+    this%ogrid = ogrid
+  end function gen_ogrid
 
-
-
-     
   
 !  subroutine gen_regrid_RH (this, bundle_in, rc)
 !    type(sampler), intent(inout)  :: this
@@ -202,12 +217,21 @@ contains
     !bundle_in, bundle_out, RH, rc)
     type(samplerHQ), intent(inout)  :: this
     type(sampler), intent(inout)  :: sp
-
+    integer, intent(out), optional :: rc
     
+    class(AbstractGridFactory), pointer :: factory    
     integer                        :: xy_subset(2,2)
     type(ESMF_Time)                :: timeset(2)
+    type(ESMF_Time) :: current_time
+    type(ESMF_TimeInterval) :: dur
 
+!    type (ESMF_FieldBundle), intent(in)  :: bundle_in
+!    type (ESMF_FieldBundle), intent(out) :: bundle_out
 
+    character(len=ESMF_MAXSTR) :: time_string
+    integer :: status
+
+    
     ! __ s1.  get xy_subset
 
     factory => grid_manager%get_factory(this%ogrid,_RC)
@@ -219,21 +243,6 @@ contains
     write(6,*) 'xy_subset(:,1)_x', xy_subset(:,1)    ! LB
     write(6,*) 'xy_subset(:,2)_a', xy_subset(:,2), xy_subset(2,2)-xy_subset(1,2)+1  ! UB
 
-    
-
-
-    type (ESMF_Bundle), intent(in)  :: bundle_in
-    type (ESMF_Bundle), intent(out) :: bundle_out
-
-
-    character(len=:), intent(in) :: grid_type
-    character(len=:), intent(in) :: key
-    type(ESMF_Time), intent(in) :: currTime
-    integer, intent(out), optional :: rc
-
-
-    character(len=ESMF_MAXSTR) :: time_string
-    integer :: status
   end subroutine regrid_accumulate_on_xysubset
 
 
