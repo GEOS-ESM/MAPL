@@ -211,20 +211,20 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
-!!$
-!!$      components: do i = 1, this%expectations%size()
-!!$
-!!$         comp_expectations => this%expectations%of(i)
-!!$
-!!$         call comp_expectations%get(comp_path, 'component', _RC)
-!!$         call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
-!!$
-!!$         call check_items_in_state('import', _RC)
-!!$         call check_items_in_state('export', _RC)
-!!$         call check_items_in_state('internal', _RC)
-!!$            
-!!$      end do components
-!!$
+
+      components: do i = 1, this%expectations%size()
+
+         comp_expectations => this%expectations%of(i)
+
+         call comp_expectations%get(comp_path, 'component', _RC)
+         call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
+
+         call check_items_in_state('import', _RC)
+         call check_items_in_state('export', _RC)
+         call check_items_in_state('internal', _RC)
+            
+      end do components
+
    contains
 
      subroutine check_items_in_state(state_intent, rc)
