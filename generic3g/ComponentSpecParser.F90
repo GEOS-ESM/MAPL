@@ -12,6 +12,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VariableSpecVector
    use mapl3g_ConnectionSpec
    use mapl3g_ConnectionSpecVector
+   use mapl3g_Stateitem
    use yaFyaml
    use esmf
    implicit none
@@ -88,6 +89,9 @@ contains
          class(YAML_Node), pointer :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
+         character(:), allocatable :: standard_name
+         character(:), allocatable :: units
+         type(ESMF_StateItem_Flag), allocatable :: state_item
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -96,18 +100,28 @@ contains
             attributes => iter%second()
 
             call split(name, short_name, substate)
-
             call to_typekind(typekind, attributes, _RC)
-
             call val_to_float(default_value, attributes, 'default_value', _RC)
 
+            if (attributes%has('standard_name')) then
+               standard_name = to_string(attributes%of('standard_name'))
+            end if
+            
+            if (attributes%has('units')) then
+               units = to_string(attributes%of('units'))
+            end if
+
+            call to_state_item(state_item, attributes, _RC)
+            
             var_spec = VariableSpec(state_intent, short_name=short_name, &
-                 standard_name=to_string(attributes%of('standard_name')), &
-                 units=to_string(attributes%of('units')), &
+                 state_item=state_item, &
+                 standard_name=standard_name, &
+                 units=units, &
                  typekind=typekind, &
                  substate=substate, &
                  default_value=default_value &
                  )
+
             call var_specs%push_back(var_spec)
             call iter%next()
          end do
@@ -176,6 +190,33 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine to_typekind
+
+      subroutine to_state_item(state_item, attributes, rc)
+         type(ESMF_StateItem_Flag), allocatable, intent(out) :: state_item
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: subclass
+
+         if (.not. attributes%has('class')) then
+            _RETURN(_SUCCESS)
+         end if
+
+         call attributes%get(subclass, 'class', _RC)
+
+         select case (subclass)
+         case ('field')
+            state_item = MAPL_STATEITEM_FIELD
+         case ('service')
+            state_item = MAPL_STATEITEM_SERVICE
+         case default
+            _FAIL('unknown subclass for state item: '//subclass)
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine to_state_item
+      
 
    end function process_var_specs
 
