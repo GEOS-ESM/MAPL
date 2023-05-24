@@ -614,8 +614,8 @@ contains
              if (trim(grid_type)/='Swath') then
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              else
-                Hsampler = samplerHQ(clock, _RC)
-                output_grid = Hsampler%create_grid(grid_type, config, prefix=key//'.', currTime, _RC)
+!                Hsampler = samplerHQ(clock, config, _RC)
+!                output_grid = Hsampler%create_grid(grid_type, prefix=key//'.', currTime, _RC)
              end if
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
