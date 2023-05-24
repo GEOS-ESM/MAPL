@@ -55,7 +55,7 @@ module MAPL_HistoryCollectionMod
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
      type(ESMF_FieldBundle)             :: bundle
-     type(sampler)                      :: clct_sampler
+     type(sampler)                      :: xsampler
      type(MAPL_CFIO)                    :: MCFIO
      type(MAPL_GriddedIO)               :: mGriddedIO
      type(VerticalData) :: vdata

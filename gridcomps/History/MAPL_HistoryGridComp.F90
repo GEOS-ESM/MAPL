@@ -57,6 +57,8 @@
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
+  use MAPL_EpochSwathMod
+
 
   implicit none
   private
@@ -614,8 +616,8 @@ contains
              if (trim(grid_type)/='Swath') then
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              else
-!                Hsampler = samplerHQ(clock, config, _RC)
-!                output_grid = Hsampler%create_grid(grid_type, prefix=key//'.', currTime, _RC)
+                Hsampler = samplerHQ(clock, config, key,  _RC)
+                output_grid = Hsampler%create_grid(grid_type, key, currTime, _RC)
              end if
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
@@ -2343,51 +2345,55 @@ ENDDO PARSER
           if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
        end if
        if (list(n)%format == 'CFIO') then
-          call Get_Tdim (list(n), clock, tm)
-          if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
-             list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
-          else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
-             list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
-          else
-             list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
-          end if
-          call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
-          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
-          call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
-          call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
-          call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
-          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
-          call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
-          if (list(n)%monthly) then
-               nextMonth = currTime - oneMonth
-               dur = nextMonth - currTime
-               call ESMF_TimeIntervalGet(dur, s=sec, _RC)
-             list(n)%timeInfo = TimeData(clock,tm,sec,IntState%stampoffset(n),funits='days')
-          else
-             list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
-          end if
-          if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
-             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
-          else
-             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-             if (trim(list(n)%output_grid_label)/='') then
-                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+          if (trim(list(n)%output_grid_label)/='Swath') then
+             call Get_Tdim (list(n), clock, tm)
+             if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
+                list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
+             else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
+                list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
              else
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
              end if
-             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
-             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
-          end if
-          !
-          ! ygyu
-          !
-          list(n)%sampler = Hsampler%create_sampler(list(n)%regrid_method, list(n)%bundle, vdata=list(n)%vdata,  _RC)
-          call list(n)%sampler%CreateFileMetaData
+             call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
+             call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
+             call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
+             call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
+             call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
+             call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
+             call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             if (list(n)%monthly) then
+                nextMonth = currTime - oneMonth
+                dur = nextMonth - currTime
+                call ESMF_TimeIntervalGet(dur, s=sec, _RC)
+                list(n)%timeInfo = TimeData(clock,tm,sec,IntState%stampoffset(n),funits='days')
+             else
+                list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
+             end if
+             if (list(n)%timeseries_output) then
+                list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
+                call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+             else
+                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+                if (trim(list(n)%output_grid_label)/='') then
+                   pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                else
+                   call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                end if
+                collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+                call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+             end if
+          else
+             !
+             ! bypass mGriddedIO
+             list(n)%xsampler = Hsampler%create_sampler (list(n)%regrid_method, list(n)%bundle, list(n)%items, vdata=list(n)%vdata, _RC)
+             !!             call list(n)%xsampler%CreateFileMetaData
+             !!collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)             
+             !
+          endif
 
        end if
-   end do
+    end do
 
 ! Echo History List Data Structure
 ! --------------------------------
@@ -3359,6 +3365,11 @@ ENDDO PARSER
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
        endif
 
+       ! for swath grid only
+       if (trim(list(n)%output_grid_label)=='swathGrid') then
+          Writing(n) = .false.
+       end if
+          
    end do
 
    if(any(Writing)) call WRITE_PARALLEL("")
@@ -3594,14 +3605,16 @@ ENDDO PARSER
    deallocate(Writing)
    deallocate(Ignore)
 
-   
+
+   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='swathGrid') then
-         call Hsamlper%regrid_accumulate_on_xysubset(list(n)%sampler)
-         call Hsamlper%write_2_oserver(list(n)%sampler)   ! at epoch_alarm
+         call Hsampler%regrid_accumulate(list(n)%xsampler)
+         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
+         !!   call Hsampler%destroy_regen_rh_ogrid         ! at epoch_alarm
       endif
    end do epoch_swath_grid_case
-   call Hsampler%destroy_regen_rh_ogrid         ! at epoch_alarm
+
 
 
    _RETURN(ESMF_SUCCESS)
