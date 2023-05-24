@@ -120,7 +120,8 @@ contains
               ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_field), &
               ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_field), &
               ScenarioDescription('history_1',               'cap.yaml',         check_name, check_field), &
-              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field) &
+              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field) & !, &
+!              ScenarioDescription('service_service',         'parent.yaml',      check_name, check_field) &
       ]
       end function add_params
    end function get_parameters
@@ -181,7 +182,6 @@ contains
       file_name = './configs/' // this%scenario_name // '/expectations.yaml'
       this%expectations = p%load_from_file(file_name, _RC)
 
-                 
    end subroutine setup
 
    ! In theory we want to call finalize here and then destroy ESMF objects in this
@@ -211,8 +211,8 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
-
-      components: do i = 1, this%expectations%size()
+                 
+     components: do i = 1, this%expectations%size()
 
          comp_expectations => this%expectations%of(i)
 
@@ -400,7 +400,7 @@ contains
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
-      type(ESMF_GridComp), intent(inout) :: gc
+      type(ESMF_GridComp), target, intent(inout) :: gc
       type(MultiState), intent(in) :: states
       character(*), intent(in) :: component_path
       type(MultiState), intent(out) :: substates
@@ -414,6 +414,7 @@ contains
       integer :: idx
 
       rc = 0
+
       if (component_path == '<root>' .or. component_path == '') then
          substates = states
          return
