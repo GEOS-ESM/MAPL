@@ -1,4 +1,5 @@
 
+program
 
    interface write(formatted)
       subroutine write_state_formatted(state, ...)
