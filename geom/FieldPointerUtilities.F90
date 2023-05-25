@@ -12,6 +12,9 @@ module MAPL_FieldPointerUtilities
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
    public :: FieldGetCptr
+   public :: FieldClone
+   public :: FieldsAreConformable
+   public :: FieldsAreSameTypeKind
 
    interface assign_fptr
       module procedure assign_fptr_r4_rank1
@@ -31,6 +34,24 @@ module MAPL_FieldPointerUtilities
    interface FieldGetLocalElementCount
       procedure get_local_element_count
    end interface FieldGetLocalElementCount
+
+   interface FieldsAreConformable
+      procedure are_conformable_scalar
+      procedure are_conformable_array
+   end interface
+
+   interface FieldClone
+      module procedure clone
+   end interface FieldClone
+
+   interface FieldsAreSameTypeKind
+      module procedure are_same_type_kind
+   end interface FieldsAreSameTypeKind
+
+   interface verify_typekind
+      module procedure verify_typekind_scalar
+      module procedure verify_typekind_array
+   end interface verify_typekind
 
 contains
 
@@ -313,5 +334,142 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_local_size
+
+   subroutine clone(x, y, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: CLONE_TAG = '_clone'
+      type(ESMF_ArraySpec) :: arrayspec
+      type(ESMF_Grid) :: grid
+      type(ESMF_StaggerLoc) :: staggerloc
+      integer, allocatable :: gridToFieldMap(:)
+      integer, allocatable :: ungriddedLBound(:)
+      integer, allocatable :: ungriddedUBound(:)
+      integer, allocatable :: totalLWidth(:,:)
+      integer, allocatable :: totalUWidth(:,:)
+      character(len=:), allocatable :: name
+      integer :: status
+
+      call ESMF_FieldGet(x, arrayspec=arrayspec, grid=grid, &
+         staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
+         ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, &
+         totalLWidth=totalLWidth, totalUWidth=totalUWidth, _RC)
+
+      name = name // CLONE_TAG
+
+      y = ESMF_FieldCreate(grid, arrayspec, staggerloc=staggerloc, &
+         gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
+         ungriddedUBound=ungriddedUBound, name=name, _RC)
+!         ungriddedUBound=ungriddedUBound, totalLWidth=totalLWidth, &
+!         totalUWidth=totalUWidth, name=name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine clone
+
+   logical function are_conformable_scalar(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+      integer :: rank_x, rank_y
+      integer, dimension(:), allocatable :: count_x, count_y
+      integer :: status
+
+      conformable = .false.
+
+      call ESMF_FieldGet(x, rank=rank_x, _RC)
+      call ESMF_FieldGet(y, rank=rank_y, _RC)
+
+      if(rank_x == rank_y) then
+         count_x = FieldGetLocalElementCount(x, _RC)
+         count_y = FieldGetLocalElementCount(y, _RC)
+         conformable = all(count_x == count_y)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function are_conformable_scalar
+
+   logical function are_conformable_array(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: j
+      logical :: element_not_conformable
+
+      conformable = .false.
+      element_not_conformable = .false.
+
+      do j = 1, size(y)
+         element_not_conformable = .not. FieldsAreConformable(x, y(j), _RC)
+         if(element_not_conformable) return
+      end do
+
+      conformable = .true.
+
+      _RETURN(_SUCCESS)
+   end function are_conformable_array
+
+   logical function are_same_type_kind(x, y, rc) result(same_tk)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk_x, tk_y
+
+      same_tk = .false.
+      call ESMF_FieldGet(x, typekind=tk_x, _RC)
+      call ESMF_FieldGet(y, typekind=tk_y, _RC)
+
+      same_tk = (tk_x == tk_y)
+
+      _RETURN(_SUCCESS)
+   end function are_same_type_kind
+
+    subroutine verify_typekind_scalar(x, expected_tk, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      type(ESMF_TypeKind_Flag) :: found_tk
+
+      call ESMF_FieldGet(x, typekind=found_tk, _RC)
+
+      _ASSERT((found_tk == expected_tk), 'Found incorrect typekind.')
+      _RETURN(_SUCCESS)
+   end subroutine verify_typekind_scalar
+
+   subroutine verify_typekind_array(x, expected_tk, rc)
+      type(ESMF_Field), intent(inout) :: x(:)
+      type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+
+      do i = 1, size(x)
+         call verify_typekind(x(i), expected_tk, _RC)
+      end do
+      _RETURN(_SUCCESS)
+   end subroutine verify_typekind_array
+
+   function is_valid_typekind(actual_tk, valid_tks) result(is_valid)
+      type(ESMF_TypeKind_Flag), intent(in) :: actual_tk
+      type(ESMF_TypeKind_Flag), intent(in) :: valid_tks(:)
+      logical :: is_valid
+      integer :: i
+
+      is_valid = .FALSE.
+      do i = 1, size(valid_tks)
+         is_valid = (actual_tk == valid_tks(i))
+         if(is_valid) return
+      end do
+
+   end function is_valid_typekind
 
 end module
