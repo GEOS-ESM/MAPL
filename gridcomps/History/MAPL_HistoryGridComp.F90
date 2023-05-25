@@ -618,7 +618,7 @@ contains
              else
                 Hsampler = samplerHQ(clock, config, key,  _RC)
                 write(6,*) 'af samplerHQ(clock, config, key,  _RC)'
-                output_grid = Hsampler%create_grid(grid_type=grid_type, key, currTime, _RC)
+                output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
                 write(6,*) 'af Hsampler%create_grid(grid_type, key, currTime, _RC)'
              end if
              call IntState%output_grids%set(key, output_grid)
@@ -2387,7 +2387,11 @@ ENDDO PARSER
              if (trim(list(n)%output_grid_label)=='SwathGrid') then
                 global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
                 call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
+                write(6,*) 'ck af list(n)%xsampler%CreateFileMetaData'
+                stop -1
+                
                 collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
                 call list(n)%xsampler%set_param(write_collection_id=collection_id)
              else
@@ -2402,7 +2406,8 @@ ENDDO PARSER
                 call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
              end if
           end if
-       end do
+       end if
+    end do
 
 ! Echo History List Data Structure
 ! --------------------------------
@@ -3622,10 +3627,10 @@ ENDDO PARSER
    ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
-         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
+!         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
          pt_output_grids => IntState%output_grids
          key_grid_label = list(n)%output_grid_label
-         call Hsampler%destroy_regen_ogrid_rh ( key_grid_label, pt_output_grids, _RC )         ! at epoch_alarm
+ !        call Hsampler%destroy_regen_ogrid_rh ( key_grid_label, pt_output_grids, _RC )         ! at epoch_alarm
       endif
    end do epoch_swath_grid_case
 

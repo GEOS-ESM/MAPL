@@ -152,11 +152,11 @@ contains
   !    - ogrid via grid_manager%make_grid
   !      using currTime and HQ%config_grid_save
   !--------------------------------------------------!
-  function create_grid(this, grid_type, key, currTime, rc)  result(ogrid)
+  function create_grid(this, key, currTime, grid_type, rc)  result(ogrid)
     class(samplerHQ)  :: this
-    character(len=*), optional, intent(in) :: grid_type
     character(len=*), intent(in) :: key
     type(ESMF_Time), intent(inout) :: currTime
+    character(len=*), optional, intent(in) :: grid_type
     integer, intent(out), optional :: rc
     type (ESMF_Grid)  :: ogrid
 
@@ -170,7 +170,8 @@ contains
     call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
     ogrid = grid_manager%make_grid(config_grid, prefix=key//'.', _RC )
     this%ogrid = ogrid
-    _RETURN(_SUCCESS)    
+    _RETURN(_SUCCESS)
+    
   end function create_grid
 
 
@@ -225,7 +226,7 @@ contains
     type (StringGridMap) :: output_grids
     
     class(AbstractGridFactory), pointer :: factory
-    type(ESMF_Time) :: current_time
+    type(ESMF_Time) :: currTime
     type(ESMF_TimeInterval) :: dur
     character(len=ESMF_MAXSTR) :: time_string
     integer :: status
@@ -246,18 +247,16 @@ contains
     ogrid = pgrid
     call grid_manager%destroy(ogrid,_RC)
 
-
     call output_grids%insert(trim(key_str), ogrid)
-
     call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
     iter = output_grids%begin()
     do while (iter /= output_grids%end())
-       │  key => iter%key()
-       │  if (trim(key)==trim(key_str)) then
-       │  │  ogrid = create_grid (key_str, currTime, _RC)
-       │  │  call output_grids%set(key, ogrid)
-       │  endif
-       │  call iter%next()
+       key => iter%key()
+       if (trim(key)==trim(key_str)) then
+          ogrid = this%create_grid (key_str, currTime, _RC)
+          call output_grids%set(key, ogrid)
+       endif
+       call iter%next()
     enddo
 
     _RETURN(ESMF_SUCCESS)
@@ -296,7 +295,7 @@ contains
         class (sampler), intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
-        type(TimeData), intent(inout) :: timeInfo
+        type(TimeData), optional, intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
         type(StringStringMap), intent(in), optional :: global_attributes
@@ -317,7 +316,7 @@ contains
         this%input_bundle = bundle
         this%output_bundle = ESMF_FieldBundleCreate(rc=status)
         _VERIFY(status)
-        this%timeInfo = timeInfo
+        if(present(timeInfo)) this%timeInfo = timeInfo
         call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,rc=status)
         _VERIFY(status)
         if (present(ogrid)) then
@@ -353,8 +352,7 @@ contains
         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
         _VERIFY(status)
 
-        call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
-        _VERIFY(status)
+        if(present(timeInfo)) call this%timeInfo%add_time_to_metadata(this%metadata,_RC)
 
         iter = this%items%begin()
         if (.not.allocated(this%chunking)) then
@@ -1530,6 +1528,7 @@ contains
   subroutine regenerate_routehandle (this, rc)
     type(sampler) :: this
     type(ESMF_RouteHandle) :: route_handle
+    integer, intent(out), optional     :: rc
     integer :: status
     
     ! -- destroy regrid handle
@@ -1537,7 +1536,7 @@ contains
 !    route_handle = this%regrid_handle
 !    call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.)
     
-
+    write(6,*)
     _RETURN(_SUCCESS)
   end subroutine regenerate_routehandle
 
