@@ -21,6 +21,7 @@ module MAPL_EpochSwathMod
   use MAPL_DataCollectionManagerMod
   use gFTL_StringVector
   use gFTL_StringStringMap
+  use MAPL_StringGridMapMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
   use MAPL_plain_netCDF_Time
@@ -43,6 +44,7 @@ module MAPL_EpochSwathMod
      procedure ::  create_grid
      !!procedure ::  create_sampler => create_epoch_sampler
      procedure ::  regrid_accumulate => regrid_accumulate_on_xysubset
+     procedure ::  regen_grid => destroy_regen_ogrid
      !!procedure ::  write_2_oserver
   end type samplerHQ
 
@@ -152,7 +154,7 @@ contains
   !--------------------------------------------------!
   function create_grid(this, grid_type, key, currTime, rc)  result(ogrid)
     class(samplerHQ)  :: this
-    character(len=*), intent(in) :: grid_type
+    character(len=*), optional, intent(in) :: grid_type
     character(len=*), intent(in) :: key
     type(ESMF_Time), intent(inout) :: currTime
     integer, intent(out), optional :: rc
@@ -162,7 +164,7 @@ contains
     integer :: status
     type(ESMF_Config) :: config_grid
 
-    this%grid_type = trim(grid_type)
+    if (present(grid_type)) this%grid_type = trim(grid_type)
     config_grid = this%config_grid_save
     call ESMF_TimeGet(currTime, timeString=time_string, _RC)
     call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
@@ -207,10 +209,63 @@ contains
     stop -3
     rc=-1
 
+    _RETURN(ESMF_SUCCESS)
+    
   end subroutine regrid_accumulate_on_xysubset  
   
 
 
+  subroutine destroy_regen_ogrid (this, key_grid_label, pt_output_grids, rc)
+    implicit none
+    class(samplerHQ) :: this
+    type (StringGridMap), pointer, intent(inout) :: pt_output_grids
+    character(len=*), intent(in)  :: key_grid_label
+    integer, intent(out), optional :: rc 
+!!    class(sampler), intent(inout)  :: sp
+    type (StringGridMap) :: output_grids
+    
+    class(AbstractGridFactory), pointer :: factory
+    type(ESMF_Time) :: current_time
+    type(ESMF_TimeInterval) :: dur
+    character(len=ESMF_MAXSTR) :: time_string
+    integer :: status
+    
+    type(ESMF_Grid), pointer :: pgrid
+    type(ESMF_Grid) :: ogrid
+    character(len=ESMF_MAXSTR) :: key_str
+    type (StringGridMapIterator) :: iter
+    character(len=:), pointer :: key
+    
+    type(ESMF_RouteHandle) :: route_handle
+
+    ! -- destroy, regenerate swath grid
+    
+    output_grids = pt_output_grids
+    key_str=trim(key_grid_label)
+    pgrid => output_grids%at(trim(key_str))
+    ogrid = pgrid
+    call grid_manager%destroy(ogrid,_RC)
+
+
+    call output_grids%insert(trim(key_str), ogrid)
+
+    call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+    iter = output_grids%begin()
+    do while (iter /= output_grids%end())
+       │  key => iter%key()
+       │  if (trim(key)==trim(key_str)) then
+       │  │  ogrid = create_grid (key_str, currTime, _RC)
+       │  │  call output_grids%set(key, ogrid)
+       │  endif
+       │  call iter%next()
+    enddo
+
+    _RETURN(ESMF_SUCCESS)
+    
+  end subroutine destroy_regen_ogrid
+
+    
+  
      function new_sampler(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
              metadata_collection_id,regrid_method,fraction,items,rc) result(GriddedIO)
         type(sampler) :: GriddedIO
@@ -1470,5 +1525,21 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end subroutine interp_accumulate_fields
+
+
+  subroutine regenerate_routehandle (this, rc)
+    type(sampler) :: this
+    type(ESMF_RouteHandle) :: route_handle
+    integer :: status
+    
+    ! -- destroy regrid handle
+!???
+!    route_handle = this%regrid_handle
+!    call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.)
+    
+
+    _RETURN(_SUCCESS)
+  end subroutine regenerate_routehandle
+
   
 end module MAPL_EpochSwathMod
