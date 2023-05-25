@@ -91,6 +91,7 @@ module MAPL_EpochSwathMod
      procedure :: regridVector
      procedure :: createFilemetadata
      procedure :: createVariable
+     procedure :: createVariable_newbundle     
      procedure :: interp_accumulate_fields
   end type sampler
 
@@ -159,7 +160,7 @@ contains
     type(samplerHQ) :: hq
     type(ESMF_Clock),  intent(in) :: clock
     type(ESMF_Config), intent(inout) :: config
-    character(len=100), intent(in) :: key
+    character(len=*), intent(in) :: key
     integer, optional, intent(out) :: rc    
     
     character(len=ESMF_MAXSTR) :: time_string
@@ -185,12 +186,15 @@ contains
     !__ note a bug in  ESMF_ConfigGetAttribute
     !     call fails with config = intent(in)
     !
-    call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(key)//'Epoch:', default=0, _RC)
+    call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(key)//'.Epoch:', default=0, _RC)
 !!    call ESMF_ConfigGetAttribute( cf, value=n1 ,label='one_number:',default=1, rc=rc)
 !!    call ESMF_ConfigGetAttribute ( config, value=time_integer, label ='AvoidRootNodeThreshold:', default=1, rc=rc)    
 
     _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
     call hms_2_s (time_integer, second, _RC)
+
+    write(6,*) 'ck 1: epoch:  second=', second
+
     call ESMF_TimeIntervalSet(frequency_epoch, s=second, _RC)
     hq%frequency_epoch = frequency_epoch
     hq%RingTime  = currTime
@@ -223,7 +227,7 @@ contains
 
     this%grid_type = trim(grid_type)
     config_grid = this%config_grid_save
-    call ESMF_TimeSet(currTime, time_string, _RC)
+    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
     call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
     ogrid = grid_manager%make_grid(config_grid, prefix=key//'.', _RC )
     this%ogrid = ogrid
@@ -248,6 +252,9 @@ contains
 
     integer :: status
     type(ESMF_grid) :: input_grid
+
+!    write(6,*) 'in function create_epoch_sampler'
+!    stop -1
 
     sp%input_bundle = input_bundle
     sp%regrid_method = regrid_method
@@ -323,8 +330,16 @@ contains
 
     ! __ s2.  interpolate then save data on xy_subset
 
+
+    write(6,*) 'bf sp%interp_accumulate_fields'    
     call sp%interp_accumulate_fields (xy_subset, _RC)
 
+    _FAIL ('code wrong at regrid_accumulate_on_xysubset')
+
+    write(6,*) 'af sp%interp_accumulate_fields'    
+    stop -3
+    rc=-1
+    
   end subroutine regrid_accumulate_on_xysubset
 
 
@@ -344,14 +359,13 @@ contains
     integer :: status
 
 
-    if (.NOT. ESMF_AlarmIsRinging (sp%alarm)) then
+    if (.NOT. ESMF_AlarmIsRinging (this%alarm)) then
        rc=0
        return
     endif
 
 
-    
-
+    _RETURN(_SUCCESS)
     
   end subroutine write_2_oserver
 
@@ -527,697 +541,718 @@ contains
   !
   !
   subroutine CreateFileMetaData(this,rc)
-        class (sampler), intent(inout) :: this
-          integer, intent(out), optional :: rc
+    class (sampler), intent(inout) :: this
+    integer, intent(out), optional :: rc
 
-        type(ESMF_Grid) :: input_grid
-        class (AbstractGridFactory), pointer :: factory
+    type(ESMF_Grid) :: input_grid
+    class (AbstractGridFactory), pointer :: factory
 
-        type(GriddedIOitemVectorIterator) :: iter
-        type(GriddedIOitem), pointer :: item
-        type(stringVector) :: order
-        integer :: metadataVarsSize
-        type(StringStringMapIterator) :: s_iter
-        character(len=:), pointer :: attr_name, attr_val
-        integer :: status
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
+    type(stringVector) :: order
+    integer :: metadataVarsSize
+    type(StringStringMapIterator) :: s_iter
+    character(len=:), pointer :: attr_name, attr_val
+    integer :: status
 
-        
-        factory => get_factory(this%output_grid,_RC)
-        call factory%append_metadata(this%metadata)
 
-        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
-        _VERIFY(status)
-        this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
-        _VERIFY(status)
+    factory => get_factory(this%output_grid,_RC)
+    call factory%append_metadata(this%metadata)
 
-        !!call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
-        !!_VERIFY(status)
+    call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
+    _VERIFY(status)
+    this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+    if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
+    _VERIFY(status)
 
-        iter = this%items%begin()
-        if (.not.allocated(this%chunking)) then
-           call this%set_default_chunking(rc=status)
-           _VERIFY(status)
-        else
-           call this%check_chunking(this%vdata%lm,_RC)
-        end if
+    !!call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
+    !!_VERIFY(status)
 
-        order = this%metadata%get_order(rc=status)
-        _VERIFY(status)
-        metadataVarsSize = order%size()
-
-        do while (iter /= this%items%end())
-           item => iter%get()
-           if (item%itemType == ItemTypeScalar) then
-              call this%createVariable(item%xname,rc=status)
-              _VERIFY(status)
-           else if (item%itemType == ItemTypeVector) then
-              call this%createVariable(item%xname,rc=status)
-              _VERIFY(status)
-              call this%createVariable(item%yname,rc=status)
-              _VERIFY(status)
-           end if
-           call iter%next()
-        enddo
-
-!
-!        ! Add newFields to new bundle
-!        if (present(new_output_bundle)) then
-!           write(6,*) 'ck inside if (present(new_output_bundle))'
-!           iter = this%items%begin()
-!           do while (iter /= this%items%end())
-!              item => iter%get()
-!              if (item%itemType == ItemTypeScalar) then
-!                 call this%createVariable_newbundle(item%xname,new_output_bundle,_RC)
-!              else if (item%itemType == ItemTypeVector) then
-!                 call this%createVariable_newbundle(item%xname,new_output_bundle,_RC)
-!                 call this%createVariable_newbundle(item%yname,new_output_bundle,_RC)
-!              end if
-!              call iter%next()
-!           enddo
-!        endif
-           
-        
-        _RETURN(_SUCCESS)
-
-     end subroutine CreateFileMetaData
-     
-     
-     subroutine set_default_chunking(this,rc)
-       class (sampler), intent(inout) :: this
-       integer, optional, intent(out) :: rc
-
-       integer ::  global_dim(3)
-       integer :: status
-
-       call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+    iter = this%items%begin()
+    if (.not.allocated(this%chunking)) then
+       call this%set_default_chunking(rc=status)
        _VERIFY(status)
-       if (global_dim(1)*6 == global_dim(2)) then
-          allocate(this%chunking(5))
-          this%chunking(1) = global_dim(1)
-          this%chunking(2) = global_dim(1)
-          this%chunking(3) = 1
-          this%chunking(4) = 1
-          this%chunking(5) = 1
-       else
-          allocate(this%chunking(4))
-          this%chunking(1) = global_dim(1)
-          this%chunking(2) = global_dim(2)
-          this%chunking(3) = 1
-          this%chunking(4) = 1
-       endif
-       _RETURN(ESMF_SUCCESS)
+    else
+       call this%check_chunking(this%vdata%lm,_RC)
+    end if
 
-     end subroutine set_default_chunking
+    order = this%metadata%get_order(rc=status)
+    _VERIFY(status)
+    metadataVarsSize = order%size()
 
-
-     subroutine check_chunking(this,lev_size,rc)
-        class (sampler), intent(inout) :: this
-        integer, intent(in) :: lev_size
-        integer, optional, intent(out) :: rc
-
-        integer ::  global_dim(3)
-        integer :: status
-        character(len=5) :: c1,c2
-
-        call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
-        _VERIFY(status)
-        if (global_dim(1)*6 == global_dim(2)) then
-           write(c2,'(I5)')global_dim(1)
-           write(c1,'(I5)')this%chunking(1)
-           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for Xdim "//c1//" must be less than or equal to "//c2)
-           write(c1,'(I5)')this%chunking(2)
-           _ASSERT(this%chunking(2) <= global_dim(1), "Chunk for Ydim "//c1//" must be less than or equal to "//c2)
-           _ASSERT(this%chunking(3) <= 6, "Chunksize for face dimension must be 6 or less")
-           if (lev_size > 0) then
-              write(c2,'(I5)')lev_size
-              write(c1,'(I5)')this%chunking(4)
-              _ASSERT(this%chunking(4) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
-           end if
-           _ASSERT(this%chunking(5) == 1, "Time must have chunk size of 1")
-        else
-           write(c2,'(I5)')global_dim(1)
-           write(c1,'(I5)')this%chunking(1)
-           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for lon "//c1//" must be less than or equal to "//c2)
-           write(c2,'(I5)')global_dim(2)
-           write(c1,'(I5)')this%chunking(2)
-           _ASSERT(this%chunking(2) <= global_dim(2), "Chunk for lat "//c1//" must be less than or equal to "//c2)
-           if (lev_size > 0) then
-              write(c2,'(I5)')lev_size
-              write(c1,'(I5)')this%chunking(3)
-              _ASSERT(this%chunking(3) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
-           end if
-           _ASSERT(this%chunking(4) == 1, "Time must have chunk size of 1")
-        endif
-        _RETURN(ESMF_SUCCESS)
-
-     end subroutine check_chunking
+    do while (iter /= this%items%end())
+       item => iter%get()
+       if (item%itemType == ItemTypeScalar) then
+          call this%createVariable(item%xname,rc=status)
+          _VERIFY(status)
+       else if (item%itemType == ItemTypeVector) then
+          call this%createVariable(item%xname,rc=status)
+          _VERIFY(status)
+          call this%createVariable(item%yname,rc=status)
+          _VERIFY(status)
+       end if
+       call iter%next()
+    enddo
 
 
-     subroutine createVariable(this,itemName,rc)
-        class (sampler), intent(inout) :: this
-        character(len=*), intent(in) :: itemName
-        integer, optional, intent(out) :: rc
+    ! Add newFields to acc_bundle
+    do while (iter /= this%items%end())
+       item => iter%get()
+       if (item%itemType == ItemTypeScalar) then
+          call this%createVariable_newbundle(item%xname,rc=status)
+          _VERIFY(status)
+       else if (item%itemType == ItemTypeVector) then
+          call this%createVariable_newbundle(item%xname,rc=status)
+          _VERIFY(status)
+          call this%createVariable_newbundle(item%yname,rc=status)
+          _VERIFY(status)
+       end if
+       call iter%next()
+    enddo
 
-        integer :: status
+    _RETURN(_SUCCESS)
 
-        type(ESMF_Field) :: field,newField
-        class (AbstractGridFactory), pointer :: factory
-        integer :: fieldRank
-        logical :: isPresent
-        character(len=ESMF_MAXSTR) :: varName,longName,units
-        character(len=:), allocatable :: grid_dims
-        character(len=:), allocatable :: vdims
-        type(Variable) :: v
+  end subroutine CreateFileMetaData
 
-        call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
-        _VERIFY(status)
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
 
-        call ESMF_FieldGet(field,rank=fieldRank,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldGet(field,name=varName,rc=status)
-        _VERIFY(status)
-        call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=isPresent,rc=status)
-        _VERIFY(status)
-        if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
-           _VERIFY(STATUS)
-        else
-           LongName = varName
-        endif
-        call ESMF_AttributeGet(field,name="UNITS",isPresent=isPresent,rc=status)
-        _VERIFY(status)
-        if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
-           _VERIFY(STATUS)
-        else
-           units = 'unknown'
-        endif
-        grid_dims = factory%get_grid_vars()
+  subroutine set_default_chunking(this,rc)
+    class (sampler), intent(inout) :: this
+    integer, optional, intent(out) :: rc
 
-!!        if (this%timeInfo%is_initialized) then
-!!           if (fieldRank==2) then
-!!              vdims=grid_dims//",time"
-!!           else if (fieldRank==3) then
-!!              vdims=grid_dims//",lev,time"
-!!           else
-!!              _FAIL( 'Unsupported field rank')
-!!           end if
-!!        else
-           if (fieldRank==2) then
-              vdims=grid_dims
-           else if (fieldRank==3) then
-              vdims=grid_dims//",lev"
-           else
-              _FAIL( 'Unsupported field rank')
-           end if
-!!        end if
-        !!v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking)
-        call v%add_attribute('units',trim(units))
-        call v%add_attribute('long_name',trim(longName))
-        call v%add_attribute('standard_name',trim(longName))
-        call v%add_attribute('missing_value',MAPL_UNDEF)
-        call v%add_attribute('fmissing_value',MAPL_UNDEF)
-        call v%add_attribute('vmax',MAPL_UNDEF)
-        call v%add_attribute('vmin',-MAPL_UNDEF)
-        call v%add_attribute('scale_factor',1.0)
-        call v%add_attribute('add_offset',0.0)
-        call v%add_attribute('_FillValue',MAPL_UNDEF)
-        call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
-        ! Weird workaround for NAG 7.1.113
+    integer ::  global_dim(3)
+    integer :: status
+
+    call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+    _VERIFY(status)
+    if (global_dim(1)*6 == global_dim(2)) then
+       allocate(this%chunking(5))
+       this%chunking(1) = global_dim(1)
+       this%chunking(2) = global_dim(1)
+       this%chunking(3) = 1
+       this%chunking(4) = 1
+       this%chunking(5) = 1
+    else
+       allocate(this%chunking(4))
+       this%chunking(1) = global_dim(1)
+       this%chunking(2) = global_dim(2)
+       this%chunking(3) = 1
+       this%chunking(4) = 1
+    endif
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine set_default_chunking
+
+
+  subroutine check_chunking(this,lev_size,rc)
+    class (sampler), intent(inout) :: this
+    integer, intent(in) :: lev_size
+    integer, optional, intent(out) :: rc
+
+    integer ::  global_dim(3)
+    integer :: status
+    character(len=5) :: c1,c2
+
+    call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+    _VERIFY(status)
+    if (global_dim(1)*6 == global_dim(2)) then
+       write(c2,'(I5)')global_dim(1)
+       write(c1,'(I5)')this%chunking(1)
+       _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for Xdim "//c1//" must be less than or equal to "//c2)
+       write(c1,'(I5)')this%chunking(2)
+       _ASSERT(this%chunking(2) <= global_dim(1), "Chunk for Ydim "//c1//" must be less than or equal to "//c2)
+       _ASSERT(this%chunking(3) <= 6, "Chunksize for face dimension must be 6 or less")
+       if (lev_size > 0) then
+          write(c2,'(I5)')lev_size
+          write(c1,'(I5)')this%chunking(4)
+          _ASSERT(this%chunking(4) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+       end if
+       _ASSERT(this%chunking(5) == 1, "Time must have chunk size of 1")
+    else
+       write(c2,'(I5)')global_dim(1)
+       write(c1,'(I5)')this%chunking(1)
+       _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for lon "//c1//" must be less than or equal to "//c2)
+       write(c2,'(I5)')global_dim(2)
+       write(c1,'(I5)')this%chunking(2)
+       _ASSERT(this%chunking(2) <= global_dim(2), "Chunk for lat "//c1//" must be less than or equal to "//c2)
+       if (lev_size > 0) then
+          write(c2,'(I5)')lev_size
+          write(c1,'(I5)')this%chunking(3)
+          _ASSERT(this%chunking(3) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+       end if
+       _ASSERT(this%chunking(4) == 1, "Time must have chunk size of 1")
+    endif
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine check_chunking
+
+
+  subroutine createVariable(this,itemName,rc)
+    class (sampler), intent(inout) :: this
+    character(len=*), intent(in) :: itemName
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+
+    type(ESMF_Field) :: field,newField
+    class (AbstractGridFactory), pointer :: factory
+    integer :: fieldRank
+    logical :: isPresent
+    character(len=ESMF_MAXSTR) :: varName,longName,units
+    character(len=:), allocatable :: grid_dims
+    character(len=:), allocatable :: vdims
+    type(Variable) :: v
+
+    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
+    _VERIFY(status)
+    factory => get_factory(this%output_grid,rc=status)
+    _VERIFY(status)
+
+    call ESMF_FieldGet(field,rank=fieldRank,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldGet(field,name=varName,rc=status)
+    _VERIFY(status)
+    call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=isPresent,rc=status)
+    _VERIFY(status)
+    if ( isPresent ) then
+       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
+       _VERIFY(STATUS)
+    else
+       LongName = varName
+    endif
+    call ESMF_AttributeGet(field,name="UNITS",isPresent=isPresent,rc=status)
+    _VERIFY(status)
+    if ( isPresent ) then
+       call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
+       _VERIFY(STATUS)
+    else
+       units = 'unknown'
+    endif
+    grid_dims = factory%get_grid_vars()
+
+    !!        if (this%timeInfo%is_initialized) then
+    !!           if (fieldRank==2) then
+    !!              vdims=grid_dims//",time"
+    !!           else if (fieldRank==3) then
+    !!              vdims=grid_dims//",lev,time"
+    !!           else
+    !!              _FAIL( 'Unsupported field rank')
+    !!           end if
+    !!        else
+    if (fieldRank==2) then
+       vdims=grid_dims
+    else if (fieldRank==3) then
+       vdims=grid_dims//",lev"
+    else
+       _FAIL( 'Unsupported field rank')
+    end if
+    !!        end if
+    !!v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
+    v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking)
+    call v%add_attribute('units',trim(units))
+    call v%add_attribute('long_name',trim(longName))
+    call v%add_attribute('standard_name',trim(longName))
+    call v%add_attribute('missing_value',MAPL_UNDEF)
+    call v%add_attribute('fmissing_value',MAPL_UNDEF)
+    call v%add_attribute('vmax',MAPL_UNDEF)
+    call v%add_attribute('vmin',-MAPL_UNDEF)
+    call v%add_attribute('scale_factor',1.0)
+    call v%add_attribute('add_offset',0.0)
+    call v%add_attribute('_FillValue',MAPL_UNDEF)
+    call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+    ! Weird workaround for NAG 7.1.113
 #ifdef __NAG_COMPILER_RELEASE
-        associate (s => regrid_method_int_to_string(this%regrid_method))
-          call v%add_attribute('regrid_method', s)
-        end associate
+    associate (s => regrid_method_int_to_string(this%regrid_method))
+      call v%add_attribute('regrid_method', s)
+    end associate
 #else
-        call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
+    call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
 #endif
-        call factory%append_variable_metadata(v)
-        call this%metadata%add_variable(trim(varName),v,rc=status)
-        _VERIFY(status)
+    call factory%append_variable_metadata(v)
+    call this%metadata%add_variable(trim(varName),v,rc=status)
+    _VERIFY(status)
 
 
-        ! finally make a new field if neccessary
-        if (this%doVertRegrid .and. (fieldRank ==3) ) then
-           newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
-           _VERIFY(status)
-        else
-           newField = MAPL_FieldCreate(field,this%output_grid,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
-           _VERIFY(status)
-        end if
-        _RETURN(_SUCCESS)
+    ! finally make a new field if neccessary
+    if (this%doVertRegrid .and. (fieldRank ==3) ) then
+       newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,rc=status)
+       _VERIFY(status)
+       call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
+       _VERIFY(status)
+    else
+       newField = MAPL_FieldCreate(field,this%output_grid,rc=status)
+       _VERIFY(status)
+       call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
+       _VERIFY(status)
+    end if
+    _RETURN(_SUCCESS)
 
-     end subroutine createVariable
-
-
-     
-     subroutine RegridScalar(this,itemName,rc)
-        class (sampler), intent(inout) :: this
-        character(len=*), intent(in) :: itemName
-        integer, optional, intent(out) :: rc
-
-        integer :: status
-
-        type(ESMF_Field) :: field,outField
-        integer :: fieldRank
-        real, pointer :: ptr3d(:,:,:),outptr3d(:,:,:)
-        real, pointer :: ptr2d(:,:), outptr2d(:,:)
-        real, allocatable, target :: ptr3d_inter(:,:,:)
-        type(ESMF_Grid) :: gridIn,gridOut
-        logical :: hasDE_in, hasDE_out
-
-        call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
-        _VERIFY(status)
-        hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
-        _VERIFY(status)
-        hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
-        _VERIFY(status)
-
-        if (this%doVertRegrid) then
-           call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
-           _VERIFY(status)
-           call ESMF_FieldGet(Field,rank=fieldRank,rc=status)
-           _VERIFY(status)
-           if (fieldRank==3) then
-              if (hasDE_in) then
-                 call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-                 _VERIFY(status)
-              else
-                 allocate(ptr3d(0,0,0))
-              end if
-              allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
-                 call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
-                 _VERIFY(status)
-              else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,rc=status)
-                 _VERIFY(status)
-              else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
-                 call this%vdata%flip_levels(ptr3d,ptr3d_inter,rc=status)
-                 _VERIFY(status)
-              end if
-              ptr3d => ptr3d_inter
-           end if
-        else
-           if (associated(ptr3d)) nullify(ptr3d)
-        end if
-
-        call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldGet(field,rank=fieldRank,rc=status)
-        _VERIFY(status)
-        if (fieldRank==2) then
-           if (hasDE_in) then
-              call MAPL_FieldGetPointer(field,ptr2d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(ptr2d(0,0))
-           end if
-           if (hasDE_out) then
-              call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(outptr2d(0,0))
-           end if
-           if (gridIn==gridOut) then
-              outPtr2d=ptr2d
-           else
-              if (this%regrid_method==REGRID_METHOD_FRACTION) ptr2d=ptr2d-this%fraction
-              call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
-              _VERIFY(status)
-           end if
-        else if (fieldRank==3) then
-           if (.not.associated(ptr3d)) then
-              if (hasDE_in) then
-                 call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-                 _VERIFY(status)
-              else
-                 allocate(ptr3d(0,0,0))
-              end if
-           end if
-           if (hasDE_out) then
-              call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(outptr3d(0,0,0))
-           end if
-           if (gridIn==gridOut) then
-              outPtr3d=Ptr3d
-           else
-              if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
-              call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
-              _VERIFY(status)
-           end if
-        else
-           _FAIL('rank not supported')
-        end if
-
-        if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
-        _RETURN(_SUCCESS)
-
-     end subroutine RegridScalar
-
-     subroutine RegridVector(this,xName,yName,rc)
-        class (sampler), intent(inout) :: this
-        character(len=*), intent(in) :: xName
-        character(len=*), intent(in) :: yName
-        integer, optional, intent(out) :: rc
-
-        integer :: status
-
-        type(ESMF_Field) :: xfield,xoutField
-        type(ESMF_Field) :: yfield,youtField
-        integer :: fieldRank
-        real, pointer :: xptr3d(:,:,:),xoutptr3d(:,:,:)
-        real, pointer :: xptr2d(:,:), xoutptr2d(:,:)
-        real, allocatable, target :: xptr3d_inter(:,:,:)
-        real, pointer :: yptr3d(:,:,:),youtptr3d(:,:,:)
-        real, pointer :: yptr2d(:,:), youtptr2d(:,:)
-        real, allocatable, target :: yptr3d_inter(:,:,:)
-        type(ESMF_Grid) :: gridIn, gridOut
-        logical :: hasDE_in, hasDE_out
-
-        call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
-        _VERIFY(status)
-        hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
-        _VERIFY(status)
-        hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
-        _VERIFY(status)
-
-        if (this%doVertRegrid) then
-           call ESMF_FieldBundleGet(this%input_bundle,xName,field=xfield,rc=status)
-           _VERIFY(status)
-           call ESMF_FieldGet(xField,rank=fieldRank,rc=status)
-           _VERIFY(status)
-           if (fieldRank==3) then
-              if (hasDE_in) then
-                 call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
-                 _VERIFY(status)
-              else
-                 allocate(xptr3d(0,0,0))
-              end if
-              allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
-                 call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
-                 _VERIFY(status)
-              else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,rc=status)
-                 _VERIFY(status)
-              else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
-                 call this%vdata%flip_levels(xptr3d,xptr3d_inter,rc=status)
-                 _VERIFY(status)
-              end if
-              xptr3d => xptr3d_inter
-           end if
-           call ESMF_FieldBundleGet(this%input_bundle,yName,field=yfield,rc=status)
-           _VERIFY(status)
-           call ESMF_FieldGet(yField,rank=fieldRank,rc=status)
-           _VERIFY(status)
-           if (fieldRank==3) then
-              if (hasDE_in) then
-                 call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
-                 _VERIFY(status)
-              else
-                 allocate(yptr3d(0,0,0))
-              end if
-              allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),stat=status)
-              _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
-                 call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
-                 _VERIFY(status)
-              else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,rc=status)
-                 _VERIFY(status)
-              else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
-                 call this%vdata%flip_levels(yptr3d,yptr3d_inter,rc=status)
-                 _VERIFY(status)
-              end if
-              yptr3d => yptr3d_inter
-           end if
-        else
-           if (associated(xptr3d)) nullify(xptr3d)
-           if (associated(yptr3d)) nullify(yptr3d)
-        end if
-
-        call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldGet(xfield,rank=fieldRank,rc=status)
-        _VERIFY(status)
-        if (fieldRank==2) then
-           if (hasDE_in) then
-              call MAPL_FieldGetPointer(xfield,xptr2d,rc=status)
-              _VERIFY(status)
-              call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(xptr2d(0,0))
-              allocate(yptr2d(0,0))
-           end if
-
-           if (hasDE_in) then
-              call MAPL_FieldGetPointer(xOutField,xoutptr2d,rc=status)
-              _VERIFY(status)
-              call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(xoutptr2d(0,0))
-              allocate(youtptr2d(0,0))
-           end if
+  end subroutine createVariable
 
 
-           if (gridIn==gridOut) then
-              xoutPtr2d=xptr2d
-              youtPtr2d=yptr2d
-           else
-              call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
-              _VERIFY(status)
-           end if
-        else if (fieldRank==3) then
-           if (.not.associated(xptr3d)) then
-              if (hasDE_in) then
-                 call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
-                 _VERIFY(status)
-              else
-                 allocate(xptr3d(0,0,0))
-              end if
-           end if
-           if (.not.associated(yptr3d)) then
-              if (hasDE_in) then
-                 call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
-                 _VERIFY(status)
-              else
-                 allocate(yptr3d(0,0,0))
-              end if
-           end if
 
-           if (hasDE_out) then
-              call MAPL_FieldGetPointer(xOutField,xoutptr3d,rc=status)
-              _VERIFY(status)
-              call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(xoutptr3d(0,0,0))
-              allocate(youtptr3d(0,0,0))
-           end if
+  subroutine createVariable_newbundle(this,itemName,rc)
+    class (sampler), intent(inout) :: this
+    character(len=*), intent(in) :: itemName
+    integer, optional, intent(out) :: rc
 
-           if (gridIn==gridOut) then
-              xoutPtr3d=xptr3d
-              youtPtr3d=yptr3d
-           else
-              call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtPtr3d,rc=status)
-              _VERIFY(status)
-           end if
-        end if
+    integer :: status, fieldRank
+    type(ESMF_Field) :: field,newField
 
-        if (allocated(xptr3d_inter)) deallocate(xptr3d_inter)
-        if (allocated(yptr3d_inter)) deallocate(yptr3d_inter)
-        _RETURN(_SUCCESS)
+    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
+    call ESMF_FieldGet(field,rank=fieldRank,_RC)
 
-     end subroutine RegridVector
+    if (this%doVertRegrid .and. (fieldRank ==3) ) then
+       newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,_RC)
+    else
+       newField = MAPL_FieldCreate(field,this%output_grid,_RC)
+    end if
+    call MAPL_FieldBundleAdd(this%acc_bundle,newField,_RC)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine createVariable_newbundle
+
+
+  subroutine RegridScalar(this,itemName,rc)
+    class (sampler), intent(inout) :: this
+    character(len=*), intent(in) :: itemName
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+
+    type(ESMF_Field) :: field,outField
+    integer :: fieldRank
+    real, pointer :: ptr3d(:,:,:),outptr3d(:,:,:)
+    real, pointer :: ptr2d(:,:), outptr2d(:,:)
+    real, allocatable, target :: ptr3d_inter(:,:,:)
+    type(ESMF_Grid) :: gridIn,gridOut
+    logical :: hasDE_in, hasDE_out
+
+    call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+    _VERIFY(status)
+    hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
+    _VERIFY(status)
+    hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
+    _VERIFY(status)
+
+    if (this%doVertRegrid) then
+       call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
+       _VERIFY(status)
+       call ESMF_FieldGet(Field,rank=fieldRank,rc=status)
+       _VERIFY(status)
+       if (fieldRank==3) then
+          if (hasDE_in) then
+             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+             _VERIFY(status)
+          else
+             allocate(ptr3d(0,0,0))
+          end if
+          allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),stat=status)
+          _VERIFY(status)
+          if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
+             call this%vdata%regrid_select_level(ptr3d,ptr3d_inter,rc=status)
+             _VERIFY(status)
+          else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,rc=status)
+             _VERIFY(status)
+          else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
+             call this%vdata%flip_levels(ptr3d,ptr3d_inter,rc=status)
+             _VERIFY(status)
+          end if
+          ptr3d => ptr3d_inter
+       end if
+    else
+       if (associated(ptr3d)) nullify(ptr3d)
+    end if
+
+    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldGet(field,rank=fieldRank,rc=status)
+    _VERIFY(status)
+    if (fieldRank==2) then
+       if (hasDE_in) then
+          call MAPL_FieldGetPointer(field,ptr2d,rc=status)
+          _VERIFY(status)
+       else
+          allocate(ptr2d(0,0))
+       end if
+       if (hasDE_out) then
+          call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
+          _VERIFY(status)
+       else
+          allocate(outptr2d(0,0))
+       end if
+       if (gridIn==gridOut) then
+          outPtr2d=ptr2d
+       else
+          if (this%regrid_method==REGRID_METHOD_FRACTION) ptr2d=ptr2d-this%fraction
+          call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
+          _VERIFY(status)
+       end if
+    else if (fieldRank==3) then
+       if (.not.associated(ptr3d)) then
+          if (hasDE_in) then
+             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+             _VERIFY(status)
+          else
+             allocate(ptr3d(0,0,0))
+          end if
+       end if
+       if (hasDE_out) then
+          call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
+          _VERIFY(status)
+       else
+          allocate(outptr3d(0,0,0))
+       end if
+       if (gridIn==gridOut) then
+          outPtr3d=Ptr3d
+       else
+          if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
+          call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
+          _VERIFY(status)
+       end if
+    else
+       _FAIL('rank not supported')
+    end if
+
+    if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
+    _RETURN(_SUCCESS)
+
+  end subroutine RegridScalar
+
+  subroutine RegridVector(this,xName,yName,rc)
+    class (sampler), intent(inout) :: this
+    character(len=*), intent(in) :: xName
+    character(len=*), intent(in) :: yName
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+
+    type(ESMF_Field) :: xfield,xoutField
+    type(ESMF_Field) :: yfield,youtField
+    integer :: fieldRank
+    real, pointer :: xptr3d(:,:,:),xoutptr3d(:,:,:)
+    real, pointer :: xptr2d(:,:), xoutptr2d(:,:)
+    real, allocatable, target :: xptr3d_inter(:,:,:)
+    real, pointer :: yptr3d(:,:,:),youtptr3d(:,:,:)
+    real, pointer :: yptr2d(:,:), youtptr2d(:,:)
+    real, allocatable, target :: yptr3d_inter(:,:,:)
+    type(ESMF_Grid) :: gridIn, gridOut
+    logical :: hasDE_in, hasDE_out
+
+    call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+    _VERIFY(status)
+    hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
+    _VERIFY(status)
+    hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
+    _VERIFY(status)
+
+    if (this%doVertRegrid) then
+       call ESMF_FieldBundleGet(this%input_bundle,xName,field=xfield,rc=status)
+       _VERIFY(status)
+       call ESMF_FieldGet(xField,rank=fieldRank,rc=status)
+       _VERIFY(status)
+       if (fieldRank==3) then
+          if (hasDE_in) then
+             call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
+             _VERIFY(status)
+          else
+             allocate(xptr3d(0,0,0))
+          end if
+          allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),stat=status)
+          _VERIFY(status)
+          if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
+             call this%vdata%regrid_select_level(xptr3d,xptr3d_inter,rc=status)
+             _VERIFY(status)
+          else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,rc=status)
+             _VERIFY(status)
+          else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
+             call this%vdata%flip_levels(xptr3d,xptr3d_inter,rc=status)
+             _VERIFY(status)
+          end if
+          xptr3d => xptr3d_inter
+       end if
+       call ESMF_FieldBundleGet(this%input_bundle,yName,field=yfield,rc=status)
+       _VERIFY(status)
+       call ESMF_FieldGet(yField,rank=fieldRank,rc=status)
+       _VERIFY(status)
+       if (fieldRank==3) then
+          if (hasDE_in) then
+             call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
+             _VERIFY(status)
+          else
+             allocate(yptr3d(0,0,0))
+          end if
+          allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),stat=status)
+          _VERIFY(status)
+          if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
+             call this%vdata%regrid_select_level(yptr3d,yptr3d_inter,rc=status)
+             _VERIFY(status)
+          else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,rc=status)
+             _VERIFY(status)
+          else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
+             call this%vdata%flip_levels(yptr3d,yptr3d_inter,rc=status)
+             _VERIFY(status)
+          end if
+          yptr3d => yptr3d_inter
+       end if
+    else
+       if (associated(xptr3d)) nullify(xptr3d)
+       if (associated(yptr3d)) nullify(yptr3d)
+    end if
+
+    call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
+    _VERIFY(status)
+    call ESMF_FieldGet(xfield,rank=fieldRank,rc=status)
+    _VERIFY(status)
+    if (fieldRank==2) then
+       if (hasDE_in) then
+          call MAPL_FieldGetPointer(xfield,xptr2d,rc=status)
+          _VERIFY(status)
+          call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
+          _VERIFY(status)
+       else
+          allocate(xptr2d(0,0))
+          allocate(yptr2d(0,0))
+       end if
+
+       if (hasDE_in) then
+          call MAPL_FieldGetPointer(xOutField,xoutptr2d,rc=status)
+          _VERIFY(status)
+          call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
+          _VERIFY(status)
+       else
+          allocate(xoutptr2d(0,0))
+          allocate(youtptr2d(0,0))
+       end if
+
+
+       if (gridIn==gridOut) then
+          xoutPtr2d=xptr2d
+          youtPtr2d=yptr2d
+       else
+          call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
+          _VERIFY(status)
+       end if
+    else if (fieldRank==3) then
+       if (.not.associated(xptr3d)) then
+          if (hasDE_in) then
+             call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
+             _VERIFY(status)
+          else
+             allocate(xptr3d(0,0,0))
+          end if
+       end if
+       if (.not.associated(yptr3d)) then
+          if (hasDE_in) then
+             call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
+             _VERIFY(status)
+          else
+             allocate(yptr3d(0,0,0))
+          end if
+       end if
+
+       if (hasDE_out) then
+          call MAPL_FieldGetPointer(xOutField,xoutptr3d,rc=status)
+          _VERIFY(status)
+          call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
+          _VERIFY(status)
+       else
+          allocate(xoutptr3d(0,0,0))
+          allocate(youtptr3d(0,0,0))
+       end if
+
+       if (gridIn==gridOut) then
+          xoutPtr3d=xptr3d
+          youtPtr3d=yptr3d
+       else
+          call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtPtr3d,rc=status)
+          _VERIFY(status)
+       end if
+    end if
+
+    if (allocated(xptr3d_inter)) deallocate(xptr3d_inter)
+    if (allocated(yptr3d_inter)) deallocate(yptr3d_inter)
+    _RETURN(_SUCCESS)
+
+  end subroutine RegridVector
 
 
 
   subroutine stage2DLatLon(this, fileName, oClients, rc)
-     class (sampler), intent(inout) :: this
-     character(len=*), intent(in) :: fileName
-     type (ClientManager), optional, intent(inout) :: oClients
-     integer, optional, intent(out) :: rc
+    class (sampler), intent(inout) :: this
+    character(len=*), intent(in) :: fileName
+    type (ClientManager), optional, intent(inout) :: oClients
+    integer, optional, intent(out) :: rc
 
-     integer :: status
-     real(REAL64), pointer :: ptr2d(:,:)
-     type(ArrayReference) :: ref
-     class (AbstractGridFactory), pointer :: factory
-     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
-     logical :: hasll
-     class(Variable), pointer :: var_lat,var_lon
+    integer :: status
+    real(REAL64), pointer :: ptr2d(:,:)
+    type(ArrayReference) :: ref
+    class (AbstractGridFactory), pointer :: factory
+    integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
+    logical :: hasll
+    class(Variable), pointer :: var_lat,var_lon
 
-     var_lon => this%metadata%get_variable('lons')
-     var_lat => this%metadata%get_variable('lats')
+    var_lon => this%metadata%get_variable('lons')
+    var_lat => this%metadata%get_variable('lats')
 
-     hasll = associated(var_lon) .and. associated(var_lat)
-     if (hasll) then
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+    hasll = associated(var_lon) .and. associated(var_lat)
+    if (hasll) then
+       factory => get_factory(this%output_grid,rc=status)
+       _VERIFY(status)
 
-        call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-        _VERIFY(status)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
-        staggerloc=ESMF_STAGGERLOC_CENTER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lons)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
-        staggerloc=ESMF_STAGGERLOC_CENTER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
-        this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lats)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        deallocate(LocalStart,GlobalStart,GlobalCount)
-     end if
+       call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+       _VERIFY(status)
+       call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, &
+            farrayPtr=ptr2d, rc=status)
+       _VERIFY(STATUS)
+       this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+       ref = ArrayReference(this%lons)
+       call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+       call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
+            staggerloc=ESMF_STAGGERLOC_CENTER, &
+            farrayPtr=ptr2d, rc=status)
+       _VERIFY(STATUS)
+       if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
+       this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
+       ref = ArrayReference(this%lats)
+       call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+       deallocate(LocalStart,GlobalStart,GlobalCount)
+    end if
 
-     var_lon => this%metadata%get_variable('corner_lons')
-     var_lat => this%metadata%get_variable('corner_lats')
+    var_lon => this%metadata%get_variable('corner_lons')
+    var_lat => this%metadata%get_variable('corner_lats')
 
-     hasll = associated(var_lon) .and. associated(var_lat)
-     if (hasll) then
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+    hasll = associated(var_lon) .and. associated(var_lat)
+    if (hasll) then
+       factory => get_factory(this%output_grid,rc=status)
+       _VERIFY(status)
 
-        call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-        _VERIFY(status)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
-        staggerloc=ESMF_STAGGERLOC_CORNER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lons)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
-        staggerloc=ESMF_STAGGERLOC_CORNER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
-        this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lats)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-     end if
-     _RETURN(_SUCCESS)
+       call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+       _VERIFY(status)
+       call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
+            staggerloc=ESMF_STAGGERLOC_CORNER, &
+            farrayPtr=ptr2d, rc=status)
+       _VERIFY(STATUS)
+       this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+       ref = ArrayReference(this%corner_lons)
+       call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
+            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+       call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
+            staggerloc=ESMF_STAGGERLOC_CORNER, &
+            farrayPtr=ptr2d, rc=status)
+       _VERIFY(STATUS)
+       if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
+       this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
+       ref = ArrayReference(this%corner_lats)
+       call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
+            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+    end if
+    _RETURN(_SUCCESS)
 
   end subroutine stage2DLatLon
 
   subroutine stageData(this, field, fileName, tIndex, oClients, rc)
-     class (sampler), intent(inout) :: this
-     type(ESMF_Field), intent(inout) :: field
-     character(len=*), intent(in) :: fileName
-     integer, intent(in) :: tIndex
-     type (ClientManager), optional, intent(inout) :: oClients
-     integer, optional, intent(out) :: rc
+    class (sampler), intent(inout) :: this
+    type(ESMF_Field), intent(inout) :: field
+    character(len=*), intent(in) :: fileName
+    integer, intent(in) :: tIndex
+    type (ClientManager), optional, intent(inout) :: oClients
+    integer, optional, intent(out) :: rc
 
-     integer :: status
-     integer :: fieldRank
-     character(len=ESMF_MAXSTR) :: fieldName
-     real, pointer :: ptr3d(:,:,:) => null()
-     real, pointer :: ptr2d(:,:) => null()
-     type(ArrayReference) :: ref
-     integer :: lm
-     logical :: hasDE
-     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
-     integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
-     class (AbstractGridFactory), pointer :: factory
-     real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
-     type(ESMF_VM) :: vm
-     integer :: mpi_comm
+    integer :: status
+    integer :: fieldRank
+    character(len=ESMF_MAXSTR) :: fieldName
+    real, pointer :: ptr3d(:,:,:) => null()
+    real, pointer :: ptr2d(:,:) => null()
+    type(ArrayReference) :: ref
+    integer :: lm
+    logical :: hasDE
+    integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
+    integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
+    class (AbstractGridFactory), pointer :: factory
+    real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
+    type(ESMF_VM) :: vm
+    integer :: mpi_comm
 
-     call ESMF_VMGetCurrent(vm,_RC)
-     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
+    call ESMF_VMGetCurrent(vm,_RC)
+    call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
 
-     factory => get_factory(this%output_grid,rc=status)
-     _VERIFY(status)
-     hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
-     _VERIFY(status)
-     lm = this%vdata%lm
-     call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
-     _VERIFY(status)
+    factory => get_factory(this%output_grid,rc=status)
+    _VERIFY(status)
+    hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
+    _VERIFY(status)
+    lm = this%vdata%lm
+    call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
+    _VERIFY(status)
 
-     call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
-     _VERIFY(status)
-     if (fieldRank==2) then
-        if (hasDE) then
-           call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
-           _VERIFY(status)
-           if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-              allocate(temp_2d,source=ptr2d)
-              call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-              _VERIFY(status)
-           end if
-        else
-           allocate(ptr2d(0,0))
-        end if
-        ref = factory%generate_file_reference2D(Ptr2D)
-        allocate(localStart,source=[gridLocalStart,1])
-        if (tindex > -1) then
-           allocate(globalStart,source=[gridGlobalStart,tindex])
-           allocate(globalCount,source=[gridGlobalCount,1])
-        else
-           allocate(globalStart,source=gridGlobalStart)
-           allocate(globalCount,source=gridGlobalCount)
-        end if
-      else if (fieldRank==3) then
-         if (HasDE) then
-            call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-            _VERIFY(status)
-            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-               allocate(temp_3d,source=ptr3d)
-               call DownBit(temp_3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-               _VERIFY(status)
-            end if
-         else
-            allocate(ptr3d(0,0,0))
-         end if
-         ref = factory%generate_file_reference3D(Ptr3D)
-         allocate(localStart,source=[gridLocalStart,1,1])
-         if (tindex > -1) then
-            allocate(globalStart,source=[gridGlobalStart,1,tindex])
-            allocate(globalCount,source=[gridGlobalCount,lm,1])
-         else
-            allocate(globalStart,source=[gridGlobalStart,1])
-            allocate(globalCount,source=[gridGlobalCount,lm])
-         end if
-      else
-         _FAIL( "Rank not supported")
-      end if
-      call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
-           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-      _RETURN(_SUCCESS)
+    call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
+    _VERIFY(status)
+    if (fieldRank==2) then
+       if (hasDE) then
+          call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
+          _VERIFY(status)
+          if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+             allocate(temp_2d,source=ptr2d)
+             call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
+             _VERIFY(status)
+          end if
+       else
+          allocate(ptr2d(0,0))
+       end if
+       ref = factory%generate_file_reference2D(Ptr2D)
+       allocate(localStart,source=[gridLocalStart,1])
+       if (tindex > -1) then
+          allocate(globalStart,source=[gridGlobalStart,tindex])
+          allocate(globalCount,source=[gridGlobalCount,1])
+       else
+          allocate(globalStart,source=gridGlobalStart)
+          allocate(globalCount,source=gridGlobalCount)
+       end if
+    else if (fieldRank==3) then
+       if (HasDE) then
+          call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+          _VERIFY(status)
+          if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+             allocate(temp_3d,source=ptr3d)
+             call DownBit(temp_3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
+             _VERIFY(status)
+          end if
+       else
+          allocate(ptr3d(0,0,0))
+       end if
+       ref = factory%generate_file_reference3D(Ptr3D)
+       allocate(localStart,source=[gridLocalStart,1,1])
+       if (tindex > -1) then
+          allocate(globalStart,source=[gridGlobalStart,1,tindex])
+          allocate(globalCount,source=[gridGlobalCount,lm,1])
+       else
+          allocate(globalStart,source=[gridGlobalStart,1])
+          allocate(globalCount,source=[gridGlobalCount,lm])
+       end if
+    else
+       _FAIL( "Rank not supported")
+    end if
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
+         ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+    _RETURN(_SUCCESS)
 
   end subroutine stageData
 

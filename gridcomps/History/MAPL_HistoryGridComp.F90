@@ -617,7 +617,9 @@ contains
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              else
                 Hsampler = samplerHQ(clock, config, key,  _RC)
+                write(6,*) 'af samplerHQ(clock, config, key,  _RC)'
                 output_grid = Hsampler%create_grid(grid_type, key, currTime, _RC)
+                write(6,*) 'af Hsampler%create_grid(grid_type, key, currTime, _RC)'
              end if
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
@@ -2345,7 +2347,7 @@ ENDDO PARSER
           if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
        end if
        if (list(n)%format == 'CFIO') then
-          if (trim(list(n)%output_grid_label)/='Swath') then
+          if (trim(list(n)%output_grid_label)/='SwathGrid') then
              call Get_Tdim (list(n), clock, tm)
              if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
                 list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
@@ -2387,8 +2389,9 @@ ENDDO PARSER
              !
              ! bypass mGriddedIO
              list(n)%xsampler = Hsampler%create_sampler (list(n)%regrid_method, list(n)%bundle, list(n)%items, vdata=list(n)%vdata, _RC)
-             !!             call list(n)%xsampler%CreateFileMetaData
-             !!collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)             
+             call list(n)%xsampler%CreateFileMetaData(_RC)
+             collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)             
+             list(n)%xsampler%write_collection_id = collection_id
              !
           endif
 
@@ -3366,7 +3369,7 @@ ENDDO PARSER
        endif
 
        ! for swath grid only
-       if (trim(list(n)%output_grid_label)=='swathGrid') then
+       if (trim(list(n)%output_grid_label)=='SwathGrid') then
           Writing(n) = .false.
        end if
           
@@ -3608,9 +3611,9 @@ ENDDO PARSER
 
    ! swath only
    epoch_swath_grid_case: do n=1,nlist
-      if (trim(list(n)%output_grid_label)=='swathGrid') then
+      if (trim(list(n)%output_grid_label)=='SwathGrid') then
          call Hsampler%regrid_accumulate(list(n)%xsampler)
-         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
+!         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
          !!   call Hsampler%destroy_regen_rh_ogrid         ! at epoch_alarm
       endif
    end do epoch_swath_grid_case

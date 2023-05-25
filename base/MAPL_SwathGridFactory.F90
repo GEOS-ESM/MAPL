@@ -1272,15 +1272,18 @@ contains
 
    end function get_grid_vars
 
+
    function get_file_format_vars(this) result(vars)
       class (SwathGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'lon,lat'
+      !! vars = 'lon,lat'
+      vars = 'cell_across_swath,cell_along_swath'
 
    end function get_file_format_vars
+
 
    subroutine append_variable_metadata(this,var)
       class (SwathGridFactory), intent(inout) :: this
@@ -1288,6 +1291,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
+
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
@@ -1313,6 +1317,7 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine generate_file_bounds
+
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
       use esmf
