@@ -578,13 +578,13 @@ contains
       CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
-      write(6,102) 'filename', trim(filename)
-      write(6,121) 'nlon,nlat,tdim', nlon,nlat,tdim      
+      write(6,*) 'filename', trim(filename)
+      write(6,*) 'nlon,nlat,tdim', nlon,nlat,tdim      
       call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
       do j=1, nlat
          !!i=j*nlon+1
          this%t_alongtrack(j)= scanTime(1,j)
-         if ( mod(j,100)== 1) write(6,204)  j, scanTime(1,j)
+         if ( mod(j,100)== 1) write(6,*)  j, scanTime(1,j)
       enddo
       !
       ! skip un-defined time value
@@ -609,13 +609,13 @@ contains
                exit
             endif
          enddo         
-         write(6,121) 'nstart', nstart
-         write(6,201) ' this%t_alongtrack(nstart)',  this%t_alongtrack(nstart)
+         write(6,*) 'nstart', nstart
+         write(6,*) ' this%t_alongtrack(nstart)',  this%t_alongtrack(nstart)
       endif
       
       deallocate(scanTime)
-      write(6,122) 't_a'
-      write(6,203) this%t_alongtrack(nstart:nstart+10)
+      write(6,*) 't_a'
+      write(6,*) this%t_alongtrack(nstart:nstart+10)
 
       
       this%cell_across_swath = nlon
@@ -634,8 +634,8 @@ contains
       xdim=nlon
       ydim=nlat
       ntime=tdim       !  n granule files
-      write(6,102) 'obs filename', trim(filename)
-      write(6,102) 'this%grid_file_name', trim(this%grid_file_name)
+      write(6,*) 'obs filename', trim(filename)
+      write(6,*) 'this%grid_file_name', trim(this%grid_file_name)
       write(6,*) 'Xdim, Ydim, ntime:', Xdim, Ydim, ntime
 
       
@@ -652,24 +652,24 @@ contains
       j1= j0 + sec
       jx0= j0
       jx1= j1
-      write(6,201) 'jx0, jx1', jx0, jx1
-      write(6,122) 'j0, j1', j0, j1
+      write(6,*) 'jx0, jx1', jx0, jx1
+      write(6,*) 'j0, j1', j0, j1
       
 
       this%epoch_index(1)= 1
       this%epoch_index(2)= this%cell_across_swath
       call bisect( this%t_alongtrack, jx0, jt, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
       this%epoch_index(3)= jt
-      write(6,122) 'bisect for j0:  rc, jt', rc, jt
+      write(6,*) 'bisect for j0:  rc, jt', rc, jt
 
       call bisect( this%t_alongtrack, jx1, jt, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
       this%epoch_index(4)= jt      
-      write(6,122) 'bisect for j1:  rc, jt', rc, jt
+      write(6,*) 'bisect for j1:  rc, jt', rc, jt
 
       Xdim = this%cell_across_swath
       Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
-      write(6,122) 'Xdim, Ydim', Xdim, Ydim
-      write(6,121) 'this%epoch_index(4)', this%epoch_index(1:4)
+      write(6,*) 'Xdim, Ydim', Xdim, Ydim
+      write(6,*) 'this%epoch_index(4)', this%epoch_index(1:4)
       
       this%im_world = Xdim
       this%jm_world = Ydim
@@ -693,7 +693,7 @@ contains
       _RETURN(_SUCCESS)
 
 
-      include "/users/yyu11/sftp/myformat.inc"
+
    contains
 
       subroutine get_multi_integer(values, label, rc)
@@ -1266,9 +1266,9 @@ contains
       key_lat='cell_along_swath'
       key_time='time'
       
-!      vars = 'lon,lat'   ! yaml, config, -->
-      vars = trim(key_lon)//"'"//trim(key_lat)
-!      'atrack,xtrack'
+      vars = 'lon,lat'   ! yaml, config, -->
+!!      vars = trim(key_lon)//"'"//trim(key_lat)
+!!      'atrack,xtrack'
 
    end function get_grid_vars
 
@@ -1279,8 +1279,9 @@ contains
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      !! vars = 'lon,lat'
-      vars = 'cell_across_swath,cell_along_swath'
+      vars = 'lon,lat'
+      !! vars = 'cell_across_swath,cell_along_swath'
+      !! wrong FileMetadata::add_variable() - undefined dimension: cell_across_swath'cell_along_swath
 
    end function get_file_format_vars
 

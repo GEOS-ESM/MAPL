@@ -161,10 +161,9 @@ contains
     ! check
     ! -----
     call ESMF_timeGet(time, yy=iyy, mm=imm, dd=idd, h=ih, m=im, s=is, rc=rc)
-    write(6, 121) 'obs_start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
+    write(6, *) 'obs_start: iyy,imm,idd,ih,im,is', iyy,imm,idd,ih,im,is
 
     if(present(rc)) rc=0
-    include '/Users/yyu11/sftp/myformat.inc'
   end subroutine time_nc_int_2_esmf
 
 
@@ -190,10 +189,9 @@ contains
 
     ! check
     ! -----
-    write(6, 122) 'dt in unit second  is', n
+    write(6, *) 'dt in unit second  is', n
 
     if(present(rc)) rc=0
-    include '/Users/yyu11/sftp/myformat.inc'
   end subroutine time_esmf_2_nc_int
 
 
@@ -222,10 +220,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-    write(6,102) 's_time, s_unit', trim(s_time), trim(s_unit)
-    write(6,102) 's1, s2 ', trim(s1), trim(s2)
-    write(6,121) 'y, m, d', y, m, d
-    write(6,121) 'hour,min,sec', hour,min,sec
+    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
+    write(6,*) 's1, s2 ', trim(s1), trim(s2)
+    write(6,*) 'y, m, d', y, m, d
+    write(6,*) 'hour,min,sec', hour,min,sec
 
     if (trim(s_unit) == 'seconds') then
        isec=n
@@ -242,7 +240,6 @@ contains
     !  if(present(rc)) rc=0
     rc=0
     
-    include '/Users/yyu11/sftp/myformat.inc'
   end subroutine parse_timeunit_i4
 
 
@@ -271,10 +268,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-    write(6,102) 's_time, s_unit', trim(s_time), trim(s_unit)
-    write(6,102) 's1, s2 ', trim(s1), trim(s2)
-    write(6,121) 'y, m, d', y, m, d
-    write(6,121) 'hour,min,sec', hour,min,sec
+    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
+    write(6,*) 's1, s2 ', trim(s1), trim(s2)
+    write(6,*) 'y, m, d', y, m, d
+    write(6,*) 'hour,min,sec', hour,min,sec
 
     if (trim(s_unit) == 'seconds') then
        isec=n
@@ -291,7 +288,6 @@ contains
     !  if(present(rc)) rc=0
     rc=0
     
-    include '/Users/yyu11/sftp/myformat.inc'
   end subroutine parse_timeunit_i8
   
   subroutine ESMF_time_to_two_integer (time, itime, rc)
