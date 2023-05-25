@@ -11,7 +11,10 @@ esma_set_this (OVERRIDE MAPL.geom)
 #  StateSupplement.F90
 #  )
 set(srcs
+  geom.F90
   FieldBLAS.F90
+  FieldPointerUtilities.F90
+  FieldUtilities.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
@@ -42,6 +45,6 @@ target_link_libraries (${this} PUBLIC esmf)
 
 if (PFUNIT_FOUND)
   # Turning off until test with GNU can be fixed
-  #add_subdirectory(tests EXCLUDE_FROM_ALL)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
