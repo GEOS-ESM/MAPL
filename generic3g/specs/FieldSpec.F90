@@ -185,18 +185,12 @@ contains
          allocate(final_ubounds,source=this%ungridded_dims%get_ubounds())
       else
          total_ungridded_dims = size(this%ungridded_dims%get_lbounds())
-         allocate(final_lbounds(total_ungridded_dims+1)) 
-         allocate(final_ubounds(total_ungridded_dims+1)) 
          if (this%vertical_dim == VERTICAL_DIM_CENTER) then
-            final_lbounds(1)=1
-            final_lbounds(2:)=this%ungridded_dims%get_lbounds()
-            final_ubounds(1)=num_levels
-            final_ubounds(2:)=this%ungridded_dims%get_ubounds()
+            final_lbounds = [1, this%ungridded_dims%get_lbounds()]
+            final_ubounds=[num_levels, this%ungridded_dims%get_ubounds()]
          else if (this%vertical_dim == VERTICAL_DIM_EDGE) then
-            final_lbounds(1)=0
-            final_lbounds(2:)=this%ungridded_dims%get_lbounds()
-            final_ubounds(1)=num_levels
-            final_ubounds(2:)=this%ungridded_dims%get_ubounds()
+            final_lbounds = [0, this%ungridded_dims%get_lbounds()]
+            final_ubounds = [num_levels, this%ungridded_dims%get_ubounds()]
          end if
       end if
        
