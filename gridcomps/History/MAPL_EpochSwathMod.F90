@@ -555,6 +555,9 @@ contains
               _FAIL( 'Unsupported field rank')
            end if
         end if
+
+        write(6,*) 'in createVar: vdims=', trim(vdims)
+
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
