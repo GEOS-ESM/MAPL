@@ -38,7 +38,7 @@ module mapl3g_FieldSpec
       character(:), allocatable :: units
       ! TBD
 !!$      type(FrequencySpec) :: freq_spec
-!!$      class(AbstractFrequencySpec), allocatable :: freq_spep
+!!$      class(AbstractFrequencySpec), allocatable :: freq_spec
 !!$      integer :: halo_width = 0
 
       type(ESMF_Field) :: payload
