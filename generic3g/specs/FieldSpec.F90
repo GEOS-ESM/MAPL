@@ -181,8 +181,8 @@ contains
 
       num_levels = this%vertical_geom%get_num_levels()
       if (this%vertical_dim == VERTICAL_DIM_NONE) then
-         allocate(final_lbounds,source=this%ungridded_dims%get_lbounds())
-         allocate(final_ubounds,source=this%ungridded_dims%get_ubounds())
+         final_lbounds = this%ungridded_dims%get_lbounds()
+         final_ubounds = this%ungridded_dims%get_ubounds()
       else
          total_ungridded_dims = size(this%ungridded_dims%get_lbounds())
          if (this%vertical_dim == VERTICAL_DIM_CENTER) then
