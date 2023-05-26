@@ -112,7 +112,7 @@ else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
-if (NOT BUILD_WITH_PFLOGGER)
+if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
 
