@@ -204,11 +204,11 @@ contains
          call attributes%get(vertical_str, 'vertical_dim_spec', _RC)
 
          select case (vertical_str)
-         case ('vertical_dim_none')
+         case ('vertical_dim_none', 'N')
             vertical_dim_spec = VERTICAL_DIM_NONE
-         case ('vertical_dim_center')
+         case ('vertical_dim_center', 'C')
             vertical_dim_spec = VERTICAL_DIM_CENTER
-         case ('vertical_dim_edge')
+         case ('vertical_dim_edge', 'E')
             vertical_dim_spec = VERTICAL_DIM_EDGE
          case default
             _FAIL('Unsupported typekind')
