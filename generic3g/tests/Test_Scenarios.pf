@@ -442,7 +442,6 @@ contains
       character(:), allocatable :: child_name
       type(ChildComponent) :: child
       type(ESMF_GridComp) :: child_gc
-      type(MultiState) :: child_states
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
 
@@ -468,9 +467,8 @@ contains
       child = outer_meta%get_child(child_name, _RC)
 
       child_gc = child%get_outer_gridcomp()
-      child_states = child%get_states()
 
-      call get_substates(child_gc, child_states, component_path(idx+1:), &
+      call get_substates(child_gc, child%get_states(), component_path(idx+1:), &
            substates, _RC)
 
       return
