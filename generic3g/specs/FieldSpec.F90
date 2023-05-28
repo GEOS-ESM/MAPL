@@ -11,6 +11,7 @@ module mapl3g_FieldSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
+   use mapl3g_NullAction
    use mapl3g_CopyAction
    use esmf
    use nuopc
@@ -223,7 +224,6 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
-
    end subroutine connect_to
 
 
@@ -234,9 +234,8 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          can_connect_to = all ([ &
-              this%ungridded_dims == src_spec%ungridded_dims &
-!!$              this%vm == sourc%vm, &
-!!$              can_convert_units(this, src_spec) &
+              this%ungridded_dims == src_spec%ungridded_dims & !, &
+!!$              this%units == src_spec%units & ! units are required for fields
               ])
       class default
          can_connect_to = .false.
@@ -261,8 +260,8 @@ contains
          requires_extension = any([ &
               this%ungridded_dims /= src_spec%ungridded_dims, &
               this%typekind /= src_spec%typekind,   &
+!!$              this%units /= src_spec%units, &
 !!$              this%freq_spec /= src_spec%freq_spec,   &
-!!$              this%units /= src_spec%units,           &
 !!$              this%halo_width /= src_spec%halo_width, &
 !!$              this%vm /= sourc%vm,               &
               geom_type /= geom_type &
@@ -341,10 +340,12 @@ contains
       type is (FieldSpec)
          action = CopyAction(this%payload, dst_spec%payload)
       class default
+         action = NullAction()
          _FAIL('Dst spec is incompatible with FieldSpec.')
       end select
 
       _RETURN(_SUCCESS)
    end function make_action
+
 
 end module mapl3g_FieldSpec

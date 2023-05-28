@@ -7,6 +7,7 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_FieldSpec
+   use mapl3g_ServiceSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcerMod
@@ -44,6 +45,7 @@ module mapl3g_VariableSpec
       procedure :: make_virtualPt
       procedure :: make_ItemSpec
       procedure :: make_FieldSpec
+      procedure :: make_ServiceSpec
 !!$      procedure :: make_StateSpec
 !!$      procedure :: make_BundleSpec
 !!$      procedure :: initialize
@@ -144,7 +146,6 @@ contains
       v_pt = VirtualConnectionPt(this%state_intent, this%short_name)
       if (allocated(this%substate)) then
          v_pt = v_pt%add_comp_name(this%substate)
-
       end if
    end function make_virtualPt
 
@@ -167,6 +168,9 @@ contains
 !!$      case (MAPL_STATEITEM_FIELDBUNDLE)
 !!$         allocate(FieldBundleSpec::item_spec)
 !!$         item_spec = this%make_FieldBundleSpec(geom, _RC)
+      case (MAPL_STATEITEM_SERVICE%ot)
+         allocate(ServiceSpec::item_spec)
+         item_spec = this%make_ServiceSpec(_RC)
       case default
          ! Fail, but still need to allocate a result.
          allocate(InvalidSpec::item_spec)
@@ -208,7 +212,7 @@ contains
          if (.not. allocated(this%standard_name)) return
 
          is_valid = .true.
-         
+
       end function valid
 
       function get_units(this, rc) result(units)
@@ -218,7 +222,7 @@ contains
 
          character(len=ESMF_MAXSTR) :: canonical_units
          integer :: status
-         
+
          if (allocated(this%units)) then ! user override of canonical
             units = this%units
             _RETURN(_SUCCESS)
@@ -230,7 +234,35 @@ contains
 
          _RETURN(_SUCCESS)
       end function get_units
-      
+
    end function make_FieldSpec
+
+   function make_ServiceSpec(this, rc) result(service_spec)
+      type(ServiceSpec) :: service_spec
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: units
+
+      if (.not. valid(this)) then
+         _RETURN(_FAILURE)
+      end if
+
+      service_spec = ServiceSpec()
+      _RETURN(_SUCCESS)
+
+   contains
+
+      logical function valid(this) result(is_valid)
+         class(VariableSpec), intent(in) :: this
+
+         is_valid = .false. ! unless
+         if (.not. this%state_item == MAPL_STATEITEM_SERVICE) return
+         is_valid = .true.
+         
+      end function valid
+
+   end function make_ServiceSpec
 
 end module mapl3g_VariableSpec

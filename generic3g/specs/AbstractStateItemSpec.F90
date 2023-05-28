@@ -172,11 +172,13 @@ contains
 
    function make_action(this, dst_spec, rc) result(action)
       use mapl3g_ExtensionAction
+      use mapl3g_NullAction
       class(ExtensionAction), allocatable :: action
       class(AbstractStateItemSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
+      action = NullAction()
       _FAIL('Subclass has not implemented make_action')
    end function make_action
 
