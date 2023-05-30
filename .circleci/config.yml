@@ -21,7 +21,7 @@ bcs_version: &bcs_version v11.00.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@1
+  ci: geos-esm/circleci-tools@dev:83ab0f4af39c61d71f3655061eb88dbaa64413ea
 
 workflows:
   build-and-test:
@@ -82,6 +82,8 @@ workflows:
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
+          remove_flap: true
+          remove_pflogger: true
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
           ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
