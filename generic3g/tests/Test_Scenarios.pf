@@ -103,11 +103,15 @@ contains
       type(ScenarioDescription), allocatable :: params(:)
 
       params = [ScenarioDescription:: ]
-      
+
+      ! Field oriented tests
       params = [params, add_params('item exist', check_item_type)]
       params = [params, add_params('field status', check_field_status)]
       params = [params, add_params('field typekind', check_field_typekind)]
       params = [params, add_params('field value', check_field_value)]
+
+      ! Service oriented tests
+      params = [params, ScenarioDescription('service_service', 'parent.yaml', 'field count', check_fieldcount)]
       
    contains
 
@@ -501,6 +505,37 @@ contains
       rc = 0
    end subroutine check_field_value
 
+
+   subroutine check_fieldCount(expectations, state, short_name, description, rc)
+      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      integer :: status
+      character(len=:), allocatable :: msg
+      integer :: found_fieldCount, expected_fieldCount
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_StateItem_Flag) :: itemtype
+
+      msg = description
+
+      rc = 0
+
+      call ESMF_StateGet(state, short_name, itemtype=itemtype)
+      if (itemtype /= ESMF_STATEITEM_FIELDBUNDLE) return ! that's ok
+
+      if (.not. expectations%has('fieldcount')) return
+
+      call expectations%get(expected_fieldCount, 'fieldcount', _RC)
+      call ESMF_StateGet(state, short_name, bundle, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=found_fieldCount, _RC)
+
+      print*,__FILE__,__LINE__, short_name, expected_fieldCount, found_fieldCount, description
+      @assert_that(found_fieldCount, is(expected_fieldCount))
+      
+   end subroutine check_fieldCount
 
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)

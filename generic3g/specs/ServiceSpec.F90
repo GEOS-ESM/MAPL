@@ -2,15 +2,21 @@
 
 module mapl3g_ServiceSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_StateItemVector
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
    use mapl3g_AbstractActionSpec
    use mapl3g_ESMF_Utilities, only: get_substate
-   use esmf
    use mapl_ErrorHandling
+   use mapl3g_HierarchicalRegistry
+   use mapl3g_ActualPtSpecPtrMap
+   use mapl3g_ActualPtVec_Map
+   use mapl3g_ActualPtVector
+   use mapl3g_ActualConnectionPt
+   use mapl3g_VirtualConnectionPt
+   use esmf
+   use gftl2_StringVector
    implicit none
    private
 
@@ -20,11 +26,14 @@ module mapl3g_ServiceSpec
       private
       type(ESMF_Typekind_Flag), allocatable :: typekind
       type(ESMF_FieldBundle) :: payload
-      type(StateItemVector) :: items
+      type(StringVector) :: item_names
+      type(StateItemSpecPtr), allocatable :: dependency_specs(:)
+
    contains
       procedure :: create
       procedure :: destroy
       procedure :: allocate
+      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -32,6 +41,7 @@ module mapl3g_ServiceSpec
       procedure :: make_extension
       procedure :: make_action
       procedure :: add_to_state
+      procedure :: add_to_bundle
 !!$      procedure :: check_complete
    end type ServiceSpec
 
@@ -41,28 +51,71 @@ module mapl3g_ServiceSpec
 
 contains
 
-   function new_ServiceSpec() result(spec)
+   function new_ServiceSpec(item_names, rc) result(spec)
       type(ServiceSpec) :: spec
+      type(StringVector), optional, intent(in) :: item_names
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (present(item_names)) then
+         spec%item_names = item_names
+      end if
+      
+      _RETURN(_SUCCESS)
    end function new_ServiceSpec
 
-   subroutine create(this, rc)
+   subroutine create(this, dependency_specs, rc)
       class(ServiceSpec), intent(inout) :: this
+      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       this%payload = ESMF_FieldBundleCreate(_RC)
+      this%dependency_specs = dependency_specs
 
       _RETURN(_SUCCESS)
    end subroutine create
+
+   function get_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(ServiceSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(ActualConnectionPt) :: a_pt
+
+      do i = 1, this%item_names%size()
+         a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='internal', short_name=this%item_names%of(i)))
+         call dependencies%push_back(a_pt)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function get_dependencies
 
    subroutine allocate(this, rc)
       class(ServiceSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      ! TBD
-      ! Add fields that have been put into the service.
-      
+      integer :: status
+      integer :: i
+      class(AbstractStateItemSpec), pointer :: spec
+
+      associate (dep_specs => this%dependency_specs)
+        _HERE, 'allocating a service with ', size(dep_specs), ' fields'
+        do i = 1, size(dep_specs)
+           spec => dep_specs(i)%ptr
+           call spec%add_to_bundle(this%payload, _RC)
+        end do
+      end associate
+      block
+        integer :: fieldcount
+        call ESMF_FieldBundleGet(this%payload, fieldCount=fieldCount, _RC)
+        _HERE, ' but only found ', fieldCount, ' fields'
+      end block
+    
       _RETURN(_SUCCESS)
    end subroutine allocate
 
@@ -89,23 +142,38 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
+   subroutine add_to_bundle(this, bundle, rc)
+      class(ServiceSpec), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _FAIL('ServiceService::Cannot nest bundles.')
+   end subroutine add_to_bundle
+
    
    subroutine connect_to(this, src_spec, rc)
       class(ServiceSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
-      integer :: i
+      integer :: fieldCount
+      type(ESMF_Field), allocatable :: fieldList(:)
       integer :: status
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
       select type (src_spec)
       class is (ServiceSpec)
-         ! ok
-         do i = 1, this%items%size()
-            call src_spec%items%push_back(this%items%of(i))
-         end do
+        _HERE, 'connecting a service that currently has only ', size(src_spec%dependency_specs), ' fields'
+         src_spec%dependency_specs = [src_spec%dependency_specs, this%dependency_specs]
+!!$         ! ok
+!!$         call ESMF_FieldBundleGet(this%payload, fieldCount=fieldCount, _RC)
+        _HERE, '   ... but now has ', size(src_spec%dependency_specs), ' fields'
+!!$         allocate(fieldList(fieldcount))
+!!$         call ESMF_FieldBundleGet(this%payload, fieldList=fieldList, _RC)
+!!$         call ESMF_FieldBundleAdd(src_spec%payload, fieldList=fieldList, relaxedFlag=.true., _RC)
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select

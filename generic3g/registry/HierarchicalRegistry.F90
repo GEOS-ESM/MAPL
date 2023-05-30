@@ -3,7 +3,6 @@
 module mapl3g_HierarchicalRegistry
    use mapl3g_AbstractRegistry
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_StateItemSpecPtr
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
@@ -783,12 +782,15 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: i
+      integer :: i, j
+      type(ActualPtVector) :: dependencies
+      type(StateItemSpecPtr), allocatable :: dependency_specs(:)
       class(AbstractStateItemSpec), pointer :: item_spec
 
       do i = 1, this%local_specs%size()
          item_spec => this%local_specs%of(i)
          if (item_spec%is_active()) then
+            _HERE, 'allocate? ', this%get_name()
             call item_spec%allocate(_RC)
          end if
       end do

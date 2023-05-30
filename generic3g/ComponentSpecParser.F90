@@ -14,6 +14,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ConnectionSpecVector
    use mapl3g_Stateitem
    use yaFyaml
+   use gftl2_StringVector, only: StringVector
    use esmf
    implicit none
    private
@@ -62,14 +63,14 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      if (config%has('internal')) then
+         call process_state_specs(var_specs, config%of('internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+      end if
       if (config%has('import')) then
          call process_state_specs(var_specs, config%of('import'), ESMF_STATEINTENT_IMPORT, _RC)
       end if
       if (config%has('export')) then
          call process_state_specs(var_specs, config%of('export'), ESMF_STATEINTENT_EXPORT, _RC)
-      end if
-      if (config%has('internal')) then
-         call process_state_specs(var_specs, config%of('internal'), ESMF_STATEINTENT_INTERNAL, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -91,7 +92,9 @@ contains
          real, allocatable :: default_value
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
-         type(ESMF_StateItem_Flag), allocatable :: state_item
+         type(ESMF_StateItem_Flag), allocatable :: itemtype
+
+         type(StringVector), allocatable :: service_items
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -111,10 +114,12 @@ contains
                units = to_string(attributes%of('units'))
             end if
 
-            call to_state_item(state_item, attributes, _RC)
+            call to_itemtype(itemtype, attributes, _RC)
+            call to_service_items(service_items, attributes, _RC)
             
             var_spec = VariableSpec(state_intent, short_name=short_name, &
-                 state_item=state_item, &
+                 itemtype=itemtype, &
+                 service_items=service_items, &
                  standard_name=standard_name, &
                  units=units, &
                  typekind=typekind, &
@@ -191,8 +196,8 @@ contains
          _RETURN(_SUCCESS)
       end subroutine to_typekind
 
-      subroutine to_state_item(state_item, attributes, rc)
-         type(ESMF_StateItem_Flag), allocatable, intent(out) :: state_item
+      subroutine to_itemtype(itemtype, attributes, rc)
+         type(ESMF_StateItem_Flag), allocatable, intent(out) :: itemtype
          class(YAML_Node), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
@@ -207,17 +212,47 @@ contains
 
          select case (subclass)
          case ('field')
-            state_item = MAPL_STATEITEM_FIELD
+            itemtype = MAPL_STATEITEM_FIELD
          case ('service')
-            state_item = MAPL_STATEITEM_SERVICE
+            itemtype = MAPL_STATEITEM_SERVICE
          case default
             _FAIL('unknown subclass for state item: '//subclass)
          end select
 
          _RETURN(_SUCCESS)
-      end subroutine to_state_item
+      end subroutine to_itemtype
       
+      subroutine to_service_items(service_items, attributes, rc)
+         type(StringVector), allocatable, intent(out) :: service_items
+         class(YAML_Node), target, intent(in) :: attributes
+         integer, optional, intent(out) :: rc
 
+         integer :: status
+         class(YAML_Node), pointer :: seq
+         class(YAML_Node), pointer :: item
+         class(NodeIterator), allocatable :: seq_iter
+         character(:), pointer :: item_name
+
+         if (.not. attributes%has('items')) then
+            _RETURN(_SUCCESS)
+         end if
+
+         allocate(service_items)
+         seq => attributes%of('items')
+         associate (e => seq%end())
+           seq_iter = seq%begin()
+           do while (seq_iter /= e)
+              item => seq_iter%at(_RC)
+              item_name => to_string(item, _RC)
+              _HERE, 'adding to service: ', item_name
+              call service_items%push_back(item_name)
+              call seq_iter%next()
+           end do
+         end associate
+
+         _RETURN(_SUCCESS)
+      end subroutine to_service_items
+      
    end function process_var_specs
 
 

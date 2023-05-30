@@ -74,7 +74,8 @@ contains
       call ESMF_InfoSet(info, '/MAPL/GEOM/VERTICAL', 'CENTER', rc=status)
       geom = ESMF_GeomBaseCreate(grid, ESMF_STAGGERLOC_INVALID)
       field_spec = FieldSpec(geom, ESMF_TYPEKIND_R4, UngriddedDimsSpec(), '', '', '')
-      call field_spec%create(rc=status)
+      call field_spec%create([ StateItemSpecPtr :: ], rc=status)
+
       call field_spec%allocate(rc=status)
 
       multi_state = MultiState(importState=ESMF_StateCreate(), exportState=ESMF_StateCreate())

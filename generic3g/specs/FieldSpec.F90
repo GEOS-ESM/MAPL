@@ -6,7 +6,9 @@ module mapl3g_FieldSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl3g_ActualPtSpecPtrMap
    use mapl3g_MultiState
+   use mapl3g_ActualPtVector
    use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -45,6 +47,7 @@ module mapl3g_FieldSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
+      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
@@ -52,6 +55,7 @@ module mapl3g_FieldSpec
       procedure :: make_extension
       procedure :: make_action
       procedure :: add_to_state
+      procedure :: add_to_bundle
 
       procedure :: check_complete
    end type FieldSpec
@@ -102,8 +106,9 @@ contains
 !!$   end function new_FieldSpec_defaults
 !!$
 
-   subroutine create(this, rc)
+   subroutine create(this, dependency_specs, rc)
       class(FieldSpec), intent(inout) :: this
+      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -198,13 +203,21 @@ contains
             end if
          end if
           
-         
-         call this%set_allocated()
+          call this%set_allocated()
       end if
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
+   function get_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(FieldSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      dependencies = ActualPtVector()
+
+      _RETURN(_SUCCESS)
+   end function get_dependencies
 
    subroutine connect_to(this, src_spec, rc)
       class(FieldSpec), intent(inout) :: this
@@ -308,6 +321,19 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
+
+   subroutine add_to_bundle(this, bundle, rc)
+      class(FieldSpec), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _HERE,'adding field to bundle'
+      call ESMF_FieldBundleAdd(bundle, [this%payload], multiflag=.true., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_to_bundle
 
    function make_extension(this, src_spec, rc) result(action_spec)
       class(AbstractActionSpec), allocatable :: action_spec

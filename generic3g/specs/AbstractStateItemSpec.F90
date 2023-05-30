@@ -6,7 +6,8 @@ module mapl3g_AbstractStateItemSpec
    private
 
    public :: AbstractStateItemSpec
-
+   public :: StateItemSpecPtr
+  
    type, abstract :: AbstractStateItemSpec
       private
 
@@ -17,9 +18,10 @@ module mapl3g_AbstractStateItemSpec
    contains
 
 !!$      procedure(I_initialize), deferred :: initialize
-      procedure(I_make), deferred :: create
-      procedure(I_make), deferred :: destroy
-      procedure(I_make), deferred :: allocate
+      procedure(I_create), deferred :: create
+      procedure(I_destroy), deferred :: destroy
+      procedure(I_allocate), deferred :: allocate
+      procedure(I_get_dependencies), deferred :: get_dependencies
 
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
@@ -27,6 +29,7 @@ module mapl3g_AbstractStateItemSpec
       procedure(I_make_extension), deferred :: make_extension
 
       procedure(I_add_to_state), deferred :: add_to_state
+      procedure(I_add_to_bundle), deferred :: add_to_bundle
 
       procedure, non_overridable :: set_created
       procedure, non_overridable :: is_created
@@ -37,6 +40,11 @@ module mapl3g_AbstractStateItemSpec
 
       procedure :: make_action
    end type AbstractStateItemSpec
+
+   type :: StateItemSpecPtr
+      class(AbstractStateItemSpec), pointer :: ptr
+   end type StateItemSpecPtr
+
 
    abstract interface
 
@@ -56,11 +64,34 @@ module mapl3g_AbstractStateItemSpec
       end function I_can_connect
 
       ! Will use ESMF so cannot be PURE
-      subroutine I_make(this, rc)
+      subroutine I_create(this, dependency_specs, rc)
+         import AbstractStateItemSpec
+         import StateItemSpecPtr
+         class(AbstractStateItemSpec), intent(inout) :: this
+         type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
+         integer, optional, intent(out) :: rc
+      end subroutine I_create
+
+      subroutine I_destroy(this, rc)
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(inout) :: this
          integer, optional, intent(out) :: rc
-      end subroutine I_make
+      end subroutine I_destroy
+
+      ! Will use ESMF so cannot be PURE
+      subroutine I_allocate(this, rc)
+         import AbstractStateItemSpec
+         class(AbstractStateItemSpec), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine I_allocate
+
+      function I_get_dependencies(this, rc) result(dependencies)
+         use mapl3g_ActualPtVector
+         import AbstractStateItemSpec
+         type(ActualPtVector) :: dependencies
+         class(AbstractStateItemSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function I_get_dependencies
 
       function I_make_extension(this, src_spec, rc) result(action_spec)
          use mapl3g_AbstractActionSpec
@@ -74,50 +105,34 @@ module mapl3g_AbstractStateItemSpec
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
          use mapl3g_MultiState
          use mapl3g_ActualConnectionPt
-!!$         use esmf, only: ESMF_State
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(in) :: this
          type(MultiState), intent(inout) :: multi_state
-!!$         type(ESMF_State), intent(inout) :: state
          type(ActualConnectionPt), intent(in) :: actual_pt
-!!$         character(*), intent(in) :: short_name
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_state
+
+      subroutine I_add_to_bundle(this, bundle, rc)
+         use esmf, only: ESMF_FieldBundle
+         use mapl3g_ActualConnectionPt
+         import AbstractStateItemSpec
+         class(AbstractStateItemSpec), intent(in) :: this
+         type(ESMF_FieldBundle), intent(inout) :: bundle
+         integer, optional, intent(out) :: rc
+      end subroutine I_add_to_bundle
 
    end interface
 
 contains
    
-!!$   ! Non overridable methods
-!!$   ! ------------------------
-!!$   
-!!$   pure subroutine set_name(this, name)
-!!$      class(AbstractStateItemSpec), intent(inout) :: this
-!!$      character(*), intent(in) :: name
-!!$      this%name = name
-!!$   end subroutine set_name
-!!$   
-!!$
-!!$   pure function get_name(this) result(name)
-!!$      character(:), allocatable :: name
-!!$      class(AbstractStateItemSpec), intent(in) :: this
-!!$      name = this%name
-!!$   end function get_name
-!!$   
-!!$   pure subroutine set_ultimate_source_gc(this, ultimate_source_gc)
-!!$      class(AbstractStateItemSpec), intent(inout) :: this
-!!$      character(*), intent(in) :: ultimate_source_gc
-!!$      this%ultimate_source_gc = ultimate_source_gc
-!!$   end subroutine set_ultimate_source_gc
-!!$   
-!!$
-!!$   pure function get_ultimate_source_gc(this) result(ultimate_source_gc)
-!!$      character(:), allocatable :: ultimate_source_gc
-!!$      class(AbstractStateItemSpec), intent(in) :: this
-!!$      ultimate_source_gc = this%ultimate_source_gc
-!!$   end function get_ultimate_source_gc
-!!$   
-!!$
+   function new_StateItemSpecPtr(state_item) result(wrap)
+      type(StateItemSpecPtr) :: wrap
+      class(AbstractStateItemSpec), target :: state_item
+
+      wrap%ptr => state_item
+   end function new_StateItemSpecPtr
+  
+
    pure subroutine set_allocated(this, allocated)
       class(AbstractStateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: allocated

@@ -1,3 +1,4 @@
+
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
@@ -12,7 +13,9 @@ module mapl3g_VariableSpec
    use mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandling
+   use mapl3g_HierarchicalRegistry
    use esmf
+   use gFTL2_StringVector
    use nuopc
    implicit none
    private
@@ -31,7 +34,8 @@ module mapl3g_VariableSpec
 
       ! Metadata
       character(:), allocatable :: standard_name
-      type(ESMF_StateItem_Flag) :: state_item = MAPL_STATEITEM_FIELD
+      type(ESMF_StateItem_Flag) :: itemtype = MAPL_STATEITEM_FIELD
+      type(StringVector), allocatable :: service_items
       character(:), allocatable :: units
       character(:), allocatable :: substate
 
@@ -59,14 +63,15 @@ contains
 
    function new_VariableSpec( &
         state_intent, short_name, unusable, standard_name, &
-        state_item, units, substate, typekind, default_value) result(var_spec)
+        itemtype, units, substate, typekind, service_items, default_value) result(var_spec)
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       ! Optional args:
       character(*), optional, intent(in) :: standard_name
-      type(ESMF_StateItem_Flag), optional, intent(in) :: state_item
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
+      type(StringVector), optional :: service_items
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
@@ -81,10 +86,11 @@ contains
 #define _SET_OPTIONAL(attr) if (present(attr)) var_spec% attr = attr
 
       _SET_OPTIONAL(standard_name)
-      _SET_OPTIONAL(state_item)
+      _SET_OPTIONAL(itemtype)
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(substate)
       _SET_OPTIONAL(typekind)
+      _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
 
    end function new_VariableSpec
@@ -99,44 +105,44 @@ contains
       class(YAML_Node), intent(in) :: config
 
       call config%get(this%standard_name, 'standard_name')
-      this%state_item = get_state_item(config)
+      this%itemtype = get_itemtype(config)
       call config%get(this%units, 'units')
 
    contains
 
       
-      function get_state_item(config) result(state_item)
-         type(ESMF_StateItem_Flag) :: state_item
+      function get_itemtype(config) result(itemtype)
+         type(ESMF_StateItem_Flag) :: itemtype
          class(YAML_Node), intent(in) :: config
 
-         character(:), allocatable :: state_item_as_string
+         character(:), allocatable :: itemtype_as_string
          integer :: status
 
-         state_item = MAPL_STATEITEM_FIELD ! default
-         if (.not. config%has('state_item')) return
+         itemtype = MAPL_STATEITEM_FIELD ! default
+         if (.not. config%has('itemtype')) return
          
-         call config%get(state_item_as_string, 'state_item', rc=status)
+         call config%get(itemtype_as_string, 'itemtype', rc=status)
          if (status /= 0) then
-            state_item = MAPL_STATEITEM_UNKNOWN
+            itemtype = MAPL_STATEITEM_UNKNOWN
             return
          end if
          
-         select case (state_item_as_string)
+         select case (itemtype_as_string)
          case ('field')
-            state_item = MAPL_STATEITEM_FIELD
+            itemtype = MAPL_STATEITEM_FIELD
          case ('bundle')
-            state_item = MAPL_STATEITEM_FIELDBUNDLE
+            itemtype = MAPL_STATEITEM_FIELDBUNDLE
          case ('state')
-            state_item = MAPL_STATEITEM_STATE
+            itemtype = MAPL_STATEITEM_STATE
          case ('service_provider')
-            state_item = MAPL_STATEITEM_SERVICE_PROVIDER
+            itemtype = MAPL_STATEITEM_SERVICE_PROVIDER
          case ('service_subcriber')
-            state_item = MAPL_STATEITEM_SERVICE_SUBSCRIBER
+            itemtype = MAPL_STATEITEM_SERVICE_SUBSCRIBER
          case default
-            state_item = MAPL_STATEITEM_UNKNOWN
+            itemtype = MAPL_STATEITEM_UNKNOWN
          end select
          
-      end function get_state_item
+      end function get_itemtype
       
    end subroutine initialize
 
@@ -161,7 +167,7 @@ contains
 
       integer :: status
 
-      select case (this%state_item%ot)
+      select case (this%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec::item_spec)
          item_spec = this%make_FieldSpec(geom, _RC)
@@ -208,7 +214,7 @@ contains
 
          is_valid = .false. ! unless
 
-         if (.not. this%state_item == MAPL_STATEITEM_FIELD) return
+         if (.not. this%itemtype == MAPL_STATEITEM_FIELD) return
          if (.not. allocated(this%standard_name)) return
 
          is_valid = .true.
@@ -249,7 +255,7 @@ contains
          _RETURN(_FAILURE)
       end if
 
-      service_spec = ServiceSpec()
+      service_spec = ServiceSpec(this%service_items)
       _RETURN(_SUCCESS)
 
    contains
@@ -258,7 +264,7 @@ contains
          class(VariableSpec), intent(in) :: this
 
          is_valid = .false. ! unless
-         if (.not. this%state_item == MAPL_STATEITEM_SERVICE) return
+         if (.not. this%itemtype == MAPL_STATEITEM_SERVICE) return
          is_valid = .true.
          
       end function valid
