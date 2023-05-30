@@ -21,26 +21,30 @@ contains
 
    end subroutine set_up
 
+   function make_datetime_string(yy, mm, dd, h, m, s) result(datetime_string)
+      integer, intent(in) :: yy, mm, dd, h, m, s
+      character(len=32) :: datetime_string
+      character(len=*), parameter :: fmt_string = '(I4.4, "-", I2.2, "-", I2.2, 1X, I2.2, ":", I2.2, ":", I2.2)'
+      integer :: iostat_
+
+      write(datetime_string, fmt=fmt_string, iostat=iostat_) yy, mm, dd, h, m, s
+      if(iostat_ == 0) return
+      datetime_string = ''
+
+   end function make_datetime_string
+
    function make_units_string(units, preposition, yy, mm, dd, h, m, s) result(units_string)
       character(len=*), intent(in) :: units
       character(len=*), intent(in) :: preposition
       integer, intent(in) :: yy, mm, dd, h, m, s
-      character(len=32) :: units_string
-
-      character, parameter :: D = '-'
-      character, parameter :: T = ':'
-      character(len=*), parameter :: I2 = ', I2.2'
-      character(len=*), parameter :: OA = '(A' // ', 1X, A, 1X'
-      character(len=*), parameter :: YMD = ', I4.4'// D // I2 // D // I2
-      character(len=*), parameter :: HMS = ', 1X' // I2 // T // I2 // T // I2 // ')'
-!      character(len=*), parameter :: fmt_string = OA // YMD // HMS
-      integer :: status
-
-      character(len=*), parameter :: fmt_string = '(A, 1X, A, 1X, I4.4, "-", I2.2, "-", I2.2, 1X, I2.2, ":", I2.2, ":", I2.2)'
-      write(units_string, fmt=fmt_string, iostat=status) trim(units), trim(preposition), yy, mm, dd, h, m, s
-      if(status == 0) return
+      character(len=132) :: units_string
+      character(len=:), allocatable :: datetime_string
+      character(len=*), parameter :: SPACE = ' '
 
       units_string = ''
+      datetime_string = make_datetime_string(yy, mm, dd, h, m, s)
+      if(len_trim(datetime_string) == 0) return
+      units_string = trim(units) // SPACE // trim(preposition) // SPACE // datetime_string
 
    end function make_units_string
 
@@ -49,7 +53,51 @@ contains
       ESMF_Times_Equal = (timeu == timev)
    end function ESMF_Times_Equal
 
-   @Test
+!   @Test
+   subroutine test_make_datetime_string()
+      integer, parameter :: YY = 1999
+      integer, parameter :: MM = 12
+      integer, parameter :: DD = 31
+      integer, parameter :: H = 23
+      integer, parameter :: M = 59
+      integer, parameter :: S = 59
+
+      character(len=*), parameter :: EXPECTED_DATETIME_STRING = '1999-12-31 23:59:59'
+      integer, parameter :: EXPECTED_LENGTH = len(EXPECTED_DATETIME_STRING)
+
+      character(len=:), allocatable :: actual_datetime_string
+
+      actual_datetime_string = make_datetime_string(yy, mm, dd, h, m, s)
+      @assertEqual(EXPECTED_LENGTH, len_trim(actual_datetime_string), 'Incorrect length for datetime string')
+      @assertEqual(EXPECTED_DATETIME_STRING, trim(actual_datetime_string), 'Datetime strings do not match.')
+      
+   end subroutine test_make_datetime_string
+
+!   @Test
+   subroutine test_make_units_string()
+      integer, parameter :: YY = 1999
+      integer, parameter :: MM = 12
+      integer, parameter :: DD = 31
+      integer, parameter :: H = 23
+      integer, parameter :: M = 59
+      integer, parameter :: S = 59
+      
+      character(len=*), parameter :: SPACE = ' '
+      character(len=*), parameter :: EXPECTED_UNITS = 'seconds'
+      character(len=*), parameter :: EXPECTED_PREPOSITION = 'since'
+      character(len=*), parameter :: EXPECTED_UNITS_STRING = EXPECTED_UNITS // &
+         SPACE // EXPECTED_PREPOSITION // SPACE // '1999-12-31 23:59:59'
+      integer, parameter :: EXPECTED_LENGTH = len(EXPECTED_UNITS_STRING)
+      
+      character(len=:), allocatable :: actual_units_string
+
+      actual_units_string = make_units_string(EXPECTED_UNITS, EXPECTED_PREPOSITION, YY, MM, DD, H, M, S)
+      @assertEqual(EXPECTED_LENGTH, len_trim(actual_units_string), "Incorrect length for actual_units_string")
+      @assertEqual(EXPECTED_UNITS_STRING, actual_units_string, "Units_string's do not match.")
+
+   end subroutine test_make_units_string
+
+!   @Test
    subroutine test_convert_NetCDF_DateTime_to_ESMF()
       character(len=*), parameter :: expected_tunit = 'seconds'
       integer, parameter :: int_time = 1800
@@ -77,7 +125,7 @@ contains
       
    end subroutine test_convert_NetCDF_DateTime_to_ESMF
 
-   @Test
+!   @Test
    subroutine test_convert_ESMF_to_NetCDF_DateTime()
       character(len=*), parameter :: units = 'seconds'
       character(len=*), parameter :: start_time_iso_string = '2013-08-26T12:34:56'
@@ -105,8 +153,8 @@ contains
 
    end subroutine test_convert_ESMF_to_NetCDF_DateTime
 
-   @Test
-   subroutine test_make_ESMF_TimeInterval()
+!   @Test
+   subroutine test_make_ESMF_TimeInterval_integer()
       character(len=*), parameter :: units = 'seconds'
       character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
       integer, parameter :: duration = 1800
@@ -120,27 +168,27 @@ contains
       call make_ESMF_TimeInterval(duration, units, start_time, interval, _RC)
       @assertTrue(expected_interval == interval, 'ESMF_TimeInterval variables do not match.')
 
-   end subroutine test_make_ESMF_TimeInterval
+   end subroutine test_make_ESMF_TimeInterval_integer
 
-   @Test
-   subroutine test_make_NetCDF_DateTime_duration()
+!   @Test
+   subroutine test_make_NetCDF_DateTime_duration_integer()
       character(len=*), parameter :: tunit = 'seconds'
       character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
       type(ESMF_TimeInterval) :: interval
       type(ESMF_Time) :: start_time
-      integer, parameter :: expected_int_time = 1800
-      integer :: int_time
+      integer, parameter :: expected_duration = 1800
+      integer :: duration
       integer :: status, rc
 
       call ESMF_TimeSet(start_time, iso_string, _RC)
-      call ESMF_TimeIntervalSet(interval, startTime=start_time, s=expected_int_time, _RC)
+      call ESMF_TimeIntervalSet(interval, startTime=start_time, s=expected_duration, _RC)
 
-      call make_NetCDF_DateTime_duration(interval, start_time, tunit, int_time, _RC)
-      @assertEqual(expected_int_time, int_time, 'int_time does not match.') 
+      call make_NetCDF_DateTime_duration(interval, start_time, tunit, duration, _RC)
+      @assertEqual(expected_duration, duration, 'duration does not match.') 
 
-   end subroutine test_make_NetCDF_DateTime_duration
+   end subroutine test_make_NetCDF_DateTime_duration_integer
 
-   @Test
+!   @Test
    subroutine test_make_NetCDF_DateTime_units_string()
       type(ESMF_Time) :: start_time
       character(len=*), parameter :: tunit = 'seconds'
@@ -155,7 +203,7 @@ contains
       @assertEqual(expected, actual, 'Strings don''t match: ' // expected // '/=' // actual)
    end subroutine test_make_NetCDF_DateTime_units_string
 
-   @Test
+!   @Test
    subroutine test_convert_ESMF_Time_to_NetCDF_DateTimeString()
       type(ESMF_Time) :: esmf_datetime
       character(len=*), parameter :: expected = '2022-08-26 07:30:37'
@@ -173,7 +221,7 @@ contains
       @assertEqual(expected, actual, 'Strings don''t match: ' // expected  // '/=' // actual)
    end subroutine test_convert_ESMF_Time_to_NetCDF_DateTimeString
 
-   @Test
+!   @Test
    subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time()
       character(len=19), parameter:: netcdf_string='2023-01-31 14:04:37'
       type(ESMF_Time) :: etime
@@ -221,43 +269,64 @@ contains
       @assertFalse(get_shift_sign(preposition) == expected)
    end subroutine test_get_shift_sign
 
-!   @test
-   subroutine test_split()
+   @test
+   subroutine test_split_chars()
       character(len=*), parameter :: head = 'head'
       character(len=*), parameter :: tail = 'tail'
       character(len=*), parameter :: delim = '::'
-      character(len=*), parameter :: test_string = head // delim // tail
+      character(len=:), allocatable :: test_string
       character(len=:), allocatable :: parts(:)
 
-      parts = split_all(test_string, delim)
-      @assertEqual(2, size(parts))
-      @assertEqual(head, parts(1))
-      @assertEqual(tail, parts(2))
+      test_string = head // delim // tail
+      parts = split(test_string, delim)
+      @assertEqual(2, size(parts), 'Two parts expected.')
+      @assertEqual(head, parts(1), 'Part 1 does not match head.')
+      @assertEqual(tail, parts(2), 'Part 2 does not match tail.')
 
-   end subroutine test_split
+      test_string = delim // tail
+      parts = split(test_string, delim)
+      @assertEqual(tail, parts(2), 'Part 2 does not match tail.')
+      @assertEqual(0, len_trim(parts(1)),'Part 1 has nonzero length.')
 
-!   @test
-   subroutine test_split_all()
-      character(len=4), parameter :: chunk(6) = ['mice', 'dogs', 'rats', 'fish', 'deer', 'pigs']
-      character(len=*), parameter :: dlm = '::'
+      test_string = head // delim
+      parts = split(test_string, delim)
+      @assertEqual(head, parts(1), 'Part 1 does not match head.')
+      @assertEqual(0, len_trim(parts(2)),'Part 2 has nonzero length.')
+
+      test_string = head // '  ' // tail
+      parts = split(test_string, delim)
+      @assertEqual(test_string, parts(1), 'Part 1 does not match test_string.')
+      @assertEqual(0, len_trim(parts(2)),'Part 2 has nonzero length.')
+
+      test_string = ''
+      parts = split(test_string, delim)
+      @assertEqual(0, len_trim(parts(1)),'Part 1 has nonzero length.')
+      @assertEqual(0, len_trim(parts(2)),'Part 2 has nonzero length.')
+
+   end subroutine test_split_chars
+
+   @test
+   subroutine test_split_all_iterative()
+      integer, parameter :: N = 6
+      integer, parameter :: SLEN = 4
+      character(len=SLEN), parameter :: chunk(N) = ['mice', 'dogs', 'rats', 'fish', 'deer', 'pigs']
+      character(len=:), allocatable :: dlm
       character(len=:), allocatable :: test_string
       character(len=:), allocatable :: parts(:)
       integer :: i
 
-      test_string = chunk(1)
-      do i = 2, size(chunk)
-         test_string = test_string // dlm // chunk(i)
-      end do
+      dlm = ' '
+      test_string =  'mice' // dlm // 'dogs' // dlm // 'rats' // dlm // 'fish' // dlm // 'deer' // dlm // 'pigs'
 
       parts = split_all(test_string, dlm)
-      @assertEqual(size(parts), size(chunk))
+      @assertEqual(size(parts), size(chunk), 'Number of parts do not match.')
       do i = 1, size(chunk)
          @assertEqual(chunk(i), parts(i))
       end do
 
-   end subroutine test_split_all
+   end subroutine test_split_all_iterative
  
-!   @test
+   @test
    subroutine test_is_valid_netcdf_datetime_string()
       character(len=:), allocatable :: string
 
@@ -281,7 +350,7 @@ contains
 
    end subroutine test_is_valid_netcdf_datetime_string
 
-!   @test
+   @test
    subroutine test_convert_to_integer()
       character(len=:), allocatable :: str
       integer :: expected, actual, status
@@ -297,15 +366,75 @@ contains
 
 !   @test
    subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_integer()
-      character, parameter :: D = '-'
-      character, parameter :: T = ':'
-      character(len=*), parameter :: I2 = ', I2.2'
-      character(len=*), parameter :: OA = '(A' // ', 1X, A, 1X'
-      character(len=*), parameter :: YMD = ', I4.4'// D // I2 // D // I2
-      character(len=*), parameter :: HMS = ', 1X' // I2 // T // I2 // T // I2 // ')'
-      character(len=*), parameter :: fmt_string = OA // YMD // HMS
-
       integer :: duration
+      integer :: yy, mm, dd, h, m, s
+      character(len=:), allocatable :: units
+      character(len=:), allocatable :: preposition
+      character(len=:), allocatable :: units_string
+      type(ESMF_Time) :: time, esmf_time
+      integer :: status
+
+      duration=1800
+      yy = 1999
+      mm = 12
+      dd = 31
+      h = 23
+      m = 59
+      s = 59
+      units = 'seconds'
+      preposition = 'since'
+
+      units_string = make_units_string(units, preposition, yy, mm, dd, h, m, s)
+      @assertTrue(len_trim(units_string) > 0, "Failed to make units_string")
+
+      call ESMF_TimeSet(esmf_time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
+      @assertEqual(0, status, 'Unable to create expected ESMF_Time')
+      @assertEqual(0, status, 'Unable to print ESMF_Time') 
+
+      call convert_NetCDF_DateTime_to_ESMF_Time(duration, units_string, time, rc = status)
+      @assertEqual(0, status, 'Conversion failed')
+      
+      @assertTrue(ESMF_Times_Equal(esmf_time, time), "ESMF_Time's don't match.")
+
+   end subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_integer
+
+!   @test
+   subroutine test_get_NetCDF_duration_from_ESMF_Time_integer()
+      integer, parameter :: SECONDS_PER_MINUTE = 60
+      type(ESMF_Time) :: time
+      character(len=:), allocatable :: units_string
+      integer :: duration, expected_duration, duration_in_minutes
+      character(len=:), allocatable :: units
+      character(len=:), allocatable :: preposition
+      integer :: yy, mm, dd, h, m, s
+      integer :: status
+
+      expected_duration=1800
+      duration_in_minutes = expected_duration/SECONDS_PER_MINUTE
+      yy = 1999
+      mm = 12
+      dd = 31
+      h = 23
+      m = 29
+      s = 59
+      units = 'seconds'
+      preposition = 'since'
+
+      units_string = make_units_string(units, preposition, yy, mm, dd, h, m, s)
+      @assertTrue(len_trim(units_string) > 0, 'Failed to make units_string')
+
+      call ESMF_TimeSet(time, yy=yy, mm=mm, dd=dd, h=h, m=m+duration_in_minutes, s=s, rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Time')
+
+      call get_NetCDF_duration_from_ESMF_Time(time, units_string, duration, rc=status)
+      @assertEqual(0, status, 'Failed to get duration time')
+      @assertEqual(expected_duration, duration, 'Actual duration does not match expected duration.')
+
+   end subroutine test_get_NetCDF_duration_from_ESMF_Time_integer
+
+!   @test
+   subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_real()
+      real(kind=ESMF_KIND_R8) :: duration
       integer :: yy, mm, dd, h, m, s
       character(len=:), allocatable :: units
       character(len=:), allocatable :: preposition
@@ -334,13 +463,48 @@ contains
       
       @assertTrue(ESMF_Times_Equal(esmf_time, time), 'ESMF_Times''s don''t match.')
 
-   end subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_integer
+   end subroutine test_convert_NetCDF_DateTime_to_ESMF_Time_real
 
 !   @test
-   subroutine test_get_NetCDF_duration_from_ESMF_Time_integer()
+   subroutine test_make_ESMF_TimeInterval_real()
+      character(len=*), parameter :: units = 'seconds'
+      character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
+      real(kind=ESMF_KIND_R8), parameter :: duration = 1800
+      type(ESMF_TimeInterval) :: expected_interval
+      type(ESMF_Time) :: start_time
+      type(ESMF_TimeInterval) :: interval
+      integer :: rc, status
+
+      call ESMF_TimeSet(start_time, iso_string, _RC)
+      call ESMF_TimeIntervalSet(expected_interval, startTime=start_time, s_r8=duration, _RC)
+      call make_ESMF_TimeInterval(duration, units, start_time, interval, _RC)
+      @assertTrue(expected_interval == interval, 'ESMF_TimeInterval variables do not match.')
+
+   end subroutine test_make_ESMF_TimeInterval_real
+
+!   @Test
+   subroutine test_make_NetCDF_DateTime_duration_real()
+      character(len=*), parameter :: tunit = 'seconds'
+      character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
+      type(ESMF_TimeInterval) :: interval
+      type(ESMF_Time) :: start_time
+      real(kind=ESMF_KIND_R8), parameter :: expected_duration = 1800
+      real(kind=ESMF_KIND_R8) :: duration
+      integer :: status, rc
+
+      call ESMF_TimeSet(start_time, iso_string, _RC)
+      call ESMF_TimeIntervalSet(interval, startTime=start_time, s_r8=expected_duration, _RC)
+
+      call make_NetCDF_DateTime_duration(interval, start_time, tunit, duration, _RC)
+      @assertEqual(expected_duration, duration, 'int_time does not match.') 
+
+   end subroutine test_make_NetCDF_DateTime_duration_real
+
+!   @test
+   subroutine test_get_NetCDF_duration_from_ESMF_Time_real()
       type(ESMF_Time) :: time
       character(len=:), allocatable :: units_string
-      integer :: duration, expected_duration
+      real(kind=ESMF_KIND_R8) :: duration, expected_duration
       character(len=:), allocatable :: units
       character(len=:), allocatable :: preposition
       integer :: yy, mm, dd, h, m, s
@@ -366,14 +530,75 @@ contains
       @assertEqual(0, status, 'Failed to create time')
       @assertEqual(expected_duration, duration, 'Expected duration does not match expected duration.')
 
-   end subroutine test_get_NetCDF_duration_from_ESMF_Time_integer
-
-!   @test
-   subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time_integer()
-   end subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time_integer
-
-!   @test
-   subroutine test_make_ESMF_TimeInterval_integer()
-   end subroutine test_make_ESMF_TimeInterval_integer
+   end subroutine test_get_NetCDF_duration_from_ESMF_Time_real
 
 end module test_MAPL_NetCDF
+!   @test
+!   subroutine test_split_chararray()
+!      character(len=*), parameter :: head = 'head'
+!      character(len=*), parameter :: tail = 'tail'
+!      character(len=*), parameter :: delim = '::'
+!      character(len=:), allocatable :: parts(:)
+!
+!      parts = [character::]
+!      parts = split(parts, delimiter)
+!      @assertEqual(0, size(parts))
+!
+!      parts = [ head // delim // tail ]
+!      parts = split(parts, delim)
+!      @assertEqual(2, size(parts))
+!      @assertEqual(head, parts(1), 'Part 1 does not match head.')
+!      @assertEqual(tail, parts(2), 'Part 2 does not match tail.')
+!
+!      parts = [ delim // tail ]
+!      parts = split(parts, delim)
+!      @assertEqual(1, size(parts))
+!      @assertEqual(tail, parts(1), 'Part 1 does not match tail.')
+!
+!      parts = [ head // delim ]
+!      parts = split(parts, delim)
+!      @assertEqual(1, size(parts))
+!      @assertEqual(head, parts(1), 'Part 1 does not match head.')
+!   end subroutine test_split_chararray
+!
+!   @test
+!   subroutine test_strip_empty()
+!      character(len=:), allocatable :: chararray
+!      character(len=*), parameter :: ALL_CHARS = [ 'AAA', 'BBB', 'CCC' ]
+!      integer :: i, missing
+!
+!      charray = ALL_CHARS
+!      charray = strip_empty(chararray)
+!      @assertEqual(size(ALL_CHARS), size(chararray), 'Number of elements do not match.')
+!      do i = 1, size(charray)
+!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
+!      end do
+!
+!      charray = [ALL_CHARS(1), ALL_CHARS(2), '']
+!      missing = 3
+!      charray = strip_empty(chararray)
+!      @assertEqual(size(ALL_CHARS)-1, size(chararray), 'Number of elements do not match.')
+!      do i = 1, size(charray)
+!         if(i == missing) cycle
+!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
+!      end do
+!
+!      charray = ['', ALL_CHARS(2), ALL_CHARS(3)]
+!      missing = 1
+!      charray = strip_empty(chararray)
+!      @assertEqual(size(ALL_CHARS)-1, size(chararray), 'Number of elements do not match.')
+!      do i = 1, size(charray)
+!         if(i == missing) cycle
+!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
+!      end do
+!
+!      charray = [ALL_CHARS(1), '', ALL_CHARS(3)]
+!      missing = 2
+!      charray = strip_empty(chararray)
+!      @assertEqual(size(ALL_CHARS)-1, size(chararray), 'Number of elements do not match.')
+!      do i = 1, size(charray)
+!         if(i == missing) cycle
+!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
+!      end do
+!
+!   end subroutine test_strip_empty

@@ -3,6 +3,7 @@
 !Do REAL(8) days need to be included?
 !Do INTEGER or INTEGER(8) days need to be included?
 !Is d_r8 Julian day or Gregorian day?
+!Does get_shift_sign need to be converted to real for real procedures? 
 
 !subroutine to convert
 !From: integer: array(2) = [ 20010101  010101 (HHMMSS) ] ![ (YYYYMMDD) (HHMMSS) ]
@@ -41,6 +42,7 @@ module MAPL_NetCDF
 
    interface convert_NetCDF_DateTime_to_ESMF_Time
       module procedure :: convert_NetCDF_DateTime_to_ESMF_Time_integer
+      module procedure :: convert_NetCDF_DateTime_to_ESMF_Time_real
    end interface convert_NetCDF_DateTime_to_ESMF_Time
 
    interface make_ESMF_TimeInterval
@@ -58,6 +60,14 @@ module MAPL_NetCDF
       module procedure :: get_NetCDF_duration_from_ESMF_Time_real
    end interface get_NetCDF_duration_from_ESMF_Time
 
+   interface split
+      module procedure :: split_chars
+   end interface split
+
+   interface split_all
+      module procedure :: split_all_recursive
+      module procedure :: split_all_iterative
+   end interface split_all
    private
 
    character, parameter :: PART_DELIM = ' '
@@ -294,156 +304,6 @@ contains
 
    end subroutine convert_ESMF_Time_to_NetCDF_DateTimeString
 
-   ! Convert string representing an integer to the integer
-   subroutine convert_to_integer(string_in, int_out, rc)
-      character(len=*), intent(in) :: string_in
-      integer, intent(out) :: int_out
-      integer, optional, intent(out) :: rc
-      integer :: stat
-
-      read(string_in, '(I16)', iostat=stat) int_out
-
-      if(present(rc)) rc = stat
-
-   end subroutine convert_to_integer
-
-   ! Convert NetCDF datetime to ESMF_Time
-   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, datetime, unusable, rc)
-      character(len=*), intent(in) :: datetime_string
-      type(ESMF_Time), intent(inout) :: datetime
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-      integer :: status 
-      integer :: yy, mm, dd, h, m, s, i, j 
-      character(len=4) :: part
-
-      _UNUSED_DUMMY(unusable)
-
-      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), 'Invalid datetime string')
-
-      i = 1
-      j = i + 3
-      part = datetime_string(i:j)
-      call convert_to_integer(part, yy, rc = status)
-      _ASSERT(status == 0, 'Unable to convert year string')
-
-      i = j + 2
-      j = j + 3
-      part = datetime_string(i:j)
-      call convert_to_integer(part, mm, rc = status)
-      _ASSERT(status == 0, 'Unable to convert month string')
-
-      i = j + 2
-      j = j + 3
-      part = datetime_string(i:j)
-      call convert_to_integer(part, dd, rc = status)
-      _ASSERT(status == 0, 'Unable to convert day string')
-
-      i = j + 2
-      j = j + 3
-      part = datetime_string(i:j)
-      call convert_to_integer(part, h, rc = status)
-      _ASSERT(status == 0, 'Unable to convert hour string')
-
-      i = j + 2
-      j = j + 3
-      part = datetime_string(i:j)
-      call convert_to_integer(part, m, rc = status)
-      _ASSERT(status == 0, 'Unable to convert minute string')
-
-      i = j + 2
-      j = j + 3
-      part = datetime_string(i:j)
-      call convert_to_integer(part, s, rc = status)
-      _ASSERT(status == 0, 'Unable to convert second string')
-      call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
-      call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-
-      _RETURN(_SUCCESS)
-
-   end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time
-
-   function is_valid_netcdf_datetime_string(string) result(tval)
-      character(len=*), parameter :: DIGITS = '0123456789'
-      character(len=*), intent(in) :: string
-      logical :: tval
-      integer :: i
-
-      tval = .false.
-      
-      if(len(string) /= len(NETCDF_DATETIME)) return
-
-      do i=1, len(string)
-         if(scan(NETCDF_DATETIME(i:i), DIGITS) > 0) then
-            if(scan(string(i:i), DIGITS) <= 0) return
-         else
-            if(string(i:i) /= NETCDF_DATETIME(i:i)) return
-         end if
-      end do
-      
-      tval = .true.
-
-   end function is_valid_netcdf_datetime_string
-
-   function is_time_unit(tunit)
-      character(len=*), intent(in) :: tunit
-      logical :: is_time_unit
-      integer :: i
-
-      is_time_unit = .TRUE.
-      do i = 1, size(TIME_UNITS)
-         if(adjustl(tunit) == adjustl(TIME_UNITS(i))) return
-      end do
-      is_time_unit = .FALSE.
-
-   end function is_time_unit
-
-   ! Get the sign of integer represening a time span based on preposition
-   function get_shift_sign(preposition)
-      character(len=*), intent(in) :: preposition
-      integer :: get_shift_sign
-      integer, parameter :: POSITIVE = 1
-      get_shift_sign = 0
-      if(adjustl(preposition) == 'since') get_shift_sign = POSITIVE
-   end function get_shift_sign
-
-   ! Split string at delimiter
-   function split(string, delimiter)
-      character(len=*), intent(in) :: string
-      character(len=*), intent(in) :: delimiter
-      character(len=len(string)) :: split(2)
-      integer start
- 
-      split = ['', '']
-
-      start = index(string, delimiter)
-      if(start == 0) then
-         split(1) = string
-         return
-      end if
-
-      split(1) = string(1:(start - 1))
-      split(2) = string((start+len(delimiter)):len(string))
-
-   end function split
-
-   ! Split string into all substrings based on delimiter
-   recursive function split_all(string, delimiter) result(parts)
-      character(len=*), intent(in) :: string
-      character(len=*), intent(in) :: delimiter
-      character(len=:), allocatable :: parts(:)
-      integer :: start
-
-      start = index(string, delimiter)
-
-      if(start == 0) then
-         parts = [string]
-      else
-         parts = [string(1:(start-1)), split_all(string((start+len(delimiter)):len(string)), delimiter)] 
-      end if
-
-   end function split_all
-
    subroutine convert_NetCDF_DateTime_to_ESMF_Time_integer(duration, &
       units_string, time, unusable, rc)
       integer, intent(in) :: duration
@@ -457,8 +317,9 @@ contains
       type(ESMF_Time) :: start_time
       character(len=:), allocatable :: units
       character(len=:), allocatable :: preposition
-      character(len=:), allocatable :: date_string
-      character(len=:), allocatable :: time_string
+      character(len=LEN_DATE) :: date_string
+      character(len=LEN_TIME) :: time_string
+      character(len=LEN_DATETIME) :: datetime_string
       integer :: signed_duration, sign_factor
       integer :: status
 
@@ -474,12 +335,13 @@ contains
       preposition = adjustl(parts(2))
       date_string = adjustl(parts(3))
       time_string = adjustl(parts(4))
+      datetime_string = date_string // PART_DELIM // time_string
 
       sign_factor = get_shift_sign(preposition)
       _ASSERT(sign_factor /= 0, 'Unrecognized preposition')
       signed_duration = sign_factor * duration
 
-      call convert_NetCDF_DateTimeString_to_ESMF_Time(date_string // PART_DELIM // time_string, start_time, _RC)
+      call convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, start_time, _RC)
       call make_ESMF_TimeInterval(signed_duration, units, start_time, interval, _RC)
 
       time = start_time + interval
@@ -510,7 +372,7 @@ contains
       
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units_string empty')
 
-      parts = split_all(units_string, PART_DELIM)
+      parts = split_all(trim(units_string), PART_DELIM)
       _ASSERT(size(parts) == NUM_PARTS_UNITS_STRING, 'Invalid number of parts in units_string')
 
       units       = adjustl(parts(1))
@@ -587,9 +449,13 @@ contains
 
       select case(trim(adjustl(tunit))) 
          case('years')
-            call ESMF_TimeIntervalSet(interval, startTime=start_time, yy=span, _RC)
+            _FAIL('Real values for years are not supported.')
+!            call ESMF_TimeIntervalSet(interval, startTime=start_time, yy=span, _RC)
          case('months')
-            call ESMF_TimeIntervalSet(interval, startTime=start_time, mm=span, _RC)
+            _FAIL('Real values for months are not supported.')
+!            call ESMF_TimeIntervalSet(interval, startTime=start_time, mm=span, _RC)
+         case('days')
+            _FAIL('Real values for days are not supported.')
          case('hours')
             call ESMF_TimeIntervalSet(interval, startTime=start_time, h_r8=span, _RC)
          case('minutes')
@@ -620,9 +486,13 @@ contains
       ! get duration
       select case(trim(adjustl(units))) 
          case('years')
-            call ESMF_TimeIntervalGet(interval, start_time, yy=duration, _RC)
+            _FAIL('Real values for years are not supported.')
+!            call ESMF_TimeIntervalGet(interval, start_time, yy=duration, _RC)
          case('months')
-            call ESMF_TimeIntervalGet(interval, start_time, mm=duration, _RC)
+            _FAIL('Real values for months are not supported.')
+!            call ESMF_TimeIntervalGet(interval, start_time, mm=duration, _RC)
+         case('days')
+            _FAIL('Real values for days are not supported.')
          case('hours')
             call ESMF_TimeIntervalGet(interval, start_time, h_r8=duration, _RC)
          case('minutes')
@@ -678,4 +548,225 @@ contains
       
    end subroutine get_NetCDF_duration_from_ESMF_Time_real
 
+   ! Convert NetCDF datetime to ESMF_Time
+   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, datetime, unusable, rc)
+      character(len=*), intent(in) :: datetime_string
+      type(ESMF_Time), intent(inout) :: datetime
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status 
+      integer :: yy, mm, dd, h, m, s, i, j 
+      character(len=4) :: part
+
+      _UNUSED_DUMMY(unusable)
+
+      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), 'Invalid datetime string')
+
+      i = 1
+      j = i + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, yy, rc = status)
+      _ASSERT(status == 0, 'Unable to convert year string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, mm, rc = status)
+      _ASSERT(status == 0, 'Unable to convert month string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, dd, rc = status)
+      _ASSERT(status == 0, 'Unable to convert day string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, h, rc = status)
+      _ASSERT(status == 0, 'Unable to convert hour string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, m, rc = status)
+      _ASSERT(status == 0, 'Unable to convert minute string')
+
+      i = j + 2
+      j = j + 3
+      part = datetime_string(i:j)
+      call convert_to_integer(part, s, rc = status)
+      _ASSERT(status == 0, 'Unable to convert second string')
+      call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
+      call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time
+
+   function is_valid_netcdf_datetime_string(string) result(tval)
+      character(len=*), parameter :: DIGITS = '0123456789'
+      character(len=*), intent(in) :: string
+      logical :: tval
+      integer :: i
+
+      tval = .false.
+      
+      if(len(trim(string)) /= len(NETCDF_DATETIME)) return
+
+      do i=1, len_trim(string)
+         if(scan(NETCDF_DATETIME(i:i), DIGITS) > 0) then
+            if(scan(string(i:i), DIGITS) <= 0) return
+         else
+            if(string(i:i) /= NETCDF_DATETIME(i:i)) return
+         end if
+      end do
+      
+      tval = .true.
+
+   end function is_valid_netcdf_datetime_string
+
+   function is_time_unit(tunit)
+      character(len=*), intent(in) :: tunit
+      logical :: is_time_unit
+      integer :: i
+
+      is_time_unit = .TRUE.
+      do i = 1, size(TIME_UNITS)
+         if(adjustl(tunit) == adjustl(TIME_UNITS(i))) return
+      end do
+      is_time_unit = .FALSE.
+
+   end function is_time_unit
+
+   ! Get the sign of integer represening a time span based on preposition
+   function get_shift_sign(preposition)
+      character(len=*), intent(in) :: preposition
+      integer :: get_shift_sign
+      integer, parameter :: POSITIVE = 1
+      get_shift_sign = 0
+      if(adjustl(preposition) == 'since') get_shift_sign = POSITIVE
+   end function get_shift_sign
+
+   ! Split string at delimiter
+   function split_chars(chars, delimiter) result(pair)
+      character(len=*), intent(in) :: chars
+      character(len=*), intent(in) :: delimiter
+      character(len=len(chars)) :: pair(2)
+      integer start
+ 
+      pair = ['', '']
+
+      start = index(chars, delimiter)
+      if(start == 0) then
+         pair(1) = chars
+         return
+      end if
+
+      pair(1) = chars(1:(start - 1))
+      pair(2) = chars((start+len(delimiter)):len_trim(chars))
+
+   end function split_chars
+
+   function split_all_iterative(string, delimiter) result(parts)
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: delimiter
+      character(len=:), allocatable :: parts(:)
+      character(len=:), allocatable :: pair(:)
+      character(len=:), allocatable :: head
+      character(len=:), allocatable :: tail
+         
+      parts = [trim(string)]
+
+      if((len(string) == 0) .or. (len(delimiter) == 0)) return
+
+      tail = parts(1)
+      parts = [character::]
+      do while (len(tail) > 0)
+         pair = split(tail, delimiter)
+         head = trim(pair(1))
+         tail = trim(pair(2))
+         if(len(head) > 0) parts = [parts, head]
+      end do
+
+   end function split_all_iterative
+
+   ! Split string into all substrings based on delimiter
+   function split_all_recursive(string, delimiter, recurse) result(parts)
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: delimiter
+      logical , intent(in) :: recurse
+      character(len=:), allocatable :: parts(:)
+
+      if(recurse) then
+         parts = splitter(trim(string), delimiter)
+         return
+      end if
+
+      parts = split_all_iterative(string, delimiter)
+   contains
+
+      recursive function splitter(string, delimiter) result(parts)
+         character(len=*), intent(in) :: string
+         character(len=*), intent(in) :: delimiter
+         character(len=:), allocatable :: parts(:)
+         character(len=:), allocatable :: head
+         character(len=:), allocatable :: tail(:)
+         integer :: next, last
+
+         last = index(string, delimiter) - 1
+
+         if(last < 0) then
+            parts = [string]
+         else
+            head = string(1:last)
+            next = last + len(delimiter) + 1
+            tail = splitter(string(next:len(string)), delimiter)
+            parts = [head, tail]
+         end if
+
+      end function splitter
+
+   end function split_all_recursive
+
+   ! Convert string representing an integer to the integer
+   subroutine convert_to_integer(string_in, int_out, rc)
+      character(len=*), intent(in) :: string_in
+      integer, intent(out) :: int_out
+      integer, optional, intent(out) :: rc
+      integer :: stat
+
+      read(string_in, '(I16)', iostat=stat) int_out
+
+      if(present(rc)) rc = stat
+
+   end subroutine convert_to_integer
+
 end module MAPL_NetCDF
+!   function split_chararray(chararray, delimiter) result(parts)
+!      character(len=*), intent(in) :: chararray(:)
+!      character(len=*), intent(in) :: delimiter
+!      character(len=:), allocatable :: parts(:)
+!
+!      if(size(chararray) == 0) then
+!         parts = chararray
+!         return
+!      end if
+!
+!      parts = strip_empty([chararray(1:size(chararray)), split(chararray(size(chararray)), delimiter)])
+!
+!   end function split_chararray
+!
+!   function strip_empty(chararray) result(stripped)
+!      character(len=*), intent(in) :: chararray
+!      character(len=:), allocatable:: stripped
+!      integer :: i
+!
+!      stripped = [character::]
+!
+!      do i = 1, size(chararray)
+!         if(len(chararray(i) > 0)) stripped = [stripped, chararray(i)]
+!      end do
+!      
+!   end function strip_empty
+
