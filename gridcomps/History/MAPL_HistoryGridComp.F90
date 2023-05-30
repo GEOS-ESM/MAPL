@@ -2389,9 +2389,7 @@ ENDDO PARSER
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
                 call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
-                write(6,*) 'ck af list(n)%xsampler%CreateFileMetaData'
-                stop -1
-                
+                write(6,*) 'ck hgc: af list(n)%xsampler%CreateFileMetaData'
                 collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
                 call list(n)%xsampler%set_param(write_collection_id=collection_id)
              else
@@ -3381,10 +3379,10 @@ ENDDO PARSER
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
        endif
 
-       ! for swath grid only
-       if (trim(list(n)%output_grid_label)=='SwathGrid') then
-          Writing(n) = .false.
-       end if
+!       ! for swath grid only
+!       if (trim(list(n)%output_grid_label)=='SwathGrid') then
+!          Writing(n) = .false.
+!       end if
           
    end do
 
@@ -3461,7 +3459,9 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
+                  if (trim(list(n)%output_grid_label)/='SwathGrid') then
+                     call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
+                  endif
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else
@@ -3532,10 +3532,14 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
+         write(6,*) 'list(n)%unit=', list(n)%unit
+
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                if (trim(list(n)%output_grid_label)=='SwathGrid') then
+                  write(6,*) 'ck hgc, bf call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
                   call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
+                  write(6,*) 'ck hgc, af call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
                else
                   call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
                endif
@@ -3627,7 +3631,7 @@ ENDDO PARSER
    ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
-!         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
+         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
          pt_output_grids => IntState%output_grids
          key_grid_label = list(n)%output_grid_label
  !        call Hsampler%destroy_regen_ogrid_rh ( key_grid_label, pt_output_grids, _RC )         ! at epoch_alarm

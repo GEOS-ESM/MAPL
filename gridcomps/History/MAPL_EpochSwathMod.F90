@@ -1,3 +1,6 @@
+!
+! __ parallel to GriddedIO.F90 with twist for Epoch Swath grid
+!
 #include "MAPL_Generic.h"
 
 module MAPL_EpochSwathMod
@@ -45,7 +48,7 @@ module MAPL_EpochSwathMod
      !!procedure ::  create_sampler => create_epoch_sampler
      procedure ::  regrid_accumulate => regrid_accumulate_on_xysubset
      procedure ::  regen_grid => destroy_regen_ogrid
-     !!procedure ::  write_2_oserver
+     procedure ::  write_2_oserver
   end type samplerHQ
 
   interface samplerHQ
@@ -96,6 +99,7 @@ module MAPL_EpochSwathMod
      procedure :: request_data_from_file
      procedure :: process_data_from_file
      procedure :: swap_undef_value
+     procedure :: addVariable_to_acc_bundle
      procedure :: interp_accumulate_fields
   end type sampler
 
@@ -203,12 +207,7 @@ contains
 
     write(6,*) 'bf sp%interp_accumulate_fields'
     call sp%interp_accumulate_fields (xy_subset, _RC)
-
-    _FAIL ('code wrong at regrid_accumulate_on_xysubset')
-
     write(6,*) 'af sp%interp_accumulate_fields'
-    stop -3
-    rc=-1
 
     _RETURN(ESMF_SUCCESS)
     
@@ -394,9 +393,26 @@ contains
               call s_iter%next()
            enddo
         end if
-        _RETURN(_SUCCESS)
+
+
+        ! __ add acc_bundle, which can be a clone to output_bundle
+        !
+        this%acc_bundle = ESMF_FieldBundleCreate(_RC)
+        call ESMF_FieldBundleSet(this%acc_bundle,grid=this%output_grid,_RC)
+        iter = this%items%begin()
+        do while (iter /= this%items%end())
+           item => iter%get()
+           call this%addVariable_to_acc_bundle(item%xname,_RC)
+           if (item%itemType == ItemTypeVector) then
+              call this%addVariable_to_acc_bundle(item%yname,_RC)
+           end if
+           call iter%next()
+        enddo
+    
+        _RETURN(_SUCCESS)        
 
      end subroutine CreateFileMetaData
+
 
      subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
         class (sampler), intent(inout) :: this
@@ -1414,7 +1430,31 @@ contains
 
   end subroutine swap_undef_value
 
+  
+  subroutine addVariable_to_acc_bundle(this,itemName,rc)
+    class (sampler), intent(inout) :: this
+    character(len=*), intent(in) :: itemName
+    integer, optional, intent(out) :: rc
 
+    type(ESMF_Field) :: field,newField
+    class (AbstractGridFactory), pointer :: factory
+    integer :: fieldRank
+    logical :: isPresent
+    integer :: status
+
+    call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,_RC)
+    call ESMF_FieldGet(field,rank=fieldRank,rc=status)
+    if (this%doVertRegrid .and. (fieldRank ==3) ) then
+       newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,_RC)
+    else
+       newField = MAPL_FieldCreate(field,this%output_grid,_RC)
+    end if
+    call MAPL_FieldBundleAdd(this%acc_bundle,newField,_RC)
+
+    _RETURN(_SUCCESS)
+  end subroutine addVariable_to_acc_bundle
+    
+        
 
   !! -- based on subroutine bundlepost(this,filename,oClients,rc)
   subroutine interp_accumulate_fields (this,xy_subset,rc)
@@ -1528,20 +1568,111 @@ contains
   end subroutine interp_accumulate_fields
 
 
-  subroutine regenerate_routehandle (this, rc)
-    type(sampler) :: this
-    type(ESMF_RouteHandle) :: route_handle
-    integer, intent(out), optional     :: rc
+  
+  subroutine write_2_oserver(this,sp,filename,oClients,rc)
+    class (samplerHQ), intent(inout) :: this
+    class (sampler), intent(inout) :: sp
+    character(len=*), intent(in) :: filename
+    type (ClientManager), optional, intent(inout) :: oClients
+    integer, optional, intent(out) :: rc
+
     integer :: status
+    type(ESMF_Field) :: outField
+    integer :: tindex
+    type(ArrayReference) :: ref
+
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
+    logical :: have_time
+
+
+    if ( .NOT. ESMF_AlarmIsRinging(this%alarm) ) then
+       rc=0
+       return
+    endif
+
+    write(6,*) 'ck: bf ESMF_AlarmIsRinging(this%alarm)  write_2_oserver '
+    have_time = sp%timeInfo%am_i_initialized()
+
+    if (have_time) then
+       sp%times = sp%timeInfo%compute_time_vector(sp%metadata,rc=status)
+       _VERIFY(status)
+       ref = ArrayReference(sp%times)
+       call oClients%stage_nondistributed_data(sp%write_collection_id,trim(filename),'time',ref)
+
+       tindex = size(sp%times)
+       if (tindex==1) then
+          call sp%stage2DLatLon(filename,oClients=oClients,_RC)
+       end if
+    else
+       tindex = -1
+    end if
+
+    if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+       call sp%vdata%setup_eta_to_pressure(regrid_handle=sp%regrid_handle,output_grid=sp%output_grid,rc=status)
+       _VERIFY(status)
+    end if
+
+    iter = sp%items%begin()
+    do while (iter /= sp%items%end())
+       item => iter%get()
+       if (item%itemType == ItemTypeScalar) then
+          call ESMF_FieldBundleGet(sp%acc_bundle,item%xname,field=outField,rc=status)
+          _VERIFY(status)
+          if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call sp%vdata%correct_topo(outField,rc=status)
+             _VERIFY(status)
+          end if
+          call sp%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
+          _VERIFY(status)
+       else if (item%itemType == ItemTypeVector) then
+          call ESMF_FieldBundleGet(sp%acc_bundle,item%xname,field=outField,rc=status)
+          _VERIFY(status)
+          if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call sp%vdata%correct_topo(outField,rc=status)
+             _VERIFY(status)
+          end if
+          call sp%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
+          _VERIFY(status)
+          call ESMF_FieldBundleGet(sp%acc_bundle,item%yname,field=outField,rc=status)
+          _VERIFY(status)
+          if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+             call sp%vdata%correct_topo(outField,rc=status)
+             _VERIFY(status)
+          end if
+          call sp%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
+          _VERIFY(status)
+       end if
+       call iter%next()
+    enddo
+
+    write(6,*) 'ck: af ESMF_AlarmIsRinging(this%alarm)  write_2_oserver '
     
-    ! -- destroy regrid handle
-!???
-!    route_handle = this%regrid_handle
-!    call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.)
-    
-    write(6,*)
-    _RETURN(_SUCCESS)
-  end subroutine regenerate_routehandle
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine write_2_oserver
+
+!! -- todo:  delete
+!!
+!!  subroutine regenerate_routehandle (this, rc)
+!!    type(sampler) :: this
+!!    type(ESMF_RouteHandle) :: route_handle
+!!    integer, intent(out), optional     :: rc
+!!    integer :: status
+!!    
+!!    ! -- destroy regrid handle
+!!!???
+!!!    route_handle = this%regrid_handle
+!!!    call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.)
+!!    
+!!    write(6,*)
+!!    _RETURN(_SUCCESS)
+!!  end subroutine regenerate_routehandle
+!!
 
   
+  
 end module MAPL_EpochSwathMod
+
+
+
