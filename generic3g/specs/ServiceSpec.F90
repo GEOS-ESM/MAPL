@@ -104,17 +104,11 @@ contains
       class(AbstractStateItemSpec), pointer :: spec
 
       associate (dep_specs => this%dependency_specs)
-        _HERE, 'allocating a service with ', size(dep_specs), ' fields'
         do i = 1, size(dep_specs)
            spec => dep_specs(i)%ptr
            call spec%add_to_bundle(this%payload, _RC)
         end do
       end associate
-      block
-        integer :: fieldcount
-        call ESMF_FieldBundleGet(this%payload, fieldCount=fieldCount, _RC)
-        _HERE, ' but only found ', fieldCount, ' fields'
-      end block
     
       _RETURN(_SUCCESS)
    end subroutine allocate
@@ -166,14 +160,7 @@ contains
 
       select type (src_spec)
       class is (ServiceSpec)
-        _HERE, 'connecting a service that currently has only ', size(src_spec%dependency_specs), ' fields'
          src_spec%dependency_specs = [src_spec%dependency_specs, this%dependency_specs]
-!!$         ! ok
-!!$         call ESMF_FieldBundleGet(this%payload, fieldCount=fieldCount, _RC)
-        _HERE, '   ... but now has ', size(src_spec%dependency_specs), ' fields'
-!!$         allocate(fieldList(fieldcount))
-!!$         call ESMF_FieldBundleGet(this%payload, fieldList=fieldList, _RC)
-!!$         call ESMF_FieldBundleAdd(src_spec%payload, fieldList=fieldList, relaxedFlag=.true., _RC)
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select

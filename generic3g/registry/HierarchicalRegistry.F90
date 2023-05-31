@@ -790,7 +790,6 @@ contains
       do i = 1, this%local_specs%size()
          item_spec => this%local_specs%of(i)
          if (item_spec%is_active()) then
-            _HERE, 'allocate? ', this%get_name()
             call item_spec%allocate(_RC)
          end if
       end do

@@ -256,24 +256,20 @@ contains
 
          call comp_states%get_state(state, state_intent, _RC)
 
-         print*, ''
-         print*, '******'
-         print*, state
+!!$         print*, state
 
          associate (e => state_items%end())
            allocate(iter, source=state_items%begin())
 
            do while (iter /= e)
               item_name = to_string(iter%first(), _RC)
-              print*,'item : ', item_name
+
               expected_properties => iter%second()
               msg = comp_path // '::' // state_intent // '::' // item_name
 
               associate (test_description => msg // '::' // this%check_name)
                 call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
               end associate
-              print*,'   ... next ****'
-              print*,' '
               
               call iter%next()
            end do
@@ -532,7 +528,6 @@ contains
       call ESMF_StateGet(state, short_name, bundle, _RC)
       call ESMF_FieldBundleGet(bundle, fieldCount=found_fieldCount, _RC)
 
-      print*,__FILE__,__LINE__, short_name, expected_fieldCount, found_fieldCount, description
       @assert_that(found_fieldCount, is(expected_fieldCount))
       
    end subroutine check_fieldCount

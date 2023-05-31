@@ -329,7 +329,6 @@ contains
 
       integer :: status
 
-      _HERE,'adding field to bundle'
       call ESMF_FieldBundleAdd(bundle, [this%payload], multiflag=.true., _RC)
 
       _RETURN(_SUCCESS)

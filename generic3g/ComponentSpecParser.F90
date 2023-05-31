@@ -244,7 +244,6 @@ contains
            do while (seq_iter /= e)
               item => seq_iter%at(_RC)
               item_name => to_string(item, _RC)
-              _HERE, 'adding to service: ', item_name
               call service_items%push_back(item_name)
               call seq_iter%next()
            end do
