@@ -1918,6 +1918,7 @@ ENDDO PARSER
         logical :: split
         character(ESMF_MAXSTR) :: field_name, alias_name, special_name
         integer :: m1, big, szf, szr
+        integer :: lungrd, trueUngridDims
         logical, allocatable               :: tmp_r8_to_r4(:)
         type(ESMF_FIELD), allocatable      :: tmp_r8(:)
         type(ESMF_FIELD), allocatable      :: tmp_r4(:)
@@ -2017,21 +2018,23 @@ ENDDO PARSER
 
                notGridded = count(gridToFieldMap==0)
                unGridDims = fieldRank - gridRank + notGridded
+               trueUnGridDims = unGridDims
 
-               hasUngridDims = .false.
                if (unGridDims > 0) then
-                  hasUngridDims = .true.
                   !ALT: special handling for 2d-MAPL grid (the vertical is treated as ungridded)
-                  if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert) .and. &
-                       (unGridDims == 1)) then
-                     hasUngridDims = .false.
+                  lungrd = 1
+                  if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert)) then
+                     trueUnGridDims = trueUnGridDims - 1
+                     lungrd = 2
                   end if
                endif
+               hasUngridDims = .false.
+               if (trueUnGridDims > 0) hasUngridDims = .true.
 
                if (hasUngridDims) then
                   allocate(ungriddedLBound(unGridDims), &
                        ungriddedUBound(unGridDims), &
-                       ungrd(unGridDims),           &
+                       ungrd(trueUnGridDims),           &
                        _STAT)
 
                   call ESMF_FieldGet(field, Array=array, _RC)
@@ -2043,7 +2046,7 @@ ENDDO PARSER
                   call ESMF_ArrayGet(array, undistLBound=ungriddedLBound, &
                        undistUBound=ungriddedUBound, _RC)
 
-                  ungrd = ungriddedUBound - ungriddedLBound + 1
+                  ungrd = ungriddedUBound(lungrd:) - ungriddedLBound(lungrd:) + 1
                   call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,_RC)
                   call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,_RC)
                   call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,_RC)
