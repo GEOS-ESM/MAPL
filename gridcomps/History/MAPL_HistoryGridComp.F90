@@ -142,7 +142,7 @@
 
   public HISTORY_ExchangeListWrap
 
-  type(samplerHQ) :: Hsampler
+  type(samplerHQ), save :: Hsampler
   include "mpif.h"
 
 contains
@@ -618,6 +618,7 @@ contains
              else
                 Hsampler = samplerHQ(clock, config, key,  _RC)
                 write(6,*) 'af samplerHQ(clock, config, key,  _RC)'
+                write(6,*) 'ck: key first', trim(key)
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
                 write(6,*) 'af Hsampler%create_grid(grid_type, key, currTime, _RC)'
              end if
@@ -3237,7 +3238,6 @@ ENDDO PARSER
 !=============================================================================
 
 ! Begin...
-
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
 
@@ -3615,6 +3615,18 @@ ENDDO PARSER
 
    enddo WRITELOOP
 
+
+   ! swath only
+   epoch_swath_grid_case: do n=1,nlist
+      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+!         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
+         pt_output_grids => IntState%output_grids
+         key_grid_label = list(n)%output_grid_label
+         call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )         ! at epoch_alarm
+      endif
+   end do epoch_swath_grid_case
+
+
    call MAPL_TimerOff(GENSTATE,"-----IO Write")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 
@@ -3627,16 +3639,6 @@ ENDDO PARSER
    deallocate(Writing)
    deallocate(Ignore)
 
-
-   ! swath only
-   epoch_swath_grid_case: do n=1,nlist
-      if (trim(list(n)%output_grid_label)=='SwathGrid') then
-         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
-         pt_output_grids => IntState%output_grids
-         key_grid_label = list(n)%output_grid_label
- !        call Hsampler%destroy_regen_ogrid_rh ( key_grid_label, pt_output_grids, _RC )         ! at epoch_alarm
-      endif
-   end do epoch_swath_grid_case
 
 
 

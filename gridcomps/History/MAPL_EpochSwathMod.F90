@@ -43,11 +43,13 @@ module MAPL_EpochSwathMod
      type(ESMF_config)        :: config_grid_save
      type(ESMF_grid)          :: ogrid
      character(len=ESMF_MAXSTR) :: grid_type
+     real*8 :: arr(2)
+
    contains
      procedure ::  create_grid
      !!procedure ::  create_sampler => create_epoch_sampler
      procedure ::  regrid_accumulate => regrid_accumulate_on_xysubset
-     procedure ::  regen_grid => destroy_regen_ogrid
+     procedure ::  regen_grid => destroy_regen_ogrid_rh
      procedure ::  write_2_oserver
   end type samplerHQ
 
@@ -132,7 +134,7 @@ contains
 
     hq%clock= clock
     hq%config_grid_save= config
-
+    hq%arr(1:2) = -2.d0
     call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
     call ESMF_ClockGet ( clock, timestep=timestep, _RC )
     call ESMF_ClockGet ( clock, startTime=startTime, _RC )
@@ -172,7 +174,7 @@ contains
     config_grid = this%config_grid_save
     call ESMF_TimeGet(currTime, timeString=time_string, _RC)
     call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
-    ogrid = grid_manager%make_grid(config_grid, prefix=key//'.', _RC )
+    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
     this%ogrid = ogrid
     _RETURN(_SUCCESS)
     
@@ -215,9 +217,10 @@ contains
   
 
 
-  subroutine destroy_regen_ogrid (this, key_grid_label, pt_output_grids, rc)
+  subroutine destroy_regen_ogrid_rh (this, key_grid_label, pt_output_grids, sp, rc)
     implicit none
     class(samplerHQ) :: this
+    class(sampler) :: sp
     type (StringGridMap), pointer, intent(inout) :: pt_output_grids
     character(len=*), intent(in)  :: key_grid_label
     integer, intent(out), optional :: rc 
@@ -232,21 +235,59 @@ contains
     
     type(ESMF_Grid), pointer :: pgrid
     type(ESMF_Grid) :: ogrid
+    type(ESMF_Grid) :: input_grid
     character(len=ESMF_MAXSTR) :: key_str
     type (StringGridMapIterator) :: iter
     character(len=:), pointer :: key
+    type (ESMF_Config) ::  config_grid
     
-    type(ESMF_RouteHandle) :: route_handle
+!!    type(Abstract) :: route_handle
 
-    ! -- destroy, regenerate swath grid
+    if ( .NOT. ESMF_AlarmIsRinging(this%alarm) ) then
+       write(6,*) 'ck: regen,  not in alarming'
+       rc=0
+       return
+    endif
+
+    write(6,*) 'ck: regen,  yes in alarming'    
+    
+
+    write(6,*) 'hq%arr ', this%arr(1:2)
+
+! -- destroy, regenerate swath grid
     
     output_grids = pt_output_grids
     key_str=trim(key_grid_label)
     pgrid => output_grids%at(trim(key_str))
     ogrid = pgrid
     call grid_manager%destroy(ogrid,_RC)
+    write(6,*) 'ck: key_str ', trim(key_str)
+    write(6,*) 'ck: done grid_manager%destroy'    
+   
 
+    call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+    write(6,*) 't0'
+    config_grid = this%config_grid_save
+    write(6,*) 't1'
+    
+    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
+    write(6,*) 't2'
+    
+    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key_str)//'.Epoch_init:', _RC)
+
+    write(6,*) 'nail 1'
+
+    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key_str)//'.', _RC )
+
+    write(6,*) 'after  grid_manager%make_grid in regen'
+
+     ogrid = this%create_grid (key_str, currTime, _RC)
+
+    stop -1
     call output_grids%insert(trim(key_str), ogrid)
+
+
+    
     call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
     iter = output_grids%begin()
     do while (iter /= output_grids%end())
@@ -257,11 +298,21 @@ contains
        endif
        call iter%next()
     enddo
+    write(6,*) 'ck: done adding iter to output_grids'
+    
+
+!    ! -- destroy route_handle
+!    route_handle = sp%regrid_handle
+!    call route_handle%destroy(_RC)
+
+    call ESMF_FieldBundleGet(sp%input_bundle,grid=input_grid,_RC)
+    sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,ogrid,sp%regrid_method,_RC)
+    write(6,*) 'ck: done adding sp%regrid_handle'
+
 
     _RETURN(ESMF_SUCCESS)
     
-  end subroutine destroy_regen_ogrid
-
+  end subroutine destroy_regen_ogrid_rh
     
   
      function new_sampler(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
@@ -1652,6 +1703,7 @@ contains
 
   end subroutine write_2_oserver
 
+
 !! -- todo:  delete
 !!
 !!  subroutine regenerate_routehandle (this, rc)
@@ -1669,10 +1721,7 @@ contains
 !!    _RETURN(_SUCCESS)
 !!  end subroutine regenerate_routehandle
 !!
-
   
   
 end module MAPL_EpochSwathMod
-
-
-
+ 
