@@ -107,7 +107,7 @@ contains
       params = [params, add_params('field exists', check_field_exists)]
       params = [params, add_params('field exists', check_field_status)]
       params = [params, add_params('field exists', check_field_typekind)]
-      !params = [params, add_params('field exists', check_field_value)]
+      params = [params, add_params('field exists', check_field_value)]
       params = [params, add_params('field exists', check_field_rank)]
       
    contains
@@ -123,7 +123,7 @@ contains
               ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_field), &
               ScenarioDescription('history_1',               'cap.yaml',         check_name, check_field), &
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field), &
-              ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_field), &
+              ScenarioDescription('3d_specs',  'parent.yaml',      check_name, check_field), & 
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_field)  &
       ]
       end function add_params
@@ -371,9 +371,11 @@ contains
 
       character(len=:), allocatable :: expected_field_typekind_str
       real :: expected_field_value
+      integer :: rank
       type(ESMF_TypeKind_Flag) :: typekind
       integer :: status
       character(len=:), allocatable :: msg
+      
 
       msg = description
 
@@ -384,18 +386,36 @@ contains
 
       call expectations%get(expected_field_value, 'value', _RC)
       
-      call ESMF_FieldGet(field, typekind=typekind, _RC)
+      call ESMF_FieldGet(field, typekind=typekind, rank=rank, _RC)
       if (typekind == ESMF_TYPEKIND_R4) then
          block
-           real(kind=ESMF_KIND_R4), pointer :: x(:,:)
-           call ESMF_FieldGet(field, farrayptr=x, _RC)
-           @assert_that(all(x == expected_field_value), is(true()))
+           real(kind=ESMF_KIND_R4), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
+           select case(rank)
+           case(2)
+              call ESMF_FieldGet(field, farrayptr=x2, _RC)
+              @assert_that(all(x2 == expected_field_value), is(true()))
+           case(3)
+              call ESMF_FieldGet(field, farrayptr=x3, _RC)
+              @assert_that(all(x3 == expected_field_value), is(true()))
+           case(4)
+              call ESMF_FieldGet(field, farrayptr=x4, _RC)
+              @assert_that(all(x4 == expected_field_value), is(true()))
+           end select
          end block
       elseif (typekind == ESMF_TYPEKIND_R8) then
          block
-           real(kind=ESMF_KIND_R8), pointer :: x(:,:)
-           call ESMF_FieldGet(field, farrayptr=x, _RC)
-           @assert_that(all(x == expected_field_value), is(true()))
+           real(kind=ESMF_KIND_R8), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
+           select case(rank)
+           case(2)
+              call ESMF_FieldGet(field, farrayptr=x2, _RC)
+              @assert_that(all(x2 == expected_field_value), is(true()))
+           case(3)
+              call ESMF_FieldGet(field, farrayptr=x3, _RC)
+              @assert_that(all(x3 == expected_field_value), is(true()))
+           case(4)
+              call ESMF_FieldGet(field, farrayptr=x4, _RC)
+              @assert_that(all(x4 == expected_field_value), is(true()))
+           end select
          end block
       else
          _VERIFY(-1)
@@ -423,7 +443,7 @@ contains
       end if
 
       call expectations%get(expected_field_rank, 'rank', _RC)
-      
+     
       call ESMF_FieldGet(field, rank=rank, _RC)
       @assert_that(rank == expected_field_rank, is(true()))
 
