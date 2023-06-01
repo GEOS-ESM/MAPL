@@ -2386,13 +2386,13 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           else
              if (trim(list(n)%output_grid_label)=='SwathGrid') then
-                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
-                call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
-                write(6,*) 'ck hgc: af list(n)%xsampler%CreateFileMetaData'
-                collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
-                call list(n)%xsampler%set_param(write_collection_id=collection_id)
+!                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+!                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+!                write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
+!                call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
+!                write(6,*) 'ck hgc: af list(n)%xsampler%CreateFileMetaData'
+!                collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
+!                call list(n)%xsampler%set_param(write_collection_id=collection_id)
              else
                 global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
                 if (trim(list(n)%output_grid_label)/='') then
@@ -3227,6 +3227,11 @@ ENDDO PARSER
     type (StringGridMap), pointer  :: pt_output_grids
     character(len=ESMF_MAXSTR)     :: key_grid_label
     
+    integer :: collection_id
+    integer :: create_mode
+    type(StringStringMap) :: global_attributes
+    type(timeData) :: timeinfo_uninit
+    
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
@@ -3341,8 +3346,11 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = .true.
+      else if (trim(list(n)%output_grid_label)=='SwathGrid') then
+         Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
+!!         Writing(n)= .false.
       else
-         Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
+         Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )         
       endif
 
 !      if(Writing(n)) then
@@ -3378,13 +3386,9 @@ ENDDO PARSER
        if( NewSeg(n)) then
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
        endif
-
-!       ! for swath grid only
-!       if (trim(list(n)%output_grid_label)=='SwathGrid') then
-!          Writing(n) = .false.
-!       end if
           
    end do
+
 
    if(any(Writing)) call WRITE_PARALLEL("")
 
@@ -3459,9 +3463,9 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  if (trim(list(n)%output_grid_label)/='SwathGrid') then
+                  !!if (trim(list(n)%output_grid_label)/='SwathGrid') then
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
-                  endif
+                  !!endif
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else
@@ -3480,6 +3484,48 @@ ENDDO PARSER
 !
    enddo OPENLOOP
    call MAPL_TimerOff(GENSTATE,"----IO Create")
+
+   
+
+
+   
+  ! swath only
+   epoch_swath_grid_case: do n=1,nlist
+      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+         write(6,*) 'ck hgc, bf call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
+         call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
+         write(6,*) 'ck hgc, af call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
+         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+            !! call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
+            !! alternatively I can use griddedio  pasting o_bundle as input, which writes to o_server
+            !!
+            create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+            if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+            !         list(n)%timeInfo%is_initialized=.false.
+            !         timeinfo_uninit
+
+            ! once I have here acc_bundle
+            ! how to gen nc file
+            global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+            call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            ! only once
+            !collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+            !call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+
+
+            !         call bundlepost()
+            !        call o_Clients%done_collective_stage(_RC)
+            !        call o_Clients%post_wait()
+
+
+            !!
+            pt_output_grids => IntState%output_grids
+            key_grid_label = list(n)%output_grid_label
+            call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )         ! at epoch_alarm
+         endif
+      end if
+   end do epoch_swath_grid_case
+   
 
    call MAPL_TimerOn(GENSTATE,"----IO Write")
    call MAPL_TimerOn(GENSTATE,"-----IO Post")
@@ -3537,9 +3583,7 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                if (trim(list(n)%output_grid_label)=='SwathGrid') then
-                  write(6,*) 'ck hgc, bf call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
-                  call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
-                  write(6,*) 'ck hgc, af call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
+
                else
                   call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
                endif
@@ -3575,7 +3619,10 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
-   if (any(writing)) then
+
+   write(6,*) 'test writing=', writing(:)
+   !!   if (any(writing) .AND. trim(list(n)%output_grid_label)/='SwathGrid') then
+   if (any(writing)) then   
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
    endif
@@ -3584,6 +3631,13 @@ ENDDO PARSER
 
    call MAPL_TimerOn(GENSTATE,"----IO Write")
    call MAPL_TimerOn(GENSTATE,"-----IO Wait")
+
+
+   ! destroy acc_bundle, regenerate ogrid, RH
+   
+
+
+
 
    WAITLOOP: do n=1,nlist
 
@@ -3616,17 +3670,7 @@ ENDDO PARSER
    enddo WRITELOOP
 
 
-   ! swath only
-   epoch_swath_grid_case: do n=1,nlist
-      if (trim(list(n)%output_grid_label)=='SwathGrid') then
-!         call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
-         pt_output_grids => IntState%output_grids
-         key_grid_label = list(n)%output_grid_label
-         call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )         ! at epoch_alarm
-      endif
-   end do epoch_swath_grid_case
-
-
+ 
    call MAPL_TimerOff(GENSTATE,"-----IO Write")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 
@@ -3638,9 +3682,6 @@ ENDDO PARSER
    deallocate(filename)
    deallocate(Writing)
    deallocate(Ignore)
-
-
-
 
    _RETURN(ESMF_SUCCESS)
  end subroutine Run

@@ -265,29 +265,31 @@ contains
     write(6,*) 'ck: done grid_manager%destroy'    
    
 
-    call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-    write(6,*) 't0'
-    config_grid = this%config_grid_save
-    write(6,*) 't1'
+!    call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+!    write(6,*) 't0'
+!    config_grid = this%config_grid_save
+!    write(6,*) 't1'
+!    
+!    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
+!    write(6,*) 't2'
+!    
+!    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key_str)//'.Epoch_init:', _RC)
+!
+!    write(6,*) 'nail 1'
+!
+!    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key_str)//'.', _RC )
+!
+!    write(6,*) 'after  grid_manager%make_grid in regen'
+!
+!     ogrid = this%create_grid (key_str, currTime, _RC)
+!
+!    stop -1
+!    
+!
+!
+
     
-    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
-    write(6,*) 't2'
-    
-    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key_str)//'.Epoch_init:', _RC)
-
-    write(6,*) 'nail 1'
-
-    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key_str)//'.', _RC )
-
-    write(6,*) 'after  grid_manager%make_grid in regen'
-
-     ogrid = this%create_grid (key_str, currTime, _RC)
-
-    stop -1
     call output_grids%insert(trim(key_str), ogrid)
-
-
-    
     call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
     iter = output_grids%begin()
     do while (iter /= output_grids%end())
@@ -309,6 +311,10 @@ contains
     sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,ogrid,sp%regrid_method,_RC)
     write(6,*) 'ck: done adding sp%regrid_handle'
 
+    !    destroy   acc_bundle
+    
+
+    
 
     _RETURN(ESMF_SUCCESS)
     
