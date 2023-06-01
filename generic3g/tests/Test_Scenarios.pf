@@ -107,7 +107,11 @@ contains
       params = [params, add_params('field exists', check_field_exists)]
       params = [params, add_params('field exists', check_field_status)]
       params = [params, add_params('field exists', check_field_typekind)]
+<<<<<<< HEAD
       params = [params, add_params('field exists', check_field_value)]
+=======
+      !params = [params, add_params('field exists', check_field_value)]
+>>>>>>> origin/feature/bmauer/MAPL3_create_real_fields
       params = [params, add_params('field exists', check_field_rank)]
       
    contains
@@ -123,7 +127,11 @@ contains
               ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_field), &
               ScenarioDescription('history_1',               'cap.yaml',         check_name, check_field), &
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_field), &
+<<<<<<< HEAD
               ScenarioDescription('3d_specs',  'parent.yaml',      check_name, check_field), & 
+=======
+              ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_field), &
+>>>>>>> origin/feature/bmauer/MAPL3_create_real_fields
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_field)  &
       ]
       end function add_params
@@ -443,7 +451,6 @@ contains
       end if
 
       call expectations%get(expected_field_rank, 'rank', _RC)
-     
       call ESMF_FieldGet(field, rank=rank, _RC)
       @assert_that(rank == expected_field_rank, is(true()))
 
