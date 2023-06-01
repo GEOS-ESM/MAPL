@@ -24,26 +24,30 @@ module MAPL_NetCDF
 
    implicit none
 
-   public :: convert_NetCDF_DateTime_to_ESMF
-   public :: convert_ESMF_to_NetCDF_DateTime
-   public :: convert_NetCDF_DateTime_to_ESMF_Time
+   public :: get_NetCDF_duration_from_ESMF_Time
+   public :: get_ESMF_Time_from_NetCDF_DateTime
+
+   ! OLD HIGH-LEVEL
+!   public :: convert_NetCDF_DateTime_to_ESMF
+!   public :: convert_ESMF_to_NetCDF_DateTime
+
+   ! LOW-LEVEL
    public :: make_ESMF_TimeInterval
    public :: make_NetCDF_DateTime_duration
-   public :: make_NetCDF_DateTime_units_string
-   public :: convert_ESMF_Time_to_NetCDF_DateTimeString 
+!   public :: make_NetCDF_DateTime_units_string
+!   public :: convert_ESMF_Time_to_NetCDF_DateTimeString 
    public :: convert_to_integer
    public :: convert_NetCDF_DateTimeString_to_ESMF_Time
-   public :: is_time_unit
+!   public :: is_time_unit
    public :: is_valid_netcdf_datetime_string
    public :: get_shift_sign
    public :: split
    public :: split_all
-   public :: get_NetCDF_duration_from_ESMF_Time
 
-   interface convert_NetCDF_DateTime_to_ESMF_Time
-      module procedure :: convert_NetCDF_DateTime_to_ESMF_Time_integer
-      module procedure :: convert_NetCDF_DateTime_to_ESMF_Time_real
-   end interface convert_NetCDF_DateTime_to_ESMF_Time
+   interface get_ESMF_Time_from_NetCDF_DateTime
+      module procedure :: get_ESMF_Time_from_NetCDF_DateTime_integer
+      module procedure :: get_ESMF_Time_from_NetCDF_DateTime_real
+   end interface get_ESMF_Time_from_NetCDF_DateTime
 
    interface make_ESMF_TimeInterval
       module procedure :: make_ESMF_TimeInterval_integer
@@ -65,9 +69,9 @@ module MAPL_NetCDF
    end interface split
 
    interface split_all
-      module procedure :: split_all_recursive
       module procedure :: split_all_iterative
    end interface split_all
+
    private
 
    character, parameter :: PART_DELIM = ' '
@@ -95,6 +99,7 @@ contains
    ! Convert NetCDF_DateTime {int_time, units_string} to
    ! ESMF time variables {interval, start_time, time} and time unit {tunit}
    ! start_time is the start time, and time is start_time + interval
+   ! OLD
    subroutine convert_NetCDF_DateTime_to_ESMF(int_time, units_string, &
          interval, start_time, unusable, time, tunit, rc)
       integer, intent(in) :: int_time
@@ -146,6 +151,7 @@ contains
    end subroutine convert_NetCDF_DateTime_to_ESMF
 
    ! Convert ESMF time variables to an NetCDF datetime
+   ! OLD
    subroutine convert_ESMF_to_NetCDF_DateTime(tunit, start_time, int_time, units_string, unusable, time, interval, rc)
       character(len=*), intent(in) :: tunit
       type(ESMF_Time),  intent(inout) :: start_time
@@ -180,6 +186,7 @@ contains
 !========================= OLD LOWER-LEVEL PROCEDURES ==========================
 
    ! Make 'units' for NetCDF datetime
+   ! OLD
    subroutine make_NetCDF_DateTime_units_string(start_time, tunit, units_string, unusable, rc)
       type(ESMF_Time), intent(inout) :: start_time
       character(len=*), intent(in) :: tunit
@@ -201,6 +208,7 @@ contains
    end subroutine make_NetCDF_DateTime_units_string
 
    ! Convert ESMF_Time to a NetCDF datetime string (start datetime)
+   ! OLD
    subroutine convert_ESMF_Time_to_NetCDF_DateTimeString(esmf_datetime, datetime_string, unusable, rc)
       type(ESMF_Time), intent(inout) :: esmf_datetime
       character(len=:), allocatable, intent(out) :: datetime_string
@@ -293,6 +301,7 @@ contains
       
    end subroutine get_NetCDF_duration_from_ESMF_Time_integer
 
+   ! Get NetCDF DateTime duration from ESMF_Time and units_string (real)
    subroutine get_NetCDF_duration_from_ESMF_Time_real(time, units_string, duration, unusable, rc)
       type(ESMF_Time),  intent(inout) :: time
       character(len=:), allocatable, intent(in) :: units_string
@@ -334,7 +343,9 @@ contains
       
    end subroutine get_NetCDF_duration_from_ESMF_Time_real
 
-   subroutine convert_NetCDF_DateTime_to_ESMF_Time_integer(duration, &
+   ! Convert NetCDF datetime {units_string, duration (integer)}
+   ! into an ESMF_Time value representing the same datetime
+   subroutine get_ESMF_Time_from_NetCDF_DateTime_integer(duration, &
       units_string, time, unusable, rc)
       integer, intent(in) :: duration
       character(len=*), intent(in) :: units_string
@@ -378,9 +389,11 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine convert_NetCDF_DateTime_to_ESMF_Time_integer
+   end subroutine get_ESMF_Time_from_NetCDF_DateTime_integer
 
-   subroutine convert_NetCDF_DateTime_to_ESMF_Time_real(duration, &
+   ! Convert NetCDF datetime {units_string, duration (real)}
+   ! into an ESMF_Time value representing the same datetime
+   subroutine get_ESMF_Time_from_NetCDF_DateTime_real(duration, &
       units_string, time, unusable, rc)
       real(kind=ESMF_KIND_R8), intent(in) :: duration
       character(len=*), intent(in) :: units_string
@@ -395,7 +408,7 @@ contains
       character(len=:), allocatable :: preposition
       character(len=:), allocatable :: date_string
       character(len=:), allocatable :: time_string
-      character(len=:), allocatable :: datetime_string !wdb fixme deleteme 
+      character(len=:), allocatable :: datetime_string
       real(kind=ESMF_KIND_R8) :: signed_duration, sign_factor
       integer :: status
 
@@ -408,33 +421,23 @@ contains
       _ASSERT(size(parts) == NUM_PARTS_UNITS_STRING, 'Invalid number of parts in units_string')
 
       units       = adjustl(parts(1))
-      print *, 'units: ', units !wdb fixme deleteme 
       preposition = adjustl(parts(2))
-      print *, 'preposition: ', preposition !wdb fixme deleteme 
       date_string = adjustl(parts(3))
-      print *, 'date_string: ', date_string !wdb fixme deleteme 
       time_string = adjustl(parts(4))
-      print *, 'time_string: ', time_string !wdb fixme deleteme 
+      datetime_string = date_string // PART_DELIM // time_string
 
       sign_factor = get_shift_sign(preposition)
       _ASSERT(sign_factor /= 0, 'Unrecognized preposition')
-      print *, 'sign_factor = ', sign_factor !wdb fixme deleteme 
       signed_duration = sign_factor * duration
-      print *, 'signed_duration = ', signed_duration
-      datetime_string = date_string // PART_DELIM // time_string !wdb fixme deleteme 
-      print *, 'datetime string: ' // datetime_string !wdb fixme deleteme 
-!      call convert_NetCDF_DateTimeString_to_ESMF_Time(date_string // PART_DELIM // time_string, start_time, _RC)
-      call convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, start_time, _RC) !wdb fixme deleteme 
-      call ESMF_TimePrint(start_time, options='string', _RC) !wdb fixme deleteme 
+
+      call convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, start_time, _RC)
       call make_ESMF_TimeInterval(signed_duration, units, start_time, interval, _RC)
-      call ESMF_TimeIntervalPrint(interval, options='string', _RC) !wdb fixme deleteme 
 
       time = start_time + interval
-      call ESMF_TimePrint(time, options='string', _RC) !wdb fixme deleteme 
 
       _RETURN(_SUCCESS)
 
-   end subroutine convert_NetCDF_DateTime_to_ESMF_Time_real
+   end subroutine get_ESMF_Time_from_NetCDF_DateTime_real
 
 !======================= END NEW HIGH-LEVEL PROCEDURES =========================
 !===============================================================================
@@ -542,10 +545,8 @@ contains
       select case(trim(adjustl(tunit))) 
          case('years')
             _FAIL('Real values for years are not supported.')
-!            call ESMF_TimeIntervalSet(interval, startTime=start_time, yy=span, _RC)
          case('months')
             _FAIL('Real values for months are not supported.')
-!            call ESMF_TimeIntervalSet(interval, startTime=start_time, mm=span, _RC)
          case('days')
             _FAIL('Real values for days are not supported.')
          case('hours')
@@ -658,6 +659,7 @@ contains
 
    end function is_valid_netcdf_datetime_string
 
+   ! OLD
    function is_time_unit(tunit)
       character(len=*), intent(in) :: tunit
       logical :: is_time_unit
@@ -722,44 +724,6 @@ contains
       end do
 
    end function split_all_iterative
-
-   ! Split string into all substrings based on delimiter
-   function split_all_recursive(string, delimiter, recurse) result(parts)
-      character(len=*), intent(in) :: string
-      character(len=*), intent(in) :: delimiter
-      logical , intent(in) :: recurse
-      character(len=:), allocatable :: parts(:)
-
-      if(recurse) then
-         parts = splitter(trim(string), delimiter)
-         return
-      end if
-
-      parts = split_all_iterative(string, delimiter)
-   contains
-
-      recursive function splitter(string, delimiter) result(parts)
-         character(len=*), intent(in) :: string
-         character(len=*), intent(in) :: delimiter
-         character(len=:), allocatable :: parts(:)
-         character(len=:), allocatable :: head
-         character(len=:), allocatable :: tail(:)
-         integer :: next, last
-
-         last = index(string, delimiter) - 1
-
-         if(last < 0) then
-            parts = [string]
-         else
-            head = string(1:last)
-            next = last + len(delimiter) + 1
-            tail = splitter(string(next:len(string)), delimiter)
-            parts = [head, tail]
-         end if
-
-      end function splitter
-
-   end function split_all_recursive
 
    ! Convert string representing an integer to the integer
    subroutine convert_to_integer(string_in, int_out, rc)
