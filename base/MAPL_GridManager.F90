@@ -491,6 +491,19 @@ contains
       _VERIFY(status)
       file_metadata = file_formatter%read(rc=status)
       _VERIFY(status)
+      call file_formatter%close(rc=status)
+      _VERIFY(status)
+
+      if (file_metadata%has_attribute("Cubed_Sphere_Face_Index")) then
+        if (file_metadata%has_dimension('lat')) then
+          jm = file_metadata%get_dimension('lat') 
+          call file_metadata%modify_dimension('lat', jm*6)
+        endif
+        if (file_metadata%has_dimension('latitude')) then
+          jm = file_metadata%get_dimension('latitude') 
+          call file_metadata%modify_dimension('latitude', jm*6)
+        endif
+      endif
 
       im = 0
       hasXdim = file_metadata%has_dimension('Xdim')
@@ -561,7 +574,6 @@ contains
 
      call factory%initialize(file_metadata, force_file_coordinates=force_file_coordinates, rc=status)
      _VERIFY(status)
-     call file_formatter%close(rc=status)
 
      _RETURN(_SUCCESS)
      

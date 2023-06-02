@@ -6306,13 +6306,26 @@ contains
                call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
                _VERIFY(status)
             end if
-            !note this only works for geos cubed-sphere restarts currently because of
-            !possible insufficent metadata in the other restarts to support the other grid factories
-            if (trim(grid_type) == 'Cubed-Sphere') then
-               app_factory => get_factory(MPL%GRID%ESMFGRID)
-               allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
-               _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
-            end if
+
+            block
+              !note this only works for geos cubed-sphere restarts currently because of
+              !possible insufficent metadata in the other restarts to support the other grid factories
+              character(len=:), allocatable :: fname_by_face 
+              logical :: fexist
+              if (trim(grid_type) == 'Cubed-Sphere') then
+                app_factory => get_factory(MPL%GRID%ESMFGRID)
+                ! at this point, arrdes%read_restart_by_face is not initialized
+                ! pick the first face
+                fname_by_face = get_fname_by_face(trim(fname), 1)
+                inquire(FILE = trim(fname_by_face), EXIST=fexist)
+                if(fexist) then
+                  allocate(file_factory,source=grid_manager%make_factory(fname_by_face))
+                else 
+                  allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
+                endif
+                _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
+              end if
+            end block
             call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
          end if PNC4_TILE
