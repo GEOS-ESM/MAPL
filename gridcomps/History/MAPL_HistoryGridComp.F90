@@ -2386,13 +2386,13 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           else
              if (trim(list(n)%output_grid_label)=='SwathGrid') then
-!                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-!                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-!                write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
-!                call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
-!                write(6,*) 'ck hgc: af list(n)%xsampler%CreateFileMetaData'
-!                collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
-!                call list(n)%xsampler%set_param(write_collection_id=collection_id)
+                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
+                call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
+                write(6,*) 'ck hgc: af list(n)%xsampler%CreateFileMetaData'
+!!                collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
+!!                call list(n)%xsampler%set_param(write_collection_id=collection_id)
              else
                 global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
                 if (trim(list(n)%output_grid_label)/='') then
@@ -3231,7 +3231,7 @@ ENDDO PARSER
     integer :: create_mode
     type(StringStringMap) :: global_attributes
     type(timeData) :: timeinfo_uninit
-    
+    type(ESMF_Grid) :: new_grid
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
@@ -3463,9 +3463,10 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  !!if (trim(list(n)%output_grid_label)/='SwathGrid') then
+! ygyu: double check ???
+                  if (trim(list(n)%output_grid_label)/='SwathGrid') then
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
-                  !!endif
+                  endif
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else
@@ -3486,8 +3487,6 @@ ENDDO PARSER
    call MAPL_TimerOff(GENSTATE,"----IO Create")
 
    
-
-
    
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
@@ -3495,6 +3494,7 @@ ENDDO PARSER
          write(6,*) 'ck hgc, bf call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
          write(6,*) 'ck hgc, af call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
+
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
             !! call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
             !! alternatively I can use griddedio  pasting o_bundle as input, which writes to o_server
@@ -3507,10 +3507,15 @@ ENDDO PARSER
             ! once I have here acc_bundle
             ! how to gen nc file
             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+
+            !! write(6,*) 'inside epoch alarm, bf list(n)%mGriddedIO%CreateFileMetaData'
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+
+            !! write(6,*) 'inside epoch alarm, af list(n)%mGriddedIO%CreateFileMetaData'
+            
             ! only once
-            !collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
-            !call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+            collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+            call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
 
 
             !         call bundlepost()

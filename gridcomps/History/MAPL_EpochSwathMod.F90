@@ -255,7 +255,9 @@ contains
     write(6,*) 'hq%arr ', this%arr(1:2)
 
 ! -- destroy, regenerate swath grid
-    
+
+    !__ s1. destroy ogrid + regen ogrid
+
     output_grids = pt_output_grids
     key_str=trim(key_grid_label)
     pgrid => output_grids%at(trim(key_str))
@@ -288,7 +290,7 @@ contains
 !
 !
 
-    
+
     call output_grids%insert(trim(key_str), ogrid)
     call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
     iter = output_grids%begin()
@@ -301,18 +303,25 @@ contains
        call iter%next()
     enddo
     write(6,*) 'ck: done adding iter to output_grids'
+
     
+    !
+    !-- ygyu: this still fails
+    !
+
+    !__ s2.  destroy RH  +  regen RH
 
 !    ! -- destroy route_handle
 !    route_handle = sp%regrid_handle
 !    call route_handle%destroy(_RC)
-
+    
+    
     call ESMF_FieldBundleGet(sp%input_bundle,grid=input_grid,_RC)
     sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,ogrid,sp%regrid_method,_RC)
     write(6,*) 'ck: done adding sp%regrid_handle'
 
-    !    destroy   acc_bundle
-    
+
+   !__ s3.  destroy + regen acc_bundle    
 
     
 
@@ -1586,6 +1595,7 @@ contains
           call ESMF_FieldBundleGet(this%acc_bundle,item%xname,field=new_outField,_RC)
           call ESMF_FieldGet(new_outField, Array=array2, _RC)
           call ESMF_ArrayGet(array1, rank=rank, _RC)
+          write(6,*) 'I am inside sampler % interp_acc'
           if (rank==2) then
              call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
              write(6,*) 'shape(pt2d)', shape(pt2d)
