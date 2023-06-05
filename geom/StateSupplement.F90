@@ -15,10 +15,10 @@ program
 
 contains
 
-   subroutine write...
+   subroutine write(...)
    end subroutine write
 
 end program
 
 
-print*, my_state
+#print*, my_state

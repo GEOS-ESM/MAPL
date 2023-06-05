@@ -402,12 +402,12 @@ contains
          call d_s%connect_to_client(port_name, server)
          print*,"using MpiServer"
       case('openmp')
-!!$        allocate(server,source=OpenmpServer(comm,d_s))
-!!$        print*,"using OpenMpServer"
+!C$        allocate(server,source=OpenmpServer(comm,d_s))
+!C$        print*,"using OpenMpServer"
       case('simple')
          allocate(server,source=MpiServer(comm, port_name))
          call d_s%publish(PortInfo(port_name, server), server)
-!!         call d_s%connect_to_client(port_name, server)
+!C         call d_s%connect_to_client(port_name, server)
          print*,"using simple server"
       end select
 

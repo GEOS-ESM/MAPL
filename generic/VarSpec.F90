@@ -26,7 +26,7 @@ module MAPL_VarSpecMod
    public operator(==)
 
    type :: MAPL_VarSpec
-!!$      private
+!C$      private
       type(MAPL_VarSpecType), pointer :: SpecPtr => null()
    end type MAPL_VarSpec
 
@@ -1347,7 +1347,7 @@ contains
       !      deallocate(ITEM%SPECptr, stat=status)
       !      _VERIFY(STATUS)
 
-      !!      ITEM%SPECptr => SPEC(I)%SPECPtr
+      !      ITEM%SPECptr => SPEC(I)%SPECPtr
 
       _RETURN(ESMF_SUCCESS)
 
@@ -1411,8 +1411,8 @@ contains
            trim(spec%specptr%short_name), trim(spec%specptr%long_name), spec%specptr%label)
       call lgr%info('ACCUMT = %i0',SPEC%SPECPtr%ACCMLT_INTERVAL)
       call lgr%info('COUPLE = %i0',SPEC%SPECPtr%COUPLE_INTERVAL)
-!!$    call lgr%info('DIMS   = %i0',SPEC%SPECPtr%DIMS)
-!!$    call lgr%info('LOCATION = %dims   = %i0',SPEC%SPECPtr%location)
+!C$    call lgr%info('DIMS   = %i0',SPEC%SPECPtr%DIMS)
+!C$    call lgr%info('LOCATION = %dims   = %i0',SPEC%SPECPtr%location)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_VarSpecPrintOne
