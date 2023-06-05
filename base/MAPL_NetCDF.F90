@@ -15,6 +15,13 @@
 ! NetCDF datetime is: {integer, character(len=*)}
 ! {1800, 'seconds since 2010-01-23 18:30:37'}
 ! {TIME_SPAN, 'TIME_UNIT since YYYY-MM-DD hh:mm:ss'}
+
+#ifdef NEGATIVE_STRING
+#  undef NEGATIVE_STRING
+#endif
+
+#define NEGATIVE_STRING(S) S(1:1) == '-'
+
 module MAPL_NetCDF
 
    use MAPL_ExceptionHandling
@@ -43,6 +50,8 @@ module MAPL_NetCDF
    public :: get_shift_sign
    public :: split
    public :: split_all
+   public :: is_digit_string
+   public :: convert_to_real
 
    interface get_ESMF_Time_from_NetCDF_DateTime
       module procedure :: get_ESMF_Time_from_NetCDF_DateTime_integer
@@ -78,6 +87,7 @@ module MAPL_NetCDF
    character, parameter :: ISO_DELIM  = 'T'
    character, parameter :: DATE_DELIM = '-'
    character, parameter :: TIME_DELIM = ':'
+   character, parameter :: POINT = '.'
    character(len=*), parameter :: NETCDF_DATE = '0000' // DATE_DELIM // '00' // DATE_DELIM // '00'
    character(len=*), parameter :: NETCDF_TIME = '00' // TIME_DELIM // '00' // TIME_DELIM // '00'
    character(len=*), parameter :: NETCDF_DATETIME = NETCDF_DATE // PART_DELIM // NETCDF_TIME
@@ -90,6 +100,12 @@ module MAPL_NetCDF
          'hours       ', 'minutes     ', 'seconds     ', 'milliseconds'    ]
    character, parameter :: SPACE = ' '
    type(ESMF_CalKind_Flag), parameter :: CALKIND_FLAG = ESMF_CALKIND_GREGORIAN
+   character(len=*), parameter :: DIGIT_CHARS = '0123456789'
+   character, parameter :: PLUS = '+'
+   character, parameter :: MINUS = '-'
+   character(len=*), parameter :: SIGNS = PLUS // MINUS
+   character(len=*), parameter :: EMPTY_STRING = ''
+   
 
 contains
 
@@ -444,7 +460,7 @@ contains
 !========================= NEW LOWER-LEVEL PROCEDURES ==========================
 
    ! Convert NetCDF datetime to ESMF_Time
-   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, datetime, unusable, rc)
+   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time_prior(datetime_string, datetime, unusable, rc)
       character(len=*), intent(in) :: datetime_string
       type(ESMF_Time), intent(inout) :: datetime
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -495,6 +511,78 @@ contains
       _ASSERT(status == 0, 'Unable to convert second string')
       call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
       call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine convert_NetCDF_DateTimeString_to_ESMF_Time_prior
+
+   ! Convert NetCDF datetime to ESMF_Time
+   subroutine convert_NetCDF_DateTimeString_to_ESMF_Time(datetime_string, datetime, unusable, rc)
+      character(len=*), intent(in) :: datetime_string
+      type(ESMF_Time), intent(inout) :: datetime
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status 
+      integer :: yy, mm, dd, h, m, s
+      real(kind=ESMF_KIND_R8) :: s_r8
+      character(len=:), allocatable :: part(:)
+      character(len=:), allocatable :: date_string
+      character(len=:), allocatable :: time_string
+
+      _UNUSED_DUMMY(unusable)
+
+      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), &
+         'Invalid datetime string: ' // datetime_string)
+
+      part = split_all(datetime_string, PART_DELIM)
+      date_string = part(1)
+      time_string = part(2)
+
+      ! convert first 3 substrings to year, month, day
+      part = split_all(date_string, DATE_DELIM)
+
+      call convert_to_integer(part(1), yy, rc = status)
+      _ASSERT(status == 0, 'Unable to convert year string')
+
+      call convert_to_integer(part(2), mm, rc = status)
+      _ASSERT(status == 0, 'Unable to convert month string')
+
+      call convert_to_integer(part(3), dd, rc = status)
+      _ASSERT(status == 0, 'Unable to convert day string')
+
+      ! convert second 3 substrings to hour, minute, second
+      part = split_all(time_string, TIME_DELIM)
+
+      call convert_to_integer(part(1), h, rc = status)
+      _ASSERT(status == 0, 'Unable to convert hour string')
+
+      call convert_to_integer(part(2), m, rc = status)
+      _ASSERT(status == 0, 'Unable to convert minute string')
+
+      ! no need to call this unless larger time units are correct
+      call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
+
+      ! Need to see if the seconds portion has fractional portion and handle it.
+      ! Split seconds string to see if it has a fractional part.
+      select case(size(split_all(part(3), POINT)))
+
+         ! no fractional portion => use integer
+         case(1)
+            call convert_to_integer(part(3), s, rc = status)
+            _ASSERT(status == 0, 'Unable to convert second string')
+            call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+         ! fractional portion => use real(kind=ESMF_KIND_R8)
+         case(2)
+            call convert_to_real(part(3), s_r8, rc = status)
+            _ASSERT(status == 0, 'Unable to convert second string')
+            call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s_r8=s_r8, _RC)
+
+         ! wrong number of substrings => FAIL
+         case default
+            _FAIL('Incorrect number of second parts')
+
+      end select
 
       _RETURN(_SUCCESS)
 
@@ -637,27 +725,45 @@ contains
 !===============================================================================
 !============================= UTILITY PROCEDURES ==============================
 
-   function is_valid_netcdf_datetime_string(string) result(tval)
-      character(len=*), parameter :: DIGITS = '0123456789'
+   recursive function is_valid_netcdf_datetime_string(string) result(lval)
       character(len=*), intent(in) :: string
-      logical :: tval
+      logical :: lval
       integer :: i
 
-      tval = .false.
+      lval = .false.
+      
+      i = index(string, POINT)
+
+      if(i == 1) return
+
+      if(i > 0) then
+         lval = is_valid_netcdf_datetime_string_real_seconds(string, i)
+         return
+      end if
       
       if(len(trim(string)) /= len(NETCDF_DATETIME)) return
 
       do i=1, len_trim(string)
-         if(scan(NETCDF_DATETIME(i:i), DIGITS) > 0) then
-            if(scan(string(i:i), DIGITS) <= 0) return
+         if(scan(NETCDF_DATETIME(i:i), DIGIT_CHARS) > 0) then
+            if(scan(string(i:i), DIGIT_CHARS) <= 0) return
          else
             if(string(i:i) /= NETCDF_DATETIME(i:i)) return
          end if
       end do
       
-      tval = .true.
+      lval = .true.
 
    end function is_valid_netcdf_datetime_string
+
+   function is_valid_netcdf_datetime_string_real_seconds(string, i) result(lval)
+      character(len=*), intent(in) :: string
+      integer, intent(in) :: i
+      logical :: lval
+
+      lval = is_valid_netcdf_datetime_string(string(1:(i-1))) .and. &
+         ((i == len(string)) .or. is_digit_string(string((i+1):)))
+      
+   end function is_valid_netcdf_datetime_string_real_seconds
 
    ! OLD
    function is_time_unit(tunit)
@@ -726,46 +832,46 @@ contains
    end function split_all_iterative
 
    ! Convert string representing an integer to the integer
-   subroutine convert_to_integer(string_in, int_out, rc)
-      character(len=*), intent(in) :: string_in
-      integer, intent(out) :: int_out
+   subroutine convert_to_integer(string, n, rc)
+      character(len=*), intent(in) :: string
+      integer, intent(out) :: n
       integer, optional, intent(out) :: rc
       integer :: stat
 
-      read(string_in, '(I16)', iostat=stat) int_out
+      n = -1
+      read(string, '(I16)', iostat=stat) n
 
       if(present(rc)) rc = stat
 
    end subroutine convert_to_integer
 
+   ! Convert string representing a real to a real(REAL64)
+   subroutine convert_to_real(string, t, rc)
+      character(len=*), intent(in) :: string
+      real(kind=ESMF_KIND_R8), intent(out) :: t
+      integer, optional, intent(out) :: rc
+      integer :: stat
+
+      t = -1
+      print *, 'string: ', string !wdb fixme deleteme 
+      read(string, *, iostat=stat) t
+
+      if(present(rc)) rc = stat
+
+   end subroutine convert_to_real
+
+   function is_digit_string(string)
+      character(len=*), intent(in) :: string
+      logical :: is_digit_string 
+
+      is_digit_string = .FALSE.
+      if(len_trim(string) == 0) return
+
+      is_digit_string = (verify(string(:len_trim(string)), DIGIT_CHARS) == 0)
+
+   end function is_digit_string
+
 !=========================== END UTILITY PROCEDURES ============================
 !===============================================================================
 
 end module MAPL_NetCDF
-!   function split_chararray(chararray, delimiter) result(parts)
-!      character(len=*), intent(in) :: chararray(:)
-!      character(len=*), intent(in) :: delimiter
-!      character(len=:), allocatable :: parts(:)
-!
-!      if(size(chararray) == 0) then
-!         parts = chararray
-!         return
-!      end if
-!
-!      parts = strip_empty([chararray(1:size(chararray)), split(chararray(size(chararray)), delimiter)])
-!
-!   end function split_chararray
-!
-!   function strip_empty(chararray) result(stripped)
-!      character(len=*), intent(in) :: chararray
-!      character(len=:), allocatable:: stripped
-!      integer :: i
-!
-!      stripped = [character::]
-!
-!      do i = 1, size(chararray)
-!         if(len(chararray(i) > 0)) stripped = [stripped, chararray(i)]
-!      end do
-!      
-!   end function strip_empty
-

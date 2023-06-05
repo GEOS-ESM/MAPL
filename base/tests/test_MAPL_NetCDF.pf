@@ -51,13 +51,13 @@ contains
 
    end function make_units_string
 
-   logical function qequal(na, nb)
+   logical function rational_equals(na, nb)
       integer, intent(in) :: na(2)
       integer, intent(in) :: nb(2)
 
-      qequal = ( na(1) * nb(2) == na(2) * nb(1) )
+      rational_equals = ( na(1) * nb(2) == na(2) * nb(1) )
 
-   end function qequal
+   end function rational_equals
 
    logical function ESMF_Times_Equal(timeu, timev)
       type(ESMF_Time), intent(in) :: timeu, timev
@@ -70,7 +70,7 @@ contains
 
       ESMF_Times_Equal = ( (uyy == vyy) .and. (umm == vmm) .and. (udd == vdd) &
          .and. (uh == vh) .and. (um == vm) .and. (us == vs) &
-         .and. qequal([usN, usD], [vsN, vsD]) )
+         .and. rational_equals([usN, usD], [vsN, vsD]) )
 
    end function ESMF_Times_Equal
 
@@ -402,6 +402,23 @@ contains
       @assertTrue(status == SUCCESS, 'Unsuccessful conversion: ' // str)
       @assertEqual(expected, actual, 'Incorrect conversion: ' // str)
 
+      expected = -2023
+      str = '-2023'
+      call convert_to_integer(str, actual, rc = status)
+      @assertTrue(status == SUCCESS, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, 'Incorrect conversion: ' // str)
+
+      expected = 0
+      str = '0'
+      call convert_to_integer(str, actual, rc = status)
+      @assertTrue(status == SUCCESS, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, 'Incorrect conversion: ' // str)
+
+      expected = 0
+      str = '0.0'
+      call convert_to_integer(str, actual, rc = status)
+      @assertTrue(.not. status == SUCCESS, str // ' should not convert.')
+
    end subroutine test_convert_to_integer
 
    @test
@@ -573,73 +590,83 @@ contains
 
    end subroutine test_get_NetCDF_duration_from_ESMF_Time_real
 
+   @test
+   subroutine test_is_digit_string()
+      character(len=:), allocatable :: test_string
+      
+      test_string = '1'
+      @assertTrue(is_digit_string(test_string), '"' // test_string // '" is a digit string.')
+      test_string = '9362754810'
+      @assertTrue(is_digit_string(test_string), '"' // test_string // '" is a digit string.')
+      test_string = '125     '
+      @assertTrue(is_digit_string(test_string), '"' // test_string // '" is a digit string.')
+      test_string = 'ADFG'
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = '1ADFG'
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = '1213A'
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = ' 1213'
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = '   '
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = '%^*'
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = '9%^*7'
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+      test_string = ''
+      @assertTrue(.not. is_digit_string(test_string), '"' // test_string // '" is not a digit string.')
+   end subroutine test_is_digit_string
+
+   @test
+   subroutine test_convert_to_real()
+      character(len=:), allocatable :: str
+      real(kind=ESMF_KIND_R8) :: expected, actual
+      real(kind=ESMF_KIND_R8), parameter :: RELATIVE_TOLERANCE = 1D-08
+      real(kind=ESMF_KIND_R8) :: tolerance
+      integer :: status
+
+      expected = 6.015625
+      tolerance = expected * RELATIVE_TOLERANCE
+      str = '6.015625'
+      call convert_to_real(str, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, tolerance, 'Incorrect conversion: ' // str)
+
+      expected = -6.015625
+      tolerance = expected * RELATIVE_TOLERANCE
+      str = '-6.015625'
+      call convert_to_real(str, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, tolerance, 'Incorrect conversion: ' // str)
+
+      expected = 2023
+      tolerance = expected * RELATIVE_TOLERANCE
+      str = '2023'
+      call convert_to_real(str, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, tolerance, 'Incorrect conversion: ' // str)
+
+      expected = 0.015625
+      tolerance = expected * RELATIVE_TOLERANCE
+      str = '0.015625'
+      call convert_to_real(str, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, tolerance, 'Incorrect conversion: ' // str)
+
+      expected = 0.015625
+      tolerance = expected * RELATIVE_TOLERANCE
+      str = '.015625'
+      call convert_to_real(str, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, tolerance, 'Incorrect conversion: ' // str)
+
+      expected = 6.015625
+      tolerance = expected * RELATIVE_TOLERANCE
+      str = 'asdf6.015625'
+      call convert_to_real(str, actual, rc = status)
+      @assertTrue(.not. status == SUCCESS, str // ' should not convert.')
+
+   end subroutine test_convert_to_real
+
 end module test_MAPL_NetCDF
-!   @test
-!   subroutine test_split_chararray()
-!      character(len=*), parameter :: head = 'head'
-!      character(len=*), parameter :: tail = 'tail'
-!      character(len=*), parameter :: delim = '::'
-!      character(len=:), allocatable :: parts(:)
-!
-!      parts = [character::]
-!      parts = split(parts, delimiter)
-!      @assertEqual(0, size(parts))
-!
-!      parts = [ head // delim // tail ]
-!      parts = split(parts, delim)
-!      @assertEqual(2, size(parts))
-!      @assertEqual(head, parts(1), 'Part 1 does not match head.')
-!      @assertEqual(tail, parts(2), 'Part 2 does not match tail.')
-!
-!      parts = [ delim // tail ]
-!      parts = split(parts, delim)
-!      @assertEqual(1, size(parts))
-!      @assertEqual(tail, parts(1), 'Part 1 does not match tail.')
-!
-!      parts = [ head // delim ]
-!      parts = split(parts, delim)
-!      @assertEqual(1, size(parts))
-!      @assertEqual(head, parts(1), 'Part 1 does not match head.')
-!   end subroutine test_split_chararray
-!
-!   @test
-!   subroutine test_strip_empty()
-!      character(len=:), allocatable :: chararray
-!      character(len=*), parameter :: ALL_CHARS = [ 'AAA', 'BBB', 'CCC' ]
-!      integer :: i, missing
-!
-!      charray = ALL_CHARS
-!      charray = strip_empty(chararray)
-!      @assertEqual(size(ALL_CHARS), size(chararray), 'Number of elements do not match.')
-!      do i = 1, size(charray)
-!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
-!      end do
-!
-!      charray = [ALL_CHARS(1), ALL_CHARS(2), '']
-!      missing = 3
-!      charray = strip_empty(chararray)
-!      @assertEqual(size(ALL_CHARS)-1, size(chararray), 'Number of elements do not match.')
-!      do i = 1, size(charray)
-!         if(i == missing) cycle
-!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
-!      end do
-!
-!      charray = ['', ALL_CHARS(2), ALL_CHARS(3)]
-!      missing = 1
-!      charray = strip_empty(chararray)
-!      @assertEqual(size(ALL_CHARS)-1, size(chararray), 'Number of elements do not match.')
-!      do i = 1, size(charray)
-!         if(i == missing) cycle
-!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
-!      end do
-!
-!      charray = [ALL_CHARS(1), '', ALL_CHARS(3)]
-!      missing = 2
-!      charray = strip_empty(chararray)
-!      @assertEqual(size(ALL_CHARS)-1, size(chararray), 'Number of elements do not match.')
-!      do i = 1, size(charray)
-!         if(i == missing) cycle
-!         @assertEqual(ALL_CHARS(i), chararray(i), 'Elements do not match.')
-!      end do
-!
-!   end subroutine test_strip_empty
