@@ -83,7 +83,8 @@ module MAPL_AbstractGridFactoryMod
       procedure(decomps_are_equal), deferred :: decomps_are_equal
       procedure(physical_params_are_equal), deferred :: physical_params_are_equal
 
-      procedure :: get_subset
+      procedure :: get_xy_subset
+      procedure :: get_xy_mask
       procedure :: destroy
    end type AbstractGridFactory
 
@@ -1039,16 +1040,27 @@ contains
    ! This procedure should only be called for time dependent grids.
    ! A default implementation is to fail for other grid types, so we do not 
    ! have to explicitly add methods to all of the existing subclasses.  
-   subroutine get_subset(this, interval, subset, rc)
+   subroutine get_xy_subset(this, interval, xy_subset, rc)
       class(AbstractGridFactory), intent(in) :: this
       type(ESMF_Time), intent(in) :: interval(2)
-      integer, intent(out) :: subset(2,2)
+      integer, intent(out) :: xy_subset(2,2)
       integer, optional, intent(out) :: rc
          
       integer :: status
       
       _RETURN(_FAILURE)
-    end subroutine get_subset
+    end subroutine get_xy_subset
+
+   subroutine get_xy_mask(this, interval, xy_mask, rc)
+      class(AbstractGridFactory), intent(inout) :: this
+      type(ESMF_Time), intent(in) :: interval(2)
+      integer, allocatable, intent(out) :: xy_mask(:,:)
+      integer, optional, intent(out) :: rc
+         
+      integer :: status
+      
+      _RETURN(_FAILURE)
+    end subroutine get_xy_mask
 
    ! Probably don't need to do anything more for subclasses unless they have
    ! other objects that don't finalize well.  (NetCDF, ESMF, MPI, ...)

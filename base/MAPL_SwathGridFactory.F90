@@ -16,6 +16,7 @@ module MAPL_SwathGridFactoryMod
    use mapl_ErrorHandlingMod
    use MAPL_Constants
    use MAPL_plain_netCDF_Time
+   use MAPL_Base, only : MAPL_GridGetInterior
 !   use MAPL_FileMetadataUtilsMod
    use ESMF
    use pFIO
@@ -36,6 +37,7 @@ module MAPL_SwathGridFactoryMod
       private
       character(len=:), allocatable :: grid_name
       character(len=:), allocatable :: grid_file_name      
+      type (ESMF_Grid), allocatable :: mygrid
       ! Grid dimensions
       integer :: im_world = MAPL_UNDEFINED_INTEGER
       integer :: jm_world = MAPL_UNDEFINED_INTEGER
@@ -92,7 +94,8 @@ module MAPL_SwathGridFactoryMod
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
 
-      procedure :: get_subset
+      procedure :: get_xy_subset
+!!      procedure :: get_xy_mask
       procedure :: destroy
    end type SwathGridFactory
 
@@ -167,6 +170,10 @@ contains
       _UNUSED_DUMMY(unusable)
       grid = this%create_basic_grid(_RC)
       call this%add_horz_coordinates_from_file(grid,_RC)
+
+!      if (.NOT. allocated(this%mygrid)) then
+!         this%mygrid = grid
+!      end if
       _RETURN(_SUCCESS)
 
    end function make_new_grid
@@ -1373,10 +1380,10 @@ contains
    end function generate_file_reference3D
 
 
-   subroutine get_subset(this, interval, subset, rc)
+   subroutine get_xy_subset(this, interval, xy_subset, rc)
       class(SwathGridFactory), intent(in) :: this
       type(ESMF_Time), intent(in) :: interval(2)
-      integer, intent(out) :: subset(2,2)
+      integer, intent(out) :: xy_subset(2,2)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1398,13 +1405,79 @@ contains
       jlo = this%epoch_index(3); jhi=this%epoch_index(4)
       call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
-      subset(1:2,1)=this%epoch_index(1:2)    ! xtrack
-      subset(1,  2)=index1+1                 ! atrack
-      subset(2,  2)=index2
+      xy_subset(1:2,1)=this%epoch_index(1:2)    ! xtrack
+      xy_subset(1,  2)=index1+1                 ! atrack
+      xy_subset(2,  2)=index2
       if(present(rc)) rc=0
       
-    end subroutine get_subset
-   
+    end subroutine get_xy_subset
+
+!
+!    subroutine get_xy_mask(this, interval, xy_mask, rc)
+!      class(SwathGridFactory), intent(inout) :: this
+!      type(ESMF_Time), intent(in) :: interval(2)
+!      integer, allocatable, intent(out) :: xy_mask(:,:)
+!      integer, optional, intent(out) :: rc
+!      
+!      integer :: xy_subset(2,2)
+!
+!      integer :: status
+!      integer :: ii1, iin, jj1, jjn  ! local box for localDE
+!      integer :: is, ie, js, je  ! global box for each time-interval
+!      integer :: j1p, jnp        ! local y-index for each time-interval
+!
+!
+!      integer :: localDe, localDECount
+!      integer, dimension(:), allocatable :: LB, UB, exclusiveCount
+!      integer :: dimCount
+!      integer :: y1, y2
+!      integer :: j, jj
+!      integer, dimension(:), allocatable :: j1, j2
+!
+!      call this%get_xy_subset(interval, xy_subset, _RC)
+!
+!      is=xy_subset(1,1); ie=xy_subset(2,1)
+!      js=xy_subset(1,2); je=xy_subset(2,2)
+!
+!      if (.NOT. allocated(this%mygrid)) then
+!         this%mygrid = this%make_new_grid(_RC)
+!      end if
+!      
+!      call ESMF_GridGet(this%mygrid, localDECount=localDECount, dimCount=dimCount, _RC)
+!      allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) )
+!      allocate ( j1(0:localDEcount-1) )  ! start
+!      allocate ( j2(0:localDEcount-1) )  ! end
+!
+!      write(6,*) 'localDECount, dimCount', localDECount, dimCount
+!
+!      localDe=0
+!
+!      do localDe=0, localDEcount-1
+!         call ESMF_GridGet (this%mygrid, ESMF_STAGGERLOC_CENTER, localDE, &
+!              exclusiveLBound=LB, exclusiveUBound=UB, exclusiveCount=exclusiveCount, _RC)
+!         write(6,*) 'exclusiveLBound, exclusiveUBound, exclusiveCount', &
+!              LB, UB, exclusiveCount
+!      enddo
+!
+!
+!
+!      call MAPL_GridGetInterior(this%mygrid,ii1,iin,jj1,jjn)
+!      write(6,*) 'MAPL_GridGetInterior, i1,in,j1,jn', ii1,iin,jj1,jjn
+!
+!      LB(1)=ii1; LB(2)=jj1
+!      UB(1)=ii2; UB(2)=jj2      
+!
+!      
+!      
+!      stop -1
+!
+!      allocate (xy_mask(1,1))
+!      
+!      if(present(rc)) rc=0
+!
+!    end subroutine get_xy_mask
+!
+    
 
     subroutine destroy(this, rc)
       class(SwathGridFactory), intent(inout) :: this

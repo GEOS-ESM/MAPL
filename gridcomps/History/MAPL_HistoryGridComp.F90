@@ -3486,8 +3486,7 @@ ENDDO PARSER
    enddo OPENLOOP
    call MAPL_TimerOff(GENSTATE,"----IO Create")
 
-   
-   
+
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
@@ -3508,25 +3507,22 @@ ENDDO PARSER
             ! how to gen nc file
             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
 
-            !! write(6,*) 'inside epoch alarm, bf list(n)%mGriddedIO%CreateFileMetaData'
+             write(6,*) 'inside epoch alarm, bf list(n)%mGriddedIO%CreateFileMetaData'
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
 
-            !! write(6,*) 'inside epoch alarm, af list(n)%mGriddedIO%CreateFileMetaData'
+            write(6,*) 'inside epoch alarm, af list(n)%mGriddedIO%CreateFileMetaData'
             
             ! only once
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
 
+            
 
-            !         call bundlepost()
-            !        call o_Clients%done_collective_stage(_RC)
-            !        call o_Clients%post_wait()
-
-
-            !!
-            pt_output_grids => IntState%output_grids
-            key_grid_label = list(n)%output_grid_label
-            call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )         ! at epoch_alarm
+            !--- defer it now
+            !
+!            pt_output_grids => IntState%output_grids
+!            key_grid_label = list(n)%output_grid_label
+! !!           call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )         ! at epoch_alarm
          endif
       end if
    end do epoch_swath_grid_case
@@ -3587,11 +3583,9 @@ ENDDO PARSER
 
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
-               if (trim(list(n)%output_grid_label)=='SwathGrid') then
-
-               else
-                  call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
-               endif
+               write(6,*) 'bf bundlepost'
+               call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
+               write(6,*) 'af bundlepost'
             else
 
                if( INTSTATE%LCTL(n) ) then
@@ -3628,8 +3622,11 @@ ENDDO PARSER
    write(6,*) 'test writing=', writing(:)
    !!   if (any(writing) .AND. trim(list(n)%output_grid_label)/='SwathGrid') then
    if (any(writing)) then   
+      write(6,*) 'bf done_collective...'
       call o_Clients%done_collective_stage(_RC)
+      write(6,*) 'af done_collective...'
       call o_Clients%post_wait()
+      write(6,*) 'af post_wait'
    endif
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
@@ -3640,7 +3637,6 @@ ENDDO PARSER
 
    ! destroy acc_bundle, regenerate ogrid, RH
    
-
 
 
 
