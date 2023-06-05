@@ -15,6 +15,7 @@ module MAPL_FieldPointerUtilities
    public :: FieldClone
    public :: FieldsAreConformable
    public :: FieldsAreSameTypeKind
+   public :: FieldCopy
 
    interface assign_fptr
       module procedure assign_fptr_r4_rank1
@@ -52,6 +53,11 @@ module MAPL_FieldPointerUtilities
       module procedure verify_typekind_scalar
       module procedure verify_typekind_array
    end interface verify_typekind
+
+   ! call FieldCOPY(x, ddy, rc): y = x
+   interface FieldCOPY
+      procedure copy
+   end interface FieldCOPY
 
 contains
 
@@ -362,8 +368,6 @@ contains
       y = ESMF_FieldCreate(grid, arrayspec, staggerloc=staggerloc, &
          gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
          ungriddedUBound=ungriddedUBound, name=name, _RC)
-!         ungriddedUBound=ungriddedUBound, totalLWidth=totalLWidth, &
-!         totalUWidth=totalUWidth, name=name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine clone
@@ -471,5 +475,111 @@ contains
       end do
 
    end function is_valid_typekind
+
+   subroutine copy(x, y, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_TypeKind_Flag) :: tk_x, tk_y
+      type(c_ptr) :: cptr_x, cptr_y
+      integer(kind=ESMF_KIND_I8) :: n
+      integer :: status
+      logical :: conformable
+      logical :: x_is_double
+      logical :: y_is_double
+      character(len=*), parameter :: UNSUPPORTED_TK = &
+         'Unsupported typekind in FieldCOPY() for '
+
+      conformable = FieldsAreConformable(x, y)
+      !wdb fixme need to pass RC
+      _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
+      call FieldGetCptr(x, cptr_x, _RC)
+      call ESMF_FieldGet(x, typekind = tk_x, _RC)
+
+      n  = FieldGetLocalSize(x, _RC)
+
+      call FieldGetCptr(y, cptr_y, _RC)
+      call ESMF_FieldGet(y, typekind = tk_y, _RC)
+
+     !wdb  fixme convert between precisions ? get rid of extra cases
+      y_is_double = (tk_y == ESMF_TYPEKIND_R8)
+      _ASSERT(y_is_double .or. (tk_y == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'y.')
+
+      x_is_double = (tk_x == ESMF_TYPEKIND_R8)
+      _ASSERT(x_is_double .or. (tk_x == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'x.')
+
+      if (y_is_double) then
+         if (x_is_double) then
+            call copy_r8_r8(cptr_x, cptr_y, n)
+         else
+            call copy_r4_r8(cptr_x, cptr_y, n)
+         end if
+      else
+         if (x_is_double) then
+            call copy_r8_r4(cptr_x, cptr_y, n)
+         else
+            call copy_r4_r4(cptr_x, cptr_y, n)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine copy
+
+   subroutine copy_r4_r4(cptr_x, cptr_y, n)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n
+
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: y_ptr(:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
+
+      y_ptr=x_ptr
+   end subroutine copy_r4_r4
+
+   subroutine copy_r4_r8(cptr_x, cptr_y, n)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n
+
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: y_ptr(:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
+
+      y_ptr=x_ptr
+   end subroutine copy_r4_r8
+
+   subroutine copy_r8_r4(cptr_x, cptr_y, n)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n
+
+      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: y_ptr(:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
+
+      y_ptr=x_ptr
+   end subroutine copy_r8_r4
+
+   subroutine copy_r8_r8(cptr_x, cptr_y, n)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n
+
+      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: y_ptr(:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n])
+      call c_f_pointer(cptr_y, y_ptr, [n])
+
+      y_ptr=x_ptr
+   end subroutine copy_r8_r8
+
+
+
+
 
 end module

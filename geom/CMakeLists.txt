@@ -15,6 +15,8 @@ set(srcs
   FieldBLAS.F90
   FieldPointerUtilities.F90
   FieldUtilities.F90
+  FieldFunctions.F90
+  FieldBinaryOperations.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
@@ -34,6 +36,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.shared PFLOGGER::pflogger
   TYPE ${MAPL_LIBRARY_TYPE}
   )
+
 #add_subdirectory(specs)
 #add_subdirectory(registry)
 #add_subdirectory(connection_pt)
