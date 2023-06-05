@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Tests for wildcard field specification in History
 - New generic3g directory intended to replace existing generic directory when completed.
   - Modules there temporarily have `mapl3g_` as the prefix.
 - New command line switches for activating global time and memory
