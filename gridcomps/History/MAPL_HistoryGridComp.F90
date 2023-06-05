@@ -2364,15 +2364,15 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
              call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
-          else
-             call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
-             call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
-             call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
-             call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
-             call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
-             call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
-             call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
-          end if
+          endif
+          call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
+          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
+          call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
+          call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
+          call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
+          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
+          call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+
           if (list(n)%monthly) then
              nextMonth = currTime - oneMonth
              dur = nextMonth - currTime
@@ -3621,7 +3621,7 @@ ENDDO PARSER
 
    write(6,*) 'test writing=', writing(:)
    !!   if (any(writing) .AND. trim(list(n)%output_grid_label)/='SwathGrid') then
-   if (any(writing)) then   
+   if (any(writing)) then
       write(6,*) 'bf done_collective...'
       call o_Clients%done_collective_stage(_RC)
       write(6,*) 'af done_collective...'
