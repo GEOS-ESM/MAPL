@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added field utilities to set a field or field in a state to a constant real number
+- Added field utilities to perform arithmetic on fields
 
 ### Changed
 
