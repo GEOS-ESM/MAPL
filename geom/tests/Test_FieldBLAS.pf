@@ -104,6 +104,8 @@ contains
       
       x = XR8
       y = YR4
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_ptr = 4.d0
       call FieldCOPY(x, y, _RC)
       call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
@@ -357,20 +359,6 @@ contains
       call FieldClone(x, y, _RC)
 
    end subroutine test_FieldClone
-
-   !elemental function are_almost_equal(x, y) result(almost_equal)
-      !real(kind=ESMF_KIND_R4), parameter :: EPS = epsilon(real(1.0, kind=ESMF_KIND_R4))
-      !real(kind=ESMF_KIND_R8), intent(in) :: x
-      !real(kind=ESMF_KIND_R4), intent(in) :: y
-      !logical :: almost_equal
-
-      !if(y==0) then
-         !almost_equal = (x==0)
-      !else
-         !almost_equal = (abs(x-y)/abs(y) < EPS)
-      !end if
-
-   !end function are_almost_equal
 
    @Test
    subroutine test_almost_equal_scalar()
