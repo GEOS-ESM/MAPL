@@ -112,7 +112,9 @@ else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
-find_package (PFLOGGER REQUIRED)
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)

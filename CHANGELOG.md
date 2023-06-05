@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.39.2] - 2023-05-30
+
+### Fixed
+
+- Fix unintentional PFLOGGER requirements in geom and pfio
+
 ## [2.39.1] - 2023-05-16
 
 ### Fixed
