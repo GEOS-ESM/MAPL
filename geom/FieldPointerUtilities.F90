@@ -317,11 +317,12 @@ contains
       integer :: status
       integer :: rank
 
-!      element_count = [integer :: ] ! default
-
       call ESMF_FieldGet(x, rank=rank, _RC)
       allocate(element_count(rank))
-      call ESMF_FieldGet(x, localElementCount=element_count, _RC)
+      ! ESMF has a big fat bug with multi tile grids and loal element count
+      !call ESMF_FieldGet(x, localElementCount=element_count, _RC)
+      ! until it is fixed we must kluge :(
+      call MAPL_FieldGetLocalElementCount(x, element_count, _RC)
 
       _RETURN(_SUCCESS)
    end function get_local_element_count
@@ -578,8 +579,56 @@ contains
       y_ptr=x_ptr
    end subroutine copy_r8_r8
 
+! this procedure must go away as soon as ESMF Fixes their bug
 
+  subroutine MAPL_FieldGetLocalElementCount(field,local_count,rc)
+     type(ESMF_Field), intent(inout) :: field
+     integer, allocatable, intent(out) :: local_count(:)
+     integer, optional, intent(out) :: rc
 
+     integer :: status, rank
+     type(ESMF_TypeKind_Flag) :: tk
 
+     real(kind=ESMF_KIND_R4), pointer :: r4_1d(:),r4_2d(:,:),r4_3d(:,:,:),r4_4d(:,:,:,:)
+     real(kind=ESMF_KIND_R8), pointer :: r8_1d(:),r8_2d(:,:),r8_3d(:,:,:),r8_4d(:,:,:,:)
+
+     call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+     if (tk == ESMF_TypeKind_R4) then
+        if (rank==1) then
+           call ESMF_FieldGet(field,0,farrayptr=r4_1d,_RC)
+           local_count = shape(r4_1d)
+        else if (rank ==2) then
+           call ESMF_FieldGet(field,0,farrayptr=r4_2d,_RC)
+           local_count = shape(r4_2d)
+        else if (rank ==3) then
+           call ESMF_FieldGet(field,0,farrayptr=r4_3d,_RC)
+           local_count = shape(r4_3d)
+        else if (rank ==4) then
+           call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
+           local_count = shape(r4_4d)
+        else
+           _FAIL("Unsupported rank")
+        end if
+     else if (tk == ESMF_TypeKind_R8) then
+        if (rank==1) then
+           call ESMF_FieldGet(field,0,farrayptr=r8_1d,_RC)
+           local_count = shape(r8_1d)
+        else if (rank ==2) then
+           call ESMF_FieldGet(field,0,farrayptr=r8_2d,_RC)
+           local_count = shape(r8_2d)
+        else if (rank ==3) then
+           call ESMF_FieldGet(field,0,farrayptr=r8_3d,_RC)
+           local_count = shape(r8_3d)
+        else if (rank ==4) then
+           call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
+           local_count = shape(r8_4d)
+        else
+           _FAIL("Unsupported rank")
+        end if
+     else 
+        _FAIL("Unsupported type")
+     end if
+     _RETURN(_SUCCESS)
+  end subroutine MAPL_FieldGetLocalElementCount
 
 end module
