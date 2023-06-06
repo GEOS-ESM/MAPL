@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.4% of total for procedures.">191 statements</a>
+               title=" 0.4% of total for procedures.">210 statements</a>
           </li>
 
             <li id="source-file">
@@ -169,6 +169,7 @@
     
 
 
+
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
     <thead>
@@ -182,7 +183,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~30"></span>
+              <span class="anchor" id="variable-gc~27"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -227,7 +228,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~30"></span>
+              <span class="anchor" id="variable-clock~12"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -242,7 +243,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~267"></span>
+              <span class="anchor" id="variable-rc~33"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -493,8 +494,12 @@
 <span class="w">            </span><span class="k">call </span><span class="n">MAPL_ESMFStateWriteToFile</span><span class="p">(</span><span class="k">IMPORT</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">FILENAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="n">oClients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o_Clients</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">endif</span>
-<span class="k">      end if</span>
+<span class="w">         </span><span class="k">endif</span><span class="w"></span>
+
+<span class="w">         </span><span class="c">! Checkpoint the export state if required.</span>
+<span class="w">         </span><span class="c">!----------------------------------------</span>
+<span class="w">         </span><span class="k">call </span><span class="n">checkpoint_export_state</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
 
 <span class="k">      call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="s2">&quot;generic&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
@@ -520,7 +525,35 @@
 
 <span class="w">   </span><span class="k">contains</span>
 
-<span class="k">      subroutine </span><span class="n">report_generic_profile</span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="k">      subroutine </span><span class="n">checkpoint_export_state</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+
+<span class="w">         </span><span class="k">call       </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">FILENAME</span><span class="p">,</span><span class="w"> </span><span class="n">LABEL</span><span class="o">=</span><span class="s2">&quot;EXPORT_CHECKPOINT_FILE:&quot;</span><span class="p">,</span><span class="w">                  </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call    </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">LABEL</span><span class="o">=</span><span class="s2">&quot;EXPORT_CHECKPOINT_TYPE:&quot;</span><span class="p">,</span><span class="w">                  </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">status</span><span class="o">/=</span><span class="n">ESMF_SUCCESS</span><span class="w">  </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w">  </span><span class="n">FILETYPE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">LABEL</span><span class="o">=</span><span class="s2">&quot;DEFAULT_CHECKPOINT_TYPE:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;pnc4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            </span><span class="n">FILETYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UtilStringLowerCase</span><span class="p">(</span><span class="n">FILETYPE</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="cp">#ifndef H5_HAVE_PARALLEL</span>
+<span class="w">            </span><span class="n">nwrgt1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">num_readers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">state</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">num_writers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">FILETYPE</span><span class="o">==</span><span class="s1">&#39;pnc4&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">nwrgt1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  print</span><span class="o">*</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">),</span><span class="s1">&#39;: num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel&#39;</span><span class="w"></span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">               </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">endif</span><span class="w"></span>
+<span class="cp">#endif</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_ESMFStateWriteToFile</span><span class="p">(</span><span class="n">EXPORT</span><span class="p">,</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">FILENAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                 </span><span class="n">FILETYPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,</span><span class="w"> </span><span class="n">oClients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o_Clients</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">endif</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">checkpoint_export_state</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">subroutine </span><span class="n">report_generic_profile</span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
 <span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report</span><span class="p">(:)</span><span class="w"></span>
 <span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProfileReporter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reporter</span><span class="w"></span>
@@ -610,7 +643,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

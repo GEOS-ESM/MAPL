@@ -442,4 +442,38 @@ contains
 
    end subroutine test_serialize
 
+   @test
+   subroutine test_merge_meta()
+      type (FileMetadata) :: cf1, cf2,cf3
+      type (Variable) :: v1, v2, v3
+
+      call cf1%add_dimension('x', 10)
+      call cf1%add_dimension('y', 20)
+      call cf1%add_dimension('z', 30)
+
+      v1 = Variable(type=pFIO_INT32, dimensions='x')
+      call v3%add_attribute('flag', .true.)
+
+      call cf1%add_variable('v1', v1)
+    
+      call cf2%merge(cf1)
+      @assertTrue(cf2 == cf1)
+
+      ! merge again, should be the same
+      call cf2%merge(cf1)
+      @assertTrue(cf2 == cf1)
+
+      call cf3%add_dimension('x', 10)
+      call cf3%add_dimension('a', 3)
+      v3 = Variable(type=pFIO_REAL64, dimensions='x,a')
+      call cf3%add_variable('v3', v3)
+      call cf2%merge(cf3)
+    
+      call cf1%add_dimension('a',3)
+      call cf1%add_variable('v3', v3)
+      
+      @assertTrue(cf2 == cf1)
+      
+   end subroutine test_merge_meta
+
 end module Test_FileMetadata

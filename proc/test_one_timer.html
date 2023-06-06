@@ -109,12 +109,12 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/test_NameColumn.pf"> Source File</a>
+              <a href="../src/test_Column.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_namecolumn.pf.html'>test_NameColumn.pf</a></li>
-              <li><a href='../module/test_namecolumn.html'>test_NameColumn</a></li>
+              <li><a href='../sourcefile/test_column.pf.html'>test_Column.pf</a></li>
+              <li><a href='../module/test_column.html'>test_Column</a></li>
           <li class="active">test_one_timer</li>
         </ol>
       </div>
@@ -169,6 +169,7 @@
     
 
 
+
     <h3>Arguments</h3>
     <em>None</em>
     <br>
@@ -218,20 +219,20 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_one_timer</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">NameColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">column</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">node</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">header</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ExclusiveTimeColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">column</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimerTree</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tree</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimerReport</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractTimer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MeterNode</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NameColumn</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">WIDTH</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimerTree</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">tree</span><span class="p">%</span><span class="n">get_timer</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">t</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="c">! Check proper padding.</span>
-<span class="w">      </span><span class="k">call </span><span class="n">column</span><span class="p">%</span><span class="n">get_header</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">WIDTH</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">WIDTH</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">column</span><span class="p">%</span><span class="n">get_row</span><span class="p">(</span><span class="n">node</span><span class="p">)))</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;Name      &#39;</span><span class="p">,</span><span class="n">header</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;all       &#39;</span><span class="p">,</span><span class="n">column</span><span class="p">%</span><span class="n">get_row</span><span class="p">(</span><span class="n">node</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ExclusiveTimeColumn</span><span class="p">(</span><span class="k">format</span><span class="o">=</span><span class="s1">&#39;(f7.2)&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">column</span><span class="p">%</span><span class="n">report</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;  exc  &#39;</span><span class="p">,</span><span class="n">report</span><span class="p">%</span><span class="n">get_header</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;   1.00&#39;</span><span class="p">,</span><span class="n">report</span><span class="p">%</span><span class="n">get_row</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
 <span class="w">      </span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">test_one_timer</span><span class="w"></span>
 </pre></div>
@@ -254,7 +255,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

@@ -250,26 +250,26 @@
 <a id="ln-27" name="ln-27" href="#ln-27"></a>
 <a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="w"></span>
 <a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_get_rows</span><span class="p">()</span><span class="w"></span>
-<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="c">!!$      type (NameColumn) :: column</span>
-<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="c">!!$      type (MeterNode), target :: node</span>
-<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="c">!!$      integer, parameter :: WIDTH = 10</span>
-<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="c">!!$      character(len=WIDTH) :: expected(3)</span>
-<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="c">!!$      character(:), allocatable :: found(:)</span>
-<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="c">!!$</span>
-<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="c">!!$      node = MeterNode(&#39;all&#39;, AdvancedMeter(MpiTimerGauge()))</span>
-<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="c">!!$      call node%add_child(&#39;t1&#39;, AdvancedMeter(MpiTimerGauge()))</span>
-<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="c">!!$      call node%add_child(&#39;t2&#39;, AdvancedMeter(MpiTimerGauge()))</span>
-<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="c">!!$</span>
-<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="c">!!$      column = NameColumn(width=WIDTH)</span>
-<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="c">!!$</span>
-<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="c">!!$      expected(1) = &#39;all&#39;</span>
-<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="c">!!$      expected(2) = &#39;--t1&#39;</span>
-<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="c">!!$      expected(3) = &#39;--t2&#39;</span>
-<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="c">!!$</span>
-<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="c">!!$      call column%get_rows(node, found)</span>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="c">!!$      do i = 1, 3</span>
-<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="c">!!$         @assertEqual(expected(i), found(i))</span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="c">!!$      end do</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="c">!C$      type (NameColumn) :: column</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="c">!C$      type (MeterNode), target :: node</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="c">!C$      integer, parameter :: WIDTH = 10</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="c">!C$      character(len=WIDTH) :: expected(3)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="c">!C$      character(:), allocatable :: found(:)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="c">!C$</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="c">!C$      node = MeterNode(&#39;all&#39;, AdvancedMeter(MpiTimerGauge()))</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="c">!C$      call node%add_child(&#39;t1&#39;, AdvancedMeter(MpiTimerGauge()))</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="c">!C$      call node%add_child(&#39;t2&#39;, AdvancedMeter(MpiTimerGauge()))</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="c">!C$</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="c">!C$      column = NameColumn(width=WIDTH)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="c">!C$</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="c">!C$      expected(1) = &#39;all&#39;</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="c">!C$      expected(2) = &#39;--t1&#39;</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="c">!C$      expected(3) = &#39;--t2&#39;</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="c">!C$</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="c">!C$      call column%get_rows(node, found)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="c">!C$      do i = 1, 3</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="c">!C$         @assertEqual(expected(i), found(i))</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="c">!C$      end do</span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_get_rows</span><span class="w"></span>
 <a id="ln-52" name="ln-52" href="#ln-52"></a>
@@ -292,7 +292,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

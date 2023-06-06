@@ -109,11 +109,11 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ParentNoChildren_GridComp.F90"> Source File</a>
+              <a href="../src/BBB_GridComp.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/parentnochildren_gridcomp.f90.html'>ParentNoChildren_GridComp.F90</a></li>
+              <li><a href='../sourcefile/bbb_gridcomp.f90.html'>BBB_GridComp.F90</a></li>
           <li class="active">SetServices</li>
         </ol>
       </div>
@@ -173,11 +173,12 @@
           <li class="list-group-item">
             <ul class="list-inline">
                 <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
-                <li><a href='../module/parentnochild_gridcomp.html'>ParentNoChild_GridComp</a></li>
+                <li><a href='../module/bbb_gridcomp.html'>BBB_GridComp</a></li>
             </ul>
           </li>
       </ul>
     </div>
+
 
 
 
@@ -280,13 +281,9 @@
 <span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">my_initialize</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">  </span><span class="n">my_run</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_AddExportSpec</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;output1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_AddImportSpec</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;field1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                                 </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                                 </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_AddExportSpec</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;output2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                                 </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzVert</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                                 </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationCenter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w"> </span>
 <span class="w"> </span>
 
 <span class="w">     </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
@@ -313,7 +310,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

@@ -8,7 +8,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>setUp &ndash; MAPL</title>
+    <title>setup &ndash; MAPL</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -92,7 +92,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>setUp
+    <h1>setup
       <small>Subroutine</small>
       
     </h1>
@@ -104,18 +104,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">57 statements</a>
+               title=" 0.0% of total for procedures.">11 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_LatLon_GridFactory.pf"> Source File</a>
+              <a href="../src/test_DirPath.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_latlon_gridfactory.pf.html'>Test_LatLon_GridFactory.pf</a></li>
-              <li><a href='../module/test_latlon_gridfactory.html'>Test_LatLon_GridFactory</a></li>
-          <li class="active">setUp</li>
+              <li><a href='../sourcefile/test_dirpath.pf.html'>test_DirPath.pf</a></li>
+              <li><a href='../module/test_dirpath.html'>test_DirPath</a></li>
+          <li class="active">setup</li>
         </ol>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setup~2.html#src">setUp</a>
+        <a class="list-group-item" href="../proc/setup~2.html#src">setup</a>
       </div>
     </div>
 
@@ -164,40 +164,15 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine setUp(this)  
+    <h2>public  subroutine setup()  
 </h2>
     
 
 
-    <h3>Arguments</h3>
-        <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-this~1092"></span>
-              class(<a href='../type/test_latlongridfactory.html'>Test_LatLonGridFactory</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>this</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-    </tbody>
-  </table>
 
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -224,7 +199,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setup~2.html#src">setUp</a>
+        <a class="list-group-item" href="../proc/setup~2.html#src">setup</a>
       </div>
     </div>
 
@@ -243,73 +218,19 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">setUp</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Test_LatLonGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
-
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">setup</span><span class="p">()</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getLocalPET</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         select type</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">testParameter</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">call </span><span class="n">write_config</span><span class="p">(</span><span class="n">resource_file</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">end select</span>
-<span class="k">      end if</span>
-<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">barrier</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="s1">&#39;mkdir dir1 dir2&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="s1">&#39;mkdir dir1/dir3&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;dir1/exist.dat&#39;</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;new&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;dir1/dir3/exist3.dat&#39;</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;new&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;dir2/exist2.dat&#39;</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;new&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ConfigCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">resource_file</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">mpiAssertEqual</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">barrier</span><span class="p">()</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getLocalPET</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         open</span><span class="w"> </span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="k">file</span><span class="o">=</span><span class="n">resource_file</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
-
-<span class="k">      call </span><span class="n">this</span><span class="p">%</span><span class="n">factory</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigDestroy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">factory</span><span class="p">%</span><span class="n">make_grid</span><span class="p">()</span><span class="w"></span>
-
-<span class="w">   </span><span class="k">contains</span>
-
-<span class="k">      subroutine </span><span class="n">write_config</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_name</span><span class="w"></span>
-<span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">param</span><span class="w"></span>
-
-<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span><span class="w"></span>
-
-<span class="w">         </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="k">file</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">param</span><span class="p">%</span><span class="n">default_decomposition</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;NX: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">nx</span><span class="w"></span>
-<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;NY: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">ny</span><span class="w"></span>
-<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;IM_WORLD: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">im_world</span><span class="w"></span>
-<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;JM_WORLD: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">jm_world</span><span class="w"></span>
-<span class="w">         </span><span class="k">else</span>
-<span class="k">            write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;IMS: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">ims</span><span class="w"></span>
-<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;JMS: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">jms</span><span class="w"></span>
-<span class="w">         </span><span class="k">end if</span>
-<span class="k">         write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s2">&quot;POLE: &#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">pole</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&#39;&quot;</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">param</span><span class="p">%</span><span class="n">pole</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;XY&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;LAT_RANGE: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">lat_range</span><span class="p">%</span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">lat_range</span><span class="p">%</span><span class="nb">max</span>
-<span class="nb">         </span><span class="k">end if</span>
-<span class="k">         write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s2">&quot;DATELINE: &#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">dateline</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&#39;&quot;</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">param</span><span class="p">%</span><span class="n">dateline</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;XY&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;LON_RANGE: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">lon_range</span><span class="p">%</span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">param</span><span class="p">%</span><span class="n">lon_range</span><span class="p">%</span><span class="nb">max</span>
-<span class="nb">         </span><span class="k">end if</span>
-
-<span class="k">         close</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">end subroutine </span><span class="n">write_config</span><span class="w"></span>
-
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">setUp</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">setup</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -330,7 +251,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

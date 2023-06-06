@@ -2,7 +2,10 @@
 
 #define LDB_SUCCESS  0
 #include "MAPL_ErrLog.h"
-
+!------------------------------------------------------------------------------
+!>
+!### MODULE: `MAPL_LoadBalanceMod`
+!
 module MAPL_LoadBalanceMod
 
   use MAPL_Constants, only : MAPL_R8
@@ -39,9 +42,9 @@ module MAPL_LoadBalanceMod
   character*30 :: Iam="MAPL_LoadBalanceMod in line "
 
 !---------------------------------------------------------------------------
-
-!  EXAMPLE
-
+!>
+!### EXAMPLE
+!```fortran
 !      REAL A(IM,JM,LM), B(IM,JM), C(IM,JM,LM)
 !      REAL, allocatable :: AT(:,:), BT(:), CT(:,:)
 !      LOGICAL MASK(IM,JM)
@@ -49,39 +52,53 @@ module MAPL_LoadBalanceMod
 !      LENGTH = COUNT(MASK)
 !      IRUN   = MAPL_BalanceCreate(LENGTH)
 !      IDIM   = max(length,irun)
-
+!
 !      allocate(AT(IDIM,LM),BT(IDIM),CT(IDIM,LM)
-
+!
 !      BT(1:LENGTH) = PACK(B,MASK)
-
+!
 !      DO L=1,LM
 !       AT(1:LENGTH,L) = PACK(A(:,:,L),MASK)
 !      ENDDO
-
+!
 !!! DISTRIBUTE THE INPUTS
-
+!
 !      CALL MAPL_BalanceWork(AT,IDIM,LM,Direction=MAPL_Distribute)
 !      CALL MAPL_BalanceWork(BT,IDIM,1 ,Direction=MAPL_Distribute)
-
+!
 !!! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)
-
+!
 !      CALL WORKSUB(IRUN,AT,BT,CT)
-
+!
 !!! RETRIEVE THE OUTPUTS
-
+!
 !      CALL MAPL_BalanceWork(CT,IDIM,LM,Direction=MAPL_Retrieve)
 !      CALL MAPL_BalanceWork(BT,IDIM, 1,Direction=MAPL_Retrieve)
-
+!
 !      B = UNPACK(BT(1:LENGTH),MASK,B)
-
+!
 !      DO L=1,LM
 !       C(:,:,L) = UNPACK(CT(1:LENGTH,L),MASK,0)
 !      ENDDO
 !      ...
-
+!```
 !---------------------------------------------------------------------------
 
 contains
+
+!---------------------------------------------------------------------------
+!>
+! Depending on the argument "Direction", this performs the actual distribution
+! of work or the gathering of results for a given strategy. The strategy has to
+! have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+! obtained from that call can be optionally used to specify the strategy. Otherwise,
+! a default strategy is assumed (see MAPL_BalanceCreate for details).
+! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
+! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
+! The blocksize of A (Idim) must be at least as large as the BufLen associated
+! with the strategy. This size can be obtained by quering the strategy using 
+! its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
+! MAPL_BalanceCreate for details.
 
   subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)
     real,              intent(INOUT) :: A(:)
@@ -93,18 +110,6 @@ contains
     integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
-
-! Depending on the argument "Direction", this performs the actual distribution
-!  of work or the gathering of results for a given strategy. The strategy has to
-!  have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
-!  obtained from that call can be optionally used to specify the strategy. Otherwise,
-!  a default strategy is assumed (see MAPL_BalanceCreate for details).
-!  Work (Results) is distributed (retrieved) using the buffer A, which is assumed
-!  to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
-!  The blocksize of A (Idim) must be at least as large as the BufLen associated
-!  with the strategy. This size can be obtained by quering the strategy using 
-!  its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
-!  MAPL_BalanceCreate for details.
 
     Jdim = size(A)/Idim
 
@@ -186,6 +191,18 @@ contains
   end subroutine MAPL_BalanceWork4
 
 !---------------------------------------------------------------------------
+!>
+! Depending on the argument "Direction", this performs the actual distribution
+! of work or the gathering of results for a given strategy. The strategy has to
+! have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+! obtained from that call can be optionally used to specify the strategy. Otherwise,
+! a default strategy is assumed (see MAPL_BalanceCreate for details).
+! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
+! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
+! The blocksize of A (Idim) must be at least as large as the BufLen associated
+! with the strategy. This size can be obtained by quering the strategy using 
+! its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
+! MAPL_BalanceCreate for details.
 
   subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
     real(kind=MAPL_R8), intent(INOUT) :: A(:)
@@ -197,18 +214,6 @@ contains
     integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
-
-! Depending on the argument "Direction", this performs the actual distribution
-!  of work or the gathering of results for a given strategy. The strategy has to
-!  have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
-!  obtained from that call can be optionally used to specify the strategy. Otherwise,
-!  a default strategy is assumed (see MAPL_BalanceCreate for details).
-!  Work (Results) is distributed (retrieved) using the buffer A, which is assumed
-!  to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
-!  The blocksize of A (Idim) must be at least as large as the BufLen associated
-!  with the strategy. This size can be obtained by quering the strategy using 
-!  its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
-!  MAPL_BalanceCreate for details.
 
     Jdim = size(A)/Idim
 
@@ -290,7 +295,20 @@ contains
   end subroutine MAPL_BalanceWork8
 
 !---------------------------------------------------------------------------
-
+!>
+! This routine creates a balancing strategy over an MPI communicator (Comm)
+! given the work in the local rank (OrgLen). The startegy can be committed
+! and used later through Handle. If a handle is not requested, the latest
+! non-committed strategy is kept at Handle=0, which will be the default strategy
+! for the other methods. The number of passes may be optionally controlled
+! with an upper limit (MaxPasses) or a limiting criterion (BalCond).
+! The amount of work resulting for the local rank can be returned (BalLen).
+!
+!@note
+! As there may be more than one communicator, Comm is required. This
+! will most likely be the communicator from the ESMF VM.
+!@endnote
+!
   subroutine MAPL_BalanceCreate(OrgLen, Comm, MaxPasses, BalCond, &
                                 Handle, BalLen, BufLen, rc)
 
@@ -308,19 +326,8 @@ contains
 
     integer, allocatable :: WORK(:), RANK(:), NOP(:,:) 
 
-!!! This routine creates a balancing strategy over an MPI communicator (Comm)
-!!!  given the work in the local rank (OrgLen). The startegy can be committed
-!!!  and used later through Handle. If a handle is not requested, the latest
-!!!  non-committed strategy is kept at Handle=0, which will be the default strategy
-!!!  for the other methods. The number of passes may be optionally controlled
-!!!  with an upper limit (MaxPasses) or a limiting criterion (BalCond).
-!!!  The amount of work resulting for the local rank can be returned (BalLen).
-!!!
-!!! NOTE: As there may be more than one communicator, Comm is required. This
-!!!  will most likely be the communicator from the ESMF VM.
-
-!!! Defaults of optional Inputs
-!!!----------------------------
+! Defaults of optional Inputs
+!----------------------------
 
     if(present(BalCond)) then
        BalCond_ = BalCond
@@ -334,22 +341,22 @@ contains
        MaxPasses_ = 100
     end if
 
-!!! Get Communicator parameters
-!!!----------------------------
+! Get Communicator parameters
+!----------------------------
 
     call MPI_COMM_RANK(Comm, MyPE, STATUS)
     _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
     call MPI_COMM_SIZE(Comm, NPES, STATUS)
     _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
-!!! Allocate temporary space
-!!!-------------------------
+! Allocate temporary space
+!-------------------------
 
     allocate(NOP(2,MaxPasses_), Work(NPES), Rank(NPES), stat=STATUS)
     _VERIFY(STATUS)
 
-!!! Initialize global lists of work load and corresponding rank
-!!!------------------------------------------------------------
+! Initialize global lists of work load and corresponding rank
+!------------------------------------------------------------
 
     call MPI_AllGather(OrgLen,1,MPI_INTEGER,&
                        Work  ,1,MPI_INTEGER,Comm,status)
@@ -361,8 +368,8 @@ contains
 
     deallocate(Work, Rank)
 
-!!! Done with balancing strategy. Prepare optional Outputs.
-!!!--------------------------------------------------------
+! Done with balancing strategy. Prepare optional Outputs.
+!--------------------------------------------------------
 
     if(present(Handle)) then
        do Balance=1,MAX_NUM_STRATEGIES
@@ -380,8 +387,8 @@ contains
     if(present(BalLen)) BalLen =  MyNewWork
     if(present(BufLen)) BufLen =  MyBufSize
  
-!!! Save the Strategy
-!!!------------------
+! Save the Strategy
+!------------------
 
     allocate(THE_STRATEGIES(Balance)%NOP(2,KPASS))
 
@@ -410,8 +417,8 @@ contains
       NPES      = size(Work)
       MaxPasses = size(NOP,2)
 
-!!! Loop over passes until either MaxPasses or BalanceCondition is met
-!!!-------------------------------------------------------------------
+! Loop over passes until either MaxPasses or BalanceCondition is met
+!-------------------------------------------------------------------
 
       KPASS     = 0
       MEAN      = sum(Work)/float(NPES)
@@ -420,20 +427,20 @@ contains
 
       PASSES: do while(KPASS<MaxPasses)
 
-!!! Sort latest work-load and rank lists in ascending order of work
-!!!----------------------------------------------------------------
+! Sort latest work-load and rank lists in ascending order of work
+!----------------------------------------------------------------
 
          call MAPL_Sort(Work, Rank)
 
-!!! Check for balance condition on the ratio of max minus min work
-!!!  to the ideal average work
-!!!---------------------------------------------------------------
+! Check for balance condition on the ratio of max minus min work
+!  to the ideal average work
+!---------------------------------------------------------------
 
          if((Work(NPES)-Work(1))/MEAN < BalCond) exit
 
-!!! Fold the sorted work list and compute the transfers needed
-!!!  to balance the "least with the greatest".
-!!!-----------------------------------------------------------
+! Fold the sorted work list and compute the transfers needed
+!  to balance the "least with the greatest".
+!-----------------------------------------------------------
 
          KPASS = KPASS+1
 

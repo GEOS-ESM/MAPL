@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">47 statements</a>
+               title=" 0.1% of total for procedures.">49 statements</a>
           </li>
 
             <li id="source-file">
@@ -168,24 +168,9 @@
 </h2>
     
 
-    <p>! Sort the collection sizes (# of slices) in ascending order.
-!  Also sort the collection index the same way, to fill the 
-!  correct ones later.
-!------------------------------------------------------------
-! This is the maximum number of slices in a node if all slices
-!  were uniformly distributed without honoring collection and
-!  node boundaries. Since every collection boundary must also be
-!  a node boundary, this is a lower bound on MaxSlicesPerNode
-! and is used as our initial guess.</p>
-<p>! We try to distribute the slices in active collections as uniformly
-!  as possible. &ldquo;Small&rdquo; collections (&lt;= MaxSlicesPerNode) are
-!  assigned to a single node, others span multiple nodes. 
-!  Small collections are grouped in a node without 
-!  exceeding MaxSlicesPerNode. Multi-node collections are
-!  not grouped in nodes. Since MaxSlicesPerNode  is generally
-!  too small to fit all the collections, it is then increased,until
-!  all the active collections fit in the given nodes.
-!--------------------------------------------------------------------</p>
+    <p>Returns Psize and Root, the size (in nodes) and root node 
+of each node partition assigned to active collections.</p>
+
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -210,7 +195,8 @@
             <td>::</td>
             <td><strong>Slices</strong>(NumColls)</td>
             <td>
-                
+                <p>number of 2-D sections or slices in each collection.
+The number in inactive collections is ignored.</p>
             </td>
         </tr>
         <tr>
@@ -225,7 +211,7 @@
             <td>::</td>
             <td><strong>NumColls</strong></td>
             <td>
-                
+                <p>number of nodes being dealt out to the partitions</p>
             </td>
         </tr>
         <tr>
@@ -240,7 +226,8 @@
             <td>::</td>
             <td><strong>NumNodes</strong></td>
             <td>
-                
+                <p>total number of collection,
+some of which may be inactive</p>
             </td>
         </tr>
         <tr>
@@ -255,7 +242,7 @@
             <td>::</td>
             <td><strong>Writing</strong>(NumColls)</td>
             <td>
-                
+                <p>identifies active collection</p>
             </td>
         </tr>
         <tr>
@@ -275,7 +262,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-root~6"></span>
+              <span class="anchor" id="variable-root~2"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -337,39 +324,34 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CFIOPartition</span><span class="p">(</span><span class="n">Slices</span><span class="p">,</span><span class="w"> </span><span class="n">NumColls</span><span class="p">,</span><span class="w"> </span><span class="n">NumNodes</span><span class="p">,</span><span class="w"> </span><span class="n">Writing</span><span class="p">,</span><span class="w"> </span><span class="n">Psize</span><span class="p">,</span><span class="n">Root</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NumColls</span><span class="w"></span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Slices</span><span class="p">(</span><span class="n">NumColls</span><span class="p">),</span><span class="w"> </span><span class="n">NumNodes</span><span class="w"></span>
-<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Writing</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Psize</span><span class="p">(</span><span class="n">NumColls</span><span class="p">),</span><span class="w"> </span><span class="n">Root</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NumColls</span><span class="w">           </span><span class="c">!! number of nodes being dealt out to the partitions</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NumNodes</span><span class="w">           </span><span class="c">!! total number of collection,</span>
+<span class="w">                                               </span><span class="c">!! some of which may be inactive</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Slices</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w">   </span><span class="c">!! number of 2-D sections or slices in each collection.</span>
+<span class="w">                                               </span><span class="c">!! The number in inactive collections is ignored.</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Writing</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w">  </span><span class="c">!! identifies active collection</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Psize</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Root</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MaxSlicesPerNode</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
 <span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CurrNode</span><span class="p">,</span><span class="w"> </span><span class="nb">Len</span><span class="p">,</span><span class="w"> </span><span class="n">SlicesInNode</span><span class="w"></span>
 
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">NumColls</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SortedSlices</span><span class="p">,</span><span class="w"> </span><span class="n">CollNo</span><span class="w"></span>
 
-<span class="c">!!!  Returns Psize and Root, the size (in nodes) and root node </span>
-<span class="c">!!!  of each node partition assigned to active collections.</span>
+<span class="c">! Begin</span>
+<span class="c">!------</span>
 
-<span class="c">!!!  NumNodes is the number of nodes being dealt out to the partitions</span>
-<span class="c">!!!  NumColls is the total number of collection, some of which may be inactive</span>
-<span class="c">!!!  Writing  identifies active collection</span>
-<span class="c">!!!  Slices   is the number of 2-D sections or slices in each collection</span>
-<span class="c">!!!           The number in inactive collections is ignored.</span>
-
-<span class="c">!!! Begin</span>
-<span class="c">!!!------</span>
-
-<span class="c">!!! Make sure all outputs are initialized.</span>
-<span class="c">!!! Needed only for inactive collections.</span>
-<span class="c">!!!---------------------------------------</span>
+<span class="c">! Make sure all outputs are initialized.</span>
+<span class="c">! Needed only for inactive collections.</span>
+<span class="c">!---------------------------------------</span>
 
 <span class="w">    </span><span class="n">Psize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="w">    </span><span class="n">Root</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 
-<span class="c">!!! Sort the collection sizes (# of slices) in ascending order.</span>
-<span class="c">!!!  Also sort the collection index the same way, to fill the </span>
-<span class="c">!!!  correct ones later.</span>
-<span class="c">!!!------------------------------------------------------------</span>
+<span class="c">! Sort the collection sizes (# of slices) in ascending order.</span>
+<span class="c">!  Also sort the collection index the same way, to fill the </span>
+<span class="c">!  correct ones later.</span>
+<span class="c">!------------------------------------------------------------</span>
 <span class="w">    </span><span class="k">where</span><span class="p">(</span><span class="n">writing</span><span class="p">)</span><span class="w"></span>
 <span class="w">       </span><span class="n">SortedSlices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Slices</span><span class="w"></span>
 <span class="w">    </span><span class="n">elsewhere</span><span class="w"></span>
@@ -382,26 +364,26 @@
 
 <span class="k">    call </span><span class="n">MAPL_Sort</span><span class="p">(</span><span class="n">SortedSlices</span><span class="p">,</span><span class="w"> </span><span class="n">CollNo</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! This is the maximum number of slices in a node if all slices</span>
-<span class="c">!!!  were uniformly distributed without honoring collection and</span>
-<span class="c">!!!  node boundaries. Since every collection boundary must also be</span>
-<span class="c">!!!  a node boundary, this is a lower bound on MaxSlicesPerNode</span>
-<span class="c">!!! and is used as our initial guess.</span>
+<span class="c">! This is the maximum number of slices in a node if all slices</span>
+<span class="c">!  were uniformly distributed without honoring collection and</span>
+<span class="c">!  node boundaries. Since every collection boundary must also be</span>
+<span class="c">!  a node boundary, this is a lower bound on MaxSlicesPerNode</span>
+<span class="c">! and is used as our initial guess.</span>
 
 <span class="w">    </span><span class="n">MaxSlicesPerNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">Slices</span><span class="p">,</span><span class="n">mask</span><span class="o">=</span><span class="n">Writing</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">NumNodes</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <span class="w">    </span><span class="c">! ALT: The above expression could be zero if </span>
 <span class="w">    </span><span class="c">!      NumNodes==1 and the sum over &quot;writing&quot; slices is 0 (i.e. no writing)</span>
 <span class="w">    </span><span class="n">MaxSlicesPerNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">MaxSlicesPerNode</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! make sure it is not 0</span>
 
-<span class="c">!!! We try to distribute the slices in active collections as uniformly</span>
-<span class="c">!!!  as possible. &quot;Small&quot; collections (&lt;= MaxSlicesPerNode) are</span>
-<span class="c">!!!  assigned to a single node, others span multiple nodes. </span>
-<span class="c">!!!  Small collections are grouped in a node without </span>
-<span class="c">!!!  exceeding MaxSlicesPerNode. Multi-node collections are</span>
-<span class="c">!!!  not grouped in nodes. Since MaxSlicesPerNode  is generally</span>
-<span class="c">!!!  too small to fit all the collections, it is then increased,until</span>
-<span class="c">!!!  all the active collections fit in the given nodes.</span>
-<span class="c">!!!--------------------------------------------------------------------</span>
+<span class="c">! We try to distribute the slices in active collections as uniformly</span>
+<span class="c">!  as possible. &quot;Small&quot; collections (&lt;= MaxSlicesPerNode) are</span>
+<span class="c">!  assigned to a single node, others span multiple nodes. </span>
+<span class="c">!  Small collections are grouped in a node without </span>
+<span class="c">!  exceeding MaxSlicesPerNode. Multi-node collections are</span>
+<span class="c">!  not grouped in nodes. Since MaxSlicesPerNode  is generally</span>
+<span class="c">!  too small to fit all the collections, it is then increased,until</span>
+<span class="c">!  all the active collections fit in the given nodes.</span>
+<span class="c">!--------------------------------------------------------------------</span>
 <span class="w">    </span><span class="k">do</span>
 <span class="k">       </span><span class="n">CurrNode</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <span class="w">       </span><span class="n">SlicesInNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
@@ -460,7 +442,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

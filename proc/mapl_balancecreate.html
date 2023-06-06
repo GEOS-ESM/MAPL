@@ -168,16 +168,18 @@
 </h2>
     
 
-    <p>! Get Communicator parameters
-!----------------------------</p>
-<p>! Allocate temporary space
-!-------------------------</p>
-<p>! Initialize global lists of work load and corresponding rank
-!------------------------------------------------------------</p>
-<p>! Done with balancing strategy. Prepare optional Outputs.
-!--------------------------------------------------------</p>
-<p>! Save the Strategy
-!------------------</p>
+    <p>This routine creates a balancing strategy over an MPI communicator (Comm)
+ given the work in the local rank (OrgLen). The startegy can be committed
+ and used later through Handle. If a handle is not requested, the latest
+ non-committed strategy is kept at Handle=0, which will be the default strategy
+ for the other methods. The number of passes may be optionally controlled
+ with an upper limit (MaxPasses) or a limiting criterion (BalCond).
+ The amount of work resulting for the local rank can be returned (BalLen).</p>
+<p></p><div class="alert alert-info" role="alert"><h4>Note</h4><p>As there may be more than one communicator, Comm is required. This
+ will most likely be the communicator from the ESMF VM.
+</p></div>
+<p>
+
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -297,7 +299,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1107"></span>
+              <span class="anchor" id="variable-rc~1126"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -375,19 +377,8 @@
 
 <span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WORK</span><span class="p">(:),</span><span class="w"> </span><span class="n">RANK</span><span class="p">(:),</span><span class="w"> </span><span class="n">NOP</span><span class="p">(:,:)</span><span class="w"> </span>
 
-<span class="c">!!! This routine creates a balancing strategy over an MPI communicator (Comm)</span>
-<span class="c">!!!  given the work in the local rank (OrgLen). The startegy can be committed</span>
-<span class="c">!!!  and used later through Handle. If a handle is not requested, the latest</span>
-<span class="c">!!!  non-committed strategy is kept at Handle=0, which will be the default strategy</span>
-<span class="c">!!!  for the other methods. The number of passes may be optionally controlled</span>
-<span class="c">!!!  with an upper limit (MaxPasses) or a limiting criterion (BalCond).</span>
-<span class="c">!!!  The amount of work resulting for the local rank can be returned (BalLen).</span>
-<span class="c">!!!</span>
-<span class="c">!!! NOTE: As there may be more than one communicator, Comm is required. This</span>
-<span class="c">!!!  will most likely be the communicator from the ESMF VM.</span>
-
-<span class="c">!!! Defaults of optional Inputs</span>
-<span class="c">!!!----------------------------</span>
+<span class="c">! Defaults of optional Inputs</span>
+<span class="c">!----------------------------</span>
 
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalCond</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
 <span class="k">       </span><span class="n">BalCond_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BalCond</span><span class="w"></span>
@@ -401,22 +392,22 @@
 <span class="k">       </span><span class="n">MaxPasses_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="w"></span>
 <span class="w">    </span><span class="k">end if</span><span class="w"></span>
 
-<span class="c">!!! Get Communicator parameters</span>
-<span class="c">!!!----------------------------</span>
+<span class="c">! Get Communicator parameters</span>
+<span class="c">!----------------------------</span>
 
 <span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">MyPE</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="n">Comm</span><span class="p">,</span><span class="w"> </span><span class="n">NPES</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STATUS</span><span class="o">==</span><span class="n">MPI_SUCCESS</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! Allocate temporary space</span>
-<span class="c">!!!-------------------------</span>
+<span class="c">! Allocate temporary space</span>
+<span class="c">!-------------------------</span>
 
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">MaxPasses_</span><span class="p">),</span><span class="w"> </span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="n">Rank</span><span class="p">(</span><span class="n">NPES</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! Initialize global lists of work load and corresponding rank</span>
-<span class="c">!!!------------------------------------------------------------</span>
+<span class="c">! Initialize global lists of work load and corresponding rank</span>
+<span class="c">!------------------------------------------------------------</span>
 
 <span class="w">    </span><span class="k">call </span><span class="n">MPI_AllGather</span><span class="p">(</span><span class="n">OrgLen</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,&amp;</span><span class="w"></span>
 <span class="w">                       </span><span class="n">Work</span><span class="w">  </span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="n">Comm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
@@ -428,8 +419,8 @@
 
 <span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! Done with balancing strategy. Prepare optional Outputs.</span>
-<span class="c">!!!--------------------------------------------------------</span>
+<span class="c">! Done with balancing strategy. Prepare optional Outputs.</span>
+<span class="c">!--------------------------------------------------------</span>
 
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Handle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
 <span class="k">       do </span><span class="n">Balance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">MAX_NUM_STRATEGIES</span><span class="w"></span>
@@ -447,8 +438,8 @@
 <span class="k">    if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BalLen</span><span class="p">))</span><span class="w"> </span><span class="n">BalLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyNewWork</span><span class="w"></span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">BufLen</span><span class="p">))</span><span class="w"> </span><span class="n">BufLen</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MyBufSize</span><span class="w"></span>
 <span class="w"> </span>
-<span class="c">!!! Save the Strategy</span>
-<span class="c">!!!------------------</span>
+<span class="c">! Save the Strategy</span>
+<span class="c">!------------------</span>
 
 <span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">THE_STRATEGIES</span><span class="p">(</span><span class="n">Balance</span><span class="p">)%</span><span class="n">NOP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">KPASS</span><span class="p">))</span><span class="w"></span>
 
@@ -477,8 +468,8 @@
 <span class="w">      </span><span class="n">NPES</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="n">MaxPasses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">NOP</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! Loop over passes until either MaxPasses or BalanceCondition is met</span>
-<span class="c">!!!-------------------------------------------------------------------</span>
+<span class="c">! Loop over passes until either MaxPasses or BalanceCondition is met</span>
+<span class="c">!-------------------------------------------------------------------</span>
 
 <span class="w">      </span><span class="n">KPASS</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="w">      </span><span class="n">MEAN</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span><span class="w"></span>
@@ -487,20 +478,20 @@
 
 <span class="w">      </span><span class="n">PASSES</span><span class="p">:</span><span class="w"> </span><span class="k">do while</span><span class="p">(</span><span class="n">KPASS</span><span class="o">&lt;</span><span class="n">MaxPasses</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! Sort latest work-load and rank lists in ascending order of work</span>
-<span class="c">!!!----------------------------------------------------------------</span>
+<span class="c">! Sort latest work-load and rank lists in ascending order of work</span>
+<span class="c">!----------------------------------------------------------------</span>
 
 <span class="w">         </span><span class="k">call </span><span class="n">MAPL_Sort</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!!! Check for balance condition on the ratio of max minus min work</span>
-<span class="c">!!!  to the ideal average work</span>
-<span class="c">!!!---------------------------------------------------------------</span>
+<span class="c">! Check for balance condition on the ratio of max minus min work</span>
+<span class="c">!  to the ideal average work</span>
+<span class="c">!---------------------------------------------------------------</span>
 
 <span class="w">         </span><span class="k">if</span><span class="p">((</span><span class="n">Work</span><span class="p">(</span><span class="n">NPES</span><span class="p">)</span><span class="o">-</span><span class="n">Work</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">MEAN</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BalCond</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span><span class="w"></span>
 
-<span class="c">!!! Fold the sorted work list and compute the transfers needed</span>
-<span class="c">!!!  to balance the &quot;least with the greatest&quot;.</span>
-<span class="c">!!!-----------------------------------------------------------</span>
+<span class="c">! Fold the sorted work list and compute the transfers needed</span>
+<span class="c">!  to balance the &quot;least with the greatest&quot;.</span>
+<span class="c">!-----------------------------------------------------------</span>
 
 <span class="w">         </span><span class="n">KPASS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KPASS</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
 
@@ -559,7 +550,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

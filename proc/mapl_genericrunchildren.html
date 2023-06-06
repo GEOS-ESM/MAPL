@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.2% of total for procedures.">70 statements</a>
+               title=" 0.1% of total for procedures.">70 statements</a>
           </li>
 
             <li id="source-file">
@@ -169,6 +169,7 @@
     
 
 
+
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
     <thead>
@@ -182,7 +183,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~34"></span>
+              <span class="anchor" id="variable-gc~31"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -227,7 +228,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~34"></span>
+              <span class="anchor" id="variable-clock~16"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
             </td>
 <td>intent(inout)</td>
@@ -242,7 +243,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~272"></span>
+              <span class="anchor" id="variable-rc~38"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -336,6 +337,7 @@
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span><span class="w"></span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_import_state</span><span class="w"></span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_export_state</span><span class="w"></span>
+
 <span class="w">      </span><span class="c">!=============================================================================</span>
 
 <span class="w">      </span><span class="c">! Begin...</span>
@@ -382,14 +384,16 @@
 
 <span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">CHILD_NAME</span><span class="p">))</span><span class="w"></span>
 <span class="w">               </span><span class="n">child_import_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_import_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="n">child_export_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_export_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="n">child_export_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_export_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w">               </span>
+
 <span class="w">               </span><span class="k">call </span><span class="n">ESMF_GridCompRun</span><span class="w"> </span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                    </span><span class="n">importState</span><span class="o">=</span><span class="n">child_import_state</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                    </span><span class="n">exportState</span><span class="o">=</span><span class="n">child_export_state</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                    </span><span class="n">clock</span><span class="o">=</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">PHASE</span><span class="o">=</span><span class="n">CHLDMAPL</span><span class="p">(</span><span class="n">I</span><span class="p">)%</span><span class="n">PTR</span><span class="p">%</span><span class="n">PHASE_RUN</span><span class="p">(</span><span class="n">PHASE</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                    </span><span class="n">userRC</span><span class="o">=</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">userRC</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">CHILD_NAME</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">CHILD_NAME</span><span class="p">))</span><span class="w"></span>
 <span class="w">            </span><span class="k">end if</span><span class="w"></span>
 
 <span class="w">            </span><span class="c">!ALT question for Max - if user wants to run particular phase only, when should we run couplers</span>
@@ -435,7 +439,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

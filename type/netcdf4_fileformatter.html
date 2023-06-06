@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title="<p> 1.2% of total for derived types.</p>Including implementation: 2435 statements,  2.3% of total for derived types.">115 statements</a>
+               title="<p> 1.2% of total for derived types.</p>Including implementation: 2744 statements,  2.6% of total for derived types.">115 statements</a>
           </li>
 
             <li id="source-file">
@@ -142,7 +142,7 @@
       <div id="vars-0" class="panel-collapse collapse">
         <div class="list-group">
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-origin_file">origin_file</a>
-            <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-comm~19">comm</a>
+            <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-comm~23">comm</a>
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-info~2">info</a>
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-ncid">ncid</a>
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-parallel">parallel</a>
@@ -304,7 +304,7 @@
       <div id="vars-1" class="panel-collapse collapse">
         <div class="list-group">
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-origin_file">origin_file</a>
-            <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-comm~19">comm</a>
+            <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-comm~23">comm</a>
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-info~2">info</a>
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-ncid">ncid</a>
             <a class="list-group-item" href="../type/netcdf4_fileformatter.html#variable-parallel">parallel</a>
@@ -479,7 +479,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~19"></span>
+              <span class="anchor" id="variable-comm~23"></span>
               integer,
             </td>
               <td>public</td>
@@ -556,7 +556,7 @@
       <section>
         <h2>Type-Bound Procedures</h2>
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_variable~2"></span><h3>procedure, public :: <strong>add_variable</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-add_variable~2"></span><h3>procedure, public,  :: <strong>add_variable</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -660,7 +660,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-close"></span><h3>procedure, public :: <strong>close</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-close"></span><h3>procedure, public,  :: <strong>close</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -734,7 +734,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-create~2"></span><h3>procedure, public :: <strong>create</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-create~2"></span><h3>procedure, public,  :: <strong>create</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -838,7 +838,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-create_par"></span><h3>procedure, public :: <strong>create_par</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-create_par"></span><h3>procedure, public,  :: <strong>create_par</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -972,12 +972,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_string_0'>get_var_string_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_string_0'>get_var_string_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_string_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_string_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -1055,6 +1055,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1076,12 +1091,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~2"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_string_1'>get_var_string_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~2"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_string_1'>get_var_string_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_string_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_string_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -1159,6 +1174,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1210,12 +1240,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~3"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_0'>get_var_int32_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~3"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_0'>get_var_int32_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_int32_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -1293,6 +1323,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1314,12 +1359,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~4"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_1'>get_var_int32_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~4"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_1'>get_var_int32_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -1397,6 +1442,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1448,12 +1508,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~5"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_2'>get_var_int32_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~5"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_2'>get_var_int32_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -1531,6 +1591,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1582,12 +1657,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~6"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_3'>get_var_int32_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~6"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_3'>get_var_int32_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -1665,6 +1740,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1716,12 +1806,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~7"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_4'>get_var_int32_4</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~7"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int32_4'>get_var_int32_4</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_4(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_4(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -1799,6 +1889,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -1850,12 +1955,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~8"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_0'>get_var_int64_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~8"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_0'>get_var_int64_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_int64_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -1933,6 +2038,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1954,12 +2074,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~9"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_1'>get_var_int64_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~9"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_1'>get_var_int64_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int64_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2037,6 +2157,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2088,12 +2223,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~10"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_2'>get_var_int64_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~10"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_2'>get_var_int64_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int64_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2171,6 +2306,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2222,12 +2372,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~11"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_3'>get_var_int64_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~11"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_int64_3'>get_var_int64_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int64_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2305,6 +2455,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2356,12 +2521,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~12"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_0'>get_var_real32_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~12"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_0'>get_var_real32_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_real32_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -2439,6 +2604,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -2460,12 +2640,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~13"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_1'>get_var_real32_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~13"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_1'>get_var_real32_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2543,6 +2723,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2594,12 +2789,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~14"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_2'>get_var_real32_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~14"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_2'>get_var_real32_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2677,6 +2872,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2728,12 +2938,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~15"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_3'>get_var_real32_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~15"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_3'>get_var_real32_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2811,6 +3021,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2862,12 +3087,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~16"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_4'>get_var_real32_4</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~16"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_4'>get_var_real32_4</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_4(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_4(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -2945,6 +3170,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -2996,12 +3236,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~17"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_5'>get_var_real32_5</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~17"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real32_5'>get_var_real32_5</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_5(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_5(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -3079,6 +3319,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -3130,12 +3385,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~18"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_0'>get_var_real64_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~18"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_0'>get_var_real64_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_real64_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -3213,6 +3468,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3234,12 +3504,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~19"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_1'>get_var_real64_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~19"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_1'>get_var_real64_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -3317,6 +3587,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -3368,12 +3653,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~20"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_2'>get_var_real64_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~20"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_2'>get_var_real64_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -3451,6 +3736,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -3502,12 +3802,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~21"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_3'>get_var_real64_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~21"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_3'>get_var_real64_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -3585,6 +3885,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -3636,12 +3951,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~22"></span><h3>generic, public :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_4'>get_var_real64_4</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var~22"></span><h3>generic, public,  :: <strong>get_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-get_var_real64_4'>get_var_real64_4</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_4(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_4(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -3719,6 +4034,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -3770,12 +4100,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_0"></span><h3>procedure, public :: <strong>get_var_int32_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_0"></span><h3>procedure, public,  :: <strong>get_var_int32_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_int32_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -3853,6 +4183,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -3874,12 +4219,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_1"></span><h3>procedure, public :: <strong>get_var_int32_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_1"></span><h3>procedure, public,  :: <strong>get_var_int32_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -3957,6 +4302,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4008,12 +4368,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_2"></span><h3>procedure, public :: <strong>get_var_int32_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_2"></span><h3>procedure, public,  :: <strong>get_var_int32_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -4091,6 +4451,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4142,12 +4517,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_3"></span><h3>procedure, public :: <strong>get_var_int32_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_3"></span><h3>procedure, public,  :: <strong>get_var_int32_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -4225,6 +4600,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4276,12 +4666,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_4"></span><h3>procedure, public :: <strong>get_var_int32_4</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int32_4"></span><h3>procedure, public,  :: <strong>get_var_int32_4</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int32_4(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int32_4(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -4359,6 +4749,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4410,12 +4815,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_0"></span><h3>procedure, public :: <strong>get_var_int64_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_0"></span><h3>procedure, public,  :: <strong>get_var_int64_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_int64_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -4493,6 +4898,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -4514,12 +4934,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_1"></span><h3>procedure, public :: <strong>get_var_int64_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_1"></span><h3>procedure, public,  :: <strong>get_var_int64_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int64_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -4597,6 +5017,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4648,12 +5083,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_2"></span><h3>procedure, public :: <strong>get_var_int64_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_2"></span><h3>procedure, public,  :: <strong>get_var_int64_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int64_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -4731,6 +5166,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4782,12 +5232,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_3"></span><h3>procedure, public :: <strong>get_var_int64_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_int64_3"></span><h3>procedure, public,  :: <strong>get_var_int64_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_int64_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_int64_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -4865,6 +5315,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -4916,12 +5381,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_0"></span><h3>procedure, public :: <strong>get_var_real32_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_0"></span><h3>procedure, public,  :: <strong>get_var_real32_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_real32_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -4999,6 +5464,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -5020,12 +5500,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_1"></span><h3>procedure, public :: <strong>get_var_real32_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_1"></span><h3>procedure, public,  :: <strong>get_var_real32_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -5103,6 +5583,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -5154,12 +5649,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_2"></span><h3>procedure, public :: <strong>get_var_real32_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_2"></span><h3>procedure, public,  :: <strong>get_var_real32_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -5237,6 +5732,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -5288,12 +5798,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_3"></span><h3>procedure, public :: <strong>get_var_real32_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_3"></span><h3>procedure, public,  :: <strong>get_var_real32_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -5371,6 +5881,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -5422,12 +5947,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_4"></span><h3>procedure, public :: <strong>get_var_real32_4</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_4"></span><h3>procedure, public,  :: <strong>get_var_real32_4</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_4(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_4(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -5505,6 +6030,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -5556,12 +6096,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_5"></span><h3>procedure, public :: <strong>get_var_real32_5</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real32_5"></span><h3>procedure, public,  :: <strong>get_var_real32_5</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real32_5(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real32_5(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -5639,6 +6179,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -5690,12 +6245,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_0"></span><h3>procedure, public :: <strong>get_var_real64_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_0"></span><h3>procedure, public,  :: <strong>get_var_real64_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_real64_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -5773,6 +6328,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -5794,12 +6364,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_1"></span><h3>procedure, public :: <strong>get_var_real64_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_1"></span><h3>procedure, public,  :: <strong>get_var_real64_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -5877,6 +6447,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -5928,12 +6513,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_2"></span><h3>procedure, public :: <strong>get_var_real64_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_2"></span><h3>procedure, public,  :: <strong>get_var_real64_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_2(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_2(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -6011,6 +6596,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -6062,12 +6662,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_3"></span><h3>procedure, public :: <strong>get_var_real64_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_3"></span><h3>procedure, public,  :: <strong>get_var_real64_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_3(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_3(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -6145,6 +6745,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -6196,12 +6811,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_4"></span><h3>procedure, public :: <strong>get_var_real64_4</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_real64_4"></span><h3>procedure, public,  :: <strong>get_var_real64_4</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_real64_4(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_real64_4(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -6279,6 +6894,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -6330,12 +6960,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_string_0"></span><h3>procedure, public :: <strong>get_var_string_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_string_0"></span><h3>procedure, public,  :: <strong>get_var_string_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_string_0(this, var_name, values, unusable, rc)  
+    private  subroutine get_var_string_0(this, var_name, values, unusable, group_name, rc)  
 </h3>
   
 
@@ -6413,6 +7043,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -6434,12 +7079,12 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_string_1"></span><h3>procedure, public :: <strong>get_var_string_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-get_var_string_1"></span><h3>procedure, public,  :: <strong>get_var_string_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
-    private  subroutine get_var_string_1(this, var_name, values, unusable, start, count, rc)  
+    private  subroutine get_var_string_1(this, var_name, values, unusable, group_name, start, count, rc)  
 </h3>
   
 
@@ -6517,6 +7162,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>group_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -6568,7 +7228,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-inq_dim"></span><h3>procedure, public :: <strong>inq_dim</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-inq_dim"></span><h3>procedure, public,  :: <strong>inq_dim</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -6662,7 +7322,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-is_coordinate_dimension"></span><h3>procedure, public :: <strong>is_coordinate_dimension</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-is_coordinate_dimension"></span><h3>procedure, public,  :: <strong>is_coordinate_dimension</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -6726,7 +7386,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-open"></span><h3>procedure, public :: <strong>open</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-open"></span><h3>procedure, public,  :: <strong>open</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -6860,7 +7520,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_string_0'>put_var_string_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_string_0'>put_var_string_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -6964,7 +7624,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~2"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_string_1'>put_var_string_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~2"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_string_1'>put_var_string_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7098,7 +7758,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~3"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_0'>put_var_int32_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~3"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_0'>put_var_int32_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7202,7 +7862,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~4"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_1'>put_var_int32_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~4"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_1'>put_var_int32_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7336,7 +7996,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~5"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_2'>put_var_int32_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~5"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_2'>put_var_int32_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7470,7 +8130,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~6"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_3'>put_var_int32_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~6"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_3'>put_var_int32_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7604,7 +8264,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~7"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_4'>put_var_int32_4</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~7"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int32_4'>put_var_int32_4</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7738,7 +8398,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~8"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_0'>put_var_int64_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~8"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_0'>put_var_int64_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7842,7 +8502,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~9"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_1'>put_var_int64_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~9"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_1'>put_var_int64_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -7976,7 +8636,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~10"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_2'>put_var_int64_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~10"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_2'>put_var_int64_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8110,7 +8770,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~11"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_3'>put_var_int64_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~11"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_int64_3'>put_var_int64_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8244,7 +8904,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~12"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_0'>put_var_real32_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~12"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_0'>put_var_real32_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8348,7 +9008,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~13"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_1'>put_var_real32_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~13"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_1'>put_var_real32_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8482,7 +9142,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~14"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_2'>put_var_real32_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~14"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_2'>put_var_real32_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8616,7 +9276,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~15"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_3'>put_var_real32_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~15"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_3'>put_var_real32_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8750,7 +9410,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~16"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_4'>put_var_real32_4</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~16"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_4'>put_var_real32_4</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -8884,7 +9544,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~17"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_5'>put_var_real32_5</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~17"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real32_5'>put_var_real32_5</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9018,7 +9678,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~18"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_0'>put_var_real64_0</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~18"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_0'>put_var_real64_0</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9122,7 +9782,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~19"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_1'>put_var_real64_1</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~19"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_1'>put_var_real64_1</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9256,7 +9916,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~20"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_2'>put_var_real64_2</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~20"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_2'>put_var_real64_2</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9390,7 +10050,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~21"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_3'>put_var_real64_3</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~21"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_3'>put_var_real64_3</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9524,7 +10184,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~22"></span><h3>generic, public :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_4'>put_var_real64_4</a>         
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var~22"></span><h3>generic, public,  :: <strong>put_var</strong>  => <a href='../type/netcdf4_fileformatter.html#boundprocedure-put_var_real64_4'>put_var_real64_4</a>         
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9658,7 +10318,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_0"></span><h3>procedure, public :: <strong>put_var_int32_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_0"></span><h3>procedure, public,  :: <strong>put_var_int32_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9762,7 +10422,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_1"></span><h3>procedure, public :: <strong>put_var_int32_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_1"></span><h3>procedure, public,  :: <strong>put_var_int32_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -9896,7 +10556,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_2"></span><h3>procedure, public :: <strong>put_var_int32_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_2"></span><h3>procedure, public,  :: <strong>put_var_int32_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10030,7 +10690,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_3"></span><h3>procedure, public :: <strong>put_var_int32_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_3"></span><h3>procedure, public,  :: <strong>put_var_int32_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10164,7 +10824,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_4"></span><h3>procedure, public :: <strong>put_var_int32_4</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int32_4"></span><h3>procedure, public,  :: <strong>put_var_int32_4</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10298,7 +10958,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_0"></span><h3>procedure, public :: <strong>put_var_int64_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_0"></span><h3>procedure, public,  :: <strong>put_var_int64_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10402,7 +11062,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_1"></span><h3>procedure, public :: <strong>put_var_int64_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_1"></span><h3>procedure, public,  :: <strong>put_var_int64_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10536,7 +11196,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_2"></span><h3>procedure, public :: <strong>put_var_int64_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_2"></span><h3>procedure, public,  :: <strong>put_var_int64_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10670,7 +11330,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_3"></span><h3>procedure, public :: <strong>put_var_int64_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_int64_3"></span><h3>procedure, public,  :: <strong>put_var_int64_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10804,7 +11464,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_0"></span><h3>procedure, public :: <strong>put_var_real32_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_0"></span><h3>procedure, public,  :: <strong>put_var_real32_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -10908,7 +11568,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_1"></span><h3>procedure, public :: <strong>put_var_real32_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_1"></span><h3>procedure, public,  :: <strong>put_var_real32_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11042,7 +11702,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_2"></span><h3>procedure, public :: <strong>put_var_real32_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_2"></span><h3>procedure, public,  :: <strong>put_var_real32_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11176,7 +11836,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_3"></span><h3>procedure, public :: <strong>put_var_real32_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_3"></span><h3>procedure, public,  :: <strong>put_var_real32_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11310,7 +11970,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_4"></span><h3>procedure, public :: <strong>put_var_real32_4</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_4"></span><h3>procedure, public,  :: <strong>put_var_real32_4</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11444,7 +12104,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_5"></span><h3>procedure, public :: <strong>put_var_real32_5</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real32_5"></span><h3>procedure, public,  :: <strong>put_var_real32_5</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11578,7 +12238,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_0"></span><h3>procedure, public :: <strong>put_var_real64_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_0"></span><h3>procedure, public,  :: <strong>put_var_real64_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11682,7 +12342,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_1"></span><h3>procedure, public :: <strong>put_var_real64_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_1"></span><h3>procedure, public,  :: <strong>put_var_real64_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11816,7 +12476,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_2"></span><h3>procedure, public :: <strong>put_var_real64_2</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_2"></span><h3>procedure, public,  :: <strong>put_var_real64_2</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -11950,7 +12610,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_3"></span><h3>procedure, public :: <strong>put_var_real64_3</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_3"></span><h3>procedure, public,  :: <strong>put_var_real64_3</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -12084,7 +12744,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_4"></span><h3>procedure, public :: <strong>put_var_real64_4</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_real64_4"></span><h3>procedure, public,  :: <strong>put_var_real64_4</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -12218,7 +12878,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_string_0"></span><h3>procedure, public :: <strong>put_var_string_0</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_string_0"></span><h3>procedure, public,  :: <strong>put_var_string_0</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -12322,7 +12982,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_string_1"></span><h3>procedure, public :: <strong>put_var_string_1</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-put_var_string_1"></span><h3>procedure, public,  :: <strong>put_var_string_1</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -12456,7 +13116,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-read"></span><h3>procedure, public :: <strong>read</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-read"></span><h3>procedure, public,  :: <strong>read</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -12535,7 +13195,7 @@
   </div>
 
             <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-write"></span><h3>procedure, public :: <strong>write</strong>          
+    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-write"></span><h3>procedure, public,  :: <strong>write</strong>          
     </h3></div>
     <ul class="list-group">
         <li class="list-group-item">
@@ -12775,7 +13435,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

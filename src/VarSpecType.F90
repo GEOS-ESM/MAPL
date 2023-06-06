@@ -55,6 +55,8 @@ module MAPL_VarSpecTypeMod
       logical                                  :: defaultProvided
       logical                                  :: doNotAllocate
       logical                                  :: alwaysAllocate ! meant for export specs
+      logical                                  :: depends_on_children
+      character(len=:), allocatable            :: depends_on(:)
       real                                     :: DEFAULT
       type(ESMF_Field), pointer                :: FIELD => null()
       type(ESMF_FieldBundle), pointer          :: BUNDLE => null()

@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">38 statements</a>
+               title=" 0.1% of total for procedures.">40 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/utCFIO_Bundle.F90"> Source File</a>
+              <a href="../src/Test_CFIO_Bundle.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/utcfio_bundle.f90.html'>utCFIO_Bundle.F90</a></li>
-              <li><a href='../program/utcfio~2.html'>utCFIO</a></li>
+              <li><a href='../sourcefile/test_cfio_bundle.pf.html'>Test_CFIO_Bundle.pf</a></li>
+              <li><a href='../module/test_cfio_bundle.html'>Test_CFIO_Bundle</a></li>
           <li class="active">MyGridCreate_</li>
         </ol>
       </div>
@@ -164,34 +164,12 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2> function MyGridCreate_(VM, rc) result(grid)  
+    <h2>public  function MyGridCreate_(VM, rc) result(grid)  
 </h2>
     
 
-    <blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>We will set-up a somewhat realistic resource &ldquo;file&rdquo;
-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;   </p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+    <p>$    call ESMF_ConfigSetAttribute(config, value=gridname, Label=&rsquo;GRIDNAME:&rsquo;, rc = status )</p>
+
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -206,7 +184,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-vm~9"></span>
+              <span class="anchor" id="variable-vm~7"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_vm.html'>ESMF_VM</a>),
             </td>
 <td>intent(inout)</td>
@@ -221,7 +199,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1244"></span>
+              <span class="anchor" id="variable-rc~1293"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -239,7 +217,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-grid~73"></span>
+          <span class="anchor" id="variable-grid~69"></span>
           type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>)
         </small>
       </h3>
@@ -299,7 +277,7 @@
 <span class="w">    </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s1">&#39;MyGridCreate&#39;</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">mapl</span><span class="w"></span>
 <span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span><span class="w"></span>
 <span class="c">!    type(ESMF_VM)                :: vm</span>
 <span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">gridname</span><span class="w"></span>
@@ -309,10 +287,9 @@
 <span class="w">    </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ConfigCreate</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CAP.rc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">call </span><span class="n">ESMF_ConfigLoadFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;tmp_CAP.rc&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span>
-<span class="c">!&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span>
 <span class="c">! We will set-up a somewhat realistic resource &quot;file&quot;</span>
 
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_VmGetCurrent</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
@@ -323,10 +300,10 @@
 <span class="w">    </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ndes</span><span class="w"></span>
 <span class="w">    </span><span class="n">ny</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s1">&#39;NX:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="c">!    _VERIFY(STATUS)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s1">&#39;NY:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="c">!    _VERIFY(STATUS)</span>
-<span class="c">!    call ESMF_ConfigSetAttribute(config, value=gridname, Label=&#39;GRIDNAME:&#39;, rc = status )</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="c">!!$    call ESMF_ConfigSetAttribute(config, value=gridname, Label=&#39;GRIDNAME:&#39;, rc = status )</span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">gridname</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s1">&#39;GRIDNAME:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="k">call </span><span class="n">ESMF_ConfigSetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">KM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s1">&#39;LM:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
@@ -340,15 +317,14 @@
 <span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;NX=&#39;</span><span class="p">,</span><span class="n">nx</span><span class="w"></span>
 <span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;NX=&#39;</span><span class="p">,</span><span class="n">nY</span><span class="w"></span>
 
-<span class="c">!&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;   </span>
 <span class="c">!  CAP&#39;s MAPL MetaComp</span>
 <span class="c">!---------------------</span>
 
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_Set</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;CAP&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">cf</span><span class="o">=</span><span class="n">CONFIG</span><span class="p">,</span><span class="w">    </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_Set</span><span class="w"> </span><span class="p">(</span><span class="n">mapl</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;CAP&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">cf</span><span class="o">=</span><span class="n">CONFIG</span><span class="p">,</span><span class="w">    </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 
 <span class="c">! grid create</span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCreate</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="o">=</span><span class="n">MAPL</span><span class="p">,</span><span class="w"> </span><span class="n">ESMFGRID</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCreate</span><span class="p">(</span><span class="n">MAPLOBJ</span><span class="o">=</span><span class="n">mapl</span><span class="p">,</span><span class="w"> </span><span class="n">ESMFGRID</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">end function </span><span class="n">MyGridCreate_</span><span class="w"></span>
@@ -372,7 +348,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

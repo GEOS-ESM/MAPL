@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.2% of total for source files.">330 statements</a>
+               title=" 0.2% of total for source files.">353 statements</a>
           </li>
 
             <li id="source-file">
@@ -665,7 +665,41 @@
 <a id="ln-442" name="ln-442" href="#ln-442"></a>
 <a id="ln-443" name="ln-443" href="#ln-443"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_serialize</span><span class="w"></span>
 <a id="ln-444" name="ln-444" href="#ln-444"></a>
-<a id="ln-445" name="ln-445" href="#ln-445"></a><span class="k">end module </span><span class="n">Test_FileMetadata</span><span class="w"></span>
+<a id="ln-445" name="ln-445" href="#ln-445"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="w"></span>
+<a id="ln-446" name="ln-446" href="#ln-446"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_merge_meta</span><span class="p">()</span><span class="w"></span>
+<a id="ln-447" name="ln-447" href="#ln-447"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cf1</span><span class="p">,</span><span class="w"> </span><span class="n">cf2</span><span class="p">,</span><span class="n">cf3</span><span class="w"></span>
+<a id="ln-448" name="ln-448" href="#ln-448"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Variable</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">v3</span><span class="w"></span>
+<a id="ln-449" name="ln-449" href="#ln-449"></a>
+<a id="ln-450" name="ln-450" href="#ln-450"></a><span class="w">      </span><span class="k">call </span><span class="n">cf1</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
+<a id="ln-451" name="ln-451" href="#ln-451"></a><span class="w">      </span><span class="k">call </span><span class="n">cf1</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"></span>
+<a id="ln-452" name="ln-452" href="#ln-452"></a><span class="w">      </span><span class="k">call </span><span class="n">cf1</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="w"></span>
+<a id="ln-453" name="ln-453" href="#ln-453"></a>
+<a id="ln-454" name="ln-454" href="#ln-454"></a><span class="w">      </span><span class="n">v1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Variable</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">pFIO_INT32</span><span class="p">,</span><span class="w"> </span><span class="n">dimensions</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span><span class="w"></span>
+<a id="ln-455" name="ln-455" href="#ln-455"></a><span class="w">      </span><span class="k">call </span><span class="n">v3</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;flag&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.)</span><span class="w"></span>
+<a id="ln-456" name="ln-456" href="#ln-456"></a>
+<a id="ln-457" name="ln-457" href="#ln-457"></a><span class="w">      </span><span class="k">call </span><span class="n">cf1</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="s1">&#39;v1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">v1</span><span class="p">)</span><span class="w"></span>
+<a id="ln-458" name="ln-458" href="#ln-458"></a><span class="w">    </span>
+<a id="ln-459" name="ln-459" href="#ln-459"></a><span class="w">      </span><span class="k">call </span><span class="n">cf2</span><span class="p">%</span><span class="nb">merge</span><span class="p">(</span><span class="n">cf1</span><span class="p">)</span><span class="w"></span>
+<a id="ln-460" name="ln-460" href="#ln-460"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cf2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cf1</span><span class="p">)</span><span class="w"></span>
+<a id="ln-461" name="ln-461" href="#ln-461"></a>
+<a id="ln-462" name="ln-462" href="#ln-462"></a><span class="w">      </span><span class="c">! merge again, should be the same</span>
+<a id="ln-463" name="ln-463" href="#ln-463"></a><span class="w">      </span><span class="k">call </span><span class="n">cf2</span><span class="p">%</span><span class="nb">merge</span><span class="p">(</span><span class="n">cf1</span><span class="p">)</span><span class="w"></span>
+<a id="ln-464" name="ln-464" href="#ln-464"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cf2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cf1</span><span class="p">)</span><span class="w"></span>
+<a id="ln-465" name="ln-465" href="#ln-465"></a>
+<a id="ln-466" name="ln-466" href="#ln-466"></a><span class="w">      </span><span class="k">call </span><span class="n">cf3</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
+<a id="ln-467" name="ln-467" href="#ln-467"></a><span class="w">      </span><span class="k">call </span><span class="n">cf3</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<a id="ln-468" name="ln-468" href="#ln-468"></a><span class="w">      </span><span class="n">v3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Variable</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">pFIO_REAL64</span><span class="p">,</span><span class="w"> </span><span class="n">dimensions</span><span class="o">=</span><span class="s1">&#39;x,a&#39;</span><span class="p">)</span><span class="w"></span>
+<a id="ln-469" name="ln-469" href="#ln-469"></a><span class="w">      </span><span class="k">call </span><span class="n">cf3</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="s1">&#39;v3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">v3</span><span class="p">)</span><span class="w"></span>
+<a id="ln-470" name="ln-470" href="#ln-470"></a><span class="w">      </span><span class="k">call </span><span class="n">cf2</span><span class="p">%</span><span class="nb">merge</span><span class="p">(</span><span class="n">cf3</span><span class="p">)</span><span class="w"></span>
+<a id="ln-471" name="ln-471" href="#ln-471"></a><span class="w">    </span>
+<a id="ln-472" name="ln-472" href="#ln-472"></a><span class="w">      </span><span class="k">call </span><span class="n">cf1</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<a id="ln-473" name="ln-473" href="#ln-473"></a><span class="w">      </span><span class="k">call </span><span class="n">cf1</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="s1">&#39;v3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">v3</span><span class="p">)</span><span class="w"></span>
+<a id="ln-474" name="ln-474" href="#ln-474"></a><span class="w">      </span>
+<a id="ln-475" name="ln-475" href="#ln-475"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cf2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cf1</span><span class="p">)</span><span class="w"></span>
+<a id="ln-476" name="ln-476" href="#ln-476"></a><span class="w">      </span>
+<a id="ln-477" name="ln-477" href="#ln-477"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_merge_meta</span><span class="w"></span>
+<a id="ln-478" name="ln-478" href="#ln-478"></a>
+<a id="ln-479" name="ln-479" href="#ln-479"></a><span class="k">end module </span><span class="n">Test_FileMetadata</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -684,7 +718,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-04-25T16:05:26.159323             </p>
+ on 2023-06-06T13:41:32.751264             </p>
           </div>
         </div>
         <br>

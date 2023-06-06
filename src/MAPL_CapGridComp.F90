@@ -31,6 +31,9 @@ module MAPL_CapGridCompMod
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use MAPL_ExternalGCStorage
+#ifdef BUILD_WITH_PFLOGGER
+  use mapl_SimulationTime, only: set_reference_clock
+#endif
 
   use iso_fortran_env
 
@@ -296,6 +299,10 @@ contains
         cap%nsteps = nsteps
         cap%compute_throughput = .true.
     end if
+
+#ifdef BUILD_WITH_PFLOGGER
+    call set_reference_clock(cap%clock)
+#endif
 
     call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,rc=status)
     _VERIFY(status)
@@ -1483,7 +1490,7 @@ contains
            _RETURN(_FAILURE)
         end if
      endif
-     
+
      call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)
