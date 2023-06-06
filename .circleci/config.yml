@@ -148,25 +148,6 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
 
-      # Build GEOSadas (ifort only, needs a couple develop branches)
-      - ci/build:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          resource_class: xlarge
-          baselibs_version: *baselibs_version
-          repo: GEOSadas
-          checkout_fixture: true
-          # This branch on GEOSadas will be used to track subrepos needed
-          # for GEOSadas + MAPL develop much like how we do with MAPL 3
-          #fixture_branch: feature/mathomp4/mapldevelop
-          checkout_mapl_branch: true
-          mepodevelop: false
-          rebuild_procs: 1
-
       # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
           name: run-GCM-on-<< matrix.compiler >>
@@ -217,6 +198,25 @@ workflows:
           requires:
             - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+
+  build-GEOSadas:
+    jobs:
+      # Build GEOSadas (ifort only, needs a couple develop branches)
+      - ci/build:
+          name: build-GEOSadas-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+          resource_class: xlarge
+          baselibs_version: *baselibs_version
+          repo: GEOSadas
+          checkout_fixture: true
+          #fixture_branch: feature/mathomp4/ignore-heldsuarez
+          checkout_mapl_branch: true
+          mepodevelop: false
+          rebuild_procs: 1
 
   build-and-publish-docker:
     when:
