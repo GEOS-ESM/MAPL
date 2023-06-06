@@ -1,4 +1,5 @@
 
+program
 
    interface write(formatted)
       subroutine write_state_formatted(state, ...)
@@ -14,10 +15,10 @@
 
 contains
 
-   subroutine write...
+   subroutine write(...)
    end subroutine write
 
 end program
 
 
-print*, my_state
+#print*, my_state
