@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
+- Update MAPL_NetCDF public subroutine returns and support for real time
 
 ### Fixed
 
