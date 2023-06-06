@@ -1,6 +1,9 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.base/tests")
 
 add_definitions(-DUSE_MPI)
+# uncomment test_mapl_netcdf_private.pf to test private MAPL_NetCDF procedures
+# as well as the helper procedures used by test_MAPL_NetCDF and test_MAPL_NetCDF_private
+# make sure to make the private procedures in MAPL_NetCDF public (uncomment the 'public' statements).
 set (TEST_SRCS
     test_Mapl_Base.pf
     test_sort.pf
@@ -15,6 +18,8 @@ set (TEST_SRCS
     test_DirPath.pf
     test_TimeStringConversion.pf
     test_MAPL_NetCDF.pf
+    test_MAPL_NetCDF_helpers.F90
+#    test_MAPL_NetCDF_private.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 

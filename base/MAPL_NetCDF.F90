@@ -1,26 +1,9 @@
-!wdb todo
-! todo Switch integer to integer(kind=ESMF_KIND_I8) where appropriate.
-!Do REAL(8) days need to be included?
-!Do INTEGER or INTEGER(8) days need to be included?
-!Is d_r8 Julian day or Gregorian day?
-!Does get_shift_sign need to be converted to real for real procedures? 
-
-!subroutine to convert
-!From: integer: array(2) = [ 20010101  010101 (HHMMSS) ] ![ (YYYYMMDD) (HHMMSS) ]
-!To: !ESMF_TIME: with gregorian calendar
-!And vice versa.
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-! Procedures to convert from NetCDF datetime to ESMF_Time and ESMF_TimeInterval
+! Procedures to convert between NetCDF datetime and ESMF_Time
 ! NetCDF datetime is: {integer, character(len=*)}
 ! {1800, 'seconds since 2010-01-23 18:30:37'}
 ! {TIME_SPAN, 'TIME_UNIT since YYYY-MM-DD hh:mm:ss'}
-
-#ifdef NEGATIVE_STRING
-#  undef NEGATIVE_STRING
-#endif
-
-#define NEGATIVE_STRING(S) S(1:1) == '-'
 
 module MAPL_NetCDF
 
@@ -34,29 +17,21 @@ module MAPL_NetCDF
    public :: get_NetCDF_duration_from_ESMF_Time
    public :: get_ESMF_Time_from_NetCDF_DateTime
 
-   ! OLD HIGH-LEVEL
-!   public :: convert_NetCDF_DateTime_to_ESMF
-!   public :: convert_ESMF_to_NetCDF_DateTime
-
-   ! LOW-LEVEL
-   public :: make_ESMF_TimeInterval
-   public :: make_NetCDF_DateTime_duration
-!   public :: make_NetCDF_DateTime_units_string
-!   public :: convert_ESMF_Time_to_NetCDF_DateTimeString 
-   public :: convert_to_integer
-   public :: convert_NetCDF_DateTimeString_to_ESMF_Time
-!   public :: is_time_unit
-   public :: is_valid_netcdf_datetime_string
-   public :: get_shift_sign
-   public :: split
-   public :: split_all
-   public :: is_digit_string
-   public :: convert_to_real
+   interface get_NetCDF_duration_from_ESMF_Time
+      module procedure :: get_NetCDF_duration_from_ESMF_Time_integer
+      module procedure :: get_NetCDF_duration_from_ESMF_Time_real
+   end interface get_NetCDF_duration_from_ESMF_Time
 
    interface get_ESMF_Time_from_NetCDF_DateTime
       module procedure :: get_ESMF_Time_from_NetCDF_DateTime_integer
       module procedure :: get_ESMF_Time_from_NetCDF_DateTime_real
    end interface get_ESMF_Time_from_NetCDF_DateTime
+
+   private
+
+   ! LOW-LEVEL
+!   public :: convert_NetCDF_DateTimeString_to_ESMF_Time, make_NetCDF_DateTime_duration, is_digit_string, get_shift_sign
+!   public :: make_ESMF_TimeInterval, is_valid_netcdf_datetime_string, convert_to_integer, convert_to_real, split, split_all
 
    interface make_ESMF_TimeInterval
       module procedure :: make_ESMF_TimeInterval_integer
@@ -68,11 +43,6 @@ module MAPL_NetCDF
       module procedure :: make_NetCDF_DateTime_duration_real
    end interface make_NetCDF_DateTime_duration
    
-   interface get_NetCDF_duration_from_ESMF_Time
-      module procedure :: get_NetCDF_duration_from_ESMF_Time_integer
-      module procedure :: get_NetCDF_duration_from_ESMF_Time_real
-   end interface get_NetCDF_duration_from_ESMF_Time
-
    interface split
       module procedure :: split_chars
    end interface split
@@ -81,7 +51,6 @@ module MAPL_NetCDF
       module procedure :: split_all_iterative
    end interface split_all
 
-   private
 
    character, parameter :: PART_DELIM = ' '
    character, parameter :: ISO_DELIM  = 'T'
@@ -105,173 +74,9 @@ module MAPL_NetCDF
    character, parameter :: MINUS = '-'
    character(len=*), parameter :: SIGNS = PLUS // MINUS
    character(len=*), parameter :: EMPTY_STRING = ''
-   
 
 contains
 
-!===============================================================================
-!========================= OLD HIGH-LEVEL PROCEDURES =========================== 
-
-   ! Convert NetCDF_DateTime {int_time, units_string} to
-   ! ESMF time variables {interval, start_time, time} and time unit {tunit}
-   ! start_time is the start time, and time is start_time + interval
-   ! OLD
-   subroutine convert_NetCDF_DateTime_to_ESMF(int_time, units_string, &
-         interval, start_time, unusable, time, tunit, rc)
-      integer, intent(in) :: int_time
-      character(len=*), intent(in) :: units_string
-      type(ESMF_TimeInterval), intent(inout) :: interval
-      type(ESMF_Time), intent(inout) :: start_time
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Time), optional, intent(inout) :: time
-      character(len=:), allocatable, optional, intent(out) :: tunit
-      integer, optional, intent(out) :: rc
-      character(len=:), allocatable :: tunit_
-      character(len=len_trim(units_string)) :: parts(2)
-      character(len=len_trim(units_string)) :: head
-      character(len=len_trim(units_string)) :: tail
-      
-      integer :: span, factor
-      integer :: status
-
-      _UNUSED_DUMMY(unusable)
-
-      _ASSERT(int_time >= 0, 'Negative span not supported')
-      _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
-
-      ! get time unit, tunit
-      parts = split(trim(adjustl(units_string)), PART_DELIM)
-      head = parts(1)
-      tail = parts(2)
-      tunit_ = trim(adjustl(head))
-      _ASSERT(is_time_unit(tunit_), 'Unrecognized time unit')
-      if(present(tunit)) tunit = tunit_
-
-      ! get span
-      parts = split(trim(adjustl(tail)), PART_DELIM)
-      head = parts(1)
-      tail = parts(2)
-      
-      factor = get_shift_sign(head)
-      _ASSERT(factor /= 0, 'Unrecognized preposition')
-      span = factor * int_time
-
-      call convert_NetCDF_DateTimeString_to_ESMF_Time(trim(adjustl(tail)), start_time, _RC)
-      call make_ESMF_TimeInterval(span, tunit_, start_time, interval, _RC)
-
-      ! get time
-      if(present(time)) time = start_time + interval
-
-      _RETURN(_SUCCESS)
-
-   end subroutine convert_NetCDF_DateTime_to_ESMF
-
-   ! Convert ESMF time variables to an NetCDF datetime
-   ! OLD
-   subroutine convert_ESMF_to_NetCDF_DateTime(tunit, start_time, int_time, units_string, unusable, time, interval, rc)
-      character(len=*), intent(in) :: tunit
-      type(ESMF_Time),  intent(inout) :: start_time
-      integer, intent(out) :: int_time
-      character(len=:), allocatable, intent(out) :: units_string
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Time), optional, intent(inout) :: time
-      type(ESMF_TimeInterval), optional, intent(inout) :: interval
-      integer, optional, intent(out) :: rc
-      type(ESMF_TimeInterval) :: interval_
-      integer :: status
-
-      _UNUSED_DUMMY(unusable)
-
-      if(present(interval)) then
-         interval_ = interval
-      elseif(present(time)) then
-         interval_ = time - start_time
-      else
-         _FAIL( 'Only one input argument present')
-      end if
-
-      call make_NetCDF_DateTime_duration(interval_, start_time, tunit, int_time, _RC)
-      call make_NetCDF_DateTime_units_string(start_time, tunit, units_string, _RC)
-
-      _RETURN(_SUCCESS)
-      
-   end subroutine convert_ESMF_to_NetCDF_DateTime
-
-!========================= END OLD HIGH-LEVEL PROCEDURES =======================
-!===============================================================================
-!========================= OLD LOWER-LEVEL PROCEDURES ==========================
-
-   ! Make 'units' for NetCDF datetime
-   ! OLD
-   subroutine make_NetCDF_DateTime_units_string(start_time, tunit, units_string, unusable, rc)
-      type(ESMF_Time), intent(inout) :: start_time
-      character(len=*), intent(in) :: tunit
-      character(len=:), allocatable, intent(out) :: units_string
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-      character(len=*), parameter :: preposition = 'since'
-      character(len=:), allocatable :: datetime_string
-      integer :: status
-      
-      _UNUSED_DUMMY(unusable)
-
-      ! make units_string
-      call convert_ESMF_Time_to_NetCDF_DateTimeString(start_time, datetime_string, _RC)
-      units_string = tunit //SPACE// preposition //SPACE// datetime_string
-
-      _RETURN(_SUCCESS)
-
-   end subroutine make_NetCDF_DateTime_units_string
-
-   ! Convert ESMF_Time to a NetCDF datetime string (start datetime)
-   ! OLD
-   subroutine convert_ESMF_Time_to_NetCDF_DateTimeString(esmf_datetime, datetime_string, unusable, rc)
-      type(ESMF_Time), intent(inout) :: esmf_datetime
-      character(len=:), allocatable, intent(out) :: datetime_string
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
- 
-      character(len=*), parameter :: ERR_PRE = 'Failed to write string: '
-      integer :: yy, mm, dd, h, m, s
-      character(len=10) :: FMT
-      character(len=4) :: yy_string
-      character(len=2) :: mm_string
-      character(len=2) :: dd_string
-      character(len=2) :: h_string
-      character(len=2) :: m_string
-      character(len=2) :: s_string
-      character(len=LEN_DATETIME) :: tmp_string
-      integer :: status, iostatus
-
-      _UNUSED_DUMMY(unusable)
-
-      call ESMF_TimeGet(esmf_datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-
-      FMT='(BZ, I2.2)'
-      write(s_string, fmt=FMT, iostat=iostatus) s
-      _ASSERT(iostatus == 0, ERR_PRE // 'second')
-      write(m_string, fmt=FMT, iostat=iostatus) m
-      _ASSERT(iostatus == 0, ERR_PRE // 'minute')
-      write(h_string, fmt=FMT, iostat=iostatus) h
-      _ASSERT(iostatus == 0, ERR_PRE // 'hour')
-      write(dd_string, fmt=FMT, iostat=iostatus) dd
-      _ASSERT(iostatus == 0, ERR_PRE // 'day')
-      write(mm_string, fmt=FMT, iostat=iostatus) mm
-      _ASSERT(iostatus == 0, ERR_PRE // 'month')
-      FMT='(BZ, I4.4)'
-      write(yy_string, fmt=FMT, iostat=iostatus) yy
-      _ASSERT(iostatus == 0, ERR_PRE // 'year')
-
-      tmp_string = yy_string // DATE_DELIM // mm_string // DATE_DELIM // dd_string // PART_DELIM // &
-         h_string // TIME_DELIM // m_string // TIME_DELIM // s_string
-
-      datetime_string = tmp_string
-      
-      _RETURN(_SUCCESS)
-
-   end subroutine convert_ESMF_Time_to_NetCDF_DateTimeString
-
-!======================= END OLD LOWER-LEVEL PROCEDURES ========================
 !===============================================================================
 !========================= NEW HIGH-LEVEL PROCEDURES ===========================
 
@@ -765,20 +570,6 @@ contains
       
    end function is_valid_netcdf_datetime_string_real_seconds
 
-   ! OLD
-   function is_time_unit(tunit)
-      character(len=*), intent(in) :: tunit
-      logical :: is_time_unit
-      integer :: i
-
-      is_time_unit = .TRUE.
-      do i = 1, size(TIME_UNITS)
-         if(adjustl(tunit) == adjustl(TIME_UNITS(i))) return
-      end do
-      is_time_unit = .FALSE.
-
-   end function is_time_unit
-
    ! Get the sign of integer represening a time span based on preposition
    function get_shift_sign(preposition)
       character(len=*), intent(in) :: preposition
@@ -853,13 +644,13 @@ contains
       integer :: stat
 
       t = -1
-      print *, 'string: ', string !wdb fixme deleteme 
       read(string, *, iostat=stat) t
 
       if(present(rc)) rc = stat
 
    end subroutine convert_to_real
 
+   ! Check if string consists of only digit characters
    function is_digit_string(string)
       character(len=*), intent(in) :: string
       logical :: is_digit_string 
