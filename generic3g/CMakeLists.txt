@@ -5,7 +5,7 @@ set(srcs
 
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
-  FieldDictionary.F90 
+  FieldDictionary.F90
 
   GenericConfig.F90
   GenericGrid.F90
@@ -34,6 +34,8 @@ set(srcs
   MAPL_Generic.F90
   Validation.F90
 
+  VerticalGeom.F90
+
   # ComponentSpecBuilder.F90
 
   ESMF_Utilities.F90
@@ -48,7 +50,9 @@ find_package (MPI REQUIRED)
 find_package (GFTL REQUIRED)
 find_package (GFTL_SHARED REQUIRED)
 find_package (YAFYAML REQUIRED)
-find_package (PFLOGGER REQUIRED)
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
