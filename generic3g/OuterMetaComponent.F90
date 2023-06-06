@@ -34,6 +34,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ExtensionVector
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_ErrorHandling
+   use mapl3g_VerticalGeom
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
@@ -53,6 +54,7 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(ESMF_GeomBase), allocatable            :: geom
+      type(VerticalGeom), allocatable             :: vertical_geom
       type(MultiState)                            :: user_states
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
@@ -121,6 +123,8 @@ module mapl3g_OuterMetaComponent
 
       procedure :: get_component_spec
       procedure :: get_internal_state
+
+      procedure :: set_vertical_geom
 
    end type OuterMetaComponent
 
@@ -461,6 +465,9 @@ contains
          if (allocated(this%geom)) then
             call child_meta%set_geom(this%geom)
          end if
+         if (allocated(this%vertical_geom)) then
+            call child_meta%set_vertical_geom(this%vertical_geom)
+         end if
 
          _RETURN(ESMF_SUCCESS)
       end subroutine set_child_geom
@@ -517,7 +524,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry, this%geom, _RC)
+              call advertise_variable (var_spec, this%registry, this%geom, this%vertical_geom,  _RC)
               call iter%next()
            end do
          end associate
@@ -527,10 +534,11 @@ contains
       end subroutine self_advertise
 
 
-      subroutine advertise_variable(var_spec, registry, geom, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, geom, vertical_geom, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(HierarchicalRegistry), intent(inout) :: registry
          type(ESMF_GeomBase), intent(in) :: geom
+         type(VerticalGeom), intent(in) :: vertical_geom
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -540,7 +548,7 @@ contains
 
          _ASSERT(var_spec%state_item /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         item_spec = var_spec%make_ItemSpec(geom, _RC)
+         item_spec = var_spec%make_ItemSpec(geom, vertical_geom, _RC)
          call item_spec%create(_RC)
 
          virtual_pt = var_spec%make_virtualPt()
@@ -970,6 +978,14 @@ contains
       this%geom = geom
 
    end subroutine set_geom
+
+   subroutine set_vertical_geom(this, vertical_geom)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(VerticalGeom), intent(in) :: verticaL_geom
+
+      this%vertical_geom = vertical_geom
+
+   end subroutine set_vertical_geom
  
   function get_registry(this) result(r)
       type(HierarchicalRegistry), pointer :: r

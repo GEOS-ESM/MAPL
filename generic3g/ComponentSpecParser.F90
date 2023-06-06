@@ -12,6 +12,9 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VariableSpecVector
    use mapl3g_ConnectionSpec
    use mapl3g_ConnectionSpecVector
+   use mapl3g_VerticalDimSpec
+   use mapl3g_UngriddedDimsSpec
+   use mapl3g_UngriddedDimSpec
    use yaFyaml
    use esmf
    implicit none
@@ -88,6 +91,8 @@ contains
          class(YAML_Node), pointer :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
+         type(VerticalDimSpec) :: vertical_dim_spec
+         type(UngriddedDimsSpec) :: ungridded_dims_spec
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -101,12 +106,18 @@ contains
 
             call val_to_float(default_value, attributes, 'default_value', _RC)
 
+            call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
+
+            call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
+
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  standard_name=to_string(attributes%of('standard_name')), &
                  units=to_string(attributes%of('units')), &
                  typekind=typekind, &
                  substate=substate, &
-                 default_value=default_value &
+                 default_value=default_value, &
+                 vertical_dim_spec = vertical_dim_spec, &
+                 ungridded_dims = ungridded_dims_spec &
                  )
             call var_specs%push_back(var_spec)
             call iter%next()
@@ -176,6 +187,61 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine to_typekind
+
+      subroutine to_VerticalDimSpec(vertical_dim_spec, attributes, rc)
+         type(VerticalDimSpec) :: vertical_dim_spec
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: vertical_str
+
+         vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
+         
+         if (.not. attributes%has('vertical_dim_spec')) then
+            _RETURN(_SUCCESS)
+         end if
+         call attributes%get(vertical_str, 'vertical_dim_spec', _RC)
+
+         select case (vertical_str)
+         case ('vertical_dim_none', 'N')
+            vertical_dim_spec = VERTICAL_DIM_NONE
+         case ('vertical_dim_center', 'C')
+            vertical_dim_spec = VERTICAL_DIM_CENTER
+         case ('vertical_dim_edge', 'E')
+            vertical_dim_spec = VERTICAL_DIM_EDGE
+         case default
+            _FAIL('Unsupported typekind')
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine to_VerticalDimSpec
+
+      subroutine to_UngriddedDimsSpec(ungridded_dims_spec,attributes,rc)
+         type(UngriddedDimsSpec) :: ungridded_dims_spec
+         class(YAML_Node), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         class(YAML_Node), pointer :: dim_specs, dim_spec
+         character(len=:), allocatable :: dim_name
+         integer :: dim_size,i
+         type(UngriddedDimSpec) :: temp_dim_spec
+
+         if (.not.attributes%has('ungridded_dim_specs')) then
+            _RETURN(_SUCCESS)
+         end if
+         dim_specs => attributes%of('ungridded_dim_specs')
+         do i=1,dim_specs%size()
+            dim_spec => dim_specs%of(i) 
+            call dim_spec%get(dim_name,'dim_name',_RC)
+            call dim_spec%get(dim_size,'extent',_RC)            
+            temp_dim_spec = UngriddedDimSpec(dim_size)
+            call ungridded_dims_spec%add_dim_spec(temp_dim_spec,_RC)
+         end do 
+
+         _RETURN(_SUCCESS)
+      end subroutine to_UngriddedDimsSpec
 
    end function process_var_specs
 

@@ -1,5 +1,5 @@
 module mapl3g_VerticalDimSpec
-   use mapl3g_UngriddedDimSpec
+   !use mapl3g_UngriddedDimSpec
    implicit none
    private
   
@@ -9,6 +9,7 @@ module mapl3g_VerticalDimSpec
    public :: VERTICAL_DIM_CENTER
    public :: VERTICAL_DIM_EDGE
 
+   public operator(==)
 
    type :: VerticalDimSpec
       private
