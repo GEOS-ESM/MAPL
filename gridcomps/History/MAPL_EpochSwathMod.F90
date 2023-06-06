@@ -383,6 +383,7 @@ contains
         type(ESMF_Grid) :: input_grid
         class (AbstractGridFactory), pointer :: factory
 
+        type(ESMF_Field) :: new_field
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
         type(stringVector) :: order
@@ -494,10 +495,13 @@ contains
            end if
            call iter%next()
         enddo
+
+        new_field = ESMF_FieldCreate(this%output_grid ,name='time', &
+               typekind=ESMF_TYPEKIND_R4,_RC)
+        call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
+        !unit
         
-
         _RETURN(_SUCCESS)        
-
      end subroutine CreateFileMetaData
 
 

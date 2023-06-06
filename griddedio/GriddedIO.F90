@@ -942,11 +942,12 @@ module MAPL_GriddedIOMod
            allocate(ptr2d(0,0))
         end if
         ref = factory%generate_file_reference2D(Ptr2D)
-        allocate(localStart,source=[gridLocalStart,1])
         if (tindex > -1) then
+           allocate(localStart,source=[gridLocalStart,1])
            allocate(globalStart,source=[gridGlobalStart,tindex])
            allocate(globalCount,source=[gridGlobalCount,1])
         else
+           allocate(localStart,source=[gridLocalStart])
            allocate(globalStart,source=gridGlobalStart)
            allocate(globalCount,source=gridGlobalCount)
         end if
@@ -974,6 +975,10 @@ module MAPL_GriddedIOMod
       else
          _FAIL( "Rank not supported")
       end if
+
+      !!write(6,*) 'size: localStart, GlobalStart, GlobalCount'
+      !!write(6,*) size(localStart), size(GlobalStart), size(GlobalCount)      
+
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
       _RETURN(_SUCCESS)

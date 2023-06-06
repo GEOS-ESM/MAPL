@@ -276,6 +276,9 @@ contains
           !
           allocate( centers_full(Xdim_full, Ydim_full))
           call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers_full, Xdim_full, Ydim_full)
+
+          !check output
+          
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
