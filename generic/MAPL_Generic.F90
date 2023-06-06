@@ -681,7 +681,7 @@ contains
 
       ! Start my timer
       !---------------
-!!$  call MAPL_TimerOn(STATE,"generic", _RC)
+!C$  call MAPL_TimerOn(STATE,"generic", _RC)
 
       ! Put the inherited grid in the generic state
       !--------------------------------------------
@@ -848,7 +848,7 @@ contains
 
       call handle_record(_RC)
 
-!!$   call MAPL_TimerOff(STATE,"generic",_RC)
+!C$   call MAPL_TimerOff(STATE,"generic",_RC)
 
       m_p => get_global_memory_profiler()
       call m_p%start('children')
@@ -2876,11 +2876,11 @@ contains
          ! Root component (hopefully)
          allocate(MAPLOBJ, STAT=status)
          _VERIFY(status)
-!!!! Memory leak !!!!
+! Memory leak !
          allocate(root_composite)
          ! TODO: test if workaround is needed for 10.2
          ! workaround for gfortran 10.1
-!!$       root_composite = ConcreteComposite(MAPLOBJ)
+!C$       root_composite = ConcreteComposite(MAPLOBJ)
          call root_composite%initialize(MAPLOBJ)
          tmp_component => root_composite%get_component()
          select type (tmp_component)
@@ -4558,7 +4558,7 @@ contains
       call child_meta%t_profiler%start(_RC)
       call child_meta%t_profiler%start('SetService',_RC)
 
-!!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
+!C$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
       call lgr%debug("Started %a", stage_description)
       child_meta%user_setservices_wrapper = ProcSetServicesWrapper(SS)
       call lgr%debug("Finished %a", stage_description)
@@ -5375,7 +5375,7 @@ contains
             childgridcomp => meta%get_child_gridcomp(i)
             call MAPL_InternalStateRetrieve(childgridcomp, cmeta, RC=status)
             _VERIFY(status)
-            if (cmeta%compname == name) then ! found it!!!
+            if (cmeta%compname == name) then ! found it!
                result => cmeta
                _RETURN(ESMF_SUCCESS)
             end if
@@ -6476,7 +6476,7 @@ contains
             _VERIFY(status)
 
             GOTO 10
-!!!         cycle
+!         cycle
          endif
 
          if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
@@ -7233,7 +7233,7 @@ contains
       ! ---------------------------------------
 
       do I=1,NC
-!!!ALT      call MAPL_WireComponent(GCS(I), RC=status)
+!ALT      call MAPL_WireComponent(GCS(I), RC=status)
          _VERIFY(status)
       end do
 
@@ -9227,7 +9227,7 @@ contains
       ! Make a local copy of the current time
       !--------------------------------------
 
-      !ALT clock are shallow objects!!!    CurrentTime = CurrTime
+      !ALT clock are shallow objects!    CurrentTime = CurrTime
       call ESMF_TimeGet(CurrTime, &
            YY=YY, MM=MM, DD=DD, &
            H=H, M=M, S=S, rc=status)
@@ -9701,7 +9701,7 @@ contains
             if (PRF /= 0) then
                _FAIL('needs informative message') ! for now
             else
-               ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!!!
+               ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!
                call MAPL_VarRead(UNIT, GRID, VAR2, RC=status )
                _VERIFY(status)
             end if
@@ -10909,10 +10909,10 @@ contains
       class(Logger), pointer :: lgr
       integer, optional, intent(out) :: rc
 
-!!$      class(Logger), pointer :: meta_lgr
-!!$
-!!$      meta_lgr => logging%get_logger('MAPL.GENERIC')
-!!$      call meta_lgr%warning('obsolete interface MAPL_GetLogger()')
+!C$      class(Logger), pointer :: meta_lgr
+!C$
+!C$      meta_lgr => logging%get_logger('MAPL.GENERIC')
+!C$      call meta_lgr%warning('obsolete interface MAPL_GetLogger()')
 
       lgr => meta%get_logger()
 
