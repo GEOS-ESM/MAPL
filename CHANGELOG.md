@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.39.0] - 2023-06-07
+
+### Added
+
+- subroutin count_substring to shared/String.F90
+
 ## [2.39.2] - 2023-05-30
 
 ### Fixed

@@ -425,7 +425,7 @@ contains
      implicit none
      integer :: ncount
      class(String), intent(in) :: this
-     character(len=*), intent(in) :: t
+     character(len=*), intent(in) :: t  ! any text
 
      integer :: i, j, k, lt
      ncount=0
@@ -433,8 +433,6 @@ contains
      lt = len(t) - 1
      do
         i=index(this%string(k:), t)
-        write(6,*) 'i=', i
-        write(6,*)  'sub string =', trim(this%string(k:))
         if (i==0) exit
         ncount = ncount + 1
         k = k+i+lt
