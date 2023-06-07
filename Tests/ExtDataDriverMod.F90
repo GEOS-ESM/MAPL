@@ -58,9 +58,7 @@ contains
          driver%cap_options = MAPL_CapOptions()
       endif
       call driver%initialize_mpi()
-      call MAPL_Initialize(comm=MPI_COMM_WORLD, &
-           logging_config=driver%cap_options%logging_config, &
-           rc=status)
+      call MAPL_Initialize(comm=MPI_COMM_WORLD,rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end function newExtDataDriver
