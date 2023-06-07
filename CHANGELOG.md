@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- subroutin count_substring to shared/String.F90
+- Added procedure to count substrings in a string.
+    - function `count(string, substring)` in shared/String.F90
 
 ## [2.39.2] - 2023-05-30
 
