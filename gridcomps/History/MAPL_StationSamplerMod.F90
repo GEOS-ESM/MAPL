@@ -1,8 +1,13 @@
-! Note: content of station_id_file:
-!       First line: txt
-!       Second line: [station_id,station_name,lat,lon,elev]
+! Supported station_id_file format
+!   - choice-A [station_name,lat,lon,elev]
+!   - choice-B [station_id,station_name,lat,lon,elev]
 !       ...
 !
+
+! ygyu: add to history.rc
+!   sampler_type = 'station', 'mask', 'swath'
+
+
 #include "MAPL_Generic.h"
 module StationSamplerMod
   use ESMF
@@ -23,51 +28,54 @@ module StationSamplerMod
   public :: StationSampler
   type :: StationSampler
      private
-     type(LocStreamFactory) :: LSF
-     type(ESMF_LocStream) :: esmf_ls
+     type(LocStreamFactory)   :: LSF
+     type(ESMF_LocStream)     :: esmf_ls
      type(LocstreamRegridder) :: regridder
-     integer :: nstation
+     integer                  :: nstation
+!!     type(station), allocatable ::
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: elevs(:)
      !
-     type(ESMF_FieldBundle) :: bundle
-     type(FileMetadata) :: fmd
-     type(NetCDF4_FileFormatter) :: formatter
-     type(VerticalData) :: vdata
-     type(TimeData) :: time_info
-     integer :: obs_written  ! replace number_written
-     character(LEN=ESMF_MAXPATHLEN) :: ofile ! file_name
+     type(ESMF_FieldBundle)         :: bundle
+     type(FileMetadata)             :: fmd
+     type(NetCDF4_FileFormatter)    :: formatter
+     type(VerticalData)             :: vdata
+     type(TimeData)                 :: time_info
+     character(LEN=ESMF_MAXPATHLEN) :: ofile
+     integer                        :: obs_written
    contains
-     procedure :: add_metadata_route_handle
-     procedure :: create_file_handle
-     procedure :: close_file_handle
-     procedure :: append_file
-     procedure :: get_file_start_time
-     procedure :: compute_time_for_current
-     procedure :: deallocate_arrays
+     procedure                      :: add_metadata_route_handle
+     procedure                      :: create_file_handle
+     procedure                      :: close_file_handle
+     procedure                      :: append_file
+     procedure                      :: get_file_start_time
+     procedure                      :: compute_time_for_current
+     procedure                      :: deallocate_arrays
   end type StationSampler
 
   interface StationSampler
      module procedure new_StationSampler_readfile
   end interface StationSampler
+
 contains
 
-
   function new_StationSampler_readfile (filename,rc) result(sampler)
-    use pflogger, only: Logger, logging
-    type(StationSampler) :: sampler
-    character(len=*), intent(in) :: filename ! 1:station_name input
+    use pflogger, only             :  Logger, logging
+    type(StationSampler)           :: sampler
+    character(len=*), intent(in)   :: filename ! 1:station_name input
     integer, optional, intent(out) :: rc
     ! loc
     character(len=40) :: str, sdmy, shms
     integer :: max_len, max_seg, nseg
-    integer :: unit, ios, nline, id, nstation, status, i, j
+    integer :: unit, ios, nline, nstation, status
+    integer :: i, j, id, ncount
     integer :: iday, imonth, iyear, ihr, imin, isec
-    real :: x, y, z, t
+    real    :: x, y, z, t
     character(len=1) :: s1
+    character (len=100) :: line
     type(Logger), pointer          :: lgr
 
     !__ 1. read from station_id_file: static
@@ -77,8 +85,16 @@ contains
          access='sequential', status='old', _IOSTAT)
     ios=0
     nstation=0
+    read(unit, '(a100)', IOSTAT=ios) line
+    call count_substring(line, ',', ncount)
+    _ASSERT(ncount.GE.3 .AND. ncount.LE.4, 'wrong input format')
+    rewind(unit)
     do while (ios==0)
-       read (unit, *, IOSTAT=ios)  id, str, x, y, z
+       if(ncount==4) then
+          read (unit, *, IOSTAT=ios)  id, str, x, y, z
+       elseif (ncount==3) then
+          read (unit, *, IOSTAT=ios)  str, x, y, z
+       end if
        if (ios==0) nstation=nstation+1
     end do
     sampler%nstation=nstation
@@ -89,16 +105,18 @@ contains
     allocate(sampler%elevs(nstation))
     rewind(unit)
     do i=1, nstation
-       read(unit, *) &
-            sampler%station_id(i), &
-            sampler%station_name(i), &
-            sampler%lats(i), &
-            sampler%lons(i)
+       if(ncount==4) then       
+          read(unit, *) &
+               sampler%station_id(i), &
+               sampler%station_name(i), &
+               sampler%lats(i), &
+               sampler%lons(i)
+       end if
     end do
     close(unit)
     lgr => logging%get_logger('HISTORY.sampler')
-    call lgr%debug('%a %i8', 'nstation=', nstation)
-    call lgr%debug('%a %a %a','sampler%station_name(1:2) : ', &
+    call lgr%debug('%a %i8',   'nstation=', nstation)
+    call lgr%debug('%a %a %a', 'sampler%station_name(1:2) : ', &
          trim(sampler%station_name(1)), trim(sampler%station_name(2)))
     call lgr%debug('%a %f8.2 %f8.2', 'sampler%lons(1:2) : ',&
          sampler%lons(1),sampler%lons(2))
@@ -107,63 +125,72 @@ contains
 
     !__ 2. create LocStreamFactory, then esmf_ls including route_handle
     !
-    sampler%LSF = LocStreamFactory(sampler%lons, sampler%lats, _RC)
+    sampler%LSF     = LocStreamFactory(sampler%lons, sampler%lats, _RC)
     sampler%esmf_ls = sampler%LSF%create_locstream(_RC)
     !
     ! init ofile
     sampler%ofile=''
     sampler%obs_written=0
+
     _RETURN(_SUCCESS)
   end function new_StationSampler_readfile
 
-
   subroutine add_metadata_route_handle (this,bundle,timeInfo,vdata,rc)
-    class(StationSampler), intent(inout) :: this
-    type(ESMF_FieldBundle), intent(in) :: bundle
-    type(TimeData), intent(inout) :: timeInfo
+    class(StationSampler),  intent(inout)       :: this
+    type(ESMF_FieldBundle), intent(in)          :: bundle
+    type(TimeData),         intent(inout)       :: timeInfo
     type(VerticalData), optional, intent(inout) :: vdata
-    integer, optional, intent(out) :: rc
-    !
-    integer :: status
-    type(ESMF_Grid) :: grid
+    integer, optional, intent(out)              :: rc
+
+    type(variable)   :: v
+    type(ESMF_Grid)  :: grid
     type(ESMF_Clock) :: clock
-    type(variable) :: v
-    integer :: fieldCount
-    integer :: fieldCount_max = 1000
     type(ESMF_Field) :: field
+    integer          :: fieldCount
+    integer          :: fieldCount_max = 1000
+    integer          :: field_rank
+    integer          :: nstation
+    logical          :: is_present
+    integer          :: ub(ESMF_MAXDIM)
+    integer          :: lb(ESMF_MAXDIM)
+    logical          :: do_vertical_regrid
+    integer          :: status
+    integer          :: i
+
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
-    integer :: field_rank, i, nstation
-    logical :: is_present
-    integer :: ub(ESMF_MAXDIM), lb(ESMF_MAXDIM)
-    logical :: do_vertical_regrid
 
-    !__ 1. metadata add_dimension, add_variable for time, latlon, station
+    !__ 1. metadata add_dimension,
+    !     add_variable for time, latlon, station
     !
-    this%bundle=bundle
-    nstation=this%nstation
+    this%bundle = bundle
+    nstation = this%nstation
     if (present(vdata)) then
-       this%vdata=vdata
+       this%vdata = vdata
     else
-       this%vdata=VerticalData(_RC)
+       this%vdata = VerticalData(_RC)
     end if
-    call this%vdata%append_vertical_metadata(this%fmd,this%bundle,_RC) ! take care of lev in fmd
+    call this%vdata%append_vertical_metadata(this%fmd,this%bundle,_RC) ! specify lev in fmd
     do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
     if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) then
        call this%vdata%get_interpolating_variable(this%bundle,_RC)
     endif
-    call timeInfo%add_time_to_metadata(this%fmd,_RC) ! take care of time in fmd
+
+    call timeInfo%add_time_to_metadata(this%fmd,_RC) ! specify time in fmd
     this%time_info = timeInfo
-    !
+
     call this%fmd%add_dimension('station_index',nstation)
+
     v = Variable(type=pFIO_REAL32, dimensions='station_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
     call this%fmd%add_variable('longitude',v)
+
     v = Variable(type=pFIO_REAL32, dimensions='station_index')
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%fmd%add_variable('latitude',v)
+
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
 
@@ -197,11 +224,11 @@ contains
           ! caution: assume vlevel the same as input-bundle-field/grid
           v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[ub(1)-lb(1)+1,1,1])
        end if
-       call v%add_attribute('units',trim(units))
-       call v%add_attribute('long_name',trim(long_name))
-       call v%add_attribute('missing_value',MAPL_UNDEF)
-       call v%add_attribute('_FillValue',MAPL_UNDEF)
-       call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+       call v%add_attribute('units',         trim(units))
+       call v%add_attribute('long_name',     trim(long_name))
+       call v%add_attribute('missing_value', MAPL_UNDEF)
+       call v%add_attribute('_FillValue',    MAPL_UNDEF)
+       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
        call this%fmd%add_variable(trim(var_name),v,_RC)
     end do
     deallocate (fieldNameList)
@@ -210,9 +237,9 @@ contains
     !
     call ESMF_FieldBundleGet(bundle,grid=grid,_RC)
     this%regridder = LocStreamRegridder(grid,this%esmf_ls,_RC)
+
     _RETURN(_SUCCESS)
   end subroutine add_metadata_route_handle
-
 
   subroutine append_file(this,current_time,rc)
     class(StationSampler), intent(inout) :: this
@@ -246,7 +273,7 @@ contains
             start=[this%obs_written],count=[1],_RC)
     end if
 
-    !__ 2. put_var: ungridded_dim from src to dst [interpolation]
+    !__ 2. put_var: ungridded_dim from src to dst [regrid]
     !
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
     allocate (fieldNameList(fieldCount))
@@ -315,6 +342,8 @@ contains
     call this%formatter%put_var('longitude',this%lons,_RC)
     call this%formatter%put_var('latitude',this%lats,_RC)
     call this%formatter%put_var('station_id',this%station_id,_RC)
+
+    _RETURN(_SUCCESS)
   end subroutine create_file_handle
 
 
@@ -470,6 +499,25 @@ contains
     deallocate(this%elevs)
     _RETURN(_SUCCESS)
   end subroutine deallocate_arrays
+
+
+  subroutine count_substring (str, t, ncount)
+    character (len=*), intent(in) :: str
+    character (len=*), intent(in) :: t
+    integer, intent(out) :: ncount
+    integer :: i, j, k, lt
+    ncount=0
+    k=1
+    lt = len(t) - 1
+    do
+       i=index(str(k:), t)
+       !!write(6,*) 'i=', i
+       !!write(6,*)  'sub string =', trim(str(k:))
+       if (i==0) exit
+       ncount = ncount + 1
+       k=k+i+lt
+    end do
+  end subroutine count_substring
 
 
 end module StationSamplerMod
