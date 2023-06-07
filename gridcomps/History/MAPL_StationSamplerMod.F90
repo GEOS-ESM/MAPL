@@ -115,7 +115,7 @@ contains
           read(unit, *) &
                sampler%station_name(i), &
                sampler%lats(i), &
-               sampler%lons(i)          
+               sampler%lons(i)
                sampler%station_id(i)=i
        end if
     end do
