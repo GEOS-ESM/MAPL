@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.37.0
+  VERSION 2.39.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -201,6 +201,7 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
+add_subdirectory (geom)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)

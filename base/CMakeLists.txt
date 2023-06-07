@@ -55,14 +55,19 @@ set (srcs
   FieldUtilities.F90
   MAPL_Resource.F90
   MAPL_XYGridFactory.F90
+  MAPL_NetCDF.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
 
+# Add SimulationTime.F90 to srcs if we are building with pflogger
+if (BUILD_WITH_PFLOGGER)
+  list(APPEND srcs SimulationTime.F90)
+endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger 
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE ${MAPL_LIBRARY_TYPE})
