@@ -3211,6 +3211,7 @@ ENDDO PARSER
 !   ErrLog vars
     integer                        :: status
     logical                        :: file_exists
+    type(Logger), pointer          :: lgr
 
 !=============================================================================
 
@@ -3416,6 +3417,7 @@ ENDDO PARSER
             end if
          endif
 
+         lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))

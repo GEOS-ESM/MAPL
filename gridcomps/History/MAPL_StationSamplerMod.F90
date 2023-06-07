@@ -105,12 +105,18 @@ contains
     allocate(sampler%elevs(nstation))
     rewind(unit)
     do i=1, nstation
-       if(ncount==4) then       
+       if(ncount==4) then
           read(unit, *) &
                sampler%station_id(i), &
                sampler%station_name(i), &
                sampler%lats(i), &
                sampler%lons(i)
+       elseif(ncount==3) then
+          read(unit, *) &
+               sampler%station_name(i), &
+               sampler%lats(i), &
+               sampler%lons(i)          
+               sampler%station_id(i)=i
        end if
     end do
     close(unit)
