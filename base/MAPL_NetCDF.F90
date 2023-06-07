@@ -273,11 +273,13 @@ contains
       integer :: status 
       integer :: yy, mm, dd, h, m, s, i, j 
       character(len=4) :: part
+      character(len=:), allocatable :: msg
 
       _UNUSED_DUMMY(unusable)
 
-      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), &
-         'Invalid datetime string: ' // datetime_string)
+      msg = 'Invalid datetime string: ' // datetime_string
+      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), msg) 
+         
 
       i = 1
       j = i + 3
@@ -333,11 +335,12 @@ contains
       character(len=:), allocatable :: part(:)
       character(len=:), allocatable :: date_string
       character(len=:), allocatable :: time_string
+      character(len=:), allocatable :: msg
 
       _UNUSED_DUMMY(unusable)
 
-      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), &
-         'Invalid datetime string: ' // datetime_string)
+      msg = 'Invalid datetime string: ' // datetime_string
+      _ASSERT(is_valid_netcdf_datetime_string(datetime_string), msg)
 
       part = split_all(datetime_string, PART_DELIM)
       date_string = part(1)
