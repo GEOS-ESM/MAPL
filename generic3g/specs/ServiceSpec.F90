@@ -149,7 +149,7 @@ contains
    
    subroutine connect_to(this, src_spec, rc)
       class(ServiceSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(inout) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: fieldCount

@@ -106,7 +106,7 @@ contains
 
    subroutine connect_to(this, src_spec, rc)
       class(MockItemSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(inout) :: src_spec
       integer, optional, intent(out) :: rc
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')

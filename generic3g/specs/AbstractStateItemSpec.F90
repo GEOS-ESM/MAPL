@@ -52,7 +52,7 @@ module mapl3g_AbstractStateItemSpec
          use mapl3g_ConnectionSpec
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(inout) :: this
-         class(AbstractStateItemSpec), intent(in) :: src_spec
+         class(AbstractStateItemSpec), intent(inout) :: src_spec
          integer, optional, intent(out) :: rc
       end subroutine I_connect
 
