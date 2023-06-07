@@ -52,11 +52,13 @@
   use MAPL_DownbitMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
+  use StationSamplerMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
+  use pflogger, only: Logger, logging
 
   implicit none
   private
@@ -865,6 +867,11 @@ contains
                                          label=trim(string) // 'regrid_method:'  ,_RC )
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
+
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_spec, default="", &
+            label=trim(string) // 'sampler_spec:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
+            label=trim(string) // 'station_id_file:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
@@ -2363,6 +2370,9 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+          elseif (list(n)%sampler_spec == 'station') then
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
+             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
@@ -3415,6 +3425,15 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
             list(n)%currentFile = filename(n)
+         elseif (list(n)%sampler_spec == 'station') then
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                    "Station_data output to new file:",trim(filename(n)))
+               call list(n)%station_sampler%close_file_handle(_RC)
+               call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3561,6 +3580,10 @@ ENDDO PARSER
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
       end if
+      if (list(n)%sampler_spec == 'station') then
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+         call list(n)%station_sampler%append_file(current_time,_RC)
+      endif
 
       if( Writing(n) .and. list(n)%unit < 0) then
 
