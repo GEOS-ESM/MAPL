@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.39.3] - 2023-06-07
+
+### Add
+
+- Add logging config to Tests/ExtDataDriverMod.F90 to enable Logger
+
 ## [2.39.2] - 2023-05-30
 
 ### Fixed
