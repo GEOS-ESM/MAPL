@@ -105,6 +105,7 @@ module MAPL_String
       procedure :: lower
       procedure :: upper
       procedure :: capitalize
+      procedure :: count_substring
 
    end type String
 
@@ -420,5 +421,26 @@ contains
 
    end function capitalize
 
+   function count_substring(this, t) result(ncount)
+     implicit none
+     integer :: ncount
+     class(String), intent(in) :: this
+     character(len=*), intent(in) :: t
+
+     integer :: i, j, k, lt
+     ncount=0
+     k=1
+     lt = len(t) - 1
+     do
+        i=index(this%string(k:), t)
+        write(6,*) 'i=', i
+        write(6,*)  'sub string =', trim(this%string(k:))
+        if (i==0) exit
+        ncount = ncount + 1
+        k = k+i+lt
+     end do
+
+   end function count_substring
+   
    
 end module MAPL_String

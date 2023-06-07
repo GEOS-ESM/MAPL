@@ -214,4 +214,13 @@ contains
       
    end subroutine test_capitalize
 
+   @test
+   subroutine test_count_substring()
+      type(String) :: s
+
+      s = 'aaa,bbb,xxa,yya,zzb'
+      @assert_that(s%count_substring('a,') == 3, is(true()))
+      
+   end subroutine test_count_substring
+
 end module Test_String
