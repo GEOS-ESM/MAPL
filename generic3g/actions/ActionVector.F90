@@ -1,10 +1,10 @@
-module mapl3g_ActionSequence
+module mapl3g_ActionVector
    use mapl3g_ExtensionAction
 
 #define T ExtensionAction
 #define T_polymorphic
-#define Vector ActionSequence
-#define VectorIterator ActionSequenceIterator
+#define Vector ActionVector
+#define VectorIterator ActionVectorIterator
 
 #include "vector/template.inc"
 
@@ -13,5 +13,5 @@ module mapl3g_ActionSequence
 #undef Vector
 #undef VectorIterator
 
-end module mapl3g_ActionSequence
+end module mapl3g_ActionVector
 

@@ -7,6 +7,7 @@ module mapl3g_StateSpec
    use mapl3g_VariableSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
+   use mapl3g_ActualPtVector
    use mapl_ErrorHandling
    use ESMF
    use mapl_KeywordEnforcer
@@ -26,11 +27,14 @@ module mapl3g_StateSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
+      procedure :: get_dependencies
+      
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+      procedure :: add_to_bundle
 
    end type StateSpec
 
@@ -73,8 +77,9 @@ contains
    end function get_item
 
 
-   subroutine create(this, rc)
+   subroutine create(this, dependency_specs, rc)
       class(StateSpec), intent(inout) :: this
+      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -106,6 +111,16 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
+
+   function get_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(StateSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      dependencies = ActualPtVector()
+
+      _RETURN(_SUCCESS)
+   end function get_dependencies
    
    subroutine connect_to(this, src_spec, rc)
       class(StateSpec), intent(inout) :: this
@@ -160,6 +175,18 @@ contains
 !!$
 
    end subroutine add_to_state
+
+
+   subroutine add_to_bundle(this, bundle, rc)
+      class(StateSpec), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      _FAIL('Attempt to use item of type InvalidSpec')
+
+      _RETURN(_SUCCESS)
+   end subroutine add_to_bundle
+   
 
    function make_extension(this, src_spec, rc) result(action_spec)
       class(AbstractActionSpec), allocatable :: action_spec

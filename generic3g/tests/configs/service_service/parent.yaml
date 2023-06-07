@@ -1,0 +1,26 @@
+children:
+  - name: child_A
+    sharedObj:  libsimple_leaf_gridcomp
+    setServices: setservices_
+    config_file: configs/service_service/child_A.yaml
+  - name: child_C
+    sharedObj:  libsimple_leaf_gridcomp
+    setServices: setservices_
+    config_file: configs/service_service/child_C.yaml
+  - name: child_B
+    dso:  libsimple_leaf_gridcomp
+    config_file: configs/service_service/child_B.yaml
+
+states: {}
+
+
+connections:
+  - src_name: S
+    dst_name: S
+    src_comp: child_B
+    dst_comp: child_A
+
+  - src_name: S
+    dst_name: S1
+    src_comp: child_B
+    dst_comp: child_C

@@ -4,7 +4,12 @@ module mapl3g_MaplGeom
 
    public :: MaplGeom
 
+   ! MaplGeom encapsulates an ESMF Geom object along with various related
+   ! data associated with that object that are not easily stored in ESMF
+   ! info.
+
    type, abstract :: MaplGeom
+      private
    contains
       procedure, deferred :: get_esmf_geom
       procedure, deferred :: 
