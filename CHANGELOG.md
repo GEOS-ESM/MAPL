@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Add
 
-- Add logging config to Tests/ExtDataDriverMod.F90 to enable Logger
+- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
 
 ## [2.39.2] - 2023-05-30
 
