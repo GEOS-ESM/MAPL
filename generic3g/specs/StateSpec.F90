@@ -40,7 +40,7 @@ contains
 !!$   ! Nothing defined at this time.
 !!$   subroutine initialize(this, geom, var_spec, unusable, rc)
 !!$      class(StateSpec), intent(inout) :: this
-!!$      type(ESMF_GeomBase), intent(in) :: geom
+!!$      type(ESMF_Geom), intent(in) :: geom
 !!$      type(VariableSpec), intent(in) :: var_spec
 !!$      class(KeywordEnforcer), optional, intent(in) :: unusable
 !!$      integer, optional, intent(out) :: rc

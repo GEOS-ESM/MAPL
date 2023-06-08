@@ -12,7 +12,7 @@
 ! E.g., MAPL2 usually provided gridcomp and meta overloads for many
 ! procedures.  Now the "meta" interfaces are OO methods in either
 ! inner or outer MetaComponent.
-! 
+!
 !---------------------------------------------------------------------
 
 module mapl3g_Generic
@@ -29,7 +29,7 @@ module mapl3g_Generic
    use :: mapl3g_VerticalGeom
    use mapl_InternalConstantsMod
    use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_GeomBase, ESMF_GeomBaseCreate
+   use :: esmf, only: ESMF_Geom, ESMF_GeomCreate
    use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_Clock
@@ -37,7 +37,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_Method_Flag
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_StateIntent_Flag
-   use :: esmf, only: ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT
+   use :: esmf, only: ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL
    use :: esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
@@ -47,7 +47,7 @@ module mapl3g_Generic
    private
 
    public :: get_outer_meta_from_inner_gc
-  
+
    public :: MAPL_GridCompSetEntryPoint
    public :: MAPL_add_child
    public :: MAPL_run_child
@@ -251,7 +251,7 @@ contains
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
-      
+
       _RETURN(_SUCCESS)
    end subroutine add_spec_basic
 
@@ -353,7 +353,7 @@ contains
 !!$         write(dim_name,'("ungridded_", i1)') i
 !!$         call ungridded_dims%add_dim_spec(dim_name, 'unknown', ungridded_dims(i))
 !!$      end do
-      
+
    end function to_ungridded_dims
 
    function to_state_item(datatype) result(state_item)
@@ -397,7 +397,6 @@ contains
    end subroutine add_export_spec
 
    subroutine add_internal_spec(gridcomp, unusable, short_name, standard_name, units, rc)
-      use mapl3g_VirtualConnectionPt, only: ESMF_STATEINTENT_INTERNAL
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), intent(in) :: short_name
@@ -434,7 +433,7 @@ contains
 
    subroutine MAPL_GridCompSetGeom(gridcomp, geom, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_GeomBase), intent(in) :: geom
+      type(ESMF_Geom), intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -453,12 +452,12 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_GeomBase) :: geom
+      type(ESMF_Geom) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
       !TODO - staggerloc not needed in nextgen ESMF
-      geom = ESMF_GeomBaseCreate(grid, ESMF_STAGGERLOC_INVALID, _RC)
+      geom = ESMF_GeomCreate(grid, ESMF_STAGGERLOC_INVALID, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -471,11 +470,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_GeomBase) :: geom
+      type(ESMF_Geom) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomBaseCreate(mesh, _RC)
+      geom = ESMF_GeomCreate(mesh, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -488,11 +487,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_GeomBase) :: geom
+      type(ESMF_Geom) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomBaseCreate(xgrid, _RC)
+      geom = ESMF_GeomCreate(xgrid, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
@@ -505,11 +504,11 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_GeomBase) :: geom
+      type(ESMF_Geom) :: geom
 
       outer_meta => get_outer_meta(gridcomp, _RC)
 
-      geom = ESMF_GeomBaseCreate(locstream, _RC)
+      geom = ESMF_GeomCreate(locstream, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)

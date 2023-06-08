@@ -53,7 +53,7 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_GeomBase), allocatable            :: geom
+      type(ESMF_Geom), allocatable            :: geom
       type(VerticalGeom), allocatable             :: vertical_geom
       type(MultiState)                            :: user_states
       type(GenericConfig)                         :: config
@@ -537,7 +537,7 @@ contains
       subroutine advertise_variable(var_spec, registry, geom, vertical_geom, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(HierarchicalRegistry), intent(inout) :: registry
-         type(ESMF_GeomBase), intent(in) :: geom
+         type(ESMF_Geom), intent(in) :: geom
          type(VerticalGeom), intent(in) :: vertical_geom
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
@@ -973,7 +973,7 @@ contains
 
    subroutine set_geom(this, geom)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_GeomBase), intent(in) :: geom
+      type(ESMF_Geom), intent(in) :: geom
 
       this%geom = geom
 

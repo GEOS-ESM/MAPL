@@ -6,13 +6,9 @@ module mapl3g_ESMF_Utilities
    implicit none
    private
 
-   public :: ESMF_InfoGetFromHost
    public :: write(formatted)
    public :: get_substate
 
-   interface ESMF_InfoGetFromHost
-      module procedure info_get_from_geom
-   end interface ESMF_InfoGetFromHost
    interface write(formatted)
       procedure write_state
    end interface write(formatted)
@@ -44,7 +40,7 @@ contains
 
       write(unit,'(a,a,a,i0,a,a)',iostat=iostat, iomsg=iomsg) 'State: ', trim(name),  ' has ', itemCount, ' items.', new_line('a')
       if (iostat /=0) return
-      
+
       call write_state_(state, unit, iotype, v_list, iostat, iomsg, depth=0)
 
    end subroutine write_state
@@ -167,37 +163,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine get_substate
-
-   subroutine info_get_from_geom(geom, info, rc)
-      type(ESMF_GeomBase), intent(inout) :: geom
-      type(ESMF_Info), intent(out) :: info
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Grid) :: grid
-      type(ESMF_LocStream) :: locstream
-      type(ESMF_Mesh) :: mesh
-      type(ESMF_Xgrid) :: xgrid
-      integer :: status
-
-      select case(geom%gbcp%type%type)
-      case (ESMF_GEOMTYPE_GRID%type) ! Grid
-         call ESMF_GeomBaseGet(geom, grid=grid, _RC)
-         call ESMF_InfoGetFromHost(grid, info, _RC)
-      case (ESMF_GEOMTYPE_LOCSTREAM%type) ! locstream
-         call ESMF_GeomBaseGet(geom, locstream=locstream, _RC)
-         call ESMF_InfoGetFromHost(locstream, info, _RC)
-      case (ESMF_GEOMTYPE_MESH%type) ! locstream
-         call ESMF_GeomBaseGet(geom, mesh=mesh, _RC)
-         call ESMF_InfoGetFromHost(mesh, info, _RC)
-      case (ESMF_GEOMTYPE_XGRID%type) ! locstream
-         _FAIL('ESMF Does not support info on ESMF_XGrid.')
-!!$         call ESMF_GeomBaseGet(geom, xgrid=xgrid, _RC)
-!!$         call ESMF_InfoGetFromHost(xgrid, info, _RC)
-      case default
-         _FAIL('uninitialized geom?')
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine info_get_from_geom
 
 end module mapl3g_ESMF_Utilities

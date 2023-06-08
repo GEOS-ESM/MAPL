@@ -5,7 +5,7 @@ module mapl3g_InvalidSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
-   use esmf, only: ESMF_GeomBase
+   use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
    use esmf, only: ESMF_SUCCESS
    use mapl_KeywordEnforcer
