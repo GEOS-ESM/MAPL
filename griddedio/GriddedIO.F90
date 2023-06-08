@@ -31,7 +31,8 @@ module MAPL_GriddedIOMod
   private
 
   type, public :: MAPL_GriddedIO
-     type(FileMetaData) :: metadata
+     !     type(FileMetaData) :: metadata
+     type(FileMetaData), allocatable :: metadata     
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -128,6 +129,14 @@ module MAPL_GriddedIOMod
         character(len=:), pointer :: attr_name, attr_val
         integer :: status
 
+        print *, __FILE__, __LINE__
+        if ( allocated (this%metadata) ) deallocate(this%metadata)
+        print *, __FILE__, __LINE__
+        allocate(this%metadata)
+        print *, __FILE__, __LINE__
+        call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
+
+        print *, __FILE__, __LINE__
         this%items = items
         this%input_bundle = bundle
         this%output_bundle = ESMF_FieldBundleCreate(rc=status)
@@ -141,9 +150,13 @@ module MAPL_GriddedIOMod
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
+        print *, __FILE__, __LINE__
+        
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
 
+        print *, __FILE__, __LINE__
+        
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
         ! to change the regrid_method in the GriddedIO object to be the same as the
@@ -155,6 +168,8 @@ module MAPL_GriddedIOMod
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
         call factory%append_metadata(this%metadata)
+
+        print *, __FILE__, __LINE__        
 
         if (present(vdata)) then
            this%vdata=vdata
@@ -179,6 +194,8 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
+        print *, __FILE__, __LINE__
+        
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
         metadataVarsSize = order%size()
@@ -928,7 +945,7 @@ module MAPL_GriddedIOMod
 
            write(6,*) 'max in ptr2d', maxval(ptr2d(:,:))
            write(6,*) 'min in ptr2d', minval(ptr2d(:,:))           
-           write(6,*)  ptr2d(10,:)                      
+!!           write(6,*)  ptr2d(10,:)                      
            write(6,*) 'shape in ptr2d', shape(ptr2d)           
 
 !           ptr2d=100.

@@ -2691,7 +2691,8 @@ contains
     else
        _FAIL( 'unsupported typekind+rank')
     end if
-    call ESMF_FieldDestroy(Field,rc=status)
+!!    spot the problem with Ben when generate filemetadata twice    
+!!    call ESMF_FieldDestroy(Field,rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)

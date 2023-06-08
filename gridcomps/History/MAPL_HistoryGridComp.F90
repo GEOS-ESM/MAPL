@@ -3415,17 +3415,20 @@ ENDDO PARSER
 
              write(6,*) 'inside epoch alarm, bf list(n)%mGriddedIO%CreateFileMetaData'
              ! add time to items
-       !!      if (.NOT. list(n)%xsampler%have_initalized) then
+             if (.NOT. list(n)%xsampler%have_initalized) then
+                print *, 'xsampler%have_initalized is F'
+!                print *, 'xsampler%have_initalized is F',  __LINE__, __NAME__
+                list(n)%xsampler%have_initalized = .true.
                 global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
                 item%itemType = ItemTypeScalar
                 item%xname = 'time'
                 call list(n)%items%push_back(item)
-             
-            call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+             endif
 
-            write(6,*) 'inside epoch alarm, af list(n)%mGriddedIO%CreateFileMetaData'
+             write(6,*) 'bf mGriddedIO%CreateFileMetaData'
+             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+             write(6,*) 'af mGriddedIO%CreateFileMetaData'             
 
-            ! only once
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
 
@@ -3468,10 +3471,15 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
+         print*, 'nymd,nhms', nymd,nhms
+
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
 
+         print*, ' filename(n) = ',  trim(filename(n))
+
+!!         stop -1
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
             list(n)%currentFile = filename(n)
@@ -3515,6 +3523,7 @@ ENDDO PARSER
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
                   endif
                   list(n)%currentFile = filename(n)
+                  print*, 'filename(n)', trim(filename(n))
                   list(n)%unit = -1
                else
                   list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
@@ -3586,6 +3595,9 @@ ENDDO PARSER
          end if
 
          write(6,*) 'list(n)%unit=', list(n)%unit
+         
+         ! ygyu check
+         list(n)%currentFile = filename(n)
 
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO

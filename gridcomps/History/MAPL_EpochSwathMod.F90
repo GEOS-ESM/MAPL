@@ -84,6 +84,7 @@ module MAPL_EpochSwathMod
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
+     logical :: have_initalized
    contains
      procedure :: CreateFileMetaData
      procedure :: CreateVariable
@@ -235,8 +236,6 @@ contains
     !    call sp%interp_accumulate_fields (xy_subset, xy_mask, _RC)
     call sp%interp_accumulate_fields (xy_subset, _RC)
     write(6,*) 'af sp%interp_accumulate_fields'
-
-
 
     
     _RETURN(ESMF_SUCCESS)
