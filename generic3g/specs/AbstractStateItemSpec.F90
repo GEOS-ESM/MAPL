@@ -1,4 +1,7 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_AbstractStateItemSpec
+   use mapl_ErrorHandling
    implicit none
    private
 
@@ -13,7 +16,7 @@ module mapl3g_AbstractStateItemSpec
 
    contains
 
-      procedure(I_initialize), deferred :: initialize
+!!$      procedure(I_initialize), deferred :: initialize
       procedure(I_make), deferred :: create
       procedure(I_make), deferred :: destroy
       procedure(I_make), deferred :: allocate
@@ -32,21 +35,10 @@ module mapl3g_AbstractStateItemSpec
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
 
+      procedure :: make_action
    end type AbstractStateItemSpec
 
    abstract interface
-
-      subroutine I_initialize(this, geom_base, var_spec, unusable, rc)
-         use esmf, only: ESMF_GeomBase
-         use mapl3g_VariableSpec, only: VariableSpec
-         use mapl_KeywordEnforcer, only: KeywordEnforcer
-         import AbstractStateItemSpec
-         class(AbstractStateItemSpec), intent(inout) :: this
-         type(ESMF_GeomBase), intent(in) :: geom_base
-         type(VariableSpec), intent(in) :: var_spec
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine I_initialize
 
       subroutine I_connect(this, src_spec, rc)
          use mapl3g_ConnectionSpec
@@ -79,12 +71,16 @@ module mapl3g_AbstractStateItemSpec
          integer, optional, intent(out) :: rc
       end function I_make_extension
          
-      subroutine I_add_to_state(this, state, short_name, rc)
-         use ESMF, only: ESMF_State
+      subroutine I_add_to_state(this, multi_state, actual_pt, rc)
+         use mapl3g_MultiState
+         use mapl3g_ActualConnectionPt
+!!$         use esmf, only: ESMF_State
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(in) :: this
-         type(ESMF_State), intent(inout) :: state
-         character(*), intent(in) :: short_name
+         type(MultiState), intent(inout) :: multi_state
+!!$         type(ESMF_State), intent(inout) :: state
+         type(ActualConnectionPt), intent(in) :: actual_pt
+!!$         character(*), intent(in) :: short_name
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_state
 
@@ -174,5 +170,14 @@ contains
    end function is_active
 
 
+   function make_action(this, dst_spec, rc) result(action)
+      use mapl3g_ExtensionAction
+      class(ExtensionAction), allocatable :: action
+      class(AbstractStateItemSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      _FAIL('Subclass has not implemented make_action')
+   end function make_action
 
 end module mapl3g_AbstractStateItemSpec

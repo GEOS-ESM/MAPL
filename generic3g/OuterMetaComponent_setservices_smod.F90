@@ -53,7 +53,7 @@ contains
       ! 4) Process generic specs
       call process_generic_specs(this, _RC)
 
-      this%registry = HierarchicalRegistry(this%get_inner_name())
+      this%registry = HierarchicalRegistry(this%get_user_gridcomp_name())
 
 !!$    call after(this, _RC)
       
@@ -154,6 +154,7 @@ contains
          if (child_spec%has('config_file')) then
             call child_spec%get(config_file, 'config_file', _RC)
             p = Parser()
+!!$            _HERE, 'config file? ', config_file
             generic_config = GenericConfig(yaml_cfg=p%load_from_file(config_file))
          end if
 
@@ -183,12 +184,14 @@ contains
          type(ChildComponentMapIterator), allocatable :: iter
          integer :: status
          type(ChildComponent), pointer :: child_comp
+         type(ESMF_GridComp) :: child_outer_gc
 
          associate ( b => this%children%begin(), e => this%children%end() )
            iter = b
            do while (iter /= e)
               child_comp => iter%second()
-              call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
+              child_outer_gc = child_comp%get_outer_gridcomp()
+              call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
               call iter%next()
            end do
          end associate

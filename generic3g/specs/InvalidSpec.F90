@@ -3,7 +3,8 @@
 module mapl3g_InvalidSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
-   use mapl3g_VariableSpec, only: VariableSpec
+   use mapl3g_MultiState
+   use mapl3g_ActualConnectionPt
    use esmf, only: ESMF_GeomBase
    use esmf, only: ESMF_State
    use esmf, only: ESMF_SUCCESS
@@ -17,7 +18,6 @@ module mapl3g_InvalidSpec
    type, extends(AbstractStateItemSpec) :: InvalidSpec
      private
    contains
-      procedure :: initialize
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -32,21 +32,6 @@ module mapl3g_InvalidSpec
 
 contains
   
-   subroutine initialize(this, geom_base, var_spec, unusable, rc)
-      class(InvalidSpec), intent(inout) :: this
-      type(ESMF_GeomBase), intent(in) :: geom_base
-      type(VariableSpec), intent(in) :: var_spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _FAIL('Attempt to use invalid spec')
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine initialize
-
 
 
    subroutine create(this, rc)
@@ -116,10 +101,10 @@ contains
    end function requires_extension
 
 
-   subroutine add_to_state(this, state, short_name, rc)
+   subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(InvalidSpec), intent(in) :: this
-      type(ESMF_State), intent(inout) :: state
-      character(*), intent(in) :: short_name
+      type(MultiState), intent(inout) :: multi_state
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _FAIL('Attempt to use invalid spec')

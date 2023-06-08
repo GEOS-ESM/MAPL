@@ -256,7 +256,7 @@ contains
 
       call ESMF_FieldBundleGet(BUNDLE, FIELDNAME=NameInBundle, isPresent=isPresent, rc=STATUS)
       _VERIFY(STATUS)
-      _ASSERT(.not. isPresent, trim(NameInBundle) // ' not found in bundle.')
+      _ASSERT(.not. isPresent, trim(NameInBundle) // ' found in bundle.')
 
 ! Get Field from State
 
@@ -1146,9 +1146,9 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
 !>
-! Given a srcFLD and its associated 3dGrid and a dstFLD and its associated
-! 3DGrid, the subroutine `ESMFL_RegridStore` creates their corresponding 
-! 2DGrids and a 2D routehandle.
+! Given a `srcFLD` and its associated `3dGrid` and a `dstFLD` and its associated
+! `3DGrid`, the subroutine `ESMFL_RegridStore` creates their corresponding 
+! `2DGrids` and a 2D routehandle.
 !
 !#### History
 !- 17Oct2005  Cruz  Initial code.
@@ -3282,6 +3282,7 @@ CONTAINS
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
 !>
+! `ESMFL_GridDistBlockSet` ...
 !
 !#### History
 !-16Jun2006  Cruz  Initial code.

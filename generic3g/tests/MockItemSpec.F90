@@ -4,6 +4,9 @@ module MockItemSpecMod
    use mapl3g_AbstractStateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_VariableSpec
+   use mapl3g_MultiState
+   use mapl3g_ActualConnectionPt
+   use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -18,7 +21,6 @@ module MockItemSpecMod
       character(len=:), allocatable :: name
       character(len=:), allocatable :: subtype
    contains
-      procedure :: initialize
       procedure :: create
       procedure :: destroy
       procedure :: allocate
@@ -28,7 +30,13 @@ module MockItemSpecMod
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+      procedure :: make_action
    end type MockItemSpec
+
+   type, extends(ExtensionAction) :: MockAction
+   contains
+      procedure :: run => mock_run
+   end type MockAction
 
    type, extends(AbstractActionSpec) :: MockActionSpec
       character(:), allocatable :: details
@@ -43,21 +51,6 @@ module MockItemSpecMod
    end interface MockActionSpec
 
 contains
-
-   ! Nothing defined at this time.
-   subroutine initialize(this, geom_base, var_spec, unusable, rc)
-      class(MockItemSpec), intent(inout) :: this
-      type(ESMF_GeomBase), intent(in) :: geom_base
-      type(VariableSpec), intent(in) :: var_spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      character(:), allocatable :: units
-      integer :: status
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine initialize
 
    function new_MockItemSpec(name, subtype) result(spec)
       type(MockItemSpec) :: spec
@@ -106,11 +99,12 @@ contains
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
+      print*,__FILE__,__LINE__
       select type (src_spec)
       class is (MockItemSpec)
          ! ok
+         print*,__FILE__,__LINE__
          this%name = src_spec%name
-         call this%set_active(src_spec%is_active())
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -152,10 +146,10 @@ contains
    end function requires_extension
 
 
-   subroutine add_to_state(this, state, short_name, rc)
+   subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(MockItemSpec), intent(in) :: this
-      type(ESMF_State), intent(inout) :: state
-      character(*), intent(in) :: short_name
+      type(MultiState), intent(inout) :: multi_state
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _FAIL('unimplemented')
@@ -185,4 +179,23 @@ contains
       _RETURN(_SUCCESS)
    end function make_extension
    
+   function make_action(this, dst_spec, rc) result(action)
+      use mapl3g_ExtensionAction
+      class(ExtensionAction), allocatable :: action
+      class(MockItemSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
+
+      action = MockAction()
+
+      _RETURN(_SUCCESS)
+   end function make_action
+
+   subroutine mock_run(this, rc)
+      class(MockAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine mock_run
+
 end module MockItemSpecMod

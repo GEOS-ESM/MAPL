@@ -192,6 +192,7 @@ contains
       type(HierarchicalRegistry), target :: r_A, r_B ! child registries
       type(VirtualConnectionPt) :: cp_A, cp_B
       type(ConnectionSpec) :: conn
+      type(ActualPtVector), pointer :: actual_pts
       integer :: status
 
       r = HierarchicalRegistry('P')
@@ -210,7 +211,9 @@ contains
       call r%add_connection(conn, rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_b, cp_B, ['AE'])) return
+      ! Check that extension was created
+      actual_pts => r_a%get_actual_pts(cp_A)
+      @assert_that(int(actual_pts%size()), is(2))
 
    end subroutine test_connect
 
@@ -262,9 +265,10 @@ contains
       if (.not. check(r, vpt_2, ['AE1'])) return
 
       ! Internal is always active, so this export should be as well:
-      associate (a_pt => extend(ActualConnectionPt(vpt_2)))
+      associate (a_pt => ActualConnectionPt(vpt_2))
         @assert_that('expected a_pt not found', r%has_item_spec(a_pt), is(true()))
-        spec => r%get_item_spec(extend(ActualConnectionPt(vpt_2)))
+        spec => r%get_item_spec(ActualConnectionPt(vpt_2))
+        @assert_that(associated(spec), is(true()))
         @assert_that(spec%is_active(), is(true()))
       end associate
 
@@ -272,7 +276,7 @@ contains
 
 
    @test
-   ! For E2E, we expect the parent actual_pt to be the one specified by the connection,
+   ! For E2E, we expect the parent virtual_pt to be the one specified by the connection,
    ! rather than the one specified by the child.  This is in addition to the analogous
    ! assumption about the virtual pt, which is verified in the previous test.
    subroutine test_e2e_preserve_actual_pt()
@@ -295,7 +299,7 @@ contains
       ! E-to-E with rename
       call r%add_connection(ConnectionSpec(CP('A',vpt_1), CP('R',vpt_2)), rc=status)
 
-      @assert_that(r%has_item_spec(extend(ActualConnectionPt(vpt_2%add_comp_name('A')))), is(true()))
+      @assert_that(r%has_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A'))), is(true()))
 
    end subroutine test_e2e_preserve_actual_pt
 
@@ -310,7 +314,7 @@ contains
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild
       type(VirtualConnectionPt) :: vpt_1, vpt_2, vpt_3
-
+      type(ActualPtVector), pointer :: actual_pts
       integer :: status
 
       r = HierarchicalRegistry('R')
@@ -336,7 +340,9 @@ contains
       call r%add_connection(ConnectionSpec(CP('A',vpt_2), CP('B', vpt_3)), rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_B, vpt_3, ['AE1'])) return
+       ! Check that extension was created
+      actual_pts => r_a%get_actual_pts(vpt_2)
+      @assert_that(int(actual_pts%size()), is(2))
 
    end subroutine test_connect_chain
 
@@ -379,11 +385,12 @@ contains
         !              |              V
         !          A  vpt_1           vpt_4  C
         !
-        !-------------------------------------------
+      !-------------------------------------------
       e2e = ConnectionSpec(CP('A',vpt_1), CP('P',vpt_2))
       sib = ConnectionSpec(CP('P',vpt_2), CP('B', vpt_4))
 
       spec => r_A%get_item_spec(ActualConnectionPt(vpt_1)) ! ultimate export
+
       @assert_that(spec%is_active(), is(false()))
 
       call r_P%add_connection(e2e)
@@ -391,20 +398,30 @@ contains
       if (.not. check(r_P, vpt_2, ['name:A1'])) return
       call r_B%propagate_unsatisfied_imports()
 
+      call r_P%propagate_exports()
+
       ! 1 => A, 2 => A, 3 => C, 4 => D
 
       call r%add_connection(sib)
 
       spec => r_A%get_item_spec(ActualConnectionPt(vpt_1))
+      @assert_that(associated(spec),is(true()))
       @assert_that('vpt_1', spec%is_active(), is(true()))
-      
-      spec => r_P%get_item_spec(extend(ActualConnectionPt(vpt_2%add_comp_name('A'))))
+
+      spec => r_P%get_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A')))
+      @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
 
-      spec => r_B%get_item_spec(extend(ActualConnectionPt(vpt_4%add_comp_name('C'))))
+      spec => r_P%get_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A')))
+      @assert_that(associated(spec),is(true()))
+      @assert_that(spec%is_active(), is(true()))
+
+      spec => r_B%get_item_spec(ActualConnectionPt(vpt_4%add_comp_name('C')))
+      @assert_that(associated(spec),is(true()))
       @assert_that(spec%is_active(), is(true()))
       
       spec => r_C%get_item_spec(ActualConnectionPt(vpt_4))
+      @assert_that(associated(spec),is(true()))
       @assert_that('vpt_4', spec%is_active(), is(true()))
       
    end subroutine test_sibling_activation
@@ -495,7 +512,7 @@ contains
 
       @assert_that(status, is(0))
       @assert_that(r_parent%has_item_spec(new_v_pt('import', 'T')), is(true()))
-      @assert_that(r_parent%has_item_spec(extend(ActualConnectionPt(c_pt%add_comp_name('child')))), is(true()))
+      @assert_that(r_parent%has_item_spec(ActualConnectionPt(c_pt%add_comp_name('child'))), is(true()))
       
    end subroutine test_propagate_import
 
@@ -558,7 +575,7 @@ contains
       r_C = HierarchicalRegistry('C')
       r_D = HierarchicalRegistry('D')
       r_P = HierarchicalRegistry('parent')
-      
+
       call r_B%add_subregistry(r_C)
       call r_B%add_subregistry(r_D)
       call r_P%add_subregistry(r_A)
@@ -591,10 +608,10 @@ contains
       @assert_that(spec%is_active(), is(true()))
 
       ! Secondary imports should be active
-      spec => r_B%get_item_spec(extend(ActualConnectionPt(T_C%add_comp_name('C'))))
+      spec => r_B%get_item_spec(ActualConnectionPt(T_C%add_comp_name('C')))
       @assert_that(spec%is_active(), is(true()))
       
-      spec => r_B%get_item_spec(extend(ActualConnectionPt(T_D%add_comp_name('D'))))
+      spec => r_B%get_item_spec(ActualConnectionPt(T_D%add_comp_name('D')))
       @assert_that(spec%is_active(), is(true()))
       
       
@@ -614,6 +631,7 @@ contains
       type(VirtualConnectionPt) :: vpt_parent, vpt_child
       type(ConnectionSpec) :: conn
       integer :: status
+      type(ActualPtVector), pointer :: actual_pts
 
       r_parent = HierarchicalRegistry('parent')
       r_child = HierarchicalRegistry('child')
@@ -629,8 +647,11 @@ contains
       call r_parent%add_connection(conn, rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_child, vpt_child, ['AE'])) return
+!!$      if (.not. check(r_child, vpt_child, ['AE'])) return
 
+      ! Check that extension was created
+      actual_pts => r_parent%get_actual_pts(vpt_parent)
+      @assert_that(int(actual_pts%size()), is(2))
    end subroutine test_import_from_parent
 
    @test
@@ -647,6 +668,7 @@ contains
       type(VirtualConnectionPt) :: vpt_parent, vpt_child
       type(ConnectionSpec) :: conn
       integer :: status
+      type(ActualPtVector), pointer :: actual_pts
 
       r_parent = HierarchicalRegistry('parent')
       r_child = HierarchicalRegistry('child')
@@ -662,7 +684,10 @@ contains
       call r_parent%add_connection(conn, rc=status)
       @assert_that(status, is(0))
 
-      if (.not. check(r_parent, vpt_parent, ['AE'])) return
+!!$      if (.not. check(r_parent, vpt_parent, ['AE'])) return
+      ! Check that extension was created
+      actual_pts => r_child%get_actual_pts(vpt_child)
+      @assert_that(int(actual_pts%size()), is(2))
 
    end subroutine test_import_from_child
 

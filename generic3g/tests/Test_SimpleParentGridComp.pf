@@ -8,16 +8,16 @@ module Test_SimpleParentGridComp
    use mapl3g_ChildComponent
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
+   use mapl3g_MultiState
+   use mapl3g_VerticalGeom
+   use mapl_KeywordEnforcer
    use esmf
    use nuopc
    use pFunit
    use yaFyaml
    implicit none
 
-   type :: States_T
-      type(ESMF_State) :: import_state
-      type(ESMF_State) :: export_state
-   end type States_T
+   type(MultiState) :: parent_outer_states
 
 contains
 
@@ -26,7 +26,7 @@ contains
 #define _RC rc=status); _VERIFY(status
    subroutine setup(outer_gc, states, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
-      type(States_T), intent(out) :: states
+      type(MultiState), intent(out) :: states
       integer, intent(out) :: rc
       
       integer :: status, userRC
@@ -35,21 +35,24 @@ contains
       type(Parser) :: p
       type(GenericConfig) :: config
       integer :: i
+      type(VerticalGeom) :: vertical_geom
 
       rc = 0
       call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', _RC)
 
       p = Parser()
-      config = GenericConfig(yaml_cfg=p%load_from_file('./configs/parent.yaml', rc=status))
+      config = GenericConfig(yaml_cfg=p%load_from_file('./configs/scenario_1/parent.yaml', rc=status))
       @assert_that(status, is(0))
 
       outer_gc = create_grid_comp('P', user_setservices('libsimple_parent_gridcomp'), config, _RC)
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
-      call MAPL_GridCompSetGeomBase(outer_gc, grid, _RC)
+      call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
+      vertical_geom = VerticalGeom(4)
+      call MAPL_GridCompSetVerticalGeom(outer_gc, vertical_geom, _RC)
 
-      associate (import => states%import_state, export => states%export_state)
+      associate (import => states%importState, export => states%exportState)
         import = ESMF_StateCreate(_RC)
         export = ESMF_StateCreate(_RC)
 
@@ -75,81 +78,342 @@ contains
 
 
    @test(npes=[0])
-   subroutine test_import_items_created(this)
+   subroutine test_child_user_items_created(this)
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
 
-      type(ESMF_Field) :: f
       type(OuterMetaComponent), pointer :: outer_meta
-      type(States_T) :: states
+      type(MultiState) :: states
+      type(ESMF_Field) :: f
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
+
       outer_meta => get_outer_meta(outer_gc, rc=status)
       @assert_that(status, is(0))
 
-      call check('child_A', 'import', ['I_A1'], rc=status)
-      @assert_that(status, is(0))
-      call check('child_A', 'export', ['E_A1'], rc=status)
-      @assert_that(status, is(0))
-      call check('child_B', 'import', ['I_B1'], rc=status)
-      @assert_that(status, is(0))
-      call check('child_B', 'export', ['E_B1'], rc=status)
-      @assert_that(status, is(0))
+      @assert_that('import', check('child_A', 'import', ['I_A1']), is(0))
+      @assert_that('export', check('child_A', 'export', ['E_A1', 'Z_A1']), is(0))
+      @assert_that('internal', check('child_A', 'internal', ['Z_A1']), is(0))
+
+      @assert_that('import', check('child_B', 'import', ['I_B1']), is(0))
+      @assert_that('export', check('child_B', 'export', ['E_B1']), is(0))
+      @assert_that('internal', check('child_B', 'internal', ['Z_B1']), is(0))
 
    contains
 
-      subroutine check(child_name, state_intent, expected_items, rc)
+      integer function check(child_name, state_intent, expected_items) result(status)
          character(*), intent(in) :: child_name
          character(*), intent(in) :: state_intent
-
          character(*), intent(in) :: expected_items(:)
-         integer, optional, intent(out) :: rc
 
+         type(ESMF_Field) :: f
          type(ESMF_State) :: state
-         type(ChildComponent) :: child_comp
+         type(MultiState) :: states
          integer :: i
+         type(OuterMetaComponent), pointer :: child_meta
+         type(ESMF_GridComp) :: child_gc
+         type(ChildComponent) :: child_comp
 
-         rc = -1
+         status = 1
+
          child_comp = outer_meta%get_child(child_name, rc=status)
-         @assert_that('child <'//child_name//'> not found.', status, is(0))
-         call get_state(child_comp, state_intent, state, rc=status)
-         @assert_that('invalid state intent', status, is(0))
-
+         if (status /= 0) then
+            status = 2
+            return
+         end if
+         
+         child_gc = child_comp%get_outer_gridcomp()
+         child_meta => get_outer_meta(child_gc)
+         states = child_meta%get_user_states()
+         call states%get_state(state, state_intent, rc=status)
+         if (status /= 0) then
+            status = 3
+            return
+         end if
+         
          do i = 1, size(expected_items)
             call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
-            @assert_that('Item <'//trim(expected_items(i))//'> not found in child <'//child_name//'>.', status, is(0))
+            if (status /= 0) then
+               status = 10 + i
+               return
+            end if
          end do
 
-         rc = 0
-      end subroutine check
+         status = 0
 
-   end subroutine test_import_items_created
+      end function check
 
-   subroutine get_state(child_comp, state_intent, state, rc)
-      type (ChildComponent), intent(in) :: child_comp
-      character(*), intent(in) :: state_intent
-      type(ESMF_State), intent(out) :: state
-      integer, optional, intent(out) :: rc
+   end subroutine test_child_user_items_created
 
-      rc = -1
-      select case (state_intent)
-      case ('import')
-         state = child_comp%import_state
-      case ('export')
-         state = child_comp%export_state
-!!$      case ('internal')
-!!$         ???
-      case default
-         @assertTrue(1==2, 'unknown state intent: <'//state_intent//'>.')
-      end select
-      rc = 0
-   end subroutine get_state
 
    @test(npes=[0])
-   subroutine test_complete_items(this)
+   subroutine test_child_outer_items_created(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(MultiState) :: states
+      type(ESMF_Field) :: f
+
+      call setup(outer_gc, states, status)
+      @assert_that(status, is(0))
+
+      outer_meta => get_outer_meta(outer_gc, rc=status)
+      @assert_that(status, is(0))
+
+      call get_child_user_states(states, outer_meta, 'child_A', rc=status)
+      @assert_that(status, is(0))
+
+      call get_field(f, states, state_intent='import', field_name='I_A1', rc=status)
+      @assert_that(status, is(0))
+      call get_field(f, states, state_intent='export', field_name='E_A1', rc=status)
+      @assert_that(status, is(0))
+!!$      call get_field(f, states, state_intent='export', field_name='E_A1', rc=status)
+!!$      @assert_that(status, is(not(0)))
+      call get_field(f, states, state_intent='internal', field_name='Z_A1', rc=status)
+     @assert_that(status, is(0))
+      
+      call get_child_user_states(states, outer_meta, 'child_B', rc=status)
+      @assert_that(status, is(0))
+
+      call get_field(f, states, state_intent='import', field_name='I_B1', rc=status)
+      @assert_that(status, is(0))
+      call get_field(f, states, state_intent='export', field_name='E_B1', rc=status)
+      @assert_that(status, is(0))
+      call get_field(f, states, state_intent='internal', field_name='Z_B1', rc=status)
+      @assert_that(status, is(0))
+
+!!$      @assert_that('import', check('child_B', 'import', ['I_B1']), is(0))
+!!$      @assert_that('export', check('child_B', 'export', ['E_B1']), is(0))
+!!$      @assert_that('internal', check('child_B', 'internal', ['Z_B1']), is(0))
+
+
+   contains
+
+      integer function check(child_name, state_intent, expected_items) result(status)
+         character(*), intent(in) :: child_name
+         character(*), intent(in) :: state_intent
+         character(*), intent(in) :: expected_items(:)
+
+         type(ESMF_Field) :: f
+         type(ESMF_State) :: state
+         type(MultiState) :: states
+         integer :: i
+         type(OuterMetaComponent), pointer :: child_meta
+         type(ESMF_GridComp) :: child_gc
+         type(ChildComponent) :: child_comp
+
+         status = 1
+
+         child_comp = outer_meta%get_child(child_name, rc=status)
+         if (status /= 0) then
+            status = 2
+            return
+         end if
+         
+         child_gc = child_comp%get_outer_gridcomp()
+         child_meta => get_outer_meta(child_gc)
+         states = child_meta%get_user_states()
+         call states%get_state(state, state_intent, rc=status)
+         if (status /= 0) then
+            status = 3
+            return
+         end if
+         
+         do i = 1, size(expected_items)
+            call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
+            if (status /= 0) then
+               status = 10 + i
+               return
+            end if
+         end do
+
+         status = 0
+
+      end function check
+
+   end subroutine test_child_outer_items_created
+
+   @test(npes=[0])
+   subroutine test_parent_user_items_created(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(MultiState) :: states
+      type(ESMF_Field) :: f
+
+      call setup(outer_gc, states, status)
+      @assert_that(status, is(0))
+
+      outer_meta => get_outer_meta(outer_gc, rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(check(outer_meta, 'import', expected_count=0), is(0))
+      @assert_that(check(outer_meta, 'export', expected_count=0), is(0))
+      @assert_that(check(outer_meta, 'internal', expected_count=0), is(0))
+
+   contains
+
+      integer function check(meta, state_intent, expected_count) result(status)
+         type(OuterMetaComponent), intent(in) :: meta
+         character(*), intent(in) :: state_intent
+         integer, intent(in) :: expected_count
+
+         type(MultiState) :: states
+         type(ESMF_State) :: state
+         integer :: itemCount
+
+         status = -1
+
+         states = outer_meta%get_user_states()
+         call states%get_state(state, 'import', rc=status)
+         if (status /= 0) then
+            status = -2
+            return
+         end if
+
+         call ESMF_StateGet(state, itemCount=itemCount, rc=status)
+         if (status /= 0) then
+            status = -3
+            return
+         end if
+
+         if (itemCount /= expected_count) then
+            status = -4
+            return
+         end if
+         status = 0
+      end function check
+   end subroutine test_parent_user_items_created
+
+   @test(npes=[0])
+   subroutine test_parent_outer_items_created(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      type(MultiState) :: states
+      type(ESMF_Field) :: f
+
+      call setup(outer_gc, states, status)
+      @assert_that(status, is(0))
+
+      @assert_that(check(states, 'import', field_name='child_A/I_A1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_A/E_A1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_A/Z_A1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_B/E_B1'), is(0))
+      @assert_that(check(states, 'export', field_name='child_B/Z_B1'), is(not(0)))
+
+
+   contains
+
+      integer function check(states, state_intent, field_name) result(status)
+         type(MultiState), intent(inout) :: states
+         character(*), intent(in) :: state_intent
+         character(*), intent(in) :: field_name
+
+         type(ESMF_Field) :: f
+         type(ESMF_State) :: state
+
+         status = 1
+
+         call states%get_state(state, state_intent, rc=status)
+         if (status /= 0) then
+            status = 2
+            return
+         end if
+
+
+         call ESMF_StateGet(state, field_name, f, rc=status)
+         if (status /= 0) then
+            status = 3
+            return
+         end if
+
+         status = 0
+
+      end function check
+
+   end subroutine test_parent_outer_items_created
+
+   subroutine get_child_user_states(states, outer_meta, child_name, rc)
+      type(MultiState), intent(out) :: states
+      type(OuterMetaComponent), target, intent(in) :: outer_meta
+      character(*), intent(in) :: child_name
+      integer, intent(out) :: rc
+
+
+      integer :: status
+      type(ChildComponent) :: child_comp
+      type(ESMF_GridComp) :: child_gc
+      type(OuterMetaComponent), pointer :: child_meta
+
+      rc = +1
+      child_comp = outer_meta%get_child(child_name, rc=status)
+      if (status /= 0) then
+         rc = +2
+         return
+      end if
+         
+      child_gc = child_comp%get_outer_gridcomp()
+
+      child_meta => get_outer_meta(child_gc, rc=status)
+      states = child_meta%get_user_states()
+
+      rc = 0
+
+   end subroutine get_child_user_states
+
+   subroutine get_field(field, states, state_intent, unusable, field_name, substate_name, rc)
+      type(ESMF_Field), intent(out) :: field
+      type(MultiState), intent(in) :: states
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), intent(in) :: state_intent
+      character(*), intent(in) :: field_name
+      character(*), optional, intent(in) :: substate_name
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_State) :: state, substate
+
+      rc = +1
+      call states%get_state(state, state_intent, rc=status)
+      if (status /= 0) then
+         rc = +2
+         return
+      end if
+
+      if (present(substate_name)) then
+         call ESMF_StateGet(state, substate_name, substate, rc=status)
+         if (status /= 0) then
+            rc = +3
+            return
+         end if
+      else
+         substate = state
+      end if
+
+      call ESMF_StateGet(substate, field_name, field, rc=status)
+      if (status /= 0) then
+         rc = 4
+         return
+      end if
+
+      rc = 0
+         
+   end subroutine get_field
+
+   @test(npes=[0])
+   subroutine test_state_items_complete(this)
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -158,7 +422,7 @@ contains
       type(ESMF_Field) :: f
       type(OuterMetaComponent), pointer :: outer_meta
 
-      type(States_T) :: states
+      type(MultiState) :: states
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
@@ -186,6 +450,7 @@ contains
          type(ESMF_FieldStatus_Flag), intent(in) :: expected_status
          integer, optional, intent(out) :: rc
 
+         type(MultiState) :: states
          type(ESMF_State) :: state
          type(ChildComponent) :: child_comp
          type(ESMF_FieldStatus_Flag) :: field_status
@@ -193,9 +458,11 @@ contains
          rc = -1
          child_comp = outer_meta%get_child(child_name, rc=status)
          @assert_that('child <'//child_name//'> not found.', status, is(0))
-         call get_state(child_comp, state_intent, state, rc=status)
-         @assert_that('invalid state intent', status, is(0))
+         states = child_comp%get_states()
 
+         call states%get_state(state, state_intent, rc=status)
+         @assert_that(status, is(0))
+         
          call ESMF_StateGet(state, item, f, rc=status)
          @assert_that('Item <'//item//'> not found in child <'//child_name//'>.', status, is(0))
 
@@ -207,7 +474,7 @@ contains
          rc = 0
       end subroutine check
       
-   end subroutine test_complete_items
+   end subroutine test_state_items_complete
 
 
    @test(npes=[0])
@@ -218,20 +485,19 @@ contains
       type(ESMF_GridComp) :: outer_gc
 
       type(ESMF_Field) :: f
-      type(OuterMetaComponent), pointer :: outer_meta
+!!$      type(OuterMetaComponent), pointer :: outer_meta
 
-      type(States_T) :: states
+      type(MultiState) :: states
 
       call setup(outer_gc, states, status)
       @assert_that(status, is(0))
-      outer_meta => get_outer_meta(outer_gc, rc=status)
-      @assert_that(status, is(0))
+!!$      outer_meta => get_outer_meta(outer_gc, rc=status)
+!!$      @assert_that(status, is(0))
 
       ! Child A import is unsatisfied, so it should propagate up
-      call ESMF_StateGet(states%import_state, 'child_A::I_A1(0)', f, rc=status)
+      call ESMF_StateGet(states%importState, 'child_A/I_A1', f, rc=status)
       @assert_that('Expected unsatisfied import in parent.', status, is(0))
       
    end subroutine test_propagate_imports
-
 
 end module Test_SimpleParentGridComp

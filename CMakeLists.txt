@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.37.0
+  VERSION 2.39.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -66,6 +66,16 @@ else ()
   set (MAPL_LIBRARY_TYPE STATIC)
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
+
+
+# Temporary support for older ESMF Geom
+option (ESMF_SUPPORT_GEOM "Set to use newer ESMF which replaced ESMF_GeomBase with ESMF_Geom" OFF)
+message(WARNING "Future versions of ESMF will replace MAPL_GeomBase with MAPL_Geom")
+if (ESMF_SUPPORT_GEOM)
+  add_compile_definitions(ESMF_GeomBase=ESMF_Geom)
+  add_compile_definitions(ESMF_GeomBaseGet=ESMF_GeomGet)
+  add_compile_definitions(ESMF_GeomBaseCreate=ESMF_GeomCreate)
+endif()
 
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
@@ -203,6 +213,7 @@ add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
 add_subdirectory (generic3g)
+add_subdirectory (geom)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
@@ -213,6 +224,8 @@ add_subdirectory (griddedio)
 if (BUILD_WITH_FLAP)
    add_subdirectory (tutorial)
 endif()
+
+#add_subdirectory (geom)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

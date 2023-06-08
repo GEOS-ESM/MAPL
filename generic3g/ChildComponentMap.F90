@@ -9,7 +9,7 @@ module mapl3g_ChildComponentMap
 
 #include "ordered_map/template.inc"
 
-#undef ChildComponentPair
+#undef Pair
 #undef OrderedMapIterator
 #undef OrderedMap
 #undef T

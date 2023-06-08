@@ -82,9 +82,6 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
-      if (associated(ioserver_profiler)) then
-        call ioserver_profiler%stop(_RC)
-      endif
       call this%report_profile(_RC)
 
       _RETURN(_SUCCESS)

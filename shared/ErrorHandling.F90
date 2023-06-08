@@ -1,3 +1,5 @@
+#include "MAPL_Generic.h"
+
 module mapl_ErrorHandling
    use MAPL_ThrowMod
    use MPI
@@ -7,6 +9,9 @@ module mapl_ErrorHandling
    public :: MAPL_Assert
    public :: MAPL_Verify
    public :: MAPL_Return
+   public :: MAPL_Deprecated
+   public :: MAPL_SetFailOnDeprecated
+   ! Legacy
    public :: MAPL_RTRN
    public :: MAPL_Vrfy
    public :: MAPL_ASRT
@@ -63,9 +68,10 @@ module mapl_ErrorHandling
       module procedure MAPL_RTRN
       module procedure MAPL_RTRNt
    end interface MAPL_RTRN
-   
-contains
 
+   logical, save :: FAIL_ON_DEPRECATED = .false.
+
+contains
 
    logical function MAPL_Assert_condition(condition, message, return_code, filename, line, rc) result(fail)
       logical, intent(in) :: condition
@@ -132,7 +138,6 @@ contains
       
    end function MAPL_Verify
 
-
    subroutine MAPL_Return(status, filename, line, rc) 
       integer, intent(in) :: status
       character(*), intent(in) :: filename
@@ -155,6 +160,38 @@ contains
       if (present(rc)) rc = status 
       
    end subroutine MAPL_Return
+
+   subroutine MAPL_Deprecated(file_name, module_name, procedure_name, rc)
+      use, intrinsic :: iso_fortran_env, only: ERROR_UNIT
+      character(*), intent(in) :: file_name
+      character(*), intent(in) :: module_name
+      character(*), intent(in) :: procedure_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      write(ERROR_UNIT,*,iostat=status) "Invoking deprecated procedure: ", procedure_name
+      _VERIFY(status)
+      write(ERROR_UNIT,*,iostat=status) "    ...             in module: ", module_name
+      _VERIFY(status)
+      write(ERROR_UNIT,*,iostat=status) "    ...               in file: ", file_name
+      _VERIFY(status)
+
+      _ASSERT(.not. FAIL_ON_DEPRECATED, "    ... aborting.")
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_Deprecated
+
+
+   subroutine MAPL_SetFailOnDeprecated(flag)
+      logical, optional, intent(in) :: flag
+
+      logical :: flag_
+      flag_ = .true.
+      if (present(flag)) flag_ = flag
+
+      FAIL_ON_DEPRECATED = flag_
+   end subroutine MAPL_SetFailOnDeprecated
+      
 
    logical function MAPL_RTRN(A,iam,line,rc)
       integer,           intent(IN ) :: A

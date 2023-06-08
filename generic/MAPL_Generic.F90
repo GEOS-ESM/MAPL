@@ -75,7 +75,7 @@
 ! MAPL_GenericSetServices and MAPL_Generic IRF methods cannot create their own ESMF grid.
 ! The grid must be inherited from the parent or created by the component
 ! either in its own SetServices or in its Initialize, if it is writing one.
-! In any case, an important assumption of MAPL is that the grid must  already be 
+! In any case, an important assumption of MAPL is that the grid must  already be
 ! *present in the component and initialized* when MAPL_GenericSetServices is invoked.
 ! The same is true of the configuration.
 !
@@ -124,6 +124,7 @@ module MAPL_GenericMod
    use MAPL_KeywordEnforcerMod
    use MAPL_StringTemplate
    use MAPL_SetServicesWrapper
+   use MAPL_TimeDataMod, only: parse_time_string
    use mpi
    use netcdf
    use pFlogger, only: logging, Logger
@@ -464,6 +465,7 @@ module MAPL_GenericMod
       procedure :: get_child_gridcomp
       procedure :: get_child_import_state
       procedure :: get_child_export_state
+      procedure :: get_child_internal_state
 
    end type MAPL_MetaComp
    !EOC
@@ -646,11 +648,12 @@ contains
       logical                          :: isCreated
       logical                          :: gridIsPresent
       logical :: is_associated
-      character(len=ESMF_MAXSTR)       :: positive
+      character(len=ESMF_MAXSTR)       :: positive, comp_to_record
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
       class(DistributedProfiler), pointer :: m_p
+      logical :: is_test_framework, is_test_framework_driver
       !=============================================================================
 
       ! Begin...
@@ -666,9 +669,19 @@ contains
       ! -------------------------------------------
       call MAPL_InternalStateGet ( GC, STATE, _RC)
 
+
+      call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='')
+      call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false.)
+      call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false.)
+      if (comp_name == comp_to_record .and. (is_test_framework .or. is_test_framework_driver)) then
+         ! force skipReading and skipWriting in NCIO to be false
+         call ESMF_InfoGetFromHost(import,infoh,_RC)
+         call ESMF_InfoSet(infoh, key="MAPL_TestFramework", value=.true., _RC)
+      end if
+
       ! Start my timer
       !---------------
-!!$  call MAPL_TimerOn(STATE,"generic", _RC)
+!C$  call MAPL_TimerOn(STATE,"generic", _RC)
 
       ! Put the inherited grid in the generic state
       !--------------------------------------------
@@ -835,7 +848,7 @@ contains
 
       call handle_record(_RC)
 
-!!$   call MAPL_TimerOff(STATE,"generic",_RC)
+!C$   call MAPL_TimerOff(STATE,"generic",_RC)
 
       m_p => get_global_memory_profiler()
       call m_p%start('children')
@@ -1036,6 +1049,7 @@ contains
          type (MAPL_MetaPtr), allocatable :: CHLDMAPL(:)
          type(ESMF_State), pointer :: child_import_state
          type(ESMF_State), pointer :: child_export_state
+         type(ESMF_Info) :: infoh
          integer :: status
 
          ! Initialize the children
@@ -1120,6 +1134,7 @@ contains
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
+         logical :: run_at_interval_start
          STATE%CLOCK = CLOCK
          call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, _RC)
          call ESMF_TimeIntervalGet(DELT, S=DELTSEC, _RC)
@@ -1140,6 +1155,7 @@ contains
          _ASSERT(MOD(DELTSEC,DTSECS)==0,'needs informative message')
 
          call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, _RC)
+         call MAPL_GetResource( STATE   , run_at_interval_start, Label="RUN_AT_INTERVAL_START:", default=.false., _RC)
 
          _ASSERT(DT /= 0.0,'needs informative message')
 
@@ -1177,7 +1193,7 @@ contains
             ringTime = ringTime - (INT((ringTime - currTime)/TIMEINT)+1)*TIMEINT
          end if
 
-         ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
+         if (.not.run_at_interval_start) ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
          ! we advance the clock AFTER run method
 
          ! make sure that ringTime is not in the past
@@ -1441,6 +1457,7 @@ contains
 
       subroutine create_export_state_variables(rc)
          integer, optional, intent(out) :: rc
+         logical :: restoreExport
 
 
          ! Create export state variables
@@ -1458,7 +1475,27 @@ contains
                     MYGRID%ESMFGRID,              &
                     DEFER=.true., _RC       )
             end if
+
+            call MAPL_GetResource(STATE, restoreExport, label='RESTORE_EXPORT_STATE:', default=.false., _RC)
+            if (restoreExport) then
+               call MAPL_GetResource( STATE, FILENAME, LABEL='EXPORT_RESTART_FILE:', _RC)
+               if(status==ESMF_SUCCESS) then
+
+                  call MAPL_ESMFStateReadFromFile(EXPORT, CLOCK, FILENAME, &
+                       STATE, .FALSE., rc=status)
+                  if (status /= ESMF_SUCCESS) then
+                     if (MAPL_AM_I_Root(VM)) then
+                        call ESMF_StatePrint(EXPORT, _RC)
+                     end if
+                     _RETURN(ESMF_FAILURE)
+                  end if
+               endif
+            end if
          end if
+
+         call ESMF_InfoGetFromHost(export,infoh,RC=STATUS)
+         call ESMF_InfoSet(infoh,'POSITIVE',trim(positive),_RC)
+
          _RETURN(ESMF_SUCCESS)
       end subroutine create_export_state_variables
 
@@ -1530,8 +1567,9 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads
-
+      logical :: use_threads, is_test_framework, is_test_framework_driver
+      logical :: is_grid_capture, restore_export
+      character(len=ESMF_MAXSTR) :: comp_to_record
 
       !=============================================================================
 
@@ -1616,8 +1654,13 @@ contains
 
       use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
+      call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='', _RC)
+      if (comp_name == comp_to_record) then
+         call record_component('before', phase, method, GC, import, export, clock, _RC)
+      end if
+
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
-         call omp_driver(GC, import, export, clock, _RC)  ! compnent threaded with OpenMP
+         call omp_driver(GC, import, export, clock, _RC)  ! component threaded with OpenMP
       else
          call func_ptr (GC, &
               importState=IMPORT, &
@@ -1626,7 +1669,10 @@ contains
               userRC=userRC, _RC )
          _VERIFY(userRC)
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+      end if
 
+      if (comp_name == comp_to_record) then
+         call record_component('after', phase, method, GC, import, export, clock, _RC)
       end if
 
       call lgr%debug('Finished %a', stage_description)
@@ -1652,6 +1698,112 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GenericWrapper
+
+   subroutine get_test_framework_resource(STATE, is_test_framework, is_test_framework_driver, &
+                                          is_grid_capture, restore_export, rc)
+     type (MAPL_MetaComp), intent(inout) :: STATE
+     logical, intent(inout) :: is_test_framework, is_test_framework_driver
+     logical, intent(inout) :: is_grid_capture, restore_export
+     integer, intent(out) :: rc
+     integer :: status
+
+     call MAPL_GetResource(STATE, is_test_framework, label='TEST_FRAMEWORK:', default=.false., _RC)
+     call MAPL_GetResource(STATE, is_test_framework_driver, label='TEST_FRAMEWORK_DRIVER:', default=.false., _RC)
+     call MAPL_GetResource(STATE, is_grid_capture, label='GRID_CAPTURE:', default=.false., _RC)
+     call MAPL_GetResource(STATE, restore_export, label='RESTORE_EXPORT_STATE:', default=.false., _RC)
+     _RETURN(_SUCCESS)
+   end subroutine get_test_framework_resource
+
+   subroutine record_component(POS, PHASE, METHOD, GC, IMPORT, EXPORT, CLOCK, RC)
+     character(len=*),       intent(IN   ) :: POS    ! Before or after
+     integer,                intent(IN   ) :: PHASE  ! Phase
+     type(ESMF_Method_Flag), intent(IN   ) :: METHOD ! Method
+     type(ESMF_GridComp),    intent(INOUT) :: GC     ! Gridded component
+     type(ESMF_State),       intent(INOUT) :: IMPORT ! Import state
+     type(ESMF_State),       intent(INOUT) :: EXPORT ! Export state
+     type(ESMF_Clock),       intent(INOUT) :: CLOCK  ! The clock
+     integer, optional,      intent(  OUT) :: RC     ! Error code:
+
+     type (MAPL_MetaComp), pointer :: STATE
+     logical :: is_test_framework, is_test_framework_driver
+     logical :: is_grid_capture, restore_export
+     type(ESMF_Info) :: infoh
+     integer :: status
+
+     call MAPL_InternalStateGet (GC, STATE, _RC)
+     call get_test_framework_resource(STATE, is_test_framework, is_test_framework_driver, &
+                                      is_grid_capture, restore_export, _RC)
+
+     if (method == ESMF_METHOD_INITIALIZE) then
+        call ESMF_InfoGetFromHost(export,infoh,RC=STATUS)
+        call ESMF_InfoSet(infoh, key="MAPL_RestoreExport", value=restore_export, _RC)
+     else if (method == ESMF_METHOD_RUN) then
+        call ESMF_InfoGetFromHost(import,infoh,RC=STATUS)
+        call ESMF_InfoSet(infoh, key="MAPL_GridCapture", value=is_grid_capture, _RC)
+        if (is_test_framework) then
+           call capture(POS, phase, GC, import, export, clock, _RC)
+        else if (is_test_framework_driver) then
+           ! force skipReading and skipWriting in NCIO to be false
+           call ESMF_InfoGetFromHost(import,infoh,RC=STATUS)
+           call ESMF_InfoSet(infoh, key="MAPL_TestFramework", value=.true., _RC)
+        end if
+     end if
+     _RETURN(_SUCCESS)
+   end subroutine record_component
+
+   subroutine capture(POS, PHASE, GC, IMPORT, EXPORT, CLOCK, RC)
+     character(len=*),    intent(IN   ) :: POS    ! Before or after
+     integer,             intent(IN   ) :: PHASE  ! Run phase
+     type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
+     type(ESMF_State),    intent(INOUT) :: IMPORT ! Import state
+     type(ESMF_State),    intent(INOUT) :: EXPORT ! Export state
+     type(ESMF_Clock),    intent(INOUT) :: CLOCK  ! The clock
+     integer, optional,   intent(  OUT) :: RC     ! Error code:
+
+     type (MAPL_MetaComp), pointer :: STATE
+     integer :: status
+     character(len=ESMF_MAXSTR) :: filename, comp_name, time_label
+     character(len=4) :: filetype
+     type(ESMF_State), pointer :: internal
+     integer :: hdr
+     type(ESMF_Time) :: start_time, curr_time, target_time
+     character(len=1) :: phase_
+     type(ESMF_Info) :: infoh
+
+     call ESMF_GridCompGet(GC, NAME=comp_name, _RC)
+     call MAPL_InternalStateGet (GC, STATE, _RC)
+
+     call ESMF_ClockGet(clock, startTime=start_time, currTime=curr_time, _RC)
+
+     call MAPL_GetResource(STATE, time_label, label='TARGET_TIME:', default='')
+     if (time_label == '') then
+        target_time = start_time
+     else
+        target_time = parse_time_string(time_label, _RC)
+     end if
+
+     filetype = 'pnc4'
+     filename = trim(comp_name)//"_"
+
+     if (curr_time == target_time) then
+        internal => state%get_internal_state()
+        ! force skipReading and skipWriting in NCIO to be false
+        call ESMF_InfoGetFromHost(import,infoh,RC=STATUS)
+        call ESMF_InfoSet(infoh, key="MAPL_TestFramework", value=.true., _RC)
+        write(phase_, '(i1)') phase
+
+        call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
+             FILETYPE, STATE, .false., _RC)
+
+        call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
+             FILETYPE, STATE, .false., oClients = o_Clients, _RC)
+
+        call MAPL_GetResource(STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
+        call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
+             FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
+     end if
+     _RETURN(_SUCCESS)
+   end subroutine capture
 
    !=============================================================================
 
@@ -1778,6 +1930,7 @@ contains
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
+
       !=============================================================================
 
       ! Begin...
@@ -1825,13 +1978,15 @@ contains
                call MAPL_TimerOn (STATE,trim(CHILD_NAME))
                child_import_state => STATE%get_child_import_state(i)
                child_export_state => STATE%get_child_export_state(i)
+
                call ESMF_GridCompRun (gridcomp, &
                     importState=child_import_state, &
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_RUN(PHASE), &
                     userRC=userRC, _RC )
                _VERIFY(userRC)
-               call MAPL_TimerOff(STATE,trim(CHILD_NAME))
+
+                call MAPL_TimerOff(STATE,trim(CHILD_NAME))
             end if
 
             !ALT question for Max - if user wants to run particular phase only, when should we run couplers
@@ -1857,7 +2012,6 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GenericRunChildren
-
 
    !BOPI
    ! !IROUTINE: MAPL_GenericFinalize -- Finalizes the component and its children
@@ -2056,6 +2210,10 @@ contains
                  FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
             _VERIFY(status)
          endif
+
+         ! Checkpoint the export state if required.
+         !----------------------------------------
+         call checkpoint_export_state(_RC)
       end if
 
       call MAPL_TimerOff(STATE,"generic",_RC)
@@ -2082,6 +2240,34 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    contains
+
+      subroutine checkpoint_export_state(rc)
+         integer, optional,   intent(  out) :: RC     ! Error code:
+
+         call       MAPL_GetResource( STATE, FILENAME, LABEL="EXPORT_CHECKPOINT_FILE:",                  RC=status )
+         if(status==ESMF_SUCCESS) then
+            call    MAPL_GetResource( STATE, FILETYPE, LABEL="EXPORT_CHECKPOINT_TYPE:",                  RC=status )
+            if ( status/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
+               call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=status )
+               _VERIFY(status)
+            end if
+            FILETYPE = ESMF_UtilStringLowerCase(FILETYPE,rc=status)
+            _VERIFY(status)
+#ifndef H5_HAVE_PARALLEL
+            nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
+            if(FILETYPE=='pnc4' .and. nwrgt1) then
+               if (mapl_am_i_root()) then
+                  print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
+               end if
+               _FAIL('needs informative message')
+            endif
+#endif
+            call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
+                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+            _VERIFY(status)
+         endif
+         _RETURN(_SUCCESS)
+      end subroutine checkpoint_export_state
 
       subroutine report_generic_profile( rc )
          integer, optional,   intent(  out) :: RC     ! Error code:
@@ -2690,11 +2876,11 @@ contains
          ! Root component (hopefully)
          allocate(MAPLOBJ, STAT=status)
          _VERIFY(status)
-!!!! Memory leak !!!!
+! Memory leak !
          allocate(root_composite)
          ! TODO: test if workaround is needed for 10.2
          ! workaround for gfortran 10.1
-!!$       root_composite = ConcreteComposite(MAPLOBJ)
+!C$       root_composite = ConcreteComposite(MAPLOBJ)
          call root_composite%initialize(MAPLOBJ)
          tmp_component => root_composite%get_component()
          select type (tmp_component)
@@ -3114,7 +3300,8 @@ contains
         HALOWIDTH, PRECISION, DEFAULT, UNGRIDDED_DIMS,   &
         UNGRIDDED_UNIT, UNGRIDDED_NAME,     &
         UNGRIDDED_COORDS,                     &
-        FIELD_TYPE, STAGGERING, ROTATION, RC )
+        FIELD_TYPE, STAGGERING, ROTATION, &
+        DEPENDS_ON, DEPENDS_ON_CHILDREN, RC )
 
       !ARGUMENTS:
       type (ESMF_GridComp)            , intent(INOUT)   :: GC
@@ -3137,6 +3324,8 @@ contains
       integer            , optional   , intent(IN)      :: FIELD_TYPE
       integer            , optional   , intent(IN)      :: STAGGERING
       integer            , optional   , intent(IN)      :: ROTATION
+      logical            , optional   , intent(IN)      :: DEPENDS_ON_CHILDREN
+      character (len=*)  , optional   , intent(IN)      :: DEPENDS_ON(:)
       integer            , optional   , intent(OUT)     :: RC
       !EOPI
 
@@ -3201,6 +3390,8 @@ contains
            FIELD_TYPE = FIELD_TYPE,                                              &
            STAGGERING = STAGGERING,                                              &
            ROTATION = ROTATION,                                                  &
+           DEPENDS_ON = DEPENDS_ON, &
+           DEPENDS_ON_CHILDREN = DEPENDS_ON_CHILDREN, &
            RC=status  )
       _VERIFY(status)
 
@@ -3739,7 +3930,7 @@ contains
 !- **GIM** The childrens' IMPORT states.
 !- **GEX** The childrens' EXPORT states.
 !- **CCS** Array of child-to-child couplers.
-! 
+!
    subroutine MAPL_GenericStateGet (STATE, IM, JM, LM, VERTDIM,                &
         NX, NY, NX0, NY0, LAYOUT,                  &
         GCNames,                                   &
@@ -4367,7 +4558,7 @@ contains
       call child_meta%t_profiler%start(_RC)
       call child_meta%t_profiler%start('SetService',_RC)
 
-!!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
+!C$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
       call lgr%debug("Started %a", stage_description)
       child_meta%user_setservices_wrapper = ProcSetServicesWrapper(SS)
       call lgr%debug("Finished %a", stage_description)
@@ -5184,7 +5375,7 @@ contains
             childgridcomp => meta%get_child_gridcomp(i)
             call MAPL_InternalStateRetrieve(childgridcomp, cmeta, RC=status)
             _VERIFY(status)
-            if (cmeta%compname == name) then ! found it!!!
+            if (cmeta%compname == name) then ! found it!
                result => cmeta
                _RETURN(ESMF_SUCCESS)
             end if
@@ -5523,7 +5714,7 @@ contains
             call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
-               print *,'Using parallel NetCDF for file: ',trim(FILENAME)
+               print *,'Using parallel NetCDF to write file: ',trim(FILENAME)
             end if
          endif
       else
@@ -5669,8 +5860,6 @@ contains
       character(len=ESMF_MAXSTR)            :: FileType
       integer                               :: isNC4
       logical                               :: isPresent
-      class(AbstractGridFactory), pointer :: app_factory
-      class (AbstractGridFactory), allocatable :: file_factory
       character(len=ESMF_MAXSTR) :: grid_type
       logical :: empty
 
@@ -5733,9 +5922,7 @@ contains
                     inquire(FILE = trim(fname_by_face), EXIST=fexist)
                     FileExists = FileExists .and. fexist
                  enddo
-                 if ( .not. FileExists) then
-                    _VERIFY(-1)
-                 else
+                 if (FileExists) then
                     ! just pick one face to deduce filetype, only in root
                     call MAPL_NCIOGetFileType(trim(fname_by_face),isNC4,rc=status)
                     _VERIFY(status)
@@ -5754,7 +5941,6 @@ contains
 
          call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, rc=status)
          _VERIFY(status)
-
          if (FileExists) then
             !if (AmIRoot) then
             !   call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
@@ -5912,13 +6098,7 @@ contains
                call ESMF_InfoGet(infoh,'GridType',grid_type,rc=status)
                _VERIFY(status)
             end if
-            !note this only works for geos cubed-sphere restarts currently because of
-            !possible insufficent metadata in the other restarts to support the other grid factories
-            if (trim(grid_type) == 'Cubed-Sphere') then
-               app_factory => get_factory(MPL%GRID%ESMFGRID)
-               allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
-               _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
-            end if
+            _ASSERT(grid_is_consistent(grid_type, fname), "grid in the file is different from app's grid")
             call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
          end if PNC4_TILE
@@ -5926,7 +6106,7 @@ contains
             call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
-               print *,'Using parallel NetCDF for file: ',trim(FNAME)
+               print *,'Using parallel NetCDF to read file: ',trim(FNAME)
             end if
          endif
       else
@@ -5984,6 +6164,35 @@ contains
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
+   
+     contains
+       function grid_is_consistent(grid_type, fname) result( consistent)
+         logical :: consistent
+         character(*), intent(in) :: grid_type
+         character(*), intent(in) :: fname
+         !note this only works for geos cubed-sphere restarts currently because of
+         !possible insufficent metadata in the other restarts to support the other grid factories
+         class(AbstractGridFactory), pointer :: app_factory
+         class (AbstractGridFactory), allocatable :: file_factory
+         character(len=:), allocatable :: fname_by_face
+         logical :: fexist
+    
+         consistent = .True.
+         if (trim(grid_type) == 'Cubed-Sphere') then
+            app_factory => get_factory(MPL%GRID%ESMFGRID)
+            ! at this point, arrdes%read_restart_by_face is not initialized
+            ! pick the first face
+            fname_by_face = get_fname_by_face(trim(fname), 1)
+            inquire(FILE = trim(fname_by_face), EXIST=fexist)
+            if(fexist) then
+               allocate(file_factory,source=grid_manager%make_factory(fname_by_face))
+            else
+               allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
+            endif
+            consistent = file_factory%physical_params_are_equal(app_factory)
+         end if
+       end function
+
    end subroutine MAPL_ESMFStateReadFromFile
 
    !=============================================================================
@@ -6252,10 +6461,6 @@ contains
             call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
             _VERIFY(STATUS)
 
-            call ESMF_InfoGetFromHost(nestState,infoh,RC=STATUS)
-            call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
-            _VERIFY(STATUS)
-
             ! Put the BUNDLE in the state
             ! --------------------------
             call ESMF_StateAdd(STATE, (/nestState/), rc=status)
@@ -6292,7 +6497,7 @@ contains
             _VERIFY(status)
 
             GOTO 10
-!!!         cycle
+!         cycle
          endif
 
          if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
@@ -7049,7 +7254,7 @@ contains
       ! ---------------------------------------
 
       do I=1,NC
-!!!ALT      call MAPL_WireComponent(GCS(I), RC=status)
+!ALT      call MAPL_WireComponent(GCS(I), RC=status)
          _VERIFY(status)
       end do
 
@@ -9043,7 +9248,7 @@ contains
       ! Make a local copy of the current time
       !--------------------------------------
 
-      !ALT clock are shallow objects!!!    CurrentTime = CurrTime
+      !ALT clock are shallow objects!    CurrentTime = CurrTime
       call ESMF_TimeGet(CurrTime, &
            YY=YY, MM=MM, DD=DD, &
            H=H, M=M, S=S, rc=status)
@@ -9517,7 +9722,7 @@ contains
             if (PRF /= 0) then
                _FAIL('needs informative message') ! for now
             else
-               ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!!!
+               ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!
                call MAPL_VarRead(UNIT, GRID, VAR2, RC=status )
                _VERIFY(status)
             end if
@@ -10725,10 +10930,10 @@ contains
       class(Logger), pointer :: lgr
       integer, optional, intent(out) :: rc
 
-!!$      class(Logger), pointer :: meta_lgr
-!!$
-!!$      meta_lgr => logging%get_logger('MAPL.GENERIC')
-!!$      call meta_lgr%warning('obsolete interface MAPL_GetLogger()')
+!C$      class(Logger), pointer :: meta_lgr
+!C$
+!C$      meta_lgr => logging%get_logger('MAPL.GENERIC')
+!C$      call meta_lgr%warning('obsolete interface MAPL_GetLogger()')
 
       lgr => meta%get_logger()
 
@@ -10838,6 +11043,17 @@ contains
 
    end function get_child_export_state
 
+   function get_child_internal_state(this, i) result(state)
+      type(ESMF_State), pointer :: state
+      class(MAPL_MetaComp), target :: this
+      integer, intent(in) :: i
+
+      class(MaplGenericComponent), pointer :: child
+
+      child => this%get_ith_child(i)
+      state => child%get_internal_state()
+
+   end function get_child_internal_state
 
    function MAPL_IsStateEmpty(state, rc) result(empty)
       type(ESMF_State), intent(in) :: state
@@ -10959,6 +11175,7 @@ contains
       ! TODO: Fix this is a terrible kludge.
       if (meta%compname /= 'CAP') then
          call process_connections(meta,_RC) ! needs better name
+         call process_spec_dependence(meta, _RC)
       end if
 
       call meta%t_profiler%stop(_RC)
@@ -11117,6 +11334,72 @@ contains
       end subroutine process_connections
 #undef LOWEST_
 
+     subroutine process_spec_dependence(meta, rc)
+       type (MAPL_MetaComp), target, intent(inout) :: meta
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       integer :: k, i, j, nc, nvars
+       logical :: depends_on_children
+       character(len=:), allocatable :: depends_on(:)
+       character(len=ESMF_MAXSTR) :: SHORT_NAME, NAME
+       type (MAPL_VarSpec), pointer :: ex_specs(:), c_ex_specs(:)
+       type (MAPL_MetaComp), pointer :: cmeta
+       type(ESMF_GridComp), pointer :: childgridcomp
+       logical :: found
+
+       ! get the export specs
+       call  MAPL_StateGetVarSpecs(meta, export=ex_specs, _RC)
+       ! allow for possibility we do not have export specs
+       _RETURN_IF(.not. associated(ex_specs))
+
+       ! check for DEPENDS_ON_CHILDREN
+       do K=1,size(EX_SPECS)
+          call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, &
+               DEPENDS_ON_CHILDREN=DEPENDS_ON_CHILDREN, &
+               DEPENDS_ON=DEPENDS_ON, _RC)
+          if (DEPENDS_ON_CHILDREN) then
+!!!             mark SHORT_NAME in each child "alwaysAllocate"
+             nc = meta%get_num_children()
+             _ASSERT(nc > 0, 'DEPENDS_ON_CHILDREN requires at least 1 child')
+             do I=1, nc
+                childgridcomp => meta%get_child_gridcomp(i)
+                call MAPL_InternalStateRetrieve(childgridcomp, cmeta, _RC)
+                found = .false.
+                call  MAPL_StateGetVarSpecs(cmeta, export=c_ex_specs, _RC)
+                _ASSERT(associated(c_ex_specs), 'Component '//trim(cmeta%compname)//' must have a valid export spec')
+                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
+                do j=1,size(c_ex_specs)
+                   call MAPL_VarSpecGet(c_ex_specs(j), SHORT_NAME=NAME, _RC)
+                   if (short_name == name) then
+                      call MAPL_VarSpecSet(c_ex_specs(j), alwaysAllocate=.true., _RC)
+                      found = .true.
+                      exit
+                   end if
+                end do ! spec loop
+                _ASSERT(found, 'All children must have '//trim(short_name))
+             end do
+          end if ! DEPENDS_ON_CHILDREN
+
+          if (allocated(depends_on)) then
+!!!             mark SHORT_NAME in each variable "alwaysAllocate"
+             nvars = size(depends_on)
+             _ASSERT(nvars > 0, 'DEPENDS_ON requires at least 1 var')
+             do I=1, nvars
+                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
+                do j=1,size(ex_specs)
+                   call MAPL_VarSpecGet(ex_specs(j), SHORT_NAME=NAME, _RC)
+                   if (name == depends_on(i)) then
+                      call MAPL_VarSpecSet(ex_specs(j), alwaysAllocate=.true., _RC)
+                      exit
+                   end if
+                end do ! spec loop
+             end do
+          end if ! DEPENDS_ON
+       end do
+
+       _RETURN(ESMF_SUCCESS)
+     end subroutine process_spec_dependence
 
       subroutine register_generic_entry_points(gc, rc)
          type(ESMF_GridComp), intent(inout) :: gc

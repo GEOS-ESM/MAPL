@@ -55,7 +55,8 @@ contains
       integer :: status
 
       call append_message('wasRun')
-      outer_meta => get_outer_meta(gc, _RC)
+!!$      outer_meta => get_outer_meta(gc, _RC)
+      outer_meta => get_outer_meta_from_inner_gc(gc, _RC)
       call outer_meta%run_children(clock, _RC)
       
       _RETURN(ESMF_SUCCESS)
