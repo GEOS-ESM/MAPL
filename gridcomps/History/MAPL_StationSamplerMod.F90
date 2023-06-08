@@ -60,7 +60,10 @@ contains
     integer :: unit, ios, nstation, status
     integer :: i, j, id, ncount
     real    :: x, y, z
-    character (len=100) :: line
+    logical :: con1, con2
+    character (len=1)     :: CH1
+    character (len=5)     :: seq
+    character (len=100)   :: line
     type(Logger), pointer :: lgr
 
     !__ 1. read from station_id_file: static
@@ -73,14 +76,29 @@ contains
     nstation=0
     read(unit, '(a100)', IOSTAT=ios) line
     call count_substring(line, ',', ncount)
-    _ASSERT(ncount.GE.3 .AND. ncount.LE.4, 'wrong input format')
-    rewind(unit)
-    do while (ios==0)
-       if(ncount==4) then
-          read (unit, *, IOSTAT=ios)  id, str, x, y, z
-       elseif (ncount==3) then
-          read (unit, *, IOSTAT=ios)  str, x, y, z
+    con1= ncount.GE.3 .AND. ncount.LE.4
+    _ASSERT(con1, 'string sequence in Aeronet file not supported')
+    if (ncount==3) then
+       seq='AFFF'
+    elseif (ncount==4) then
+       CH1=line(1:1)
+       con1= (CH1>='a'.AND.CH1<='z').OR.(CH1>='A'.AND.CH1<='Z')
+       con2= CH1>='0'.AND.CH1<='9'
+       if (con1) then
+          seq='AIFFF'
+       else
+          if (con2) then
+             seq='IAFFF'
+          else
+             _ASSERT(.false., 'string sequence in Aeronet file not supported')
+          end if
        end if
+    end if
+
+    rewind(unit)
+    ios=0
+    do while (ios==0)
+       read(unit, '(a100)', IOSTAT=ios) line
        if (ios==0) nstation=nstation+1
     end do
     sampler%nstation=nstation
@@ -91,13 +109,19 @@ contains
     allocate(sampler%elevs(nstation))
     rewind(unit)
     do i=1, nstation
-       if(ncount==4) then
+       if(seq=='IAFFF') then
           read(unit, *) &
                sampler%station_id(i), &
                sampler%station_name(i), &
                sampler%lats(i), &
                sampler%lons(i)
-       elseif(ncount==3) then
+       elseif(seq=='AIFFF') then
+          read(unit, *) &
+               sampler%station_name(i), &
+               sampler%station_id(i), &
+               sampler%lats(i), &
+               sampler%lons(i)
+       elseif(trim(seq)=='AFFF') then
           read(unit, *) &
                sampler%station_name(i), &
                sampler%lats(i), &
@@ -186,10 +210,11 @@ contains
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
 
-    v = Variable(type=pFIO_STRING, dimensions='station_index')
-    call v%add_attribute('long_name','station_name')
-    call v%add_attribute('unit','')
-    call this%fmd%add_variable('station_name',,v)
+!!    !v = Variable(type=pFIO_STRING, dimensions='station_index')
+!!    v = Variable(type=pFIO_CHAR, dimensions='station_index')    
+!!    !call v%add_attribute('long_name','station_name')
+!!    !call v%add_attribute('unit','')
+!!    call this%fmd%add_variable('station_name',v)
 
     !__ 2. filemetadata: extract field from bundle, add_variable
     !
@@ -338,6 +363,7 @@ contains
     call this%formatter%put_var('longitude',this%lons,_RC)
     call this%formatter%put_var('latitude',this%lats,_RC)
     call this%formatter%put_var('station_id',this%station_id,_RC)
+!!    call this%formatter%put_var('station_name',this%station_name,_RC)    
 
     _RETURN(_SUCCESS)
   end subroutine create_file_handle
