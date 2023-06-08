@@ -210,12 +210,6 @@ contains
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
 
-!!    !v = Variable(type=pFIO_STRING, dimensions='station_index')
-!!    v = Variable(type=pFIO_CHAR, dimensions='station_index')    
-!!    !call v%add_attribute('long_name','station_name')
-!!    !call v%add_attribute('unit','')
-!!    call this%fmd%add_variable('station_name',v)
-
     !__ 2. filemetadata: extract field from bundle, add_variable
     !
     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
@@ -363,7 +357,6 @@ contains
     call this%formatter%put_var('longitude',this%lons,_RC)
     call this%formatter%put_var('latitude',this%lats,_RC)
     call this%formatter%put_var('station_id',this%station_id,_RC)
-!!    call this%formatter%put_var('station_name',this%station_name,_RC)    
 
     _RETURN(_SUCCESS)
   end subroutine create_file_handle
@@ -509,7 +502,7 @@ contains
     _RETURN(_SUCCESS)
   end subroutine get_file_start_time
 
-
+  ! TODO: delete and use system utilities when available
   Subroutine count_substring (str, t, ncount)
     character (len=*), intent(in) :: str
     character (len=*), intent(in) :: t
@@ -520,8 +513,6 @@ contains
     lt = len(t) - 1
     do
        i=index(str(k:), t)
-       !!write(6,*) 'i=', i
-       !!write(6,*)  'sub string =', trim(str(k:))
        if (i==0) exit
        ncount = ncount + 1
        k=k+i+lt
