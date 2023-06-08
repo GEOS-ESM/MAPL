@@ -1,13 +1,3 @@
-! Supported station_id_file format
-!   - choice-A [station_name,lat,lon,elev]
-!   - choice-B [station_id,station_name,lat,lon,elev]
-!       ...
-!
-
-! ygyu: add to history.rc
-!   sampler_type = 'station', 'mask', 'swath'
-
-
 #include "MAPL_Generic.h"
 module StationSamplerMod
   use ESMF
@@ -32,13 +22,11 @@ module StationSamplerMod
      type(ESMF_LocStream)     :: esmf_ls
      type(LocstreamRegridder) :: regridder
      integer                  :: nstation
-!!     type(station), allocatable ::
      integer, allocatable :: station_id(:)
      character(len=ESMF_MAXSTR), allocatable :: station_name(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: elevs(:)
-     !
      type(ESMF_FieldBundle)         :: bundle
      type(FileMetadata)             :: fmd
      type(NetCDF4_FileFormatter)    :: formatter
@@ -53,7 +41,6 @@ module StationSamplerMod
      procedure                      :: append_file
      procedure                      :: get_file_start_time
      procedure                      :: compute_time_for_current
-     procedure                      :: deallocate_arrays
   end type StationSampler
 
   interface StationSampler
@@ -64,22 +51,21 @@ contains
 
   function new_StationSampler_readfile (filename,rc) result(sampler)
     use pflogger, only             :  Logger, logging
+    implicit none
     type(StationSampler)           :: sampler
-    character(len=*), intent(in)   :: filename ! 1:station_name input
+    character(len=*), intent(in)   :: filename
     integer, optional, intent(out) :: rc
-    ! loc
+
     character(len=40) :: str, sdmy, shms
-    integer :: max_len, max_seg, nseg
-    integer :: unit, ios, nline, nstation, status
+    integer :: unit, ios, nstation, status
     integer :: i, j, id, ncount
-    integer :: iday, imonth, iyear, ihr, imin, isec
-    real    :: x, y, z, t
-    character(len=1) :: s1
+    real    :: x, y, z
     character (len=100) :: line
-    type(Logger), pointer          :: lgr
+    type(Logger), pointer :: lgr
 
     !__ 1. read from station_id_file: static
-    !      plain text format: [id,name,lat,lon,elev]
+    !      plain text format:
+    !      [name,lat,lon,elev] or [id,name,lat,lon,elev]
     !
     open(newunit=unit, file=trim(filename), form='formatted', &
          access='sequential', status='old', _IOSTAT)
@@ -200,6 +186,11 @@ contains
     v = Variable(type=pFIO_INT32, dimensions='station_index')
     call this%fmd%add_variable('station_id',v)
 
+    v = Variable(type=pFIO_STRING, dimensions='station_index')
+    call v%add_attribute('long_name','station_name')
+    call v%add_attribute('unit','')
+    call this%fmd%add_variable('station_name',,v)
+
     !__ 2. filemetadata: extract field from bundle, add_variable
     !
     call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
@@ -227,7 +218,6 @@ contains
        else if (field_rank==3) then
           vdims = "lev,station_index,time"
           call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          ! caution: assume vlevel the same as input-bundle-field/grid
           v = variable(type=PFIO_REAL32,dimensions=trim(vdims),chunksizes=[ub(1)-lb(1)+1,1,1])
        end if
        call v%add_attribute('units',         trim(units))
@@ -393,8 +383,8 @@ contains
   end function compute_time_for_current
 
 
-  !-- a copy from MAPL_HistoryTrajectoryMod.F90
-  !
+  !-- a subroutine from MAPL_HistoryTrajectoryMod.F90
+  !   TODO: consolidate with trajectory
   subroutine get_file_start_time(this,start_time,time_units,rc)
     class(StationSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout) :: start_time
@@ -494,20 +484,7 @@ contains
   end subroutine get_file_start_time
 
 
-  subroutine deallocate_arrays (this,rc)
-    class(StationSampler), intent(inout) :: this
-    integer, optional, intent(out) :: rc
-    integer :: status
-    deallocate(this%station_id)
-    deallocate(this%station_name)
-    deallocate(this%lons)
-    deallocate(this%lats)
-    deallocate(this%elevs)
-    _RETURN(_SUCCESS)
-  end subroutine deallocate_arrays
-
-
-  subroutine count_substring (str, t, ncount)
+  Subroutine count_substring (str, t, ncount)
     character (len=*), intent(in) :: str
     character (len=*), intent(in) :: t
     integer, intent(out) :: ncount
@@ -524,6 +501,5 @@ contains
        k=k+i+lt
     end do
   end subroutine count_substring
-
 
 end module StationSamplerMod
