@@ -5,14 +5,11 @@ module mapl3g_VirtualConnectionPt
    use esmf
    implicit none
    private
-  
+
    public :: VirtualConnectionPt
-   public :: ESMF_STATEINTENT_INTERNAL
    public :: operator(<)
    public :: operator(==)
 
-   type(ESMF_StateIntent_Flag), parameter :: ESMF_STATEINTENT_INTERNAL = ESMF_StateIntent_Flag(100)
-  
    type :: VirtualConnectionPt
 !!$      private
       type(ESMF_StateIntent_Flag) :: state_intent
@@ -58,7 +55,7 @@ contains
 
       v_pt%state_intent = state_intent
       v_pt%short_name = short_name
-      
+
    end function new_VirtualPt_basic
 
    ! Must use keyword association for this form due to ambiguity of argument ordering
@@ -82,7 +79,7 @@ contains
       end select
 
       v_pt = VirtualConnectionPt(stateintent, short_name)
-      
+
       _UNUSED_DUMMY(unusable)
    end function new_VirtualPt_string_intent
 
@@ -93,7 +90,7 @@ contains
 
       v_pt = this
       if (.not. allocated(v_pt%comp_name)) v_pt%comp_name = comp_name
-      
+
    end function add_comp_name
 
    function get_state_intent(this) result(state_intent)
@@ -119,9 +116,9 @@ contains
       class(VirtualConnectionPt), intent(in) :: this
 
       name = this%short_name
-      
+
    end function get_esmf_name
-      
+
    ! Important that name is different if either comp_name or short_name differ
    function get_full_name(this) result(name)
       character(:), allocatable :: name
@@ -129,16 +126,16 @@ contains
 
       name = this%short_name
       if (allocated(this%comp_name)) name = this%comp_name // '/' // name
-      
+
    end function get_full_name
-      
+
    function get_comp_name(this) result(name)
       character(:), allocatable :: name
       class(VirtualConnectionPt), intent(in) :: this
       name = ''
       if (allocated(this%comp_name)) name = this%comp_name
    end function get_comp_name
-      
+
 
    logical function less_than(lhs, rhs)
       type(VirtualConnectionPt), intent(in) :: lhs
@@ -152,7 +149,7 @@ contains
 
       ! If intents are tied:
       less_than = lhs%get_full_name() < rhs%get_full_name()
-      
+
    end function less_than
 
    logical function less_than_esmf_stateintent(lhs, rhs) result(less_than)
@@ -161,13 +158,13 @@ contains
 
       less_than = lhs%state < rhs%state
    end function less_than_esmf_stateintent
-      
+
    logical function equal_to(lhs, rhs)
       type(VirtualConnectionPt), intent(in) :: lhs
       type(VirtualConnectionPt), intent(in) :: rhs
 
       equal_to = .not. ((lhs < rhs) .or. (rhs < lhs))
-      
+
    end function equal_to
 
    logical function is_import(this)

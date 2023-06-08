@@ -169,7 +169,7 @@ contains
    function make_ItemSpec(this, geom, vertical_geom, rc) result(item_spec)
       class(AbstractStateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_GeomBase), intent(in) :: geom
+      type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       integer, optional, intent(out) :: rc
 
@@ -198,7 +198,7 @@ contains
    function make_FieldSpec(this, geom, vertical_geom, rc) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: this
-      type(ESMF_GeomBase), intent(in) :: geom
+      type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       integer, optional, intent(out) :: rc
 
