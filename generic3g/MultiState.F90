@@ -2,7 +2,6 @@
 
 module mapl3g_MultiState
    use esmf
-   use mapl3g_VirtualConnectionPt ! for ESMF_STATEINTENT_INTERNAL until ESMF supports
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    implicit none
@@ -63,7 +62,7 @@ contains
       end select
 
       call ESMF_StateValidate(state, _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine get_state_by_string_intent
 
@@ -87,7 +86,7 @@ contains
       end if
 
       call this%get_state(state, string_intent, _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine get_state_by_esmf_intent
 

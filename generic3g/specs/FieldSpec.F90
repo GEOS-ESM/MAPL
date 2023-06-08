@@ -26,7 +26,7 @@ module mapl3g_FieldSpec
    type, extends(AbstractStateItemSpec) :: FieldSpec
       private
 
-      type(ESMF_GeomBase) :: geom
+      type(ESMF_Geom) :: geom
       type(VerticalGeom) :: vertical_geom
       type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
@@ -72,7 +72,7 @@ contains
         default_value) result(field_spec)
       type(FieldSpec) :: field_spec
 
-      type(ESMF_GeomBase), intent(in) :: geom
+      type(ESMF_Geom), intent(in) :: geom
       type(VerticalGeom), intent(in) :: vertical_geom
       type(VerticalDimSpec), intent(in) :: vertical_dim
       type(ESMF_Typekind_Flag), intent(in) :: typekind
@@ -101,7 +101,7 @@ contains
 !!$   function new_FieldSpec_defaults(ungridded_dims, geom, units) result(field_spec)
 !!$      type(FieldSpec) :: field_spec
 !!$      type(ExtraDimsSpec), intent(in) :: ungridded_dims
-!!$      type(ESMF_GeomBase), intent(in) :: geom
+!!$      type(ESMF_Geom), intent(in) :: geom
 !!$      character(*), intent(in) :: units
 !!$      
 !!$      field_spec = FieldSpec(ungridded_dims, ESMF_TYPEKIND_R4, geom, units)
@@ -125,7 +125,7 @@ contains
 
    subroutine MAPL_FieldEmptySet(field, geom, rc)
       type(ESMF_Field), intent(inout) :: field
-      type(ESMF_GeomBase), intent(inout) :: geom
+      type(ESMF_Geom), intent(inout) :: geom
       integer, optional, intent(out) ::rc
 
       type(ESMF_GeomType_Flag) :: geom_type
@@ -135,19 +135,19 @@ contains
       type(ESMF_LocStream) :: locstream
       integer :: status
 
-      call ESMF_GeomBaseGet(geom, geomtype=geom_type, _RC)
+      call ESMF_GeomGet(geom, geomtype=geom_type, _RC)
 
       if(geom_type == ESMF_GEOMTYPE_GRID) then
-         call ESMF_GeomBaseGet(geom, grid=grid, _RC)
+         call ESMF_GeomGet(geom, grid=grid, _RC)
          call ESMF_FieldEmptySet(field, grid, _RC)
       else if (geom_type == ESMF_GEOMTYPE_MESH) then
-         call ESMF_GeomBaseGet(geom, mesh=mesh, _RC)
+         call ESMF_GeomGet(geom, mesh=mesh, _RC)
          call ESMF_FieldEmptySet(field, mesh, _RC)
       else if (geom_type == ESMF_GEOMTYPE_XGRID) then
-         call ESMF_GeomBaseGet(geom, xgrid=xgrid, _RC)
+         call ESMF_GeomGet(geom, xgrid=xgrid, _RC)
          call ESMF_FieldEmptySet(field, xgrid, _RC)
       else if (geom_type == ESMF_GEOMTYPE_LOCSTREAM) then
-         call ESMF_GeomBaseGet(geom, locstream=locstream, _RC)
+         call ESMF_GeomGet(geom, locstream=locstream, _RC)
          call ESMF_FieldEmptySet(field, locstream, _RC)
       else
          _FAIL('Unsupported type of Geom')
@@ -312,7 +312,7 @@ contains
       integer :: status
       
       requires_extension = .true.
-      call ESMF_GeomBaseGet(this%geom, geomtype=geom_type, rc=status)
+      call ESMF_GeomGet(this%geom, geomtype=geom_type, rc=status)
       if (status /= 0) return
 
       select type(src_spec)
