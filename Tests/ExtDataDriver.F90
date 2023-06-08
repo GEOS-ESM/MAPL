@@ -17,7 +17,7 @@ program ExtData_Driver
   type(ExtDataDriver) :: Driver
   type (MAPL_CapOptions) :: cap_options
 
-  cap_options = FlapCLI(description='extdata driver',authors='gmao')
+  cap_options = FargparseCLI()
 
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
   call driver%run(_RC)
