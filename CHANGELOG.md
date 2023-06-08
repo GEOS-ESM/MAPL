@@ -26,8 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move to MPT 2.28 at NAS, and other various changes for TOSS4 at NAS
   - ESMA_cmake v3.28.0 → v3.29.0
     - Clean up for TOSS4 changes at NAS
+- Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
 
 ### Fixed
+
+- Created cubed-sphere grid factory with files split by face
 
 ### Removed
 

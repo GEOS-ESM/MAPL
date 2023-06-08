@@ -270,7 +270,7 @@ module MAPL_CFIOMod
 
 contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOCreateFromBundle` creates a `MAPL_CFIO`
 !  object from a Bundle. The `MAPL_CFIO` objects
@@ -1575,7 +1575,7 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOOpenWrite
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOCreateFromState`
 ! creates a `MAPL_CFIO` object from a State. States are written by
@@ -1704,7 +1704,7 @@ contains
   end subroutine MAPL_CFIOCreateFromState
     
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOWriteBundlePost`
 ! writes an ESMF Bundle to a File. Only the `MAPL_CFIO` object is
@@ -2538,7 +2538,7 @@ contains
   end subroutine MAPL_CFIOWriteBundle
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOWriteState`
 ! serializes an ESMF state into a Bundle and writes it to a file.
@@ -2589,14 +2589,14 @@ contains
 ! Get the appropriate bundle
 !---------------------------
 
-!!ALT    if(present(STATE)) then
+!ALT    if(present(STATE)) then
        tBUNDLE = ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
        _VERIFY(STATUS)
        call ESMFL_BundleAddState ( tBUNDLE, STATE, rc=STATUS, VALIDATE=.true. )
        _VERIFY(STATUS)
-!!ALT    else
-!!ALT       tBUNDLE = MCFIO%BUNDLE
-!!ALT    end if
+!ALT    else
+!ALT       tBUNDLE = MCFIO%BUNDLE
+!ALT    end if
 
 !   Write the Bundle
 !   ----------------
@@ -2605,10 +2605,10 @@ contains
                                 VERBOSE=VERBOSE, NBITS=NBITS, RC=STATUS   )
     _VERIFY(STATUS)
 
-!!ALT    if(present(STATE)) then
+!ALT    if(present(STATE)) then
        call ESMF_FieldBundleDestroy ( tBUNDLE, rc=STATUS )
        _VERIFY(STATUS)
-!!ALT    endif
+!ALT    endif
 
 !   All done
 !   --------
@@ -2617,7 +2617,7 @@ contains
 
  end subroutine MAPL_CFIOWriteState
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine MAPL_CFIOReadBundle`
 ! reads an ESMF Bundle from a file on a given time. The file is
@@ -3559,7 +3559,7 @@ CONTAINS
 
   end subroutine MAPL_CFIOReadBundle
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOReadState`
 ! serializes an ESMF state into a Bundle and reads its content from
@@ -3676,7 +3676,7 @@ CONTAINS
 
  end subroutine MAPL_CFIOReadState
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOReadField`
 ! reads a variable from a file and stores it on an ESMF Field.
@@ -3789,7 +3789,7 @@ CONTAINS
 
   end subroutine MAPL_CFIOReadField
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOReadArray3D`
 ! reads a variable from a file and stores it on an 3D Fortrran array.
@@ -3908,7 +3908,7 @@ CONTAINS
 
   end subroutine MAPL_CFIOReadArray3D
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIOReadArray2D`
 ! reads a variable from a file and stores it on an 2D Fortrran array.
@@ -4047,7 +4047,7 @@ CONTAINS
 
    end subroutine MAPL_CFIOReadArray2D
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-------------------------------------------------------------------------
 !>
 ! The subroutine `MAPL_CFIODestroy`
 ! destroys a MAPL CFIO object. It closes any file associated with
@@ -4206,11 +4206,10 @@ CONTAINS
   end subroutine MAPL_CFIOGet
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
+!-------------------------------------------------------------------------
+!>
 ! This is a candidate for ESMFL, here for dependency reasons
 !  
-
   subroutine GridGetLatLons_ ( grid, lons, lats, rc )
 
     use MAPL_GetLatLonCoordMod
@@ -4423,41 +4422,40 @@ CONTAINS
 
     end subroutine MAPL_CFIOGetTimeString
     
-
+!------------------------------------------------------------------------
+!>
+! Returns Psize and Root, the size (in nodes) and root node 
+! of each node partition assigned to active collections.
+!
   subroutine MAPL_CFIOPartition(Slices, NumColls, NumNodes, Writing, Psize,Root)
-    integer, intent(IN ) :: NumColls
-    integer, intent(IN ) :: Slices(NumColls), NumNodes
-    logical, intent(IN ) :: Writing(NumColls)
-    integer, intent(OUT) :: Psize(NumColls), Root(NumColls)
+    integer, intent(IN ) :: NumColls           !! number of nodes being dealt out to the partitions
+    integer, intent(IN ) :: NumNodes           !! total number of collection,
+                                               !! some of which may be inactive
+    integer, intent(IN ) :: Slices(NumColls)   !! number of 2-D sections or slices in each collection.
+                                               !! The number in inactive collections is ignored.
+    logical, intent(IN ) :: Writing(NumColls)  !! identifies active collection
+    integer, intent(OUT) :: Psize(NumColls)
+    integer, intent(OUT) :: Root(NumColls)
 
     integer :: MaxSlicesPerNode, n
     integer :: CurrNode, Len, SlicesInNode
 
     integer, dimension(NumColls) :: SortedSlices, CollNo
 
-!!!  Returns Psize and Root, the size (in nodes) and root node 
-!!!  of each node partition assigned to active collections.
+! Begin
+!------
 
-!!!  NumNodes is the number of nodes being dealt out to the partitions
-!!!  NumColls is the total number of collection, some of which may be inactive
-!!!  Writing  identifies active collection
-!!!  Slices   is the number of 2-D sections or slices in each collection
-!!!           The number in inactive collections is ignored.
-
-!!! Begin
-!!!------
-
-!!! Make sure all outputs are initialized.
-!!! Needed only for inactive collections.
-!!!---------------------------------------
+! Make sure all outputs are initialized.
+! Needed only for inactive collections.
+!---------------------------------------
 
     Psize = 0
     Root  = 1
 
-!!! Sort the collection sizes (# of slices) in ascending order.
-!!!  Also sort the collection index the same way, to fill the 
-!!!  correct ones later.
-!!!------------------------------------------------------------
+! Sort the collection sizes (# of slices) in ascending order.
+!  Also sort the collection index the same way, to fill the 
+!  correct ones later.
+!------------------------------------------------------------
     where(writing)
        SortedSlices = Slices
     elsewhere
@@ -4470,26 +4468,26 @@ CONTAINS
 
     call MAPL_Sort(SortedSlices, CollNo)
 
-!!! This is the maximum number of slices in a node if all slices
-!!!  were uniformly distributed without honoring collection and
-!!!  node boundaries. Since every collection boundary must also be
-!!!  a node boundary, this is a lower bound on MaxSlicesPerNode
-!!! and is used as our initial guess.
+! This is the maximum number of slices in a node if all slices
+!  were uniformly distributed without honoring collection and
+!  node boundaries. Since every collection boundary must also be
+!  a node boundary, this is a lower bound on MaxSlicesPerNode
+! and is used as our initial guess.
 
     MaxSlicesPerNode = (sum(Slices,mask=Writing)-1)/NumNodes + 1
     ! ALT: The above expression could be zero if 
     !      NumNodes==1 and the sum over "writing" slices is 0 (i.e. no writing)
     MaxSlicesPerNode = max(MaxSlicesPerNode,1) ! make sure it is not 0
 
-!!! We try to distribute the slices in active collections as uniformly
-!!!  as possible. "Small" collections (<= MaxSlicesPerNode) are
-!!!  assigned to a single node, others span multiple nodes. 
-!!!  Small collections are grouped in a node without 
-!!!  exceeding MaxSlicesPerNode. Multi-node collections are
-!!!  not grouped in nodes. Since MaxSlicesPerNode  is generally
-!!!  too small to fit all the collections, it is then increased,until
-!!!  all the active collections fit in the given nodes.
-!!!--------------------------------------------------------------------
+! We try to distribute the slices in active collections as uniformly
+!  as possible. "Small" collections (<= MaxSlicesPerNode) are
+!  assigned to a single node, others span multiple nodes. 
+!  Small collections are grouped in a node without 
+!  exceeding MaxSlicesPerNode. Multi-node collections are
+!  not grouped in nodes. Since MaxSlicesPerNode  is generally
+!  too small to fit all the collections, it is then increased,until
+!  all the active collections fit in the given nodes.
+!--------------------------------------------------------------------
     do
        CurrNode     = 1
        SlicesInNode = 0
