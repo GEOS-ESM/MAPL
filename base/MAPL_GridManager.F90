@@ -504,7 +504,8 @@ contains
       logical :: hasLongitude = .FALSE.
       logical :: hasLat       = .FALSE.
       logical :: hasLatitude  = .FALSE.
-      
+      logical :: splitByface  = .FALSE.
+ 
       _UNUSED_DUMMY(unused)
 
       call ESMF_VMGetCurrent(vm, rc=status)
@@ -516,6 +517,10 @@ contains
       _VERIFY(status)
       file_metadata = file_formatter%read(rc=status)
       _VERIFY(status)
+      call file_formatter%close(rc=status)
+      _VERIFY(status)
+
+      splitByface = file_metadata%has_attribute("Cubed_Sphere_Face_Index")
 
       im = 0
       hasXdim = file_metadata%has_dimension('Xdim')
@@ -551,7 +556,7 @@ contains
          if (status == _SUCCESS) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
-            if (jm == 6*im) then 
+            if (jm == 6*im .or. splitByface) then 
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
                nf = file_metadata%get_dimension('nf',rc=status)
@@ -574,7 +579,7 @@ contains
             end if
          end if
 
-         if (jm == 6*im) then ! old-format cubed-sphere
+         if (jm == 6*im .or. splitByface) then ! old-format cubed-sphere
             allocate(factory, source=this%make_clone('Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
@@ -586,7 +591,6 @@ contains
 
      call factory%initialize(file_metadata, force_file_coordinates=force_file_coordinates, rc=status)
      _VERIFY(status)
-     call file_formatter%close(rc=status)
 
      _RETURN(_SUCCESS)
      

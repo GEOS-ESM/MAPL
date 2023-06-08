@@ -198,7 +198,7 @@ CONTAINS
    call ESMF_ConfigLoadFile(config, 'CAP.rc', rc=STATUS )
    _VERIFY(STATUS)
     
-!>>>>>>>>>>>>
+!
 ! We will set-up a somewhat realistic resource "file"
 
     call ESMF_VmGetCurrent(VM, rc=status)
@@ -226,7 +226,7 @@ CONTAINS
     print *,'NX=',nx
     print *,'NX=',nY
 
-!<<<<<<<<<<<<   
+!---------------------
 !  CAP's MAPL MetaComp
 !---------------------
 
