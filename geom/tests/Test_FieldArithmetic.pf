@@ -26,6 +26,8 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
 
+      type(ESMF_Info) :: infoh
+
       allocate(y4array, source=R4_ARRAY_DEFAULT)
       allocate(y8array, source=R8_ARRAY_DEFAULT)
       y4array = y4array + ADD_R4
@@ -38,10 +40,14 @@ contains
          indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
       YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
          indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
-      call ESMF_AttributeSet(xr4,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(xr8,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(yr4,name="missing_value",value=undef,_RC)
-      call ESMF_AttributeSet(yr8,name="missing_value",value=undef,_RC)
+      call ESMF_InfoGetFromHost(xr4,infoh,_RC)
+      call ESMF_InfoSet(infoh,key="missing_value",value=undef,_RC)
+      call ESMF_InfoGetFromHost(xr8,infoh,_RC)
+      call ESMF_InfoSet(infoh,key="missing_value",value=undef,_RC)
+      call ESMF_InfoGetFromHost(yr4,infoh,_RC)
+      call ESMF_InfoSet(infoh,key="missing_value",value=undef,_RC)
+      call ESMF_InfoGetFromHost(yr8,infoh,_RC)
+      call ESMF_InfoSet(infoh,key="missing_value",value=undef,_RC)
 
    end subroutine set_up_data
 
@@ -59,7 +65,7 @@ contains
       call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
 
       x_ptr = 2.0
-      y_ptr = 3.0 
+      y_ptr = 3.0
       result_array = x_ptr
       result_array = 5.0
       call FieldAdd(x, x, y, _RC)

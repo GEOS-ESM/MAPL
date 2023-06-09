@@ -439,7 +439,7 @@ contains
       integer :: rank_x, rank_y
       integer, dimension(:), allocatable :: count_x, count_y
       integer :: status
-      
+
       ! this should really used the geom and ungridded dims
       ! for now we will do this until we have a geom agnostic stuff worked out...
       ! the ideal algorithm would be if geom == geom and input does not have ungridded
@@ -792,7 +792,7 @@ contains
         else
            _FAIL("Unsupported rank")
         end if
-     else 
+     else
         _FAIL("Unsupported type")
      end if
      _RETURN(_SUCCESS)
@@ -805,10 +805,12 @@ contains
 
      integer :: status, i
      logical :: isPresent
+     type(ESMF_Info) :: infoh
 
      all_have_undef = .true.
      do i =1,size(fields)
-        call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
+        call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
         all_have_undef = (all_have_undef .and. isPresent)
      enddo
      _RETURN(_SUCCESS)
@@ -821,12 +823,14 @@ contains
 
      integer :: status, i
      logical :: isPresent
-     
+     type(ESMF_Info) :: infoh
+
      allocate(undef_values(size(fields)))
      do i =1,size(fields)
-        call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
+        call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
         _ASSERT(isPresent,"missing undef value")
-        call ESMF_AttributeGet(fields(i),value=undef_values(i),name="missing_value",_RC)
+        call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
      enddo
      _RETURN(_SUCCESS)
   end subroutine GetFieldsUndef_r4
@@ -838,12 +842,14 @@ contains
 
      integer :: status, i
      logical :: isPresent
-     
+     type(ESMF_Info) :: infoh
+
      allocate(undef_values(size(fields)))
      do i =1,size(fields)
-        call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
+        call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
         _ASSERT(isPresent,"missing undef value")
-        call ESMF_AttributeGet(fields(i),value=undef_values(i),name="missing_value",_RC)
+        call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
      enddo
      _RETURN(_SUCCESS)
   end subroutine GetFieldsUndef_r8
