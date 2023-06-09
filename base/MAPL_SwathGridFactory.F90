@@ -1274,8 +1274,6 @@ contains
       call v%add_attribute('units', 'degrees_north')
       call metadata%add_variable('lats', v)
       
-
-
    end subroutine append_metadata
 
    

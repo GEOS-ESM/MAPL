@@ -486,7 +486,6 @@ contains
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
-           !!call this%addVariable_to_output_bundle(item%xname,_RC)
            call this%addVariable_to_acc_bundle(item%xname,_RC)
            if (item%itemType == ItemTypeVector) then
               !!call this%addVariable_to_output_bundle(item%yname,_RC)
@@ -498,12 +497,15 @@ contains
         new_field = ESMF_FieldCreate(this%output_grid ,name='time', &
                typekind=ESMF_TYPEKIND_R4,_RC)
         call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
-        !unit
         
         _RETURN(_SUCCESS)        
      end subroutine CreateFileMetaData
 
+!           !!call this%addVariable_to_output_bundle(item%xname,_RC)
+!           print*, __FILE__, __LINE__
+!           print*, 'item%xname: ',item%xname            
 
+           
      subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
         class (sampler), intent(inout) :: this
         integer, optional, intent(in) :: deflation

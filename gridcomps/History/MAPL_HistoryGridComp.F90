@@ -3394,30 +3394,23 @@ ENDDO PARSER
 
 
    if(any(Writing)) call WRITE_PARALLEL("")
-
-
+         
+             
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
-         write(6,*) 'ck hgc, bf call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
+
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
          write(6,*) 'ck hgc, af call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
 
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
-            !! call Hsampler%write_2_oserver(list(n)%xsampler,list(n)%currentFile,oClients=o_Clients,_RC)   ! epoch_alarm inside
-            !! alternatively I can use griddedio  pasting o_bundle as input, which writes to o_server
-            !!
+
             create_mode = PFIO_NOCLOBBER ! defaut no overwrite
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
-            !         list(n)%timeInfo%is_initialized=.false.
-            !         timeinfo_uninit
-
 
              write(6,*) 'inside epoch alarm, bf list(n)%mGriddedIO%CreateFileMetaData'
              ! add time to items
              if (.NOT. list(n)%xsampler%have_initalized) then
-                print *, 'xsampler%have_initalized is F'
-!                print *, 'xsampler%have_initalized is F',  __LINE__, __NAME__
                 list(n)%xsampler%have_initalized = .true.
                 global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
                 item%itemType = ItemTypeScalar
@@ -3425,8 +3418,10 @@ ENDDO PARSER
                 call list(n)%items%push_back(item)
              endif
 
-             write(6,*) 'bf mGriddedIO%CreateFileMetaData'
-             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+             ! fill time ptr with true value
+             call Hsampler%get_time_value_from_factory()
+
+             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)                         
              write(6,*) 'af mGriddedIO%CreateFileMetaData'             
 
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
@@ -3441,7 +3436,7 @@ ENDDO PARSER
       end if
    end do epoch_swath_grid_case
 
-
+   
 ! Write Id and time
 ! -----------------
 
@@ -3471,15 +3466,10 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-         print*, 'nymd,nhms', nymd,nhms
-
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
 
-         print*, ' filename(n) = ',  trim(filename(n))
-
-!!         stop -1
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
             list(n)%currentFile = filename(n)
@@ -3518,12 +3508,10 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-! ygyu: double check ???
                   if (trim(list(n)%output_grid_label)/='SwathGrid') then
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
                   endif
                   list(n)%currentFile = filename(n)
-                  print*, 'filename(n)', trim(filename(n))
                   list(n)%unit = -1
                else
                   list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
@@ -3654,8 +3642,6 @@ ENDDO PARSER
 
 
    ! destroy acc_bundle, regenerate ogrid, RH
-   
-
 
 
    WAITLOOP: do n=1,nlist

@@ -129,14 +129,10 @@ module MAPL_GriddedIOMod
         character(len=:), pointer :: attr_name, attr_val
         integer :: status
 
-        print *, __FILE__, __LINE__
         if ( allocated (this%metadata) ) deallocate(this%metadata)
-        print *, __FILE__, __LINE__
         allocate(this%metadata)
-        print *, __FILE__, __LINE__
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
-        print *, __FILE__, __LINE__
         this%items = items
         this%input_bundle = bundle
         this%output_bundle = ESMF_FieldBundleCreate(rc=status)
@@ -150,12 +146,10 @@ module MAPL_GriddedIOMod
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
-        print *, __FILE__, __LINE__
         
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
 
-        print *, __FILE__, __LINE__
         
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
@@ -169,7 +163,6 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         call factory%append_metadata(this%metadata)
 
-        print *, __FILE__, __LINE__        
 
         if (present(vdata)) then
            this%vdata=vdata
@@ -194,7 +187,6 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
-        print *, __FILE__, __LINE__
         
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
@@ -936,6 +928,9 @@ module MAPL_GriddedIOMod
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
 
+     print*, __FILE__
+     print*, 'fieldname: ', trim(fieldname)
+     
      call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
      _VERIFY(status)
      if (fieldRank==2) then
@@ -945,9 +940,8 @@ module MAPL_GriddedIOMod
 
            write(6,*) 'max in ptr2d', maxval(ptr2d(:,:))
            write(6,*) 'min in ptr2d', minval(ptr2d(:,:))           
-!!           write(6,*)  ptr2d(10,:)                      
+          write(6,*)  ptr2d(10,1:100:20)                      
            write(6,*) 'shape in ptr2d', shape(ptr2d)           
-
 !           ptr2d=100.
            
            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
