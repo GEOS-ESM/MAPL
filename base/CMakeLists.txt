@@ -52,7 +52,6 @@ set (srcs
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
   MAPL_ISO8601_DateTime_ESMF.F90
-  FieldUtilities.F90
   MAPL_Resource.F90
   MAPL_XYGridFactory.F90
   MAPL_NetCDF.F90

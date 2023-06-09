@@ -9,8 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added field utilities to perform basic numeric operations on fields
+- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
+
 ### Changed
 
+- Updated programs using FLAP for command line parsing to use fArgParse instead
+- Updated `components.yaml` to match GEOSgcm v11.1.0
+  - ESMA_env v4.9.1 → v4.17.0
+    - Baselibs 7.13.0
+      - esmf v8.5.0b22
+      - GFE v1.10.0
+      - curl 8.1.1
+      - HDF5 1.10.10
+      - netCDF-C 4.9.2
+      - netCDF-Fortran 4.6.1
+      - CDO 2.2.0
+      - NCO 5.1.5
+    - Move to MPT 2.28 at NAS, and other various changes for TOSS4 at NAS
+  - ESMA_cmake v3.28.0 → v3.29.0
+    - Clean up for TOSS4 changes at NAS
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
 
 ### Fixed
@@ -21,11 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.39.3] - 2023-06-07
-
-### Add
-
-- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
+- Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
 
 ## [2.39.2] - 2023-05-30
 
