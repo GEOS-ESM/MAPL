@@ -3,7 +3,7 @@
 module Test_FieldArithmetic
 
    use geom_setup
-   use MAPL_FieldFunctions
+   use MAPL_FieldUnaryFunctions
    use MAPL_FieldBinaryOperations
    use MAPL_FieldUtilities
    use MAPL_FieldPointerUtilities
@@ -38,6 +38,10 @@ contains
          indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
       YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
          indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
+      call ESMF_AttributeSet(xr4,name="missing_value",value=undef,_RC)
+      call ESMF_AttributeSet(xr8,name="missing_value",value=undef,_RC)
+      call ESMF_AttributeSet(yr4,name="missing_value",value=undef,_RC)
+      call ESMF_AttributeSet(yr8,name="missing_value",value=undef,_RC)
 
    end subroutine set_up_data
 
@@ -58,7 +62,7 @@ contains
       y_ptr = 3.0 
       result_array = x_ptr
       result_array = 5.0
-      call FieldAdd(x, y, _RC)
+      call FieldAdd(x, x, y, _RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldAddR4
 
@@ -69,11 +73,9 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
       real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
       integer :: status, rc
-      real :: undef
 
       x = XR4
       y = YR4
-      undef = 42.0
       call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y , farrayPtr = y_ptr, _RC)
 
@@ -81,7 +83,7 @@ contains
       y_ptr = reshape(source=[undef,3.0,3.0,undef],shape=[2,2])
       result_array = x_ptr
       result_array = reshape(source=[undef,5.0,5.0,undef],shape=[2,2])
-      call FieldAdd(x, y, undef=undef, _RC)
+      call FieldAdd(x, x, y, _RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldAddR4_missing
 
@@ -102,7 +104,7 @@ contains
       y_ptr = 3.d0
       result_array = x_ptr
       result_array = 5.d0
-      call FieldAdd(x, y, _RC)
+      call FieldAdd(x, x, y, _RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldAddR8
 
@@ -121,9 +123,28 @@ contains
       expo = 4.0
       result_array = x_ptr
       result_array = 2.0**expo
-      call FieldPow(x, expo, _RC)
+      call FieldPow(x, x, expo, _RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldPowR4
+
+   @Test
+   subroutine test_FieldPowR8()
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: result_array(:,:)
+      integer :: status, rc
+      real :: expo
+
+      x = XR8
+      call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+
+      x_ptr = 2.d0
+      expo = 4.0
+      result_array = x_ptr
+      result_array = 2.d0**expo
+      call FieldPow(x, x, expo, _RC)
+      @assertEqual(x_ptr, result_array)
+   end subroutine test_FieldPowR8
 
    @Test
    subroutine test_FieldSinR4()
@@ -138,7 +159,7 @@ contains
       x_ptr = 2.0
       result_array = x_ptr
       result_array = sin(2.0)
-      call FieldSin(x, _RC)
+      call FieldSin(x, x, _RC)
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldSinR4
 

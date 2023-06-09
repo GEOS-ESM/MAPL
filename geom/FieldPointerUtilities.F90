@@ -8,14 +8,23 @@ module MAPL_FieldPointerUtilities
    implicit none
    private
 
+   public :: FieldsHaveUndef
+   public :: GetFieldsUndef
    public :: assign_fptr
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
    public :: FieldGetCptr
    public :: FieldClone
    public :: FieldsAreConformable
+   public :: FieldsAreBroadcastConformable
    public :: FieldsAreSameTypeKind
    public :: FieldCopy
+   public :: FieldCopyBroadcast
+
+   interface GetFieldsUndef
+      module procedure GetFieldsUndef_r4
+      module procedure GetFieldsUndef_r8
+   end interface
 
    interface assign_fptr
       module procedure assign_fptr_r4_rank1
@@ -41,6 +50,10 @@ module MAPL_FieldPointerUtilities
       procedure are_conformable_array
    end interface
 
+   interface FieldsAreBroadCastConformable
+      procedure are_broadcast_conformable
+   end interface
+
    interface FieldClone
       module procedure clone
    end interface FieldClone
@@ -54,11 +67,13 @@ module MAPL_FieldPointerUtilities
       module procedure verify_typekind_array
    end interface verify_typekind
 
-   ! call FieldCOPY(x, ddy, rc): y = x
    interface FieldCOPY
       procedure copy
    end interface FieldCOPY
 
+   interface FieldCopyBroadcast
+      procedure copy_broadcast
+   end interface FieldCopyBroadcast
 contains
 
 
@@ -417,6 +432,32 @@ contains
       _RETURN(_SUCCESS)
    end function are_conformable_array
 
+   logical function are_broadcast_conformable(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+      integer :: rank_x, rank_y
+      integer, dimension(:), allocatable :: count_x, count_y
+      integer :: status
+      
+      ! this should really used the geom and ungridded dims
+      ! for now we will do this until we have a geom agnostic stuff worked out...
+      ! the ideal algorithm would be if geom == geom and input does not have ungridded
+      ! and thing we are copying to does, then we are "conformable"
+      conformable = .false.
+
+      call ESMF_FieldGet(x, rank=rank_x, _RC)
+      call ESMF_FieldGet(y, rank=rank_y, _RC)
+
+      if( (rank_x+1) == rank_y) then
+         count_x = FieldGetLocalElementCount(x, _RC)
+         count_y = FieldGetLocalElementCount(y, _RC)
+         conformable = all(count_x == count_y(:rank_y-1))
+      end if
+
+      _RETURN(_SUCCESS)
+   end function are_broadcast_conformable
+
    logical function are_same_type_kind(x, y, rc) result(same_tk)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
@@ -476,6 +517,132 @@ contains
       end do
 
    end function is_valid_typekind
+
+   subroutine copy_broadcast(x, y, rc)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_TypeKind_Flag) :: tk_x, tk_y
+      type(c_ptr) :: cptr_x, cptr_y
+      integer(kind=ESMF_KIND_I8) :: n_input,n_extra
+      integer :: status
+      logical :: conformable, broadcast
+      integer, allocatable :: x_shape(:), y_shape(:)
+      logical :: x_is_double
+      logical :: y_is_double
+      character(len=*), parameter :: UNSUPPORTED_TK = &
+         'Unsupported typekind in FieldCOPY() for '
+
+      conformable = FieldsAreConformable(x, y)
+      if (conformable) then
+         call copy(x,y,_RC)
+         _RETURN(_SUCCESS)
+      end if
+      broadcast = FieldsAreBroadcastConformable(x,y)
+      _ASSERT(broadcast, 'FieldCopy() - fields not be broadcast.')
+
+      call MAPL_FieldGetLocalElementCount(x,x_shape,_RC)
+      call MAPL_FieldGetLocalElementCount(y,y_shape,_RC)
+      call FieldGetCptr(x, cptr_x, _RC)
+      call ESMF_FieldGet(x, typekind = tk_x, _RC)
+
+      n_input = product(x_shape)
+      n_extra = y_shape(size(y_shape))
+
+      call FieldGetCptr(y, cptr_y, _RC)
+      call ESMF_FieldGet(y, typekind = tk_y, _RC)
+
+      y_is_double = (tk_y == ESMF_TYPEKIND_R8)
+      _ASSERT(y_is_double .or. (tk_y == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'y.')
+
+      x_is_double = (tk_x == ESMF_TYPEKIND_R8)
+      _ASSERT(x_is_double .or. (tk_x == ESMF_TYPEKIND_R4), UNSUPPORTED_TK//'x.')
+
+      if (y_is_double) then
+         if (x_is_double) then
+            call copy_bcast_r8_r8(cptr_x, cptr_y, n_input,n_extra)
+         else
+            call copy_bcast_r4_r8(cptr_x, cptr_y, n_input,n_extra)
+         end if
+      else
+         if (x_is_double) then
+            call copy_bcast_r8_r4(cptr_x, cptr_y, n_input,n_extra)
+         else
+            call copy_bcast_r4_r4(cptr_x, cptr_y, n_input,n_extra)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine copy_broadcast
+
+   subroutine copy_bcast_r4_r4(cptr_x, cptr_y, n1,n2)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n1,n2
+
+      integer :: i
+
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: y_ptr(:,:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n1])
+      call c_f_pointer(cptr_y, y_ptr, [n1,n2])
+
+      do i=1,n2
+         y_ptr(:,i) = x_ptr
+      enddo
+   end subroutine copy_bcast_r4_r4
+
+   subroutine copy_bcast_r4_r8(cptr_x, cptr_y, n1,n2)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n1,n2
+
+      integer :: i
+
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: y_ptr(:,:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n1])
+      call c_f_pointer(cptr_y, y_ptr, [n1,n2])
+
+      do i=1,n2
+         y_ptr(:,i) = x_ptr
+      enddo
+   end subroutine copy_bcast_r4_r8
+
+   subroutine copy_bcast_r8_r4(cptr_x, cptr_y, n1,n2)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n1,n2
+
+      integer :: i
+
+      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: y_ptr(:,:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n1])
+      call c_f_pointer(cptr_y, y_ptr, [n1,n2])
+
+      do i=1,n2
+         y_ptr(:,i) = x_ptr
+      enddo
+   end subroutine copy_bcast_r8_r4
+
+   subroutine copy_bcast_r8_r8(cptr_x, cptr_y, n1,n2)
+      type(c_ptr), intent(in) :: cptr_x, cptr_y
+      integer(ESMF_KIND_I8), intent(in) :: n1,n2
+
+      integer :: i
+
+      real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: y_ptr(:,:)
+
+      call c_f_pointer(cptr_x, x_ptr, [n1])
+      call c_f_pointer(cptr_y, y_ptr, [n1,n2])
+
+      do i=1,n2
+         y_ptr(:,i) = x_ptr
+      enddo
+   end subroutine copy_bcast_r8_r8
 
    subroutine copy(x, y, rc)
       type(ESMF_Field), intent(inout) :: x
@@ -630,5 +797,55 @@ contains
      end if
      _RETURN(_SUCCESS)
   end subroutine MAPL_FieldGetLocalElementCount
+
+  function FieldsHaveUndef(fields,rc) result(all_have_undef)
+     logical :: all_have_undef
+     type(ESMF_Field), intent(inout) :: fields(:)
+     integer, optional, intent(out) :: rc
+
+     integer :: status, i
+     logical :: isPresent
+
+     all_have_undef = .true.
+     do i =1,size(fields)
+        call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
+        all_have_undef = (all_have_undef .and. isPresent)
+     enddo
+     _RETURN(_SUCCESS)
+  end function
+
+  subroutine GetFieldsUndef_r4(fields,undef_values,rc)
+     type(ESMF_Field), intent(inout) :: fields(:)
+     real(kind=ESMF_KIND_R4), allocatable,intent(inout) :: undef_values(:)
+     integer, optional, intent(out) :: rc
+
+     integer :: status, i
+     logical :: isPresent
+     
+     allocate(undef_values(size(fields)))
+     do i =1,size(fields)
+        call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
+        _ASSERT(isPresent,"missing undef value")
+        call ESMF_AttributeGet(fields(i),value=undef_values(i),name="missing_value",_RC)
+     enddo
+     _RETURN(_SUCCESS)
+  end subroutine GetFieldsUndef_r4
+
+  subroutine GetFieldsUndef_r8(fields,undef_values,rc)
+     type(ESMF_Field), intent(inout) :: fields(:)
+     real(kind=ESMF_KIND_R8), allocatable,intent(inout) :: undef_values(:)
+     integer, optional, intent(out) :: rc
+
+     integer :: status, i
+     logical :: isPresent
+     
+     allocate(undef_values(size(fields)))
+     do i =1,size(fields)
+        call ESMF_AttributeGet(fields(i),name="missing_value",isPresent=isPresent,_RC)
+        _ASSERT(isPresent,"missing undef value")
+        call ESMF_AttributeGet(fields(i),value=undef_values(i),name="missing_value",_RC)
+     enddo
+     _RETURN(_SUCCESS)
+  end subroutine GetFieldsUndef_r8
 
 end module

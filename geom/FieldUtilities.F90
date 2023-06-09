@@ -96,21 +96,28 @@ subroutine FieldSet_r4(field,constant_val,rc)
    _RETURN(ESMF_SUCCESS)
 end subroutine FieldSet_r4
 
-subroutine FieldNegate(field,undef,rc)
+subroutine FieldNegate(field,rc)
    type(ESMF_Field), intent(inout) :: field
-   real, optional, intent(in) :: undef
    integer, intent(out), optional :: rc
 
    type(ESMF_TYPEKIND_FLAG) :: type_kind
    real(kind=ESMF_KIND_R4), pointer :: f_ptr_r4(:)
    real(kind=ESMF_KIND_R8), pointer :: f_ptr_r8(:)
+   logical :: has_undef
+   real(kind = ESMF_Kind_R4), allocatable :: undef_r4(:)
+   real(kind = ESMF_Kind_R8), allocatable :: undef_r8(:) 
    integer :: status
+   type(ESMF_Field) :: fields(1)
 
+
+   fields(1) = field 
+   has_undef = FieldsHaveUndef(fields,_RC)  
    call ESMF_FieldGet(field,typekind=type_kind,_RC)
    if (type_kind == ESMF_TYPEKIND_R4) then
       call assign_fptr(field,f_ptr_r4,_RC)
-      if (present(undef)) then
-         where(f_ptr_r4 /= undef)
+      if (has_undef) then
+         call GetFieldsUndef(fields,undef_r4,_RC)
+         where(f_ptr_r4 /= undef_r4(1))
             f_ptr_r4 = -f_ptr_r4
          end where
       else
@@ -118,8 +125,9 @@ subroutine FieldNegate(field,undef,rc)
       end if
    else if (type_kind == ESMF_TYPEKIND_R4) then
       call assign_fptr(field,f_ptr_r8,_RC)
-      if (present(undef)) then
-         where(f_ptr_r8 /= undef)
+      if (has_undef) then
+         call GetFieldsUndef(fields,undef_r8,_RC)
+         where(f_ptr_r8 /= undef_r8(1))
             f_ptr_r8 = -f_ptr_r8
          end where
       else
@@ -131,35 +139,55 @@ subroutine FieldNegate(field,undef,rc)
    _RETURN(ESMF_SUCCESS)
 end subroutine FieldNegate
 
-subroutine FieldPow(field,expo,undef,rc)
-   type(ESMF_Field), intent(inout) :: field
+subroutine FieldPow(field_out,field_in,expo,rc)
+   type(ESMF_Field), intent(inout) :: field_out
+   type(ESMF_Field), intent(inout) :: field_in
    real, intent(in) :: expo
-   real, optional, intent(in) :: undef
    integer, intent(out), optional :: rc
 
-   type(ESMF_TYPEKIND_FLAG) :: type_kind
-   real(kind=ESMF_KIND_R4), pointer :: f_ptr_r4(:)
-   real(kind=ESMF_KIND_R8), pointer :: f_ptr_r8(:)
+   real(kind = ESMF_Kind_R4), allocatable :: undef_r4(:)
+   real(kind = ESMF_Kind_R8), allocatable :: undef_r8(:)
+   type(ESMF_TypeKind_Flag) :: tk_in, tk_out
+   real(kind=ESMF_KIND_R4), pointer :: ptr_r4_in(:),ptr_r4_out(:)
+   real(kind=ESMF_KIND_R8), pointer :: ptr_r8_in(:),ptr_r8_out(:)
    integer :: status
+   logical :: has_undef,conformable
+   type(ESMF_Field) :: fields(2)
 
-   call ESMF_FieldGet(field,typekind=type_kind,_RC)
-   if (type_kind == ESMF_TYPEKIND_R4) then
-      call assign_fptr(field,f_ptr_r4,_RC)
-      if (present(undef)) then
-         where(f_ptr_r4 /= undef)
-            f_ptr_r4 = f_ptr_r4 ** expo
+   conformable = FieldsAreConformable(field_in,field_out,_RC)
+   _ASSERT(conformable,"Fields passed power function are not conformable")
+
+   fields(1) = field_in
+   fields(2) = field_out
+   has_undef = FieldsHaveUndef(fields,_RC)
+   call ESMF_FieldGet(field_in,typekind=tk_in,_RC)
+   call ESMF_FieldGet(field_out,typekind=tk_out,_RC)
+   _ASSERT(tk_in == tk_out, "For now input and output field must be of same type for a field function")
+   if (tk_in == ESMF_TYPEKIND_R4) then
+      call assign_fptr(field_in,ptr_r4_in,_RC)
+      call assign_fptr(field_out,ptr_r4_out,_RC)
+      if (has_undef) then
+         call GetFieldsUndef(fields,undef_r4,_RC)
+         where(ptr_r4_in /= undef_r4(1))
+            ptr_r4_out = ptr_r4_in**expo
+         elsewhere
+            ptr_r4_out = undef_r4(2)
          end where
       else
-         f_ptr_r4 = f_ptr_r4**expo
+         ptr_r4_out = ptr_r4_in**expo
       end if
-   else if (type_kind == ESMF_TYPEKIND_R4) then
-      call assign_fptr(field,f_ptr_r8,_RC)
-      if (present(undef)) then
-         where(f_ptr_r8 /= undef)
-            f_ptr_r8 = f_ptr_r8 ** expo
+   else if (tk_in == ESMF_TYPEKIND_R8) then
+      call assign_fptr(field_in,ptr_r8_in,_RC)
+      call assign_fptr(field_out,ptr_r8_out,_RC)
+      if (has_undef) then
+         call GetFieldsUndef(fields,undef_r8,_RC)
+         where(ptr_r8_in /= undef_r8(1))
+            ptr_r8_out = ptr_r8_in**expo
+         elsewhere
+            ptr_r8_out = undef_r8(2)
          end where
       else
-         f_ptr_r8 = f_ptr_r8**expo
+         ptr_r8_out = ptr_r8_in**expo
       end if
    else
       _FAIL('unsupported typekind')

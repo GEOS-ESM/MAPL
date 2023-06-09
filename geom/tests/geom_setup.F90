@@ -27,6 +27,7 @@ module geom_setup
    integer, parameter :: DIMR8_DEFAULT(*) = [4, 4]
    integer, parameter :: SIZE_R4 = 16
    integer, parameter :: SIZE_R8 = 16
+   real, parameter :: undef = 42.0
 
    real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R4)], DIMR4_DEFAULT)
    real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT) 
@@ -35,6 +36,10 @@ module geom_setup
    type(ESMF_Field) :: XR8
    type(ESMF_Field) :: YR4
    type(ESMF_Field) :: YR8
+   type(ESMF_Field) :: XR4_3D
+   type(ESMF_Field) :: XR8_3D
+   type(ESMF_Field) :: YR4_3D
+   type(ESMF_Field) :: YR8_3D
    
 contains
 
