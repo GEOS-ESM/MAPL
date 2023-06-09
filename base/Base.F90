@@ -50,7 +50,6 @@ module MAPLBase_Mod
   use MAPL_ServerManager
   use MAPL_FileMetadataUtilsMod
   use MAPL_VerticalDataMod
-  use MAPL_FieldUtilities
   use MAPL_SphericalGeometry
   logical, save, private :: mapl_is_initialized = .false.
 

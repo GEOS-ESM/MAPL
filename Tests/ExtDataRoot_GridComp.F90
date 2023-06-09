@@ -353,7 +353,7 @@ MODULE ExtDataUtRoot_GridCompMod
       class(timeVar), intent(in) :: this
       type(ESMF_Time), intent(inout) :: currTime
       integer, optional, intent(out) :: rc
-      real(REAL64) :: dt
+      real(kind=ESMF_KIND_R8) :: dt
 
       integer :: status
 
@@ -482,6 +482,7 @@ MODULE ExtDataUtRoot_GridCompMod
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
       integer :: i1,in,j1,jn,ldims(3),i,j
+      real(kind=ESMF_KIND_R8) :: doy,time_delta
 
       call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
       call MAPL_Grid_Interior(grid,i1,in,j1,jn)
@@ -489,9 +490,6 @@ MODULE ExtDataUtRoot_GridCompMod
       allocate(outNameList(itemCount),stat=status)
       _VERIFY(status)
       call ESMF_StateGet(outState,itemNameList=outNameList,_RC)
-
-      call MAPL_GetPointer(inState,exPtr2,'time',_RC)
-      exPtr2=synth%tFunc%evaluate_time(Time,_RC)
 
       call MAPL_GetPointer(inState,exPtr2,'i_index',_RC)
       do j = 1,ldims(2)
@@ -505,15 +503,17 @@ MODULE ExtDataUtRoot_GridCompMod
             exPtr2(i,j)=j1+j-1
          enddo
       enddo
-      call MAPL_GetPointer(inState,exPtr2,'doy',_RC)
-      exPtr2 = compute_doy(time,_RC)
 
       call ESMF_StateGet(inState,'time',farray(1),_RC)
+      time_delta = synth%tFunc%evaluate_time(Time,_RC)
+      call FieldSet(farray(1), time_delta,_RC)
       call ESMF_StateGet(inState,'lons',farray(2),_RC)
       call ESMF_StateGet(inState,'lats',farray(3),_RC)
       call ESMF_StateGet(inState,'i_index',farray(4),_RC)
       call ESMF_StateGet(inState,'j_index',farray(5),_RC)
       call ESMF_StateGet(inState,'doy',farray(6),_RC)
+      doy = compute_doy(time,_RC)
+      call FieldSet(farray(6), doy,_RC)
       pstate = ESMF_StateCreate(_RC)
       call ESMF_StateAdd(pstate,farray,_RC)
 
@@ -556,8 +556,8 @@ MODULE ExtDataUtRoot_GridCompMod
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
             call ESMF_FieldGet(field2,rank=rank2,_RC)
-            all_undef1 = is_field_undef(field1,_RC)
-            all_undef2 = is_field_undef(field2,_RC)
+            all_undef1 = FieldIsConstant(field1,MAPL_UNDEF,_RC)
+            all_undef2 = FieldIsConstant(field2,MAPL_UNDEF,_RC)
             if (all_undef1 .or. all_undef2) then
                exit
             end if
