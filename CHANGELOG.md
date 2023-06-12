@@ -13,11 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed a bug when performing veritcal regridding in History when the output grid cannot be decomposed so that every core has a DE
-
 ### Removed
 
 ### Deprecated
+
+## [2.39.3] - 2023-06-12
+
+### Fixed
+
+- Fixed a bug when performing vertical regridding in History when the output grid cannot be decomposed so that every core has a DE
 
 ## [2.39.2] - 2023-05-30
 
