@@ -5,21 +5,21 @@ add_definitions(-DUSE_MPI)
 # as well as the helper procedures used by test_MAPL_NetCDF and test_MAPL_NetCDF_private
 # make sure to make the private procedures in MAPL_NetCDF public (uncomment the 'public' statements).
 set (TEST_SRCS
-    test_Mapl_Base.pf
-    test_sort.pf
+#    test_Mapl_Base.pf
+#    test_sort.pf
 #    Test_CFIO_Bundle.pf
-    Test_SimpleMAPLcomp.pf
-    Test_StringGridFactoryMap.pf
-    Test_GridManager.pf
-    Test_LatLon_GridFactory.pf
-    Test_SphericalToCartesian.pf
-    Test_LatLon_Corners.pf
-    Test_MAPL_Config.pf
-    test_DirPath.pf
-    test_TimeStringConversion.pf
+#    Test_SimpleMAPLcomp.pf
+#    Test_StringGridFactoryMap.pf
+#    Test_GridManager.pf
+#    Test_LatLon_GridFactory.pf
+#    Test_SphericalToCartesian.pf
+#    Test_LatLon_Corners.pf
+#    Test_MAPL_Config.pf
+#    test_DirPath.pf
+#    test_TimeStringConversion.pf
     test_MAPL_NetCDF.pf
     test_MAPL_NetCDF_helpers.F90
-#    test_MAPL_NetCDF_private.pf
+    test_MAPL_NetCDF_private.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 

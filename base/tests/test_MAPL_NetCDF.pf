@@ -100,7 +100,7 @@ contains
       character(len=:), allocatable :: units
       character(len=:), allocatable :: preposition
       character(len=:), allocatable :: units_string
-      type(ESMF_Time) :: time, esmf_time
+      type(ESMF_Time) :: time, etime
       integer :: status
 
       yy = 1999
@@ -117,13 +117,13 @@ contains
       units_string = make_units_string(units, preposition, yy, mm, dd, h, m, s)
       @assertTrue(len_trim(units_string) > 0, "Failed to make units_string")
 
-      call ESMF_TimeSet(esmf_time, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
+      call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
       @assertTrue(status == SUCCESS, 'Unable to create expected ESMF_Time')
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time, rc = status)
       @assertTrue(status == SUCCESS, 'Conversion failed')
 
-      @assertTrue(ESMF_Times_Equal(esmf_time, time), 'ESMF_Time values do not match.')
+      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
 
    end subroutine test_get_ESMF_Time_from_NetCDF_DateTime_integer
 
@@ -134,7 +134,7 @@ contains
       character(len=:), allocatable :: units
       character(len=:), allocatable :: preposition
       character(len=:), allocatable :: units_string
-      type(ESMF_Time) :: time, esmf_time
+      type(ESMF_Time) :: time, etime
       integer :: status
 
       yy = 1999
@@ -151,13 +151,13 @@ contains
       units_string = make_units_string(units, preposition, yy, mm, dd, h, m, s)
       @assertTrue(len_trim(units_string) > 0, 'Failed to make units_string')
 
-      call ESMF_TimeSet(esmf_time, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
+      call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
       @assertTrue(status == SUCCESS, 'Unable to create expected ESMF_Time')
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time, rc = status)
       @assertTrue(status == SUCCESS, 'Conversion failed')
 
-      @assertTrue(ESMF_Times_Equal(esmf_time, time), 'ESMF_Time values do not match.')
+      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
 
    end subroutine test_get_ESMF_Time_from_NetCDF_DateTime_real
 

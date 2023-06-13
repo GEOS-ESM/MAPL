@@ -83,61 +83,47 @@ contains
    end subroutine test_get_shift_sign
 
    @Test
-   subroutine test_split_chars()
-      character(len=*), parameter :: head = 'head'
-      character(len=*), parameter :: tail = 'tail'
-      character(len=*), parameter :: delim = '::'
-      character(len=:), allocatable :: test_string
-      character(len=:), allocatable :: parts(:)
+   subroutine test_split_characters()
+      integer, parameter :: N = 64
+      character(len=*), parameter :: PART1 = 'duck'
+      character(len=*), parameter :: PART2 = 'deer'
+      character(len=*), parameter :: YEAR = '1984'
+      character(len=*), parameter :: MONTH = '11'
+      character(len=*), parameter :: DAY = '30'
+      character(len=*), parameter :: HOUR = '19'
+      character(len=*), parameter :: MINUTE = '19'
+      character(len=*), parameter :: SECOND = '19.327'
+      character, parameter :: D = '-'
+      character, parameter :: T = ':'
+      character, parameter :: S = ' '
 
-      test_string = head // delim // tail
-      parts = split(test_string, delim)
-      @assertEqual(2, size(parts), 'Two parts expected.')
-      @assertEqual(head, parts(1), 'Part 1 does not match head.')
-      @assertEqual(tail, parts(2), 'Part 2 does not match tail.')
+      character(len=N) :: test_string
+      character(len=N) :: remainder
+      character(len=N) :: token
+      character(len=:), allocatable :: delimiters
 
-      test_string = delim // tail
-      parts = split(test_string, delim)
-      @assertEqual(tail, parts(2), 'Part 2 does not match tail.')
-      @assertEqual(0, len_trim(parts(1)),'Part 1 has nonzero length.')
+      delimiters = S
+      test_string = trim(PART1) // delimiters // trim(PART2)
+      call split(trim(test_string), token, remainder)
+      @assertEqual(PART1, token, "First part doesn't match.")
+      @assertEqual(PART2, remainder, "Second part doesn't match.")
 
-      test_string = head // delim
-      parts = split(test_string, delim)
-      @assertEqual(head, parts(1), 'Part 1 does not match head.')
-      @assertEqual(0, len_trim(parts(2)),'Part 2 has nonzero length.')
+      delimiters = '- :'
+      test_string = YEAR // D // MONTH // D // DAY // S // HOUR // T // MINUTE // T // SECOND
+      call split(trim(test_string), token, remainder, trim(delimiters))
+      @assertEqual(YEAR, token, "YEAR doesn't match.")
+      call split(trim(remainder), token, remainder, trim(delimiters))
+      @assertEqual(MONTH, token, "MONTH doesn't match.")
+      call split(trim(remainder), token, remainder, trim(delimiters))
+      @assertEqual(DAY, token, "DAY doesn't match.")
+      call split(trim(remainder), token, remainder, trim(delimiters))
+      @assertEqual(HOUR, token, "HOUR doesn't match.")
+      call split(trim(remainder), token, remainder, trim(delimiters))
+      @assertEqual(MINUTE, token, "MINUTE doesn't match.")
+      call split(trim(remainder), token, remainder, trim(delimiters))
+      @assertEqual(SECOND, token, "SECOND doesn't match.")
 
-      test_string = head // '  ' // tail
-      parts = split(test_string, delim)
-      @assertEqual(test_string, parts(1), 'Part 1 does not match test_string.')
-      @assertEqual(0, len_trim(parts(2)),'Part 2 has nonzero length.')
-
-      test_string = ''
-      parts = split(test_string, delim)
-      @assertEqual(0, len_trim(parts(1)),'Part 1 has nonzero length.')
-      @assertEqual(0, len_trim(parts(2)),'Part 2 has nonzero length.')
-
-   end subroutine test_split_chars
-
-   @Test
-   subroutine test_split_all_iterative()
-      integer, parameter :: N = 6
-      integer, parameter :: SLEN = 4
-      character(len=SLEN), parameter :: chunk(N) = ['mice', 'dogs', 'rats', 'fish', 'deer', 'pigs']
-      character(len=:), allocatable :: dlm
-      character(len=:), allocatable :: test_string
-      character(len=:), allocatable :: parts(:)
-      integer :: i
-
-      dlm = ' '
-      test_string =  'mice' // dlm // 'dogs' // dlm // 'rats' // dlm // 'fish' // dlm // 'deer' // dlm // 'pigs'
-
-      parts = split_all(test_string, dlm)
-      @assertEqual(size(parts), size(chunk), 'Number of parts do not match.')
-      do i = 1, size(chunk)
-         @assertEqual(chunk(i), parts(i))
-      end do
-
-   end subroutine test_split_all_iterative
+   end subroutine test_split_characters
  
    @Test
    subroutine test_is_valid_netcdf_datetime_string()
