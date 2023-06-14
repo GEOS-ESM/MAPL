@@ -95,8 +95,8 @@ module MAPL_AbstractRegridderMod
 
 !      ! Final
 !      procedure(I_destroy), deferred :: destroy
-!      procedure :: destroy
-!      procedure :: destroy_route_handle
+      procedure :: destroy
+      procedure :: destroy_route_handle
 
    end type AbstractRegridder
 
@@ -1019,54 +1019,20 @@ contains
    end function get_regrid_method
 
 
-!   subroutine destroy(this, rc)
-!      class(AbstractRegridder), intent(inout) :: this
-!      integer, optional, intent(out) :: rc
-!
-!      integer :: status
-!
-!      call this%destroy_route_handle(ESMF_TYPEKIND_R4, _RC)
-!      
-!      _RETURN(_SUCCESS)
-!   end subroutine destroy
-!
-!   subroutine destroy_route_handle(this, kind, rc)
-!      class(AbstractRegridder), intent(inout) :: this
-!      type(ESMF_TypeKind_Flag), intent(in) :: kind
-!      integer, optional, intent(out) :: rc
-!
-!     type (RegridderSpec) :: spec
-!     type(ESMF_RouteHandle) :: dummy_rh
-!     type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
-!     type(ESMF_RouteHandle) :: route_handle
-!     type(RegridderSpecRouteHandleMapIterator) :: iter
-!     integer :: status
-!
-!     if (kind == ESMF_TYPEKIND_R4) then
-!        route_handles => route_handles_r4
-!        transpose_route_handles => transpose_route_handles_r4
-!     else if(kind == ESMF_TYPEKIND_R8) then
-!        route_handles => route_handles_r8
-!        transpose_route_handles => transpose_route_handles_r8
-!     else
-!        _FAIL('unsupported type kind (must be R4 or R8)')
-!     end if
-!
-!     spec = this%get_spec()
-!
-!     _ASSERT(route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
-!     route_handle = route_handles%at(spec)
-!     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.,_RC)
-!     iter = route_handles%find(spec)
-!     call route_handles%erase(iter)
-!
-!     _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
-!     route_handle = transpose_route_handles%at(spec)
-!     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.)
-!     iter = transpose_route_handles%find(spec)
-!     call transpose_route_handles%erase(iter)
-!
-!      _RETURN(_SUCCESS)
-!   end subroutine destroy_route_handle
+   subroutine destroy(this, rc)
+      class(AbstractRegridder), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   subroutine destroy_route_handle(this, kind, rc)
+      class(AbstractRegridder), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_route_handle
 
 end module MAPL_AbstractRegridderMod

@@ -49,7 +49,7 @@ module MAPL_EpochSwathMod
      procedure :: create_grid
      !!procedure ::  create_sampler => create_epoch_sampler
      procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
-     procedure :: regen_grid => destroy_regen_ogrid_rh
+     procedure :: regen_grid => destroy_rh_regen_ogrid
      procedure :: write_2_oserver
      procedure :: fill_time_in_bundle  
   end type samplerHQ
@@ -242,14 +242,13 @@ contains
   end subroutine regrid_accumulate_on_xysubset  
   
 
-  subroutine destroy_regen_ogrid_rh (this, key_grid_label, pt_output_grids, sp, rc)
+  subroutine destroy_rh_regen_ogrid (this, key_grid_label, pt_output_grids, sp, rc)
     implicit none
     class(samplerHQ) :: this
     class(sampler) :: sp
     type (StringGridMap), pointer, intent(inout) :: pt_output_grids
     character(len=*), intent(in)  :: key_grid_label
     integer, intent(out), optional :: rc 
-!!    class(sampler), intent(inout)  :: sp
     type (StringGridMap) :: output_grids
     
     class(AbstractGridFactory), pointer :: factory
@@ -269,10 +268,7 @@ contains
     integer :: i, numVars
     character(len=ESMF_MAXSTR), allocatable :: names(:)
     type(ESMF_Field) :: field
-
-
-!!    type(Abstract) :: route_handle
-
+    
     if ( .NOT. ESMF_AlarmIsRinging(this%alarm) ) then
        write(6,*) 'ck: regen,  not in alarming'
        rc=0
@@ -306,19 +302,16 @@ contains
     write(6,*) 'ck: done adding iter to output_grids'
 
     
-    !
-    !-- ygyu: this still fails
-    !
 
     !__ s2.  destroy RH  +  regen RH
 
-!    ! -- destroy route_handle
-!    route_handle = sp%regrid_handle
-!    call route_handle%destroy(_RC)
-        
-    call ESMF_FieldBundleGet(sp%input_bundle,grid=input_grid,_RC)
-    sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,ogrid,sp%regrid_method,_RC)
-    write(6,*) 'ck: done adding sp%regrid_handle'
+    call sp%regrid_handle%destroy(_RC)
+
+    write(6,*) 'ck: done destroy regrid_RH'
+
+!    call ESMF_FieldBundleGet(sp%input_bundle,grid=input_grid,_RC)
+!    sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,ogrid,sp%regrid_method,_RC)
+!    write(6,*) 'ck: done adding sp%regrid_handle'
 
     
     !__ s3.  destroy + regen acc_bundle
@@ -332,9 +325,20 @@ contains
    enddo
    call ESMF_FieldBundleDestroy(sp%acc_bundle,noGarbage=.true.,_RC)
 
-    _RETURN(ESMF_SUCCESS)
+   call ESMF_FieldBundleGet(sp%output_bundle,fieldCount=numVars,_RC)
+   allocate(names(numVars),stat=status)
+   call ESMF_FieldBundleGet(sp%output_bundle,fieldNameList=names,_RC)
+   do i=1,numVars
+      call ESMF_FieldBundleGet(sp%output_bundle,trim(names(i)),field=field,_RC)
+      call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+   enddo
+   call ESMF_FieldBundleDestroy(sp%output_bundle,noGarbage=.true.,_RC)
+
+   write(6,*) 'ck: done destroy acc_bundle output_bundle'
+
+   _RETURN(ESMF_SUCCESS)
     
-  end subroutine destroy_regen_ogrid_rh
+  end subroutine destroy_rh_regen_ogrid
 
 
 

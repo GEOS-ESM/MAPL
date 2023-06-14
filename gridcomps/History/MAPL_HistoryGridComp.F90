@@ -3227,6 +3227,7 @@ ENDDO PARSER
     integer                        :: sec
     type (StringGridMap), pointer  :: pt_output_grids
     character(len=ESMF_MAXSTR)     :: key_grid_label
+    type (ESMF_Grid), pointer      :: pgrid
     
     integer :: collection_id
     integer :: create_mode
@@ -3413,22 +3414,17 @@ ENDDO PARSER
              if (.NOT. list(n)%xsampler%have_initalized) then
                 list(n)%xsampler%have_initalized = .true.
                 global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-                item%itemType = ItemTypeScalar
-                item%xname = 'time'
-                call list(n)%items%push_back(item)
              endif
-             call  Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+             item%itemType = ItemTypeScalar
+             item%xname = 'time'
+             call list(n)%items%push_back(item)
+             call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
              call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+             call list(n)%items%pop_back()
              write(6,*) 'af mGriddedIO%CreateFileMetaData'             
 
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
-
-            !--- defer it now
-            !
-!            pt_output_grids => IntState%output_grids
-!            key_grid_label = list(n)%output_grid_label
-! !!           call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )         ! at epoch_alarm
          endif
       end if
    end do epoch_swath_grid_case
@@ -3639,6 +3635,18 @@ ENDDO PARSER
 
 
    ! destroy acc_bundle, regenerate ogrid, RH
+  ! swath only
+   epoch_swath_regen_grid: do n=1,nlist
+      if (trim(list(n)%output_grid_label)=='SwathGrid') then
+         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+            pt_output_grids => IntState%output_grids
+            key_grid_label = list(n)%output_grid_label
+            call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )  ! at epoch_alarm
+            pgrid => pt_output_grids%at(trim(list(n)%output_grid_label))
+            call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+         endif
+      end if
+   end do epoch_swath_regen_grid
 
 
    WAITLOOP: do n=1,nlist
