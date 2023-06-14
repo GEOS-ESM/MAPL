@@ -49,7 +49,8 @@ module MAPL_EpochSwathMod
      procedure :: create_grid
      !!procedure ::  create_sampler => create_epoch_sampler
      procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
-     procedure :: regen_grid => destroy_rh_regen_ogrid
+     procedure :: destroy_rh_regen_ogrid
+     !!procedure :: regen_grid => destroy_rh_regen_ogrid
      procedure :: write_2_oserver
      procedure :: fill_time_in_bundle  
   end type samplerHQ
@@ -167,7 +168,7 @@ contains
     type(ESMF_Time), intent(inout) :: currTime
     character(len=*), optional, intent(in) :: grid_type
     integer, intent(out), optional :: rc
-    type (ESMF_Grid)  :: ogrid
+    type (ESMF_Grid) :: ogrid
 
     character(len=ESMF_MAXSTR) :: time_string
     integer :: status
@@ -242,14 +243,13 @@ contains
   end subroutine regrid_accumulate_on_xysubset  
   
 
-  subroutine destroy_rh_regen_ogrid (this, key_grid_label, pt_output_grids, sp, rc)
+  subroutine destroy_rh_regen_ogrid (this, key_grid_label, output_grids, sp, rc)
     implicit none
     class(samplerHQ) :: this
     class(sampler) :: sp
-    type (StringGridMap), pointer, intent(inout) :: pt_output_grids
+    type (StringGridMap), intent(inout) :: output_grids
     character(len=*), intent(in)  :: key_grid_label
     integer, intent(out), optional :: rc 
-    type (StringGridMap) :: output_grids
     
     class(AbstractGridFactory), pointer :: factory
     type(ESMF_Time) :: currTime
@@ -275,33 +275,31 @@ contains
        return
     endif
 
-    write(6,*)  'ck: yes in alarming , destroy_regen_ogrid_rh'    
-    
 
     !__ s1. destroy ogrid + regen ogrid
 
-    output_grids = pt_output_grids
-    key_str=trim(key_grid_label)
-    pgrid => output_grids%at(trim(key_str))
-    ogrid = pgrid
-    call grid_manager%destroy(ogrid,_RC)
-    write(6,*) 'ck: key_str ', trim(key_str)
+    key_str=trim(key_grid_label)    
+    pgrid => output_grids%at(trim(key_grid_label))
+    call grid_manager%destroy(pgrid,_RC)
+
+    write(6,*) 'ck: key_str ', trim(key_grid_label)
     write(6,*) 'ck: done grid_manager%destroy'    
 
-    call output_grids%insert(trim(key_str), ogrid)
     call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
     iter = output_grids%begin()
     do while (iter /= output_grids%end())
        key => iter%key()
+       print*, 'key in output_grids=', trim(key)
        if (trim(key)==trim(key_str)) then
           ogrid = this%create_grid (key_str, currTime, _RC)
           call output_grids%set(key, ogrid)
+          this%ogrid = ogrid
        endif
        call iter%next()
     enddo
-    write(6,*) 'ck: done adding iter to output_grids'
 
-    
+    write(6,*) 'ck: done adding ogrid to output_grids'
+
 
     !__ s2.  destroy RH  +  regen RH
 

@@ -3225,7 +3225,7 @@ ENDDO PARSER
     type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
     integer                        :: sec
-    type (StringGridMap), pointer  :: pt_output_grids
+    type (StringGridMap)           :: pt_output_grids
     character(len=ESMF_MAXSTR)     :: key_grid_label
     type (ESMF_Grid), pointer      :: pgrid
     
@@ -3639,9 +3639,9 @@ ENDDO PARSER
    epoch_swath_regen_grid: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
-            pt_output_grids => IntState%output_grids
             key_grid_label = list(n)%output_grid_label
-            call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )  ! at epoch_alarm
+           call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler,_RC )  ! at epoch_alarm
+
             !            pgrid => pt_output_grids%at(trim(list(n)%output_grid_label))
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
