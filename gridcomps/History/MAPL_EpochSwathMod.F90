@@ -46,11 +46,12 @@ module MAPL_EpochSwathMod
      real*8 :: arr(2)
 
    contains
-     procedure ::  create_grid
+     procedure :: create_grid
      !!procedure ::  create_sampler => create_epoch_sampler
-     procedure ::  regrid_accumulate => regrid_accumulate_on_xysubset
-     procedure ::  regen_grid => destroy_regen_ogrid_rh
-     procedure ::  write_2_oserver
+     procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
+     procedure :: regen_grid => destroy_regen_ogrid_rh
+     procedure :: write_2_oserver
+     procedure :: fill_time_in_bundle  
   end type samplerHQ
 
   interface samplerHQ
@@ -211,38 +212,35 @@ contains
     timeset(1) = current_time - dur
     timeset(2) = current_time
     call factory%get_xy_subset( timeset, xy_subset, _RC)
-
     
-    ! __ s2.  get xy_mask
-
-    call MAPL_GridGet( this%ogrid, globalCellCountPerDim=COUNTS, &
-         localCellCountPerDim=DIMS, _RC)
-    m1=COUNTS(1); m2=COUNTS(2)
-    allocate (global_xy_mask(m1, m2))
-    m1=DIMS(1); m2=DIMS(2)
-    allocate (local_xy_mask(m1, m2))    
-
-    write(6,*) 'global_counts(1:5)', COUNTS(1:3)
-    write(6,*) 'local_counts(1:3)', DIMS(1:3)
-    write(6,*) 'xy_subset(:,1)_x', xy_subset(:,1)    ! LB
-    write(6,*) 'xy_subset(:,2)_a', xy_subset(:,2), xy_subset(2,2)-xy_subset(1,2)+1  ! UB
-    
-!!    call get_xy_mask( this%ogrid, xy_subset, global_xy_mask, local_xy_mask, _RC )    
-  
+!!    ! __ s2.  get xy_mask
+!!
+!!    call MAPL_GridGet( this%ogrid, globalCellCountPerDim=COUNTS, &
+!!         localCellCountPerDim=DIMS, _RC)
+!!    m1=COUNTS(1); m2=COUNTS(2)
+!!    allocate (global_xy_mask(m1, m2))
+!!    m1=DIMS(1); m2=DIMS(2)
+!!    allocate (local_xy_mask(m1, m2))    
+!!
+!!    write(6,*) 'global_counts(1:5)', COUNTS(1:3)
+!!    write(6,*) 'local_counts(1:3)', DIMS(1:3)
+!!    write(6,*) 'xy_subset(:,1)_x', xy_subset(:,1)    ! LB
+!!    write(6,*) 'xy_subset(:,2)_a', xy_subset(:,2), xy_subset(2,2)-xy_subset(1,2)+1  ! UB
+!!    
+!!!!    call get_xy_mask( this%ogrid, xy_subset, global_xy_mask, local_xy_mask, _RC )    
+!!  
 
     ! __ s3.  interpolate then save data using xy_mask
 
     write(6,*) 'bf sp%interp_accumulate_fields'
-    !    call sp%interp_accumulate_fields (xy_subset, xy_mask, _RC)
+    !!    call sp%interp_accumulate_fields (xy_subset, xy_mask, _RC)
     call sp%interp_accumulate_fields (xy_subset, _RC)
     write(6,*) 'af sp%interp_accumulate_fields'
-
     
     _RETURN(ESMF_SUCCESS)
     
   end subroutine regrid_accumulate_on_xysubset  
   
-
 
   subroutine destroy_regen_ogrid_rh (this, key_grid_label, pt_output_grids, sp, rc)
     implicit none
@@ -268,10 +266,9 @@ contains
     character(len=:), pointer :: key
     type (ESMF_Config) ::  config_grid
     
-
     integer :: i, numVars
-     character(len=ESMF_MAXSTR), allocatable :: names(:)
-     type(ESMF_Field) :: field
+    character(len=ESMF_MAXSTR), allocatable :: names(:)
+    type(ESMF_Field) :: field
 
 
 !!    type(Abstract) :: route_handle
@@ -330,18 +327,91 @@ contains
    allocate(names(numVars),stat=status)
    call ESMF_FieldBundleGet(sp%acc_bundle,fieldNameList=names,_RC)
    do i=1,numVars
-        call ESMF_FieldBundleGet(sp%acc_bundle,trim(names(i)),field=field,_RC)
-        call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-     enddo
-     call ESMF_FieldBundleDestroy(sp%acc_bundle,noGarbage=.true.,_RC)
-
-     
-
+      call ESMF_FieldBundleGet(sp%acc_bundle,trim(names(i)),field=field,_RC)
+      call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+   enddo
+   call ESMF_FieldBundleDestroy(sp%acc_bundle,noGarbage=.true.,_RC)
 
     _RETURN(ESMF_SUCCESS)
     
   end subroutine destroy_regen_ogrid_rh
+
+
+
+  subroutine fill_time_in_bundle (this, xname, bundle, rc)
+    implicit none
+    class(samplerHQ) :: this
+    character(len=*), intent(in) :: xname
+    type(ESMF_FieldBundle), intent(inout) :: bundle
+    integer, optional, intent(out) :: rc
+    integer :: status    
+
+    class(AbstractGridFactory), pointer :: factory
+
+    type(ESMF_Field) :: field    
+    real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
+
+
+    call ESMF_FieldBundleGet (bundle, xname, field=field, _RC)
+    call ESMF_FieldGet (field, farrayptr=ptr2d, _RC)
     
+    ! __ s1. obs_time from swath factory
+
+    factory => grid_manager%get_factory(this%ogrid,_RC)
+    call factory%get_obs_time (this%ogrid, ptr2d, _RC)
+
+!    print*, 'shape(ptr2d)', ptr2d
+!    stop -1
+
+!    print*, 'shape(time_2d)', time_2d
+!    stop -1
+!
+!    print*, __LINE__, __FILE__
+!    print*, 'time_2d'
+!    print*, time_2d(5,1:100:20)
+
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine fill_time_in_bundle
+
+
+
+  subroutine Add_one_field_to_bundle(this, xname, bundle, rc)
+    implicit none
+    class(sampler) :: this
+    character(len=*), intent(in) :: xname
+    type(ESMF_FieldBundle), intent(inout) :: bundle
+    integer, optional, intent(out) :: rc
+    integer :: status    
+
+    type(ESMF_Field) :: field    
+    real(kind=ESMF_KIND_R8), pointer :: ptr2d(:,:)
+    real(kind=ESMF_KIND_R8), pointer :: time_2d(:,:)
+    
+
+!    item%itemType = ItemTypeScalar
+!    item%xname = 'time'
+   
+!        iter = this%items%begin()
+!        do while (iter /= this%items%end())
+!           item => iter%get()
+!           call this%addVariable_to_acc_bundle(item%xname,_RC)
+!           if (item%itemType == ItemTypeVector) then
+!              !!call this%addVariable_to_output_bundle(item%yname,_RC)
+!              call this%addVariable_to_acc_bundle(item%yname,_RC)              
+!           end if
+!           call iter%next()
+!        enddo
+!
+!        
+!
+!        new_field = ESMF_FieldCreate(this%output_grid ,name='time', &
+!               typekind=ESMF_TYPEKIND_R4,_RC)
+!        call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
+        
+        _RETURN(_SUCCESS)        
+      end subroutine Add_one_field_to_bundle
   
      function new_sampler(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
              metadata_collection_id,regrid_method,fraction,items,rc) result(GriddedIO)
@@ -1554,11 +1624,14 @@ contains
     else
        newField = MAPL_FieldCreate(field,this%output_grid,_RC)
     end if
-    
-    call ESMF_FieldGet(newField, Array=array1, _RC)
-    call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
-    pt2d=55.d0
     call MAPL_FieldBundleAdd(this%acc_bundle,newField,_RC)
+
+!    call ESMF_FieldGet(newField, Array=array1, _RC)
+!    call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
+!    print*, __FILE__
+!    print*, 'itemName, pt2d', trim(itemName)
+!    print*, pt2d
+!    stop -1
 
     _RETURN(_SUCCESS)
   end subroutine addVariable_to_acc_bundle
@@ -1639,18 +1712,20 @@ contains
     allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) )
     allocate ( compLB(dimCount), compUB(dimCount), compCount(dimCount) )    
     
+    !!print*, 'localDEcount=', localDEcount
+    !!stop -1
     allocate ( j1(0:localDEcount-1) )  ! start
     allocate ( j2(0:localDEcount-1) )  ! end
 
     _ASSERT ( localDEcount == 1, 'failed, due to localDEcount > 1')
     call MAPL_GridGetInterior(grid,ii1,iin,jj1,jjn)
     write(6,*) 'MAPL_GridGetInterior, ii1,iin,jj1,jjn', ii1,iin,jj1,jjn
+    print*, 'js,je ', js, je
 
     LB(1)=ii1; LB(2)=jj1
     UB(1)=iin; UB(2)=jjn
     
-!    do localDe=0, localDEcount-1
-    do localDe=0, 0    
+    do localDe=0, localDEcount-1
        !call ESMF_GridGet (grid, ESMF_STAGGERLOC_CENTER, localDE, &
        !     exclusiveLBound=LB, exclusiveUBound=UB, exclusiveCount=exclusiveCount,&
        !     computationalLBound=compLB, computationalUBound=compUB,&
@@ -1660,7 +1735,6 @@ contains
        !write(6,*) 'computationalLBound, computationalUBound, computationalCount', &
        !     compLB, compUB, compCount
        
-
        ! is/ie, js/je,  [LB, UB]
        !
        !
@@ -1693,7 +1767,6 @@ contains
     write(6,*) 'j1(localDe)', j1(0:localDeCount-1)
     write(6,*) 'j2(localDe)', j2(0:localDeCount-1)
 
-
     
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -1720,10 +1793,10 @@ contains
           if (rank==2) then
              call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
              write(6,*) 'shape(pt2d)', shape(pt2d)
-             write(6,*) 'in_pt2d', pt2d(10,1:100:20)
+             write(6,*) 'in_pt2d', pt2d(10,10:50:2)
              
              call ESMF_ArrayGet(array2, farrayptr=pt2d_, _RC)
-             do localDe=0, localDEcount-1
+             localDe=0
                 if (j1(localDe)>0) then
                    do j= j1(localDe), j2(localDe)
                       jj= j-jj1+1     ! j_local
@@ -1731,8 +1804,7 @@ contains
                       pt2d_(:,jj) = pt2d(:,jj)
                    enddo
                 endif
-             enddo
-             write(6,*) 'out_pt2d', pt2d_(10,1:10:2)
+             write(6,*) 'out_pt2d', pt2d_(10,10:50:2)
 
           elseif (rank==3) then
              call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)
@@ -1876,7 +1948,6 @@ contains
     integer :: is, ie, js, je  ! global box for each time-interval
     integer :: j1p, jnp        ! local y-index for each time-interval
 
-
     integer :: localDe, localDECount
     integer, dimension(:), allocatable :: LB, UB, exclusiveCount, clbnd, cubnd
     integer :: dimCount
@@ -1887,7 +1958,6 @@ contains
 
     is=xy_subset(1,1); ie=xy_subset(2,1)
     js=xy_subset(1,2); je=xy_subset(2,2)
-
 
     !      call ESMF_GridGet(grid, localDECount=localDECount, dimCount=dimCount, _RC)
     !      allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) )

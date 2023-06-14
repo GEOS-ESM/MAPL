@@ -492,6 +492,8 @@ module MAPL_GriddedIOMod
            end if
         else
            tindex = -1
+           ! ygyu add
+           call this%stage2DLatLon(filename,oClients=oClients,_RC)
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
@@ -854,6 +856,11 @@ module MAPL_GriddedIOMod
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
+
+        write(6,*) 'ptr2d lat'
+        write(6,*) ptr2d(10,1:100:20)
+        print*, __LINE__, __FILE__
+
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)

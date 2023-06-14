@@ -86,6 +86,7 @@ module MAPL_AbstractGridFactoryMod
       procedure :: get_xy_subset
       procedure :: get_xy_mask
       procedure :: destroy
+      procedure :: get_obs_time
    end type AbstractGridFactory
 
    abstract interface
@@ -1037,6 +1038,7 @@ contains
 
    end function get_grid
 
+    
    ! This procedure should only be called for time dependent grids.
    ! A default implementation is to fail for other grid types, so we do not 
    ! have to explicitly add methods to all of the existing subclasses.  
@@ -1075,4 +1077,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy
 
+   subroutine get_obs_time(this, grid, obs_time,  rc)
+     class(AbstractGridFactory), intent(inout) :: this
+     type (ESMF_Grid), intent(in) :: grid
+     real(ESMF_KIND_R4), intent(out) :: obs_time(:,:)
+     integer, optional, intent(out) :: rc
+     
+     _RETURN(_SUCCESS)
+   end subroutine get_obs_time
+   
 end module MAPL_AbstractGridFactoryMod

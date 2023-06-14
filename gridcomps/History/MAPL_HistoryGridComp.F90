@@ -3417,11 +3417,8 @@ ENDDO PARSER
                 item%xname = 'time'
                 call list(n)%items%push_back(item)
              endif
-
-             ! fill time ptr with true value
-             call Hsampler%get_time_value_from_factory()
-
-             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)                         
+             call  Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              write(6,*) 'af mGriddedIO%CreateFileMetaData'             
 
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
