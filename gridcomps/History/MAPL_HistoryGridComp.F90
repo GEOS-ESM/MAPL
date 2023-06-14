@@ -3642,7 +3642,8 @@ ENDDO PARSER
             pt_output_grids => IntState%output_grids
             key_grid_label = list(n)%output_grid_label
             call Hsampler%regen_grid ( key_grid_label, pt_output_grids, list(n)%xsampler,_RC )  ! at epoch_alarm
-            pgrid => pt_output_grids%at(trim(list(n)%output_grid_label))
+            !            pgrid => pt_output_grids%at(trim(list(n)%output_grid_label))
+            pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
          endif
       end if
