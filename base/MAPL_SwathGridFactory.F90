@@ -696,6 +696,7 @@ contains
       this%epoch_index(1)= 1
       this%epoch_index(2)= this%cell_across_swath
       call bisect( this%t_alongtrack, jx0, jt, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+      jt = jt + 1               ! (x1,x2]  design
       this%epoch_index(3)= jt
       write(6,*) 'bisect for j0:  rc, jt', rc, jt
 
@@ -1430,11 +1431,11 @@ contains
       call time_esmf_2_nc_int (T1, this%tunit, i1, _RC)
       call time_esmf_2_nc_int (T2, this%tunit, i2, _RC)
       iT1=i1; iT2=i2   ! int to real*8
-      jlo = this%epoch_index(3); jhi=this%epoch_index(4)
+      jlo = this%epoch_index(3)-2 ; jhi=this%epoch_index(4) + 1
       call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
       xy_subset(1:2,1)=this%epoch_index(1:2)    ! xtrack
-      xy_subset(1,  2)=index1+1                 ! atrack
+      xy_subset(1,  2)=index1+1                   ! atrack
       xy_subset(2,  2)=index2
       !
       !- relative

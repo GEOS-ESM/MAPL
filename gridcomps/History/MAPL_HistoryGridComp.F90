@@ -2389,7 +2389,7 @@ ENDDO PARSER
              if (trim(list(n)%output_grid_label)=='SwathGrid') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 write(6,*) 'ck bf list(n)%xsampler%CreateFileMetaData'
-                call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
+                call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)  ! wo timeInfo
                 write(6,*) 'ck hgc: af list(n)%xsampler%CreateFileMetaData'
 !!                collection_id = o_Clients%add_hist_collection(list(n)%xsampler%metadata, mode = create_mode)
 !!                call list(n)%xsampler%set_param(write_collection_id=collection_id)
@@ -3400,12 +3400,10 @@ ENDDO PARSER
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
-
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
          write(6,*) 'ck hgc, af call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)'
 
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
-
             create_mode = PFIO_NOCLOBBER ! defaut no overwrite
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
 
@@ -3419,6 +3417,7 @@ ENDDO PARSER
              item%xname = 'time'
              call list(n)%items%push_back(item)
              call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+             call list(n)%mGriddedIO%destroy(_RC)
              call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              call list(n)%items%pop_back()
              write(6,*) 'af mGriddedIO%CreateFileMetaData'             
@@ -3642,9 +3641,13 @@ ENDDO PARSER
             key_grid_label = list(n)%output_grid_label
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler,_RC )
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-            call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            !            call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)            
+            write(6,'(///)')
          endif
       end if
+
+
    end do epoch_swath_regen_grid
 
 

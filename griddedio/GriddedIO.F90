@@ -74,6 +74,7 @@ module MAPL_GriddedIOMod
         procedure :: request_data_from_file
         procedure :: process_data_from_file
         procedure :: swap_undef_value
+        procedure :: destroy
   end type MAPL_GriddedIO
 
   interface MAPL_GriddedIO
@@ -131,6 +132,7 @@ module MAPL_GriddedIOMod
 
         if ( allocated (this%metadata) ) deallocate(this%metadata)
         allocate(this%metadata)
+
         call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
         this%items = items
@@ -222,7 +224,16 @@ module MAPL_GriddedIOMod
         end if
         _RETURN(_SUCCESS)
 
-     end subroutine CreateFileMetaData
+      end subroutine CreateFileMetaData
+
+
+      subroutine destroy(this, rc)
+        class (MAPL_GriddedIO), intent(inout) :: this
+        integer, intent(out), optional :: rc
+        if(allocated(this%chunking)) deallocate(this%chunking)
+        _RETURN(_SUCCESS)
+      end subroutine destroy
+
 
      subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
@@ -857,9 +868,9 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
 
-        write(6,*) 'ptr2d lat'
-        write(6,*) ptr2d(10,1:100:20)
-        print*, __LINE__, __FILE__
+!        write(6,*) 'ptr2d lat'
+!        write(6,*) ptr2d(10,1:100:20)
+!        print*, __LINE__, __FILE__
 
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
@@ -935,8 +946,8 @@ module MAPL_GriddedIOMod
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
 
-     print*, __FILE__
-     print*, 'fieldname: ', trim(fieldname)
+ !    print*, __FILE__
+ !    print*, 'fieldname: ', trim(fieldname)
      
      call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
      _VERIFY(status)
@@ -947,7 +958,7 @@ module MAPL_GriddedIOMod
 
            write(6,*) 'max in ptr2d', maxval(ptr2d(:,:))
            write(6,*) 'min in ptr2d', minval(ptr2d(:,:))           
-          write(6,*)  ptr2d(10,1:100:20)                      
+!!          write(6,*)  ptr2d(10,1:100:20)                      
            write(6,*) 'shape in ptr2d', shape(ptr2d)           
 !           ptr2d=100.
            
