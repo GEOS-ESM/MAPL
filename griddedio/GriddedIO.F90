@@ -993,11 +993,12 @@ module MAPL_GriddedIOMod
             allocate(ptr3d(0,0,0))
          end if
          ref = factory%generate_file_reference3D(Ptr3D)
-         allocate(localStart,source=[gridLocalStart,1,1])
          if (tindex > -1) then
+            allocate(localStart,source=[gridLocalStart,1,1])
             allocate(globalStart,source=[gridGlobalStart,1,tindex])
             allocate(globalCount,source=[gridGlobalCount,lm,1])
          else
+            allocate(localStart,source=[gridLocalStart,1])
             allocate(globalStart,source=[gridGlobalStart,1])
             allocate(globalCount,source=[gridGlobalCount,lm])
          end if
