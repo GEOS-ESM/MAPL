@@ -203,7 +203,6 @@ contains
     integer :: counts(5)
     integer :: dims(3)
     integer :: m1, m2
-
     
     ! __ s1.  get xy_subset
 
@@ -339,7 +338,6 @@ contains
   end subroutine destroy_rh_regen_ogrid
 
 
-
   subroutine fill_time_in_bundle (this, xname, bundle, rc)
     implicit none
     class(samplerHQ) :: this
@@ -364,14 +362,6 @@ contains
 
 !    print*, 'shape(ptr2d)', ptr2d
 !    stop -1
-
-!    print*, 'shape(time_2d)', time_2d
-!    stop -1
-!
-!    print*, __LINE__, __FILE__
-!    print*, 'time_2d'
-!    print*, time_2d(5,1:100:20)
-
 
     _RETURN(ESMF_SUCCESS)
 
@@ -440,6 +430,7 @@ contains
         if (present(fraction)) GriddedIO%fraction=fraction
         _RETURN(ESMF_SUCCESS)
      end function new_sampler
+
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
         class (sampler), intent(inout) :: this
@@ -573,9 +564,145 @@ contains
         _RETURN(_SUCCESS)        
      end subroutine CreateFileMetaData
 
-!           !!call this%addVariable_to_output_bundle(item%xname,_RC)
-!           print*, __FILE__, __LINE__
-!           print*, 'item%xname: ',item%xname            
+
+
+
+     subroutine Create_bundle_RH(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
+        class (sampler), intent(inout) :: this
+        type(GriddedIOitemVector), target, intent(inout) :: items
+        type(ESMF_FieldBundle), intent(inout) :: bundle
+        type(TimeData), optional, intent(inout) :: timeInfo
+        type(VerticalData), intent(inout), optional :: vdata
+        type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
+        type(StringStringMap), intent(in), optional :: global_attributes
+        integer, intent(out), optional :: rc
+
+        type(ESMF_Grid) :: input_grid
+        class (AbstractGridFactory), pointer :: factory
+
+        type(ESMF_Field) :: new_field
+        type(GriddedIOitemVectorIterator) :: iter
+        type(GriddedIOitem), pointer :: item
+        type(stringVector) :: order
+        integer :: metadataVarsSize
+        type(StringStringMapIterator) :: s_iter
+        character(len=:), pointer :: attr_name, attr_val
+        integer :: status
+
+        this%items = items
+        this%input_bundle = bundle
+        this%output_bundle = ESMF_FieldBundleCreate(rc=status)
+        _VERIFY(status)
+        if(present(timeInfo)) this%timeInfo = timeInfo
+        call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,rc=status)
+        _VERIFY(status)
+        if (present(ogrid)) then
+           this%output_grid=ogrid
+        else
+           call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
+           _VERIFY(status)
+        end if
+        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
+        _VERIFY(status)
+
+        ! We get the regrid_method here because in the case of Identity, we set it to
+        ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
+        ! to change the regrid_method in the GriddedIO object to be the same as the
+        ! the regridder object.
+        this%regrid_method = this%regrid_handle%get_regrid_method()
+
+        call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
+        _VERIFY(status)
+        factory => get_factory(this%output_grid,rc=status)
+        _VERIFY(status)
+
+
+        call factory%append_metadata(this%metadata)
+
+        if (present(vdata)) then
+           this%vdata=vdata
+        else
+           this%vdata=VerticalData(rc=status)
+           _VERIFY(status)
+        end if
+        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
+        _VERIFY(status)
+        this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
+        _VERIFY(status)
+
+        if(present(timeInfo)) call this%timeInfo%add_time_to_metadata(this%metadata,_RC)
+
+
+        iter = this%items%begin()
+        if (.not.allocated(this%chunking)) then
+           call this%set_default_chunking(rc=status)
+           _VERIFY(status)
+        else
+           call this%check_chunking(this%vdata%lm,_RC)
+        end if
+
+        order = this%metadata%get_order(rc=status)
+        _VERIFY(status)
+        metadataVarsSize = order%size()
+
+        do while (iter /= this%items%end())
+           item => iter%get()
+           if (item%itemType == ItemTypeScalar) then
+              call this%CreateVariable(item%xname,rc=status)
+              _VERIFY(status)
+           else if (item%itemType == ItemTypeVector) then
+              call this%CreateVariable(item%xname,rc=status)
+              _VERIFY(status)
+              call this%CreateVariable(item%yname,rc=status)
+              _VERIFY(status)
+           end if
+           call iter%next()
+        enddo
+
+        if (this%itemOrderAlphabetical) then
+           call this%alphabatize_variables(metadataVarsSize,rc=status)
+           _VERIFY(status)
+        end if
+
+        if (present(global_attributes)) then
+           s_iter = global_attributes%begin()
+           do while(s_iter /= global_attributes%end())
+              attr_name => s_iter%key()
+              attr_val => s_iter%value()
+              call this%metadata%add_attribute(attr_name,attr_val,_RC)
+              call s_iter%next()
+           enddo
+        end if
+
+
+!        input_bundle/lat-lon AGCM1
+!        output_bundle /    for       regrid at 2 min each:  field
+!        acc_bundle  for   save field --> 
+
+        ! __ add acc_bundle and output_bundle
+        !
+        this%acc_bundle = ESMF_FieldBundleCreate(_RC)
+        call ESMF_FieldBundleSet(this%acc_bundle,grid=this%output_grid,_RC)
+        iter = this%items%begin()
+        do while (iter /= this%items%end())
+           item => iter%get()
+           call this%addVariable_to_acc_bundle(item%xname,_RC)
+           if (item%itemType == ItemTypeVector) then
+              !!call this%addVariable_to_output_bundle(item%yname,_RC)
+              call this%addVariable_to_acc_bundle(item%yname,_RC)              
+           end if
+           call iter%next()
+        enddo
+
+        new_field = ESMF_FieldCreate(this%output_grid ,name='time', &
+               typekind=ESMF_TYPEKIND_R4,_RC)
+        call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
+        
+        _RETURN(_SUCCESS)        
+      end subroutine Create_bundle_RH
+
+
 
            
      subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)

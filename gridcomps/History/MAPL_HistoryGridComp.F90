@@ -3634,15 +3634,13 @@ ENDDO PARSER
    call MAPL_TimerOn(GENSTATE,"-----IO Wait")
 
 
-   ! destroy acc_bundle, regenerate ogrid, RH
+  ! destroy acc_bundle, RH, regenerate ogrid
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
             key_grid_label = list(n)%output_grid_label
-           call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler,_RC )  ! at epoch_alarm
-
-            !            pgrid => pt_output_grids%at(trim(list(n)%output_grid_label))
+            call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler,_RC )
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%CreateFileMetaData(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
          endif
