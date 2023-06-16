@@ -370,7 +370,7 @@ contains
       integer, allocatable :: ungriddedLBound(:)
       integer, allocatable :: ungriddedUBound(:)
       type(ESMF_TypeKind_Flag) :: tk
-      character(len=:), allocatable :: name
+      character(len=ESMF_MAXSTR) :: name
       integer :: status
       integer :: field_rank, grid_rank,ungrid_size
 
@@ -379,11 +379,11 @@ contains
       ungrid_size = field_rank-grid_rank
       allocate(gridToFieldMap(grid_rank))
       allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
-      call ESMF_FieldGet(x, typekind=tk, &
+      call ESMF_FieldGet(x, typekind=tk, name = name, &
          staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
          ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, _RC)
 
-      name = name // CLONE_TAG
+      name = trim(name) // CLONE_TAG
 
       y = ESMF_FieldCreate(grid, typekind=tk, staggerloc=staggerloc, &
          gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
