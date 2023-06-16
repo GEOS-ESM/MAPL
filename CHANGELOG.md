@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added field utilities to perform basic numeric operations on fields
+- Added new fill option and run mode for ExtDataDriver.x
 
 ### Changed
 
