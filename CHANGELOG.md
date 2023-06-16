@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
 - Update arithemetic parser to work with any rank and type of ESMF fields
+- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
+- Added new fill option and run mode for ExtDataDriver.x
 
 ### Changed
 

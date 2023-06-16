@@ -39,7 +39,9 @@ module pFIO_ClientManagerMod
       procedure :: add_ext_collection
       procedure :: add_hist_collection
       procedure :: modify_metadata
+      procedure :: replace_metadata
       procedure :: modify_metadata_all
+      procedure :: replace_metadata_all
       procedure :: prefetch_data
       procedure :: stage_data
       procedure :: collective_prefetch_data
@@ -187,6 +189,22 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine modify_metadata
 
+   subroutine replace_metadata(this, collection_id, fmd, rc)
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (FileMetadata), intent(in) :: fmd
+      integer, optional, intent(out) :: rc
+
+      class (ClientThread), pointer :: clientPtr
+      integer :: status
+
+      ClientPtr => this%current()
+      call clientPtr%replace_metadata(collection_id, fmd, rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine replace_metadata
+
    subroutine modify_metadata_all(this, collection_id, unusable,var_map,rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: collection_id
@@ -206,6 +224,24 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine modify_metadata_all
+
+   subroutine replace_metadata_all(this, collection_id, fmd, rc)
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (FileMetadata), intent(in) :: fmd
+      integer, optional, intent(out) :: rc
+
+      class (ClientThread), pointer :: clientPtr
+      integer :: i, status
+
+      do i = 1, this%clients%size()
+         ClientPtr => this%clients%at(i)
+         call clientPtr%replace_metadata(collection_id, fmd, rc=status)
+         _VERIFY(status)
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine replace_metadata_all
 
    subroutine collective_prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc)
