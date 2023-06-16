@@ -36,6 +36,10 @@ contains
          indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
       YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
          indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
+      XR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
+      YR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
 
    end subroutine set_up_data
 
@@ -340,8 +344,7 @@ contains
 
    end subroutine test_FieldConvertPrec_R4R8
 
-   !@Test
-   !wdb fixme not done yet
+   @Test
    subroutine test_FieldClone3D()
       type(ESMF_Field) :: x, y
       integer :: status, rc
