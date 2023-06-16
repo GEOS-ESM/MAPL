@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added field utilities to perform basic numeric operations on fields
 - For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
+- Added new fill option and run mode for ExtDataDriver.x
 
 ### Changed
 
@@ -40,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
+
+## [2.39.3] - 2023-06-12
+
+### Fixed
+
+- Fixed a bug when performing vertical regridding in History when the output grid cannot be decomposed so that every core has a DE
 
 ## [2.39.2] - 2023-05-30
 
