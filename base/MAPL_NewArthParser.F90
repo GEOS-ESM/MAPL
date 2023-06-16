@@ -1,5 +1,4 @@
 #include "MAPL_Generic.h"
-!
 ! Part of this code is based on a fortran parser by Roland Schmehl:
 !
 !------- -------- --------- --------- --------- --------- --------- --------- -------
@@ -118,18 +117,10 @@ MODULE MAPL_NewArthParserMod
      INTEGER                            :: ByteCodeSize
      REAL,    DIMENSION(:), POINTER     :: Immed => NULL()
      INTEGER                            :: ImmedSize
-     type(ESMF_Field), allocatable      :: new_stack(:)
-     TYPE(Ptrs_Type), DIMENSION(:), POINTER :: Stack => NULL()
+     type(ESMF_Field), allocatable      :: stack(:)
      INTEGER                            :: StackSize, &
                                            StackPtr
   END TYPE tComp
-
-  type Ptrs_Type
-     integer:: rank
-     integer, dimension(ESMF_MAXDIM):: lb,ub
-     real, pointer:: Q2D(:,:  ) => null()
-     real, pointer:: Q3D(:,:,:) => null()
-  end type Ptrs_Type
 
 CONTAINS
  
@@ -141,10 +132,9 @@ CONTAINS
      integer :: status
 
      do i=1,comp%StackSize
-        call ESMF_FieldDestroy(comp%new_stack(i),noGarbage=.true.,_RC)
+        call ESMF_FieldDestroy(comp%stack(i),noGarbage=.true.,_RC)
      end do
-     deallocate(comp%Stack)
-     deallocate(comp%new_stack)
+     deallocate(comp%stack)
      deallocate(comp%ByteCode)
      deallocate(comp%Immed)
      _RETURN(ESMF_SUCCESS)
@@ -239,27 +229,27 @@ CONTAINS
        CurrByte = Comp%ByteCode(IP)
        if (CurrByte == cImmed) then
           SP=SP+1
-          call FieldSet(comp%new_stack(sp),comp%immed(dp),_RC)
+          call FieldSet(comp%stack(sp),comp%immed(dp),_RC)
           DP=DP+1
        end if
        if (CurrByte == cNeg) then
-          call FieldNegate(comp%new_stack(sp),_RC)
+          call FieldNegate(comp%stack(sp),_RC)
        end if
        if (CurrByte >= cAdd .and. CurrByte <= cPow) then
-          call field_binary(Comp%new_stack(SP),Comp%new_stack(SP-1),CurrByte,_RC)
+          call field_binary(Comp%stack(SP),Comp%stack(SP-1),CurrByte,_RC)
           SP=SP-1
        end if
        if (CurrByte >= cAbs .and. CurrByte <= cHeav) then
-          call field_unary(comp%new_stack(sp),currByte,_RC)
+          call field_unary(comp%stack(sp),currByte,_RC)
        end if
        if (CurrByte > cHeav) then
           SP=SP+1
           ValNumber = CurrByte-VarBegin+1
           call ESMF_StateGet(state,FieldNames(ValNumber),state_field,_RC)
-          call FieldCopyBroadcast(state_field,comp%new_stack(sp),_RC)
+          call FieldCopyBroadcast(state_field,comp%stack(sp),_RC)
        end if
     END DO
-    call FieldCopyBroadcast(comp%new_stack(1),ResField,_RC)
+    call FieldCopyBroadcast(comp%stack(1),ResField,_RC)
 
     _RETURN(ESMF_SUCCESS)
   END SUBROUTINE evalf
@@ -773,17 +763,11 @@ CONTAINS
     TYPE(ESMF_Field)               , INTENT(inout) :: field     ! resultant field, use to get its rank, etc . . . 
     INTEGER                        , INTENT(out  ) :: rc
     INTEGER                                     :: istat, i
-    TYPE(ESMF_Array)                            :: Array
-    type (ESMF_LocalArray), target        :: larrayList(1)
-    TYPE(ESMF_LocalArray) ,pointer        :: lArray
-    INTEGER                          :: ResRank
-    INTEGER                          :: lb(ESMF_MAXDIM)
-    INTEGER                          :: ub(ESMF_MAXDIM)
     integer                                     :: status
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     IF (ASSOCIATED(Comp%ByteCode)) DEALLOCATE ( Comp%ByteCode, &
                                                    Comp%Immed,    &
-                                                   Comp%Stack     )
+                                                   Comp%stack     )
     Comp%ByteCodeSize = 0
     Comp%ImmedSize    = 0
     Comp%StackSize    = 0
@@ -791,12 +775,11 @@ CONTAINS
     CALL CompileSubstr (Comp,F,1,LEN_TRIM(F),Var)               ! Compile string to determine size
     ALLOCATE ( Comp%ByteCode(Comp%ByteCodeSize), & 
                Comp%Immed(Comp%ImmedSize),       &
-               Comp%Stack(Comp%StackSize),       &
-               Comp%new_stack(comp%stackSize),   &
+               Comp%stack(comp%stackSize),   &
                STAT = istat                      )
 
     DO i=1,Comp%StackSize
-       call FieldClone(field,comp%new_stack(i),_RC)
+       call FieldClone(field,comp%stack(i),_RC)
        call ESMF_AttributeSet(field,name="missing_value",value=MAPL_UNDEF,_RC)
     END DO
 
