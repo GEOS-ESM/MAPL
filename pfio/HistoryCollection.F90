@@ -22,6 +22,7 @@ module pFIO_HistoryCollectionMod
   contains
     procedure :: find
     procedure :: ModifyMetadata
+    procedure :: ReplaceMetadata
     procedure :: clear
   end type HistoryCollection
 
@@ -89,6 +90,19 @@ contains
 
     _RETURN(_SUCCESS)
   end subroutine ModifyMetadata
+
+  subroutine  ReplaceMetadata(this, fmd,rc)
+    class (HistoryCollection), intent(inout) :: this
+    type (FileMetadata), intent(in) :: fmd
+    integer, optional, intent(out) :: rc 
+
+    integer :: status
+    character(len=*), parameter :: Iam = "HistoryCollection::ReplaceMetadata()"
+
+    this%fmd = fmd
+
+    _RETURN(_SUCCESS)
+  end subroutine ReplaceMetadata
 
   subroutine clear(this, rc)
     class (HistoryCollection), intent(inout) :: this

@@ -46,6 +46,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ReplaceMetadataMessage.F90
   ForwardDataAndMessage.F90
   ForwardDataMessage.F90
   ProtocolParser.F90
