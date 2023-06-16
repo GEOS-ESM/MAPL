@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added field utilities to perform basic numeric operations on fields
+- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
 - Added new fill option and run mode for ExtDataDriver.x
 
 ### Changed
