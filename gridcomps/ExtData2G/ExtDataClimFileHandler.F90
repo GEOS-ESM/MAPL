@@ -1,3 +1,4 @@
+  
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 module MAPL_ExtdataClimFileHandler
@@ -13,6 +14,7 @@ module MAPL_ExtdataClimFileHandler
    use MAPL_StringTemplate
    use MAPL_ExtDataBracket
    use MAPL_ExtDataConstants
+   use MAPL_CommsMod
    implicit none
    private
    public ExtDataClimFileHandler
@@ -44,7 +46,9 @@ contains
 
       integer :: target_year, original_year,clim_shift,valid_years(2)
       integer, allocatable :: source_years(:)
-     
+    
+      ! debugging
+      integer :: py, pm, pd, ph, pn, ps 
    
       _ASSERT(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology") 
       if (bracket%time_in_bracket(input_time)) then
@@ -59,10 +63,10 @@ contains
          allocate(source_years(2))
          call ESMF_TimeGet(source_time(1),yy=source_years(1),_RC)
          call ESMF_TimeGet(source_time(2),yy=source_years(2),_RC)
-         _ASSERT(source_years(1) >= valid_years(1),'source time outide valid range')
-         _ASSERT(source_years(1) <=  valid_years(2),'source time outide valid range')
-         _ASSERT(source_years(2) >=  valid_years(1),'source time outide valid range')
-         _ASSERT(source_years(2) <= valid_years(2),'source time outide valid range')
+         _ASSERT(source_time(1) >= this%valid_range(1),'source time outide valid range')
+         _ASSERT(source_time(1) <=  this%valid_range(2),'source time outide valid range')
+         _ASSERT(source_time(2) >=  this%valid_range(1),'source time outide valid range')
+         _ASSERT(source_time(2) <= this%valid_range(2),'source time outide valid range')
       end if
 
       ! shift target year to request source time if specified
@@ -72,20 +76,20 @@ contains
 
       !if (size(source_years)>0) then
       if (allocated(source_years)) then
-         if (target_year < source_years(1)) then
+         if (input_time < source_time(1)) then
             target_year = source_years(1)
             this%clim_year = target_year 
-         else if (target_year >= source_years(2)) then
+         else if (input_time >= source_time(2)) then
             target_year = source_years(2)
             this%clim_year = target_year 
          end if
          call swap_year(target_time,target_year,_RC)
       else
-         if (target_year < valid_years(1)) then
+         if (input_time <= this%valid_range(1)) then
             target_year = valid_years(1)
             this%clim_year = target_year
             call swap_year(target_time,target_year,_RC)
-         else if (target_year >= valid_years(2)) then
+         else if (input_time >= this%valid_range(2)) then
             target_year = valid_years(2)
             this%clim_year = target_year
             call swap_year(target_time,target_year,_RC)
@@ -172,7 +176,13 @@ contains
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,-1,_RC)
                call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
-               _ASSERT(time_index/=time_not_found,"Time not found on file")
+               ! debugging 
+               if ( time_index == time_not_found ) then
+                write(*,*) 'Time not found on file: '//trim(current_file)
+                call ESMF_TimeGet(target_time,yy=py,mm=pm,dd=pd,h=ph,m=pn,s=ps,_RC)
+                write(*,*) 'Target time: ',py,pm,pd,ph,pn,ps 
+               endif
+               _ASSERT(time_index/=time_not_found,"Time not found on file: "//trim(current_file))
                call ESMF_TimeGet(target_time,yy=target_year,_RC)
                if (target_year > this%clim_year) then
                   call swap_year(time,original_year-1,_RC)
