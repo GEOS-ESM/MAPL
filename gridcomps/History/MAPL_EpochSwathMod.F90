@@ -282,10 +282,6 @@ contains
     key_str=trim(key_grid_label)    
     pgrid => output_grids%at(trim(key_grid_label))
     call grid_manager%destroy(pgrid,_RC)
-
-    write(6,*) 'ck: key_str ', trim(key_grid_label)
-    write(6,*) 'ck: done grid_manager%destroy'    
-
     call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
     iter = output_grids%begin()
     do while (iter /= output_grids%end())
@@ -302,18 +298,14 @@ contains
     write(6,*) 'ck: done adding ogrid to output_grids'
 
 
-    !__ s2.  destroy RH  +  regen RH
+    !__ s2.  destroy RH 
 
     call sp%regrid_handle%destroy(_RC)
 
     write(6,*) 'ck: done destroy regrid_RH'
 
-!    call ESMF_FieldBundleGet(sp%input_bundle,grid=input_grid,_RC)
-!    sp%regrid_handle => new_regridder_manager%make_regridder(input_grid,ogrid,sp%regrid_method,_RC)
-!    write(6,*) 'ck: done adding sp%regrid_handle'
-
     
-    !__ s3.  destroy + regen acc_bundle
+    !__ s3.  destroy acc_bundle / output_bundle
     
    call ESMF_FieldBundleGet(sp%acc_bundle,fieldCount=numVars,_RC)
    allocate(names(numVars),stat=status)
@@ -349,21 +341,16 @@ contains
     integer :: status    
 
     class(AbstractGridFactory), pointer :: factory
-
-    type(ESMF_Field) :: field    
+    type(ESMF_Field) :: field
     real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
 
-
+    ! __ get field xname='time'
     call ESMF_FieldBundleGet (bundle, xname, field=field, _RC)
     call ESMF_FieldGet (field, farrayptr=ptr2d, _RC)
     
-    ! __ s1. obs_time from swath factory
-
+    ! __ obs_time from swath factory
     factory => grid_manager%get_factory(this%ogrid,_RC)
     call factory%get_obs_time (this%ogrid, ptr2d, _RC)
-
-!    print*, 'shape(ptr2d)', ptr2d
-!    stop -1
 
     _RETURN(ESMF_SUCCESS)
 

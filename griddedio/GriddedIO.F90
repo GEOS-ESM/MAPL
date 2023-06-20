@@ -868,10 +868,6 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
 
-!        write(6,*) 'ptr2d lat'
-!        write(6,*) ptr2d(10,1:100:20)
-!        print*, __LINE__, __FILE__
-
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
@@ -945,9 +941,6 @@ module MAPL_GriddedIOMod
      lm = this%vdata%lm
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
-
- !    print*, __FILE__
- !    print*, 'fieldname: ', trim(fieldname)
      
      call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
      _VERIFY(status)
@@ -958,9 +951,8 @@ module MAPL_GriddedIOMod
 
            write(6,*) 'max in ptr2d', maxval(ptr2d(:,:))
            write(6,*) 'min in ptr2d', minval(ptr2d(:,:))           
-!!          write(6,*)  ptr2d(10,1:100:20)                      
            write(6,*) 'shape in ptr2d', shape(ptr2d)           
-!           ptr2d=100.
+
            
            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
               allocate(temp_2d,source=ptr2d)
@@ -1005,9 +997,6 @@ module MAPL_GriddedIOMod
       else
          _FAIL( "Rank not supported")
       end if
-
-      !!write(6,*) 'size: localStart, GlobalStart, GlobalCount'
-      !!write(6,*) size(localStart), size(GlobalStart), size(GlobalCount)      
 
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
