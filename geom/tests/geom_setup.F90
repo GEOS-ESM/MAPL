@@ -9,8 +9,8 @@ module geom_setup
    implicit none
 
    interface mk_field
-      module procedure mk_field_r4
-      module procedure mk_field_r8
+      module procedure mk_field_r4_2d
+      module procedure mk_field_r8_2d
    end interface mk_field
 
    interface initialize_array
@@ -60,9 +60,27 @@ contains
 
       _RETURN(_SUCCESS)
    end function mk_grid
+
+   function mk_field_r4_ungrid(regDecomp, minIndex, maxIndex, indexflag, name, ungriddedLBound, ungriddedUBound, rc) result(field)
+      integer, dimension(:), intent(in) :: regDecomp
+      integer, dimension(:), intent(in) :: minIndex
+      integer, dimension(:), intent(in) :: maxIndex
+      type(ESMF_Index_Flag), intent(in) :: indexflag
+      character(len=*), intent(in) :: name
+      integer, optional, intent(in) :: ungriddedLBound(:)
+      integer, optional, intent(in) :: ungriddedUBound(:)
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+
+      integer :: status
+
+      field = mk_field_common(tk = ESMF_TYPEKIND_R4, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, _RC)
+
+      _RETURN(_SUCCESS)
+   end function mk_field_r4_ungrid
    
-   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4)
-   function mk_field_r4(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+   function mk_field_r4_2d(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
       real(kind=ESMF_KIND_R4), dimension(:,:), target, intent(in) :: farray
       integer, dimension(:), intent(in) :: regDecomp
       integer, dimension(:), intent(in) :: minIndex
@@ -81,10 +99,9 @@ contains
       ptr => farray
 
       _RETURN(_SUCCESS)
-   end function mk_field_r4
+   end function mk_field_r4_2d
 
-   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8)
-   function mk_field_r8(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+   function mk_field_r8_2d(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
       real(kind=ESMF_KIND_R8), dimension(:,:), target, intent(in) :: farray
       integer, dimension(:), intent(in) :: regDecomp
       integer, dimension(:), intent(in) :: minIndex
@@ -103,15 +120,17 @@ contains
       ptr => farray
 
       _RETURN(_SUCCESS)
-   end function mk_field_r8
+   end function mk_field_r8_2d
 
-   function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
+   function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, ungriddedLBound, ungriddedUBound, rc) result(field)
       type(ESMF_TypeKind_Flag), intent(in) :: tk
       integer, dimension(:), intent(in) :: regDecomp
       integer, dimension(:), intent(in) :: minIndex
       integer, dimension(:), intent(in) :: maxIndex
       type(ESMF_Index_Flag), intent(in) :: indexflag
       character(len=*), intent(in) :: name
+      integer, optional, intent(in) :: ungriddedLBound(:)
+      integer, optional, intent(in) :: ungriddedUBound(:)
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: GRID_SUFFIX = '_grid'
       character(len=*), parameter :: FIELD_SUFFIX = '_field'
@@ -121,7 +140,7 @@ contains
       integer :: status
 
       grid = mk_grid(regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, grid_name = name // GRID_SUFFIX, _RC)
-      field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, _RC)
+      field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, ungriddedLBound = ungriddedLBound, ungriddedUBound = ungriddedUBound, _RC)
 
       _RETURN(_SUCCESS)
    end function mk_field_common

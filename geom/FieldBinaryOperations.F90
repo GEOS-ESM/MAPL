@@ -12,6 +12,7 @@ module MAPL_FieldBinaryOperations
    public fieldSubtract
    public fieldDivide
    public fieldMultiply
+   public fieldPower
 
    contains
 
@@ -35,6 +36,12 @@ module MAPL_FieldBinaryOperations
 
 #define _OP /
 #define _FUNC Divide
+#include "FieldBinaryOperatorTemplate.H"
+#undef _OP
+#undef _FUNC
+
+#define _OP **
+#define _FUNC Power
 #include "FieldBinaryOperatorTemplate.H"
 #undef _OP
 #undef _FUNC
