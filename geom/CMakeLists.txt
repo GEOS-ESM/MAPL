@@ -11,13 +11,12 @@ esma_set_this (OVERRIDE MAPL.geom)
 #  StateSupplement.F90
 #  )
 set(srcs
-  geom.F90
   FieldBLAS.F90
   FieldPointerUtilities.F90
   FieldUtilities.F90
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
-  Geom.F90
+  geom.F90
   )
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
