@@ -36,6 +36,10 @@ contains
          indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
       YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
          indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
+      XR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
+      YR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
 
    end subroutine set_up_data
 
@@ -340,25 +344,41 @@ contains
 
    end subroutine test_FieldConvertPrec_R4R8
 
-   !@Test
-   !wdb fixme not done yet
-   subroutine test_FieldClone()
+   @Test
+   subroutine test_FieldClone3D()
       type(ESMF_Field) :: x, y
       integer :: status, rc
 
-!      type(ESMF_ArraySpec) :: arrayspec
-!      type(ESMF_Grid) :: grid
-!      type(ESMF_StaggerLoc) :: staggerloc
-!      integer, allocatable :: gridToFieldMap(:)
-!      integer, allocatable :: ungriddedLBound(:)
-!      integer, allocatable :: ungriddedUBound(:)
-!      integer, allocatable :: totalLWidth(:,:)
-!      integer, allocatable :: totalUWidth(:,:)
+      type(ESMF_TypeKind_Flag) :: tk_x,tk_y
+      type(ESMF_Grid) :: grid
+      integer, allocatable :: ungriddedLBound_x(:),ungriddedLBound_y(:)
+      integer, allocatable :: ungriddedUBound_x(:),ungriddedUBound_y(:)
+      integer :: grid_rank_x, grid_rank_y
+      integer :: field_rank_x, field_rank_y
+      integer :: ungrid_x,ungrid_y
 
-      x = XR4
+      x = XR4_3D
+
+      call ESMF_FieldGet(x,rank=field_rank_x,grid=grid,typekind=tk_x,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank_x)
+      ungrid_x = field_rank_x - grid_rank_x
+      allocate(ungriddedLBound_x(ungrid_x),ungriddedUBound_x(ungrid_x))
+      call ESMF_FieldGet(x,ungriddedLBound=UngriddedLBound_x,ungriddedUBound=UngriddedUBound_x,_RC)
+
       call FieldClone(x, y, _RC)
 
-   end subroutine test_FieldClone
+      call ESMF_FieldGet(y,rank=field_rank_y,grid=grid,typekind=tk_y,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank_y)
+      ungrid_y = field_rank_y - grid_rank_y
+      allocate(ungriddedLBound_y(ungrid_y),ungriddedUBound_y(ungrid_y))
+      call ESMF_FieldGet(y,ungriddedLBound=UngriddedLBound_y,ungriddedUBound=UngriddedUBound_y,_RC)
+      @assertEqual(field_rank_x,field_rank_y)
+      @assertEqual(ungrid_x,ungrid_y)
+      @assertTrue(tk_x==tk_y,"kinds not equal")
+      @assertEqual(ungriddedLBound_x,ungriddedLBound_y)
+      @assertEqual(ungriddedUBound_x,ungriddedUBound_y)
+
+   end subroutine test_FieldClone3D
 
    @Test
    subroutine test_almost_equal_scalar()
