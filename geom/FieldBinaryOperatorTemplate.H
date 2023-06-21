@@ -39,12 +39,12 @@
          if (has_undef) then
             call GetFieldsUndef(fields,undef_r4,_RC)
             where( (ptr1_r4 /= undef_r4(1)) .and. (ptr2_r4 /= undef_r4(2)) )
-               ptr1_r4 = ptr1_r4  _OP ptr2_r4
+               ptr_out_r4 = ptr1_r4  _OP ptr2_r4
             elsewhere
-               ptr1_r4 = undef_r4(3)
+               ptr_out_r4 = undef_r4(3)
             end where 
          else
-            ptr1_r4 = ptr1_r4  _OP ptr2_r4
+            ptr_out_r4 = ptr1_r4  _OP ptr2_r4
          end if
       else if (tk_A == ESMF_TypeKind_R8) then
          call assign_fptr(field_a,ptr1_r8,_RC)
@@ -53,12 +53,12 @@
          if (has_undef) then
             call GetFieldsUndef(fields,undef_r8,_RC)
             where( (ptr1_r8 /= undef_r8(1)) .and. (ptr2_r8 /= undef_r8(2)) )
-               ptr1_r8 = ptr1_r8  _OP ptr2_r8
+               ptr_out_r8 = ptr1_r8  _OP ptr2_r8
             else where
-               ptr1_r8 = undef_r8(3)
+               ptr_out_r8 = undef_r8(3)
             endwhere 
          else
-            ptr1_r8 = ptr1_r8  _OP ptr2_r8
+            ptr_out_r8 = ptr1_r8  _OP ptr2_r8
          end if
       else
           _FAIL("unsupported type")
