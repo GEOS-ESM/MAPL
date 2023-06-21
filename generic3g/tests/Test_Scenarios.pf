@@ -152,12 +152,12 @@ contains
 
       p = Parser()
 
-      file_name = './configs/' // this%scenario_name // '/' // this%scenario_root
+      file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
       yaml_cfg = p%load_from_file(file_name, _RC)
 
       config = GenericConfig(yaml_cfg=yaml_cfg)
 
-      call NUOPC_FieldDictionarySetup('./configs/FieldDictionary.yml', _RC)
+      call NUOPC_FieldDictionarySetup('./scenarios/FieldDictionary.yml', _RC)
       @assert_that(status, is(0))
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
@@ -192,7 +192,7 @@ contains
 
       end associate
 
-      file_name = './configs/' // this%scenario_name // '/expectations.yaml'
+      file_name = './scenarios/' // this%scenario_name // '/expectations.yaml'
       this%expectations = p%load_from_file(file_name, _RC)
 
    end subroutine setup

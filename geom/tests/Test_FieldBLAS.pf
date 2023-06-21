@@ -2,125 +2,16 @@
 
 module Test_FieldBLAS
 
-   use mapl_FieldBLAS
+   use mapl3g_FieldBLAS
+   use geom_setup
+   use MAPL_FieldPointerUtilities
    use ESMF
    use funit
    use MAPL_ExceptionHandling
 
    implicit none
 
-   interface mk_field
-      module procedure mk_field_r4
-      module procedure mk_field_r8
-   end interface mk_field
-
-   interface initialize_array
-      module procedure initialize_array_R4
-      module procedure initialize_array_R8
-   end interface initialize_array
-
-   integer :: i
-   type(ESMF_Index_Flag), parameter :: INDEX_FLAG_DEFAULT = ESMF_INDEX_DELOCAL
-   integer, parameter :: REG_DECOMP_DEFAULT(*) = [2, 2]
-   integer, parameter :: MAX_INDEX_DEFAULT(*) = [4, 4]
-   integer, parameter :: MIN_INDEX_DEFAULT(*) = [1, 1]
-   integer, parameter :: DIMR4_DEFAULT(*) = [4, 4]
-   integer, parameter :: DIMR8_DEFAULT(*) = [4, 4]
-   integer, parameter :: SIZE_R4 = 16
-   integer, parameter :: SIZE_R8 = 16
-
-   real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R4)], DIMR4_DEFAULT)
-   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT) 
-   
-   type(ESMF_Field) :: XR4
-   type(ESMF_Field) :: XR8
-   type(ESMF_Field) :: YR4
-   type(ESMF_Field) :: YR8
-   
 contains
-
-   ! MAKE GRID FOR FIELDS
-   function mk_grid(regDecomp, minIndex, maxIndex, indexflag, grid_name, rc) result(grid)
-      integer, dimension(:), intent(in) :: regDecomp
-      integer, dimension(:), intent(in) :: minIndex
-      integer, dimension(:), intent(in) :: maxIndex
-      type(ESMF_Index_Flag), intent(in) :: indexflag
-      character(len=*), intent(in) :: grid_name
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Grid) :: grid
-
-      integer :: status
-
-      grid = ESMF_GridCreateNoPeriDim(regDecomp = regDecomp, maxIndex = maxIndex, minIndex = minIndex, indexflag = indexflag, name = grid_name, _RC)
-
-      _RETURN(_SUCCESS)
-   end function mk_grid
-   
-   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R4)
-   function mk_field_r4(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
-      real(kind=ESMF_KIND_R4), dimension(:,:), target, intent(in) :: farray
-      integer, dimension(:), intent(in) :: regDecomp
-      integer, dimension(:), intent(in) :: minIndex
-      integer, dimension(:), intent(in) :: maxIndex
-      type(ESMF_Index_Flag), intent(in) :: indexflag
-      character(len=*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Field) :: field
-      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: ptr
-
-      integer :: status
-
-      field = mk_field_common(tk = ESMF_TYPEKIND_R4, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
-      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr => farray
-
-      _RETURN(_SUCCESS)
-   end function mk_field_r4
-
-   ! MAKE FIELD FOR REAL(KIND=ESMF_KIND_R8)
-   function mk_field_r8(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
-      real(kind=ESMF_KIND_R8), dimension(:,:), target, intent(in) :: farray
-      integer, dimension(:), intent(in) :: regDecomp
-      integer, dimension(:), intent(in) :: minIndex
-      integer, dimension(:), intent(in) :: maxIndex
-      type(ESMF_Index_Flag), intent(in) :: indexflag
-      character(len=*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Field) :: field
-      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: ptr
-
-      integer :: status
-
-      field = mk_field_common(tk = ESMF_TYPEKIND_R8, regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, name = name, _RC)
-      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr => farray
-
-      _RETURN(_SUCCESS)
-   end function mk_field_r8
-
-   function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
-      type(ESMF_TypeKind_Flag), intent(in) :: tk
-      integer, dimension(:), intent(in) :: regDecomp
-      integer, dimension(:), intent(in) :: minIndex
-      integer, dimension(:), intent(in) :: maxIndex
-      type(ESMF_Index_Flag), intent(in) :: indexflag
-      character(len=*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-      character(len=*), parameter :: GRID_SUFFIX = '_grid'
-      character(len=*), parameter :: FIELD_SUFFIX = '_field'
-      
-      type(ESMF_Field) :: field
-      type(ESMF_Grid) :: grid
-      integer :: status
-
-      grid = mk_grid(regDecomp=regDecomp, minIndex=minIndex, maxIndex=maxIndex, indexflag = indexflag, grid_name = name // GRID_SUFFIX, _RC)
-      field = ESMF_FieldCreate(grid, typekind = tk, name = name // FIELD_SUFFIX, _RC)
-
-      _RETURN(_SUCCESS)
-   end function mk_field_common
 
    @Before
    subroutine set_up_data()
@@ -145,6 +36,10 @@ contains
          indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
       YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
          indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
+      XR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
+      YR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
 
    end subroutine set_up_data
 
@@ -213,6 +108,8 @@ contains
       
       x = XR8
       y = YR4
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_ptr = 4.d0
       call FieldCOPY(x, y, _RC)
       call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
       call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
@@ -447,64 +344,41 @@ contains
 
    end subroutine test_FieldConvertPrec_R4R8
 
-   !@Test
-   !wdb fixme not done yet
-   subroutine test_FieldClone()
+   @Test
+   subroutine test_FieldClone3D()
       type(ESMF_Field) :: x, y
       integer :: status, rc
 
-!      type(ESMF_ArraySpec) :: arrayspec
-!      type(ESMF_Grid) :: grid
-!      type(ESMF_StaggerLoc) :: staggerloc
-!      integer, allocatable :: gridToFieldMap(:)
-!      integer, allocatable :: ungriddedLBound(:)
-!      integer, allocatable :: ungriddedUBound(:)
-!      integer, allocatable :: totalLWidth(:,:)
-!      integer, allocatable :: totalUWidth(:,:)
+      type(ESMF_TypeKind_Flag) :: tk_x,tk_y
+      type(ESMF_Grid) :: grid
+      integer, allocatable :: ungriddedLBound_x(:),ungriddedLBound_y(:)
+      integer, allocatable :: ungriddedUBound_x(:),ungriddedUBound_y(:)
+      integer :: grid_rank_x, grid_rank_y
+      integer :: field_rank_x, field_rank_y
+      integer :: ungrid_x,ungrid_y
 
-      x = XR4
+      x = XR4_3D
+
+      call ESMF_FieldGet(x,rank=field_rank_x,grid=grid,typekind=tk_x,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank_x)
+      ungrid_x = field_rank_x - grid_rank_x
+      allocate(ungriddedLBound_x(ungrid_x),ungriddedUBound_x(ungrid_x))
+      call ESMF_FieldGet(x,ungriddedLBound=UngriddedLBound_x,ungriddedUBound=UngriddedUBound_x,_RC)
+
       call FieldClone(x, y, _RC)
 
-   end subroutine test_FieldClone
+      call ESMF_FieldGet(y,rank=field_rank_y,grid=grid,typekind=tk_y,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank_y)
+      ungrid_y = field_rank_y - grid_rank_y
+      allocate(ungriddedLBound_y(ungrid_y),ungriddedUBound_y(ungrid_y))
+      call ESMF_FieldGet(y,ungriddedLBound=UngriddedLBound_y,ungriddedUBound=UngriddedUBound_y,_RC)
+      @assertEqual(field_rank_x,field_rank_y)
+      @assertEqual(ungrid_x,ungrid_y)
+      @assertTrue(tk_x==tk_y,"kinds not equal")
+      @assertEqual(ungriddedLBound_x,ungriddedLBound_y)
+      @assertEqual(ungriddedUBound_x,ungriddedUBound_y)
 
-!wdb setup routines
-   subroutine initialize_array_R4(x, xmin, xrange)
-      real(ESMF_KIND_R4), intent(inout) :: x(:,:)
-      real(ESMF_KIND_R4), intent(in) :: xmin
-      real(ESMF_KIND_R4), intent(in) :: xrange
-      integer :: rc
-
-      _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
-      call random_number(x)
-      x = xrange * x + xmin
-
-   end subroutine initialize_array_R4
-
-   subroutine initialize_array_R8(x, xmin, xrange)
-      real(ESMF_KIND_R8), intent(inout) :: x(:,:)
-      real(ESMF_KIND_R8), intent(in) :: xmin
-      real(ESMF_KIND_R8), intent(in) :: xrange
-      integer :: rc
-
-      _ASSERT(xrange > 0, 'Range for random numbers must be positive.')
-      call random_number(x)
-      x = xrange * x + xmin
-
-   end subroutine initialize_array_R8
-
-   elemental function are_almost_equal(x, y) result(almost_equal)
-      real(kind=ESMF_KIND_R4), parameter :: EPS = epsilon(real(1.0, kind=ESMF_KIND_R4))
-      real(kind=ESMF_KIND_R8), intent(in) :: x
-      real(kind=ESMF_KIND_R4), intent(in) :: y
-      logical :: almost_equal
-
-      if(y==0) then
-         almost_equal = (x==0)
-      else
-         almost_equal = (abs(x-y)/abs(y) < EPS)
-      end if
-
-   end function are_almost_equal
+   end subroutine test_FieldClone3D
 
    @Test
    subroutine test_almost_equal_scalar()
