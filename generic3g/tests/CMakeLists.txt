@@ -46,5 +46,5 @@ set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_
 
 add_dependencies(build-tests MAPL.generic3g.tests)
 
-file(COPY configs DESTINATION .)
+file(COPY scenarios DESTINATION .)
 

@@ -35,9 +35,9 @@ contains
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, finalize, _RC)
 
       p = Parser()
-      config_A = GenericConfig(yaml_cfg=p%load_from_file('./configs/leaf_A.yaml', rc=status))
+      config_A = GenericConfig(yaml_cfg=p%load_from_file('./scenarios/leaf_A.yaml', rc=status))
       _ASSERT(status == 0, 'bad config')
-      config_B = GenericConfig(yaml_cfg=p%load_from_file('./configs/leaf_B.yaml', rc=status))
+      config_B = GenericConfig(yaml_cfg=p%load_from_file('./scenarios/leaf_B.yaml', rc=status))
       _ASSERT(status == 0, 'bad config')
       
 
