@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.geom/tests")
 
 set (test_srcs
   Test_FieldBLAS.pf
+  Test_FieldArithmetic.pf
   )
 
 
@@ -10,6 +11,7 @@ add_pfunit_ctest(MAPL.geom.tests
                 LINK_LIBRARIES MAPL.geom MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
+                OTHER_SOURCES geom_setup.F90
 #		OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90
                 MAX_PES 4
                 )
