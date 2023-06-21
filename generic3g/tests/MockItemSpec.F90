@@ -6,6 +6,7 @@ module MockItemSpecMod
    use mapl3g_VariableSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
+   use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -24,12 +25,14 @@ module MockItemSpecMod
       procedure :: create
       procedure :: destroy
       procedure :: allocate
+      procedure :: get_dependencies
 
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+      procedure :: add_to_bundle
       procedure :: make_action
    end type MockItemSpec
 
@@ -62,8 +65,9 @@ contains
 
    end function new_MockItemSpec
 
-   subroutine create(this, rc)
+   subroutine create(this, dependency_specs, rc)
       class(MockItemSpec), intent(inout) :: this
+      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       call this%set_created()
@@ -86,15 +90,23 @@ contains
    subroutine allocate(this, rc)
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
-
       
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
+   function get_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(MockItemSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      dependencies = ActualPtVector()
+
+      _RETURN(_SUCCESS)
+   end function get_dependencies
 
    subroutine connect_to(this, src_spec, rc)
       class(MockItemSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(inout) :: src_spec
       integer, optional, intent(out) :: rc
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -155,6 +167,15 @@ contains
       _FAIL('unimplemented')
 
    end subroutine add_to_state
+
+   subroutine add_to_bundle(this, bundle, rc)
+      class(MockItemSpec), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      _FAIL('unimplemented')
+
+   end subroutine add_to_bundle
 
    function new_MockActionSpec(subtype_1, subtype_2) result(action_spec)
       type(MockActionSpec) :: action_spec

@@ -5,6 +5,10 @@ module mapl3g_InvalidSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
+
+   use mapl3g_ActualPtVector
+   use mapl3g_ActualPtSpecPtrMap
+   use esmf, only: ESMF_FieldBundle
    use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
    use esmf, only: ESMF_SUCCESS
@@ -21,12 +25,14 @@ module mapl3g_InvalidSpec
       procedure :: create
       procedure :: destroy
       procedure :: allocate
-
+      procedure :: get_dependencies
+      
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: requires_extension
       procedure :: make_extension
       procedure :: add_to_state
+      procedure :: add_to_bundle
    end type InvalidSpec
 
 
@@ -34,8 +40,9 @@ contains
   
 
 
-   subroutine create(this, rc)
+   subroutine create(this, dependency_specs, rc)
       class(InvalidSpec), intent(inout) :: this
+      type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -70,9 +77,19 @@ contains
    end subroutine allocate
 
 
+   function get_dependencies(this, rc) result(dependencies)
+      type(ActualPtVector) :: dependencies
+      class(InvalidSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      dependencies = ActualPtVector()
+
+      _RETURN(_SUCCESS)
+   end function get_dependencies
+
    subroutine connect_to(this, src_spec, rc)
       class(InvalidSpec), intent(inout) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(inout) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -112,6 +129,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
+   subroutine add_to_bundle(this, bundle, rc)
+      class(InvalidSpec), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      _FAIL('Attempt to use item of type InvalidSpec')
+
+      _RETURN(_SUCCESS)
+   end subroutine add_to_bundle
+
    function make_extension(this, src_spec, rc) result(action_spec)
       class(AbstractActionSpec), allocatable :: action_spec
       class(InvalidSpec), intent(in) :: this
@@ -120,7 +147,7 @@ contains
 
       integer :: status
 
-      _FAIL('Attempt to use invalid spec')
+      _FAIL('Attempt to use item of type InvalidSpec')
 
       _RETURN(_SUCCESS)
    end function make_extension

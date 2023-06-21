@@ -6,6 +6,7 @@ module mapl3g_CopyAction
    use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    use esmf
+   use mapl_geom
    implicit none
 
    type, extends(ExtensionAction) :: CopyAction
@@ -35,13 +36,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: x_in(:,:)
-      real(kind=ESMF_KIND_R8), pointer :: x_out(:,:)
 
-      call ESMF_FieldGet(this%f_in, farrayPtr=x_in, _RC)
-      call ESMF_FieldGet(this%f_out, farrayPtr=x_out, _RC)
-
-      x_out = x_in
+      call FieldCopy(this%f_in, this%f_out, _RC)
       
       _RETURN(_SUCCESS)
    end subroutine run

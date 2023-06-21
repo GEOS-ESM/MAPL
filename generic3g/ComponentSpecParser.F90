@@ -15,7 +15,9 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VerticalDimSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
+   use mapl3g_Stateitem
    use yaFyaml
+   use gftl2_StringVector, only: StringVector
    use esmf
    implicit none
    private
@@ -64,14 +66,14 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      if (config%has('internal')) then
+         call process_state_specs(var_specs, config%of('internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+      end if
       if (config%has('import')) then
          call process_state_specs(var_specs, config%of('import'), ESMF_STATEINTENT_IMPORT, _RC)
       end if
       if (config%has('export')) then
          call process_state_specs(var_specs, config%of('export'), ESMF_STATEINTENT_EXPORT, _RC)
-      end if
-      if (config%has('internal')) then
-         call process_state_specs(var_specs, config%of('internal'), ESMF_STATEINTENT_INTERNAL, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -93,6 +95,11 @@ contains
          real, allocatable :: default_value
          type(VerticalDimSpec) :: vertical_dim_spec
          type(UngriddedDimsSpec) :: ungridded_dims_spec
+         character(:), allocatable :: standard_name
+         character(:), allocatable :: units
+         type(ESMF_StateItem_Flag), allocatable :: itemtype
+
+         type(StringVector), allocatable :: service_items
 
          allocate(e, source=config%end())
          allocate(iter, source=config%begin())
@@ -101,24 +108,36 @@ contains
             attributes => iter%second()
 
             call split(name, short_name, substate)
-
             call to_typekind(typekind, attributes, _RC)
-
             call val_to_float(default_value, attributes, 'default_value', _RC)
 
             call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
 
             call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
 
+            if (attributes%has('standard_name')) then
+               standard_name = to_string(attributes%of('standard_name'))
+            end if
+            
+            if (attributes%has('units')) then
+               units = to_string(attributes%of('units'))
+            end if
+
+            call to_itemtype(itemtype, attributes, _RC)
+            call to_service_items(service_items, attributes, _RC)
+            
             var_spec = VariableSpec(state_intent, short_name=short_name, &
-                 standard_name=to_string(attributes%of('standard_name')), &
-                 units=to_string(attributes%of('units')), &
+                 itemtype=itemtype, &
+                 service_items=service_items, &
+                 standard_name=standard_name, &
+                 units=units, &
                  typekind=typekind, &
                  substate=substate, &
                  default_value=default_value, &
                  vertical_dim_spec = vertical_dim_spec, &
                  ungridded_dims = ungridded_dims_spec &
                  )
+
             call var_specs%push_back(var_spec)
             call iter%next()
          end do
@@ -243,6 +262,63 @@ contains
          _RETURN(_SUCCESS)
       end subroutine to_UngriddedDimsSpec
 
+
+      subroutine to_itemtype(itemtype, attributes, rc)
+         type(ESMF_StateItem_Flag), allocatable, intent(out) :: itemtype
+         class(YAML_Node), target, intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: subclass
+
+         if (.not. attributes%has('class')) then
+            _RETURN(_SUCCESS)
+         end if
+
+         call attributes%get(subclass, 'class', _RC)
+
+         select case (subclass)
+         case ('field')
+            itemtype = MAPL_STATEITEM_FIELD
+         case ('service')
+            itemtype = MAPL_STATEITEM_SERVICE
+         case default
+            _FAIL('unknown subclass for state item: '//subclass)
+         end select
+
+         _RETURN(_SUCCESS)
+      end subroutine to_itemtype
+      
+      subroutine to_service_items(service_items, attributes, rc)
+         type(StringVector), allocatable, intent(out) :: service_items
+         class(YAML_Node), target, intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         class(YAML_Node), pointer :: seq
+         class(YAML_Node), pointer :: item
+         class(NodeIterator), allocatable :: seq_iter
+         character(:), pointer :: item_name
+
+         if (.not. attributes%has('items')) then
+            _RETURN(_SUCCESS)
+         end if
+
+         allocate(service_items)
+         seq => attributes%of('items')
+         associate (e => seq%end())
+           seq_iter = seq%begin()
+           do while (seq_iter /= e)
+              item => seq_iter%at(_RC)
+              item_name => to_string(item, _RC)
+              call service_items%push_back(item_name)
+              call seq_iter%next()
+           end do
+         end associate
+
+         _RETURN(_SUCCESS)
+      end subroutine to_service_items
+      
    end function process_var_specs
 
 

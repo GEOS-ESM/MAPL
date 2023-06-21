@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_FieldBLAS
+module mapl_FieldBLAS
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities
@@ -423,4 +423,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine convert_prec_R8_to_R4
 
-end module mapl3g_FieldBLAS
+end module mapl_FieldBLAS
+
