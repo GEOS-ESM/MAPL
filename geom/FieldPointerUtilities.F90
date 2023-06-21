@@ -363,25 +363,29 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: CLONE_TAG = '_clone'
-      type(ESMF_ArraySpec) :: arrayspec
+      !type(ESMF_ArraySpec) :: arrayspec
       type(ESMF_Grid) :: grid
       type(ESMF_StaggerLoc) :: staggerloc
       integer, allocatable :: gridToFieldMap(:)
       integer, allocatable :: ungriddedLBound(:)
       integer, allocatable :: ungriddedUBound(:)
-      integer, allocatable :: totalLWidth(:,:)
-      integer, allocatable :: totalUWidth(:,:)
-      character(len=:), allocatable :: name
+      type(ESMF_TypeKind_Flag) :: tk
+      character(len=ESMF_MAXSTR) :: name
       integer :: status
+      integer :: field_rank, grid_rank,ungrid_size
 
-      call ESMF_FieldGet(x, arrayspec=arrayspec, grid=grid, &
+      call ESMF_FieldGet(x,grid=grid,rank=field_rank,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank,_RC)
+      ungrid_size = field_rank-grid_rank
+      allocate(gridToFieldMap(grid_rank))
+      allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
+      call ESMF_FieldGet(x, typekind=tk, name = name, &
          staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
-         ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, &
-         totalLWidth=totalLWidth, totalUWidth=totalUWidth, _RC)
+         ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, _RC)
 
-      name = name // CLONE_TAG
+      name = trim(name) // CLONE_TAG
 
-      y = ESMF_FieldCreate(grid, arrayspec, staggerloc=staggerloc, &
+      y = ESMF_FieldCreate(grid, typekind=tk, staggerloc=staggerloc, &
          gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
          ungriddedUBound=ungriddedUBound, name=name, _RC)
 
@@ -439,12 +443,19 @@ contains
       integer :: rank_x, rank_y
       integer, dimension(:), allocatable :: count_x, count_y
       integer :: status
+      logical :: normal_conformable
 
+      conformable = .false.
       ! this should really used the geom and ungridded dims
       ! for now we will do this until we have a geom agnostic stuff worked out...
       ! the ideal algorithm would be if geom == geom and input does not have ungridded
       ! and thing we are copying to does, then we are "conformable"
-      conformable = .false.
+      normal_conformable = FIeldsAreConformable(x,y,_RC)
+
+      if (normal_conformable) then
+         conformable = .true.
+         _RETURN(_SUCCESS)
+      end if
 
       call ESMF_FieldGet(x, rank=rank_x, _RC)
       call ESMF_FieldGet(y, rank=rank_y, _RC)
@@ -540,7 +551,7 @@ contains
          _RETURN(_SUCCESS)
       end if
       broadcast = FieldsAreBroadcastConformable(x,y)
-      _ASSERT(broadcast, 'FieldCopy() - fields not be broadcast.')
+      _ASSERT(broadcast, 'FieldCopy() - field can not be broadcast.')
 
       call MAPL_FieldGetLocalElementCount(x,x_shape,_RC)
       call MAPL_FieldGetLocalElementCount(y,y_shape,_RC)
