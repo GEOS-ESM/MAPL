@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added bug fix when using climatology option in ExtData2G under certain scenarios
 - Add StationSamplerMod for station sampler
 - Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
