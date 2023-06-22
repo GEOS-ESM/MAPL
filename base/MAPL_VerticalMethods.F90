@@ -43,6 +43,8 @@ module MAPL_VerticalDataMod
      integer :: regrid_type
      type(ESMF_Field) :: interp_var
      logical :: ascending
+     integer, allocatable :: i_ind(:), j_ind(:), k_ind(:), ko_ind(:)
+     real,    allocatable :: weight(:,:,:)
      contains
         procedure :: append_vertical_metadata
         procedure :: get_interpolating_variable
@@ -248,7 +250,74 @@ module MAPL_VerticalDataMod
           _VERIFY(status)
        end if
        deallocate(orig_surface_level)
+
+       call init_indices(_RC)
+
        _RETURN(_SUCCESS)
+
+       contains
+          ! initialize for pl3d ( not ple3d)
+          subroutine init_indices(rc)
+            integer, optional, intent(inout) :: rc
+            integer :: status
+            integer :: i, j, k, lev, km, D1, D2, L
+            integer, allocatable, dimension(:,:) :: Is, Js
+            integer, allocatable, dimension(:)   :: Is_tmp, Js_tmp, Ks_tmp
+            logical, allocatable :: mask(:,:)
+            integer :: flip_sign
+            real, allocatable :: pb(:,:), pt(:,:)
+            real :: pp
+          
+            D1 = size(this%pl3d,1)
+            D2 = size(this%pl3d,2)
+            km = size(this%pl3d,3)
+            ! Is is used to trace the elememnt's row number
+            Is = spread([(i, i=1,D1)],dim=2, NCOPIES=D2)  
+            ! Is is used to trace the elememnt's column number
+            Js = spread([(j, j=1,D2)],dim=1, NCOPIES=D1)
+  
+            flip_sign = 1
+
+            if(this%pl3d(1,1,2) < this%pl3d(1,1,1)) flip_sign = -1
+
+            if(allocated(this%i_ind)) deallocate(this%i_ind)
+            if(allocated(this%j_ind)) deallocate(this%j_ind)
+            if(allocated(this%k_ind)) deallocate(this%k_ind)
+            if(allocated(this%ko_ind)) deallocate(this%ko_ind)
+            if(allocated(this%weight)) deallocate(this%weight)
+  
+            allocate(this%i_ind(0))
+            allocate(this%j_ind(0))
+            allocate(this%k_ind(0))
+            allocate(this%ko_ind(0))
+            allocate(this%weight(D1,D2,km),source = 0.)
+
+            do lev =1, size(this%interp_levels)
+               pp = flip_sign*this%interp_levels(lev)
+               pb = flip_sign*this%pl3d(:,:,km)
+               do k = km-1, 1,-1 ! levels of input
+                 if(all(pb<pp)) exit
+                 pt = flip_sign*this%pl3d(:,:,k)
+                 mask = (pp>pt .and. pp<=pb)
+                 Is_tmp = pack(Is, mask=mask)
+                 Js_tmp = pack(Js, mask=mask)
+                 if (size(Is_tmp) > 0) then
+                    Ks_tmp = [(k, i=1, size(Is_tmp))]
+                    this%i_ind = [this%i_ind,Is_tmp]
+                    this%j_ind = [this%j_ind,Js_tmp]
+                    this%k_ind = [this%k_ind,Ks_tmp]
+                    this%weight(Is_tmp,Js_tmp,k) = (pb(Is_tmp,Js_tmp)-pp)/(pb(Is_tmp,Js_tmp)-pt(Is_tmp,Js_tmp))
+                 endif
+                 pb = pt
+               enddo
+               this%ko_ind = [this%ko_ind, [(lev, i = 1, D1*D2)]]
+            enddo
+            L = D1*D2*size(this%interp_levels)
+            if (size(this%i_ind) /=L .or. size(this%ko_ind) /= L) then
+              _FAIL("Missing some points in the indices") 
+            endif
+            _RETURN(_SUCCESS)
+          end subroutine
 
      end subroutine setup_eta_to_pressure
 
@@ -257,9 +326,24 @@ module MAPL_VerticalDataMod
         real, intent(inout) :: ptrin(:,:,:)
         real, intent(inout) :: ptrout(:,:,:)
         integer, optional, intent(out) :: rc
+        real, allocatable :: weight(:,:,:)
 
         integer :: status
         integer :: k
+
+        if (size(ptrin,3) == size(this%pl3d,3)) then
+          weight = this%weight
+          where(ptrin(this%i_ind, this%j_ind, this%k_ind)   == MAPL_UNDEF )
+            weight(this%i_ind, this%j_ind, this%k_ind) = 0.
+          endwhere
+          where(ptrin(this%i_ind, this%j_ind, this%k_ind+1) == MAPL_UNDEF )
+             weight(this%i_ind, this%j_ind, this%k_ind) = 1.
+          endwhere
+
+          ptrout(this%i_ind, this%j_ind, this%ko_ind) = ptrin(this%i_ind, this%j_ind, this%k_ind)*weight(this%i_ind, this%j_ind, this%k_ind) + &
+                                                        ptrin(this%i_ind, this%j_ind, this%k_ind+1)*(1.0-weight(this%i_ind, this%j_ind, this%k_ind))
+          _RETURN(_SUCCESS)
+        endif
 
        do k=1,size(ptrout,3)
           call vertinterp(ptrout(:,:,k),ptrin,this%interp_levels(k),this%ple3d,this%pl3d,rc=status)
