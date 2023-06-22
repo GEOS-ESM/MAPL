@@ -176,6 +176,8 @@ contains
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
 
+    type(ESMF_Info) :: infoh
+
     !__ 1. metadata add_dimension,
     !     add_variable for time, latlon, station
     !
@@ -219,15 +221,16 @@ contains
        var_name=trim(fieldNameList(i))
        call ESMF_FieldBundleGet(bundle,var_name,field=field,_RC)
        call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+       call ESMF_InfoGetFromHost(field,infoh,_RC)
+       is_present = ESMF_InfoIsPresent(infoh, 'LONG_NAME',_RC)
        if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+          call ESMF_InfoGet(infoh, KEY="LONG_NAME",VALUE=long_name, _RC)
        else
           long_name = var_name
        endif
-       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+       is_present = ESMF_InfoIsPresent(infoh, 'UNITS',_RC)
        if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+          call ESMF_InfoGet(infoh, KEY="UNITS",VALUE=units, _RC)
        else
           units = 'unknown'
        endif
