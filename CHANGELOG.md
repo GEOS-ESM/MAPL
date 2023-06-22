@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add StationSamplerMod for station sampler
 - Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
 - Update arithemetic parser to work with any rank and type of ESMF fields
@@ -82,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.28.0 → v3.29.0
     - Clean up for TOSS4 changes at NAS
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
+- Update CI to use BCs v11.1.0
 
 ### Fixed
 
