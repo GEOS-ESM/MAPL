@@ -541,7 +541,7 @@ contains
 !      type(FileMetadataUtils) :: fmd_ut
 !      type(FileMetadata) :: fmd
       type(ESMF_Time) :: time0
-      integer (ESMF_KIND_I8) :: j0, j1, jt
+      integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
       real(ESMF_KIND_R8) :: jx0, jx1
       real(ESMF_KIND_R8) :: x0, x1
       integer :: khi, klo, k, nstart, max_iter
@@ -695,14 +695,18 @@ contains
 
       this%epoch_index(1)= 1
       this%epoch_index(2)= this%cell_across_swath
-      call bisect( this%t_alongtrack, jx0, jt, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-      jt = jt + 1               ! (x1,x2]  design
-      this%epoch_index(3)= jt
-      write(6,*) 'bisect for j0:  rc, jt', rc, jt
+      call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+      call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
 
-      call bisect( this%t_alongtrack, jx1, jt, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-      this%epoch_index(4)= jt      
-      write(6,*) 'bisect for j1:  rc, jt', rc, jt
+      if (jt1==jt2) then
+         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch, STOP!')
+      endif
+      jt1 = jt1 + 1               ! (x1,x2]  design
+      this%epoch_index(3)= jt1
+      write(6,*) 'bisect for j0:  rc, jt', rc, jt1
+      
+      this%epoch_index(4)= jt2      
+      write(6,*) 'bisect for j1:  rc, jt', rc, jt2
 
       Xdim = this%cell_across_swath
       Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
