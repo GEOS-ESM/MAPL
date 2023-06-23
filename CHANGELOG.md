@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.39.4] - 2023-06-23
+
+### Fixed
+
+- Added bug fix when using climatology option in ExtData2G under certain scenarios
+
 ## [2.39.3] - 2023-06-12
 
 ### Fixed
