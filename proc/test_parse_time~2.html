@@ -109,12 +109,12 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/test_MAPL_DateTime_Parsing.pf"> Source File</a>
+              <a href="../src/test_MAPL_ISO8601_DateTime.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_mapl_datetime_parsing.pf.html'>test_MAPL_DateTime_Parsing.pf</a></li>
-              <li><a href='../module/test_mapl_datetime_parsing.html'>test_MAPL_DateTime_Parsing</a></li>
+              <li><a href='../sourcefile/test_mapl_iso8601_datetime.pf.html'>test_MAPL_ISO8601_DateTime.pf</a></li>
+              <li><a href='../module/test_mapl_iso8601_datetime.html'>test_MAPL_ISO8601_DateTime</a></li>
           <li class="active">test_parse_time</li>
         </ol>
       </div>
@@ -221,7 +221,7 @@
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_parse_time</span><span class="p">()</span><span class="w"></span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">time_fields</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
 
-<span class="nb">      time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_time</span><span class="p">(</span><span class="s1">&#39;17:41:07.513Z&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">TIME_DELIMITER</span><span class="p">)</span><span class="w"></span>
+<span class="nb">      time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_time</span><span class="p">(</span><span class="s1">&#39;T17:41:07.513Z&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">time</span><span class="p">%</span><span class="n">is_valid_</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">hour_</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">minute_</span><span class="p">)</span><span class="w"></span>
@@ -229,7 +229,7 @@
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">513</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">millisecond_</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">timezone_offset_</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_time</span><span class="p">(</span><span class="s1">&#39;174107.513Z&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">TIME_DELIMITER</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parse_time</span><span class="p">(</span><span class="s1">&#39;T174107.513Z&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">time</span><span class="p">%</span><span class="n">is_valid_</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">hour_</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">41</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">minute_</span><span class="p">)</span><span class="w"></span>
@@ -237,6 +237,21 @@
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">513</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">millisecond_</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">%</span><span class="n">timezone_offset_</span><span class="p">)</span><span class="w"></span>
 
+<span class="c">!      time = parse_time(&#39;T174107.513+0000&#39;)</span>
+<span class="c">!      @assertTrue(time%is_valid_)</span>
+<span class="c">!      @assertEqual(17, time%hour_)</span>
+<span class="c">!      @assertEqual(41, time%minute_)</span>
+<span class="c">!      @assertEqual(7, time%second_)</span>
+<span class="c">!      @assertEqual(513, time%millisecond_)</span>
+<span class="c">!      @assertEqual(0, time%timezone_offset_)</span>
+
+<span class="c">!      time = parse_time(&#39;T174107.513-0500&#39;)</span>
+<span class="c">!      @assertTrue(time%is_valid_)</span>
+<span class="c">!      @assertEqual(17, time%hour_)</span>
+<span class="c">!      @assertEqual(41, time%minute_)</span>
+<span class="c">!      @assertEqual(7, time%second_)</span>
+<span class="c">!      @assertEqual(513, time%millisecond_)</span>
+<span class="c">!      @assertEqual(-300, time%timezone_offset_)</span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">test_parse_time</span><span class="w"></span>
 </pre></div>
 
@@ -258,7 +273,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>

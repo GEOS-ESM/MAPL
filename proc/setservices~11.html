@@ -109,11 +109,11 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/HelloWorld_GridComp.F90"> Source File</a>
+              <a href="../src/ParentOneChild_GridComp.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/helloworld_gridcomp.f90.html'>HelloWorld_GridComp.F90</a></li>
+              <li><a href='../sourcefile/parentonechild_gridcomp.f90.html'>ParentOneChild_GridComp.F90</a></li>
           <li class="active">SetServices</li>
         </ol>
       </div>
@@ -172,8 +172,8 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='../module/helloworld_gridcomp.html'>HelloWorld_GridComp</a></li>
                 <li><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                <li><a href='../module/parentonechild_gridcomp.html'>ParentOneChild_GridComp</a></li>
             </ul>
           </li>
       </ul>
@@ -210,7 +210,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1086"></span>
+              <span class="anchor" id="variable-rc~1085"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -277,9 +277,22 @@
 <span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
 <span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL</span><span class="w"></span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_child_name</span><span class="p">,</span><span class="w"> </span><span class="n">my_child_so</span><span class="w"></span>
 
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GetObjectFromGC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPL</span><span class="p">,</span><span class="w"> </span><span class="n">my_child_name</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;my_child_name:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="n">MAPL</span><span class="p">,</span><span class="w"> </span><span class="n">my_child_so</span><span class="p">,</span><span class="w"> </span><span class="n">Label</span><span class="o">=</span><span class="s2">&quot;my_child_so:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span>
 <span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">my_initialize</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">  </span><span class="n">my_run</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_AddExportSpec</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;output1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                                 </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                                 </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w"> </span>
+<span class="w">     </span><span class="n">child1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AddChild</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">my_child_name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setservices_&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sharedObj</span><span class="o">=</span><span class="n">my_child_so</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span>
 <span class="w">     </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
 
@@ -304,7 +317,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>

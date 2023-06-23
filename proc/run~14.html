@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">42 statements</a>
+               title=" 0.1% of total for procedures.">24 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/pfio_parallel_netcdf_reproducer.F90"> Source File</a>
+              <a href="../src/MAPL_demo_fargparse.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/pfio_parallel_netcdf_reproducer.f90.html'>pfio_parallel_netcdf_reproducer.F90</a></li>
-              <li><a href='../program/main~7.html'>main</a></li>
+              <li><a href='../sourcefile/mapl_demo_fargparse.f90.html'>MAPL_demo_fargparse.F90</a></li>
+              <li><a href='../program/main~3.html'>main</a></li>
           <li class="active">run</li>
         </ol>
       </div>
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2> subroutine run(im, lm, n_fields, output_filename)  
+    <h2> subroutine run(rc)  
 </h2>
     
 
@@ -183,60 +183,15 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-im~19"></span>
+              <span class="anchor" id="variable-rc~1169"></span>
               integer,
             </td>
-<td>intent(in)</td>
-              <td></td>            <td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>im</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-lm~16"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>lm</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-n_fields~2"></span>
-              integer,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>n_fields</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-output_filename~2"></span>
-              character(len=*),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>output_filename</strong></td>
+            <td><strong>rc</strong></td>
             <td>
                 
             </td>
@@ -289,58 +244,42 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">run</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="p">,</span><span class="w"> </span><span class="n">n_fields</span><span class="p">,</span><span class="w"> </span><span class="n">output_filename</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lm</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_fields</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">output_filename</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">run</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Netcdf4_Fileformatter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span><span class="w"></span>
-<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">(:,:,:)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">jm</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j0</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nj_local</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_name</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_idx_str</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_file</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">mpi_comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">mpi_comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Init</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">jm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">im</span><span class="o">*</span><span class="mi">6</span><span class="w"> </span><span class="c">! pseudo cubed sphere</span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;IM_WORLD&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">im</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;JM_WORLD&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="s1">&#39;LM&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="c">! Read and parse the command line, and set parameters</span>
+<span class="w">         </span><span class="c">! If you have extra options you make a procedure as seen below and add arguments</span>
+<span class="w">         </span><span class="c">! there and pass in here</span>
+<span class="w">         </span><span class="n">cli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FargparseCLI</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="n">extra_options</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_fields</span><span class="w"></span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">field_idx_str</span><span class="p">,</span><span class="s1">&#39;(i3.3)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
-<span class="w">         </span><span class="n">field_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;field_&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">field_idx_str</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span><span class="w"> </span><span class="n">Variable</span><span class="p">(</span><span class="n">pFIO_REAL32</span><span class="p">,</span><span class="w"> </span><span class="n">dimensions</span><span class="o">=</span><span class="s1">&#39;IM_WORLD,JM_WORLD,LM&#39;</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="k">end do</span>
+<span class="w">         </span><span class="c">! This does the casting of arguments into cap_options for CAP</span>
+<span class="w">         </span><span class="n">cap_options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_CapOptions</span><span class="p">(</span><span class="n">cli</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
-<span class="k">      call </span><span class="n">formatter</span><span class="p">%</span><span class="n">create_par</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="o">=</span><span class="n">MPI_COMM_WORLD</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">write</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;done with MAPL_FargparseCLI&quot;</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%with_esmf_moab = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">with_esmf_moab</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%npes_input_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_input_server</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%nodes_input_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_input_server</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%npes_output_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_output_server</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%nodes_output_server = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_output_server</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  cap_options%egress_file = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">egress_file</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">j0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rank</span><span class="o">*</span><span class="n">jm</span><span class="o">/</span><span class="n">npes</span><span class="w"></span>
-<span class="w">      </span><span class="n">j1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">jm</span><span class="o">/</span><span class="n">npes</span><span class="w"></span>
-<span class="w">      </span><span class="n">nj_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">j1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">j0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">field</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">nj_local</span><span class="p">,</span><span class="w"> </span><span class="n">lm</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="c">! For our extra options we have to explicitly cast them</span>
+<span class="w">         </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">cli</span><span class="p">%</span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">input_file</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j0</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="w"></span>
-<span class="w">         </span><span class="n">field</span><span class="p">(:,</span><span class="n">j</span><span class="o">-</span><span class="n">j0</span><span class="o">+</span><span class="mi">1</span><span class="p">,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"></span>
-<span class="w">      </span><span class="k">end do</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Extra arguments&quot;</span><span class="w"></span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;  input file = &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">input_file</span><span class="w"></span>
 
-<span class="k">      do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_fields</span><span class="w"></span>
-<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">field_idx_str</span><span class="p">,</span><span class="s1">&#39;(i3.3)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
-<span class="w">         </span><span class="n">field_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;field_&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">field_idx_str</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">j0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="p">[</span><span class="n">im</span><span class="p">,</span><span class="n">nj_local</span><span class="p">,</span><span class="n">lm</span><span class="p">])</span><span class="w"></span>
-<span class="w">      </span><span class="k">end do</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
 
-<span class="k">      call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">()</span><span class="w"></span>
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">run</span><span class="w"></span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">run</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -361,7 +300,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>

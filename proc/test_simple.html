@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">30 statements</a>
+               title=" 0.0% of total for procedures.">9 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/test_ExclusiveColumn.pf"> Source File</a>
+              <a href="../src/test_DirPath.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_exclusivecolumn.pf.html'>test_ExclusiveColumn.pf</a></li>
-              <li><a href='../module/test_exclusivecolumn.html'>test_ExclusiveColumn</a></li>
+              <li><a href='../sourcefile/test_dirpath.pf.html'>test_DirPath.pf</a></li>
+              <li><a href='../module/test_dirpath.html'>test_DirPath</a></li>
           <li class="active">test_simple</li>
         </ol>
       </div>
@@ -219,40 +219,16 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_simple</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">node</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subnode</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UnlimitedVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q</span><span class="w"></span>
-<span class="w">      </span>
-<span class="w">      </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MeterNode</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">t</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mi">1</span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span>
-<span class="w">      </span><span class="k">call </span><span class="n">node</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="n">subnode</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">subnode</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">t</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">1.0d0</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirPath</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">path</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">full_name</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">node</span><span class="p">%</span><span class="n">add_child</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">AdvancedMeter</span><span class="p">(</span><span class="n">MpiTimerGauge</span><span class="p">()))</span><span class="w"></span>
-<span class="w">      </span><span class="n">subnode</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">subnode</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">t</span><span class="p">%</span><span class="n">add_cycle</span><span class="p">(</span><span class="mf">2.0d0</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">path</span><span class="p">%</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;dir1&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">full_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">path</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;exist.dat&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;dir1/exist.dat&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">full_name</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">%</span><span class="n">get_rows</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="w"></span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="w">         </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="kt">integer</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">end select</span>
-<span class="k">      end do</span>
-
-<span class="k">   end subroutine </span><span class="n">test_simple</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_simple</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -273,7 +249,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>

@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">30 statements</a>
+               title=" 0.0% of total for procedures.">15 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_Attribute.pf"> Source File</a>
+              <a href="../src/Test_CoordinateVariable.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_attribute.pf.html'>Test_Attribute.pf</a></li>
-              <li><a href='../module/test_attribute.html'>Test_Attribute</a></li>
+              <li><a href='../sourcefile/test_coordinatevariable.pf.html'>Test_CoordinateVariable.pf</a></li>
+              <li><a href='../module/test_coordinatevariable.html'>Test_CoordinateVariable</a></li>
           <li class="active">test_serialize</li>
         </ol>
       </div>
@@ -151,13 +151,8 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_serialize.html#src">test_serialize</a>
-      </div>
-    </div>
 
+    <em>None</em>
 
   </div>
 
@@ -196,13 +191,8 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/test_serialize.html#src">test_serialize</a>
-      </div>
-    </div>
 
+    <em>None</em>
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
@@ -216,49 +206,6 @@
 
 
     
-    <section>
-    <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_serialize</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Attribute</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Attribute</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span><span class="w"></span>
-
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">Attribute_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">])</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">Attribute_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">([.</span><span class="n">true</span><span class="p">.,.</span><span class="n">false</span><span class="p">.])</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">Attribute_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="s1">&#39;abcd&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">Attribute_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="s1">&#39;abcdefgh&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">Attribute_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_serialize</span><span class="w"></span>
-</pre></div>
-
-    </section>
-    <br>
     
     </div>
   </div>
@@ -275,7 +222,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>

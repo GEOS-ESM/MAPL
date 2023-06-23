@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">45 statements</a>
+               title=" 0.1% of total for procedures.">35 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Regrid_Util.F90"> Source File</a>
+              <a href="../src/time_ave_util.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/regrid_util.f90.html'>Regrid_Util.F90</a></li>
-              <li><a href='../program/regrid_util.html'>Regrid_Util</a></li>
+              <li><a href='../sourcefile/time_ave_util.f90.html'>time_ave_util.F90</a></li>
+              <li><a href='../program/time_ave.html'>time_ave</a></li>
           <li class="active">get_file_times</li>
         </ol>
       </div>
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2> subroutine get_file_times(filename, itime, alltimes, tseries, timeInterval, tint, tsteps, rc)  
+    <h2> subroutine get_file_times(file_metadata, num_times, time_series, time_interval, yymmdd, hhmmss, rc)  
 </h2>
     
 
@@ -183,52 +183,37 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~30"></span>
-              character(len=*),
+              <span class="anchor" id="variable-file_metadata~9"></span>
+              type(<a href='../type/filemetadatautils.html'>FileMetadataUtils</a>),
             </td>
-<td>intent(in)</td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>filename</strong></td>
+            <td><strong>file_metadata</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-itime~2"></span>
+              <span class="anchor" id="variable-num_times"></span>
               integer,
             </td>
-<td>intent(in)</td>
+<td>intent(out)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>itime</strong>(2)</td>
+            <td><strong>num_times</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-alltimes"></span>
-              logical,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>alltimes</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-tseries"></span>
+              <span class="anchor" id="variable-time_series"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(inout),</td>
@@ -236,29 +221,14 @@
               allocatable
             </td>
             <td>::</td>
-            <td><strong>tseries</strong>(:)</td>
+            <td><strong>time_series</strong>(:)</td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-timeinterval"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>timeInterval</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-tint"></span>
+              <span class="anchor" id="variable-time_interval~2"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -266,29 +236,44 @@
               
             </td>
             <td>::</td>
-            <td><strong>tint</strong></td>
+            <td><strong>time_interval</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tsteps"></span>
+              <span class="anchor" id="variable-yymmdd~2"></span>
               integer,
             </td>
-<td>intent(out)</td>
+<td>intent(inout),</td>
               <td></td>            <td>
-              
+              allocatable
             </td>
             <td>::</td>
-            <td><strong>tsteps</strong></td>
+            <td><strong>yymmdd</strong>(:)</td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1391"></span>
+              <span class="anchor" id="variable-hhmmss~6"></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>hhmmss</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1163"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -349,49 +334,39 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_file_times</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="nb">itime</span><span class="p">,</span><span class="n">alltimes</span><span class="p">,</span><span class="n">tseries</span><span class="p">,</span><span class="n">timeInterval</span><span class="p">,</span><span class="n">tint</span><span class="p">,</span><span class="n">tsteps</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">itime</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">alltimes</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tseries</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeInterval</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tint</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tsteps</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_file_times</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span><span class="n">num_times</span><span class="p">,</span><span class="n">time_series</span><span class="p">,</span><span class="n">time_interval</span><span class="p">,</span><span class="n">yymmdd</span><span class="p">,</span><span class="n">hhmmss</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_times</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_series</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">yymmdd</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hhmmss</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_interval</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">second</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">year</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">NetCDF4_fileFormatter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">basic_metadata</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmf_time_interval</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="nb">second</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">open</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span><span class="n">pFIO_Read</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">basic_metadata</span><span class="o">=</span><span class="n">formatter</span><span class="p">%</span><span class="k">read</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">create</span><span class="p">(</span><span class="n">basic_metadata</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="n">num_times</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_metadata</span><span class="p">%</span><span class="n">get_dimension</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">file_metadata</span><span class="p">%</span><span class="n">get_time_info</span><span class="p">(</span><span class="n">timeVector</span><span class="o">=</span><span class="n">time_series</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_times</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_metadata</span><span class="p">%</span><span class="n">get_var_attr_int32</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;time_increment&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">num_times</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">esmf_time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_series</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">time_series</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">esmf_time_interval</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">minute</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="nb">second</span>
+<span class="nb">      </span><span class="k">end if</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">tsteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_dimension</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_time_info</span><span class="p">(</span><span class="n">timeVector</span><span class="o">=</span><span class="n">tSeries</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">allTimes</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">tSteps</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">UnpackDateTIme</span><span class="p">(</span><span class="nb">itime</span><span class="p">,</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">tSeries</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="w">  </span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="w">  </span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="k">      allocate</span><span class="p">(</span><span class="n">yymmdd</span><span class="p">(</span><span class="n">num_times</span><span class="p">),</span><span class="n">hhmmss</span><span class="p">(</span><span class="n">num_times</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">num_times</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">time_series</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">yymmdd</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">year</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">month</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="n">day</span><span class="w"></span>
+<span class="w">         </span><span class="n">hhmmss</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">minute</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="nb">second</span>
+<span class="nb">      </span><span class="k">enddo</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="o">=</span><span class="err">_</span><span class="n">SUCCESS</span><span class="w"></span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">tSteps</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="w"> </span><span class="n">TimeInterval</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">TimeInterval</span><span class="o">=</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
-<span class="k">      call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">TimeInterval</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">tint</span><span class="o">=</span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">minute</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="nb">second</span>
-
-<span class="nb">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_file_times</span><span class="w"></span>
+<span class="k">   end subroutine </span><span class="n">get_file_times</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -412,7 +387,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>

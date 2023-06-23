@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">53 statements</a>
+               title=" 0.2% of total for procedures.">76 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/mapl_bundleio_test.F90"> Source File</a>
+              <a href="../src/Regrid_Util.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/mapl_bundleio_test.f90.html'>mapl_bundleio_test.F90</a></li>
-              <li><a href='../module/bundletestsupport.html'>BundleTestSupport</a></li>
+              <li><a href='../sourcefile/regrid_util.f90.html'>Regrid_Util.F90</a></li>
+              <li><a href='../module/regrid_util_support_mod.html'>regrid_util_support_mod</a></li>
           <li class="active">create_cf</li>
         </ol>
       </div>
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  function create_cf(grid_name, im_world, jm_world, nx, ny, lm, cs_stretch_param, rc) result(cf)  
+    <h2>public  function create_cf(grid_name, im_world, jm_world, nx, ny, lm, cs_stretch_param, lon_range, lat_range, tripolar_file, rc) result(cf)  
 </h2>
         <div class="panel panel-default">
       <div class="panel-heading">
@@ -195,7 +195,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid_name~9"></span>
+              <span class="anchor" id="variable-grid_name~8"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -210,7 +210,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-im_world~14"></span>
+              <span class="anchor" id="variable-im_world~13"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -225,7 +225,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-jm_world~13"></span>
+              <span class="anchor" id="variable-jm_world~12"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -240,7 +240,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nx~14"></span>
+              <span class="anchor" id="variable-nx~12"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -255,7 +255,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ny~14"></span>
+              <span class="anchor" id="variable-ny~12"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -270,7 +270,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lm~14"></span>
+              <span class="anchor" id="variable-lm~15"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -300,7 +300,52 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1297"></span>
+              <span class="anchor" id="variable-lon_range~7"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lon_range</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lat_range~7"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lat_range</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tripolar_file"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tripolar_file</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1148"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -368,7 +413,7 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">create_cf</span><span class="p">(</span><span class="n">grid_name</span><span class="p">,</span><span class="n">im_world</span><span class="p">,</span><span class="n">jm_world</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">lm</span><span class="p">,</span><span class="n">cs_stretch_param</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">cf</span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">create_cf</span><span class="p">(</span><span class="n">grid_name</span><span class="p">,</span><span class="n">im_world</span><span class="p">,</span><span class="n">jm_world</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">,</span><span class="n">lm</span><span class="p">,</span><span class="n">cs_stretch_param</span><span class="p">,</span><span class="n">lon_range</span><span class="p">,</span><span class="n">lat_range</span><span class="p">,</span><span class="n">tripolar_file</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">cf</span><span class="p">)</span><span class="w"></span>
 <span class="w">       </span><span class="k">use </span><span class="n">MAPL_ConfigMod</span><span class="w"></span>
 <span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">cf</span><span class="w"></span>
 <span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_name</span><span class="w"></span>
@@ -376,6 +421,9 @@
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="w"></span>
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">lm</span><span class="w"></span>
 <span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_stretch_param</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">lon_range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">lat_range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tripolar_file</span><span class="w"></span>
 <span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
 <span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
@@ -389,26 +437,37 @@
 <span class="w">       </span><span class="n">cf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_ConfigCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">NX</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.NX:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">       </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">lm</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.LM:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">jm_world</span><span class="o">==</span><span class="mi">6</span><span class="o">*</span><span class="n">im_world</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dateline</span><span class="o">==</span><span class="s1">&#39;CF&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">          call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="s2">&quot;Cubed-Sphere&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.GRID_TYPE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.NF:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">im_world</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.IM_WORLD:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">ny</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.NY:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">cs_stretch_param</span><span class="o">/=</span><span class="n">cs_stretch_uninit</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">cs_stretch_param</span><span class="o">/=</span><span class="n">uninit</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
 <span class="k">             call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">cs_stretch_param</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.STRETCH_FACTOR:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">             </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">cs_stretch_param</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.TARGET_LON:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">             </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">cs_stretch_param</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.TARGET_LAT:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">end if</span>
-
-<span class="k">       else</span>
+<span class="k">       else if</span><span class="w"> </span><span class="p">(</span><span class="n">dateline</span><span class="o">==</span><span class="s1">&#39;TM&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="s2">&quot;Tripolar&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.GRID_TYPE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">im_world</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.IM_WORLD:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">jm_world</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.JM_WORLD:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.NY:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">tripolar_file</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;empty&quot;</span><span class="p">,</span><span class="s2">&quot;asked for tripolar output but did not specify the coordinate file&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">tripolar_file</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.GRIDSPEC:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="k">else</span>
 <span class="k">          call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="s2">&quot;LatLon&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.GRID_TYPE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">im_world</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.IM_WORLD:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">jm_world</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.JM_WORLD:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.NY:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">pole</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.POLE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">dateline</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.DATELINE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">       </span><span class="k">end if</span>
-
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pole</span><span class="o">==</span><span class="s1">&#39;XY&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">dateline</span><span class="o">==</span><span class="s1">&#39;XY&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">lon_range</span><span class="o">/=</span><span class="n">uninit</span><span class="p">),</span><span class="s1">&#39;if regional must specify lon_range&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">             </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">lat_range</span><span class="o">/=</span><span class="n">uninit</span><span class="p">),</span><span class="s1">&#39;if regional must specify lat_range&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">lon_range</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.LON_RANGE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">             </span><span class="k">call </span><span class="n">MAPL_ConfigSetAttribute</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">lat_range</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;.LAT_RANGE:&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end if</span>
 
 <span class="k">     end function </span><span class="n">create_cf</span><span class="w"></span>
 </pre></div>
@@ -431,7 +490,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-13T14:40:09.958122             </p>
+ on 2023-06-23T17:21:03.824326             </p>
           </div>
         </div>
         <br>
