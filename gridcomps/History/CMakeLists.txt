@@ -5,6 +5,7 @@ set (srcs
      MAPL_HistoryCollection.F90
      MAPL_HistoryGridComp.F90
      MAPL_EpochSwathMod.F90
+     MAPL_StationSamplerMod.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.profiler MAPL.griddedio
