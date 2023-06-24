@@ -220,10 +220,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
-    write(6,*) 's1, s2 ', trim(s1), trim(s2)
-    write(6,*) 'y, m, d', y, m, d
-    write(6,*) 'hour,min,sec', hour,min,sec
+!!    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
+!!    write(6,*) 's1, s2 ', trim(s1), trim(s2)
+!!    write(6,*) 'y, m, d', y, m, d
+!!    write(6,*) 'hour,min,sec', hour,min,sec
 
     if (trim(s_unit) == 'seconds') then
        isec=n
@@ -268,10 +268,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
-    write(6,*) 's1, s2 ', trim(s1), trim(s2)
-    write(6,*) 'y, m, d', y, m, d
-    write(6,*) 'hour,min,sec', hour,min,sec
+!!    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
+!!    write(6,*) 's1, s2 ', trim(s1), trim(s2)
+!!    write(6,*) 'y, m, d', y, m, d
+!!    write(6,*) 'hour,min,sec', hour,min,sec
 
     if (trim(s_unit) == 'seconds') then
        isec=n
@@ -328,8 +328,6 @@ contains
 
     !    write(6,*) 'yy, mm, dd, h, m, s', yy, mm, dd, h, m, s
     call ESMF_TimeSet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=rc)
-    !call ESMF_TimeSet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, &
-    !     calendar=gregorianCalendar, rc=rc)
 
   end subroutine two_integer_to_ESMF_time
 
@@ -377,18 +375,18 @@ contains
 
     rc=-1
     if ( x < xa(klo) ) then
-       write(6,*) 'error in bisect_find_LB_R8_I8'
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=klo
+       _FAIL('error in bisect_find_LB_R8_I8')
        return
     elseif ( x > xa(khi) .OR. x < xa(klo) ) then
-       write(6,*) 'error in bisect_find_LB_R8_I8'
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=khi
+       _FAIL('error in bisect_find_LB_R8_I8')
        return
     elseif ( abs(khi - klo) == 1 ) then
-       stop 'error in bisect_find_LB_R8_I8, khi=klo+1'
        n=0
+       _FAIL('error in bisect_find_LB_R8_I8, khi=klo+1')
        return
     endif
 

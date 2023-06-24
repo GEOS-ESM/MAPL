@@ -2,11 +2,6 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-! Swath: (misisng time and long-axes for scan)
-! This module generates ESMF_Grids for logically-rectangular grid based on observation (netCDF)
-! Spacing between lats (lons) needs not be constant (imhomogenous)
-! LatLon concepts such as corners, pole and dataline are eliminated
-
 module MAPL_SwathGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
@@ -17,12 +12,10 @@ module MAPL_SwathGridFactoryMod
    use MAPL_Constants
    use MAPL_plain_netCDF_Time
    use MAPL_Base, only : MAPL_GridGetInterior
-!   use MAPL_FileMetadataUtilsMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
    use netcdf
-   !!use MAPL_plain_netCDF_Time
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -30,28 +23,26 @@ module MAPL_SwathGridFactoryMod
    private
 
    public :: SwathGridFactory
-
-!!!   integer, parameter :: NUM_DIM = 2
    
    type, extends(AbstractGridFactory) :: SwathGridFactory
       private
       character(len=:), allocatable :: grid_name
       character(len=:), allocatable :: grid_file_name      
-      type (ESMF_Grid) :: mygrid
+
       ! Grid dimensions
+      integer :: cell_across_swath
+      integer :: cell_along_swath
       integer :: im_world = MAPL_UNDEFINED_INTEGER
       integer :: jm_world = MAPL_UNDEFINED_INTEGER
       integer :: lm = MAPL_UNDEFINED_INTEGER
       logical :: force_decomposition = .false.
 
       ! Epoch
-      integer :: epoch                 ! unit: second
+      integer :: epoch                         ! unit: second
       integer(ESMF_KIND_I8) :: epoch_index(4)  ! is,ie,js,je
       character(len=ESMF_MAXSTR) :: tunit
-      integer :: cell_across_swath, cell_along_swath
       real(ESMF_KIND_R8), allocatable :: t_alongtrack(:)
-      real(kind=REAL64), allocatable :: time_on_grid(:,:)
-      integer :: ipt                   ! current i time pointer 
+      real(kind=REAL64),  allocatable :: time_on_grid(:,:)
       
       ! Domain decomposition:
       integer :: nx = MAPL_UNDEFINED_INTEGER
@@ -93,7 +84,6 @@ module MAPL_SwathGridFactoryMod
       procedure :: physical_params_are_equal
 
       procedure :: get_xy_subset
-!!      procedure :: get_xy_mask
       procedure :: destroy
       procedure :: get_obs_time
    end type SwathGridFactory
@@ -138,7 +128,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      STOP 'Stop:  SwathGridFactory_from_parameters is not tested'
+      _FAIL('Stop:  SwathGridFactory_from_parameters is not tested')
       
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
       call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
@@ -163,7 +153,6 @@ contains
       class (SwathGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -179,11 +168,10 @@ contains
       class (SwathGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-      
+
       grid = ESMF_GridCreateNoPeriDim( &
            & name = this%grid_name, &
            & countsPerDEDim1=this%ims, &
@@ -193,23 +181,19 @@ contains
            & coordDep2=[1,2], &
            & coordSys=ESMF_COORDSYS_SPH_RAD, &
            & _RC)
-      
+
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, _RC)
-      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_EDGE1, _RC)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
+      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)
+      call ESMF_AttributeSet(grid, 'Global', .false., _RC)
+      _RETURN(_SUCCESS)      
 
-      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)   ! grid=ESMF_grid
-
-      call ESMF_AttributeSet(grid, 'Global', .false., rc=status)
-
-      _RETURN(_SUCCESS)
    end function create_basic_grid
 
-   
 
    subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
@@ -217,18 +201,17 @@ contains
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+      integer :: status
 
-      integer :: i_1, i_n, j_1, j_n ! regional array bounds
+      integer :: i_1, i_n, j_1, j_n  ! regional array bounds
       integer :: ic_1,ic_n,jc_1,jc_n ! regional corner bounds
 
       !! shared mem
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
-      real, pointer :: centers(:,:)               ! check R4 or R8
+      real, pointer :: centers(:,:)
       real, allocatable :: centers_full(:,:)
-      !!-- real, allocatable :: vec(:)
-      
-      integer :: status
-      integer :: i, j, ij(4), k
+
+      integer :: i, j, k
       integer :: Xdim, Ydim
       integer :: Xdim_full, Ydim_full
       
@@ -237,7 +220,6 @@ contains
       integer :: COUNTS(3), DIMS(3)
       character(len=:), allocatable :: lon_center_name, lat_center_name, time_name
       
-
       _UNUSED_DUMMY(unusable)
 
       ! keywords in netCDF
@@ -257,14 +239,13 @@ contains
 
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
+      
+!!      write(6,*) 'Xdim, Ydim', Xdim, Ydim
+!!      write(6,*) 'Xdim_full, Ydim_full', Xdim_full, Ydim_full      
+!!      write(6,*) 'bf get_v2d_netcdf'
+!!      write(6,*) 'this%epoch_index(1:4)', this%epoch_index(1:4)
+      
 
-      
-      write(6,*) 'Xdim, Ydim', Xdim, Ydim
-      write(6,*) 'Xdim_full, Ydim_full', Xdim_full, Ydim_full      
-      write(6,*) 'bf get_v2d_netcdf'
-      write(6,*) 'this%epoch_index(1:4)', this%epoch_index(1:4)
-      
-      print*, 'lon'
       ! read longitudes and set
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           !
@@ -276,7 +257,7 @@ contains
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
+!!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
@@ -287,7 +268,7 @@ contains
           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
-       print*, 'lat'
+
        ! read latitudes and set
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
@@ -296,7 +277,7 @@ contains
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
+!!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
@@ -308,37 +289,6 @@ contains
           farrayPtr=fptr, rc=status)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
-
-!       print*, 'time'
-!       ! read Time and set
-!       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-!          allocate( centers_full(Xdim_full, Ydim_full))
-!          call get_v2d_netcdf(this%grid_file_name, time_name, centers_full, Xdim_full, Ydim_full)
-!          k=0
-!          do j=this%epoch_index(3), this%epoch_index(4)
-!             k=k+1
-!             centers(1:Xdim, k) = centers_full(1:Xdim, j)
-!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
-!          enddo
-!          deallocate (centers_full)
-!       end if
-!       call MAPL_SyncSharedMemory(_RC)
-!
-!       !(Xdim, Ydim)
-!       allocate (this%scanTime(Xdim, Ydim))
-!       this%scanTime = real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-!       
-!!       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-!!          staggerloc=ESMF_STAGGERLOC_EDGE1, &
-!!          farrayPtr=fptr, rc=status)
-!!       print*, 'shape(fptr)', shape(fptr)
-!!       print*, 'i_1:i_n,j_1:j_n', i_1, i_n,j_1,j_n
-!!
-!!!       edge is nx+1, ny
-!       ! note: edge1 x-dim is +1 lager than Xdim
-!!!       fptr(1:Xdim, 1:Ydim)=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-!
-!       
        if(MAPL_ShmInitialized) then
           call MAPL_DeAllocNodeArray(centers,_RC)
        else
@@ -375,7 +325,7 @@ contains
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
       logical :: is_valid, use_file_coords, compute_lons, compute_lats
 
-      STOP 'not tested:  subroutine initialize_from_file_metadata'
+      _FAIL ('fail: not tested:  subroutine initialize_from_file_metadata')
       _UNUSED_DUMMY(unusable)
 
       if (present(force_file_coordinates)) then
@@ -427,78 +377,7 @@ contains
             end if
          end if
 
-         ! TODO: check radians vs degrees.  Assume degrees for now.
 
-!        28-Feb-2023 disable array retrieval from metadata in Swath
-!         
-!        ! TODO: modify CoordinateVariable so that get_coordinate_data() is overloaded
-!        ! for different types (as subroutine) to avoid casting here.
-!        ! TODO: add get_coordinate_variable() interface to avoid the need to cast
-!        v => file_metadata%get_coordinate_variable(lon_name,_RC)
-!        ptr => v%get_coordinate_data()
-!        _ASSERT(associated(ptr),'coordinate data not allocated')
-!        select type (ptr)
-!        type is (real(kind=REAL64))
-!           this%lon_centers = ptr
-!        type is (real(kind=REAL32))
-!           this%lon_centers = ptr
-!        class default
-!           _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
-!        end select
-!
-!        if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
-!           where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
-!        end if
-!
-!
-!        v => file_metadata%get_coordinate_variable(lat_name,_RC)
-!        ptr => v%get_coordinate_data()
-!        _ASSERT(associated(ptr),'coordinate data not allocated')
-!        select type (ptr)
-!        type is (real(kind=REAL64))
-!           this%lat_centers = ptr
-!        type is (real(kind=REAL32))
-!           this%lat_centers = ptr
-!        class default
-!           _FAIL('unsupported type of data; must be REAL32 or REAL64')
-!        end select
-!
-!
-!        ! Check: is this a "mis-specified" pole-centered grid?
-!        if (size(this%lat_centers) >= 4) then
-!           ! Assume lbound=1 and ubound=size for now
-!           i_min = 1 !lbound(this%lat_centers)
-!           i_max = size(this%lat_centers) !ubound(this%lat_centers)
-!           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&
-!                    (size(this%lat_centers)-3)
-!           is_valid = .True.
-!           ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
-!           do i=(i_min+1),(i_max-2)
-!              d_lat_temp = this%lat_centers(i+1) - this%lat_centers(i)
-!              is_valid = (is_valid.and.(abs((d_lat_temp/d_lat)-1.0) < 1.0e-5))
-!              if (.not. is_valid) then
-!                 exit
-!              end if
-!           end do
-!           if (is_valid) then
-!              ! Should the southernmost point actually be at the pole?
-!              extrap_lat = this%lat_centers(i_min+1) - d_lat
-!              if (extrap_lat <= ((d_lat/20.0)-90.0)) then
-!                 this%lat_centers(i_min) = -90.0
-!              end if
-!              ! Should the northernmost point actually be at the pole?
-!              extrap_lat = this%lat_centers(i_max-1) + d_lat
-!              if (extrap_lat >= (90.0-(d_lat/20.0))) then
-!                 this%lat_centers(i_max) =  90.0
-!              end if
-!           end if
-!        end if
-!
-!        if (use_file_coords) then
-!           this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
-!           this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
-!        end if
-!         
     end associate
 
     call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
@@ -520,31 +399,30 @@ contains
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
+      use pflogger, only : Logger, logging
       implicit none
       class (SwathGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: prefix  ! effectively optional due to overload without this argument
+      character(len=*), intent(in) :: prefix
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
-      character(len=ESMF_MAXSTR) :: tmp, filename, tunit
+
       type(ESMF_VM) :: VM
-      integer :: Xdim, Ydim, ntime, num_times
       integer :: nlon, nlat, tdim
+      integer :: Xdim, Ydim, ntime
       character(len=ESMF_MAXSTR) :: key_lon, key_lat, key_time
+      character(len=ESMF_MAXSTR) :: filename, tunit, tmp
       real, allocatable :: scanTime(:,:)
-      integer :: i, j
       integer :: yy, mm, dd, h, m, s, sec
-      integer :: itime(2)
-!      type(NetCDF4_FileFormatter) :: formatter
-!      type(FileMetadataUtils) :: fmd_ut
-!      type(FileMetadata) :: fmd
+      integer :: i, j
+
       type(ESMF_Time) :: time0
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
       real(ESMF_KIND_R8) :: jx0, jx1
       real(ESMF_KIND_R8) :: x0, x1
       integer :: khi, klo, k, nstart, max_iter
+      type(Logger), pointer :: lgr
       
       _UNUSED_DUMMY(unusable)
 
@@ -552,62 +430,19 @@ contains
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
-      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%nx,  label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%ny,  label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%lm,  label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, filename, label=prefix//'GRIDSPEC:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'Epoch_init:', default='2006', _RC)
-      write(6,*) 'this%epoch, Epoch_init: Epoch ', trim(tmp), this%epoch
+      call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(time0, timeString=tmp, _RC)
       else
          read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
          call ESMF_Timeset(time0, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-         !  call ESMF_TimeSetString(time0, tmp, _RC)
       endif
-      
-      write(6,*) 'finish set time0 from tmp'
-      !      read(tmp,'(i8,i6)') itime(1), itime(2)
-!      write(6,*) 'itime(1:2)', itime(1:2)
-!      stop -11
-
-
-!!-----------------------------------------------------------
-!!      ! ygyu test NetCDF4_get_var.H for group
-!!      test_get_var_group: block
-!!        type(NetCDF4_FileFormatter) :: formatter
-!!        type(FileMetadata) :: fmd_new
-!!        real(kind=REAL32), allocatable :: data_real32(:)
-!!        integer :: ncid, grpid, ncid0
-!!        integer :: dimid(10),  dimlen(10)        
-!!        integer :: len
-!!        character(len=60) :: grp_name
-!!        character(len=60) :: var_name, dim_name(10)
-!!        
-!!        call formatter%open(filename, pFIO_READ, _RC)
-!!        fmd_new=formatter%read(_RC)
-!!        grp_name='MetaData'
-!!        var_name='latitude'
-!!        dim_name(1)='Channel'
-!!        dim_name(2)='Location'
-!!        ncid0=formatter%ncid
-!!        call check_nc_status( nf90_inq_ncid(ncid0, grp_name, ncid), _RC)
-!!        grpid=ncid
-!!        do i=1, 2
-!!           call check_nc_status( nf90_inq_dimid(ncid, dim_name(i), dimid(i)), _RC)
-!!           call check_nc_status( nf90_inquire_dimension(ncid, dimid(i), len=dimlen(i)), _RC)
-!!        end do
-!!
-!!        len=dimlen(2)
-!!        allocate (data_real32(len))
-!!        call formatter%get_var(var_name, data_real32, group_name=grp_name, count=[len], rc=status)
-!!        write(6,*) 'af get_var:  data_real32'
-!!        write(6,*) data_real32
-!!        stop -11
-!!      end block test_get_var_group
-!!-----------------------------------------------------------
-
+      this%grid_file_name = trim(filename)
       
       
       ! read global dim from the whole nc file
@@ -618,13 +453,19 @@ contains
       CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
-      write(6,*) 'filename', trim(filename)
-      write(6,*) 'nlon,nlat,tdim', nlon,nlat,tdim      
+      
+!      lgr => logging%get_logger('HISTORY.sampler')
+!      call lgr%debug('%2x %a 2x %a', &
+!           'swath Epoch init time:', trim(tmp) )
+!      call lgr%debug('%2x %a 2x %a', &
+!           'swath obs filename:', trim(filename) )
+!      call lgr%debug('%2x %a 2x %i8 %i8 %i8', &
+!           'swath obs nlon,nlat,tdim:', nlon,nlat,tdim )
+
       call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
       do j=1, nlat
-         !!i=j*nlon+1
          this%t_alongtrack(j)= scanTime(1,j)
-         if ( mod(j,100)== 1) write(6,*)  j, scanTime(1,j)
+!!         if ( mod(j,100)== 1) write(6,*)  j, scanTime(1,j)
       enddo
       !
       ! skip un-defined time value
@@ -654,27 +495,25 @@ contains
       endif
       
       deallocate(scanTime)
-      write(6,*) 't_a'
-      write(6,*) this%t_alongtrack(nstart:nstart+10)
       
       this%cell_across_swath = nlon
       this%cell_along_swath = nlat
-      
-      ! read granule dim from nc
-      ! ------------------------
-      key_lon='nlon'
-      key_lat='nlat'
-      key_time='time'
-      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
 
-      this%grid_file_name = trim(filename)  
-      xdim=nlon
-      ydim=nlat
-      ntime=tdim       !  n granule files
-      write(6,*) 'obs filename', trim(filename)
-      write(6,*) 'this%grid_file_name', trim(this%grid_file_name)
-      write(6,*) 'Xdim, Ydim, ntime:', Xdim, Ydim, ntime
-
+!!  -- TOBE deleted:      
+!!      ! read granule dim from nc
+!!      ! ------------------------
+!!      key_lon='nlon'
+!!      key_lat='nlat'
+!!      key_time='time'
+!!      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
+!!      ntime=tdim     !        
+!!      xdim=nlon
+!!      ydim=nlat
+!!
+!!      write(6,*) 'obs filename', trim(filename)
+!!      write(6,*) 'this%grid_file_name', trim(this%grid_file_name)
+!!      write(6,*) 'Xdim, Ydim, ntime:', Xdim, Ydim, ntime
+!!
       
       ! determine im_world from Epoch
       ! -----------------------------
@@ -703,18 +542,18 @@ contains
       endif
       jt1 = jt1 + 1               ! (x1,x2]  design
       this%epoch_index(3)= jt1
-      write(6,*) 'bisect for j0:  rc, jt', rc, jt1
-      
-      this%epoch_index(4)= jt2      
-      write(6,*) 'bisect for j1:  rc, jt', rc, jt2
-
+      this%epoch_index(4)= jt2
       Xdim = this%cell_across_swath
       Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
+
+      write(6,*) 'bisect for j0:  rc, jt', rc, jt1      
+      write(6,*) 'bisect for j1:  rc, jt', rc, jt2      
       write(6,*) 'Xdim, Ydim', Xdim, Ydim
       write(6,*) 'this%epoch_index(4)', this%epoch_index(1:4)
       
       this%im_world = Xdim
       this%jm_world = Ydim
+
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -731,9 +570,8 @@ contains
       ! ims is set at here
       call this%check_and_fill_consistency(_RC)
 
-      write(6,*) 'end of check_and_fill_consistency(_RC)'
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
 
 
    contains
@@ -1018,7 +856,7 @@ contains
 
       real, parameter :: tiny = 1.e-4
 
-      stop 'not implemented:   subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)'
+      _FAIL ('stop: not implemented: subroutine initialize_from_esmf_distGrid')
       
       _UNUSED_DUMMY(unusable)
 
@@ -1036,45 +874,6 @@ contains
       call ESMF_LocalArrayGet(lon_array, farrayPtr=lon, _RC)
       call ESMF_LocalArrayGet(lat_array, farrayPtr=lat, _RC)
 
-
-      !if (abs(lat(1) + PI/2) < tiny) then
-      !   pole = 'PC'
-      !elseif (abs(lat(1) + PI/2 - 0.5*(lat(2)-lat(1))) < tiny) then
-      !   pole = 'PE'
-      !else
-      !   pole = 'PC'
-      !end if
-
-      ! the code below is kluge to return DE/DC wheither or not the file lons are -180 to 180 or 0 360
-      ! it detects whether the first longitudes which are cell centers
-      ! If first longitude is 0 or -180 (DC) it is dateline center in that 0 or -180 is
-      ! in the center of a grid cell.
-      ! or shifted by half a grid box (DE) so 0 or -180 is the edge of a cell
-      ! really should have 4 options dateline edge (DE), dateline center(DC)
-      ! grenwich center (GC) and grenwich edge (GE) but the last 2 are not supported
-      ! if it is GC or GE we will shift the data on the usage so that it is DE or DC for now
-      !do i=0,1
-      !   if (abs(lon(1) + PI*i) < tiny) then
-      !      dateline = 'DC'
-      !      exit
-      !   elseif (abs(lon(1) + PI*i - 0.5*(lon(2)-lon(1))) < tiny) then
-      !      dateline = 'DE'
-      !      exit
-      !   end if
-      !end do
-      !if (abs(lon(1) + PI) < tiny) then
-      !dateline = 'DC'
-      !elseif (abs(lon(1) + PI - 0.5*(lon(2)-lon(1))) < tiny) then
-      !dateline = 'DE'
-      !elseif (abs(lon(1)) < tiny) then
-      !dateline = 'GC'
-      !elseif (abs(lon(1) - 0.5*(lon(2)-lon(1))) < tiny) then
-      !dateline = 'GE'
-      !end if
-
-      !call MAPL_ConfigSetAttribute(config, pole, 'POLE:')
-      !call MAPL_ConfigSetAttribute(config, dateline, 'DATELINE:')
-
       call ESMF_VMGetCurrent(vm, _RC)
       call ESMF_VMGet(vm, PETcount=nPet, _RC)
 
@@ -1091,6 +890,7 @@ contains
       call this%initialize(config, _RC)
 
    end subroutine initialize_from_esmf_distGrid
+
 
    function decomps_are_equal(this,a) result(equal)
       class (SwathGridFactory), intent(in) :: this
@@ -1170,11 +970,7 @@ contains
       class (SwathGridFactory), intent(in) :: this
 
       character(len=4) :: im_string, jm_string
-
-      !@bena-nasa Is there a problem that this grid name may overlap our names for LatLon? Maybe we need something like "swath" as a prefix or suffix? And maybe even the filename that provided the geolocations?
-      
       name = im_string // 'x' // jm_string
-
    end function generate_grid_name
 
    
@@ -1246,7 +1042,7 @@ contains
       class (SwathGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      STOP 'Stop: subroutine init_halo is not needed for SwathGridFactory'
+      _FAIL('Stop: subroutine init_halo is not needed for SwathGridFactory')
    end subroutine init_halo
 
    subroutine halo(this, array, unusable, halo_width, rc)
@@ -1256,9 +1052,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: halo_width
       integer, optional, intent(out) :: rc
-      STOP 'Stop: subroutine halo is not needed for SwathGridFactory'
+      _FAIL( 'Stop: subroutine halo is not needed for SwathGridFactory')
    end subroutine halo
-
 
 
    subroutine append_metadata(this, metadata)
@@ -1271,26 +1066,7 @@ contains
 
       character(len=ESMF_MAXSTR) :: key_lon
       character(len=ESMF_MAXSTR) :: key_lat
-      
-!      key_lon='cell_across_swath'
-!      key_lat='cell_along_swath'
-!      
-!      ! Horizontal grid dimensions
-!      call metadata%add_dimension(key_lon, this%im_world)
-!      call metadata%add_dimension(key_lat, this%jm_world)
-!
-!      ! Coordinate variables
-!      v = Variable(type=PFIO_REAL64, dimensions=trim(key_lon)//','//trim(key_lat))
-!      call v%add_attribute('long_name', 'longitude')
-!      call v%add_attribute('units', 'degrees_east')
-!      call metadata%add_variable(key_lon, v)
-!
-!      v = Variable(type=PFIO_REAL64, dimensions=trim(key_lat)//','//trim(key_lat))
-!      call v%add_attribute('long_name', 'latitude')
-!      call v%add_attribute('units', 'degrees_north')
-!      call metadata%add_variable(key_lat, v)
-
-      
+            
       ! Horizontal grid dimensions
       call metadata%add_dimension('lon', this%im_world)
       call metadata%add_dimension('lat', this%jm_world)
@@ -1319,10 +1095,7 @@ contains
       
       key_lon='cell_across_swath'
       key_lat='cell_along_swath'
-      
-      vars = 'lon,lat'   ! yaml, config, -->
-!!      vars = trim(key_lon)//"'"//trim(key_lat)
-!!      'atrack,xtrack'
+      vars = 'lon,lat'
 
    end function get_grid_vars
 
@@ -1334,9 +1107,6 @@ contains
       _UNUSED_DUMMY(this)
 
       vars = 'lon,lat'
-      !! vars = 'cell_across_swath,cell_along_swath'
-      !! wrong FileMetadata::add_variable() - undefined dimension: cell_across_swath'cell_along_swath
-
    end function get_file_format_vars
 
 
@@ -1439,84 +1209,17 @@ contains
       call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
       xy_subset(1:2,1)=this%epoch_index(1:2)    ! xtrack
-      xy_subset(1,  2)=index1+1                   ! atrack
+      xy_subset(1,  2)=index1+1                 ! atrack
       xy_subset(2,  2)=index2
       !
       !- relative
       xy_subset(1,2)= xy_subset(1,2) - this%epoch_index(3) + 1
       xy_subset(2,2)= xy_subset(2,2) - this%epoch_index(3) + 1      
 
-      if(present(rc)) rc=0
-      
+      _RETURN(_SUCCESS)
     end subroutine get_xy_subset
 
-!
-!    subroutine get_xy_mask(this, interval, xy_mask, rc)
-!      class(SwathGridFactory), intent(inout) :: this
-!      type(ESMF_Time), intent(in) :: interval(2)
-!      integer, allocatable, intent(out) :: xy_mask(:,:)
-!      integer, optional, intent(out) :: rc
-!      
-!      integer :: xy_subset(2,2)
-!
-!      integer :: status
-!      integer :: ii1, iin, jj1, jjn  ! local box for localDE
-!      integer :: is, ie, js, je  ! global box for each time-interval
-!      integer :: j1p, jnp        ! local y-index for each time-interval
-!
-!
-!      integer :: localDe, localDECount
-!      integer, dimension(:), allocatable :: LB, UB, exclusiveCount
-!      integer :: dimCount
-!      integer :: y1, y2
-!      integer :: j, jj
-!      integer, dimension(:), allocatable :: j1, j2
-!
-!      call this%get_xy_subset(interval, xy_subset, _RC)
-!
-!      is=xy_subset(1,1); ie=xy_subset(2,1)
-!      js=xy_subset(1,2); je=xy_subset(2,2)
-!
-!      if (.NOT. allocated(this%mygrid)) then
-!         this%mygrid = this%make_new_grid(_RC)
-!      end if
-!      
-!      call ESMF_GridGet(this%mygrid, localDECount=localDECount, dimCount=dimCount, _RC)
-!      allocate ( LB(dimCount), UB(dimCount), exclusiveCount(dimCount) )
-!      allocate ( j1(0:localDEcount-1) )  ! start
-!      allocate ( j2(0:localDEcount-1) )  ! end
-!
-!      write(6,*) 'localDECount, dimCount', localDECount, dimCount
-!
-!      localDe=0
-!
-!      do localDe=0, localDEcount-1
-!         call ESMF_GridGet (this%mygrid, ESMF_STAGGERLOC_CENTER, localDE, &
-!              exclusiveLBound=LB, exclusiveUBound=UB, exclusiveCount=exclusiveCount, _RC)
-!         write(6,*) 'exclusiveLBound, exclusiveUBound, exclusiveCount', &
-!              LB, UB, exclusiveCount
-!      enddo
-!
-!
-!
-!      call MAPL_GridGetInterior(this%mygrid,ii1,iin,jj1,jjn)
-!      write(6,*) 'MAPL_GridGetInterior, i1,in,j1,jn', ii1,iin,jj1,jjn
-!
-!      LB(1)=ii1; LB(2)=jj1
-!      UB(1)=ii2; UB(2)=jj2      
-!
-!      
-!      
-!      stop -1
-!
-!      allocate (xy_mask(1,1))
-!      
-!      if(present(rc)) rc=0
-!
-!    end subroutine get_xy_mask
-!
     
-
     subroutine destroy(this, rc)
       class(SwathGridFactory), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -1561,16 +1264,11 @@ contains
 
       Xdim_full=this%cell_across_swath
       Ydim_full=this%cell_along_swath
-
-      write(6,*) 'Xdim, Ydim', Xdim, Ydim
-      write(6,*) 'Xdim_full, Ydim_full', Xdim_full, Ydim_full      
-      write(6,*) 'bf get_v2d_netcdf'
-      write(6,*) 'this%epoch_index(1:4)', this%epoch_index(1:4)
       
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
       
-       print*, 'time'
+
        ! read Time and set
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
@@ -1579,7 +1277,7 @@ contains
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
+!!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
           enddo
           deallocate (centers_full)
        end if

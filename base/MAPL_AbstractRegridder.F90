@@ -93,8 +93,6 @@ module MAPL_AbstractRegridderMod
       procedure :: has_undef_value
       procedure :: get_regrid_method
 
-!      ! Final
-!      procedure(I_destroy), deferred :: destroy
       procedure :: destroy
       procedure :: destroy_route_handle
 
@@ -112,12 +110,6 @@ module MAPL_AbstractRegridderMod
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_subclass
-
-!      subroutine I_destroy (this, rc)
-!        import AbstractRegridder
-!        class (AbstractRegridder), intent(inout) :: this        
-!        integer, optional, intent(out) :: rc
-!      end subroutine I_destroy
 
    end interface
 

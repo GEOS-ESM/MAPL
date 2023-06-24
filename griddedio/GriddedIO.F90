@@ -948,12 +948,6 @@ module MAPL_GriddedIOMod
         if (hasDE) then
            call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
            _VERIFY(status)
-
-           write(6,*) 'max in ptr2d', maxval(ptr2d(:,:))
-           write(6,*) 'min in ptr2d', minval(ptr2d(:,:))           
-           write(6,*) 'shape in ptr2d', shape(ptr2d)           
-
-           
            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
               allocate(temp_2d,source=ptr2d)
               call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
