@@ -49,7 +49,6 @@ module MAPL_EpochSwathMod
      procedure :: create_grid
      procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
      procedure :: destroy_rh_regen_ogrid
-     procedure :: write_2_oserver
      procedure :: fill_time_in_bundle  
   end type samplerHQ
 
@@ -89,20 +88,12 @@ module MAPL_EpochSwathMod
      procedure :: CreateFileMetaData
      procedure :: Create_bundle_RH     
      procedure :: CreateVariable
-     procedure :: modifyTime
-     procedure :: modifyTimeIncrement
-     procedure :: bundlePost
-     procedure :: stageData
-     procedure :: stage2DLatLon
      procedure :: regridScalar
      procedure :: regridVector
      procedure :: set_param
      procedure :: set_default_chunking
      procedure :: check_chunking
      procedure :: alphabatize_variables
-     procedure :: request_data_from_file
-     procedure :: process_data_from_file
-     procedure :: swap_undef_value
      procedure :: addVariable_to_acc_bundle
      procedure :: addVariable_to_output_bundle     
      procedure :: interp_accumulate_fields
@@ -753,129 +744,6 @@ contains
 
      end subroutine CreateVariable
 
-     subroutine modifyTime(this, oClients, rc)
-        class(sampler), intent(inout) :: this
-        type (ClientManager), optional, intent(inout) :: oClients
-        integer, optional, intent(out) :: rc
-
-        type(Variable) :: v
-        type(StringVariableMap) :: var_map
-        integer :: status
-
-        if (this%timeInfo%is_initialized) then
-           v = this%timeInfo%define_time_variable(_RC)
-           call this%metadata%modify_variable('time',v,rc=status)
-           _VERIFY(status)
-           if (present(oClients)) then
-              call var_map%insert('time',v)
-              call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
-              _VERIFY(status)
-           end if
-        else
-           _FAIL("Time was not initialized for the GriddedIO class instance")
-        end if
-        _RETURN(ESMF_SUCCESS)
-
-     end subroutine modifyTime
-
-     subroutine modifyTimeIncrement(this, frequency, rc)
-        class(sampler), intent(inout) :: this
-        integer, intent(in) :: frequency
-        integer, optional, intent(out) :: rc
-
-        integer :: status
-
-        if (this%timeInfo%is_initialized) then
-           call this%timeInfo%setFrequency(frequency, rc=status)
-           _VERIFY(status)
-        else
-           _FAIL("Time was not initialized for the GriddedIO class instance")
-        end if
-
-        _RETURN(ESMF_SUCCESS)
-
-      end subroutine modifyTimeIncrement
-
-     subroutine bundlepost(this,filename,oClients,rc)
-        class (sampler), intent(inout) :: this
-        character(len=*), intent(in) :: filename
-        type (ClientManager), optional, intent(inout) :: oClients
-        integer, optional, intent(out) :: rc
-
-        integer :: status
-        type(ESMF_Field) :: outField
-        integer :: tindex
-        type(ArrayReference) :: ref
-
-        type(GriddedIOitemVectorIterator) :: iter
-        type(GriddedIOitem), pointer :: item
-        logical :: have_time
-  
-        have_time = this%timeInfo%am_i_initialized()
-
-        if (have_time) then
-           this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
-           _VERIFY(status)
-           ref = ArrayReference(this%times)
-           call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-
-           tindex = size(this%times)
-           if (tindex==1) then
-              call this%stage2DLatLon(filename,oClients=oClients,_RC)
-           end if
-        else
-           tindex = -1
-        end if
-
-        if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
-           _VERIFY(status)
-        end if
-
-        iter = this%items%begin()
-        do while (iter /= this%items%end())
-           item => iter%get()
-           if (item%itemType == ItemTypeScalar) then
-              call this%RegridScalar(item%xname,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
-
-              
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
-              end if
-              call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
-              _VERIFY(status)
-
-
-           else if (item%itemType == ItemTypeVector) then
-              call this%RegridVector(item%xname,item%yname,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
-              end if
-              call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)
-              _VERIFY(status)
-              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
-              end if
-              call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
-           end if
-           call iter%next()
-        enddo
-
-        _RETURN(ESMF_SUCCESS)
-
-     end subroutine bundlepost
 
      subroutine RegridScalar(this,itemName,rc)
         class (sampler), intent(inout) :: this
@@ -1162,169 +1030,7 @@ contains
 
      end subroutine RegridVector
 
-  subroutine stage2DLatLon(this, fileName, oClients, rc)
-     class (sampler), intent(inout) :: this
-     character(len=*), intent(in) :: fileName
-     type (ClientManager), optional, intent(inout) :: oClients
-     integer, optional, intent(out) :: rc
-
-     integer :: status
-     real(REAL64), pointer :: ptr2d(:,:)
-     type(ArrayReference) :: ref
-     class (AbstractGridFactory), pointer :: factory
-     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
-     logical :: hasll
-     class(Variable), pointer :: var_lat,var_lon
-
-     var_lon => this%metadata%get_variable('lons')
-     var_lat => this%metadata%get_variable('lats')
-
-     hasll = associated(var_lon) .and. associated(var_lat)
-     if (hasll) then
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
-
-        call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-        _VERIFY(status)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
-        staggerloc=ESMF_STAGGERLOC_CENTER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lons)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
-        staggerloc=ESMF_STAGGERLOC_CENTER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
-        this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lats)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        deallocate(LocalStart,GlobalStart,GlobalCount)
-     end if
-
-     var_lon => this%metadata%get_variable('corner_lons')
-     var_lat => this%metadata%get_variable('corner_lats')
-
-     hasll = associated(var_lon) .and. associated(var_lat)
-     if (hasll) then
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
-
-        call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-        _VERIFY(status)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
-        staggerloc=ESMF_STAGGERLOC_CORNER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lons)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
-        staggerloc=ESMF_STAGGERLOC_CORNER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
-        this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lats)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-     end if
-     _RETURN(_SUCCESS)
-
-  end subroutine stage2DLatLon
-
-  subroutine stageData(this, field, fileName, tIndex, oClients, rc)
-     class (sampler), intent(inout) :: this
-     type(ESMF_Field), intent(inout) :: field
-     character(len=*), intent(in) :: fileName
-     integer, intent(in) :: tIndex
-     type (ClientManager), optional, intent(inout) :: oClients
-     integer, optional, intent(out) :: rc
-
-     integer :: status
-     integer :: fieldRank
-     character(len=ESMF_MAXSTR) :: fieldName
-     real, pointer :: ptr3d(:,:,:) => null()
-     real, pointer :: ptr2d(:,:) => null()
-     type(ArrayReference) :: ref
-     integer :: lm
-     logical :: hasDE
-     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
-     integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
-     class (AbstractGridFactory), pointer :: factory
-     real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
-     type(ESMF_VM) :: vm
-     integer :: mpi_comm
-
-     call ESMF_VMGetCurrent(vm,_RC)
-     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
-
-     factory => get_factory(this%output_grid,rc=status)
-     _VERIFY(status)
-     hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
-     _VERIFY(status)
-     lm = this%vdata%lm
-     call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
-     _VERIFY(status)
-
-     call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
-     _VERIFY(status)
-     if (fieldRank==2) then
-        if (hasDE) then
-           call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
-           _VERIFY(status)
-           if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-              allocate(temp_2d,source=ptr2d)
-              call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-              _VERIFY(status)
-           end if
-        else
-           allocate(ptr2d(0,0))
-        end if
-        ref = factory%generate_file_reference2D(Ptr2D)
-        allocate(localStart,source=[gridLocalStart,1])
-        if (tindex > -1) then
-           allocate(globalStart,source=[gridGlobalStart,tindex])
-           allocate(globalCount,source=[gridGlobalCount,1])
-        else
-           allocate(globalStart,source=gridGlobalStart)
-           allocate(globalCount,source=gridGlobalCount)
-        end if
-      else if (fieldRank==3) then
-         if (HasDE) then
-            call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-            _VERIFY(status)
-            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-               allocate(temp_3d,source=ptr3d)
-               call DownBit(temp_3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
-               _VERIFY(status)
-            end if
-         else
-            allocate(ptr3d(0,0,0))
-         end if
-         ref = factory%generate_file_reference3D(Ptr3D)
-         allocate(localStart,source=[gridLocalStart,1,1])
-         if (tindex > -1) then
-            allocate(globalStart,source=[gridGlobalStart,1,tindex])
-            allocate(globalCount,source=[gridGlobalCount,lm,1])
-         else
-            allocate(globalStart,source=[gridGlobalStart,1])
-            allocate(globalCount,source=[gridGlobalCount,lm])
-         end if
-      else
-         _FAIL( "Rank not supported")
-      end if
-      call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
-           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-      _RETURN(_SUCCESS)
-
-  end subroutine stageData
-
+     
   subroutine alphabatize_variables(this,nfixedVars,rc)
      class (sampler), intent(inout) :: this
      integer, intent(in) :: nFixedVars
@@ -1377,210 +1083,6 @@ contains
 
   end subroutine alphabatize_variables
 
-  subroutine request_data_from_file(this,filename,timeindex,rc)
-     class(sampler), intent(inout) :: this
-     character(len=*), intent(in) :: filename
-     integer, intent(in) :: timeindex
-     integer, intent(out), optional :: rc
-
-     integer :: status
-     type(esmf_grid) :: filegrid
-     type(maplDatacollection), pointer :: collection
-     integer :: i,numVars
-     character(len=ESMF_MAXSTR), allocatable :: names(:)
-     type(ESMF_Field) :: output_field
-     type(ESMF_Field), allocatable :: input_fields(:)
-     integer :: ub(1),lb(1),dims(3),lm,rank
-     type(ArrayReference) :: ref
-     real, pointer :: ptr2d(:,:) => null()
-     real, pointer :: ptr3d(:,:,:) => null()
-     integer, allocatable :: localStart(:), globalStart(:), globalCount(:)
-     integer, allocatable :: gridLocalStart(:), gridGlobalStart(:), gridGlobalCount(:)
-     type(ESMF_Grid) :: output_grid
-     logical :: hasDE
-     class(AbstractGridFactory), pointer :: factory
-     real(REAL32) :: missing_value
-
-     collection => Datacollections%at(this%metadata_collection_id)
-     this%current_file_metadata => collection%find(filename, _RC)
-     filegrid = collection%src_grid
-     factory => get_factory(filegrid)
-     hasDE=MAPL_GridHasDE(filegrid,rc=status)
-     _VERIFY(status)
-     call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
-     _VERIFY(status)
-     if (filegrid/=output_grid) then
-        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
-        _VERIFY(status)
-     end if
-     call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
-     _VERIFY(status)
-     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=this%current_file_metadata%fileMetadata,rc=status)
-     _VERIFY(status)
-     ! create input bundle
-     call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
-     _VERIFY(status)
-     allocate(names(numVars),stat=status)
-     _VERIFY(status)
-     allocate(input_fields(numVars),stat=status)
-     _VERIFY(status)
-     call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,rc=status)
-     _VERIFY(status)
-     do i=1,numVars
-        call ESMF_FieldBundleGet(this%output_bundle,names(i),field=output_field,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldGet(output_field,rank=rank,rc=status)
-        _VERIFY(status)
-        if (rank==2) then
-           input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],name=trim(names(i)),rc=status)
-           _VERIFY(status)
-           if (hasDE) then
-              call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr2d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(ptr2d(0,0),stat=status)
-              _VERIFY(status)
-           end if
-           ref=factory%generate_file_reference2D(ptr2d)
-           allocate(localStart,source=[gridLocalStart,timeIndex])
-           allocate(globalStart,source=[gridGlobalStart,timeIndex])
-           allocate(globalCount,source=[gridGlobalCount,1])
-        else if (rank==3) then
-           call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
-           _VERIFY(status)
-           lm=ub(1)-lb(1)+1
-           input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2], &
-              ungriddedLBound=lb,ungriddedUBound=ub,name=trim(names(i)),rc=status)
-           _VERIFY(status)
-           if (hasDE) then
-              call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr3d,rc=status)
-              _VERIFY(status)
-           else
-              allocate(ptr3d(0,0,0),stat=status)
-              _VERIFY(status)
-           end if
-           ref=factory%generate_file_reference3D(ptr3d,metadata=this%current_file_metadata%filemetadata)
-           allocate(localStart,source=[gridLocalStart,1,timeIndex])
-           allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
-           allocate(globalCount,source=[gridGlobalCount,lm,1])
-        end if
-        call i_Clients%collective_prefetch_data( &
-             this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=localStart, global_start=globalStart, global_count=globalCount)
-        deallocate(localStart,globalStart,globalCount)
-     enddo
-     deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
-     this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
-
-  end subroutine request_data_from_file
-
-  subroutine process_data_from_file(this,rc)
-     class(sampler), intent(inout) :: this
-     integer, intent(out), optional :: rc
-
-     integer :: status
-     integer :: i,numVars
-     character(len=ESMF_MAXSTR), allocatable :: names(:)
-     type(ESMF_Field) :: field
-     type(GriddedIOitem), pointer :: item
-     type(GriddedIOitemVectorIterator) :: iter
-
-     call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
-     _VERIFY(status)
-     allocate(names(numVars),stat=status)
-     _VERIFY(status)
-     call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,rc=status)
-     _VERIFY(status)
-     iter = this%items%begin()
-     do while(iter /= this%items%end())
-        item => iter%get()
-        if (item%itemType == ItemTypeScalar) then
-           call this%swap_undef_value(trim(item%xname),_RC)
-           call this%regridScalar(trim(item%xname),rc=status)
-           _VERIFY(status)
-        else if (item%itemType == ItemTypeVector) then
-           call this%swap_undef_value(trim(item%xname),_RC)
-           call this%swap_undef_value(trim(item%yname),_RC)
-           call this%regridVector(trim(item%xname),trim(item%yname),rc=status)
-           _VERIFY(status)
-        end if
-        call iter%next()
-     enddo
-
-     do i=1,numVars
-        call ESMF_FieldBundleGet(this%input_bundle,trim(names(i)),field=field,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldDestroy(field,noGarbage=.true., rc=status)
-        _VERIFY(status)
-     enddo
-     call ESMF_FieldBundleDestroy(this%input_bundle,noGarbage=.true.,rc=status)
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
-
-  end subroutine process_data_from_file
-
-  subroutine swap_undef_value(this,fname,rc)
-     class (sampler), intent(inout) :: this
-     character(len=*), intent(in) :: fname
-     integer, optional, intent(out) :: rc
-
-     integer :: status
-
-     type(ESMF_Field) :: field
-     integer :: fieldRank
-     real, pointer :: ptr3d(:,:,:)
-     real, pointer :: ptr2d(:,:)
-     type(ESMF_Grid) :: gridIn
-     logical :: hasDE_in
-     real(REAL32) :: fill_value
-
-     if ( .not. this%current_file_metadata%var_has_missing_value(fname) ) then
-        _RETURN(_SUCCESS)
-     endif
-
-     fill_value = this%current_file_metadata%var_get_missing_value(fname,_RC)
-
-     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
-     call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
-     call ESMF_FieldGet(field,rank=fieldRank,_RC)
-     hasDE_in = MAPL_GridHasDE(gridIn,_RC)
-
-     if (fieldRank==2) then
-        if (hasDE_in) then
-           call MAPL_FieldGetPointer(field,ptr2d,_RC)
-        else
-           allocate(ptr2d(0,0))
-        end if
-
-        if (isnan(fill_value)) then
-           where(isnan(ptr2d)) ptr2d=MAPL_UNDEF
-        else
-           where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
-        endif
-
-     else if (fieldRank==3) then
-        if (hasDE_in) then
-           call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
-        else
-           allocate(ptr3d(0,0,0))
-        end if
-
-        if (isnan(fill_value)) then
-           where(isnan(ptr3d)) ptr3d=MAPL_UNDEF
-        else
-           where(ptr3d==fill_value) ptr3d=MAPL_UNDEF
-        endif
-
-     else
-        _FAIL('rank not supported')
-     end if
-
-     _RETURN(_SUCCESS)
-
-  end subroutine swap_undef_value
-
   
   subroutine addVariable_to_acc_bundle(this,itemName,rc)
     class (sampler), intent(inout) :: this
@@ -1604,14 +1106,8 @@ contains
     end if
     call MAPL_FieldBundleAdd(this%acc_bundle,newField,_RC)
 
-!    call ESMF_FieldGet(newField, Array=array1, _RC)
-!    call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
-!    print*, __FILE__
-!    print*, 'itemName, pt2d', trim(itemName)
-!    print*, pt2d
-!    stop -1
-
     _RETURN(_SUCCESS)
+
   end subroutine addVariable_to_acc_bundle
 
 
@@ -1694,8 +1190,8 @@ contains
 
     _ASSERT ( localDEcount == 1, 'failed, due to localDEcount > 1')
     call MAPL_GridGetInterior(grid,ii1,iin,jj1,jjn)
-    write(6,*) 'MAPL_GridGetInterior, ii1,iin,jj1,jjn', ii1,iin,jj1,jjn
-    print*, 'js,je ', js, je
+!!    write(6,*) 'MAPL_GridGetInterior, ii1,iin,jj1,jjn', ii1,iin,jj1,jjn
+!!    print*, 'js,je ', js, je
 
     LB(1)=ii1; LB(2)=jj1
     UB(1)=iin; UB(2)=jjn
@@ -1730,9 +1226,9 @@ contains
        endif
     enddo
 
-    write(6,*) 'ck bundlepost_acc'
-    write(6,*) 'j1(localDe)', j1(0:localDeCount-1)
-    write(6,*) 'j2(localDe)', j2(0:localDeCount-1)
+!!    write(6,*) 'ck bundlepost_acc'
+!!    write(6,*) 'j1(localDe)', j1(0:localDeCount-1)
+!!    write(6,*) 'j2(localDe)', j2(0:localDeCount-1)
 
     
     iter = this%items%begin()
@@ -1786,7 +1282,7 @@ contains
                 endif
              enddo
           else
-             stop 'failed GriddedIO.F90'
+             _FAIL('failed interp_accumulate_fields')
           endif
 
        else if (item%itemType == ItemTypeVector) then
@@ -1798,90 +1294,6 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end subroutine interp_accumulate_fields
-
-
-  
-  subroutine write_2_oserver(this,sp,filename,oClients,rc)
-    class (samplerHQ), intent(inout) :: this
-    class (sampler), intent(inout) :: sp
-    character(len=*), intent(in) :: filename
-    type (ClientManager), optional, intent(inout) :: oClients
-    integer, optional, intent(out) :: rc
-
-    integer :: status
-    type(ESMF_Field) :: outField
-    integer :: tindex
-    type(ArrayReference) :: ref
-
-    type(GriddedIOitemVectorIterator) :: iter
-    type(GriddedIOitem), pointer :: item
-    logical :: have_time
-
-
-    if ( .NOT. ESMF_AlarmIsRinging(this%alarm) ) then
-       rc=0
-       return
-    endif
-
-    have_time = sp%timeInfo%am_i_initialized()
-
-    if (have_time) then
-       sp%times = sp%timeInfo%compute_time_vector(sp%metadata,rc=status)
-       _VERIFY(status)
-       ref = ArrayReference(sp%times)
-       call oClients%stage_nondistributed_data(sp%write_collection_id,trim(filename),'time',ref)
-
-       tindex = size(sp%times)
-       if (tindex==1) then
-          call sp%stage2DLatLon(filename,oClients=oClients,_RC)
-       end if
-    else
-       tindex = -1
-    end if
-
-    if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-       call sp%vdata%setup_eta_to_pressure(regrid_handle=sp%regrid_handle,output_grid=sp%output_grid,rc=status)
-       _VERIFY(status)
-    end if
-
-    iter = sp%items%begin()
-    do while (iter /= sp%items%end())
-       item => iter%get()
-       if (item%itemType == ItemTypeScalar) then
-          call ESMF_FieldBundleGet(sp%acc_bundle,item%xname,field=outField,rc=status)
-          _VERIFY(status)
-          if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-             call sp%vdata%correct_topo(outField,rc=status)
-             _VERIFY(status)
-          end if
-          call sp%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
-          _VERIFY(status)
-       else if (item%itemType == ItemTypeVector) then
-          call ESMF_FieldBundleGet(sp%acc_bundle,item%xname,field=outField,rc=status)
-          _VERIFY(status)
-          if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-             call sp%vdata%correct_topo(outField,rc=status)
-             _VERIFY(status)
-          end if
-          call sp%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-          _VERIFY(status)
-          call ESMF_FieldBundleGet(sp%acc_bundle,item%yname,field=outField,rc=status)
-          _VERIFY(status)
-          if (sp%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-             call sp%vdata%correct_topo(outField,rc=status)
-             _VERIFY(status)
-          end if
-          call sp%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-          _VERIFY(status)
-       end if
-       call iter%next()
-    enddo
-
-    
-    _RETURN(ESMF_SUCCESS)
-
-  end subroutine write_2_oserver
-
 
   
   subroutine get_xy_mask(grid, xy_subset, xy_mask, rc)
@@ -1896,12 +1308,9 @@ contains
     integer :: is, ie, js, je  ! global box for each time-interval
     integer :: j1p, jnp        ! local y-index for each time-interval
 
-    integer :: localDe, localDECount
-    integer, dimension(:), allocatable :: LB, UB, exclusiveCount, clbnd, cubnd
     integer :: dimCount
     integer :: y1, y2
     integer :: j, jj
-    !    integer, dimension(:), allocatable :: j1, j2
     integer :: j1, j2
 
     is=xy_subset(1,1); ie=xy_subset(2,1)
@@ -1934,7 +1343,7 @@ contains
        j2=-1
     endif
 
-    write(6,*) 'get_xy_mask: j1,j2=', j1, j2
+!!    write(6,*) 'get_xy_mask: j1,j2=', j1, j2
     xy_mask(:,:) = 0
     if (j1 > 0) then
        do jj = j1, j2

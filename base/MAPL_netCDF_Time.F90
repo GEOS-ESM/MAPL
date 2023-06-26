@@ -189,7 +189,7 @@ contains
 
     ! check
     ! -----
-    write(6, *) 'dt in unit second  is', n
+    !! write(6, *) 'dt in unit second  is', n
 
     if(present(rc)) rc=0
   end subroutine time_esmf_2_nc_int
@@ -366,7 +366,7 @@ contains
     if(present(n_UB)) UB=n_UB
     klo=LB; khi=UB; dk=1
     
-    write(6,*) 'init klo, khi', klo, khi
+    !! write(6,*) 'init klo, khi', klo, khi
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
