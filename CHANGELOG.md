@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Created cubed-sphere grid factory with files split by face
+- Removed unneeded and confusing default in History Grid Comp (see #2081)
 
 ### Removed
 

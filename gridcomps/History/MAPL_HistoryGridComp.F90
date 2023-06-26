@@ -864,8 +864,7 @@ contains
           end if
        end if
        if (has_regrid_keyword) then
-          call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
-                                         label=trim(string) // 'regrid_method:'  ,_RC )
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, label=trim(string) // 'regrid_method:'  ,_RC )
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
