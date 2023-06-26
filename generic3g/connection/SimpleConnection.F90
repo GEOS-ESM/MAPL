@@ -1,14 +1,14 @@
-module mapl3g_ConnectionSpec
+module mapl3g_SimpleConnection
    use mapl3g_ConnectionPt
    implicit none
    private
 
-   public :: ConnectionSpec
+   public :: SimpleConnection
    public :: is_valid
 
 !!$   public :: can_share_pointer
 
-   type :: ConnectionSpec
+   type :: SimpleConnection
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
    contains
@@ -16,13 +16,13 @@ module mapl3g_ConnectionSpec
       procedure :: is_export_to_export
       procedure :: is_valid
       procedure :: is_sibling
-   end type ConnectionSpec
+   end type SimpleConnection
 
 
 contains
 
    logical function is_export_to_import(this)
-      class(ConnectionSpec), intent(in) :: this
+      class(SimpleConnection), intent(in) :: this
 
       is_export_to_import = ( &
            this%source%get_state_intent() == 'export' .and. &
@@ -33,7 +33,7 @@ contains
    ! NOTE: We include a src that is internal as also being an export
    ! in this case.
    logical function is_export_to_export(this)
-      class(ConnectionSpec), intent(in) :: this
+      class(SimpleConnection), intent(in) :: this
 
       is_export_to_export = ( &
            any(this%source%get_state_intent() == ['export  ', 'internal']) .and. &
@@ -47,7 +47,7 @@ contains
    ! component relationships are not available at this level.
 
    logical function is_valid(this)
-      class(ConnectionSpec), intent(in) :: this
+      class(SimpleConnection), intent(in) :: this
 
       associate (intents => [character(len=len('internal')) :: this%source%get_state_intent(), this%destination%get_state_intent()])
         
@@ -63,7 +63,7 @@ contains
 
    ! Only sibling connections trigger allocation of exports.
    logical function is_sibling(this)
-      class(ConnectionSpec), intent(in) :: this
+      class(SimpleConnection), intent(in) :: this
 
       character(:), allocatable :: src_intent, dst_intent
 
@@ -73,4 +73,4 @@ contains
 
    end function is_sibling
 
-end module mapl3g_ConnectionSpec
+end module mapl3g_SimpleConnection

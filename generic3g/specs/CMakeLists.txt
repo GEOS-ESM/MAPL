@@ -21,10 +21,6 @@ target_sources(MAPL.generic3g PRIVATE
   StateSpec.F90
 #  StateIntentsSpec.F90
 
-   ConnectionPt.F90
-   ConnectionPtVector.F90
-   ConnectionSpec.F90
-   ConnectionSpecVector.F90
 
   ChildSpec.F90
   ChildSpecMap.F90
