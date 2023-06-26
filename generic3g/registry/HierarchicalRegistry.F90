@@ -400,9 +400,12 @@ contains
       type(ConnectionPt) :: s_pt,d_pt
       type(ActualPtVec_MapIterator) :: iter
 
-      associate( src_pt => connection%source, dst_pt => connection%destination)
+      associate( &
+           src_pt => connection%get_source(), &
+           dst_pt => connection%get_destination() &
+           )
         dst_registry => this%get_subregistry(dst_pt)
-
+        
         ! TODO: Move this into a separate procedure, or introduce
         ! a 2nd type of connection
         if (dst_pt%get_esmf_name() == '*') then
@@ -411,9 +414,9 @@ contains
              do while (iter /= e)
                 d_v_pt => iter%first()
                 if (d_v_pt%get_state_intent() /= 'import') cycle
-                s_v_pt = d_v_pt
-                s_v_pt%state_intent = ESMF_STATEINTENT_EXPORT
-
+                s_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+                     d_v_pt%get_esmf_name(), &
+                     d_v_pt%get_comp_name())
                 s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
                 d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
                 call this%add_connection(SimpleConnection(s_pt, d_pt), _RC)
@@ -422,21 +425,21 @@ contains
            end associate
            _RETURN(_SUCCESS)
         end if
-           
+        
         src_registry => this%get_subregistry(src_pt)
-
+        
         _ASSERT(associated(src_registry), 'Unknown source registry')
         _ASSERT(associated(dst_registry), 'Unknown destination registry')
-
+        
         if (connection%is_sibling()) then
-        ! TODO: do not need to send src_registry, as it can be derived from connection again.
+           ! TODO: do not need to send src_registry, as it can be derived from connection again.
            call dst_registry%connect_sibling(src_registry, connection, _RC)
            _RETURN(_SUCCESS)
         end if
-
+        
         ! Non-sibling connection: just propagate pointer "up"
-
-           call this%connect_export_to_export(src_registry, connection, _RC)
+        
+        call this%connect_export_to_export(src_registry, connection, _RC)
       end associate
       
       _RETURN(_SUCCESS)
@@ -455,34 +458,34 @@ contains
       logical :: satisfied
       integer :: status
 
-      associate (src_pt => connection%source, dst_pt => connection%destination)
+      associate (src_pt => connection%get_source(), dst_pt => connection%get_destination())
 
         import_specs = this%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
         export_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
-
+          
         do i = 1, size(import_specs)
            import_spec => import_specs(i)%ptr
            satisfied = .false.
-
+           
            find_source: do j = 1, size(export_specs)
               export_spec => export_specs(j)%ptr
-
+              
               if (import_spec%can_connect_to(export_spec)) then
                  call export_spec%set_active()
                  call import_spec%set_active()
-
+                 
                  if (import_spec%requires_extension(export_spec)) then
                     call src_registry%extend(src_pt%v_pt, import_spec, _RC)
                  else
                     call import_spec%connect_to(export_spec, _RC)
                  end if
-
-
+                 
+                 
                  satisfied = .true.
                  exit find_source
               end if
            end do find_source
-
+           
            _ASSERT(satisfied,'no matching actual export spec found')
         end do
       end associate
@@ -556,28 +559,30 @@ contains
       type(ActualPtVector), pointer :: actual_pts
       integer :: status
 
-      associate (src_pt => connection%source%v_pt, dst_pt => connection%destination%v_pt)
-        _ASSERT(this%actual_pts_map%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
-        _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
+      associate (src => connection%get_source(), dst => connection%get_destination())
+        associate (src_pt => src%v_pt, dst_pt => dst%v_pt)
+          _ASSERT(this%actual_pts_map%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
+          _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
 
-        actual_pts => src_registry%get_actual_pts(src_pt)
-        associate (e => actual_pts%end())
-          iter = actual_pts%begin()
-          do while (iter /= e)
-             src_actual_pt => iter%of()
-
-             if (src_actual_pt%is_internal()) then
-                ! Don't encode with comp name
-                dst_actual_pt = ActualConnectionPt(dst_pt)
-             else
-                dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
-             end if
-             
-             spec => src_registry%get_item_spec(src_actual_pt)
-             _ASSERT(associated(spec), 'This should not happen.')
-             call this%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
-             call iter%next()
-          end do
+          actual_pts => src_registry%get_actual_pts(src_pt)
+          associate (e => actual_pts%end())
+            iter = actual_pts%begin()
+            do while (iter /= e)
+               src_actual_pt => iter%of()
+               
+               if (src_actual_pt%is_internal()) then
+                  ! Don't encode with comp name
+                  dst_actual_pt = ActualConnectionPt(dst_pt)
+               else
+                  dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
+               end if
+               
+               spec => src_registry%get_item_spec(src_actual_pt)
+               _ASSERT(associated(spec), 'This should not happen.')
+               call this%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
+               call iter%next()
+            end do
+          end associate
         end associate
       end associate
       

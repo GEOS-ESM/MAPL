@@ -1,5 +1,6 @@
 module mapl3g_SimpleConnection
    use mapl3g_ConnectionPt
+   use mapl3g_Connection
    implicit none
    private
 
@@ -8,7 +9,8 @@ module mapl3g_SimpleConnection
 
 !!$   public :: can_share_pointer
 
-   type :: SimpleConnection
+   type, extends(Connection) :: SimpleConnection
+      private
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
    contains
@@ -16,10 +18,26 @@ module mapl3g_SimpleConnection
       procedure :: is_export_to_export
       procedure :: is_valid
       procedure :: is_sibling
+
+      procedure :: get_source
+      procedure :: get_destination
    end type SimpleConnection
 
+   interface SimpleConnection
+      module procedure :: new_SimpleConnection
+   end interface SimpleConnection
 
 contains
+
+   function new_SimpleConnection(source, destination) result(this)
+      type(SimpleConnection) :: this
+      type(ConnectionPt), intent(in) :: source
+      type(ConnectionPt), intent(in) :: destination
+
+      this%source = source
+      this%destination = destination
+
+   end function new_SimpleConnection
 
    logical function is_export_to_import(this)
       class(SimpleConnection), intent(in) :: this
@@ -72,5 +90,17 @@ contains
       is_sibling = (src_intent == 'export' .and. dst_intent == 'import')
 
    end function is_sibling
+
+   function get_source(this) result(source)
+      type(ConnectionPt) :: source
+      class(SimpleConnection), intent(in) :: this
+      source = this%source
+   end function get_source
+
+   function get_destination(this) result(destination)
+      type(ConnectionPt) :: destination
+      class(SimpleConnection), intent(in) :: this
+      destination = this%destination
+   end function get_destination
 
 end module mapl3g_SimpleConnection
