@@ -194,10 +194,10 @@ contains
 ! Diagnostics have the following attributes:
 !
 !1. Diagnostics may be `instantaneous` or `time-averaged`
-!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time` 
-!    from which the frequency is based. An `end_date` and `end_time` may also be 
+!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time`
+!    from which the frequency is based. An `end_date` and `end_time` may also be
 !    used to turn off diagnostics after a given date and time.
-!3. Time-Averaged Diagnostics have an associated accumulation interval, 
+!3. Time-Averaged Diagnostics have an associated accumulation interval,
 !    `acc_interval`, which may be <= to the diagnostic `frequency`
 !4. Diagnostics are `time-stamped` with the center of the time-averaged period.
 !5. The default `acc_interval` is the diagnostic `frequency`
@@ -209,7 +209,7 @@ contains
 ! History Lists contain the following attributes:
 !
 !- **filename**:     Character string defining the filename of a particular diagnostic output stream.
-!- **template**:     Character string defining the time stamping template following GrADS convensions. 
+!- **template**:     Character string defining the time stamping template following GrADS convensions.
 !    The default value depends on the duration of the file.
 !- **format**:       Character string defining file format ("flat" or "CFIO"). Default = "flat".
 !- **mode**:         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
@@ -863,8 +863,7 @@ contains
           end if
        end if
        if (has_regrid_keyword) then
-          call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
-                                         label=trim(string) // 'regrid_method:'  ,_RC )
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, label=trim(string) // 'regrid_method:'  ,_RC )
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
@@ -3611,9 +3610,9 @@ ENDDO PARSER
  end subroutine Run
 
 !======================================================
-!> 
+!>
 ! Finanlize the `MAPL_HistoryGridComp` component.
-!  
+!
   subroutine Finalize ( gc, import, export, clock, rc )
 
     type(ESMF_GridComp), intent(inout)    :: gc     !! composite gridded component
@@ -5105,7 +5104,7 @@ ENDDO PARSER
           call ESMF_StateGet(src, itemNames(n), bundle(1), _RC)
           call ESMF_StateAdd(dst, bundle, _RC)
        end if
-    end do 
+    end do
 
     deallocate(itemTypes)
     deallocate(itemNames)
