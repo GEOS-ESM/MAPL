@@ -10,8 +10,8 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
-   use mapl3g_ConnectionSpec
-   use mapl3g_ConnectionSpecVector
+   use mapl3g_SimpleConnection
+   use mapl3g_SimpleConnectionVector
    use mapl3g_VerticalDimSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
@@ -322,12 +322,12 @@ contains
    end function process_var_specs
 
 
-   type(ConnectionSpecVector) function process_connections(config, rc) result(connections)
+   type(SimpleConnectionVector) function process_connections(config, rc) result(connections)
       class(YAML_Node), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       class(NodeIterator), allocatable :: iter, e
-      type(ConnectionSpec) :: connection
+      type(SimpleConnection) :: connection
       class(YAML_Node), pointer :: conn_spec
       integer :: status
 
@@ -348,7 +348,7 @@ contains
    contains
 
       function process_connection(config, rc) result(connection)
-         type(ConnectionSpec) :: connection
+         type(SimpleConnection) :: connection
          class(YAML_Node), optional, intent(in) :: config
          integer, optional, intent(out) :: rc
 
@@ -360,7 +360,7 @@ contains
          call get_comps(config, src_comp, dst_comp, _RC)
 
          if (config%has('all_unsatisfied')) then
-            connection = ConnectionSpec( &
+            connection = SimpleConnection( &
                  ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
                  ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
                  )
@@ -374,7 +374,7 @@ contains
               src_pt => VirtualConnectionPt(state_intent=src_intent, short_name=src_name), &
               dst_pt => VirtualConnectionPt(state_intent=dst_intent, short_name=dst_name) )
 
-           connection = ConnectionSpec( &
+           connection = SimpleConnection( &
                 ConnectionPt(src_comp, src_pt), &
                 ConnectionPt(dst_comp, dst_pt))
 

@@ -27,8 +27,8 @@ module mapl3g_OuterMetaComponent
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ConnectionPt
-   use mapl3g_ConnectionSpec
-   use mapl3g_ConnectionSpecVector
+   use mapl3g_SimpleConnection
+   use mapl3g_SimpleConnectionVector
    use mapl3g_HierarchicalRegistry
    use mapl3g_ExtensionAction
    use mapl3g_StateExtension
@@ -573,13 +573,13 @@ contains
 
      subroutine process_connections(this, rc)
         use mapl3g_VirtualConnectionPt
-        use mapl3g_ConnectionSpec
+        use mapl3g_SimpleConnection
         use mapl3g_ConnectionPt
         class(OuterMetaComponent), intent(inout) :: this
         integer, optional, intent(out) :: rc
 
         integer :: status
-        type(ConnectionSpecVectorIterator) :: iter
+        type(SimpleConnectionVectorIterator) :: iter
 
         associate (e => this%component_spec%connections%end())
           iter = this%component_spec%connections%begin()

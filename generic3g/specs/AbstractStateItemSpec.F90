@@ -49,7 +49,7 @@ module mapl3g_AbstractStateItemSpec
    abstract interface
 
       subroutine I_connect(this, src_spec, rc)
-         use mapl3g_ConnectionSpec
+         use mapl3g_SimpleConnection
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(inout) :: this
          class(AbstractStateItemSpec), intent(inout) :: src_spec
@@ -57,7 +57,7 @@ module mapl3g_AbstractStateItemSpec
       end subroutine I_connect
 
       logical function I_can_connect(this, src_spec)
-         use mapl3g_ConnectionSpec
+         use mapl3g_SimpleConnection
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(in) :: this
          class(AbstractStateItemSpec), intent(in) :: src_spec

@@ -13,7 +13,7 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_ActualPtVector
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ActualPtVec_Map
-   use mapl3g_ConnectionSpec
+   use mapl3g_SimpleConnection
    use mapl3g_ESMF_Utilities
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -390,7 +390,7 @@ contains
    recursive subroutine add_connection(this, connection, rc)
       use esmf
       class(HierarchicalRegistry), target, intent(inout) :: this
-      type(ConnectionSpec), intent(in) :: connection
+      type(SimpleConnection), intent(in) :: connection
       integer, optional, intent(out) :: rc
 
       type(HierarchicalRegistry), pointer :: src_registry, dst_registry
@@ -416,7 +416,7 @@ contains
 
                 s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
                 d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
-                call this%add_connection(ConnectionSpec(s_pt, d_pt), _RC)
+                call this%add_connection(SimpleConnection(s_pt, d_pt), _RC)
                 call iter%next()
              end do
            end associate
@@ -445,7 +445,7 @@ contains
    subroutine connect_sibling(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), target, intent(in) :: this
       type(HierarchicalRegistry), target, intent(inout) :: src_registry
-      type(ConnectionSpec), intent(in) :: connection
+      type(SimpleConnection), intent(in) :: connection
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -545,7 +545,7 @@ contains
    subroutine connect_export_to_export(this, src_registry, connection, unusable, rc)
       class(HierarchicalRegistry), intent(inout) :: this
       type(HierarchicalRegistry), intent(in) :: src_registry
-      type(ConnectionSpec), intent(in) :: connection
+      type(SimpleConnection), intent(in) :: connection
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
