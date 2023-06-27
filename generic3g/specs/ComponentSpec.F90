@@ -2,7 +2,7 @@
 
 module mapl3g_ComponentSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_SimpleConnectionVector
+   use mapl3g_ConnectionVector
    use mapl3g_SimpleConnection
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector
@@ -16,7 +16,7 @@ module mapl3g_ComponentSpec
    type :: ComponentSpec
 !!$      private
       type(VariableSpecVector) :: var_specs
-      type(SimpleConnectionVector) :: connections
+      type(ConnectionVector) :: connections
    contains
       procedure :: add_var_spec
       procedure :: add_connection
@@ -31,7 +31,7 @@ contains
    function new_ComponentSpec(var_specs, connections) result(spec)
       type(ComponentSpec) :: spec
       type(VariableSpecVector), optional, intent(in) :: var_specs
-      type(SimpleConnectionVector), optional, intent(in) :: connections
+      type(ConnectionVector), optional, intent(in) :: connections
 
       if (present(var_specs)) spec%var_specs = var_specs
       if (present(connections)) spec%connections = connections

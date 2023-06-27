@@ -11,7 +11,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
    use mapl3g_SimpleConnection
-   use mapl3g_SimpleConnectionVector
+   use mapl3g_ConnectionVector
    use mapl3g_VerticalDimSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
@@ -322,7 +322,7 @@ contains
    end function process_var_specs
 
 
-   type(SimpleConnectionVector) function process_connections(config, rc) result(connections)
+   type(ConnectionVector) function process_connections(config, rc) result(connections)
       class(YAML_Node), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
