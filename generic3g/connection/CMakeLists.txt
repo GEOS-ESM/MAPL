@@ -6,7 +6,6 @@ target_sources(MAPL.generic3g PRIVATE
    ConnectionPt.F90
    ConnectionPtVector.F90
 
-   Connection.F90
    SimpleConnection.F90
    ConnectionSpecVector.F90
   )
