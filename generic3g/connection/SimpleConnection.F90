@@ -35,7 +35,6 @@ module mapl3g_SimpleConnection
       procedure :: get_destination
       procedure :: connect
       procedure :: connect_sibling
-      procedure :: connect_export_to_export
    end type SimpleConnection
 
    interface SimpleConnection
@@ -167,8 +166,6 @@ contains
            _RETURN(_SUCCESS)
         end if
         
-        ! Non-sibling connection: just propagate pointer "up"
-        call this%connect_export_to_export(registry, src_registry, _RC)
       end associate
       
       _RETURN(_SUCCESS)
@@ -223,65 +220,5 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine connect_sibling
-
-   subroutine connect_export_to_export(this, registry, src_registry, unusable, rc)
-      class(SimpleConnection), intent(in) :: this
-      type(HierarchicalRegistry), intent(inout) :: registry
-      type(HierarchicalRegistry), intent(in) :: src_registry
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      type(ActualPtVectorIterator) :: iter
-      class(AbstractStateItemSpec), pointer :: spec
-      type(ActualConnectionPt), pointer :: src_actual_pt
-      type(ActualConnectionPt), allocatable :: dst_actual_pt
-      type(ActualPtVector), pointer :: actual_pts
-      integer :: status
-
-      associate (src => this%get_source(), dst => this%get_destination())
-        associate (src_pt => src%v_pt, dst_pt => dst%v_pt)
-          _ASSERT(registry%virtual_pts%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
-          _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
-
-          actual_pts => src_registry%get_actual_pts(src_pt)
-          associate (e => actual_pts%end())
-            iter = actual_pts%begin()
-            do while (iter /= e)
-               src_actual_pt => iter%of()
-               
-               if (src_actual_pt%is_internal()) then
-                  ! Don't encode with comp name
-                  dst_actual_pt = ActualConnectionPt(dst_pt)
-               else
-                  dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
-               end if
-               
-               spec => src_registry%get_item_spec(src_actual_pt)
-               _ASSERT(associated(spec), 'This should not happen.')
-               call registry%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
-               call iter%next()
-            end do
-          end associate
-        end associate
-      end associate
-      
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-
-   contains
-
-      function str_replace(buffer, pattern, replacement) result(new_str)
-         character(:), allocatable :: new_str
-         character(*), intent(in) :: buffer
-         character(*), intent(in) :: pattern
-         character(*), intent(in) :: replacement
-
-         integer :: idx
-
-         idx = scan(buffer, pattern)
-         new_str = buffer(:idx-1) // replacement // buffer(idx+len(pattern):)
-      end function str_replace
-
-   end subroutine connect_export_to_export
 
  end module mapl3g_SimpleConnection

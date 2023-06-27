@@ -8,6 +8,7 @@ module Test_HierarchicalRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_SimpleConnection
+   use mapl3g_ReexportConnection
    use mapl3g_AbstractActionSpec
    use MockItemSpecMod
    implicit none
@@ -236,7 +237,7 @@ contains
       call r_A%add_item_spec(cp_1, MockItemSpec('AE1'))
 
       ! E-to-E with rename
-      call r%add_connection(SimpleConnection(CP('A',cp_1), CP('R',cp_2)), rc=status)
+      call r%add_connection(ReexportConnection(CP('A',cp_1), CP('R',cp_2)), rc=status)
       @assert_that(status, is(0))
 
       if (.not. check(r, cp_2, ['AE1'])) return
@@ -259,7 +260,7 @@ contains
       call r%add_item_spec(vpt_1, MockItemSpec('AE1'))
 
       ! Internal-to-export
-      call r%add_connection(SimpleConnection(CP('R',vpt_1), CP('R',vpt_2)), rc=status)
+      call r%add_connection(ReexportConnection(CP('R',vpt_1), CP('R',vpt_2)), rc=status)
       @assert_that(status, is(0))
 
       if (.not. check(r, vpt_2, ['AE1'])) return
@@ -297,7 +298,7 @@ contains
       call r_A%add_item_spec(vpt_1, MockItemSpec('AE1'))
 
       ! E-to-E with rename
-      call r%add_connection(SimpleConnection(CP('A',vpt_1), CP('R',vpt_2)), rc=status)
+      call r%add_connection(ReexportConnection(CP('A',vpt_1), CP('R',vpt_2)), rc=status)
 
       @assert_that(r%has_item_spec(ActualConnectionPt(vpt_1%add_comp_name('A'))), is(true()))
 
@@ -334,7 +335,7 @@ contains
       call r_B%add_item_spec(vpt_3, MockItemSpec('AI'))
 
       ! E-to-E
-      call r_A%add_connection(SimpleConnection(CP('grandchild',vpt_1), CP('A',vpt_2)), rc=status)
+      call r_A%add_connection(ReexportConnection(CP('grandchild',vpt_1), CP('A',vpt_2)), rc=status)
       @assert_that(status, is(0))
       ! sibling
       call r%add_connection(SimpleConnection(CP('A',vpt_2), CP('B', vpt_3)), rc=status)
@@ -355,7 +356,7 @@ contains
       class(AbstractStateItemSpec), pointer :: spec
 
       type(VirtualConnectionPt) :: vpt_1, vpt_2, vpt_4
-      type(SimpleConnection) :: e2e, sib
+      class(Connection), allocatable :: e2e, sib
 
       r = HierarchicalRegistry('R')
       r_P = HierarchicalRegistry('P')
@@ -386,7 +387,7 @@ contains
         !          A  vpt_1           vpt_4  C
         !
       !-------------------------------------------
-      e2e = SimpleConnection(CP('A',vpt_1), CP('P',vpt_2))
+      e2e = ReexportConnection(CP('A',vpt_1), CP('P',vpt_2))
       sib = SimpleConnection(CP('P',vpt_2), CP('B', vpt_4))
 
       spec => r_A%get_item_spec(ActualConnectionPt(vpt_1)) ! ultimate export
