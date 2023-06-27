@@ -1,6 +1,18 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_SimpleConnection
+   use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPt
-   use mapl3g_Connection
+   use mapl3g_HierarchicalRegistry, only: Connection
+   use mapl3g_HierarchicalRegistry
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_ActualConnectionPt
+   use mapl3g_ActualPtVec_Map
+   use mapl3g_ActualPtVector
+   use mapl_KeywordEnforcer
+   use mapl_ErrorHandling
+   use esmf
+
    implicit none
    private
 
@@ -21,6 +33,9 @@ module mapl3g_SimpleConnection
 
       procedure :: get_source
       procedure :: get_destination
+      procedure :: connect
+      procedure :: connect_sibling
+      procedure :: connect_export_to_export
    end type SimpleConnection
 
    interface SimpleConnection
@@ -103,4 +118,170 @@ contains
       destination = this%destination
    end function get_destination
 
-end module mapl3g_SimpleConnection
+   recursive subroutine connect(this, registry, rc)
+      class(SimpleConnection), intent(in) :: this
+      type(HierarchicalRegistry), target, intent(inout) :: registry
+      integer, optional, intent(out) :: rc
+
+      type(HierarchicalRegistry), pointer :: src_registry, dst_registry
+      integer :: status
+      type(VirtualConnectionPt) :: s_v_pt
+      type(VirtualConnectionPt), pointer :: d_v_pt
+      type(ConnectionPt) :: s_pt,d_pt
+      type(ActualPtVec_MapIterator) :: iter
+
+      associate( &
+           src_pt => this%get_source(), &
+           dst_pt => this%get_destination() &
+           )
+        dst_registry => registry%get_subregistry(dst_pt)
+        
+        ! TODO: Move this into a separate procedure, or introduce
+        ! a 2nd type of connection
+        if (dst_pt%get_esmf_name() == '*') then
+           associate (range => dst_registry%get_range())
+             iter = range(1)
+             do while (iter /= range(2))
+                d_v_pt => iter%first()
+                if (d_v_pt%get_state_intent() /= 'import') cycle
+                s_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+                     d_v_pt%get_esmf_name(), &
+                     comp_name=d_v_pt%get_comp_name())
+                s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
+                d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
+                call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+                call iter%next()
+             end do
+           end associate
+           _RETURN(_SUCCESS)
+        end if
+        
+        src_registry => registry%get_subregistry(src_pt)
+        
+        _ASSERT(associated(src_registry), 'Unknown source registry')
+        _ASSERT(associated(dst_registry), 'Unknown destination registry')
+        
+        if (this%is_sibling()) then
+           ! TODO: do not need to send src_registry, as it can be derived from connection again.
+           call this%connect_sibling(dst_registry, src_registry, _RC)
+           _RETURN(_SUCCESS)
+        end if
+        
+        ! Non-sibling connection: just propagate pointer "up"
+        call this%connect_export_to_export(registry, src_registry, _RC)
+      end associate
+      
+      _RETURN(_SUCCESS)
+   end subroutine connect
+
+
+   subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
+      class(SimpleConnection), intent(in) :: this
+      type(HierarchicalRegistry), target, intent(in) :: dst_registry
+      type(HierarchicalRegistry), target, intent(inout) :: src_registry
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      type(StateItemSpecPtr), allocatable :: export_specs(:), import_specs(:)
+      class(AbstractStateItemSpec), pointer :: export_spec, import_spec
+      integer :: i, j
+      logical :: satisfied
+      integer :: status
+
+      associate (src_pt => this%get_source(), dst_pt => this%get_destination())
+
+        import_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
+        export_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
+          
+        do i = 1, size(import_specs)
+           import_spec => import_specs(i)%ptr
+           satisfied = .false.
+           
+           find_source: do j = 1, size(export_specs)
+              export_spec => export_specs(j)%ptr
+              
+              if (import_spec%can_connect_to(export_spec)) then
+                 call export_spec%set_active()
+                 call import_spec%set_active()
+                 
+                 if (import_spec%requires_extension(export_spec)) then
+                    call src_registry%extend(src_pt%v_pt, import_spec, _RC)
+                 else
+                    call import_spec%connect_to(export_spec, _RC)
+                 end if
+                 
+                 
+                 satisfied = .true.
+                 exit find_source
+              end if
+           end do find_source
+           
+           _ASSERT(satisfied,'no matching actual export spec found')
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine connect_sibling
+
+   subroutine connect_export_to_export(this, registry, src_registry, unusable, rc)
+      class(SimpleConnection), intent(in) :: this
+      type(HierarchicalRegistry), intent(inout) :: registry
+      type(HierarchicalRegistry), intent(in) :: src_registry
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      type(ActualPtVectorIterator) :: iter
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ActualConnectionPt), pointer :: src_actual_pt
+      type(ActualConnectionPt), allocatable :: dst_actual_pt
+      type(ActualPtVector), pointer :: actual_pts
+      integer :: status
+
+      associate (src => this%get_source(), dst => this%get_destination())
+        associate (src_pt => src%v_pt, dst_pt => dst%v_pt)
+          _ASSERT(registry%virtual_pts%count(dst_pt) == 0, 'Specified virtual point already exists in this registry')
+          _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
+
+          actual_pts => src_registry%get_actual_pts(src_pt)
+          associate (e => actual_pts%end())
+            iter = actual_pts%begin()
+            do while (iter /= e)
+               src_actual_pt => iter%of()
+               
+               if (src_actual_pt%is_internal()) then
+                  ! Don't encode with comp name
+                  dst_actual_pt = ActualConnectionPt(dst_pt)
+               else
+                  dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
+               end if
+               
+               spec => src_registry%get_item_spec(src_actual_pt)
+               _ASSERT(associated(spec), 'This should not happen.')
+               call registry%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
+               call iter%next()
+            end do
+          end associate
+        end associate
+      end associate
+      
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   contains
+
+      function str_replace(buffer, pattern, replacement) result(new_str)
+         character(:), allocatable :: new_str
+         character(*), intent(in) :: buffer
+         character(*), intent(in) :: pattern
+         character(*), intent(in) :: replacement
+
+         integer :: idx
+
+         idx = scan(buffer, pattern)
+         new_str = buffer(:idx-1) // replacement // buffer(idx+len(pattern):)
+      end function str_replace
+
+   end subroutine connect_export_to_export
+
+ end module mapl3g_SimpleConnection

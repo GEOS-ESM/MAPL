@@ -11,7 +11,7 @@ module mapl3g_VirtualConnectionPt
    public :: operator(==)
 
    type :: VirtualConnectionPt
-!!$      private
+      private
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
       character(:), allocatable :: comp_name
