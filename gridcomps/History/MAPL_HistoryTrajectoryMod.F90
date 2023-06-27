@@ -43,6 +43,12 @@ module HistoryTrajectoryMod
       character(LEN=ESMF_MAXPATHLEN) :: file_name
       type(TimeData) :: time_info
       logical :: recycle_track
+      character(len=ESMF_MAXSTR) :: key_nc_index
+      character(len=ESMF_MAXSTR) :: key_nc_time
+      character(len=ESMF_MAXSTR) :: key_nc_lat
+      character(len=ESMF_MAXSTR) :: key_nc_lon
+      character(len=ESMF_MAXSTR) :: key_nc_one_variable
+
       contains
          procedure :: initialize
          procedure :: create_variable
@@ -79,6 +85,8 @@ module HistoryTrajectoryMod
 
          call formatter%open(trim(filename),pFIO_READ,_RC)
          basic_metadata = formatter%read(_RC)
+
+         
          call metadata%create(basic_metadata,trim(filename))
          num_times = metadata%get_dimension("time",_RC)
          allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
