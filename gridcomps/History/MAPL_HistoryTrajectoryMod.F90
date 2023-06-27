@@ -65,6 +65,7 @@ module HistoryTrajectoryMod
 
    interface HistoryTrajectory
       module procedure HistoryTrajectory_from_file
+      module procedure HistoryTrajectory_from_file2      
    end interface HistoryTrajectory
 
    contains
@@ -85,8 +86,6 @@ module HistoryTrajectoryMod
 
          call formatter%open(trim(filename),pFIO_READ,_RC)
          basic_metadata = formatter%read(_RC)
-
-         
          call metadata%create(basic_metadata,trim(filename))
          num_times = metadata%get_dimension("time",_RC)
          allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
@@ -103,7 +102,53 @@ module HistoryTrajectoryMod
 
          _RETURN(_SUCCESS)
 
-      end function HistoryTrajectory_from_file
+      end function HistoryTrajectory_from_file     
+
+
+
+      function HistoryTrajectory_from_file2(filename,sampler_spec,unusable,rc) result(trajectory)
+         type(HistoryTrajectory) :: trajectory
+         character(len=*), intent(in) :: filename
+         character(len=*), optional, intent(in) :: sampler_spec         
+         class (KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+         integer :: status
+
+         type(NetCDF4_FileFormatter) :: formatter
+         type(FileMetadataUtils) :: metadata
+         type(FileMetadata) :: basic_metadata
+         integer :: num_times
+
+         character(len=5) :: obs_type
+
+         obs_type='track'
+         if (present(sampler_spec)) then
+            if ( sampler_spec(1:4) == 'ioda') obs_type='ioda'
+         end if
+         print*, 'obs_type:', obs_type
+            
+         _UNUSED_DUMMY(unusable)
+
+         call formatter%open(trim(filename),pFIO_READ,_RC)
+         basic_metadata = formatter%read(_RC)         
+         call metadata%create(basic_metadata,trim(filename))
+         num_times = metadata%get_dimension("time",_RC)
+         allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
+         if (metadata%is_var_present("longitude")) then
+            call formatter%get_var("longitude",trajectory%lons,_RC)
+         end if
+         if (metadata%is_var_present("latitude")) then
+            call formatter%get_var("latitude",trajectory%lats,_RC)
+         end if
+
+         call metadata%get_time_info(timeVector=trajectory%times,_RC)
+         trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
+         trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
+
+         _RETURN(_SUCCESS)
+
+      end function HistoryTrajectory_from_file2
+      
 
       subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
          class(HistoryTrajectory), intent(inout) :: this

@@ -880,6 +880,16 @@ contains
             label=trim(string) // 'sampler_spec:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obs_file, default="", &
+            label=trim(string) // 'obs_file:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%nc_index, default="", &
+            label=trim(string) // 'nc_Index:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%nc_time, default="", &
+            label=trim(string) // 'nc_Time:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%nc_longitude, default="", &
+            label=trim(string) // 'nc_Longitude:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%nc_latitude, default="", &
+            label=trim(string) // 'nc_Latitude:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
@@ -2388,6 +2398,9 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+          elseif (list(n)%sampler_spec == 'ioda_loc_stream') then
+             list(n)%trajectory = HistoryTrajectory(trim(list(n)%iodafile),_RC)
+!             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)

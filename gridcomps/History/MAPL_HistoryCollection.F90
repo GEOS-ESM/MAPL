@@ -104,6 +104,7 @@ module MAPL_HistoryCollectionMod
      type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
+     character(len=ESMF_MAXPATHLEN)     :: obs_file
      character(len=ESMF_MAXPATHLEN)     :: stationIdFile
      logical                            :: splitField
      logical                            :: regex
@@ -113,6 +114,11 @@ module MAPL_HistoryCollectionMod
      type(StationSampler)               :: station_sampler
      character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
+     character(len=ESMF_MAXSTR)         :: nc_index
+     character(len=ESMF_MAXSTR)         :: nc_time
+     character(len=ESMF_MAXSTR)         :: nc_latitude
+     character(len=ESMF_MAXSTR)         :: nc_longitude
+
      type(HistoryCollectionGlobalAttributes) :: global_atts
      contains
         procedure :: AddGrid
