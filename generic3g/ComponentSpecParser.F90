@@ -10,7 +10,9 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
+   use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_SimpleConnection
+   use mapl3g_ReexportConnection
    use mapl3g_ConnectionVector
    use mapl3g_VerticalDimSpec
    use mapl3g_UngriddedDimsSpec
@@ -327,7 +329,7 @@ contains
       integer, optional, intent(out) :: rc
 
       class(NodeIterator), allocatable :: iter, e
-      type(SimpleConnection) :: connection
+      class(Connection), allocatable :: conn
       class(YAML_Node), pointer :: conn_spec
       integer :: status
 
@@ -339,16 +341,16 @@ contains
       allocate(iter, source=config%begin())
       do while (iter /= e)
          conn_spec => iter%at(_RC)
-         connection = process_connection(conn_spec, _RC)
-         call connections%push_back(connection)
+         conn = process_connection(conn_spec, _RC)
+         call connections%push_back(conn)
          call iter%next()
       end do
 
       _RETURN(_SUCCESS)
    contains
 
-      function process_connection(config, rc) result(connection)
-         type(SimpleConnection) :: connection
+      function process_connection(config, rc) result(conn)
+         class(Connection), allocatable :: conn
          class(YAML_Node), optional, intent(in) :: config
          integer, optional, intent(out) :: rc
 
@@ -360,7 +362,7 @@ contains
          call get_comps(config, src_comp, dst_comp, _RC)
 
          if (config%has('all_unsatisfied')) then
-            connection = SimpleConnection( &
+            conn = SimpleConnection( &
                  ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
                  ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
                  )
@@ -374,9 +376,15 @@ contains
               src_pt => VirtualConnectionPt(state_intent=src_intent, short_name=src_name), &
               dst_pt => VirtualConnectionPt(state_intent=dst_intent, short_name=dst_name) )
 
-           connection = SimpleConnection( &
+           if (dst_intent == 'export') then
+              conn = ReexportConnection( &
                 ConnectionPt(src_comp, src_pt), &
                 ConnectionPt(dst_comp, dst_pt))
+           else
+              conn = SimpleConnection( &
+                   ConnectionPt(src_comp, src_pt), &
+                   ConnectionPt(dst_comp, dst_pt))
+           end if
 
          end associate
 
