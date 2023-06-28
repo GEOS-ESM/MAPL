@@ -24,8 +24,10 @@ module mapl3g_HierarchicalRegistry
    implicit none
    private
 
-   public :: Connection
    public :: HierarchicalRegistry
+   ! To avoid circular dependencies, this module defines a 2nd collaborating
+   ! base type: Connection
+   public :: Connection
 
    type, extends(AbstractRegistry) :: HierarchicalRegistry
       private
@@ -33,7 +35,7 @@ module mapl3g_HierarchicalRegistry
       
       type(StateItemVector) :: local_specs ! specs for items "owned" by gridcomp
       type(ActualPtSpecPtrMap) :: actual_specs_map ! all items in states of gridcomp
-      type(ActualPtVec_Map), public :: virtual_pts     ! Grouping of items with shared virtual connection point
+      type(ActualPtVec_Map) :: virtual_pts     ! Grouping of items with shared virtual connection point
 
       ! Hierarchy/tree aspect
       type(RegistryPtrMap) :: subregistries
@@ -85,8 +87,6 @@ module mapl3g_HierarchicalRegistry
       generic :: propagate_exports => propagate_exports_virtual_pt
 
       procedure :: add_connection
-!!$      procedure :: connect_sibling
-!!$      procedure :: connect_export_to_export
       procedure :: extend => extend_
       procedure :: add_state_extension
 
@@ -814,23 +814,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt
 
-
-!!$   subroutine create_extensions(this, extensions, multi_state, rc)
-!!$      class(HierarchicalRegistry), intent(in) :: this
-!!$      type(ExtensionVector), intent(out) :: extensions
-!!$      type(MultiState), intent(inout) :: multi_state
-!!$      integer, optional, intent(out) :: rc
-!!$
-!!$      integer :: status
-!!$
-!!$      do i = 1, this%extension_specs%size()
-!!$         extension_spec => this%extension_specs%of(i)
-!!$
-!!$         extension = extension_spec%make_extension(multi_state, _RC)
-!!$         call extensions%push_back(extension)
-!!$      end do
-!!$         
-!!$   end subroutine create_extensions
 
 
    function get_range(this) result(range)
