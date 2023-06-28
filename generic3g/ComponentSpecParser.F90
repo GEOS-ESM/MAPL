@@ -12,6 +12,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_VariableSpecVector
    use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_SimpleConnection
+   use mapl3g_MatchConnection
    use mapl3g_ReexportConnection
    use mapl3g_ConnectionVector
    use mapl3g_VerticalDimSpec
@@ -362,7 +363,7 @@ contains
          call get_comps(config, src_comp, dst_comp, _RC)
 
          if (config%has('all_unsatisfied')) then
-            conn = SimpleConnection( &
+            conn = MatchConnection( &
                  ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
                  ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
                  )
