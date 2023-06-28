@@ -3,7 +3,7 @@
 module mapl3g_ComponentSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionVector
-   use mapl3g_SimpleConnection
+   use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector
    use mapl_ErrorHandling
@@ -45,10 +45,10 @@ contains
    end subroutine add_var_spec
 
 
-   subroutine add_connection(this, connection)
+   subroutine add_connection(this, conn)
       class(ComponentSpec), intent(inout) :: this
-      type(SimpleConnection), intent(in) :: connection
-      call this%connections%push_back(connection)
+      class(Connection), intent(in) :: conn
+      call this%connections%push_back(conn)
    end subroutine add_connection
 
 

@@ -8,6 +8,7 @@ target_sources(MAPL.generic3g PRIVATE
 
    SimpleConnection.F90
    ReexportConnection.F90
+   MatchConnection.F90
 
    ConnectionVector.F90
   )
