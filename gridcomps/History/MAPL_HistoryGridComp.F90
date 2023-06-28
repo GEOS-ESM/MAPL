@@ -3372,6 +3372,8 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = .true.
+      else if (list(n)%sampler_spec == 'ioda_loc_stream') then
+         Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
       else if (trim(list(n)%output_grid_label)=='SwathGrid') then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
 !!         Writing(n)= .false.

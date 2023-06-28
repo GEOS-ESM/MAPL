@@ -392,11 +392,13 @@ contains
 
     rc=-1
     if ( x < xa(klo) ) then
+       write(6,*) 'bisect  x < LB'
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=klo
 !!       _FAIL('error in bisect_find_LB_R8_I8')
        return
     elseif ( x > xa(khi) ) then
+       write(6,*) 'bisect  x > UB'
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=khi
 !!       _FAIL('error in bisect_find_LB_R8_I8')
