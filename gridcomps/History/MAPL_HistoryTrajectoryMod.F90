@@ -3,151 +3,126 @@
 
 module HistoryTrajectoryMod
 
-   use ESMF
-   use MAPL_ErrorHandlingMod
-   use MAPL_KeywordEnforcerMod
-   use MAPL_FileMetadataUtilsMod
-   use LocStreamFactoryMod
-   use pFIO
-   use MAPL_GriddedIOItemVectorMod
-   use MAPL_GriddedIOItemMod
-   use MAPL_TimeDataMod
-   use MAPL_VerticalDataMod
-   use MAPL_BaseMod
-   use MAPL_CommsMod
-   use MAPL_LocstreamRegridderMod
-   use, intrinsic :: iso_fortran_env, only: REAL32
-   use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none
-   private
+  use ESMF
+  use MAPL_ErrorHandlingMod
+  use MAPL_KeywordEnforcerMod
+  use MAPL_FileMetadataUtilsMod
+  use LocStreamFactoryMod
+  use pFIO
+  use netcdf
+  use MAPL_GriddedIOItemVectorMod
+  use MAPL_GriddedIOItemMod
+  use MAPL_TimeDataMod
+  use MAPL_VerticalDataMod
+  use MAPL_BaseMod
+  use MAPL_CommsMod
+  use MAPL_LocstreamRegridderMod
+  use MAPL_plain_netCDF_Time
+  use, intrinsic :: iso_fortran_env, only: REAL32
+  use, intrinsic :: iso_fortran_env, only: REAL64
+  implicit none
+  private
 
-   public :: HistoryTrajectory
+  public :: HistoryTrajectory
 
-   type :: HistoryTrajectory
-      private
-      type(ESMF_LocStream) :: root_locstream,dist_locstream
-      type(LocStreamFactory) :: locstream_factory
-      type(ESMF_Time), allocatable :: times(:)
-      real(kind=REAL64), allocatable :: lons(:),lats(:)
-      type(ESMF_FieldBundle) :: bundle
-      type(ESMF_FieldBundle) :: output_bundle
-      integer :: number_written
-      type(GriddedIOitemVector) :: items
-      type(FileMetadata) :: metadata
-      type(VerticalData) :: vdata
-      logical :: do_vertical_regrid
-      type(NetCDF4_FileFormatter) :: file_handle
-      type(LocstreamRegridder) :: regridder
-      integer :: previous_index
-      type(ESMF_Time) :: previous_time
-      character(LEN=ESMF_MAXPATHLEN) :: file_name
-      type(TimeData) :: time_info
-      logical :: recycle_track
-      character(len=ESMF_MAXSTR) :: key_nc_index
-      character(len=ESMF_MAXSTR) :: key_nc_time
-      character(len=ESMF_MAXSTR) :: key_nc_lat
-      character(len=ESMF_MAXSTR) :: key_nc_lon
-      character(len=ESMF_MAXSTR) :: key_nc_one_variable
+  type :: HistoryTrajectory
+     private
+     type(ESMF_LocStream)    :: root_locstream,dist_locstream
+     type(LocStreamFactory)  :: locstream_factory
+     type(ESMF_Clock)        :: clock
+     type(ESMF_Alarm)        :: alarm
+     type(ESMF_Time), allocatable :: times(:)
+     real(kind=REAL64), allocatable :: lons(:)
+     real(kind=REAL64), allocatable :: lats(:)     
+     real(kind=REAL32), allocatable :: obs_time(:)
+     real(kind=REAL64), allocatable :: X_full(:)
+     real(kind=REAL64), allocatable :: Y_full(:)     
+     real(kind=REAL64), allocatable :: T_full(:)     
 
-      contains
-         procedure :: initialize
-         procedure :: create_variable
-         procedure :: create_file_handle
-         procedure :: close_file_handle
-         procedure :: append_file
-         procedure :: get_current_interval
-         procedure :: compute_times_for_interval
-         procedure :: create_output_bundle
-         procedure :: get_file_start_time
-         procedure :: get
-         procedure :: reset_times_to_current_day
-   end type
-
-   interface HistoryTrajectory
-      module procedure HistoryTrajectory_from_file
-      module procedure HistoryTrajectory_from_file2      
-   end interface HistoryTrajectory
+     type(ESMF_FieldBundle) :: bundle
+     type(ESMF_FieldBundle) :: output_bundle
+     integer :: number_written
+     type(GriddedIOitemVector) :: items
+     type(FileMetadata) :: metadata
+     type(VerticalData) :: vdata
+     logical :: do_vertical_regrid
+     type(NetCDF4_FileFormatter) :: file_handle
+     type(LocstreamRegridder) :: regridder
+     integer :: previous_index
+     type(ESMF_Time) :: previous_time
+     character(LEN=ESMF_MAXPATHLEN) :: file_name
+     type(TimeData) :: time_info
+     logical :: recycle_track
+     character(len=ESMF_MAXSTR) :: key_nc_index
+     character(len=ESMF_MAXSTR) :: key_nc_time
+     character(len=ESMF_MAXSTR) :: key_nc_lat
+     character(len=ESMF_MAXSTR) :: key_nc_lon
+     character(len=ESMF_MAXSTR) :: key_nc_one_variable
+     character(len=ESMF_MAXSTR) :: tunit
+     integer :: epoch                         ! unit: second
+     integer(ESMF_KIND_I8) :: epoch_index(4)  ! js, je
 
    contains
+     procedure :: initialize
+     procedure :: create_variable
+     procedure :: create_file_handle
+     procedure :: close_file_handle
+     procedure :: append_file
+     procedure :: get_current_interval
+     procedure :: compute_times_for_interval
+     procedure :: create_output_bundle
+     procedure :: get_file_start_time
+     procedure :: get
+     procedure :: reset_times_to_current_day
+!     procedure :: add_metadata
+!     procedure :: create_LS_RH
+!     procedure :: destroy_LS_RH
+!     procedure :: regrid_accumulate     
+     
+  end type HistoryTrajectory
 
-      function HistoryTrajectory_from_file(filename,unusable,rc) result(trajectory)
-         type(HistoryTrajectory) :: trajectory
-         character(len=*), intent(in) :: filename
-         class (KeywordEnforcer), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-         integer :: status
+  interface HistoryTrajectory
+     module procedure HistoryTrajectory_from_file
+     module procedure HistoryTrajectory_from_config
+  end interface HistoryTrajectory
 
-         type(NetCDF4_FileFormatter) :: formatter
-         type(FileMetadataUtils) :: metadata
-         type(FileMetadata) :: basic_metadata
-         integer :: num_times
+contains
 
-         _UNUSED_DUMMY(unusable)
+  function HistoryTrajectory_from_file(filename,unusable,rc) result(trajectory)
+    type(HistoryTrajectory) :: trajectory
+    character(len=*), intent(in) :: filename
+    class (KeywordEnforcer), optional, intent(in) :: unusable
+    integer, optional, intent(out) :: rc
+    integer :: status
 
-         call formatter%open(trim(filename),pFIO_READ,_RC)
-         basic_metadata = formatter%read(_RC)
-         call metadata%create(basic_metadata,trim(filename))
-         num_times = metadata%get_dimension("time",_RC)
-         allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
-         if (metadata%is_var_present("longitude")) then
-            call formatter%get_var("longitude",trajectory%lons,_RC)
-         end if
-         if (metadata%is_var_present("latitude")) then
-            call formatter%get_var("latitude",trajectory%lats,_RC)
-         end if
+    type(NetCDF4_FileFormatter) :: formatter
+    type(FileMetadataUtils) :: metadata
+    type(FileMetadata) :: basic_metadata
+    integer :: num_times
 
-         call metadata%get_time_info(timeVector=trajectory%times,_RC)
-         trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
-         trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
+    _UNUSED_DUMMY(unusable)
 
-         _RETURN(_SUCCESS)
+    call formatter%open(trim(filename),pFIO_READ,_RC)
+    basic_metadata = formatter%read(_RC)
+    call metadata%create(basic_metadata,trim(filename))
+    num_times = metadata%get_dimension("time",_RC)
+    allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
+    if (metadata%is_var_present("longitude")) then
+       call formatter%get_var("longitude",trajectory%lons,_RC)
+    end if
+    if (metadata%is_var_present("latitude")) then
+       call formatter%get_var("latitude",trajectory%lats,_RC)
+    end if
 
-      end function HistoryTrajectory_from_file     
+    call metadata%get_time_info(timeVector=trajectory%times,_RC)
+    trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
+    trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
+
+    _RETURN(_SUCCESS)
+
+  end function HistoryTrajectory_from_file
 
 
-
-      function HistoryTrajectory_from_file2(filename,sampler_spec,unusable,rc) result(trajectory)
-         type(HistoryTrajectory) :: trajectory
-         character(len=*), intent(in) :: filename
-         character(len=*), optional, intent(in) :: sampler_spec         
-         class (KeywordEnforcer), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-         integer :: status
-
-         type(NetCDF4_FileFormatter) :: formatter
-         type(FileMetadataUtils) :: metadata
-         type(FileMetadata) :: basic_metadata
-         integer :: num_times
-
-         character(len=5) :: obs_type
-
-         obs_type='track'
-         if (present(sampler_spec)) then
-            if ( sampler_spec(1:4) == 'ioda') obs_type='ioda'
-         end if
-         print*, 'obs_type:', obs_type
-            
-         _UNUSED_DUMMY(unusable)
-
-         call formatter%open(trim(filename),pFIO_READ,_RC)
-         basic_metadata = formatter%read(_RC)         
-         call metadata%create(basic_metadata,trim(filename))
-         num_times = metadata%get_dimension("time",_RC)
-         allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
-         if (metadata%is_var_present("longitude")) then
-            call formatter%get_var("longitude",trajectory%lons,_RC)
-         end if
-         if (metadata%is_var_present("latitude")) then
-            call formatter%get_var("latitude",trajectory%lats,_RC)
-         end if
-
-         call metadata%get_time_info(timeVector=trajectory%times,_RC)
-         trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
-         trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
-
-         _RETURN(_SUCCESS)
-
-      end function HistoryTrajectory_from_file2
       
 
       subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
@@ -616,4 +591,198 @@ module HistoryTrajectoryMod
 
       end subroutine reset_times_to_current_day
 
+
+
+  function HistoryTrajectory_from_config(clock,config,string,rc) result(traj)
+    implicit none
+    type(HistoryTrajectory)          :: traj
+    type(ESMF_Clock),  intent(in)    :: clock
+    type(ESMF_Config), intent(inout) :: config
+    character(len=*), intent(in)     :: string         
+    integer, optional, intent(out)   :: rc
+    integer :: status
+
+    type(NetCDF4_FileFormatter) :: formatter
+    type(FileMetadataUtils) :: metadata
+    type(FileMetadata) :: basic_metadata
+    integer :: num_times
+
+    character(len=ESMF_MAXSTR) :: filename         
+    character(len=5) :: obs_type
+    character(len=ESMF_MAXSTR)         :: obs_file
+    character(len=ESMF_MAXSTR)         :: nc_index
+    character(len=ESMF_MAXSTR)         :: nc_time
+    character(len=ESMF_MAXSTR)         :: nc_latitude
+    character(len=ESMF_MAXSTR)         :: nc_longitude
+
+    !!        type(FileMetadata) :: fmd_new
+    real(kind=REAL32), allocatable :: data_real32(:)
+    integer :: ncid, grpid, ncid0
+    integer :: dimid(10),  dimlen(10)
+    integer :: len
+    character(len=ESMF_MAXSTR) :: grp_name
+    character(len=ESMF_MAXSTR) :: dim_name(10)
+    character(len=ESMF_MAXSTR) :: var_name_lon
+    character(len=ESMF_MAXSTR) :: var_name_lat
+    character(len=ESMF_MAXSTR) :: var_name_time
+
+    character(len=ESMF_MAXSTR) :: time_string
+    integer :: time_integer
+    type(ESMF_Time)            :: RingTime_epoch
+    type(ESMF_Time)            :: startTime
+    type(ESMF_Time)         :: currTime
+    type(ESMF_TimeInterval) :: timeStep
+    type(ESMF_TimeInterval)  :: Frequency_epoch
+    
+
+    real(REAL64), allocatable :: wksp(:)
+    integer, allocatable :: iwksp(:)
+    type(FileMetadata) :: fmd_new
+
+    integer :: yy, mm, dd, h, m, s, sec, second
+    integer :: i, j
+    
+    type(ESMF_Time) :: time0
+    integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
+    real(ESMF_KIND_R8) :: jx0, jx1
+    real(ESMF_KIND_R8) :: x0, x1
+    integer :: khi, klo, k, nstart, max_iter
+
+
+
+    !__ 1. clock and alarm
+    !
+    traj%clock = clock
+    call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
+    call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
+    _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
+    traj%Epoch = time_integer
+    call hms_2_s (time_integer, second, _RC)
+    call ESMF_TimeIntervalSet(frequency_epoch, s=second, _RC)
+    traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency_epoch, &
+         RingTime=currTime, sticky=.false., _RC )
+    
+
+    !__ 2. read nc + sort time
+    !
+    call ESMF_ConfigGetAttribute(config, value=obs_file, default="", &
+         label=trim(string) // 'obs_file:', _RC)
+    call ESMF_ConfigGetAttribute(config, value=nc_index, default="", &
+         label=trim(string) // 'nc_Index:', _RC)
+    call ESMF_ConfigGetAttribute(config, value=nc_time, default="", &
+         label=trim(string) // 'nc_Time:', _RC)
+    call ESMF_ConfigGetAttribute(config, value=nc_longitude, default="", &
+         label=trim(string) // 'nc_Longitude:', _RC)
+    call ESMF_ConfigGetAttribute(config, value=nc_latitude, default="", &
+         label=trim(string) // 'nc_Latitude:', _RC)         
+
+    filename=obs_file
+    dim_name(1)=trim(nc_index)         
+    i=index(nc_longitude, '/')
+    if( i > 0 ) then
+       grp_name= nc_latitude(1:i-1)
+    else
+       grp_name= ''
+       _FAIL('lat/lon name wo grp_name not implemented in HistoryTraj_from_config')
+    endif
+    var_name_lat = nc_latitude(i+1:)
+    var_name_lon = nc_longitude(i+1:)
+    var_name_time= nc_time(i+1:)    
+
+
+    print*, __FILE__, __LINE__
+    print*, trim(obs_file)
+    print*, trim(nc_latitude)
+    print*, 'grp_name:', trim(grp_name)
+    
+
+    call formatter%open(filename, pFIO_READ, _RC)
+    fmd_new=formatter%read(_RC)
+    ncid0=formatter%ncid
+    call check_nc_status( nf90_inq_ncid(ncid0, grp_name, ncid), _RC )
+    grpid=ncid
+    do i=1, 1
+       call check_nc_status( nf90_inq_dimid(ncid, dim_name(i), dimid(i)), _RC )
+       call check_nc_status( nf90_inquire_dimension(ncid, dimid(i), len=dimlen(i)), _RC )
+    end do
+
+    len=dimlen(1)
+    allocate(traj%lons(len),_STAT)
+    allocate(traj%lats(len),_STAT)    
+    allocate(traj%obs_time(len),_STAT)
+
+    allocate(traj%X_full(len),_STAT)
+    allocate(traj%Y_full(len),_STAT)    
+    allocate(traj%T_full(len),_STAT)    
+    
+    call formatter%get_var(var_name_lon,  traj%X_full, group_name=grp_name, count=[len], rc=status)
+    call formatter%get_var(var_name_lat,  traj%Y_full, group_name=grp_name, count=[len], rc=status)
+    call formatter%get_var(var_name_time, traj%T_full, group_name=grp_name, count=[len], rc=status)    
+!    call check_nc_status( nf90_get_att(ncid, dim_name(i), dimid(i)), _RC )    
+!    ./NetCDF4_FileFormatter.F90
+
+
+    !
+    ! -- BUG:  get time unit from NC
+    !
+    traj%tunit='seconds since 1970-01-01T00:00:00Z'
+
+    allocate( wksp(len) )
+    allocate( iwksp(len) )    
+    call sort3(len, traj%T_full, traj%X_full, traj%Y_full, wksp, iwksp)
+    write(6,*) 'af get_var:  data_real32'
+    write(6,*)  traj%T_full(1:len:5000)
+    deallocate (wksp)
+!!    deallocate (iwksp)
+    
+    nstart = 1 
+    time0 = currTime
+    call time_esmf_2_nc_int (time0, traj%tunit, j0, _RC)
+    call hms_2_s (traj%Epoch, sec, _RC)
+    jx0= j0
+    jx1= j0 + sec
+    write(6,*) 'Epoch:', traj%Epoch
+    write(6,*) 'jx0, jx1', jx0, jx1
+
+
+    call bisect( traj%T_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(len, ESMF_KIND_I8), rc=rc)
+    call bisect( traj%T_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(len, ESMF_KIND_I8), rc=rc)
+
+    if (jt1==jt2) then
+       _FAIL('Epoch Time is too small, empty interval is generated, increase Epoch, STOP!')
+    endif
+    jt1 = jt1 + 1               ! (x1,x2]  design
+    traj%epoch_index(1)= jt1
+    traj%epoch_index(2)= jt2
+
+    write(6,*) 'epoch_index(1:2)', traj%epoch_index(1:2)
+    
+    !
+    !         call formatter%open(trim(filename),pFIO_READ,_RC)
+    !         basic_metadata = formatter%read(_RC)         
+    !         call metadata%create(basic_metadata,trim(filename))
+    !         num_times = metadata%get_dimension("time",_RC)
+    !         allocate(traj%lons(num_times),traj%lats(num_times),_STAT)
+    !         if (metadata%is_var_present("longitude")) then
+    !            call formatter%get_var("longitude",traj%lons,_RC)
+    !         end if
+    !         if (metadata%is_var_present("latitude")) then
+    !            call formatter%get_var("latitude",traj%lats,_RC)
+    !         end if
+    !         call metadata%get_time_info(timeVector=traj%times,_RC)
+    !
+    !         
+    !         traj%locstream_factory = LocStreamFactory(traj%lons,traj%lats,_RC)
+    !         traj%root_locstream = traj%locstream_factory%create_locstream(_RC)
+    !
+    _RETURN(_SUCCESS)
+
+  end function HistoryTrajectory_from_config
+
+  
 end module HistoryTrajectoryMod
+
+
+
+
+

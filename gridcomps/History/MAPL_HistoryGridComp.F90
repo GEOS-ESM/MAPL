@@ -2356,6 +2356,10 @@ ENDDO PARSER
     deallocate (export)
 
     do n=1,nlist
+       string = trim( list(n)%collection ) // '.'
+       cfg = ESMF_ConfigCreate(_RC)
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
+       !
        if (list(n)%disabled) cycle
        if (list(n)%format == 'CFIOasync') then
           list(n)%format = 'CFIO'
@@ -2399,7 +2403,7 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'ioda_loc_stream') then
-             list(n)%trajectory = HistoryTrajectory(trim(list(n)%iodafile),_RC)
+             list(n)%trajectory = HistoryTrajectory(clock,cfg,string,_RC)
 !             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
@@ -2422,6 +2426,8 @@ ENDDO PARSER
              endif
           end if
        end if
+       !
+       call ESMF_ConfigDestroy(cfg, _RC)
     end do
 
 ! Echo History List Data Structure
@@ -3440,6 +3446,36 @@ ENDDO PARSER
          endif
       end if
    end do epoch_swath_grid_case
+
+!   ! jedi_trajectory only
+!   jedi_trajectory_case: do n=1,nlist
+!      if (trim(list(n)%sampler_spec)=='ioda_loc_stream') then
+!         call list(n)%trajectory%
+!         call list(n)%%regrid_accumulate(list(n)%xsampler,_RC)
+!
+!         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+!            create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+!            if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+!
+!             ! add time to items
+!             if (.NOT. list(n)%xsampler%have_initalized) then
+!                list(n)%xsampler%have_initalized = .true.
+!                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+!             endif
+!             item%itemType = ItemTypeScalar
+!             item%xname = 'time'
+!             call list(n)%items%push_back(item)
+!             call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+!             call list(n)%mGriddedIO%destroy(_RC)
+!             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+!             call list(n)%items%pop_back()
+!
+!            collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
+!            call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+!         endif
+!      end if
+!   end do    
+
 
    
 ! Write Id and time
