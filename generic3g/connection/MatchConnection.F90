@@ -24,11 +24,6 @@ module mapl3g_MatchConnection
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
    contains
-!!$      procedure :: is_export_to_import
-!!$      procedure :: is_export_to_export
-!!$      procedure :: is_valid
-!!$      procedure :: is_sibling
-
       procedure :: get_source
       procedure :: get_destination
       procedure :: connect

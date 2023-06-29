@@ -22,8 +22,6 @@ module mapl3g_SimpleConnection
       type(ConnectionPt) :: source
       type(ConnectionPt) :: destination
    contains
-!!$      procedure :: is_valid
-
       procedure :: get_source
       procedure :: get_destination
       procedure :: connect
@@ -45,26 +43,6 @@ contains
       this%destination = destination
 
    end function new_SimpleConnection
-
-   ! Only certain combinations of state intents are supported by MAPL.
-   ! separate check must be performed elsewhere to ensure the
-   ! connections are either sibling to sibling or parent to child, as
-   ! component relationships are not available at this level.
-
-   logical function is_valid(this)
-      class(SimpleConnection), intent(in) :: this
-
-      associate (intents => [character(len=len('internal')) :: this%source%get_state_intent(), this%destination%get_state_intent()])
-        
-        is_valid = any( [ &
-             all( intents == ['export  ', 'import  '] ), &    ! E2I
-             all( intents == ['export  ', 'export  '] ), &    ! E2E
-             all( intents == ['internal', 'export  '] ), &    ! Z2E
-             all( intents == ['import  ', 'import  '] )  &    ! I2I
-             ])
-
-      end associate
-   end function is_valid
 
    function get_source(this) result(source)
       type(ConnectionPt) :: source
@@ -106,7 +84,6 @@ contains
       
       _RETURN(_SUCCESS)
    end subroutine connect
-
 
    subroutine connect_sibling(this, dst_registry, src_registry, unusable, rc)
       class(SimpleConnection), intent(in) :: this
