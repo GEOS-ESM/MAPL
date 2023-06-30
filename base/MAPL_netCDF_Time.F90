@@ -390,11 +390,12 @@ contains
        dk= -1
     endif
 
-    rc=-1
+    if(present(rc)) rc=-1
     if ( x < xa(klo) ) then
        write(6,*) 'bisect  x < LB'
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
-       n=klo
+       n=klo-1
+       if(present(rc)) rc=0       
 !!       _FAIL('error in bisect_find_LB_R8_I8')
        return
     elseif ( x > xa(khi) ) then
@@ -402,10 +403,12 @@ contains
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=khi
 !!       _FAIL('error in bisect_find_LB_R8_I8')
+       if(present(rc)) rc=0
        return
     elseif ( abs(khi - klo) == 1 ) then
        n=0
        _FAIL('error in bisect_find_LB_R8_I8, khi=klo+1')
+       if(present(rc)) rc=-1
        return
     endif
 
@@ -454,8 +457,6 @@ SUBROUTINE sort3(n,ra,rb,rc,wksp,iwksp)
 16    continue
       return
       END
-!C  (C) Copr. 1986-92 Numerical Recipes Software '>9m_L3.
-
 
 
 
@@ -537,8 +538,6 @@ SUBROUTINE indexx_R8(n,arr,indx)
       endif
       goto 1
       END SUBROUTINE indexx_R8
-!  (C) Copr. 1986-92 Numerical Recipes Software '>9m_L3.
-
 
 
 
@@ -620,6 +619,6 @@ SUBROUTINE indexx_integer(n,arr,indx)
       endif
       goto 1
       END SUBROUTINE indexx_integer
-!  (C) Copr. 1986-92 Numerical Recipes Software '>9m_L3.
+
       
 end module MAPL_Plain_NetCDF_Time

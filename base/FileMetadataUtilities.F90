@@ -300,6 +300,10 @@ module MAPL_FileMetadataUtilsMod
       type(ESMF_TimeInterval) :: tint
 
       fname = this%get_file_name(_RC)
+
+      ! group id is needed
+      !
+      !
       var => this%get_coordinate_variable('time',rc=status)
       _VERIFY(status)
       attr => var%get_attribute('units')

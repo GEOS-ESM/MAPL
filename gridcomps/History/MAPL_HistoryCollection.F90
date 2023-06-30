@@ -10,6 +10,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
   use StationSamplerMod
+  use IODASamplerMod  
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod
   implicit none
@@ -112,6 +113,7 @@ module MAPL_HistoryCollectionMod
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
      type(StationSampler)               :: station_sampler
+     type(IODASampler)                  :: ioda_sampler     
      character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
      character(len=ESMF_MAXSTR)         :: nc_index

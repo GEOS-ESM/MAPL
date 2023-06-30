@@ -27,7 +27,15 @@ module HistoryTrajectoryMod
       private
       type(ESMF_LocStream) :: root_locstream,dist_locstream
       type(LocStreamFactory) :: locstream_factory
-      type(ESMF_Time), allocatable :: times(:)
+!      type(ESMF_Time), allocatable :: times(:)
+      !  sort through integer
+      ! float 64; int 64; sort -->  ESMF_Time
+      ! [ epoch LB, UB ]
+      !
+      real*8 :: time(:)
+      nobs= 
+      ! compare sort, find index 
+     
       real(kind=REAL64), allocatable :: lons(:),lats(:)
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_FieldBundle) :: output_bundle
@@ -77,6 +85,8 @@ module HistoryTrajectoryMod
 
          _UNUSED_DUMMY(unusable)
 
+
+         
          call formatter%open(trim(filename),pFIO_READ,_RC)
          basic_metadata = formatter%read(_RC)
          call metadata%create(basic_metadata,trim(filename))
@@ -90,6 +100,16 @@ module HistoryTrajectoryMod
          end if
 
          call metadata%get_time_info(timeVector=trajectory%times,_RC)
+         !
+         ! min:  sort and return lat/lon/times(esmf)..
+         !
+         call reorder_time (trajectory, _RC)
+         !  meta/dateTime
+         !    unit = '''  netcdf unit from group...
+         !  API. ??
+         ! track_file = ioda_file
+         
+
          trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
          trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
 

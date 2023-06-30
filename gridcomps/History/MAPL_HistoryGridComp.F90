@@ -53,6 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
+  use IODASamplerMod  
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -2403,8 +2404,8 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'ioda_loc_stream') then
-             list(n)%trajectory = HistoryTrajectory(clock,cfg,string,_RC)
-!             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+             list(n)%ioda_sampler = IODASampler(clock,cfg,string,_RC)
+             call list(n)%ioda_sampler%add_metadata_route_handle(list(n)%bundle,vdata=list(n)%vdata,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3373,7 +3374,7 @@ ENDDO PARSER
       else if (list(n)%timeseries_output) then
          Writing(n) = .true.
       else if (list(n)%sampler_spec == 'ioda_loc_stream') then
-         Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
+         Writing(n) = ESMF_AlarmIsRinging ( list(n)%ioda_sampler%alarm )
       else if (trim(list(n)%output_grid_label)=='SwathGrid') then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
 !!         Writing(n)= .false.
@@ -3449,10 +3450,9 @@ ENDDO PARSER
       end if
    end do epoch_swath_grid_case
 
-!   ! jedi_trajectory only
-!   jedi_trajectory_case: do n=1,nlist
+!   ! ioda_sampler only
+!   do n=1,nlist
 !      if (trim(list(n)%sampler_spec)=='ioda_loc_stream') then
-!         call list(n)%trajectory%
 !         call list(n)%%regrid_accumulate(list(n)%xsampler,_RC)
 !
 !         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
@@ -3545,6 +3545,15 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
             list(n)%currentFile = filename(n)
+         elseif (list(n)%sampler_spec == 'ioda_loc_stream') then
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                    "IODA_sampler output to new file:",trim(filename(n)))
+               call list(n)%ioda_sampler%close_file_handle(_RC)
+               call list(n)%ioda_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) call lgr%debug('%a %a',&
