@@ -2372,7 +2372,7 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
 !             list(n)%trajectory = HistoryTrajectory(trim(list(n)%obsFile),_RC)
 !            call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
-             list(n)%trajectory = HistoryTrajectory(cfg,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
 
           elseif (list(n)%sampler_spec == 'station') then

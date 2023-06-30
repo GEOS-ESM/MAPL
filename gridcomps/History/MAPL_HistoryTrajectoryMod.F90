@@ -73,80 +73,92 @@ module HistoryTrajectoryMod
 
    contains
 
-      function HistoryTrajectory_from_config(filename,unusable,rc) result(trajectory)
-         type(HistoryTrajectory) :: trajectory
-         character(len=*), intent(in) :: filename
+      function HistoryTrajectory_from_config(config,string,unusable,rc) result(traj)
+         type(HistoryTrajectory) :: traj
+         type(ESMF_Config), intent(inout) :: config
+         character(len=*), intent(in)     :: string
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
          integer :: status
 
+         character(len=ESMF_MAXSTR) :: filename         
          type(NetCDF4_FileFormatter) :: formatter
          type(FileMetadataUtils) :: metadata_utils
          type(FileMetadata) :: basic_metadata
          integer :: num_times
 
+         integer :: ncid, grpid, ncid0
+         integer :: dimid(10),  dimlen(10)
+         integer :: len
+         character(len=ESMF_MAXSTR) :: grp_name
+         character(len=ESMF_MAXSTR) :: dim_name(10)
+         character(len=ESMF_MAXSTR) :: var_name_lon
+         character(len=ESMF_MAXSTR) :: var_name_lat
+         character(len=ESMF_MAXSTR) :: var_name_time
+         integer :: i, j
+
          _UNUSED_DUMMY(unusable)
 
          !__ nc_info
          !
-         call ESMF_ConfigGetAttribute(config, value=trajectory%obsFile, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%obsFile, default="", &
               label=trim(string) // 'obs_file:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=trajectory%nc_index, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_index, default="", &
               label=trim(string) // 'nc_Index:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=trajectory%nc_time, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_time, default="", &
               label=trim(string) // 'nc_Time:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=trajectory%nc_longitude, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_longitude, default="", &
               label=trim(string) // 'nc_Longitude:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=trajectory%nc_latitude, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_latitude, default="", &
               label=trim(string) // 'nc_Latitude:', _RC)
 
          call formatter%open(trim(filename),pFIO_READ,_RC)
-         if (trajectory%nc_index == '') then
+         if (traj%nc_index == '') then
             basic_metadata = formatter%read(_RC)
             call metadata_utils%create(basic_metadata,trim(filename))
             num_times = metadata_utils%get_dimension("time",_RC)
-            allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
+            allocate(traj%lons(num_times),traj%lats(num_times),_STAT)
             if (metadata_utils%is_var_present("longitude")) then
-               call formatter%get_var("longitude",trajectory%lons,_RC)
+               call formatter%get_var("longitude",traj%lons,_RC)
             end if
             if (metadata_utils%is_var_present("latitude")) then
-               call formatter%get_var("latitude",trajectory%lats,_RC)
+               call formatter%get_var("latitude",traj%lats,_RC)
             end if
          else
-            i=index(nc_longitude, '/')
+            i=index(traj%nc_longitude, '/')
             if( i > 0 ) then
-               grp_name = nc_latitude(1:i-1)
+               grp_name = traj%nc_longitude(1:i-1)
             else
                grp_name = ''
                _FAIL('lat/lon name wo grp_name not implemented in iodaSampler from_config')
             endif
-            var_name_lat = nc_latitude(i+1:)
-            var_name_lon = nc_longitude(i+1:)
-            var_name_time= nc_time(i+1:)
-            this%var_name_lat =  var_name_lat
-            this%var_name_lon =  var_name_lon
-            this%var_name_time=  var_name_time
+            var_name_lat = traj%nc_latitude(i+1:)
+            var_name_lon = traj%nc_longitude(i+1:)
+            var_name_time= traj%nc_time(i+1:)
+            traj%var_name_lat =  var_name_lat
+            traj%var_name_lon =  var_name_lon
+            traj%var_name_time=  var_name_time
 
             call formatter%open(trim(filename),pFIO_READ,_RC)
             basic_metadata = formatter%read(_RC)
             call metadata_utils%create(basic_metadata,trim(filename))
-            num_times = metadata%get_dimension(trim(nc_index),_RC)
+            num_times = metadata_utils%get_dimension(trim(nc_index),_RC)
             len = num_times
             ncid0=formatter%ncid
             call check_nc_status(nf90_inq_ncid(ncid0, grp_name, ncid), _RC)
 
-            allocate(trajectory%lons(num_times),trajectory%lats(num_times),_STAT)
-            call formatter%get_var(var_name_lon,  trajectory%lons, group_name=grp_name, count=[len], rc=status)
-            call formatter%get_var(var_name_lat,  trajectory%lats, group_name=grp_name, count=[len], rc=status)
-            call formatter%get_var(var_name_time, trajectory%times, group_name=grp_name, count=[len], rc=status)
+            allocate(traj%lons(num_times),traj%lats(num_times),_STAT)
+            call formatter%get_var(var_name_lon,  traj%lons, group_name=grp_name, count=[len], rc=status)
+            call formatter%get_var(var_name_lat,  traj%lats, group_name=grp_name, count=[len], rc=status)
+            call formatter%get_var(var_name_time, traj%times, group_name=grp_name, count=[len], rc=status)
          endif
 
          ! check here
-         call metadata%get_time_info(timeVector=trajectory%times,_RC)
-         call trajectory%sort_arrays_by_time(_RC)
+         call metadata%get_time_info(timeVector=traj%times,_RC)
+         call traj%sort_arrays_by_time(_RC)
 
-         trajectory%locstream_factory = LocStreamFactory(trajectory%lons,trajectory%lats,_RC)
-         trajectory%root_locstream = trajectory%locstream_factory%create_locstream(_RC)
+         traj%locstream_factory = LocStreamFactory(traj%lons,traj%lats,_RC)
+         traj%root_locstream = traj%locstream_factory%create_locstream(_RC)
 
          _RETURN(_SUCCESS)
 
@@ -627,7 +639,8 @@ module HistoryTrajectoryMod
          character(len=ESMF_MAXSTR) :: tunits
 
 
-
+         len = size (this%lons)
+         
          
 !         allocate( wksp(len) )
 !         allocate( iwksp(len) )
