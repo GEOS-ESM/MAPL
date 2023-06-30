@@ -50,7 +50,7 @@ contains
 
       type(ESMF_HConfig) :: input_config
       type(ESMF_HConfig) :: temp_configs
-      type(ESMF_HConfig) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
       character(len=:), allocatable :: hconfig_key
       type(ESMF_HConfig) :: single_sample,single_collection,single_export,rule_map,hconfig_val
 
