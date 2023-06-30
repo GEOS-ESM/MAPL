@@ -2,8 +2,8 @@
 
 module mapl3g_ComponentSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_ConnectionSpecVector
-   use mapl3g_ConnectionSpec
+   use mapl3g_ConnectionVector
+   use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector
    use mapl_ErrorHandling
@@ -16,7 +16,7 @@ module mapl3g_ComponentSpec
    type :: ComponentSpec
 !!$      private
       type(VariableSpecVector) :: var_specs
-      type(ConnectionSpecVector) :: connections
+      type(ConnectionVector) :: connections
    contains
       procedure :: add_var_spec
       procedure :: add_connection
@@ -31,7 +31,7 @@ contains
    function new_ComponentSpec(var_specs, connections) result(spec)
       type(ComponentSpec) :: spec
       type(VariableSpecVector), optional, intent(in) :: var_specs
-      type(ConnectionSpecVector), optional, intent(in) :: connections
+      type(ConnectionVector), optional, intent(in) :: connections
 
       if (present(var_specs)) spec%var_specs = var_specs
       if (present(connections)) spec%connections = connections
@@ -45,10 +45,10 @@ contains
    end subroutine add_var_spec
 
 
-   subroutine add_connection(this, connection)
+   subroutine add_connection(this, conn)
       class(ComponentSpec), intent(inout) :: this
-      type(ConnectionSpec), intent(in) :: connection
-      call this%connections%push_back(connection)
+      class(Connection), intent(in) :: conn
+      call this%connections%push_back(conn)
    end subroutine add_connection
 
 

@@ -70,21 +70,19 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_self
 
-   module subroutine finalize_self(this, clock, unusable, phase_name, rc)
+   module subroutine finalize_self(this, clock, unusable, phase_idx, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       class(ChildComponent), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional, intent(in) :: phase_name
+      integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      integer :: phase
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(this%gridcomp, _RC)
-      phase = get_phase_index(outer_meta%get_phases(ESMF_METHOD_FINALIZE), phase_name=phase_name, _RC)
 
       associate ( &
            importState => this%states%importState, &
@@ -92,7 +90,7 @@ contains
 
         call ESMF_GridCompFinalize(this%gridcomp, &
              importState=importState, exportState=exportState, clock=clock, &
-             phase=phase, userRC=userRC, _RC)
+             phase=phase_idx, userRC=userRC, _RC)
         _VERIFY(userRC)
       end associate
 

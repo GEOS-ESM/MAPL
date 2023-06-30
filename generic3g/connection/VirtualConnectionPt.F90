@@ -11,7 +11,7 @@ module mapl3g_VirtualConnectionPt
    public :: operator(==)
 
    type :: VirtualConnectionPt
-!!$      private
+      private
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
       character(:), allocatable :: comp_name
@@ -48,15 +48,19 @@ module mapl3g_VirtualConnectionPt
 
 contains
 
-   function new_VirtualPt_basic(state_intent, short_name) result(v_pt)
+   function new_VirtualPt_basic(state_intent, short_name, unusable, comp_name) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: comp_name
 
       v_pt%state_intent = state_intent
       v_pt%short_name = short_name
+      if (present(comp_name)) v_pt%comp_name = comp_name
 
-   end function new_VirtualPt_basic
+      _UNUSED_DUMMY(unusable)
+    end function new_VirtualPt_basic
 
    ! Must use keyword association for this form due to ambiguity of argument ordering
    function new_VirtualPt_string_intent(unusable, state_intent, short_name) result(v_pt)

@@ -113,24 +113,21 @@ contains
    end subroutine add_phase_
 
 
-   integer function get_phase_index_(phases, phase_name, unusable, rc) result(phase_index)
+   integer function get_phase_index_(phases, phase_name, unusable, found) result(phase_index)
       type(StringVector), intent(in) :: phases
       character(len=*), intent(in) :: phase_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+      logical, optional, intent(out) :: found
 
-      phase_index = -1
-      if (present(rc)) rc = _SUCCESS
+      phase_index = -1 ! unless
       
       associate (b => phases%begin(), e => phases%end())
         associate (iter => find(b, e, phase_name))
-          if (iter == phases%end()) return
-!!$          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name)//"> not found")
           phase_index = 1 + distance(b, iter)
+          if (present(found)) found = (iter /= e)
         end associate
       end associate
 
-      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_phase_index_
 

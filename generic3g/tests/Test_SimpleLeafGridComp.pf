@@ -130,7 +130,7 @@ contains
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
-      call ESMF_GridCompFinalize(outer_gc, rc=status)
+      call ESMF_GridCompFinalize(outer_gc, phase=GENERIC_FINALIZE_USER, rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasFinal_A", log)
 
