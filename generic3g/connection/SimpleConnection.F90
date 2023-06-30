@@ -67,21 +67,19 @@ contains
       type(VirtualConnectionPt), pointer :: d_v_pt
       type(ConnectionPt) :: s_pt,d_pt
       type(ActualPtVec_MapIterator) :: iter
+      type(ConnectionPt) :: src_pt, dst_pt
 
-      associate( &
-           src_pt => this%get_source(), &
-           dst_pt => this%get_destination() &
-           )
-        dst_registry => registry%get_subregistry(dst_pt)
-        src_registry => registry%get_subregistry(src_pt)
+      src_pt = this%get_source()
+      dst_pt = this%get_destination()
+
+      dst_registry => registry%get_subregistry(dst_pt)
+      src_registry => registry%get_subregistry(src_pt)
         
-        _ASSERT(associated(src_registry), 'Unknown source registry')
-        _ASSERT(associated(dst_registry), 'Unknown destination registry')
+      _ASSERT(associated(src_registry), 'Unknown source registry')
+      _ASSERT(associated(dst_registry), 'Unknown destination registry')
         
-        call this%connect_sibling(dst_registry, src_registry, _RC)
+      call this%connect_sibling(dst_registry, src_registry, _RC)
         
-      end associate
-      
       _RETURN(_SUCCESS)
    end subroutine connect
 

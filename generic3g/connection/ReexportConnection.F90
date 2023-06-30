@@ -65,12 +65,13 @@ contains
 
       integer :: status
       type(HierarchicalRegistry), pointer :: src_registry
+      type(ConnectionPt) :: src_pt
 
-      associate( src_pt => this%get_source() )
-        src_registry => registry%get_subregistry(src_pt)
-        _ASSERT(associated(src_registry), 'Unknown source registry')
-        call this%connect_export_to_export(registry, src_registry, _RC)
-      end associate
+      src_pt = this%get_source()
+      src_registry => registry%get_subregistry(src_pt)
+      _ASSERT(associated(src_registry), 'Unknown source registry')
+
+      call this%connect_export_to_export(registry, src_registry, _RC)
         
       _RETURN(_SUCCESS)
    end subroutine connect
