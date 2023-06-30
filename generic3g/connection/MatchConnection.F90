@@ -69,32 +69,31 @@ contains
       type(ConnectionPt) :: s_pt,d_pt
       type(ActualPtVec_MapIterator) :: iter
 
-      associate( &
-           src_pt => this%get_source(), &
-           dst_pt => this%get_destination() &
-           )
-        dst_registry => registry%get_subregistry(dst_pt)
-        ! TODO: Move this into a separate procedure, or introduce
-        ! a 2nd type of connection
-        if (dst_pt%get_esmf_name() == '*') then
-           associate (range => dst_registry%get_range())
-             iter = range(1)
-             do while (iter /= range(2))
-                d_v_pt => iter%first()
-                if (d_v_pt%get_state_intent() /= 'import') cycle
-                s_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
-                     d_v_pt%get_esmf_name(), &
-                     comp_name=d_v_pt%get_comp_name())
-                s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
-                d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
-                call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
-                call iter%next()
-             end do
-           end associate
-           _RETURN(_SUCCESS)
-        end if
-        
-      end associate
+      type(ConnectionPt) :: src_pt, dst_pt
+
+      src_pt = this%get_source()
+      dst_pt = this%get_destination()
+
+      dst_registry => registry%get_subregistry(dst_pt)
+      ! TODO: Move this into a separate procedure, or introduce
+      ! a 2nd type of connection
+      if (dst_pt%get_esmf_name() == '*') then
+         associate (range => dst_registry%get_range())
+           iter = range(1)
+           do while (iter /= range(2))
+              d_v_pt => iter%first()
+              if (d_v_pt%get_state_intent() /= 'import') cycle
+              s_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+                   d_v_pt%get_esmf_name(), &
+                   comp_name=d_v_pt%get_comp_name())
+              s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
+              d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
+              call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+              call iter%next()
+           end do
+         end associate
+         _RETURN(_SUCCESS)
+      end if
       
       _RETURN(_SUCCESS)
    end subroutine connect
