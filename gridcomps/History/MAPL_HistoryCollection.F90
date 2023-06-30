@@ -112,10 +112,6 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
      type(HistoryCollectionGlobalAttributes) :: global_atts
-     character(len=ESMF_MAXSTR)         :: nc_index
-     character(len=ESMF_MAXSTR)         :: nc_time
-     character(len=ESMF_MAXSTR)         :: nc_latitude
-     character(len=ESMF_MAXSTR)         :: nc_longitude
      contains
         procedure :: AddGrid
   end type HistoryCollection
