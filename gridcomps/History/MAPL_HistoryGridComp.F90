@@ -873,9 +873,9 @@ contains
             label=trim(string) // 'station_id_file:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obsFile, default="", &
                                     label=trim(string) // 'track_file:', _RC)
-       if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
+       if (trim(list(n)%obsFile) /= '') list(n)%timeseries_output = .true.
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
 
@@ -2338,6 +2338,9 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
+       string = trim( list(n)%collection ) // '.'
+       cfg = ESMF_ConfigCreate(_RC)
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
        if (list(n)%format == 'CFIOasync') then
           list(n)%format = 'CFIO'
           if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
@@ -2367,8 +2370,11 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
+!             list(n)%trajectory = HistoryTrajectory(trim(list(n)%obsFile),_RC)
+!            call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -2384,6 +2390,7 @@ ENDDO PARSER
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
        end if
+       call ESMF_ConfigDestroy(cfg, _RC)
    end do
 
 ! Echo History List Data Structure
