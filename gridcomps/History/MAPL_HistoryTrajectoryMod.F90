@@ -79,7 +79,7 @@ module HistoryTrajectoryMod
    contains
 
       function HistoryTrajectory_from_config(config,string,unusable,rc) result(traj)
-        use pflogger, only : Logger, logging
+         use pflogger, only : Logger, logging
          type(HistoryTrajectory) :: traj
          type(ESMF_Config), intent(inout) :: config
          character(len=*), intent(in)     :: string
@@ -155,16 +155,6 @@ module HistoryTrajectoryMod
 
             call traj%sort_arrays_by_time(_RC)
             call traj%time_real_to_ESMF(_RC)
-
-            lgr => logging%get_logger('HISTORY.sampler')
-            call lgr%debug('%a %a', trim(traj%obsFile))
-            call lgr%debug('%a %a', trim(traj%nc_index))
-            call lgr%debug('%a %a', trim(traj%nc_latitude))
-            call lgr%debug('%a %a', 'grp_name:', trim(grp_name))
-            call lgr%debug('%a %a', 'var_name_lat', traj%var_name_lat)
-            call lgr%debug('%a %a', 'var_name_time', traj%var_name_time)
-            !            call lgr%debug('%a %f10.1 %f10.1 %f10.1', 'done sort: traj%times_R8', traj%times_R8(1:20:10))
-            call lgr%debug('%a %f10.1', 'done sort: traj%times_R8', traj%times_R8(1))            
          endif
 
          traj%locstream_factory = LocStreamFactory(traj%lons,traj%lats,_RC)
