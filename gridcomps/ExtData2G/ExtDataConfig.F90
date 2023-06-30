@@ -158,9 +158,6 @@ contains
          ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",_RC)
       end if
 
-#ifdef __GFORTRAN__
-      end associate
-#endif
       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 
