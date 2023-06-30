@@ -16,9 +16,9 @@ program ExtData_Driver
   character(len=*), parameter :: Iam="ExtData_Driver"
   type(ExtDataDriver) :: Driver
   type (MAPL_CapOptions) :: cap_options
-  type (MAPL_FlapCLI) :: cli
+  type (MAPL_FargparseCLI) :: cli
 
-  cli = MAPL_FlapCLI(description='extdata driver',authors='gmao')
+  cli = MAPL_FargparseCLI()
   cap_options=MAPL_CapOptions(cli)
 
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)

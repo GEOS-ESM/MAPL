@@ -52,11 +52,13 @@
   use MAPL_DownbitMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
+  use StationSamplerMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
+  use pflogger, only: Logger, logging
 
   implicit none
   private
@@ -192,10 +194,10 @@ contains
 ! Diagnostics have the following attributes:
 !
 !1. Diagnostics may be `instantaneous` or `time-averaged`
-!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time` 
-!    from which the frequency is based. An `end_date` and `end_time` may also be 
+!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time`
+!    from which the frequency is based. An `end_date` and `end_time` may also be
 !    used to turn off diagnostics after a given date and time.
-!3. Time-Averaged Diagnostics have an associated accumulation interval, 
+!3. Time-Averaged Diagnostics have an associated accumulation interval,
 !    `acc_interval`, which may be <= to the diagnostic `frequency`
 !4. Diagnostics are `time-stamped` with the center of the time-averaged period.
 !5. The default `acc_interval` is the diagnostic `frequency`
@@ -207,7 +209,7 @@ contains
 ! History Lists contain the following attributes:
 !
 !- **filename**:     Character string defining the filename of a particular diagnostic output stream.
-!- **template**:     Character string defining the time stamping template following GrADS convensions. 
+!- **template**:     Character string defining the time stamping template following GrADS convensions.
 !    The default value depends on the duration of the file.
 !- **format**:       Character string defining file format ("flat" or "CFIO"). Default = "flat".
 !- **mode**:         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
@@ -861,10 +863,14 @@ contains
           end if
        end if
        if (has_regrid_keyword) then
-          call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
-                                         label=trim(string) // 'regrid_method:'  ,_RC )
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, label=trim(string) // 'regrid_method:'  ,_RC )
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
+
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_spec, default="", &
+            label=trim(string) // 'sampler_spec:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
+            label=trim(string) // 'station_id_file:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
@@ -1918,6 +1924,7 @@ ENDDO PARSER
         logical :: split
         character(ESMF_MAXSTR) :: field_name, alias_name, special_name
         integer :: m1, big, szf, szr
+        integer :: lungrd, trueUngridDims
         logical, allocatable               :: tmp_r8_to_r4(:)
         type(ESMF_FIELD), allocatable      :: tmp_r8(:)
         type(ESMF_FIELD), allocatable      :: tmp_r4(:)
@@ -2017,21 +2024,23 @@ ENDDO PARSER
 
                notGridded = count(gridToFieldMap==0)
                unGridDims = fieldRank - gridRank + notGridded
+               trueUnGridDims = unGridDims
 
-               hasUngridDims = .false.
                if (unGridDims > 0) then
-                  hasUngridDims = .true.
                   !ALT: special handling for 2d-MAPL grid (the vertical is treated as ungridded)
-                  if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert) .and. &
-                       (unGridDims == 1)) then
-                     hasUngridDims = .false.
+                  lungrd = 1
+                  if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert)) then
+                     trueUnGridDims = trueUnGridDims - 1
+                     lungrd = 2
                   end if
                endif
+               hasUngridDims = .false.
+               if (trueUnGridDims > 0) hasUngridDims = .true.
 
                if (hasUngridDims) then
                   allocate(ungriddedLBound(unGridDims), &
                        ungriddedUBound(unGridDims), &
-                       ungrd(unGridDims),           &
+                       ungrd(trueUnGridDims),           &
                        _STAT)
 
                   call ESMF_FieldGet(field, Array=array, _RC)
@@ -2043,7 +2052,7 @@ ENDDO PARSER
                   call ESMF_ArrayGet(array, undistLBound=ungriddedLBound, &
                        undistUBound=ungriddedUBound, _RC)
 
-                  ungrd = ungriddedUBound - ungriddedLBound + 1
+                  ungrd = ungriddedUBound(lungrd:) - ungriddedLBound(lungrd:) + 1
                   call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,_RC)
                   call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,_RC)
                   call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,_RC)
@@ -2360,6 +2369,9 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+          elseif (list(n)%sampler_spec == 'station') then
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
+             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
@@ -3198,6 +3210,7 @@ ENDDO PARSER
 !   ErrLog vars
     integer                        :: status
     logical                        :: file_exists
+    type(Logger), pointer          :: lgr
 
 !=============================================================================
 
@@ -3403,6 +3416,7 @@ ENDDO PARSER
             end if
          endif
 
+         lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
@@ -3412,6 +3426,15 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
             list(n)%currentFile = filename(n)
+         elseif (list(n)%sampler_spec == 'station') then
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                    "Station_data output to new file:",trim(filename(n)))
+               call list(n)%station_sampler%close_file_handle(_RC)
+               call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3558,6 +3581,10 @@ ENDDO PARSER
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
       end if
+      if (list(n)%sampler_spec == 'station') then
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+         call list(n)%station_sampler%append_file(current_time,_RC)
+      endif
 
       if( Writing(n) .and. list(n)%unit < 0) then
 
@@ -3583,9 +3610,9 @@ ENDDO PARSER
  end subroutine Run
 
 !======================================================
-!> 
+!>
 ! Finanlize the `MAPL_HistoryGridComp` component.
-!  
+!
   subroutine Finalize ( gc, import, export, clock, rc )
 
     type(ESMF_GridComp), intent(inout)    :: gc     !! composite gridded component
@@ -5077,7 +5104,7 @@ ENDDO PARSER
           call ESMF_StateGet(src, itemNames(n), bundle(1), _RC)
           call ESMF_StateAdd(dst, bundle, _RC)
        end if
-    end do 
+    end do
 
     deallocate(itemTypes)
     deallocate(itemNames)
