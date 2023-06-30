@@ -139,21 +139,20 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       
       outer_meta => get_outer_meta(gridcomp, _RC)
-
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
       case (GENERIC_INIT_GRID)
-         call outer_meta%initialize_geom(importState, exportState, clock, _RC)
+         call outer_meta%initialize_geom(clock, _RC)
       case (GENERIC_INIT_ADVERTISE)
-         call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
+         call outer_meta%initialize_advertise(clock, _RC)
       case (GENERIC_INIT_POST_ADVERTISE)
          call outer_meta%initialize_post_advertise(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
-         call outer_meta%initialize_realize(importState, exportState, clock, _RC)
+         call outer_meta%initialize_realize(clock, _RC)
 !!$      case (GENERIC_INIT_RESTORE)
-!!$         call outer_meta%initialize_realize(importState, exportState, clock, _RC)
+!!$         call outer_meta%initialize_realize(clock, _RC)
       case (GENERIC_INIT_USER)
-         call outer_meta%initialize_user(importState, exportState, clock, _RC)
+         call outer_meta%initialize_user(clock, _RC)
       case default
          _FAIL('Unknown generic phase ')
       end select
@@ -181,7 +180,7 @@ contains
 
       phases => outer_meta%get_phases(ESMF_METHOD_RUN)
       phase_name => phases%of(phase)
-      call outer_meta%run(importState, exportState, clock, phase_name=phase_name, _RC)
+      call outer_meta%run(clock, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run
