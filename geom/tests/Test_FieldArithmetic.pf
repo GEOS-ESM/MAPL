@@ -62,8 +62,8 @@ contains
       y_ptr = 3.0 
       result_array = x_ptr
       result_array = 5.0
-      call FieldAdd(x, x, y, _RC)
-      @assertEqual(x_ptr, result_array)
+      call FieldAdd(y, x, y, _RC)
+      @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR4
 
    @Test
@@ -83,8 +83,8 @@ contains
       y_ptr = reshape(source=[undef,3.0,3.0,undef],shape=[2,2])
       result_array = x_ptr
       result_array = reshape(source=[undef,5.0,5.0,undef],shape=[2,2])
-      call FieldAdd(x, x, y, _RC)
-      @assertEqual(x_ptr, result_array)
+      call FieldAdd(y, x, y, _RC)
+      @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR4_missing
 
    @Test
@@ -104,8 +104,8 @@ contains
       y_ptr = 3.d0
       result_array = x_ptr
       result_array = 5.d0
-      call FieldAdd(x, x, y, _RC)
-      @assertEqual(x_ptr, result_array)
+      call FieldAdd(y, x, y, _RC)
+      @assertEqual(y_ptr, result_array)
    end subroutine test_FieldAddR8
 
    @Test
