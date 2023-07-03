@@ -157,6 +157,13 @@ if (NOT Baselibs_FOUND)
       add_library(esmf ALIAS ESMF)
     endif()
   endif ()
+else ()
+  # This is an ESMF version test when using Baselibs which doesn't use the
+  # same find_package internally in ESMA_cmake as used above (with a version
+  # number) so this lets us at least trap use of old Baselibs here.
+  if (ESMF_VERSION VERSION_LESS 8.5.0)
+    message(FATAL_ERROR "ESMF must be at least 8.5.0")
+  endif ()
 endif ()
 
 # Due to use of a feature of ESMF that came in with ESMF v8.5.0b22,
