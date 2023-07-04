@@ -27,6 +27,8 @@ module mapl3g_VirtualConnectionPt
       procedure :: is_export
       procedure :: is_internal
 
+      procedure :: matches
+
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
    end type VirtualConnectionPt
@@ -198,5 +200,18 @@ contains
       write(unit, '("Virtual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
            this%get_state_intent(), this%get_full_name()
    end subroutine write_formatted
+
+   logical function matches(this, item)
+      class(VirtualConnectionPt), intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: item
+
+      if (this%get_full_name() == '*') then
+         matches = .true.
+         return
+      end if
+      matches = (this%get_state_intent() == item%get_state_intent()) .and. &
+                (this%get_full_name() == item%get_full_name())
+      
+   end function matches
 
 end module mapl3g_VirtualConnectionPt

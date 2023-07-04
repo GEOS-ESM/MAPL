@@ -6,6 +6,7 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
+   use mapl3g_VirtualConnectionPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemVector
    use mapl3g_RegistryPtr
@@ -92,7 +93,8 @@ module mapl3g_HierarchicalRegistry
 
       procedure :: allocate
 
-      procedure :: get_range
+!!$      procedure :: get_range
+      procedure :: filter
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -823,5 +825,27 @@ contains
       range(1) = this%virtual_pts%begin()
       range(2) = this%virtual_pts%end()
    end function get_range
+
+
+   function filter(this, pattern) result(matches)
+      type(VirtualConnectionPtVector) :: matches
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: pattern
+
+      type(VirtualConnectionPt), pointer :: v_pt
+      type(ActualPtVec_MapIterator) :: iter
+      
+      associate (e => this%virtual_pts%end())
+        iter = this%virtual_pts%begin()
+        do while (iter /= e)
+           v_pt => iter%first()
+
+           if (pattern%matches(v_pt)) call matches%push_back(v_pt)
+           
+           call iter%next()
+        end do
+      end associate
+
+   end function filter
 
 end module mapl3g_HierarchicalRegistry
