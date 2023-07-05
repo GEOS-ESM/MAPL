@@ -29,7 +29,6 @@ module MAPL_SwathGridFactoryMod
       character(len=:), allocatable :: grid_name
       character(len=:), allocatable :: grid_file_name      
 
-      ! Grid dimensions
       integer :: cell_across_swath
       integer :: cell_along_swath
       integer :: im_world = MAPL_UNDEFINED_INTEGER
@@ -37,12 +36,10 @@ module MAPL_SwathGridFactoryMod
       integer :: lm = MAPL_UNDEFINED_INTEGER
       logical :: force_decomposition = .false.
 
-      ! Epoch
       integer :: epoch                         ! unit: second
       integer(ESMF_KIND_I8) :: epoch_index(4)  ! is,ie,js,je
       character(len=ESMF_MAXSTR) :: tunit
       real(ESMF_KIND_R8), allocatable :: t_alongtrack(:)
-      real(kind=REAL64),  allocatable :: time_on_grid(:,:)
       
       ! Domain decomposition:
       integer :: nx = MAPL_UNDEFINED_INTEGER
@@ -52,8 +49,6 @@ module MAPL_SwathGridFactoryMod
       ! Used for halo
       type (ESMF_DELayout) :: layout
       logical :: initialized_from_metadata = .false.
-      !
-      type (ESMF_Config) :: configs(gridLabel_max)
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -104,7 +99,6 @@ module MAPL_SwathGridFactoryMod
 
 contains
 
-
    function SwathGridFactory_from_parameters(unusable, grid_name, &
         & im_world, jm_world, lm, nx, ny, ims, jms, rc) result(factory)
       type (SwathGridFactory) :: factory
@@ -127,8 +121,6 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-
-      _FAIL('Stop:  SwathGridFactory_from_parameters is not tested')
       
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
       call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
@@ -142,9 +134,8 @@ contains
       if (present(jms)) factory%jms = jms
 
       call factory%check_and_fill_consistency(_RC)
-
+      
       _RETURN(_SUCCESS)
-
    end function SwathGridFactory_from_parameters
 
 
@@ -158,8 +149,8 @@ contains
       _UNUSED_DUMMY(unusable)
       grid = this%create_basic_grid(_RC)
       call this%add_horz_coordinates_from_file(grid,_RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end function make_new_grid
 
 
@@ -190,23 +181,21 @@ contains
       end if
       call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)
       call ESMF_AttributeSet(grid, 'Global', .false., _RC)
-      _RETURN(_SUCCESS)      
 
+      _RETURN(_SUCCESS)      
    end function create_basic_grid
 
 
    subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
+      use pflogger,    only : Logger, logging
+      implicit none
       class (SwathGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
 
-      integer :: i_1, i_n, j_1, j_n  ! regional array bounds
-      integer :: ic_1,ic_n,jc_1,jc_n ! regional corner bounds
-
-      !! shared mem
       real(kind=ESMF_KIND_R8), pointer :: fptr(:,:)
       real, pointer :: centers(:,:)
       real, allocatable :: centers_full(:,:)
@@ -218,58 +207,44 @@ contains
       integer :: IM, JM
       integer :: IM_WORLD, JM_WORLD
       integer :: COUNTS(3), DIMS(3)
-      character(len=:), allocatable :: lon_center_name, lat_center_name, time_name
-      
+      integer :: i_1, i_n, j_1, j_n  ! regional array bounds
+      !      character(len=:), allocatable :: lon_center_name, lat_center_name, time_name
+      character(len=ESMF_MAXSTR) :: lon_center_name, lat_center_name, time_name      
+      type(Logger), pointer :: lgr
+
       _UNUSED_DUMMY(unusable)
 
       ! keywords in netCDF
       lon_center_name = "clon"
       lat_center_name = "clat"
-      time_name = "scanTime"
-      
-      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-
-      !- shared mem case in MPI
-      !
+      time_name = "scanTime"      
       Xdim=this%im_world
       Ydim=this%jm_world
-
       Xdim_full=this%cell_across_swath
       Ydim_full=this%cell_along_swath
-
+      
+      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)      
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
-      
-!!      write(6,*) 'Xdim, Ydim', Xdim, Ydim
-!!      write(6,*) 'Xdim_full, Ydim_full', Xdim_full, Ydim_full      
-!!      write(6,*) 'bf get_v2d_netcdf'
-!!      write(6,*) 'this%epoch_index(1:4)', this%epoch_index(1:4)
-      
 
-      ! read longitudes and set
+      ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          !
-          ! - read Epoch segment
-          !
           allocate( centers_full(Xdim_full, Ydim_full))
           call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers_full, Xdim_full, Ydim_full)
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-!!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
        end if
-       call MAPL_SyncSharedMemory(_RC)
-       
+       call MAPL_SyncSharedMemory(_RC)       
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+          staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
-
-       ! read latitudes and set
+       ! read latitudes 
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
           call get_v2d_netcdf(this%grid_file_name, lat_center_name, centers_full, Xdim_full, Ydim_full)
@@ -277,13 +252,11 @@ contains
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-!!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
        end if
        call MAPL_SyncSharedMemory(_RC)
-
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=fptr, rc=status)
@@ -294,8 +267,16 @@ contains
        else
           deallocate(centers)
        end if
+
+      lgr => logging%get_logger('HISTORY.sampler')
+      call lgr%debug('%a', 'test')
+      call lgr%debug('%a %i4 %i4',  'Xdim, Ydim', Xdim, Ydim)
+      call lgr%debug('%a %i4 %i4', 'Xdim_full, Ydim_full', Xdim_full, Ydim_full)
+      call lgr%debug('%a %i4 %i4 %i4 %i4', 'epoch_index(1:4)', &
+           this%epoch_index(1), this%epoch_index(2), &
+           this%epoch_index(3), this%epoch_index(4))
+       
       _RETURN(_SUCCESS)
-      
    end subroutine add_horz_coordinates_from_file
 
 
@@ -325,7 +306,6 @@ contains
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
       logical :: is_valid, use_file_coords, compute_lons, compute_lats
 
-      _FAIL ('fail: not tested:  subroutine initialize_from_file_metadata')
       _UNUSED_DUMMY(unusable)
 
       if (present(force_file_coordinates)) then
@@ -376,8 +356,6 @@ contains
                lm = file_metadata%get_dimension(lev_name,_RC)
             end if
          end if
-
-
     end associate
 
     call this%make_arbitrary_decomposition(this%nx, this%ny, _RC)
@@ -394,7 +372,6 @@ contains
     _RETURN(_SUCCESS)
 
    end subroutine initialize_from_file_metadata
-
 
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
@@ -445,8 +422,8 @@ contains
       this%grid_file_name = trim(filename)
       
       
-      ! read global dim from the whole nc file
-      ! --------------------------------------
+      ! read global dim from nc file
+      ! ----------------------------
       key_lon='cell_across_swath'
       key_lat='cell_along_swath'
       key_time='time'
@@ -1277,7 +1254,6 @@ contains
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-!!             if(mod(k,500)==1) write(6,*) centers(1:Xdim:20,k)
           enddo
           deallocate (centers_full)
        end if

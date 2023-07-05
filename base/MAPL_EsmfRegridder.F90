@@ -1654,7 +1654,7 @@ contains
 
      _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
      route_handle = transpose_route_handles%at(spec)
-     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
      iter = transpose_route_handles%find(spec)
      call transpose_route_handles%erase(iter)
 
