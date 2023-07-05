@@ -116,6 +116,7 @@ contains
             call import_spec%set_active()
                
             if (import_spec%requires_extension(export_spec)) then
+               _HERE, 'This logic should be fixed.  It bypasses connect_to() method.'
                call src_registry%extend(src_pt%v_pt, import_spec, _RC)
             else
                call import_spec%connect_to(export_spec, _RC)

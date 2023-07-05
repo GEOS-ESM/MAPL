@@ -360,8 +360,8 @@ contains
 
          if (ESMF_HConfigIsDefined(config,keyString='all_unsatisfied')) then
             conn = MatchConnection( &
-                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
-                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
+                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='.*')), &
+                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='.*'))  &
                  )
             _RETURN(_SUCCESS)
          end if

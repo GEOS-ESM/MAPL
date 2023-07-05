@@ -11,6 +11,7 @@ module mapl3g_MatchConnection
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
+   use mapl3g_AbstractStateItemSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -71,8 +72,8 @@ contains
       type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
       type(VirtualConnectionPt) :: src_pattern, dst_v_pt
       type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
-
-      integer :: i, j
+      type(StateItemSpecPtr), allocatable :: dst_specs(:)
+      integer :: i, j, k
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
@@ -83,6 +84,7 @@ contains
       dst_v_pts = dst_registry%filter(dst_pt%v_pt)
       do i = 1, dst_v_pts%size()
          dst_pattern => dst_v_pts%of(i)
+         dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pattern, _RC)
 
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
               dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
@@ -93,12 +95,28 @@ contains
 
             dst_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
                  src_v_pt%get_esmf_name(), comp_name=src_v_pt%get_comp_name())
-                   
-            associate ( &
+
+            associate (&
                  s_pt => ConnectionPt(src_pt%component_name, src_v_pt), &
                  d_pt => ConnectionPt(dst_pt%component_name, dst_v_pt) )
 
+              _HERE, dst_v_pt
+              _HERE, dst_pattern
+              _HERE, dst_v_pt == dst_pattern
+              print*
+              print*
+              if (dst_v_pt /= dst_pattern) then ! wildcard case
+                 _HERE
+                 ! In wildcard case, we need to create new virtual connection pts
+                 ! in the dst registry.
+                 ! For now, we require that it be unique
+                 _ASSERT(size(dst_specs) == 1, "Wildcard connection requires unique virtual connection point")
+                 _ASSERT(.not. dst_registry%has_item_spec(dst_v_pt), "Wildcard connection requires unique virtual connection point")
+                 call dst_registry%add_item_spec(dst_v_pt, dst_specs(1)%ptr, _RC)
+              end if
+
               call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+
             end associate
          end do
       end do

@@ -198,6 +198,10 @@ contains
 
       actual_pts => this%virtual_pts%at(virtual_pt, rc=status)
       if (status /= 0) allocate(specs(0))
+      if (status /= 0) then
+         _HERE, 'status = ', status
+         _HERE, virtual_pt
+      end if
       _VERIFY(status)
          
       n = actual_pts%size()
@@ -263,7 +267,6 @@ contains
       integer :: status
       type(ActualConnectionPt) :: actual_pt
 
-      
       actual_pt = ActualConnectionPt(virtual_pt)
       call this%add_item_spec(virtual_pt, spec, actual_pt, _RC)
 
