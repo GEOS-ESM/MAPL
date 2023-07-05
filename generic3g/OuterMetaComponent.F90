@@ -38,7 +38,6 @@ module mapl3g_OuterMetaComponent
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
-   use yaFyaml, only: YAML_Node
    use pflogger, only: logging, Logger
    implicit none
    private
@@ -398,7 +397,7 @@ contains
 
    subroutine set_yaml_config(this, config)
       class(OuterMetaComponent), intent(inout) :: this
-      class(YAML_Node), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
 
       allocate(this%config%yaml_cfg, source=config)
 
