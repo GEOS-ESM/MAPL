@@ -44,12 +44,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Created cubed-sphere grid factory with files split by face
 - Removed unneeded and confusing default in History Grid Comp (see #2081)
+- Fixes in CMake for fArgParse transition
 
 ### Removed
 
 ### Deprecated
 
 - Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
+  - Set option `BUILD_WITH_FLAP` to default `OFF`
 
 ## [2.39.4] - 2023-06-23
 

@@ -119,7 +119,7 @@ if (BUILD_WITH_PFLOGGER)
   endif()
 endif()
 
-option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+option(BUILD_WITH_FLAP "Use FLAP for command line processing" OFF)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
 endif ()
