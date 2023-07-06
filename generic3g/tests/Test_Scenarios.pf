@@ -29,8 +29,8 @@ module Test_Scenarios
 
    abstract interface
       subroutine I_check_stateitem(expectations, state, short_name, description, rc)
-         import YAML_Node, ESMF_State
-         class(YAML_Node), intent(in) :: expectations
+         import ESMF_HConfig, ESMF_State
+         type(ESMF_HConfig, intent(in) :: expectations
          type(ESMF_State), intent(inout) :: state
          character(*), intent(in) :: short_name
          character(*), intent(in) :: description
@@ -56,7 +56,7 @@ module Test_Scenarios
       character(:), allocatable :: check_name
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
 
-      class(YAML_Node), allocatable :: expectations
+      type(ESMF_HConfig), allocatable :: expectations
       type(ESMF_GridComp) :: outer_gc
       type(MultiState) :: outer_states
       type(ESMF_Grid) :: grid
@@ -141,7 +141,7 @@ contains
       class(Scenario), intent(inout) :: this
 
       type(Parser) :: p
-      class(Yaml_Node), allocatable :: yaml_cfg
+      type(ESMF_HConfig) :: yaml_cfg
       type(GenericConfig) :: config
       integer :: status, user_status
       type(ESMF_Clock) :: clock
@@ -153,7 +153,7 @@ contains
       p = Parser()
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
-      yaml_cfg = p%load_from_file(file_name, _RC)
+      yaml_config = ESMF_HConfigCreate(file_name=file_name)
 
       config = GenericConfig(yaml_cfg=yaml_cfg)
 
@@ -217,17 +217,17 @@ contains
       integer :: status
       integer :: i
       character(:), allocatable :: comp_path, item_name
-      class(YAML_NODE), pointer :: comp_expectations, expected_properties
+      type(ESMF_HConfig) :: comp_expectations, expected_properties
       type(MultiState) :: comp_states
-      class(YAML_NODE), pointer :: state_items
+      type(ESMF_HConfig) :: state_items
       integer :: item_count, expected_item_count
       type(ESMF_Field) :: field
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
 
-      components: do i = 1, this%expectations%size()
+      components: do i = 1, ESMF_HConfigGetSize(this%expectations)
 
-         comp_expectations => this%expectations%of(i)
+         comp_expectations = ESMF_HConfigCreateAt(this%expecations,index=i,_RC)
 
          call comp_expectations%get(comp_path, 'component', _RC)
          call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
@@ -245,44 +245,40 @@ contains
          integer, intent(out) :: rc
 
          integer :: status
-         class(NodeIterator), allocatable :: iter
-         class(YAML_NODE), pointer :: state_items
+         type(ESMF_HConfig) :: state_items
          type(ESMF_State) :: state
          character(:), allocatable :: msg
+         type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
          rc = -1
 
-         if (.not. comp_expectations%has(state_intent)) then
+         if (.not. ESMF_HConfigIsDefined(comp_expectations,keyString=state_intent)) then
             rc = 0 ! that's ok
             return
          end if
 
    
          msg = comp_path // '::' // state_intent
-         state_items => comp_expectations%at(state_intent, _RC)
-         @assertTrue(state_items%is_mapping(), msg)
+         state_items = ESMF_HConfigCreateAt(comp_expectations,keyString=state_intent,_RC)
+         @assertTrue(ESMF_HConfigIsMap(state_items), msg)
 
          call comp_states%get_state(state, state_intent, _RC)
 
 !!$         print*, state
+         hconfigIter = ESMF_HConfigIterBegin(state_items)
+         hconfigIterBegin = ESMF_HConfigIterBegin(state_items)
+         hconfigIterEnd = ESMF_HConfigIterEnd(state_items)
+         do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+            item_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
+            expected_properties = ESMF_HConfigCreatAtMapVal(hconfigIter,_RC)
 
-         associate (e => state_items%end())
-           allocate(iter, source=state_items%begin())
+             msg = comp_path // '::' // state_intent // '::' // item_name
 
-           do while (iter /= e)
-              item_name = to_string(iter%first(), _RC)
-
-              expected_properties => iter%second()
-              msg = comp_path // '::' // state_intent // '::' // item_name
-
-              associate (test_description => msg // '::' // this%check_name)
-                call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
-              end associate
+             associate (test_description => msg // '::' // this%check_name)
+               call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
+             end associate
               
-              call iter%next()
            end do
-           deallocate(iter)
-         end associate
 
          rc = 0
 
@@ -316,7 +312,7 @@ contains
    end function get_itemtype
 
    subroutine check_item_type(expectations, state, short_name, description, rc)
-      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
@@ -340,19 +336,19 @@ contains
 
       function get_expected_itemtype(expectations, rc) result(expected_itemtype)
          type(ESMF_StateItem_Flag) :: expected_itemtype
-         class(YAML_Node), intent(in) :: expectations
+         type(ESMF_HConfig), intent(in) :: expectations
          integer, intent(out) :: rc
 
          character(:), allocatable :: itemtype_str
          integer :: status
 
-         if (.not. expectations%has('class')) then
+         if (.not. ESMF_HConfigIsDefined(expectations,keyString='class')) then
             expected_itemtype = ESMF_STATEITEM_FIELD
             rc=0
             return
          end if
 
-         call expectations%get(itemtype_str, 'class', _RC)
+         itemtype_str= ESMF_HConfigAsString(expecations,keyString='class',_RC)
          
          select case (itemtype_str)
          case ('field')
@@ -370,7 +366,7 @@ contains
    end subroutine check_item_type
       
    subroutine check_field_status(expectations, state, short_name, description, rc)
-      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
@@ -393,7 +389,7 @@ contains
          return
       end if
 
-      call expectations%get(expected_field_status_str, 'status', _RC)
+      expected_field_status_str = ESMF_HConfigAsString(expectations,keyString='status',_RC)
       expected_field_status = ESMF_FIELDSTATUS_GRIDSET
       select case (expected_field_status_str)
       case ('complete')
@@ -412,7 +408,7 @@ contains
    end subroutine check_field_status
       
    subroutine check_field_typekind(expectations, state, short_name, description, rc)
-      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
@@ -435,12 +431,12 @@ contains
       end if
 
 
-      if (.not. expectations%has('typekind')) then ! that's ok
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='typekind')) then
          rc = 0
          return
       end if
 
-      call expectations%get(expected_field_typekind_str, 'typekind', _RC)
+      expected_field_typekind_str = ESMF_HConfigAsString(expecations,keyString='typekind',_RC)
       select case (expected_field_typekind_str)
       case ('R4')
          expected_field_typekind = ESMF_TYPEKIND_R4
@@ -458,7 +454,7 @@ contains
    end subroutine check_field_typekind
       
    subroutine check_field_value(expectations, state, short_name, description, rc)
-      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
@@ -482,12 +478,12 @@ contains
       end if
 
 
-     if (.not. expectations%has('value')) then ! that's ok
+     if (.not. ESMF_HConfigIsDefined(expectations,keyString='value')) then 
          rc = 0
          return
       end if
 
-      call expectations%get(expected_field_value, 'value', _RC)
+      expected_field_value = ESMF_HConfigAsR4(expecations,keyString='value',_RC)
       
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=typekind, rank=rank, _RC)
@@ -530,7 +526,7 @@ contains
    end subroutine check_field_value
 
    subroutine check_field_rank(expectations, state, short_name, description, rc)
-      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
@@ -545,7 +541,7 @@ contains
 
       msg = description
 
-      if (.not. expectations%has('rank')) then ! that's ok
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='rank')) then
          rc = 0
          return
       end if
@@ -559,14 +555,14 @@ contains
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, rank=rank, _RC)
 
-      call expectations%get(expected_field_rank, 'rank', _RC)
+      expected_field_rank = ESMF_HConfigAsI4(expectations,keyString='rank',_RC)
       @assert_that(msg // 'field rank:', rank == expected_field_rank, is(true()))
 
       rc = 0
    end subroutine check_field_rank
 
    subroutine check_fieldCount(expectations, state, short_name, description, rc)
-      class(YAML_Node), intent(in) :: expectations
+      type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
@@ -585,9 +581,9 @@ contains
       call ESMF_StateGet(state, short_name, itemtype=itemtype)
       if (itemtype /= ESMF_STATEITEM_FIELDBUNDLE) return ! that's ok
 
-      if (.not. expectations%has('fieldcount')) return
+      if (.not. ESMF_HConfigIsDefined(expectaitons,keyString='fieldcount')) return
 
-      call expectations%get(expected_fieldCount, 'fieldcount', _RC)
+      expected_fieldCount = ESMF_HConfigAsI4(expectations,keyString='fieldcount',_RC)
       call ESMF_StateGet(state, short_name, bundle, _RC)
       call ESMF_FieldBundleGet(bundle, fieldCount=found_fieldCount, _RC)
 
