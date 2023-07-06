@@ -147,9 +147,11 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+      print*, __LINE__, __FILE__
       grid = this%create_basic_grid(_RC)
+      print*, __LINE__, __FILE__
       call this%add_horz_coordinates_from_file(grid,_RC)
-
+      print*, __LINE__, __FILE__
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -442,7 +444,6 @@ contains
       call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
       do j=1, nlat
          this%t_alongtrack(j)= scanTime(1,j)
-!!         if ( mod(j,100)== 1) write(6,*)  j, scanTime(1,j)
       enddo
       !
       ! skip un-defined time value
@@ -467,8 +468,8 @@ contains
                exit
             endif
          enddo         
-         write(6,*) 'nstart', nstart
-         write(6,*) ' this%t_alongtrack(nstart)',  this%t_alongtrack(nstart)
+         call lgr%debug('%a %i4', 'nstart', nstart)
+         call lgr%debug('%a %i4', 'this%t_alongtrack(nstart)',  this%t_alongtrack(nstart))
       endif
       
       deallocate(scanTime)
@@ -505,17 +506,16 @@ contains
       j1= j0 + sec
       jx0= j0
       jx1= j1
-      write(6,*) 'jx0, jx1', jx0, jx1
-      write(6,*) 'j0, j1', j0, j1
+      call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
+      call lgr%debug ('%a %i4 %i4', 'j0,  j1 ', j0,  j1)
       
-
       this%epoch_index(1)= 1
       this%epoch_index(2)= this%cell_across_swath
       call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
 
       if (jt1==jt2) then
-         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch, STOP!')
+         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
       endif
       jt1 = jt1 + 1               ! (x1,x2]  design
       this%epoch_index(3)= jt1
@@ -523,11 +523,14 @@ contains
       Xdim = this%cell_across_swath
       Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
 
-      write(6,*) 'bisect for j0:  rc, jt', rc, jt1      
-      write(6,*) 'bisect for j1:  rc, jt', rc, jt2      
-      write(6,*) 'Xdim, Ydim', Xdim, Ydim
-      write(6,*) 'this%epoch_index(4)', this%epoch_index(1:4)
-      
+      call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
+      call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
+      call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
+      call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
+           this%epoch_index(1), this%epoch_index(2), &
+           this%epoch_index(3), this%epoch_index(4))
+
+
       this%im_world = Xdim
       this%jm_world = Ydim
 
@@ -908,11 +911,6 @@ contains
 
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
          if (.not. equal) return
-
-         !-- prepare to delete it
-         !equal = &
-         !     & all(a%lon_centers == this%lon_centers) .and. &
-         !     & all(a%lat_centers == this%lat_centers)
       end select
 
    end function physical_params_are_equal
@@ -945,7 +943,7 @@ contains
    function generate_grid_name(this) result(name)
       character(len=:), allocatable :: name
       class (SwathGridFactory), intent(in) :: this
-
+! from tclune: This needs thought. I suspect we want something that indicates this is a swath grid.
       character(len=4) :: im_string, jm_string
       name = im_string // 'x' // jm_string
    end function generate_grid_name

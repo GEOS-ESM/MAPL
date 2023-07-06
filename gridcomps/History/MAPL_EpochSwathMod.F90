@@ -165,9 +165,13 @@ contains
 
     if (present(grid_type)) this%grid_type = trim(grid_type)
     config_grid = this%config_grid_save
+    print*, __LINE__, __FILE__
     call ESMF_TimeGet(currTime, timeString=time_string, _RC)
+    print*, __LINE__, __FILE__
     call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
+    print*, __LINE__, __FILE__
     ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
+    print*, __LINE__, __FILE__
     this%ogrid = ogrid
     _RETURN(_SUCCESS)
     
