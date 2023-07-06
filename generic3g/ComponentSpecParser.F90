@@ -125,7 +125,7 @@ contains
             end if
             
             if (ESMF_HConfigIsDefined(attributes,keyString='units')) then
-               standard_name = ESMF_HConfigAsString(attributes,keyString='units',_RC)
+               units = ESMF_HConfigAsString(attributes,keyString='units',_RC)
             end if
 
             call to_itemtype(itemtype, attributes, _RC)
