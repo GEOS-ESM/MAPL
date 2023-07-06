@@ -19,7 +19,6 @@ module Test_Scenarios
    use mapl3g_VerticalGeom
    use esmf
    use nuopc
-   use yafyaml
    ! testing framework
    use ESMF_TestCase_mod
    use ESMF_TestParameter_mod
@@ -30,7 +29,7 @@ module Test_Scenarios
    abstract interface
       subroutine I_check_stateitem(expectations, state, short_name, description, rc)
          import ESMF_HConfig, ESMF_State
-         type(ESMF_HConfig, intent(in) :: expectations
+         type(ESMF_HConfig), intent(in) :: expectations
          type(ESMF_State), intent(inout) :: state
          character(*), intent(in) :: short_name
          character(*), intent(in) :: description
@@ -140,8 +139,7 @@ contains
    subroutine setup(this)
       class(Scenario), intent(inout) :: this
 
-      type(Parser) :: p
-      type(ESMF_HConfig) :: yaml_cfg
+      type(ESMF_HConfig) :: yaml_config
       type(GenericConfig) :: config
       integer :: status, user_status
       type(ESMF_Clock) :: clock
@@ -150,14 +148,12 @@ contains
       character(:), allocatable :: file_name
       type(VerticalGeom) :: vertical_geom
 
-      p = Parser()
-
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
-      yaml_config = ESMF_HConfigCreate(file_name=file_name)
+      yaml_config = ESMF_HConfigCreate(filename=file_name)
 
-      config = GenericConfig(yaml_cfg=yaml_cfg)
+      config = GenericConfig(yaml_cfg=yaml_config)
 
-      call NUOPC_FieldDictionarySetup('./scenarios/FieldDictionary.yml', _RC)
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
       @assert_that(status, is(0))
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
@@ -193,7 +189,7 @@ contains
       end associate
 
       file_name = './scenarios/' // this%scenario_name // '/expectations.yaml'
-      this%expectations = p%load_from_file(file_name, _RC)
+      this%expectations = ESMF_HConfigCreate(filename=file_name, _RC)
 
    end subroutine setup
 
@@ -227,9 +223,9 @@ contains
 
       components: do i = 1, ESMF_HConfigGetSize(this%expectations)
 
-         comp_expectations = ESMF_HConfigCreateAt(this%expecations,index=i,_RC)
+         comp_expectations = ESMF_HConfigCreateAt(this%expectations,index=i,_RC)
 
-         call comp_expectations%get(comp_path, 'component', _RC)
+         comp_path = ESMF_HConfigAsString(comp_expectations,keyString='component',_RC)
          call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
 
          call check_items_in_state('import', _RC)
@@ -270,7 +266,7 @@ contains
          hconfigIterEnd = ESMF_HConfigIterEnd(state_items)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             item_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-            expected_properties = ESMF_HConfigCreatAtMapVal(hconfigIter,_RC)
+            expected_properties = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
 
              msg = comp_path // '::' // state_intent // '::' // item_name
 
@@ -348,7 +344,7 @@ contains
             return
          end if
 
-         itemtype_str= ESMF_HConfigAsString(expecations,keyString='class',_RC)
+         itemtype_str= ESMF_HConfigAsString(expectations,keyString='class',_RC)
          
          select case (itemtype_str)
          case ('field')
@@ -436,7 +432,7 @@ contains
          return
       end if
 
-      expected_field_typekind_str = ESMF_HConfigAsString(expecations,keyString='typekind',_RC)
+      expected_field_typekind_str = ESMF_HConfigAsString(expectations,keyString='typekind',_RC)
       select case (expected_field_typekind_str)
       case ('R4')
          expected_field_typekind = ESMF_TYPEKIND_R4
@@ -483,7 +479,7 @@ contains
          return
       end if
 
-      expected_field_value = ESMF_HConfigAsR4(expecations,keyString='value',_RC)
+      expected_field_value = ESMF_HConfigAsR4(expectations,keyString='value',_RC)
       
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=typekind, rank=rank, _RC)
@@ -581,7 +577,7 @@ contains
       call ESMF_StateGet(state, short_name, itemtype=itemtype)
       if (itemtype /= ESMF_STATEITEM_FIELDBUNDLE) return ! that's ok
 
-      if (.not. ESMF_HConfigIsDefined(expectaitons,keyString='fieldcount')) return
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='fieldcount')) return
 
       expected_fieldCount = ESMF_HConfigAsI4(expectations,keyString='fieldcount',_RC)
       call ESMF_StateGet(state, short_name, bundle, _RC)

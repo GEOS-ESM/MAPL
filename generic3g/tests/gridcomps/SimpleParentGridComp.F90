@@ -11,7 +11,6 @@ module SimpleParentGridComp
    use mapl3g_UserSetServices
    use scratchpad
    use esmf
-   use yafyaml
    implicit none
    private
 
@@ -26,18 +25,18 @@ contains
 
       integer :: status
       type(GenericConfig) :: config_A, config_B
-      type(Parser) :: p
-      
+      type(ESMF_HConfig) :: hconfig_A, hconfig_B 
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run_extra, phase_name='extra', _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, finalize, _RC)
 
-      p = Parser()
-      config_A = GenericConfig(yaml_cfg=p%load_from_file('./scenarios/leaf_A.yaml', rc=status))
+      hconfig_A = ESMF_HConfigCreate(filename='./scenarios/leaf_A.yaml')
+      config_A = GenericConfig(yaml_cfg=hconfig_A, rc=status)
       _ASSERT(status == 0, 'bad config')
-      config_B = GenericConfig(yaml_cfg=p%load_from_file('./scenarios/leaf_B.yaml', rc=status))
+      hconfig_B = ESMF_HConfigCreate(filename='./scenarios/leaf_B.yaml')
+      config_B = GenericConfig(yaml_cfg=hconfig_B, rc=status)
       _ASSERT(status == 0, 'bad config')
       
 

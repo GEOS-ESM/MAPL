@@ -19,7 +19,6 @@ module mapl3g_ComponentSpecParser
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
    use mapl3g_Stateitem
-   use yaFyaml
    use gftl2_StringVector, only: StringVector
    use esmf
    implicit none
@@ -512,7 +511,6 @@ contains
 
       character(:), allocatable :: child_name
       type(ChildSpec) :: child_spec
-      class(NodeIterator), allocatable :: iter
       type(ESMF_HConfig) :: subcfg
 
       if (.not. associated(config)) then

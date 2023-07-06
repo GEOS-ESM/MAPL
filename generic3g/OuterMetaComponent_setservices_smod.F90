@@ -96,7 +96,6 @@ contains
       end subroutine add_children_from_config
 
       subroutine add_child_from_config(this, child_spec, rc)
-         use yafyaml, only: Parser
          type(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_HConfig), intent(in) :: child_spec
          integer, optional, intent(out) :: rc

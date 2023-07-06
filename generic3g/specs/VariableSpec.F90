@@ -107,7 +107,6 @@ contains
    ! left uninitialized. Constistency and sufficiency checks are
    ! relegated to the various StateItemSpec subclasses.
    subroutine initialize(this, config)
-      use yaFyaml
       class(VariableSpec), intent(out) :: this
       type(ESMF_HConfig), intent(in) :: config
 

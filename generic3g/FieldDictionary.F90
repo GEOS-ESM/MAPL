@@ -13,15 +13,12 @@
 ! as to which entry a short name is referring.
 
 module mapl3g_FieldDictionary
-   use yaFyaml
+   use esmf
    use mapl_ErrorHandling
    use gftl2_StringVector
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
    use mapl3g_FieldDictionaryItemMap
-   use yaFyaml, only: AbstractTextStream, FileStream
-   use yaFyaml, only: Parser
-   use yaFyaml, only: YAML_Node
    implicit none
    private
 
@@ -46,68 +43,56 @@ module mapl3g_FieldDictionary
    end type FieldDictionary
 
    interface FieldDictionary
-      module procedure new_empty
-      module procedure new_from_filename
-      module procedure new_from_textstream
+      !module procedure new_empty
+      module procedure new_from_yaml
    end interface FieldDictionary
 
 contains
 
-   function new_empty() result(fd)
+   !function new_empty() result(fd)
+      !type(FieldDictionary) :: fd
+!
+      !fd = FieldDictionary(stream='{}')
+!
+   !end function new_empty
+
+   function new_from_yaml(filename, stream, rc) result(fd)
       type(FieldDictionary) :: fd
-
-      fd = FieldDictionary(TextStream('{}'))
-
-   end function new_empty
-
-   
-   function new_from_filename(filename, rc) result(fd)
-      type(FieldDictionary) :: fd
-      character(len=*), intent(in) :: filename
+      character(len=*), optional, intent(in) :: filename
+      character(len=*), optional, intent(in) :: stream
       integer, optional, intent(out) :: rc
 
+      type(ESMF_HConfig), target :: node
+      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
       integer :: status
-
-      fd = FieldDictionary(FileStream(filename), rc=status)
-
-      _RETURN(_SUCCESS)
-   end function new_from_filename
-
-
-   function new_from_textstream(stream, rc) result(fd)
-      type(FieldDictionary) :: fd
-      class(AbstractTextStream), intent(in) :: stream
-      integer, optional, intent(out) :: rc
-
-      type(Parser) :: p
-      class(YAML_Node), target, allocatable :: node
-      integer :: status
-      class(NodeIterator), allocatable :: iter
-      character(:), pointer :: standard_name
+      character(:), allocatable :: standard_name
       type(FieldDictionaryItem) :: item
+      type(ESMF_HConfig) :: val
 
-      p = Parser()
-      node = p%load(stream)
 
-      _ASSERT(node%is_mapping(), 'FieldDictionary requires a YAML mapping node')
+      _ASSERT( (.not.present(filename)) .and. (.not.present(stream)), "cannot specify both")
+      if (present(filename)) then
+         node = ESMF_HConfigCreate(filename=filename,_RC)
+      else if (present(stream)) then
+         node = ESMF_HConfigCreate(content=stream,_RC)
+      else
+         _FAIL("must provide one or the other")
+      end if
 
-      associate (b => node%begin(), e => node%end())
+      _ASSERT(ESMF_HConfigIsMap(node), 'FieldDictionary requires a YAML mapping node')
 
-        iter = b
-        do while (iter /= e)
+      hconfigIter = ESMF_HConfigIterBegin(node)
+      hconfigIterBegin = ESMF_HConfigIterBegin(node)
+      hconfigIterEnd = ESMF_HConfigIterEnd(node)
+      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+         standard_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
+         _ASSERT(len_trim(standard_name) /= 0, 'Standard name is all blanks.')
+         _ASSERT(fd%entries%count(standard_name) == 0, 'Duplicate standard name: <'//trim(standard_name)//'>')
+         val = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
+         item = to_item(val,_RC)
+         call fd%add_item(standard_name, item)
+      enddo
 
-           standard_name => to_string(iter%first(), _RC)
-           _ASSERT(len_trim(standard_name) /= 0, 'Standard name is all blanks.')
-           _ASSERT(fd%entries%count(standard_name) == 0, 'Duplicate standard name: <'//trim(standard_name)//'>')
-
-           item = to_item(iter%second(), _RC)
-           call fd%add_item(standard_name, item)
-
-           call iter%next()
-
-        end do
-      end associate
-      
       _RETURN(_SUCCESS)
 
    contains
@@ -115,34 +100,33 @@ contains
 
       function to_item(item_node, rc) result(item)
          type(FieldDictionaryItem) :: item
-         class(YAML_Node), intent(in) :: item_node
+         type(ESMF_HConfig), intent(in) :: item_node
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(NodeIterator), allocatable :: iter
-         class(YAML_Node), pointer :: aliases_node, alias_node
-         character(:), allocatable :: long_name, units
+         type(ESMF_HConfig) :: aliases_node, alias_node
+         character(:), allocatable :: long_name, units, temp_string
          type(StringVector) :: aliases
+         type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
-         _ASSERT(item_node%is_mapping(), 'Each node in FieldDictionary yaml must be a mapping node')
+         _ASSERT(ESMF_HConfigIsMap(item_node), 'Each node in FieldDictionary yaml must be a mapping node')
 
-         call item_node%get(long_name, 'long_name', _RC)
-         call item_node%get(units, 'canonical_units', _RC)
+         long_name = ESMF_HconfigAsString(item_node,keyString='long_name',_RC)
+         units = ESMF_HConfigAsString(item_node,keyString='canonical_units',_RC)
 
-         if (item_node%has('aliases')) then
-            aliases_node => item_node%of('aliases')
-            _ASSERT(aliases_node%is_sequence(), "'aliases' must be a sequence")
+         if (ESMF_HConfigIsDefined(item_node,keyString='aliases')) then
+          
+            aliases_node = ESMF_HConfigCreateAt(item_node,keyString='aliases',_RC) 
+            _ASSERT(ESMF_HConfigIsSequence(aliases_node), "'aliases' must be a sequence")
 
-            associate (b => aliases_node%begin(), e => aliases_node%end())
-              iter = b
-              do while (iter /= e)
-                 alias_node => iter%at(_RC)
-                 _ASSERT(alias_node%is_string(), 'short name must be a string')
-                 call aliases%push_back(to_string(alias_node))
-                 
-                 call iter%next()
-              end do
-            end associate
+            hconfigIter = ESMF_HConfigIterBegin(aliases_node)
+            hconfigIterBegin = ESMF_HConfigIterBegin(aliases_node)
+            hconfigIterEnd = ESMF_HConfigIterEnd(aliases_node)
+
+            do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+               temp_string = ESMF_HConfigAsString(hconfigIter,_RC)
+               call aliases%push_back(temp_string)
+            enddo
 
          end if
 
@@ -151,9 +135,7 @@ contains
          _RETURN(_SUCCESS)
       end function to_item
 
-   end function new_from_textstream
-
-
+   end function new_from_yaml
 
    subroutine add_item(this, standard_name, field_item, rc)
       class(FieldDictionary), intent(inout) :: this
