@@ -43,18 +43,10 @@ module mapl3g_FieldDictionary
    end type FieldDictionary
 
    interface FieldDictionary
-      !module procedure new_empty
       module procedure new_from_yaml
    end interface FieldDictionary
 
 contains
-
-   !function new_empty() result(fd)
-      !type(FieldDictionary) :: fd
-!
-      !fd = FieldDictionary(stream='{}')
-!
-   !end function new_empty
 
    function new_from_yaml(filename, stream, rc) result(fd)
       type(FieldDictionary) :: fd
@@ -76,7 +68,7 @@ contains
       else if (present(stream)) then
          node = ESMF_HConfigCreate(content=stream,_RC)
       else
-         _FAIL("must provide one or the other")
+         node = ESMF_HConfigCreate(content='{}',_RC)
       end if
 
       _ASSERT(ESMF_HConfigIsMap(node), 'FieldDictionary requires a YAML mapping node')
