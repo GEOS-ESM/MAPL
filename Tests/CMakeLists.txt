@@ -15,10 +15,10 @@ if (DUSTY)
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 
-if (BUILD_WITH_FLAP)
+if (BUILD_WITH_FARGPARSE)
 
   ecbuild_add_executable (TARGET ExtDataDriver.x SOURCES ${srcs})
-  target_link_libraries (ExtDataDriver.x PRIVATE MAPL FLAP::FLAP esmf)
+  target_link_libraries (ExtDataDriver.x PRIVATE MAPL FARGPARSE::fargparse esmf)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
     target_link_libraries(ExtDataDriver.x PRIVATE OpenMP::OpenMP_Fortran)
@@ -28,17 +28,12 @@ if (BUILD_WITH_FLAP)
   add_subdirectory(ExtData_Testing_Framework EXCLUDE_FROM_ALL)
 
   ecbuild_add_executable (TARGET pfio_MAPL_demo.x SOURCES pfio_MAPL_demo.F90)
-  target_link_libraries (pfio_MAPL_demo.x PRIVATE MAPL FLAP::FLAP esmf)
+  target_link_libraries (pfio_MAPL_demo.x PRIVATE MAPL FARGPARSE::fargparse esmf)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
   if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
     target_link_libraries(pfio_MAPL_demo.x PRIVATE OpenMP::OpenMP_Fortran)
   endif ()
   set_target_properties(pfio_MAPL_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-
-endif ()
-
-if (BUILD_WITH_FARGPARSE)
-
   ecbuild_add_executable (TARGET MAPL_demo_fargparse.x SOURCES MAPL_demo_fargparse.F90)
   target_link_libraries (MAPL_demo_fargparse.x PRIVATE MAPL FARGPARSE::fargparse esmf)
   # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280

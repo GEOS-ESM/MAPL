@@ -35,9 +35,5 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-if (BUILD_WITH_FLAP)
-  target_compile_definitions (${this} PRIVATE USE_FLAP)
-endif()
-
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

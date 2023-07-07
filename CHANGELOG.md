@@ -93,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Created cubed-sphere grid factory with files split by face
 - Removed unneeded and confusing default in History Grid Comp (see #2081)
+- Fixes in CMake for fArgParse transition
 
 ### Removed
 

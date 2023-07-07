@@ -241,7 +241,7 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
-if (BUILD_WITH_FLAP)
+if (BUILD_WITH_FARGPARSE)
    add_subdirectory (tutorial)
 endif()
 
