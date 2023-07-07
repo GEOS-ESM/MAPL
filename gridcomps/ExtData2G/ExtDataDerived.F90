@@ -27,7 +27,7 @@ module MAPL_ExtDataDerived
 contains
 
    function new_ExtDataDerived(config,unusable,rc) result(rule)
-      class(YAML_Node), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -39,17 +39,17 @@ contains
 
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("function")
+      is_present = ESMF_HConfigIsDefined(config,keyString="function",_RC)
       _ASSERT(is_present,"no expression found in derived entry") 
-      call config%get(tempc,"function",rc=status)
-      _VERIFY(status)
-      rule%expression=tempc
+      if (is_present) then
+         tempc = ESMF_HConfigAsString(config,keyString="function",_RC)
+         rule%expression=tempc
+      end if
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("sample")
+      is_present = ESMF_HConfigIsDefined(config,keyString="sample",_RC)
       if (is_present) then
-         call config%get(tempc,"sample",rc=status)
-         _VERIFY(status)
+         tempc = ESMF_HConfigAsString(config,keyString="sample",_RC)
          rule%sample_key=tempc
       end if
 

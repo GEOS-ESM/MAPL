@@ -1772,19 +1772,14 @@ CONTAINS
      character(len=*), intent(in) :: yaml_file
      integer, intent(out), optional :: rc
 
-      type(Parser)              :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig), allocatable :: config
       integer :: status
 
       am_running=.true.
-      p = Parser('core')
-      config = p%load(yaml_file,rc=status)
-      if (status/=_SUCCESS) then
-          _FAIL("Error parsing: "//trim(yaml_file))
-      end if
 
-      if (config%has("USE_EXTDATA")) then
-         am_running = config%of("USE_EXTDATA")
+      config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
+      if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
+         am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
       end if
       _RETURN(_SUCCESS)
 

@@ -65,12 +65,13 @@ contains
 
       integer :: status
       type(HierarchicalRegistry), pointer :: src_registry
+      type(ConnectionPt) :: src_pt
 
-      associate( src_pt => this%get_source() )
-        src_registry => registry%get_subregistry(src_pt)
-        _ASSERT(associated(src_registry), 'Unknown source registry')
-        call this%connect_export_to_export(registry, src_registry, _RC)
-      end associate
+      src_pt = this%get_source()
+      src_registry => registry%get_subregistry(src_pt)
+      _ASSERT(associated(src_registry), 'Unknown source registry')
+
+      call this%connect_export_to_export(registry, src_registry, _RC)
         
       _RETURN(_SUCCESS)
    end subroutine connect
@@ -90,34 +91,37 @@ contains
       type(ActualConnectionPt), allocatable :: dst_actual_pt
       type(ActualPtVector), pointer :: actual_pts
       integer :: status
+      type(VirtualConnectionPt) :: src_pt, dst_pt
+      type(ConnectionPt) :: src, dst
 
-      associate (src => this%get_source(), dst => this%get_destination())
-        associate (src_pt => src%v_pt, dst_pt => dst%v_pt)
-          _ASSERT(.not. registry%has_item_spec(dst_pt), 'Specified virtual point already exists in this registry')
-          _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
+      src = this%get_source()
+      dst = this%get_destination()
+      src_pt = src%v_pt
+      dst_pt = dst%v_pt
 
-          actual_pts => src_registry%get_actual_pts(src_pt)
-          associate (e => actual_pts%end())
-            iter = actual_pts%begin()
-            do while (iter /= e)
-               src_actual_pt => iter%of()
-               
-               if (src_actual_pt%is_internal()) then
-                  ! Don't encode with comp name
-                  dst_actual_pt = ActualConnectionPt(dst_pt)
-               else
-                  dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
-               end if
-               
-               spec => src_registry%get_item_spec(src_actual_pt)
-               _ASSERT(associated(spec), 'This should not happen.')
-               call registry%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
-               call iter%next()
-            end do
-          end associate
-        end associate
-      end associate
+      _ASSERT(.not. registry%has_item_spec(dst_pt), 'Specified virtual point already exists in this registry')
+      _ASSERT(src_registry%has_item_spec(src_pt), 'Specified virtual point does not exist.')
       
+      actual_pts => src_registry%get_actual_pts(src_pt)
+      associate (e => actual_pts%end())
+        iter = actual_pts%begin()
+        do while (iter /= e)
+           src_actual_pt => iter%of()
+           
+           if (src_actual_pt%is_internal()) then
+              ! Don't encode with comp name
+              dst_actual_pt = ActualConnectionPt(dst_pt)
+           else
+              dst_actual_pt = src_actual_pt%add_comp_name(src_registry%get_name())
+           end if
+           
+           spec => src_registry%get_item_spec(src_actual_pt)
+           _ASSERT(associated(spec), 'This should not happen.')
+           call registry%link_item_spec(dst_pt, spec, dst_actual_pt, _RC)
+           call iter%next()
+        end do
+      end associate
+    
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
