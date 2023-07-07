@@ -130,7 +130,7 @@ contains
 
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
-            
+           
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  itemtype=itemtype, &
                  service_items=service_items, &
@@ -276,11 +276,11 @@ contains
          integer :: status
          character(:), allocatable :: subclass
 
-         if (.not. ESMF_HConfigIsDefined(config,keyString='class')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='class')) then
             _RETURN(_SUCCESS)
          end if
 
-         subclass= ESMF_HConfigAsString(config,keyString='class',_RC) 
+         subclass= ESMF_HConfigAsString(attributes,keyString='class',_RC) 
 
          select case (subclass)
          case ('field')
@@ -300,7 +300,7 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ESMF_HConfig) :: seq, item 
+         type(ESMF_HConfig) :: seq
          integer :: num_items, i
          character(:), allocatable :: item_name
 
