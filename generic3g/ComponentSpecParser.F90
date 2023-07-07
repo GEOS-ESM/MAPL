@@ -176,7 +176,7 @@ contains
 
          _RETURN_UNLESS(ESMF_HConfigIsDefined(attributes,keyString='default_value'))
          allocate(x)
-         x = ESMF_HConfigAsR4(attributes,keyString='default_vale',_RC)
+         x = ESMF_HConfigAsR4(attributes,keyString='default_value',_RC)
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
