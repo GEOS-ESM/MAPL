@@ -61,14 +61,14 @@ contains
       type(FieldDictionaryItem) :: item
       type(ESMF_HConfig) :: val
 
-
-      _ASSERT( (.not.present(filename)) .and. (.not.present(stream)), "cannot specify both")
+      _ASSERT( .not.(present(filename) .and. present(stream)), "cannot specify both")
       if (present(filename)) then
          node = ESMF_HConfigCreate(filename=filename,_RC)
       else if (present(stream)) then
          node = ESMF_HConfigCreate(content=stream,_RC)
       else
          node = ESMF_HConfigCreate(content='{}',_RC)
+         _RETURN(_SUCCESS)
       end if
 
       _ASSERT(ESMF_HConfigIsMap(node), 'FieldDictionary requires a YAML mapping node')
@@ -105,6 +105,7 @@ contains
 
          long_name = ESMF_HconfigAsString(item_node,keyString='long_name',_RC)
          units = ESMF_HConfigAsString(item_node,keyString='canonical_units',_RC)
+         write(*,*)'bmaa con units ',trim(units)
 
          if (ESMF_HConfigIsDefined(item_node,keyString='aliases')) then
           
