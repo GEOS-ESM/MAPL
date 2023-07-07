@@ -105,7 +105,6 @@ contains
 
          long_name = ESMF_HconfigAsString(item_node,keyString='long_name',_RC)
          units = ESMF_HConfigAsString(item_node,keyString='canonical_units',_RC)
-         write(*,*)'bmaa con units ',trim(units)
 
          if (ESMF_HConfigIsDefined(item_node,keyString='aliases')) then
           
