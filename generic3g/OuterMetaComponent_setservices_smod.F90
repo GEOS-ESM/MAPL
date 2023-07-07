@@ -88,7 +88,7 @@ contains
          _ASSERT(ESMF_HConfigIsSequence(children_spec), 'Children in config should be specified as a sequence.')
          num_children = ESMF_HConfigGetSize(children_spec,_RC)
          do i = 1,num_children
-            child_spec = ESMF_HConfigCreateAt(config,index=i,_RC)
+            child_spec = ESMF_HConfigCreateAt(children_spec,index=i,_RC)
             call add_child_from_config(this, child_spec, _RC)
          end do
 
