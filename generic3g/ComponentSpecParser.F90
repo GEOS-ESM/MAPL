@@ -251,10 +251,10 @@ contains
          integer :: dim_size,i
          type(UngriddedDimSpec) :: temp_dim_spec
 
-         if (.not. ESMF_HConfigIsDefined(config,keyString='ungridded_dim_specs')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='ungridded_dim_specs')) then
             _RETURN(_SUCCESS)
          end if
-         dim_specs = ESMF_HConfigCreateAt(config,keyString='ungridded_dim_specs',_RC)
+         dim_specs = ESMF_HConfigCreateAt(attributes,keyString='ungridded_dim_specs',_RC)
          
          do i=1,ESMF_HConfigGetSize(dim_specs)
             dim_spec = ESMF_HConfigCreateAt(dim_specs,index=i,_RC)
