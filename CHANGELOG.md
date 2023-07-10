@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.35.4] - 2023-07-11
+
+### Fixed
+
+- Added bug fix when using climatology option in ExtData2G under certain scenarios (see [#2192](https://github.com/GEOS-ESM/MAPL/issues/2192) for more information)
+- Fixed logic in generating the names of the split fields. If the alias field in the History.rc has separators (;), each substring is used to name the resulting fields. If there are no separators, this will be the exact name of the first split field
+
 ## [2.35.3] - 2023-03-17
 
 ### Fixed
