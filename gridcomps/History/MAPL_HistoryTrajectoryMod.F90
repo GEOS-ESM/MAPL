@@ -27,7 +27,8 @@ module HistoryTrajectoryMod
 
    type :: HistoryTrajectory
       private
-      type(ESMF_LocStream) :: root_locstream,dist_locstream
+      type(ESMF_LocStream) :: root_locstream
+      type(ESMF_LocStream) :: dist_locstream
       type(LocStreamFactory) :: locstream_factory
       type(ESMF_Time), allocatable :: times(:)
       real(kind=REAL64), allocatable :: times_R8(:)
@@ -221,7 +222,10 @@ module HistoryTrajectoryMod
          enddo
 
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         !this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
+         this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
+
+         STOP -1
+         
 
          this%number_written = 0
          this%previous_index = lbound(this%times,1)-1
@@ -232,6 +236,20 @@ module HistoryTrajectoryMod
          call this%create_output_bundle(_RC)
          this%file_name = ''
 
+         ! swath
+         ! time-indepent -- simple
+         ! donot have root -- distribute -- on MPI
+
+         !  
+         !   [ 1, 10 min ]
+         !   send time index to distrute
+         !   collect
+         !   each PET, check and collect.
+         !
+         
+         ! heartbeat
+
+         
          this%recycle_track=.false.
          if (present(recycle_track)) then
             this%recycle_track=recycle_track
