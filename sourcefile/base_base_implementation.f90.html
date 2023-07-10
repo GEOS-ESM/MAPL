@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 1.5% of total for source files.">2749 statements</a>
+               title=" 1.5% of total for source files.">2748 statements</a>
           </li>
 
             <li id="source-file">
@@ -4131,29 +4131,28 @@
 <a id="ln-3908" name="ln-3908" href="#ln-3908"></a><span class="k">      deallocate</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3909" name="ln-3909" href="#ln-3909"></a><span class="w">      </span><span class="c">! if the user did no supply enough separated alias field names,</span>
 <a id="ln-3910" name="ln-3910" href="#ln-3910"></a><span class="w">      </span><span class="c">! append 00i to the original field name</span>
-<a id="ln-3911" name="ln-3911" href="#ln-3911"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">nn</span><span class="o">=</span><span class="mi">0</span><span class="w"></span>
-<a id="ln-3912" name="ln-3912" href="#ln-3912"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="n">nn</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="w"></span>
-<a id="ln-3913" name="ln-3913" href="#ln-3913"></a><span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">splitNameArray</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s1">&#39;(A,I3.3)&#39;</span><span class="p">)</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
-<a id="ln-3914" name="ln-3914" href="#ln-3914"></a><span class="w">      </span><span class="k">end do</span>
-<a id="ln-3915" name="ln-3915" href="#ln-3915"></a><span class="k">      </span>
-<a id="ln-3916" name="ln-3916" href="#ln-3916"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
-<a id="ln-3917" name="ln-3917" href="#ln-3917"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">GenAlias</span><span class="w"></span>
-<a id="ln-3918" name="ln-3918" href="#ln-3918"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_FieldSplit</span><span class="w"></span>
-<a id="ln-3919" name="ln-3919" href="#ln-3919"></a>
-<a id="ln-3920" name="ln-3920" href="#ln-3920"></a><span class="w">  </span><span class="k">module function </span><span class="n">MAPL_GetCorrectedPhase</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span><span class="w"></span>
-<a id="ln-3921" name="ln-3921" href="#ln-3921"></a><span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w"></span>
-<a id="ln-3922" name="ln-3922" href="#ln-3922"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
-<a id="ln-3923" name="ln-3923" href="#ln-3923"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span><span class="w"></span>
-<a id="ln-3924" name="ln-3924" href="#ln-3924"></a><span class="w"> </span>
-<a id="ln-3925" name="ln-3925" href="#ln-3925"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
-<a id="ln-3926" name="ln-3926" href="#ln-3926"></a>
-<a id="ln-3927" name="ln-3927" href="#ln-3927"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">currentPhase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<a id="ln-3928" name="ln-3928" href="#ln-3928"></a><span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<a id="ln-3929" name="ln-3929" href="#ln-3929"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">phase</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="o">-</span><span class="mi">10</span><span class="w"></span>
-<a id="ln-3930" name="ln-3930" href="#ln-3930"></a><span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
-<a id="ln-3931" name="ln-3931" href="#ln-3931"></a><span class="w">  </span><span class="k">end function </span><span class="n">MAPL_GetCorrectedPhase</span><span class="w"></span>
-<a id="ln-3932" name="ln-3932" href="#ln-3932"></a>
-<a id="ln-3933" name="ln-3933" href="#ln-3933"></a><span class="k">end submodule </span><span class="n">Base_Implementation</span><span class="w"></span>
+<a id="ln-3911" name="ln-3911" href="#ln-3911"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="n">nn</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="w"></span>
+<a id="ln-3912" name="ln-3912" href="#ln-3912"></a><span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="n">splitNameArray</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="s1">&#39;(A,I3.3)&#39;</span><span class="p">)</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
+<a id="ln-3913" name="ln-3913" href="#ln-3913"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-3914" name="ln-3914" href="#ln-3914"></a><span class="k">      </span>
+<a id="ln-3915" name="ln-3915" href="#ln-3915"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<a id="ln-3916" name="ln-3916" href="#ln-3916"></a><span class="w">    </span><span class="k">end subroutine </span><span class="n">GenAlias</span><span class="w"></span>
+<a id="ln-3917" name="ln-3917" href="#ln-3917"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_FieldSplit</span><span class="w"></span>
+<a id="ln-3918" name="ln-3918" href="#ln-3918"></a>
+<a id="ln-3919" name="ln-3919" href="#ln-3919"></a><span class="w">  </span><span class="k">module function </span><span class="n">MAPL_GetCorrectedPhase</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span><span class="w"></span>
+<a id="ln-3920" name="ln-3920" href="#ln-3920"></a><span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w"></span>
+<a id="ln-3921" name="ln-3921" href="#ln-3921"></a><span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<a id="ln-3922" name="ln-3922" href="#ln-3922"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span><span class="w"></span>
+<a id="ln-3923" name="ln-3923" href="#ln-3923"></a><span class="w"> </span>
+<a id="ln-3924" name="ln-3924" href="#ln-3924"></a><span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<a id="ln-3925" name="ln-3925" href="#ln-3925"></a>
+<a id="ln-3926" name="ln-3926" href="#ln-3926"></a><span class="w">     </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">currentPhase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<a id="ln-3927" name="ln-3927" href="#ln-3927"></a><span class="w">     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<a id="ln-3928" name="ln-3928" href="#ln-3928"></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">phase</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="o">-</span><span class="mi">10</span><span class="w"></span>
+<a id="ln-3929" name="ln-3929" href="#ln-3929"></a><span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<a id="ln-3930" name="ln-3930" href="#ln-3930"></a><span class="w">  </span><span class="k">end function </span><span class="n">MAPL_GetCorrectedPhase</span><span class="w"></span>
+<a id="ln-3931" name="ln-3931" href="#ln-3931"></a>
+<a id="ln-3932" name="ln-3932" href="#ln-3932"></a><span class="k">end submodule </span><span class="n">Base_Implementation</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -4172,7 +4171,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-23T17:26:32.169179             </p>
+ on 2023-07-10T14:52:29.364805             </p>
           </div>
         </div>
         <br>

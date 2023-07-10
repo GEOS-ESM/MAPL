@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">34 statements</a>
+               title=" 0.1% of total for procedures.">27 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/mpi_demo.F90"> Source File</a>
+              <a href="../src/demo.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/mpi_demo.f90.html'>mpi_demo.F90</a></li>
-              <li><a href='../program/main~7.html'>main</a></li>
+              <li><a href='../sourcefile/demo.f90.html'>demo.F90</a></li>
+              <li><a href='../program/main~6.html'>main</a></li>
           <li class="active">do_lap</li>
         </ol>
       </div>
@@ -184,7 +184,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-prof"></span>
-              type(<a href='../type/distributedprofiler.html'>DistributedProfiler</a>),
+              type(<a href='../type/timeprofiler.html'>TimeProfiler</a>),
             </td>
 <td></td>
               <td></td>            <td>
@@ -245,14 +245,14 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">do_lap</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prof</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prof</span><span class="w"></span>
 
 <span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
-<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">7</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">rank</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">7</span><span class="p">))</span><span class="w"></span>
 <span class="w">      </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1b&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 4</span>
@@ -266,14 +266,7 @@
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
-<span class="w">      </span><span class="k">block</span>
-<span class="k">        </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span><span class="w"></span>
-<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="mi">1000000</span><span class="p">))</span><span class="w"></span>
-<span class="w">        </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;sum: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="nb">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="w"></span>
-<span class="w">        </span><span class="k">deallocate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end block</span>
-<span class="k">      call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"></span>
 
@@ -302,7 +295,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-23T17:26:32.169179             </p>
+ on 2023-07-10T14:52:29.364805             </p>
           </div>
         </div>
         <br>
