@@ -17,6 +17,7 @@ module HistoryTrajectoryMod
    use MAPL_CommsMod
    use MAPL_SortMod
    use MAPL_NetCDF
+   use MAPL_plain_netCDF_Time
    use MAPL_LocstreamRegridderMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -103,6 +104,9 @@ module HistoryTrajectoryMod
          character(len=ESMF_MAXSTR) :: var_name_lon
          character(len=ESMF_MAXSTR) :: var_name_lat
          character(len=ESMF_MAXSTR) :: var_name_time
+         integer :: time_integer, second
+         type(ESMF_TimeInterval)  :: Frequency_epoch
+
          type(Logger), pointer :: lgr
 
          _UNUSED_DUMMY(unusable)
@@ -117,6 +121,16 @@ module HistoryTrajectoryMod
               label=trim(string) // 'nc_Longitude:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%nc_latitude, default="", &
               label=trim(string) // 'nc_Latitude:', _RC)
+
+         call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
+         _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
+         call hms_2_s (time_integer, second, _RC)
+         call ESMF_TimeIntervalSet(frequency_epoch, s=second, _RC)
+!         hq%frequency_epoch = frequency_epoch
+!         hq%RingTime  = currTime
+!         hq%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency_epoch, &
+!              RingTime=hq%RingTime, sticky=.false., _RC )         
+
 
          traj%datetime_units = "seconds since 1970-01-01 00:00:00"
 
@@ -224,7 +238,7 @@ module HistoryTrajectoryMod
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
          this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
 
-         STOP -1
+!!         STOP -1
          
 
          this%number_written = 0
@@ -261,6 +275,103 @@ module HistoryTrajectoryMod
 
       end subroutine initialize
 
+
+      subroutine initialize_org(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
+         class(HistoryTrajectory), intent(inout) :: this
+         type(GriddedIOitemVector), target, intent(inout) :: items
+         type(ESMF_FieldBundle), intent(inout) :: bundle
+         type(TimeData), intent(inout) :: timeInfo
+         class (KeywordEnforcer), optional, intent(in) :: unusable
+         type(VerticalData), optional, intent(inout) :: vdata
+         logical, optional, intent(inout) :: recycle_track
+         integer, optional, intent(out) :: rc
+
+         integer :: status,nobs
+         type(ESMF_Grid) :: grid
+         type(ESMF_Clock) :: clock
+         type(variable) :: v
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
+
+         _UNUSED_DUMMY(unusable)
+
+         this%bundle=bundle
+         this%items=items
+
+         if (present(vdata)) then
+            this%vdata=vdata
+         else
+            this%vdata=VerticalData(_RC)
+         end if
+         call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC)
+         this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
+
+         call timeInfo%add_time_to_metadata(this%metadata,_RC)
+         this%time_info = timeInfo
+         nobs = size(this%times)
+         v = variable(type=PFIO_REAL64,dimensions="time")
+         call v%add_attribute('units','degrees_east')
+         call v%add_attribute('long_name','longitude')
+         call this%metadata%add_variable(trim('longitude'),v)
+         v = variable(type=PFIO_REAL64,dimensions="time")
+         call v%add_attribute('units','degrees_east')
+         call v%add_attribute('long_name','latitude')
+         call this%metadata%add_variable(trim('latitude'),v)
+
+         iter = this%items%begin()
+
+         do while (iter /= this%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               call this%create_variable(item%xname,_RC)
+            else if (item%itemType == ItemTypeVector) then
+               call this%create_variable(item%xname,_RC)
+               call this%create_variable(item%yname,_RC)
+            end if
+            call iter%next()
+         enddo
+
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
+
+         STOP -1
+         
+
+         this%number_written = 0
+         this%previous_index = lbound(this%times,1)-1
+         call timeInfo%get(clock=clock,_RC)
+         call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
+
+         this%regridder = LocStreamRegridder(grid,this%root_locstream,_RC)
+         call this%create_output_bundle(_RC)
+         this%file_name = ''
+
+         ! swath
+         ! time-indepent -- simple
+         ! donot have root -- distribute -- on MPI
+
+         !  
+         !   [ 1, 10 min ]
+         !   send time index to distrute
+         !   collect
+         !   each PET, check and collect.
+         !
+         
+         ! heartbeat
+
+         
+         this%recycle_track=.false.
+         if (present(recycle_track)) then
+            this%recycle_track=recycle_track
+         end if
+         if (this%recycle_track) then
+            call this%reset_times_to_current_day(_RC)
+         end if
+         _RETURN(_SUCCESS)
+
+      end subroutine initialize_org
+      
       function compute_times_for_interval(this,interval,rc) result(rtimes)
          class(HistoryTrajectory), intent(inout) :: this
          integer, intent(in) :: interval(2)
