@@ -863,7 +863,7 @@ module HistoryTrajectoryMod
          real(kind=REAL64), allocatable :: times_R8_full(:)
          real(kind=ESMF_KIND_R8), allocatable :: times_R8_full2(:)         
 
-         integer(kind=ESMF_KIND_I8) :: nstart, nend
+
          integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
@@ -877,7 +877,8 @@ module HistoryTrajectoryMod
          integer :: i, j, k
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2         
-         integer(kind=ESMF_KIND_R8) :: jx0, jx1
+         integer(kind=ESMF_KIND_I8) :: nstart, nend
+         real(kind=ESMF_KIND_R8) :: jx0, jx1
          integer :: nx
          integer :: sec
 
@@ -944,8 +945,10 @@ module HistoryTrajectoryMod
                allocate (times_R8_full2 (nend) ) 
                times_R8_full2 = real (times_R8_full, kind=ESMF_KIND_R8)
 
-               call bisect( times_R8_full2, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
-               call bisect( times_R8_full2, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               call bisect( times_R8_full2, jx0, jt1, n_LB=nstart, n_UB=nend ) 
+!-org
+!               call bisect( times_R8_full2, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+!               call bisect( times_R8_full2, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
                if (jt1==jt2) then
                   _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
                endif
