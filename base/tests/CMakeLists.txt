@@ -15,6 +15,7 @@ set (TEST_SRCS
     test_DirPath.pf
     test_TimeStringConversion.pf
     test_StrTemplate.pf
+    test_MAPL_NetCDF.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 

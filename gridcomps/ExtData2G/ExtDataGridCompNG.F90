@@ -1,23 +1,28 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_Exceptions.h"
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
-
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-
-   MODULE MAPL_ExtDataGridComp2G
-
-!BOP
-! !MODULE: MAPL_ExtDataGridCompMod - Implements Interface to External Data
 !
-! !DESCRIPTION:
+!>
+!### MODULE: `MAPL_ExtDataGridComp2G`
 !
-!  {\tt MAPL\_ExtDataGridComp} is an ESMF gridded component implementing
+! Author: GMAO SI-Team
+!
+! `MAPL_ExtDataGridComp` is an ESMF gridded component implementing
 !  an interface to boundary conditions and other types of external data
 !  files.
 !
 !  Developed for GEOS-5 release Fortuna 2.0 and later.
+!
+!#### History
+!- 12Dec2009:  da Silva  Design and first implementation.
+!
+   MODULE MAPL_ExtDataGridComp2G
 !
 ! !USES:
 !
@@ -63,12 +68,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-!EOP
-!
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
 !-------------------------------------------------------------------------
 
   integer, parameter         :: MAPL_ExtDataLeft          = 1
@@ -100,13 +99,12 @@
      PRIVATE
      type(PrimaryExports) :: Primary
      type(DerivedExports) :: Derived
-     ! will add fields from export state to this state
-     ! will also add new fields that could be mask
-     ! or primary exports that were not in the export
-     ! state recieved by ExtData, i.e. fields that are
-     ! needed by a derived field where the primary fields
-     ! are not actually required
-     type(ESMF_State)     :: ExtDataState
+     type(ESMF_State)     :: ExtDataState !! will add fields from export state to this state
+                                          !! will also add new fields that could be mask
+                                          !! or primary exports that were not in the export
+                                          !! state recieved by ExtData, i.e. fields that are
+                                          !! needed by a derived field where the primary fields
+                                          !! are not actually required
      type(ESMF_Config)    :: CF
      logical              :: active
   end type MAPL_ExtData_State
@@ -121,28 +119,14 @@ CONTAINS
 
 
 !-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-!BOP
+!>
+! Sets Initialize, Run and Finalize services for the `MAPL_ExtData` component.
 !
-! !IROUTINE: SetServices --- Sets IRF services for the MAPL_ExtData
-!
-! !INTERFACE:
-
    SUBROUTINE SetServices ( GC, RC )
 
-! !ARGUMENTS:
+    type(ESMF_GridComp), intent(INOUT) :: GC  !! gridded component
+    integer, optional,   intent(OUT)   :: RC  !! return code
 
-    type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, optional                  :: RC  ! return code
-
-! !DESCRIPTION: Sets Initialize, Run and Finalize services.
-!
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
 !   Local derived type aliases
@@ -233,41 +217,22 @@ CONTAINS
 
 
 !-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
-!-------------------------------------------------------------------------
-!BOP
+!>
+! Initialize the `MAPL_ExtData` component.
 !
-! !IROUTINE:  Initialize_ --- Initialize MAPL_ExtData
-!
-! !INTERFACE:
-!
-
    SUBROUTINE Initialize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
-
-! !USES:
 
    implicit NONE
 
-! !INPUT PARAMETERS:
+   type(ESMF_Clock),  intent(inout)   :: CLOCK   !! The clock
 
-   type(ESMF_Clock),  intent(inout)   :: CLOCK   ! The clock
+   type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
+   type(ESMF_State), intent(inout)    :: IMPORT  !! Import State
+   type(ESMF_State), intent(inout)    :: EXPORT  !! Export State
+   integer, intent(out)               :: rc      !! Error return code:   
+                                                 !!  0 - all is well      
+                                                 !!  1 -   
 
-! !OUTPUT PARAMETERS:
-
-   type(ESMF_GridComp), intent(inout) :: GC      ! Grid Component
-   type(ESMF_State), intent(inout)    :: IMPORT  ! Import State
-   type(ESMF_State), intent(inout)    :: EXPORT  ! Export State
-   integer, intent(out)               :: rc      ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 -
-
-! !DESCRIPTION: This is a simple ESMF wrapper.
-!
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
@@ -503,41 +468,22 @@ CONTAINS
 
 
 !-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
-!-------------------------------------------------------------------------
-!BOP
+!>
+! Run the `MAPL_ExtData` component.
 !
-! !IROUTINE:  Run_ --- Runs MAPL_ExtData
-!
-! !INTERFACE:
-!
-
    SUBROUTINE Run_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-! !USES:
+   implicit NONE
 
-  implicit NONE
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
-! !INPUT PARAMETERS:
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out) ::  rc                   !! Error return code:   
+                                                 !!  0 - all is well   
+                                                 !!  1 -   
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
-
-! !OUTPUT PARAMETERS:
-
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out) ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 -
-
-! !DESCRIPTION: This is a simple ESMF wrapper.
-!
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
@@ -550,7 +496,7 @@ CONTAINS
    type(DerivedExport), pointer      :: derivedItem
    integer                           :: i
 
-   type(ESMF_Time)                   :: time, current_time
+   type(ESMF_Time)                   :: use_time, current_time
    type(MAPL_MetaComp), pointer      :: MAPLSTATE
 
    logical                           :: doUpdate_
@@ -631,19 +577,19 @@ CONTAINS
 
       call MAPL_TimerOn(MAPLSTATE,"--CheckUpd")
 
-      call item%update_freq%check_update(do_pointer_update(i),time,current_time,.not.hasRun,_RC)
+      call item%update_freq%check_update(do_pointer_update(i),use_time,current_time,.not.hasRun,_RC)
       adjusted_time = item%update_freq%get_adjusted_time(current_time)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
       !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
       call item%modelGridFields%comp1%reset()
-      call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
+      call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
       if (item%vartype == MAPL_VectorField) then
-         call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
+         call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
       call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
       call IOBundle_Add_Entry(IOBundles,item,idx)
-      useTime(i)=time
+      useTime(i)=use_time
 
    end do READ_LOOP
 
@@ -737,7 +683,7 @@ CONTAINS
 
       derivedItem => self%derived%item(i)
 
-      call derivedItem%update_freq%check_update(doUpdate_,time,current_time,.not.hasRun,_RC)
+      call derivedItem%update_freq%check_update(doUpdate_,use_time,current_time,.not.hasRun,_RC)
 
       if (doUpdate_) then
 
@@ -762,41 +708,22 @@ CONTAINS
    END SUBROUTINE Run_
 
 !-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
-!-------------------------------------------------------------------------
-!BOP
+!>
+! Finalize the `MAPL_ExtData` component.
 !
-! !IROUTINE:  Finalize_ --- Finalize MAPL_ExtData
-!
-! !INTERFACE:
-!
-
    SUBROUTINE Finalize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-! !USES:
+   implicit NONE
 
-  implicit NONE
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
-! !INPUT PARAMETERS:
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, intent(out) ::  rc                   !! Error return code:   
+                                                 !!  0 - all is well   
+                                                 !!  1 -   
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK      ! The clock
-
-! !OUTPUT PARAMETERS:
-
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, intent(out) ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 -
-
-! !DESCRIPTION: This is a simple ESMF wrapper.
-!
-! !REVISION HISTORY:
-!
-!  12Dec2009  da Silva  Design and first implementation.
-!
-!EOP
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
@@ -1841,19 +1768,14 @@ CONTAINS
      character(len=*), intent(in) :: yaml_file
      integer, intent(out), optional :: rc
 
-      type(Parser)              :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig), allocatable :: config
       integer :: status
 
       am_running=.true.
-      p = Parser('core')
-      config = p%load(yaml_file,rc=status)
-      if (status/=_SUCCESS) then
-          _FAIL("Error parsing: "//trim(yaml_file))
-      end if
 
-      if (config%has("USE_EXTDATA")) then
-         am_running = config%of("USE_EXTDATA")
+      config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
+      if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
+         am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
       end if
       _RETURN(_SUCCESS)
 

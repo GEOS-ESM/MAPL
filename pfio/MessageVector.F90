@@ -19,6 +19,7 @@ module pFIO_MessageVectorUtilMod
    use pFIO_MessageVectorMod
    use pFIO_ProtocolParserMod
    use pFIO_CollectiveStageDataMessageMod
+   use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
    private 
 
@@ -27,9 +28,10 @@ module pFIO_MessageVectorUtilMod
 
 contains
 
-  subroutine serialize_message_vector(msgVec,buffer)
+  subroutine serialize_message_vector(msgVec,buffer, rc)
      type (MessageVector),intent(in) :: msgVec
      integer, allocatable,intent(inout) :: buffer(:)
+     integer, optional, intent(out) :: rc
      integer, allocatable :: tmp(:)
      class (AbstractMessage),pointer :: msg
      integer :: n, i
@@ -42,7 +44,13 @@ contains
         msg=>msgVec%at(i)
         tmp =[tmp, parser%encode(msg)]
      enddo
+
+     if(size(tmp, kind=INT64) > huge(0)) then
+       _FAIL("need to increase oserver's nfront")
+     endif
+
      i = size(tmp)+1
+
      if (allocated(buffer)) deallocate(buffer)
      buffer =[i,tmp]
 

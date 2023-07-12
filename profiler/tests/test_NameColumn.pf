@@ -27,26 +27,26 @@ contains
 
    @test
    subroutine test_get_rows()
-!!$      type (NameColumn) :: column
-!!$      type (MeterNode), target :: node
-!!$      integer, parameter :: WIDTH = 10
-!!$      character(len=WIDTH) :: expected(3)
-!!$      character(:), allocatable :: found(:)
-!!$
-!!$      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
-!!$      call node%add_child('t1', AdvancedMeter(MpiTimerGauge()))
-!!$      call node%add_child('t2', AdvancedMeter(MpiTimerGauge()))
-!!$
-!!$      column = NameColumn(width=WIDTH)
-!!$
-!!$      expected(1) = 'all'
-!!$      expected(2) = '--t1'
-!!$      expected(3) = '--t2'
-!!$
-!!$      call column%get_rows(node, found)
-!!$      do i = 1, 3
-!!$         @assertEqual(expected(i), found(i))
-!!$      end do
+!C$      type (NameColumn) :: column
+!C$      type (MeterNode), target :: node
+!C$      integer, parameter :: WIDTH = 10
+!C$      character(len=WIDTH) :: expected(3)
+!C$      character(:), allocatable :: found(:)
+!C$
+!C$      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+!C$      call node%add_child('t1', AdvancedMeter(MpiTimerGauge()))
+!C$      call node%add_child('t2', AdvancedMeter(MpiTimerGauge()))
+!C$
+!C$      column = NameColumn(width=WIDTH)
+!C$
+!C$      expected(1) = 'all'
+!C$      expected(2) = '--t1'
+!C$      expected(3) = '--t2'
+!C$
+!C$      call column%get_rows(node, found)
+!C$      do i = 1, 3
+!C$         @assertEqual(expected(i), found(i))
+!C$      end do
       
    end subroutine test_get_rows
 

@@ -11,7 +11,7 @@ exp
   carried out by means of several *jobs* which are submitted through a
   queueing system such as PBS.
 
-job 
+job
   This package defines the base class *Job* which inherits from
   *Exp*. A *job* carries out a portion of the *experiment*,
   itself consisting of several *run* segments.
@@ -38,19 +38,10 @@ with 2 run segments.
    |----------------------- Experiment ------------------------|
    |------ Job 1 ------|------ Job 2 ------|------ Job 3 ------|
    |- Run 1 -|- Run 2 -|- Run 3 -|- Run 4 -|- Run 5 -|- Run 6 -|
- 
+
 If each run segment is 2 weeks long, each job performs a 4 week
 integration, and the the whole experiment is about 3 month long.
 
 """
 
-__version__ = "0.1.2"
-
-from exp      import *
-from job      import *
-from run      import *
-from config   import *
-from history  import *
-from Date     import *
-from filelock import *
-
+__version__ = "1.0.0"

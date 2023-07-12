@@ -1,0 +1,67 @@
+name: "Deploy Documentation"
+description: "Deploy documentation to GitHub Pages"
+
+# Define the inputs for this action
+inputs:
+  ford-input:
+    description: "The Ford input file"
+    required: true
+  doc-folder:
+    description: "The folder containing the documentation to deploy"
+    required: true
+  token:
+    description: "The GitHub token to use for authentication"
+    required: true
+  target-folder:
+    description: "The folder to deploy to"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install graphviz
+      run: sudo apt-get install -y graphviz
+      shell: bash
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Ford
+      run: pip install ford
+      shell: bash
+
+    - name: Ford version
+      run: ford --version
+      shell: bash
+
+    - name: Checkout gFTL
+      uses: actions/checkout@v3
+      with:
+        repository: Goddard-Fortran-Ecosystem/gFTL
+        path: gFTL
+        fetch-depth: 1
+
+    - name: Build gFTL
+      run: |
+        cd gFTL
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_Fortran_COMPILER=gfortran-10 -DCMAKE_INSTALL_PREFIX=../install
+        make -j$(nproc) install
+      shell: bash
+
+    - name: Build Documentation
+      run: ford ${{ inputs.ford-input }}
+      shell: bash
+
+    - name: Deploy Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' )
+      with:
+        folder: ${{ inputs.doc-folder }}
+        token: ${{ inputs.token }}
+        target-folder: ${{ inputs.target-folder }}
+

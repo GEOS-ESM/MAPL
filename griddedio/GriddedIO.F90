@@ -22,6 +22,7 @@ module MAPL_GriddedIOMod
   use gFTL_StringVector
   use gFTL_StringStringMap
   use MAPL_FileMetadataUtilsMod
+  use MAPL_DownbitMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
@@ -354,12 +355,22 @@ module MAPL_GriddedIOMod
            units = 'unknown'
         endif
         grid_dims = factory%get_grid_vars()
-        if (fieldRank==2) then
-           vdims=grid_dims//",time"
-        else if (fieldRank==3) then
-           vdims=grid_dims//",lev,time"
+        if (this%timeInfo%is_initialized) then
+           if (fieldRank==2) then
+              vdims=grid_dims//",time"
+           else if (fieldRank==3) then
+              vdims=grid_dims//",lev,time"
+           else
+              _FAIL( 'Unsupported field rank')
+           end if
         else
-           _FAIL( 'Unsupported field rank')
+           if (fieldRank==2) then
+              vdims=grid_dims
+           else if (fieldRank==3) then
+              vdims=grid_dims//",lev"
+           else
+              _FAIL( 'Unsupported field rank')
+           end if
         end if
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
         call v%add_attribute('units',trim(units))
@@ -373,7 +384,14 @@ module MAPL_GriddedIOMod
         call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+        ! Weird workaround for NAG 7.1.113
+#ifdef __NAG_COMPILER_RELEASE
+        associate (s => regrid_method_int_to_string(this%regrid_method))
+          call v%add_attribute('regrid_method', s)
+        end associate
+#else
         call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
+#endif
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
@@ -402,14 +420,17 @@ module MAPL_GriddedIOMod
         type(StringVariableMap) :: var_map
         integer :: status
 
-        v = this%timeInfo%define_time_variable(rc=status)
-        _VERIFY(status)
-        call this%metadata%modify_variable('time',v,rc=status)
-        _VERIFY(status)
-        if (present(oClients)) then
-           call var_map%insert('time',v)
-           call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
+        if (this%timeInfo%is_initialized) then
+           v = this%timeInfo%define_time_variable(_RC)
+           call this%metadata%modify_variable('time',v,rc=status)
            _VERIFY(status)
+           if (present(oClients)) then
+              call var_map%insert('time',v)
+              call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
+              _VERIFY(status)
+           end if
+        else
+           _FAIL("Time was not initialized for the GriddedIO class instance")
         end if
         _RETURN(ESMF_SUCCESS)
 
@@ -422,8 +443,12 @@ module MAPL_GriddedIOMod
 
         integer :: status
 
-        call this%timeInfo%setFrequency(frequency, rc=status)
-        _VERIFY(status)
+        if (this%timeInfo%is_initialized) then
+           call this%timeInfo%setFrequency(frequency, rc=status)
+           _VERIFY(status)
+        else
+           _FAIL("Time was not initialized for the GriddedIO class instance")
+        end if
 
         _RETURN(ESMF_SUCCESS)
 
@@ -442,15 +467,22 @@ module MAPL_GriddedIOMod
 
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
+        logical :: have_time
+  
+        have_time = this%timeInfo%am_i_initialized()
 
-        this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
-        _VERIFY(status)
-        ref = ArrayReference(this%times)
-        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+        if (have_time) then
+           this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
+           _VERIFY(status)
+           ref = ArrayReference(this%times)
+           call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
-        tindex = size(this%times)
-        if (tindex==1) then
-           call this%stage2DLatLon(filename,oClients=oClients,_RC)
+           tindex = size(this%times)
+           if (tindex==1) then
+              call this%stage2DLatLon(filename,oClients=oClients,_RC)
+           end if
+        else
+           tindex = -1
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
@@ -872,6 +904,12 @@ module MAPL_GriddedIOMod
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
      class (AbstractGridFactory), pointer :: factory
+     real, allocatable :: temp_2d(:,:), temp_3d(:,:,:)
+     type(ESMF_VM) :: vm
+     integer :: mpi_comm
+
+     call ESMF_VMGetCurrent(vm,_RC)
+     call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
 
      factory => get_factory(this%output_grid,rc=status)
      _VERIFY(status)
@@ -888,7 +926,8 @@ module MAPL_GriddedIOMod
            call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
            _VERIFY(status)
            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-              call pFIO_DownBit(ptr2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,rc=status)
+              allocate(temp_2d,source=ptr2d)
+              call DownBit(temp_2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
               _VERIFY(status)
            end if
         else
@@ -896,14 +935,20 @@ module MAPL_GriddedIOMod
         end if
         ref = factory%generate_file_reference2D(Ptr2D)
         allocate(localStart,source=[gridLocalStart,1])
-        allocate(globalStart,source=[gridGlobalStart,tindex])
-        allocate(globalCount,source=[gridGlobalCount,1])
+        if (tindex > -1) then
+           allocate(globalStart,source=[gridGlobalStart,tindex])
+           allocate(globalCount,source=[gridGlobalCount,1])
+        else
+           allocate(globalStart,source=gridGlobalStart)
+           allocate(globalCount,source=gridGlobalCount)
+        end if
       else if (fieldRank==3) then
          if (HasDE) then
             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
             _VERIFY(status)
             if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
-               call pFIO_DownBit(ptr3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,rc=status)
+               allocate(temp_3d,source=ptr3d)
+               call DownBit(temp_3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,rc=status)
                _VERIFY(status)
             end if
          else
@@ -911,8 +956,13 @@ module MAPL_GriddedIOMod
          end if
          ref = factory%generate_file_reference3D(Ptr3D)
          allocate(localStart,source=[gridLocalStart,1,1])
-         allocate(globalStart,source=[gridGlobalStart,1,tindex])
-         allocate(globalCount,source=[gridGlobalCount,lm,1])
+         if (tindex > -1) then
+            allocate(globalStart,source=[gridGlobalStart,1,tindex])
+            allocate(globalCount,source=[gridGlobalCount,lm,1])
+         else
+            allocate(globalStart,source=[gridGlobalStart,1])
+            allocate(globalCount,source=[gridGlobalCount,lm])
+         end if
       else
          _FAIL( "Rank not supported")
       end if

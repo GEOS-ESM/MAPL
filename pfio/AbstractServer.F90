@@ -424,12 +424,13 @@ contains
       character(:), allocatable :: report_lines(:)
       type (ProfileReporter) :: reporter
       character(1) :: empty(0)
-      integer :: i
+      integer :: i, status
 
       if ( .not. associated(ioserver_profiler)) then
          _RETURN(_SUCCESS)
       endif
 
+      call ioserver_profiler%stop(_RC)
       call ioserver_profiler%reduce()
 
       reporter = ProfileReporter(empty)
@@ -445,7 +446,7 @@ contains
       report_lines = reporter%generate_report(ioserver_profiler)
 
       if (this%rank == 0) then
-         write(*,'(a)')'Final profile'
+         write(*,'(a)')'Final io_server profile'
          write(*,'(a)')'============='
          do i = 1, size(report_lines)
             write(*,'(a)') report_lines(i)

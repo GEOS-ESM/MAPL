@@ -9,7 +9,45 @@ module MAPL_SphericalGeometry
 implicit none
 private
 public get_points_in_spherical_domain
+public get_area_spherical_polygon
 contains
+
+ ! get area of spherical rectangle given the four corners
+ ! p4 ------ p3
+ !    |    |
+ !    |    |
+ !    |    |
+ ! p1 ------ p2
+ function get_area_spherical_polygon(p1,p4,p2,p3) result(area)
+    real(real64) :: area
+    real(real64), intent(in) :: p1(2),p2(2),p3(2),p4(2)
+    
+    real(real64) :: e1(3),e2(3),e3(3)
+    real(real64) :: ang1,ang2,ang3,ang4
+
+    e1 = convert_to_cart(p1)
+    e2 = convert_to_cart(p2)
+    e3 = convert_to_cart(p4)
+    ang1 = spherical_angles(e1, e2, e3)
+
+    e1 = convert_to_cart(p2)
+    e2 = convert_to_cart(p3)
+    e3 = convert_to_cart(p1)
+    ang2 = spherical_angles(e1, e2, e3)
+
+    e1 = convert_to_cart(p3)
+    e2 = convert_to_cart(p4)
+    e3 = convert_to_cart(p2)
+    ang3 = spherical_angles(e1, e2, e3)
+
+    e1 = convert_to_cart(p4)
+    e2 = convert_to_cart(p3)
+    e3 = convert_to_cart(p1)
+    ang4 = spherical_angles(e1, e2, e3)
+
+    area = ang1 + ang2 + ang3 + ang4 - 2.0d0*MAPL_PI_R8
+
+ end function get_area_spherical_polygon
 
  subroutine get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,lons,lats,ii,jj,rc)
     real(real64), intent(in) :: center_lats(:,:),center_lons(:,:)
@@ -136,7 +174,7 @@ contains
     !real(real64) :: crs12(3),crs23(3),crs34(3),crs41(3)
     !real(real64) :: d12,d23,d34,d41
     !logical :: signs(4)
-    !! a1 -> a2 -> a3 -> a4 so a4 connects to a1
+    ! a1 -> a2 -> a3 -> a4 so a4 connects to a1
 
     !p1c=convert_to_cart(p1)
     !a1c=convert_to_cart(a1)
@@ -216,5 +254,54 @@ function vect_mag(v) result(mag)
    real :: mag
    mag = sqrt(v(1)*v(1)+v(2)*v(2)+v(3)*v(3))
 end function vect_mag
+
+function spherical_angles(p1,p2,p3) result(spherical_angle)
+   real(real64) :: spherical_angle
+   real(real64), intent(in) :: p1(3),p2(3),p3(3)
+
+   real (real64):: e1(3), e2(3), e3(3)
+   real (real64):: px, py, pz
+   real (real64):: qx, qy, qz
+   real (real64):: angle, ddd
+   integer n
+
+   do n=1,3
+      e1(n) = p1(n)
+      e2(n) = p2(n)
+      e3(n) = p3(n)
+   enddo
+
+   !-------------------------------------------------------------------
+   ! Page 41, Silverman's book on Vector Algebra; spherical trigonmetry
+   !-------------------------------------------------------------------
+   ! Vector P:
+   px = e1(2)*e2(3) - e1(3)*e2(2)
+   py = e1(3)*e2(1) - e1(1)*e2(3)
+   pz = e1(1)*e2(2) - e1(2)*e2(1)
+   ! Vector Q:
+   qx = e1(2)*e3(3) - e1(3)*e3(2)
+   qy = e1(3)*e3(1) - e1(1)*e3(3)
+   qz = e1(1)*e3(2) - e1(2)*e3(1)
+
+   ddd = (px*px+py*py+pz*pz)*(qx*qx+qy*qy+qz*qz)
+
+   if ( ddd <= 0.0d0 ) then
+      angle = 0.d0
+   else
+      ddd = (px*qx+py*qy+pz*qz) / sqrt(ddd)
+      if ( abs(ddd)>1.d0) then
+         angle = 0.5d0 * MAPL_PI_R8
+         if (ddd < 0.d0) then
+            angle = MAPL_PI_R8
+         else
+            angle = 0.d0
+         end if
+      else
+         angle = acos( ddd )
+      endif
+   endif
+
+   spherical_angle = angle
+end function
 
 end module MAPL_SphericalGeometry

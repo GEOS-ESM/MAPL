@@ -41,6 +41,7 @@ module pFIO_ServerThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
 
    use pFIO_NetCDF4_FileFormatterMod
    use pFIO_HistoryCollectionMod
@@ -95,6 +96,7 @@ module pFIO_ServerThreadMod
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
       procedure :: handle_ModifyMetadata
+      procedure :: handle_ReplaceMetadata
       procedure :: handle_HandShake
 
       procedure :: get_hist_collection
@@ -593,6 +595,25 @@ contains
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
 
+   subroutine handle_ReplaceMetadata(this, message, rc)
+      class (ServerThread), intent(inout) :: this
+      type (ReplaceMetadataMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      type (HistoryCollection),pointer :: hist_collection
+      class(AbstractSocket),pointer :: connection
+      type (DummyMessage) :: handshake_msg
+      integer :: status
+
+      hist_collection=>this%hist_collections%at(message%collection_id)
+      call hist_collection%ReplaceMetadata(message%fmd)
+
+      connection=>this%get_connection()
+      call connection%send(handshake_msg,_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine handle_ReplaceMetadata
+
    subroutine handle_HandShake(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
       type (HandShakeMessage), intent(in) :: message
@@ -824,16 +845,16 @@ contains
       case (1:)
           select case (message%type_kind)
           case (pFIO_INT32)
-              call c_f_pointer(address, values_int32_1d, [product(count)])
+              call c_f_pointer(address, values_int32_1d, [product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
           case (pFIO_INT64)
-              call c_f_pointer(address, values_int64_1d, [product(count)])
+              call c_f_pointer(address, values_int64_1d, [product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
-              call c_f_pointer(address, values_real32_1d, [product(count)])
+              call c_f_pointer(address, values_real32_1d,[product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
-              call c_f_pointer(address, values_real64_1d, [product(count)])
+              call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
               _FAIL( "not supported type")

@@ -339,7 +339,7 @@ contains
      _RETURN(0)
    end subroutine create_subobjects
 
-   subroutine deactivate_threading(this, unusable, rc)
+   recursive subroutine deactivate_threading(this, unusable, rc)
      class(MaplGenericComponent), intent(inout) :: this
      class(KeywordEnforcer), optional :: unusable
      integer, optional, intent(out) :: rc

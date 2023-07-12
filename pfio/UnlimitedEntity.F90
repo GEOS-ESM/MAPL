@@ -1,27 +1,28 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
+!>
+!### MODULE: `pFIO_UnlimitedEntityMod`
+!
+! Author: GMAO SI-Team
+!
+! The module `pFIO_UnlimitedEntityMod` encapsulates notion of variable UnlimitedEntitys.
+!
+! `CFIO_AtttributeMod` is a support layer for the CFIO package and
+! which implements encapsulates variable UnlimitedEntitys ala NetCDF.
+! An UnlimitedEntity can be any Fortan kind/type and can either be a scalar
+! or a 1-dimensional vector.   (Strings can only be scalars.)
+!
+! While some functionality exists for containing non-intrinsic types
+! (e.g., user defined types),  the primary intended use is for
+! establishing correspondence with intrinsic types stored in files.
+!
 module pFIO_UnlimitedEntityMod
-
-!BOP
-! !MODULE: pFIO_UnlimitedEntityMod - Encapsulates notion of variable UnlimitedEntitys
-!
-! !DESCRIPTION: 
-!
-!  {\tt CFI\_AtttributeMod} is a support layer for the CFIO package and
-!  which implements encapsulates variable UnlimitedEntitys ala NetCDF.
-!  An UnlimitedEntity can be any Fortan kind/type and can either be a scalar
-!  or a 1-dimensional vector.   (Strings can only be scalars.)
-!  
-!  While some functionality exists for containing non-intrinsic types
-!  (e.g., user defined types),  the primary intended use is for
-!  establishing correspondence with intrinsic types stored in files.
-!
-
-! !USES:
-!
-
-
 
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
@@ -41,7 +42,7 @@ module pFIO_UnlimitedEntityMod
       integer, allocatable :: shape(:)
       class (*), allocatable :: value
       class (*), allocatable :: values(:)
-      logical :: valid = .false. ! just to avoid warning for empty constructor
+      logical :: valid = .false. !! just to avoid warning for empty constructor
    contains
       procedure :: get_shape
       procedure :: get_rank
@@ -55,8 +56,10 @@ module pFIO_UnlimitedEntityMod
       procedure :: serialize
       procedure :: get_string
       procedure :: is_empty
+      procedure :: destroy
    end type UnlimitedEntity
 
+   !>
    ! This derived type is a workaround for sporadic Intel Fortran
    ! issues when accessing strings through unlimited polymorphic
    ! entities.
@@ -66,13 +69,13 @@ module pFIO_UnlimitedEntityMod
 
 
    interface UnlimitedEntity
-      module procedure new_UnlimitedEntity_empty ! scalar constructor
-      module procedure new_UnlimitedEntity_0d ! scalar constructor
-      module procedure new_UnlimitedEntity_1d ! vector constructor
-      module procedure new_UnlimitedEntity_2d ! vector constructor
-      module procedure new_UnlimitedEntity_3d ! vector constructor
-      module procedure new_UnlimitedEntity_4d ! vector constructor
-      module procedure new_UnlimitedEntity_5d ! vector constructor
+      module procedure new_UnlimitedEntity_empty !! scalar constructor
+      module procedure new_UnlimitedEntity_0d    !! scalar constructor
+      module procedure new_UnlimitedEntity_1d    !! vector constructor
+      module procedure new_UnlimitedEntity_2d    !! vector constructor
+      module procedure new_UnlimitedEntity_3d    !! vector constructor
+      module procedure new_UnlimitedEntity_4d    !! vector constructor
+      module procedure new_UnlimitedEntity_5d    !! vector constructor
    end interface UnlimitedEntity
 
    integer :: EMPTY(0)
@@ -231,7 +234,8 @@ contains
       _RETURN(_SUCCESS)
    end function new_UnlimitedEntity_5d
 
-   ! set string or scalar
+   !>
+   ! Set string or scalar
    subroutine set(this, value, rc)
       class (UnlimitedEntity), intent(inout) :: this
       class (*), intent(in) :: value
@@ -253,6 +257,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set
 
+   subroutine destroy(this, rc)
+      class (UnlimitedEntity), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      if(allocated(this%value)) deallocate(this%value)
+      if(allocated(this%values)) deallocate(this%values)
+      if(allocated(this%shape)) deallocate(this%shape)
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   !> 
    ! get string or scalar
    function get_value(this, rc) result(value)
       class (UnlimitedEntity), target, intent(in) :: this
@@ -272,6 +286,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_value
 
+   !>
    ! get 1d , need get_shape to get back to original array
    function get_values(this, rc) result(values)
       class (UnlimitedEntity), target, intent(in) :: this
@@ -304,6 +319,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_string
 
+   !>
    ! Simple accessor
    function get_shape(this, rc) result(shp)
       class (UnlimitedEntity), intent(in) :: this
@@ -353,18 +369,17 @@ contains
       _RETURN(_SUCCESS)
    end function is_empty
 
-   logical function equal(a, b)
-!BOP
-!
-! !IROUTINE: equals() - returns true if-and-only-if a and b
+!------------------------------------------------------------------------------
+!>
+! `equals()` - returns true if-and-only-if a and b
 ! are the same type, kind, shape, and have the same values.
-! !DESCRIPTION: 
 !
 ! Only intrinsic data types are supported.
 !
 ! Ugly nested SELECT TYPE is unfortunately necessary.
 !
-! !INTERFACE:
+   logical function equal(a, b)
+!
       class (UnlimitedEntity), target, intent(in) :: a
       type (UnlimitedEntity), target, intent(in) :: b
 

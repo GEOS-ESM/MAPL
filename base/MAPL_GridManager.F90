@@ -120,6 +120,7 @@ contains
       use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
       use MAPL_LlcGridFactoryMod, only: LlcGridFactory
       use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
+      use MAPL_XYGridFactoryMod, only: XYGridFactory
 
       class (GridManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -131,6 +132,7 @@ contains
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
+      type (XYGridFactory) :: xy_factory
  
       ! This is a local variable to prevent the subroutine from running
       ! initialiazation twice. Calling functions have their own local variables
@@ -148,6 +150,7 @@ contains
          call this%prototypes%insert('Tripolar',  tripolar_factory)
          call this%prototypes%insert('llc',  llc_factory)
          call this%prototypes%insert('External', external_factory)
+         call this%prototypes%insert('XY', xy_factory)
          initialized = .true. 
       end if
 
@@ -476,7 +479,8 @@ contains
       logical :: hasLongitude = .FALSE.
       logical :: hasLat       = .FALSE.
       logical :: hasLatitude  = .FALSE.
-      
+      logical :: splitByface  = .FALSE.
+ 
       _UNUSED_DUMMY(unused)
 
       call ESMF_VMGetCurrent(vm, rc=status)
@@ -488,6 +492,10 @@ contains
       _VERIFY(status)
       file_metadata = file_formatter%read(rc=status)
       _VERIFY(status)
+      call file_formatter%close(rc=status)
+      _VERIFY(status)
+
+      splitByface = file_metadata%has_attribute("Cubed_Sphere_Face_Index")
 
       im = 0
       hasXdim = file_metadata%has_dimension('Xdim')
@@ -523,7 +531,7 @@ contains
          if (status == _SUCCESS) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
-            if (jm == 6*im) then 
+            if (jm == 6*im .or. splitByface) then 
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
                nf = file_metadata%get_dimension('nf',rc=status)
@@ -546,7 +554,7 @@ contains
             end if
          end if
 
-         if (jm == 6*im) then ! old-format cubed-sphere
+         if (jm == 6*im .or. splitByface) then ! old-format cubed-sphere
             allocate(factory, source=this%make_clone('Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
@@ -558,7 +566,6 @@ contains
 
      call factory%initialize(file_metadata, force_file_coordinates=force_file_coordinates, rc=status)
      _VERIFY(status)
-     call file_formatter%close(rc=status)
 
      _RETURN(_SUCCESS)
      

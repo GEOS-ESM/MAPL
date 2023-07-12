@@ -47,6 +47,7 @@ module pFIO_MultiGroupServerMod
    use pFIO_FileMetadataMod
    use pFIO_IntegerMessageMapMod
    use mpi
+   use pFlogger, only: logging, Logger
 
    implicit none
    private
@@ -243,9 +244,6 @@ contains
          call this%threads%clear()
          call this%terminate_backend_server(_RC)
 
-         if (associated(ioserver_profiler)) then
-            call ioserver_profiler%stop(_RC)
-         endif
          call this%report_profile(_RC)
 
          deallocate(mask)
@@ -597,8 +595,8 @@ contains
 
        integer, pointer :: g_1d(:), l_1d(:), g_2d(:,:), l_2d(:,:), g_3d(:,:,:), l_3d(:,:,:)
        integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
-       integer :: msize_word, d_rank, request_id
-       integer :: s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
+       integer :: d_rank, request_id
+       integer(kind=INT64) :: msize_word, s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
        type (StringAttributeMap) :: vars_map
        type (StringAttributeMapIterator) :: var_iter
        type (IntegerMessageMap) :: msg_map
@@ -607,12 +605,20 @@ contains
        class (*), pointer :: x_ptr(:)
        integer , allocatable :: buffer_v(:)
        type (Attribute), pointer :: attr_ptr
+       type (Attribute) :: attr_tmp
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
+       type(AdvancedMeter) :: file_timer
+       real(kind=REAL64) :: time
+       character(len=:), allocatable :: filename
+       real(kind=REAL64) :: file_size, speed
+
+       class(Logger), pointer :: lgr
 
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
+       file_timer = AdvancedMeter(MpiTimerGauge())
        do while (.true.)
 
          ! 1) get collection id from captain
@@ -649,6 +655,7 @@ contains
          ! re-org data
          vars_map = StringAttributeMap()
          msg_map  = IntegerMessageMap()
+         file_size = 0.
 
          do i = 1, this%nfront
             s0 = 1
@@ -657,6 +664,7 @@ contains
             call f_d_m%deserialize(this%buffers(i)%buffer)
             deallocate(this%buffers(i)%buffer)
             if (size(f_d_m%idata) ==0) cycle
+            file_size = file_size + size(f_d_m%idata)
             iter = f_d_m%msg_vec%begin()
             do j = 1, f_d_m%msg_vec%size()
                msg => f_d_m%msg_vec%at(j)
@@ -664,11 +672,13 @@ contains
                type is (CollectiveStageDataMessage)
                   var_iter = vars_map%find(i_to_string(q%request_id))
                   if (var_iter == vars_map%end()) then
-                     msize_word = word_size(q%type_kind)*product(q%global_count)
+                     msize_word = word_size(q%type_kind)*product(int(q%global_count, INT64))
                      allocate(buffer_v(msize_word), source = -1)
-                     call vars_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
-                     var_iter = vars_map%find(i_to_string(q%request_id))
+                     attr_tmp = Attribute(buffer_v)
                      deallocate(buffer_v)
+                     call vars_map%insert(i_to_string(q%request_id),attr_tmp)
+                     call attr_tmp%destroy()
+                     var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
                   attr_ptr => var_iter%value()
@@ -796,12 +806,23 @@ contains
             end select
             select type (q=>msg)
             class is (AbstractDataMessage)
+               filename =q%file_name
+               call file_timer%start()
                call thread_ptr%put_dataToFile(q, address, _RC)
+               call file_timer%stop()
             end select
             call msg_iter%next()
          enddo
          call thread_ptr%clear_hist_collections()
          call thread_ptr%hist_collections%clear()
+
+         time = file_timer%get_total()
+         file_size = file_size*4./1024./1024. ! 4-byte integer, unit is converted to MB
+         speed = file_size/time
+         lgr => logging%get_logger('MAPL.pfio')
+         call lgr%info(" Writing time: %f9.3 s, speed: %f9.3 MB/s, size: %f9.3 MB, at server node: %i0~:%i0~, file: %a", time, speed, file_size, this%node_rank, this%innode_rank, filename)
+         call file_timer%reset()
+
          deallocate (buffer_fmd)
 
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

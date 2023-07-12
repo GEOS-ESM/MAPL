@@ -115,11 +115,12 @@ module MAPL_ExtDataPointerUpdate
                next_ring = this%last_ring
                ! the clock must have rewound past last ring
                if (this%last_ring > current_time) then
-                  do while(next_ring <= current_time)
+                  do while(next_ring >= current_time)
                      next_ring=next_ring-this%update_freq
                   enddo
                   use_time = next_ring+this%offset
                   this%last_ring = next_ring
+                  do_update = .true.
                ! alarm never rang during the previous advance, only update the previous update was the first time
                else if (this%last_ring < current_time) then
                     if (this%first_time_updated) then

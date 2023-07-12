@@ -2,8 +2,6 @@
 
 For user education we have provided some simple tutorials. These demonstrate how to create simple gridded componnts and hierachies of components and drive them via the MAPL_Cap just like the real GEOSgcm model. Each "tutorial" will consist of a set of input files that can be run with our the Example_Driver.x and will itself contain a REAMDE file with explanation about what that particular tutorial is demonstrating. In addition, each will suggest exercises that you can do to extend them.
 
-Before embarking on these tutorials the new users should review the MAPL/ESMF powerpoint presentation here to get a general sense of what these frameworks are about and become familiar with the terminology.
-
 In addition, to use these tutorials you will have to have either built MAPL as a standalone fixture or as part of another fixture like the GEOSgcm. If you are reading this and have not built either, see the instructions for how to build MAPL [here](https://github.com/GEOS-ESM/MAPL/wiki/Building-and-Testing-MAPL-as-a-standalone). For these exercises we highly recommend building MAPL by itself as your build will be much faster, expecially when you change the code. The build itself takes a short time. We also recommend using the "debug" build rather than the "release" build. This will turn off optimzations and add extra error checking. The build will be faster in this case. Details on how to do this is in the aformentioned wiki page.
 
 Once you have installed either MAPL or the full GEOSgcm, you will have an installation directory whose full path I will refer to as INSTALL_DIR.
