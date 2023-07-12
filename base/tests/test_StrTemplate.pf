@@ -7,36 +7,36 @@ module Test_StrTemplate
     implicit none
     private
 
-    public :: test_integer_token
+    public :: test_int_token
     public :: test_string_token
     public :: test_date_token
 
     integer :: nymd = 20000414
     integer :: nhms = 210000
 
-    integer :: integer_token_181 = 181
-    integer :: integer_token_72 = 72
+    integer :: int_token_181 = 181
+    integer :: int_token_72 = 72
 
     character(len=128) :: string_token = "foofoo"
 
 contains
 
     @test
-    subroutine test_integer_token()
+    subroutine test_int_token()
         character(len=*), parameter :: input_template ='an_emission_file_L%i.nc4'
 
         character(len=128) :: expected_output
         character(len=128) :: actual_output
 
         expected_output = "an_emission_file_L181.nc4"
-        call StrTemplate(actual_output,input_template,integer_token=integer_token_181)
+        call StrTemplate(actual_output,input_template,int_token=int_token_181)
         @assertEqual(expected_output, actual_output)
 
         expected_output = "an_emission_file_L72.nc4"
-        call StrTemplate(actual_output,input_template,integer_token=integer_token_72)
+        call StrTemplate(actual_output,input_template,int_token=int_token_72)
         @assertEqual(expected_output, actual_output)
 
-    end subroutine test_integer_token
+    end subroutine test_int_token
 
     @test
     subroutine test_string_token()

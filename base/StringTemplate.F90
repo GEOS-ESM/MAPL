@@ -18,7 +18,7 @@ character(len=3),parameter :: mon_lc(12) = [&
 integer, parameter :: uninit_time = -999999
 
 contains
-   subroutine StrTemplate(str, tmpl, class, xid, nymd, nhms, stat, preserve, integer_token)
+   subroutine StrTemplate(str, tmpl, class, xid, nymd, nhms, stat, preserve, int_token)
       character(len=*), intent(out) :: str
       character(len=*), intent(in ) :: tmpl
 
@@ -28,15 +28,15 @@ contains
       integer,          optional, intent(in ) :: nhms
       integer,          optional, intent(out) :: stat
       logical,          optional, intent(in ) :: preserve
-      integer,          optional, intent(in ) :: integer_token
+      integer,          optional, intent(in ) :: int_token
 
       _UNUSED_DUMMY(class)
 
       call fill_grads_template(str, tmpl, &
-            experiment_id=xid, nymd=nymd, nhms=nhms,integer_token=integer_token,preserve=preserve, rc=stat)
+            experiment_id=xid, nymd=nymd, nhms=nhms,int_token=int_token,preserve=preserve, rc=stat)
    end subroutine StrTemplate
 
-   subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,integer_token,preserve,rc)
+   subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,int_token,preserve,rc)
       character(len=*), intent(out) :: output_string
       character(len=*), intent(in)  :: template
       class(keywordEnforcer), optional, intent(in) :: unusable
@@ -44,7 +44,7 @@ contains
       integer, intent(in), optional :: nymd
       integer, intent(in), optional :: nhms
       type(ESMF_Time), intent(in), optional :: time
-      integer, intent(in), optional :: integer_token
+      integer, intent(in), optional :: int_token
       logical, intent(in), optional :: preserve
       integer, intent(out), optional :: rc
 
@@ -116,9 +116,9 @@ contains
                   _FAIL("Using %s token with no experiment id")
                end if
             case("i")
-               if (present(integer_token)) then
+               if (present(int_token)) then
                   istp=2
-                  write(int_buf,'(I0)')integer_token
+                  write(int_buf,'(I0)')int_token
                   kstp = len_trim(int_buf)
                   m=k+kstp-1
                   output_string(k:m)=int_buf
