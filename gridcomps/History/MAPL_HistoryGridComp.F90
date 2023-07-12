@@ -2370,9 +2370,9 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
-             call list(n)%trajectory%make_grid(_RC)
+             call list(n)%trajectory%create_grid(_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3584,14 +3584,14 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-!!         call ESMF_ClockGet(clock,currTime=current_time,_RC)
-         call list(n)%trajectory%regrid_accumulate(_RC)
+!??!         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+
+!         call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
-            call list(n)%trajectory%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
-            pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-            call list(n)%trajectory%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
-                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+!            call list(n)%trajectory%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
+!            call list(n)%trajectory%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
+!                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
          end if
       end if
       if (list(n)%sampler_spec == 'station') then
