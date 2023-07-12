@@ -66,60 +66,70 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_Config)          :: cf
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth
+         logical :: on_tiles
+         integer :: vloc
 
          call ESMF_GridCompGet( GC, NAME=COMP_NAME, CONFIG=CF, _RC )
 
          call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE,  Initialize_, _RC)
          call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_, _RC)
 
+         call ESMF_ConfigFindLabel(cf,"tiling_file:",isPresent=on_tiles,_RC)
+
          allocate(synth)
          synthWrap%ptr => synth
          call ESMF_UserCompSetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
+         if (on_tiles) then
+            vloc = MAPL_DimsTileOnly
+         else
+            vloc = MAPL_DimsHorzOnly
+         end if
 
          call AddState(GC,CF,"IMPORT",_RC)
          call AddState(GC,CF,"EXPORT",_RC)
+
          call MAPL_AddInternalSpec(GC,&
                short_name='time', &
                long_name='na' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='lats', &
                long_name='na' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='lons', &
                long_name='na' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='i_index', &
                long_name='na' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='j_index', &
                long_name='na' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='doy', &
                long_name='day_since_start_of_year' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='rand', &
                long_name='random number' , &
                units = 'na', &
-               dims = MAPL_DimsHorzOnly, &
+               dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
 
 
@@ -177,6 +187,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
          call MAPL_GridCreate(GC, _RC)
          call ESMF_GridCompGet(GC, grid=grid, _RC)
+         call set_locstream(_RC)
          !allocate(ak(lm+1),stat=status)
          !allocate(bk(lm+1),stat=status)
          !call set_eta(lm,ls,ptop,pint,ak,bk)
@@ -189,6 +200,30 @@ MODULE ExtDataUtRoot_GridCompMod
          call ForceAllocation(Export,_RC)
 
          _RETURN(ESMF_SUCCESS)
+      contains
+
+            subroutine set_locstream(rc)
+
+            integer, optional, intent(out) :: rc
+
+            integer :: status
+            logical :: on_tiles
+            character(len=ESMF_MAXPATHLEN) :: tile_file
+            type(ESMF_DistGrid) :: distgrid
+            type(ESMF_DELayout) :: layout
+            type(MAPL_LocStream) :: exch
+
+            call ESMF_ConfigFindLabel(cf,"tiling_file:",isPresent=on_tiles,_RC)
+            if (on_tiles) then
+               call ESMF_ConfigGetAttribute(cf,tile_file,label="tiling_file:",_RC)
+               call ESMF_GridGet(grid,distGrid=distgrid,_RC)
+               call ESMF_DistGridGet(distgrid,deLayout=layout,_RC)
+               call MAPL_LocStreamCreate(exch,layout=layout,filename=tile_file, &
+                    name = 'my_tiles', mask = [MAPL_LAND], grid=grid,_RC)
+               call MAPL_ExchangeGridSet(gc,exch,_RC)
+            end if
+            _RETURN(_SUCCESS)
+            end subroutine set_locstream
 
       END SUBROUTINE Initialize_
 
@@ -437,10 +472,12 @@ MODULE ExtDataUtRoot_GridCompMod
       integer :: status
 
       integer                             :: I
-      real, pointer                       :: IMptr3(:,:,:) => null()
-      real, pointer                       :: Exptr3(:,:,:) => null()
-      real, pointer                       :: IMptr2(:,:) => null()
-      real, pointer                       :: Exptr2(:,:) => null()
+      real, pointer                       :: IMptr3(:,:,:)
+      real, pointer                       :: Exptr3(:,:,:)
+      real, pointer                       :: IMptr2(:,:)
+      real, pointer                       :: Exptr2(:,:)
+      real, pointer                       :: IMptr1(:)
+      real, pointer                       :: Exptr1(:)
       integer :: itemcountIn,itemCountOut,rank
       character(len=ESMF_MAXSTR), allocatable :: inNameList(:)
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
@@ -462,7 +499,11 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_StateGet(inState,trim(inNameList(i)),impf,_RC)
          call ESMF_StateGet(outState,trim(outNameList(i)),expf,_RC)
          call ESMF_FieldGet(impf,rank=rank,_RC)
-         if (rank==2) then
+         if (rank==1) then
+            call MAPL_GetPointer(inState,IMptr1,inNameList(i),_RC)
+            call MAPL_GetPointer(outState,Exptr1,inNameList(i),alloc=.true.,_RC)
+            EXptr1=IMptr1
+         else if (rank==2) then
             call MAPL_GetPointer(inState,IMptr2,inNameList(i),_RC)
             call MAPL_GetPointer(outState,Exptr2,inNameList(i),alloc=.true.,_RC)
             EXptr2=IMptr2
@@ -564,6 +605,8 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: ptr3_2(:,:,:)
       real, pointer                       :: ptr2_1(:,:)
       real, pointer                       :: ptr2_2(:,:)
+      real, pointer                       :: ptr1_1(:)
+      real, pointer                       :: ptr1_2(:)
       integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
@@ -588,7 +631,13 @@ MODULE ExtDataUtRoot_GridCompMod
             end if
             _ASSERT(rank1==rank2,'needs informative message')
             foundDiff(i)=.false.
-            if (rank1==2) then
+            if (rank1==1) then
+               call MAPL_GetPointer(state1,ptr1_1,trim(nameList(i)),_RC)
+               call MAPL_GetPointer(state2,ptr1_2,trim(nameList(i)),_RC)
+               if (any((ptr1_1-ptr1_2) > tol)) then
+                   foundDiff(i) = .true.
+               end if
+            else if (rank1==2) then
                call MAPL_GetPointer(state1,ptr2_1,trim(nameList(i)),_RC)
                call MAPL_GetPointer(state2,ptr2_2,trim(nameList(i)),_RC)
                if (any((ptr2_1-ptr2_2) > tol)) then
