@@ -3584,22 +3584,15 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-
 !!         call ESMF_ClockGet(clock,currTime=current_time,_RC)
-         call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
-         if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+         call list(n)%trajectory%regrid_accumulate(_RC)
+         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
-            call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
+            call list(n)%trajectory%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-            call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
+            call list(n)%trajectory%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
                  vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
-
-
-            
-
-         
-
-
+         end if
       end if
       if (list(n)%sampler_spec == 'station') then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)

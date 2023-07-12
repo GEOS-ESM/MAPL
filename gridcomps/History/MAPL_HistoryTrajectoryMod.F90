@@ -28,8 +28,8 @@ module HistoryTrajectoryMod
 
    type :: HistoryTrajectory
       private
-      type(ESMF_LocStream) :: root_locstream
-      type(ESMF_LocStream) :: dist_locstream
+      type(ESMF_LocStream) :: LS_rt
+      type(ESMF_LocStream) :: LS_ds
       type(LocStreamFactory) :: locstream_factory
       type(ESMF_Time), allocatable :: times(:)
       real(kind=REAL64), allocatable :: times_R8(:)
@@ -48,6 +48,11 @@ module HistoryTrajectoryMod
       character(LEN=ESMF_MAXPATHLEN) :: file_name
       type(TimeData) :: time_info
       logical :: recycle_track
+      type(ESMF_Clock)         :: clock
+      type(ESMF_Alarm)         :: alarm
+      type(ESMF_Time)          :: RingTime
+      type(ESMF_TimeInterval)  :: Frequency_epoch
+
       character(len=ESMF_MAXSTR)     :: obsFile
       character(len=ESMF_MAXSTR)     :: nc_index
       character(len=ESMF_MAXSTR)     :: nc_time
@@ -57,6 +62,10 @@ module HistoryTrajectoryMod
       character(len=ESMF_MAXSTR)     :: var_name_lat
       character(len=ESMF_MAXSTR)     :: var_name_lon
       character(len=ESMF_MAXSTR)     :: datetime_units
+      integer :: epoch                         ! unit: second
+      integer(kind=ESMF_KIND_I8)     :: epoch_index 
+      integer(ESMF_KIND_I4), pointer :: seqIndex(:)
+      
       contains
          procedure :: initialize
          procedure :: create_variable
@@ -72,6 +81,10 @@ module HistoryTrajectoryMod
          procedure :: sort_arrays_by_time
          procedure :: time_real_to_ESMF
 
+         procedure :: create_grid
+         procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
+         procedure :: destroy_rh_regen_ogrid
+         
    end type
 
    interface HistoryTrajectory
@@ -111,6 +124,10 @@ module HistoryTrajectoryMod
 
          _UNUSED_DUMMY(unusable)
 
+         ! _ get variable, set alarm
+         !
+         !
+         
          call ESMF_ConfigGetAttribute(config, value=traj%obsFile, default="", &
               label=trim(string) // 'track_file:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%nc_index, default="", &
@@ -126,54 +143,11 @@ module HistoryTrajectoryMod
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
          call hms_2_s (time_integer, second, _RC)
          call ESMF_TimeIntervalSet(frequency_epoch, s=second, _RC)
-!         hq%frequency_epoch = frequency_epoch
-!         hq%RingTime  = currTime
-!         hq%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency_epoch, &
-!              RingTime=hq%RingTime, sticky=.false., _RC )         
-
-
-         traj%datetime_units = "seconds since 1970-01-01 00:00:00"
-
-         filename=trim(traj%obsFile)
-         call formatter%open(trim(filename),pFIO_READ,_RC)
-         if (traj%nc_index == '') then
-            basic_metadata = formatter%read(_RC)
-            call metadata_utils%create(basic_metadata,trim(filename))
-            num_times = metadata_utils%get_dimension("time",_RC)
-            allocate(traj%lons(num_times),traj%lats(num_times),_STAT)
-            if (metadata_utils%is_var_present("longitude")) then
-               call formatter%get_var("longitude",traj%lons,_RC)
-            end if
-            if (metadata_utils%is_var_present("latitude")) then
-               call formatter%get_var("latitude",traj%lats,_RC)
-            end if
-            call metadata_utils%get_time_info(timeVector=traj%times,_RC)
-         else
-            i=index(traj%nc_longitude, '/')
-            _ASSERT (i>0, 'group name not found')
-            grp_name = traj%nc_longitude(1:i-1)
-            traj%var_name_lat = traj%nc_latitude(i+1:)
-            traj%var_name_lon = traj%nc_longitude(i+1:)
-            traj%var_name_time= traj%nc_time(i+1:)
-
-            call formatter%open(trim(filename),pFIO_READ,_RC)
-            basic_metadata = formatter%read(_RC)
-            call metadata_utils%create(basic_metadata,trim(filename))
-            num_times = basic_metadata%get_dimension(trim(traj%nc_index),_RC)
-            len = num_times
-
-            allocate(traj%lons(len),traj%lats(len),_STAT)
-            allocate(traj%times_R8(len),traj%times(len),_STAT)
-            call formatter%get_var(traj%var_name_lon,  traj%lons, group_name=grp_name, count=[len], rc=status)
-            call formatter%get_var(traj%var_name_lat,  traj%lats, group_name=grp_name, count=[len], rc=status)
-            call formatter%get_var(traj%var_name_time, traj%times_R8, group_name=grp_name, count=[len], rc=status)
-
-            call traj%sort_arrays_by_time(_RC)
-            call traj%time_real_to_ESMF(_RC)
-         endif
-
-         traj%locstream_factory = LocStreamFactory(traj%lons,traj%lats,_RC)
-         traj%root_locstream = traj%locstream_factory%create_locstream(_RC)
+         traj%Epoch = time_integer
+         traj%frequency_epoch = frequency_epoch
+         traj%RingTime  = currTime
+         traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency_epoch, &
+              RingTime=traj%RingTime, sticky=.false., _RC )         
 
          _RETURN(_SUCCESS)
 
@@ -235,12 +209,12 @@ module HistoryTrajectoryMod
             call iter%next()
          enddo
 
-         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
+
 
 !!         STOP -1
          
 
+         this%epoch_index(1:2)=0
          this%number_written = 0
          this%previous_index = lbound(this%times,1)-1
          call timeInfo%get(clock=clock,_RC)
@@ -795,6 +769,45 @@ module HistoryTrajectoryMod
        end subroutine sort_arrays_by_time
 
 
+      subroutine sort_three_arrays_by_time(U,V,T,rc)
+        real(ESMF_KIND_R8) :: U(:), V(:), T(:)
+        integer, optional, intent(out) :: rc
+        integer :: status
+
+        integer :: i, len
+        integer, allocatable :: IA(:)
+        integer(ESMF_KIND_I8), allocatable :: IX(:)
+        real(ESMF_KIND_R8), allocatable :: X(:)
+
+        _ASSERT (size(U)==size(V), 'U,V different dimension')
+        _ASSERT (size(U)==size(T), 'U,T different dimension')        
+        len = size (T)
+        
+         allocate (IA(len), IX(len), X(len))
+         do i=1, len
+            IX(i)=this%times_R8(i)
+            IA(i)=i
+         enddo
+         call MAPL_Sort(IX,IA)
+
+         X = U
+         do i=1, len
+            U(i) = X(IA(i))
+         enddo
+         X = V
+         do i=1, len
+            V(i) = X(IA(i))
+         enddo
+         X = T
+         do i=1, len
+            T(i) = X(IA(i))
+         enddo
+
+         _RETURN(_SUCCESS)
+       end subroutine sort_three_arrays_by_time
+       
+       
+
        subroutine time_real_to_ESMF (this,rc)
          class(HistoryTrajectory), intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -820,4 +833,144 @@ module HistoryTrajectoryMod
          _RETURN(_SUCCESS)
        end subroutine time_real_to_ESMF
 
+
+       function create_grid(this, currTime, rc)  result(LS)
+         type (ESMF_LocStream) :: LS
+         class(HistoryTrajectory)  :: this
+         character(len=*), intent(in) :: key
+         type(ESMF_Time), intent(inout) :: currTime
+         integer, intent(out), optional :: rc
+         integer :: status
+
+         type(ESMF_Config) :: config_grid
+         character(len=ESMF_MAXSTR) :: time_string
+         
+         real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
+         real(kind=REAL64), allocatable :: times_R8_full(:)
+
+         integer(kind=ESMF_KIND_I8) :: nstart, nend
+         integer(ESMF_KIND_I4), pointer :: ptAI(:)
+
+         
+!    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
+!    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
+!    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
+!    this%ogrid = ogrid
+!    _RETURN(_SUCCESS)
+!
+
+         this%datetime_units = "seconds since 1970-01-01 00:00:00"
+         
+         filename=trim(this%obsFile)
+         call formatter%open(trim(filename),pFIO_READ,_RC)
+         if (this%nc_index == '') then
+            basic_metadata = formatter%read(_RC)
+            call metadata_utils%create(basic_metadata,trim(filename))
+            num_times = metadata_utils%get_dimension("time",_RC)
+            allocate(this%lons(num_times),this%lats(num_times),_STAT)
+            if (metadata_utils%is_var_present("longitude")) then
+               call formatter%get_var("longitude",this%lons,_RC)
+            end if
+            if (metadata_utils%is_var_present("latitude")) then
+               call formatter%get_var("latitude",this%lats,_RC)
+            end if
+            call metadata_utils%get_time_info(timeVector=this%times,_RC)
+         else
+            i=index(this%nc_longitude, '/')
+            _ASSERT (i>0, 'group name not found')
+            grp_name = this%nc_longitude(1:i-1)
+            this%var_name_lat = this%nc_latitude(i+1:)
+            this%var_name_lon = this%nc_longitude(i+1:)
+            this%var_name_time= this%nc_time(i+1:)
+
+            call formatter%open(trim(filename),pFIO_READ,_RC)
+            basic_metadata = formatter%read(_RC)
+            call metadata_utils%create(basic_metadata,trim(filename))
+            num_times = basic_metadata%get_dimension(trim(this%nc_index),_RC)
+            len = num_times
+
+            allocate(lons_full(len),lats_full(len),_STAT)
+            allocate(times_R8_full(len),_STAT)
+            call formatter%get_var(this%var_name_lon,  lons_full, group_name=grp_name, count=[len], rc=status)
+            call formatter%get_var(this%var_name_lat,  lats_full, group_name=grp_name, count=[len], rc=status)
+            call formatter%get_var(this%var_name_time, times_R8_full, group_name=grp_name, count=[len], rc=status)
+
+            !__ epoch grid on root
+            !
+            if (mapl_am_I_root()) then
+
+               call sort_three_arrays_by_time(lons_full, lats_full, times_R8_full, _RC)
+               call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+               timeset(1) = current_time 
+               timeset(2) = current_time + this%epoch_frequency
+               call time_esmf_2_nc_int (timeset(1), this%datetime_units, jx0, _RC)
+               call hms_2_s (this%Epoch, sec, _RC)
+               jx1= jx0 + sec
+               !!call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
+               write(6,*) 'jx0, jx1', jx0, jx1
+
+               nstart=1; nend=size(times_R8_full)
+               call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               call bisect( times_R8_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               if (jt1==jt2) then
+                  _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+               endif
+               jt1 = jt1 + 1               ! (x1,x2]  design
+               if (this%epoch_index(1) == 0) then
+                  this%epoch_index(1)= jt1
+               else
+                  this%epoch_index(1)= this%epoch_index(2)
+               end if
+               this%epoch_index(2)= jt2
+
+               nx= this%epoch_index(2) - this%epoch_index(1) + 1
+               allocate(this%lons(nx),this%lats(nx),_STAT)
+               allocate(this%times_R8(nx),_STAT)
+               j=this%epoch_index(1)
+               do i=1, nx
+                  this%lons(i) = lons_full(j)
+                  this%lats(i) = lats_full(j)
+                  this%times_R8(i) = times_R8_full(j)
+                  j=j+1
+               enddo
+               this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
+               this%LS_rt = this%locstream_factory%create_locstream(_RC)
+               call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+               this%LS_ds = this%locstream_factory%create_locstream(gri=grid,_RC)         
+
+               src_fld = ESMF_FieldCreate (LS_rt, name='A_index', typekind=ESMF_TYPEKIND_I4, _RC)
+               dst_fld = ESMF_FieldCreate (LS_ds, name='B_index', typekind=ESMF_TYPEKIND_I4, _RC)
+               
+               call ESMF_FieldGet( src_fld, localDE=0, farrayPtr=ptAI)
+               call ESMF_FieldGet( dst_fld, localDE=0, farrayPtr=ptBI)
+               if (mypet == 0) then
+                  do i=1, NPTS
+                     ptAI(i)=i
+                  enddo
+               end if
+               write(6,121)  'pet, ptAI(:)', mypet, ptAI(:)
+               write(6,121)  'pet, size(ptBI), ptBI(:)', mypet, size(ptBI), ptBI(:)
+               
+               call ESMF_FieldRedistStore (src_fld, dst_fld, RH, _RC)
+               call ESMF_FieldRedist      (src_fld, dst_fld, RH, _RC)
+               write(6,121)  'af redist pet, size(ptBI), ptBI(:)', mypet, size(ptBI), ptBI(:)               
+
+               this%seqIndex = ptBI
+               
+
+
+  
+               
+
+         endif
+
+
+
+
+
+  end function create_grid
+
+
+
+       
 end module HistoryTrajectoryMod
