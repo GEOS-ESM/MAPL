@@ -65,6 +65,7 @@ module HistoryTrajectoryMod
       integer :: epoch                         ! unit: second
       integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
       integer(ESMF_KIND_I4), pointer :: seqIndex(:)
+      !!integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
       
       contains
          procedure :: initialize
@@ -82,7 +83,7 @@ module HistoryTrajectoryMod
          procedure :: time_real_to_ESMF
 
          procedure :: create_grid
-!         procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
+         procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
 !         procedure :: destroy_rh_regen_ogrid
          
    end type
@@ -778,7 +779,7 @@ module HistoryTrajectoryMod
          type(ESMF_Grid) :: grid         
          
          type(ESMF_VM) :: vm
-         integer :: mypet
+         integer :: mypet, petcount
 
          integer :: i, j, k
          integer(kind=ESMF_KIND_I8) :: j0, j1
@@ -787,13 +788,6 @@ module HistoryTrajectoryMod
          real(kind=ESMF_KIND_R8) :: jx0, jx1
          integer :: nx
          integer :: sec
-
-!    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
-!    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
-!    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
-!    this%ogrid = ogrid
-!    _RETURN(_SUCCESS)
-!
 
          this%datetime_units = "seconds since 1970-01-01 00:00:00"
          
@@ -831,6 +825,12 @@ module HistoryTrajectoryMod
             call formatter%get_var(this%var_name_lat,  lats_full, group_name=grp_name, count=[len], rc=status)
             call formatter%get_var(this%var_name_time, times_R8_full, group_name=grp_name, count=[len], rc=status)
 
+            ! get pet info
+            call ESMF_VMGetGlobal(vm,_RC)
+            call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
+            write(6,*) 'mypet, petcount', mypet, petcount
+
+
             !__ epoch grid on root
             !
             if (mapl_am_I_root()) then
@@ -848,12 +848,12 @@ module HistoryTrajectoryMod
                write(6,*) 'jx0, jx1', jx0, jx1
 
                nstart=1; nend=size(times_R8_full)
-               allocate (times_R8_full2 (nend) ) 
-               times_R8_full2 = real (times_R8_full, kind=ESMF_KIND_R8)
+!               allocate (times_R8_full2 (nend) ) 
+!               times_R8_full2 = real (times_R8_full, kind=ESMF_KIND_R8)
 
 
-               call bisect( times_R8_full2, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
-               call bisect( times_R8_full2, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               call bisect( times_R8_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
                if (jt1==jt2) then
                   _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
                endif
@@ -878,8 +878,11 @@ module HistoryTrajectoryMod
             else
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
+               this%epoch_index(1:2)=0
+               nx=0
             endif
 
+            write(6,121) 'epoch_index(1:2), nx', this%epoch_index(1:2), nx
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
             call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
@@ -888,54 +891,31 @@ module HistoryTrajectoryMod
             src_fld = ESMF_FieldCreate (this%LS_rt, name='A_index', typekind=ESMF_TYPEKIND_I4, _RC)
             dst_fld = ESMF_FieldCreate (this%LS_ds, name='B_index', typekind=ESMF_TYPEKIND_I4, _RC)
                
-               call ESMF_FieldGet( src_fld, localDE=0, farrayPtr=ptAI)
-               call ESMF_FieldGet( dst_fld, localDE=0, farrayPtr=ptBI)
-               if (mypet == 0) then
-                  do i=1, nx
-                     ptAI(i)=i
-                  enddo
-               end if
-               write(6,121)  'pet, ptAI(:)', mypet, ptAI(:)
-               write(6,121)  'pet, size(ptBI), ptBI(:)', mypet, size(ptBI), ptBI(:)
-               
-               call ESMF_FieldRedistStore (src_fld, dst_fld, RH, _RC)
-               call ESMF_FieldRedist      (src_fld, dst_fld, RH, _RC)
-               write(6,121)  'af redist pet, size(ptBI), ptBI(:)', mypet, size(ptBI), ptBI(:)               
-
-               this%seqIndex = ptBI
-               
+            call ESMF_FieldGet( src_fld, localDE=0, farrayPtr=ptAI)
+            call ESMF_FieldGet( dst_fld, localDE=0, farrayPtr=this%seqIndex)
+            if (mypet == 0) then
+               do i=1, nx
+                  ptAI(i)=i
+               enddo
+            end if
+            write(10+mypet,121)  'pet, ptAI(:)', mypet, ptAI(:)
 
 
-101   format (2x, a,10(2x,f15.8))
-102   format (2x, 6(a,2x))
-103   format (2x, 10f17.8)
-104   format (2x, i5,2x,10f15.5)
-105   format (2x, 10f27.8)
-111   format (2x, a,20(2x,f25.8))
-112   format (2x, a,20(2x,f10.4))
-113   format (2x, a,20(2x,f7.2))
-
-121   format (2x, a,10(2x,i8))
-122   format (2x, a,10(2x,i15))
-123   format (2x, 10(2x,i8))
-124   format (2x, 10(2x,L2))
-
-141   format (2x, a, 2x, i8, 10(2x,f15.8))
-142   format (2x, a, 2x, i8, 10(2x,f15.11))
-143   format (2x, a, 2x, i8, 10(2x,E14.7))
-146   format (2x, a, 2x, 2i8, 10(2x,f15.8))
-147   format (2x, a, 2x, 3i8, 10(2x,f15.8))
-
-201   format (2x, a,10(2x,E14.7))
-203   format (2x, 10E14.7)
-204   format (2x, i5,2x,10(2x,E14.7))
-211   format (2x, f10.4,10(2x,E14.5))
-
-241   format (2x, a, 2x, i8, 10(2x,E14.7))               
+            call ESMF_FieldRedistStore (src_fld, dst_fld, RH, _RC)
+            call ESMF_FieldRedist      (src_fld, dst_fld, RH, _RC)
+            write(10+mypet,121)  'af redist pet, size(this%seqIndex), this%seqIndex(:)', mypet, size(this%seqIndex), this%seqIndex(:)
 
 
-      end if
-    end subroutine create_grid
+         end if
+         
+         _RETURN(_SUCCESS)
+         
+         include '/Users/yyu11/sftp/myformat.inc'         
+       end subroutine create_grid
+
+
+
+       subroutine 020121
 
 
        

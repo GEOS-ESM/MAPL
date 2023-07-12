@@ -3586,9 +3586,12 @@ ENDDO PARSER
       if (list(n)%timeseries_output) then
 !??!         call ESMF_ClockGet(clock,currTime=current_time,_RC)
 
-!         call list(n)%trajectory%regrid_accumulate(_RC)
+         call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-            call list(n)%trajectory%append_file(current_time,_RC)
+
+!! -- skip put_var          
+!!            call list(n)%trajectory%append_file(current_time,_RC)
+
 !            call list(n)%trajectory%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
 !            call list(n)%trajectory%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
 !                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
