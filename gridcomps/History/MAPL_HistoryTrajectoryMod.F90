@@ -63,7 +63,7 @@ module HistoryTrajectoryMod
       character(len=ESMF_MAXSTR)     :: var_name_lon
       character(len=ESMF_MAXSTR)     :: datetime_units
       integer :: epoch                         ! unit: second
-      integer(kind=ESMF_KIND_I8)     :: epoch_index 
+      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
       integer(ESMF_KIND_I4), pointer :: seqIndex(:)
       
       contains
@@ -82,8 +82,8 @@ module HistoryTrajectoryMod
          procedure :: time_real_to_ESMF
 
          procedure :: create_grid
-         procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
-         procedure :: destroy_rh_regen_ogrid
+!         procedure :: regrid_accumulate => regrid_accumulate_on_xysubset
+!         procedure :: destroy_rh_regen_ogrid
          
    end type
 
@@ -93,11 +93,12 @@ module HistoryTrajectoryMod
 
    contains
 
-      function HistoryTrajectory_from_config(config,string,unusable,rc) result(traj)
+      function HistoryTrajectory_from_config(config,string,clock,unusable,rc) result(traj)
          use pflogger, only : Logger, logging
          type(HistoryTrajectory) :: traj
          type(ESMF_Config), intent(inout) :: config
          character(len=*), intent(in)     :: string
+         type(ESMF_Clock),  intent(in)    :: clock
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
          integer :: status
@@ -118,7 +119,8 @@ module HistoryTrajectoryMod
          character(len=ESMF_MAXSTR) :: var_name_lat
          character(len=ESMF_MAXSTR) :: var_name_time
          integer :: time_integer, second
-         type(ESMF_TimeInterval)  :: Frequency_epoch
+         type(ESMF_TimeInterval)    :: Frequency_epoch
+         type(ESMF_Time)            :: currTime
 
          type(Logger), pointer :: lgr
 
@@ -210,17 +212,15 @@ module HistoryTrajectoryMod
          enddo
 
 
-
 !!         STOP -1
-         
-
          this%epoch_index(1:2)=0
          this%number_written = 0
          this%previous_index = lbound(this%times,1)-1
          call timeInfo%get(clock=clock,_RC)
          call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
 
-         this%regridder = LocStreamRegridder(grid,this%root_locstream,_RC)
+!         this%regridder = LocStreamRegridder(grid,this%LS_rt,_RC)
+
          call this%create_output_bundle(_RC)
          this%file_name = ''
 
@@ -306,8 +306,8 @@ module HistoryTrajectoryMod
             call iter%next()
          enddo
 
-         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
+!!         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+!!         this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,_RC)
 
          STOP -1
          
@@ -317,7 +317,7 @@ module HistoryTrajectoryMod
          call timeInfo%get(clock=clock,_RC)
          call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
 
-         this%regridder = LocStreamRegridder(grid,this%root_locstream,_RC)
+         this%regridder = LocStreamRegridder(grid,this%LS_rt,_RC)
          call this%create_output_bundle(_RC)
          this%file_name = ''
 
@@ -465,7 +465,7 @@ module HistoryTrajectoryMod
                call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
                call ESMF_FieldGet(src_field,rank=rank,_RC)
                if (rank==2) then
-                  dst_field = ESMF_FieldCreate(this%root_locstream,name=trim(item%xname), &
+                  dst_field = ESMF_FieldCreate(this%LS_rt,name=trim(item%xname), &
                      typekind=ESMF_TYPEKIND_R4,_RC)
                else if (rank==3) then
                   call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -474,8 +474,8 @@ module HistoryTrajectoryMod
                      ub(1)=this%vdata%lm
                   end if
 
-                  dst_field = ESMF_FieldCreate(this%root_locstream,name=trim(item%xname), &
-                     typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+                  dst_field = ESMF_FieldCreate(this%LS_rt,name=trim(item%xname), &
+                       typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
                end if
                call MAPL_FieldBundleAdd(this%output_bundle,dst_field,_RC)
             else if (item%itemType == ItemTypeVector) then
@@ -785,7 +785,7 @@ module HistoryTrajectoryMod
         
          allocate (IA(len), IX(len), X(len))
          do i=1, len
-            IX(i)=this%times_R8(i)
+            IX(i)=T(i)
             IA(i)=i
          enddo
          call MAPL_Sort(IX,IA)
@@ -837,21 +837,50 @@ module HistoryTrajectoryMod
        function create_grid(this, currTime, rc)  result(LS)
          type (ESMF_LocStream) :: LS
          class(HistoryTrajectory)  :: this
-         character(len=*), intent(in) :: key
          type(ESMF_Time), intent(inout) :: currTime
          integer, intent(out), optional :: rc
          integer :: status
 
+         character(len=ESMF_MAXSTR) :: filename
+         type(NetCDF4_FileFormatter) :: formatter
+         type(FileMetadataUtils) :: metadata_utils
+         type(FileMetadata) :: basic_metadata
+         integer(ESMF_KIND_I8) :: num_times
+         integer :: ncid, ncid0
+         integer :: dimid(10),  dimlen(10)
+         integer :: len
+
+         character(len=ESMF_MAXSTR) :: grp_name
+         character(len=ESMF_MAXSTR) :: dim_name(10)
+         character(len=ESMF_MAXSTR) :: var_name_lon
+         character(len=ESMF_MAXSTR) :: var_name_lat
+         character(len=ESMF_MAXSTR) :: var_name_time
+         
          type(ESMF_Config) :: config_grid
          character(len=ESMF_MAXSTR) :: time_string
          
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
+         real(kind=ESMF_KIND_R8), allocatable :: times_R8_full2(:)         
 
          integer(kind=ESMF_KIND_I8) :: nstart, nend
-         integer(ESMF_KIND_I4), pointer :: ptAI(:)
-
+         integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
+         type(ESMF_routehandle) :: RH
+         type(ESMF_Time) :: timeset(2)
+         type(ESMF_Time) :: current_time         
+         type(ESMF_Field) :: src_fld, dst_fld
+         type(ESMF_Grid) :: grid         
          
+         type(ESMF_VM) :: vm
+         integer :: mypet
+
+         integer :: i, j, k
+         integer(kind=ESMF_KIND_I8) :: j0, j1
+         integer(kind=ESMF_KIND_I8) :: jt1, jt2         
+         integer(kind=ESMF_KIND_R8) :: jx0, jx1
+         integer :: nx
+         integer :: sec
+
 !    call ESMF_TimeGet(currTime, timeString=time_string, _RC)
 !    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
 !    ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
@@ -902,16 +931,21 @@ module HistoryTrajectoryMod
                call sort_three_arrays_by_time(lons_full, lats_full, times_R8_full, _RC)
                call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
                timeset(1) = current_time 
-               timeset(2) = current_time + this%epoch_frequency
-               call time_esmf_2_nc_int (timeset(1), this%datetime_units, jx0, _RC)
+               timeset(2) = current_time + this%frequency_epoch
+               call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
                call hms_2_s (this%Epoch, sec, _RC)
-               jx1= jx0 + sec
+               j1 = j0 + sec
+               jx0 = real ( j0, kind=ESMF_KIND_R8)
+               jx1 = real ( j1, kind=ESMF_KIND_R8)
                !!call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
                write(6,*) 'jx0, jx1', jx0, jx1
 
                nstart=1; nend=size(times_R8_full)
-               call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
-               call bisect( times_R8_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               allocate (times_R8_full2 (nend) ) 
+               times_R8_full2 = real (times_R8_full, kind=ESMF_KIND_R8)
+
+               call bisect( times_R8_full2, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+               call bisect( times_R8_full2, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
                if (jt1==jt2) then
                   _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
                endif
@@ -933,18 +967,23 @@ module HistoryTrajectoryMod
                   this%times_R8(i) = times_R8_full(j)
                   j=j+1
                enddo
-               this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
-               this%LS_rt = this%locstream_factory%create_locstream(_RC)
-               call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-               this%LS_ds = this%locstream_factory%create_locstream(gri=grid,_RC)         
+            else
+               allocate(this%lons(0),this%lats(0),_STAT)
+               allocate(this%times_R8(0),_STAT)
+            endif
 
-               src_fld = ESMF_FieldCreate (LS_rt, name='A_index', typekind=ESMF_TYPEKIND_I4, _RC)
-               dst_fld = ESMF_FieldCreate (LS_ds, name='B_index', typekind=ESMF_TYPEKIND_I4, _RC)
+            this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
+            this%LS_rt = this%locstream_factory%create_locstream(_RC)
+            call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+            this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)         
+
+            src_fld = ESMF_FieldCreate (this%LS_rt, name='A_index', typekind=ESMF_TYPEKIND_I4, _RC)
+            dst_fld = ESMF_FieldCreate (this%LS_ds, name='B_index', typekind=ESMF_TYPEKIND_I4, _RC)
                
                call ESMF_FieldGet( src_fld, localDE=0, farrayPtr=ptAI)
                call ESMF_FieldGet( dst_fld, localDE=0, farrayPtr=ptBI)
                if (mypet == 0) then
-                  do i=1, NPTS
+                  do i=1, nx
                      ptAI(i)=i
                   enddo
                end if
@@ -958,18 +997,10 @@ module HistoryTrajectoryMod
                this%seqIndex = ptBI
                
 
+         include '/Users/yyu11/sftp/myformat.inc'         
 
-  
-               
-
-         endif
-
-
-
-
-
-  end function create_grid
-
+      end if
+    end function create_grid
 
 
        
