@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates to support building MAPL with spack instead of Baselibs
   - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
   - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
+  - Default `BUILD_WITH_FLAP` to `OFF` as we don't build it in spack
+  - Explicitly build GEOSadas in CI with `-DBUILD_WITH_FLAP=ON` as GEOSadas is still behind in moving to use fArgParse
 
 ### Fixed
 
