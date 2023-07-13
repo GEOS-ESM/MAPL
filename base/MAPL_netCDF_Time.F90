@@ -377,17 +377,20 @@ contains
     if ( x < xa(klo) ) then
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=klo
-       _FAIL('error in bisect_find_LB_R8_I8')
+       write(6,*) 'potential error in bisect_find_LB_R8_I8:  x <  array:LB'
+       !_FAIL('error in bisect_find_LB_R8_I8')
        return
     elseif ( x > xa(khi) .OR. x < xa(klo) ) then
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=khi
-       _FAIL('error in bisect_find_LB_R8_I8')
+       write(6,*) 'potential error in bisect_find_LB_R8_I8:  x >  array:UB'
+       !_FAIL('error in bisect_find_LB_R8_I8')
        return
-    elseif ( abs(khi - klo) == 1 ) then
-       n=0
-       _FAIL('error in bisect_find_LB_R8_I8, khi=klo+1')
-       return
+!--why?
+!    elseif ( abs(khi - klo) == 1 ) then
+!       n=0
+!       _FAIL('error in bisect_find_LB_R8_I8, khi=klo+1')
+!       return
     endif
 
     nmax = log(abs(real(khi-klo))) / log(2.0) + 2  ! LOG2(M)

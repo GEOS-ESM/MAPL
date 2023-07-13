@@ -3584,9 +3584,8 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-!??!         call ESMF_ClockGet(clock,currTime=current_time,_RC)
-
          call list(n)%trajectory%regrid_accumulate(_RC)
+
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
 
 !! -- skip put_var          

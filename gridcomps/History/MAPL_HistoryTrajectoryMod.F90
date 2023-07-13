@@ -65,6 +65,8 @@ module HistoryTrajectoryMod
       integer :: epoch                         ! unit: second
       integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
       integer(ESMF_KIND_I4), pointer :: seqIndex(:)
+      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
+
       !!integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
       
       contains
@@ -85,7 +87,7 @@ module HistoryTrajectoryMod
          procedure :: create_grid
          procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
 !         procedure :: destroy_rh_regen_ogrid
-         
+         procedure :: get_x_subset
    end type
 
    interface HistoryTrajectory
@@ -129,8 +131,6 @@ module HistoryTrajectoryMod
 
          ! _ get variable, set alarm
          !
-         !
-         
          call ESMF_ConfigGetAttribute(config, value=traj%obsFile, default="", &
               label=trim(string) // 'track_file:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%nc_index, default="", &
@@ -178,6 +178,16 @@ module HistoryTrajectoryMod
 
          _UNUSED_DUMMY(unusable)
 
+
+         ! __ s.1   create LS grid
+         ! __ s.2   metadata, output / acc field
+         ! __ s.3   RH
+
+
+
+         call this%create_grid(_RC)
+
+         
          this%bundle=bundle
          this%items=items
          
@@ -193,6 +203,8 @@ module HistoryTrajectoryMod
          call timeInfo%add_time_to_metadata(this%metadata,_RC)
          this%time_info = timeInfo
          !-- no use -- ! nobs = size(this%times)
+
+         
          v = variable(type=PFIO_REAL64,dimensions="time")
          call v%add_attribute('units','degrees_east')
          call v%add_attribute('long_name','longitude')
@@ -255,66 +267,6 @@ module HistoryTrajectoryMod
       end subroutine initialize
 
       
-      function compute_times_for_interval(this,interval,rc) result(rtimes)
-         class(HistoryTrajectory), intent(inout) :: this
-         integer, intent(in) :: interval(2)
-         integer, optional, intent(out) :: rc
-         real(ESMF_KIND_R8), allocatable :: rtimes(:)
-         integer :: ntimes,i,status,icnt
-         type(ESMF_TimeInterval) :: tint
-         type(ESMF_Time) :: file_start_time
-         character(len=ESMF_MAXSTR) :: tunits
-
-         ntimes = interval(2)-interval(1)+1
-         if (all(interval==0)) then
-            _RETURN(_SUCCESS)
-         end if
-         call this%get_file_start_time(file_start_time,tunits,_RC)
-         allocate(rtimes(ntimes),_STAT)
-         icnt=0
-         do i=interval(1),interval(2)
-            icnt=icnt+1
-            tint = this%times(i)-file_start_time
-            select case(trim(tunits))
-            case ('days')
-              call ESMF_TimeIntervalGet(tint,d_r8=rtimes(icnt),_RC)
-            case ('hours')
-              call ESMF_TimeIntervalGet(tint,h_r8=rtimes(icnt),_RC)
-            case ('minutes')
-              call ESMF_TimeIntervalGet(tint,m_r8=rtimes(icnt),_RC)
-            end select
-         enddo
-         _RETURN(_SUCCESS)
-      end function compute_times_for_interval
-
-      function get_current_interval(this,current_time,rc) result(interval)
-         class(HistoryTrajectory), intent(inout) :: this
-         type(ESMF_Time), intent(inout) :: current_time
-         integer, optional, intent(out) :: rc
-         integer :: interval(2)
-         integer :: i,nfound
-         logical :: found
-
-         found = .false.
-         nfound = 0
-         interval = 0
-         do i=this%previous_index+1,size(this%times)
-            if (this%times(i) .ge. this%previous_time .and. this%times(i) .le. current_time) then
-               if (.not.found) then
-                  interval(1) = i
-                  found = .true.
-               end if
-               nfound = nfound + 1
-            end if
-            if (this%times(i) .ge. current_time) exit
-         enddo
-         if (found) then
-            interval(2) = interval(1)+nfound-1
-            this%previous_index = interval(2)
-         end if
-         _RETURN(_SUCCESS)
-
-      end function get_current_interval
 
       subroutine create_variable(this,vname,rc)
          class(HistoryTrajectory), intent(inout) :: this
@@ -768,14 +720,16 @@ module HistoryTrajectoryMod
          
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
-         real(kind=ESMF_KIND_R8), allocatable :: times_R8_full2(:)         
+         !!real(kind=ESMF_KIND_R8), allocatable :: times_R8_full2(:)         
 
 
          integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
+         real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
          type(ESMF_Time) :: current_time         
          type(ESMF_Field) :: src_fld, dst_fld
+         type(ESMF_Field) :: src_fld2, dst_fld2         
          type(ESMF_Grid) :: grid         
          
          type(ESMF_VM) :: vm
@@ -848,10 +802,6 @@ module HistoryTrajectoryMod
                write(6,*) 'jx0, jx1', jx0, jx1
 
                nstart=1; nend=size(times_R8_full)
-!               allocate (times_R8_full2 (nend) ) 
-!               times_R8_full2 = real (times_R8_full, kind=ESMF_KIND_R8)
-
-
                call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
                call bisect( times_R8_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
                if (jt1==jt2) then
@@ -900,12 +850,24 @@ module HistoryTrajectoryMod
             end if
             write(10+mypet,121)  'pet, ptAI(:)', mypet, ptAI(:)
 
-
             call ESMF_FieldRedistStore (src_fld, dst_fld, RH, _RC)
             call ESMF_FieldRedist      (src_fld, dst_fld, RH, _RC)
             write(10+mypet,121)  'af redist pet, size(this%seqIndex), this%seqIndex(:)', mypet, size(this%seqIndex), this%seqIndex(:)
 
 
+            src_fld2 = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
+            dst_fld2 = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
+               
+            call ESMF_FieldGet( src_fld2, localDE=0, farrayPtr=ptAT)
+            call ESMF_FieldGet( dst_fld2, localDE=0, farrayPtr=this%obsTime)
+            if (mypet == 0) then
+               ptAT(:) = this%times_R8(:)
+            end if
+            write(10+mypet,143)  'pet, ptAT(:)', mypet, ptAT(:)
+
+            call ESMF_FieldRedistStore (src_fld2, dst_fld2, RH, _RC)
+            call ESMF_FieldRedist      (src_fld2, dst_fld2, RH, _RC)
+            write(10+mypet,148)  'af redist pet, size(this%obsTime), this%obsTime(:)', mypet, size(this%obsTime), this%obsTime(:)
          end if
          
          _RETURN(_SUCCESS)
@@ -914,9 +876,117 @@ module HistoryTrajectoryMod
        end subroutine create_grid
 
 
+  subroutine regrid_accumulate_on_xsubset (this, rc)
+    class(HistoryTrajectory), intent(inout) :: this
+    integer, intent(out), optional :: rc
+    integer :: status
+    
+    class(AbstractGridFactory), pointer :: factory
+    integer                        :: x_subset(2)
+    type(ESMF_Time)                :: timeset(2)
+    type(ESMF_Time) :: current_time
+    type(ESMF_TimeInterval) :: dur
+    character(len=ESMF_MAXSTR) :: time_string
 
-       subroutine 020121
+    integer, allocatable :: global_xy_mask(:,:)
+    integer, allocatable :: local_xy_mask(:,:)    
+
+    integer :: counts(5)
+    integer :: dims(3)
+    integer :: m1, m2
+
+    type(ESMF_Field) :: outField
+    type(ESMF_Field) :: new_outField
+    type(ESMF_Grid)  :: grid
+    integer :: tindex
+    type(ArrayReference) :: ref
+
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
+    logical :: have_time
+
+    type(ESMF_Array) :: array1, array2
+    integer :: is,ie,js,je
+
+    integer :: rank, rank1, rank2
+    real(KIND=ESMF_KIND_R4), pointer :: pt2d(:,:), pt2d_(:,:)
+    real(KIND=ESMF_KIND_R4), pointer :: pt3d(:,:,:), pt3d_(:,:,:)
+
+    integer :: localDe, localDECount
+    integer, dimension(:), allocatable :: LB, UB, exclusiveCount
+    integer, dimension(:), allocatable :: compLB, compUB, compCount    
+    integer :: dimCount
+    integer :: y1, y2
+    integer :: j, jj
+    integer :: ii1, iin, jj1, jjn
+    integer, dimension(:), allocatable :: j1, j2
 
 
-       
-end module HistoryTrajectoryMod
+    ! __ s1.  get x_subset for each model time step interval on each pet    
+    call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+    call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
+    timeset(1) = current_time - dur
+    timeset(2) = current_time    
+
+    call this%get_x_subset(timeset, x_subset, _RC)
+
+
+
+!    x_subset(1)= this%epoch_index(1)
+!    x_subset(2)= this%epoch_index(2)
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine regrid_accumulate_on_xsubset
+
+
+  subroutine get_x_subset(this, interval, x_subset, rc)
+    class(HistoryTrajectory), intent(inout) :: this
+    type(ESMF_Time), intent(in) :: interval(2)
+    integer, intent(out) :: x_subset(2)
+    integer, optional, intent(out) :: rc
+    
+    integer :: status
+    type(ESMF_Time) :: T1, T2
+    integer(ESMF_KIND_I8) :: i1, i2
+    real(ESMF_KIND_R8) :: iT1, iT2
+    integer(ESMF_KIND_I8) :: jt1, jt2
+    integer :: jlo, jhi
+    
+    T1= interval(1)
+    T2= interval(2)
+    
+
+    ! __ s1. find index on each PET
+
+!              T1 <--> T2    
+!      --------------------------->
+!         |                |     
+!   epoch_index(1)        (2)
+
+      call time_esmf_2_nc_int (T1, this%datetime_units, i1, _RC)
+      call time_esmf_2_nc_int (T2, this%datetime_units, i2, _RC)
+      iT1=i1; iT2=i2   ! int to real*8
+      jlo = 1 ; jhi= size(this%obstime)
+      call bisect( this%obstime, iT1, jt1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
+      call bisect( this%obstime, iT2, jt2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
+
+      if(jt1==jt2) then
+         !
+         !- empty bracket
+         !  
+         x_subset(1)=0
+         x_subset(2)=0
+      else
+         x_subset(1)=jt1+1
+         x_subset(2)=jt2
+      endif
+      
+      print*, 'x_subset(1:2)', x_subset(1:2)
+      
+    _RETURN(_SUCCESS)
+  end subroutine get_x_subset
+
+
+
+end module HistoryTrajectoryMod  
