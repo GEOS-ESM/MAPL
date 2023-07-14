@@ -38,6 +38,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(StringStringMap) :: fillDefs
          character(len=ESMF_MAXSTR) :: runMode
          type(timeVar) :: tFunc
+         logical :: on_tiles
       end type SyntheticFieldSupport
 
       type :: SyntheticFieldSupportWrapper
@@ -74,13 +75,12 @@ MODULE ExtDataUtRoot_GridCompMod
          call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE,  Initialize_, _RC)
          call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_, _RC)
 
-         call ESMF_ConfigFindLabel(cf,"tiling_file:",isPresent=on_tiles,_RC)
-
          allocate(synth)
          synthWrap%ptr => synth
          call ESMF_UserCompSetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
-         if (on_tiles) then
+         call ESMF_ConfigFindLabel(cf,"tiling_file:",isPresent=synth%on_tiles,_RC)
+         if (synth%on_tiles) then
             vloc = MAPL_DimsTileOnly
          else
             vloc = MAPL_DimsHorzOnly
@@ -163,8 +163,10 @@ MODULE ExtDataUtRoot_GridCompMod
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth => null()
          character(len=ESMF_MaxStr) :: key, keyVal
+         type(MAPL_MetaComp), pointer :: MAPL
 
          call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
+         call MAPL_GetObjectFromGC ( GC, MAPL, _RC )
 
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
@@ -207,20 +209,20 @@ MODULE ExtDataUtRoot_GridCompMod
             integer, optional, intent(out) :: rc
 
             integer :: status
-            logical :: on_tiles
             character(len=ESMF_MAXPATHLEN) :: tile_file
             type(ESMF_DistGrid) :: distgrid
             type(ESMF_DELayout) :: layout
             type(MAPL_LocStream) :: exch
 
-            call ESMF_ConfigFindLabel(cf,"tiling_file:",isPresent=on_tiles,_RC)
-            if (on_tiles) then
+            if (synth%on_tiles) then
                call ESMF_ConfigGetAttribute(cf,tile_file,label="tiling_file:",_RC)
                call ESMF_GridGet(grid,distGrid=distgrid,_RC)
                call ESMF_DistGridGet(distgrid,deLayout=layout,_RC)
                call MAPL_LocStreamCreate(exch,layout=layout,filename=tile_file, &
                     name = 'my_tiles', mask = [MAPL_LAND], grid=grid,_RC)
                call MAPL_ExchangeGridSet(gc,exch,_RC)
+               call MAPL_GenericMakeXchgNatural(MAPL,_RC)
+               call ESMF_GridCompSet(gc,grid=grid,_RC)
             end if
             _RETURN(_SUCCESS)
             end subroutine set_locstream
@@ -266,17 +268,19 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
-         call ESMF_GridCompGet(GC,grid=grid,_RC)
-         call MAPL_GetPointer(internal,ptrR4,'lons',_RC)
-         call ESMF_GridGetCoord (Grid, coordDim=1, localDE=0, &
-                           staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=ptrR8, _RC)
-         ptrR4=ptrR8
-         call MAPL_GetPointer(internal,ptrR4,'lats',_RC)
-         call ESMF_GridGetCoord (Grid, coordDim=2, localDE=0, &
-                           staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=ptrR8, _RC) 
-         ptrR4=ptrR8
+         if (.not. synth%on_tiles) then
+            call ESMF_GridCompGet(GC,grid=grid,_RC)
+            call MAPL_GetPointer(internal,ptrR4,'lons',_RC)
+            call ESMF_GridGetCoord (Grid, coordDim=1, localDE=0, &
+                              staggerloc=ESMF_STAGGERLOC_CENTER, &
+                              farrayPtr=ptrR8, _RC)
+            ptrR4=ptrR8
+            call MAPL_GetPointer(internal,ptrR4,'lats',_RC)
+            call ESMF_GridGetCoord (Grid, coordDim=2, localDE=0, &
+                              staggerloc=ESMF_STAGGERLOC_CENTER, &
+                              farrayPtr=ptrR8, _RC) 
+            ptrR4=ptrR8
+         end if
 
          select case (trim(synth%runMode))
 
@@ -528,7 +532,7 @@ MODULE ExtDataUtRoot_GridCompMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real, pointer                       :: Exptr2(:,:) => null()
+      real, pointer                       :: Exptr2(:,:), Exptr1(:)
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
       type(ESMF_Field) :: expf,farray(7)
@@ -538,40 +542,63 @@ MODULE ExtDataUtRoot_GridCompMod
       integer, allocatable :: seeds(:)
       type(ESMF_VM) :: vm
 
-      call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
-      call MAPL_Grid_Interior(grid,i1,in,j1,jn)
+      if (synth%on_tiles) then
+
+      else
+         call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
+         call MAPL_Grid_Interior(grid,i1,in,j1,jn)
+      end if
       call ESMF_StateGet(outState,itemcount=itemCount,_RC)
       allocate(outNameList(itemCount),stat=status)
       _VERIFY(status)
       call ESMF_StateGet(outState,itemNameList=outNameList,_RC)
 
-      call MAPL_GetPointer(inState,exPtr2,'time',_RC)
-      exPtr2=synth%tFunc%evaluate_time(Time,_RC)
+      if (synth%on_tiles) then
+         call MAPL_GetPointer(inState,exPtr1,'time',_RC)
+         exPtr1=synth%tFunc%evaluate_time(Time,_RC)
+      else
+         call MAPL_GetPointer(inState,exPtr2,'time',_RC)
+         exPtr2=synth%tFunc%evaluate_time(Time,_RC)
+      end if
 
-      call MAPL_GetPointer(inState,exPtr2,'i_index',_RC)
-      do j = 1,ldims(2)
-         do i=1,ldims(1)
-            exPtr2(i,j)=i1+i-1
+      if (synth%on_tiles) then
+      
+      else
+         call MAPL_GetPointer(inState,exPtr2,'i_index',_RC)
+         do j = 1,ldims(2)
+            do i=1,ldims(1)
+               exPtr2(i,j)=i1+i-1
+            enddo
          enddo
-      enddo
-      call MAPL_GetPointer(inState,exPtr2,'j_index',_RC)
-      do i = 1,ldims(1)
-         do j=1,ldims(2)
-            exPtr2(i,j)=j1+j-1
+         call MAPL_GetPointer(inState,exPtr2,'j_index',_RC)
+         do i = 1,ldims(1)
+            do j=1,ldims(2)
+               exPtr2(i,j)=j1+j-1
+            enddo
          enddo
-      enddo
+      end if
 
-      call MAPL_GetPointer(inState,exPtr2,'doy',_RC)
-      exPtr2 = compute_doy(time,_RC)
+      if (synth%on_tiles) then
+         call MAPL_GetPointer(inState,exPtr1,'doy',_RC)
+         exPtr1 = compute_doy(time,_RC)
+      else
+         call MAPL_GetPointer(inState,exPtr2,'doy',_RC)
+         exPtr2 = compute_doy(time,_RC)
+      end if
 
-      call MAPL_GetPointer(inState,exPtr2,'rand',_RC)
       call random_seed(size=seed_size)
       allocate(seeds(seed_size))
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=mypet,_RC)
       seeds = mypet
       call random_seed(put=seeds)
-      call random_number(exPtr2)
+      if (synth%on_tiles) then
+         call MAPL_GetPointer(inState,exPtr1,'rand',_RC)
+         call random_number(exPtr1)
+      else
+         call MAPL_GetPointer(inState,exPtr2,'rand',_RC)
+         call random_number(exPtr2)
+      end if
 
       call ESMF_StateGet(inState,'time',farray(1),_RC)
       call ESMF_StateGet(inState,'lons',farray(2),_RC)
