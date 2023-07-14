@@ -21,6 +21,7 @@ module MAPL_LocstreamRegridderMod
           procedure :: regrid_3d_real32
           generic :: regrid => regrid_2d_real32
           generic :: regrid => regrid_3d_real32
+          procedure :: destroy => destroy_route_handle
    end type LocstreamRegridder
 
    interface LocstreamRegridder
@@ -137,5 +138,19 @@ contains
       _VERIFY(status)
 
    end subroutine regrid_3d_real32
+
+
+   subroutine destroy_route_handle(this,rc) 
+     class(LocstreamRegridder) :: this
+     integer, optional, intent(out) :: rc     
+     integer :: status
+     
+     call ESMF_RouteHandleDestroy(this%route_handle, noGarbage=.true., _RC)
+     call ESMF_LocStreamDestroy (this%locstream, noGarbage=.true., _RC)
+      
+     _RETURN(_SUCCESS)
+     
+   end subroutine destroy_route_handle
+   
 
 end module MAPL_LocstreamRegridderMod
