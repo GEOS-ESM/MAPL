@@ -3586,13 +3586,10 @@ ENDDO PARSER
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
 
-!! -- skip put_var          
+!! -- skip put_var   
 !!            call list(n)%trajectory%append_file(current_time,_RC)
-            print*, __LINE__, __FILE__
             call list(n)%trajectory%destroy_rh_regen_LS ( _RC )
-
-!            call list(n)%trajectory%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
-!                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            print*, __LINE__, __FILE__
          end if
       end if
       if (list(n)%sampler_spec == 'station') then

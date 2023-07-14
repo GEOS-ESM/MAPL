@@ -79,6 +79,7 @@ module HistoryTrajectoryMod
          procedure :: get_current_interval
          procedure :: compute_times_for_interval
          procedure :: create_new_bundle
+         !!procedure :: destroy_bundle         
          procedure :: get_file_start_time
          procedure :: get
          procedure :: reset_times_to_current_day
@@ -179,13 +180,19 @@ module HistoryTrajectoryMod
 
          _UNUSED_DUMMY(unusable)
 
-         ! __ s.1   create LS grid
-         ! __ s.2   metadata, output / acc bundle
-         ! __ s.3   RH
+         ! __ s.1   create LS grid, RH, output/acc bundle
+         ! __ s.2   metadata
+         ! __ s.3   misc
 
          this%bundle=bundle
          this%items=items
          call this%create_grid(_RC)
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
+         this%output_bundle = this%create_new_bundle(_RC)
+         this%acc_bundle    = this%create_new_bundle(_RC) 
+!!         call this%create_new_bundle(this%output_bundle,_RC)
+!!         call this%create_new_bundle(this%acc_bundle,_RC)         
 
          if (present(vdata)) then
             this%vdata=vdata
@@ -221,14 +228,6 @@ module HistoryTrajectoryMod
             end if
             call iter%next()
          enddo
-
-!         this%output_bundle = this%create_new_bundle(_RC)
- !        this%acc_bundle    = this%create_new_bundle(_RC)         
-         call this%create_new_bundle(this%output_bundle,_RC)
-         call this%create_new_bundle(this%acc_bundle,_RC)         
-
-         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)         
 
 
          this%epoch_index(1:2)=0
@@ -356,8 +355,10 @@ module HistoryTrajectoryMod
 
       end subroutine create_metadata_variable
       
-      !      function create_new_bundle(this,rc) result(new_bundle)
-      subroutine create_new_bundle(this,new_bundle,rc) 
+
+
+      !!subroutine create_new_bundle(this,new_bundle,rc) 
+      function create_new_bundle(this,rc) result(new_bundle)
         class(HistoryTrajectory), intent(inout) :: this
         type(ESMF_FieldBundle) :: new_bundle
         integer, optional, intent(out) :: rc
@@ -394,9 +395,51 @@ module HistoryTrajectoryMod
            call iter%next()
         enddo
         _RETURN(_SUCCESS)
-        
-      end subroutine create_new_bundle
 
+      end function create_new_bundle
+      !!end subroutine create_new_bundle
+!
+!      subroutine destroy_bundle(this,bundle,rc) 
+!        class(HistoryTrajectory), intent(inout) :: this
+!        type(ESMF_FieldBundle) :: bundle
+!        integer, optional, intent(out) :: rc
+!
+!        integer :: status
+!        type(GriddedIOitemVectorIterator) :: iter
+!        type(GriddedIOitem), pointer :: item
+!        type(ESMF_Field) :: src_field,dst_field
+!        integer :: rank,lb(1),ub(1)
+!
+!        new_bundle = ESMF_FieldBundleCreate(_RC)
+!        iter = this%items%begin()
+!        do while (iter /= this%items%end())
+!           item => iter%get()
+!           if (item%itemType == ItemTypeScalar) then
+!              call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
+!              call ESMF_FieldGet(src_field,rank=rank,_RC)
+!              if (rank==2) then
+!                 dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
+!                      typekind=ESMF_TYPEKIND_R4,_RC)
+!              else if (rank==3) then
+!                 call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+!                 if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+!                    lb(1)=1
+!                    ub(1)=this%vdata%lm
+!                 end if
+!                 dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
+!                      typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+!              end if
+!              call MAPL_FieldBundleAdd(new_bundle,dst_field,_RC)
+!           else if (item%itemType == ItemTypeVector) then
+!              _FAIL("ItemTypeVector not yet supported")
+!           end if
+!           call iter%next()
+!        enddo
+!        _RETURN(_SUCCESS)
+!
+
+
+      
       subroutine create_file_handle(this,filename,rc)
          class(HistoryTrajectory), intent(inout) :: this
          character(len=*), intent(inout) :: filename
@@ -920,7 +963,7 @@ module HistoryTrajectoryMod
             call ESMF_FieldRedistStore (src_fld2, dst_fld2, RH, _RC)
             call ESMF_FieldRedist      (src_fld2, dst_fld2, RH, _RC)
             write(10+mypet,148)  'af redist pet, size(this%obsTime), this%obsTime(:)', mypet, size(this%obsTime), this%obsTime(:)
-         end if
+         end if         
          
          _RETURN(_SUCCESS)
          
@@ -975,6 +1018,7 @@ module HistoryTrajectoryMod
              print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
              call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
              if(is>0) p_acc_2d(is:ie) = p_dst_2d(is:ie)
+             !!if(is>0) p_acc_2d(is:ie) = -1.d0             
              
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
@@ -1055,11 +1099,70 @@ module HistoryTrajectoryMod
     integer, intent(out), optional :: rc
     integer :: status
 
+    integer :: numVars, i
+    character(len=ESMF_MAXSTR), allocatable :: names(:)
+    type(ESMF_Field) :: field
+    type(ESMF_Grid)  :: grid
+
+    block
+      type(GriddedIOitemVectorIterator) :: iter
+      type(GriddedIOitem), pointer :: item
+      type(ESMF_Field) :: acc_field
+!      real, pointer :: p_acc_2d(:)
+      real(kind=REAL32), pointer :: p_acc_2d(:)
+      integer :: rank
+      ! print acc_bundle, show -1
+      !
+      iter = this%items%begin()
+      do while (iter /= this%items%end())
+         item => iter%get()
+         if (item%itemType == ItemTypeScalar) then
+            call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
+            call ESMF_FieldGet(acc_field,rank=rank,_RC)
+            if (rank==1) then
+               call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
+!               print*, __LINE__, __FILE__    
+               write(6,113) 'p_acc_2d at end of epoch: ', p_acc_2d(1:100:10)
+            endif
+         end if
+         call iter%next()
+      end do
+    end block
+
+    ! __ s1. destroy RH, LS, acc_bundle / output_bundle   
     call this%regridder%destroy(_RC)
     call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
     call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)    
+    deallocate (this%lons, this%lats, this%times_R8)
 
+
+    call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
+    allocate(names(numVars),stat=status)
+    call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
+    do i=1,numVars
+       call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
+       call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+    enddo
+    call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
     
+    call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
+    allocate(names(numVars),stat=status)
+    call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
+    do i=1,numVars
+       call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
+       call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+    enddo
+    call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
+
+    ! __ s2. regenerate LS, RH, bundles
+    call this%create_grid(_RC)
+    call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+    this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
+    this%output_bundle = this%create_new_bundle(_RC)
+    this%acc_bundle    = this%create_new_bundle(_RC)
+
+    include '/Users/yyu11/sftp/myformat.inc'    
+        
     _RETURN(ESMF_SUCCESS)
 
   end subroutine destroy_rh_regen_LS
