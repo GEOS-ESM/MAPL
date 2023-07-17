@@ -20,6 +20,7 @@ module pFIO_MessageVisitorMod
    use pFIO_DummyMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
    use pFIO_AbstractRequestHandleMod 
    implicit none
    private
@@ -45,6 +46,7 @@ module pFIO_MessageVisitorMod
       procedure :: handle_CollectiveStageData
       procedure :: handle_Terminate
       procedure :: handle_ModifyMetadata
+      procedure :: handle_ReplaceMetadata
       procedure :: handle_HandShake
       
       generic :: handle_cmd => handle_Done
@@ -61,6 +63,7 @@ module pFIO_MessageVisitorMod
       generic :: handle_cmd => handle_CollectiveStageData
       generic :: handle_cmd => handle_Terminate
       generic :: handle_cmd => handle_ModifyMetadata
+      generic :: handle_cmd => handle_ReplaceMetadata
       generic :: handle_cmd => handle_HandShake
 
    end type MessageVisitor
@@ -114,6 +117,9 @@ contains
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (ModifyMetadataMessage)
+        call this%handle_cmd(cmd,rc=status)
+        _VERIFY(status)
+      type is (ReplaceMetadataMessage)
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (HandShakeMessage)
@@ -256,6 +262,15 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_ModifyMetadata
+
+   subroutine handle_ReplaceMetadata(this, message, rc)
+      class (MessageVisitor), intent(inout) :: this
+      type (ReplaceMetadataMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+      _FAIL( "Warning : dummy handle_ReplaceMetadata should not be called")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+   end subroutine handle_ReplaceMetadata
 
    subroutine handle_HandShake(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this

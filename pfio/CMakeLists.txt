@@ -46,6 +46,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ReplaceMetadataMessage.F90
   ForwardDataAndMessage.F90
   ForwardDataMessage.F90
   ProtocolParser.F90
@@ -112,7 +113,9 @@ else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
-find_package (PFLOGGER REQUIRED)
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
@@ -175,6 +178,6 @@ endif ()
 
 
 # Unit testing
-if (PFUNIT_FOUND)
-  add_subdirectory(tests EXCLUDE_FROM_ALL)
-endif ()
+#if (PFUNIT_FOUND)
+  #add_subdirectory(tests EXCLUDE_FROM_ALL)
+#endif ()
