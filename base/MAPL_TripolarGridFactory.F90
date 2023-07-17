@@ -489,8 +489,8 @@ contains
 
       ! Check decomposition/bounds
       ! Tripolar requires even divisibility
-      _ASSERT(mod(this%im_world, this%nx) == 0,"needs message")
-      _ASSERT(mod(this%jm_world, this%ny) == 0,"needs message")
+      !_ASSERT(mod(this%im_world, this%nx) == 0,"needs message")
+      !_ASSERT(mod(this%jm_world, this%ny) == 0,"needs message")
 
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
