@@ -88,6 +88,8 @@ module pFIO_MultiGroupServerMod
       module procedure new_MultiGroupServer
    end interface MultiGroupServer
 
+   integer, parameter :: FNAME_LEN = 512
+
 contains
 
    function new_MultiGroupServer(server_comm, port_name, nwriter_per_node, with_profiler, rc) result(s)
@@ -336,7 +338,7 @@ contains
      type (HistoryCollection), pointer :: hist_collection
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
-     character(512) :: FileName
+     character(len=FNAME_LEN) :: FileName
 
      if (associated(ioserver_profiler)) call ioserver_profiler%start("receive_data")
      client_num = this%threads%size()
@@ -401,7 +403,7 @@ contains
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
               Filename = q%file_name
-              call Mpi_Send(FileName, 512, MPI_CHARACTER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+              call Mpi_Send(FileName, FNAME_LEN, MPI_CHARACTER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            class default
               _FAIL( "yet to implemented")
            end select
@@ -474,7 +476,7 @@ contains
        integer :: i, no_job, local_rank, node_rank, nth_writer
        integer :: terminate, idle_writer, ierr
        integer :: MPI_STAT(MPI_STATUS_SIZE)
-       character(len=512)         :: FileName
+       character(len=FNAME_LEN)         :: FileName
 
        nwriter_per_node = this%nwriter/this%Node_Num
        allocate(num_idlePEs(0:this%Node_Num-1))
@@ -496,7 +498,7 @@ contains
               MPI_STAT, ierr)
          if (collection_id == -1) exit
 
-         call MPI_recv( FileName, 512 , MPI_CHARACTER, &
+         call MPI_recv( FileName, FNAME_LEN , MPI_CHARACTER, &
               this%front_ranks(1), this%back_ranks(1), this%server_comm, &
               MPI_STAT, ierr)
          ! 2) get an idle processor and notify front root
@@ -526,7 +528,7 @@ contains
        integer :: local_rank, idle_writer, nth_writer, node_rank
        integer :: i, ierr, nwriter_per_node
        logical :: flag
-       character(len=512) :: FileDone
+       character(len=FNAME_LEN) :: FileDone
        type (StringIntegerMapIterator) :: iter
 
        ! 2.1)  try to retrieve idle writers
@@ -547,7 +549,7 @@ contains
                nth_writer = mod(local_rank, nwriter_per_node)
                idleRank(node_rank, nth_writer) = local_rank
 
-               call MPI_recv(FileDone, 512, MPI_CHARACTER, &
+               call MPI_recv(FileDone, FNAME_LEN, MPI_CHARACTER, &
                              local_rank, stag+1, this%back_comm, &
                              MPI_STAT, ierr)
 
@@ -591,7 +593,7 @@ contains
        integer :: MPI_STAT(MPI_STATUS_SIZE)
        integer :: node_rank, local_rank, nth_writer
        integer :: ierr, no_job, nwriter_per_node, idle_writer
-       character(len=512) :: FileDone
+       character(len=FNAME_LEN) :: FileDone
 
        no_job = -1
        nwriter_per_node = size(idleRank, 2)
@@ -607,7 +609,7 @@ contains
              call MPI_recv( idle_writer, 1, MPI_INTEGER, &
                             local_rank, stag, this%back_comm, &
                             MPI_STAT, ierr)
-             call MPI_recv( FileDone, 512, MPI_CHARACTER, &
+             call MPI_recv( FileDone, FNAME_LEN, MPI_CHARACTER, &
                             local_rank, stag+1, this%back_comm, &
                             MPI_STAT, ierr)
              _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
@@ -648,7 +650,7 @@ contains
        type(AdvancedMeter) :: file_timer
        real(kind=REAL64) :: time
        character(len=:), allocatable :: filename
-       character(len=512) :: FileDone
+       character(len=FNAME_LEN) :: FileDone
        real(kind=REAL64) :: file_size, speed
 
        class(Logger), pointer :: lgr
@@ -868,7 +870,7 @@ contains
 
          call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
          FileDone = Filename
-         call MPI_send(FileDone, 512, MPI_CHARACTER, 0, stag+1, this%back_comm , ierr)
+         call MPI_send(FileDone, FNAME_LEN, MPI_CHARACTER, 0, stag+1, this%back_comm , ierr)
        enddo
        _RETURN(_SUCCESS)
      end subroutine start_back_writers
