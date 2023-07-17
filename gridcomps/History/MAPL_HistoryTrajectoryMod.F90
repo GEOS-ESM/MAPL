@@ -131,7 +131,7 @@ module HistoryTrajectoryMod
 
          _UNUSED_DUMMY(unusable)
 
-         ! _ get variable, set alarm
+         ! __ parse variables, set alarm
          !
          call ESMF_ConfigGetAttribute(config, value=traj%obsFile, default="", &
               label=trim(string) // 'track_file:', _RC)
@@ -191,8 +191,7 @@ module HistoryTrajectoryMod
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC) 
-!!         call this%create_new_bundle(this%output_bundle,_RC)
-!!         call this%create_new_bundle(this%acc_bundle,_RC)         
+
 
          if (present(vdata)) then
             this%vdata=vdata
@@ -203,20 +202,29 @@ module HistoryTrajectoryMod
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
          
-!         call timeInfo%add_time_to_metadata(this%metadata,_RC)
-         this%time_info = timeInfo
-         !-- no use -- ! nobs = size(this%times)
+
+         this%time_info = timeInfo         
 
          call this%metadata%add_dimension('time', this%nobs_epoch)
+         if (this%time_info%integer_time) then
+            v = Variable(type=PFIO_INT32,dimensions='time')
+         else
+            v = Variable(type=PFIO_REAL32,dimensions='time')
+         end if
+         call v%add_attribute('units', this%datetime_units)
+         call v%add_attribute('long_name', this%nc_time)
+         call this%metadata%add_variable(this%nc_time,v)         
+
          v = variable(type=PFIO_REAL64,dimensions="time")
          call v%add_attribute('units','degrees_east')
          call v%add_attribute('long_name','longitude')
-         call this%metadata%add_variable(trim('longitude'),v)
+         call this%metadata%add_variable(this%nc_longitude,v)
+
          v = variable(type=PFIO_REAL64,dimensions="time")
          call v%add_attribute('units','degrees_east')
          call v%add_attribute('long_name','latitude')
-         call this%metadata%add_variable(trim('latitude'),v)
-
+         call this%metadata%add_variable(this%nc_latitude,v)
+         
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -229,12 +237,10 @@ module HistoryTrajectoryMod
             call iter%next()
          enddo
 
-
-         this%epoch_index(1:2)=0
-         this%number_written = 0
-         this%previous_index = lbound(this%times,1)-1
-         call timeInfo%get(clock=clock,_RC)
-         call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
+!         this%number_written = 0
+!         this%previous_index = lbound(this%times,1)-1
+!         call timeInfo%get(clock=clock,_RC)
+!         call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
 
          this%file_name = ''
          
@@ -356,8 +362,6 @@ module HistoryTrajectoryMod
       end subroutine create_metadata_variable
       
 
-
-      !!subroutine create_new_bundle(this,new_bundle,rc) 
       function create_new_bundle(this,rc) result(new_bundle)
         class(HistoryTrajectory), intent(inout) :: this
         type(ESMF_FieldBundle) :: new_bundle
@@ -397,47 +401,6 @@ module HistoryTrajectoryMod
         _RETURN(_SUCCESS)
 
       end function create_new_bundle
-      !!end subroutine create_new_bundle
-!
-!      subroutine destroy_bundle(this,bundle,rc) 
-!        class(HistoryTrajectory), intent(inout) :: this
-!        type(ESMF_FieldBundle) :: bundle
-!        integer, optional, intent(out) :: rc
-!
-!        integer :: status
-!        type(GriddedIOitemVectorIterator) :: iter
-!        type(GriddedIOitem), pointer :: item
-!        type(ESMF_Field) :: src_field,dst_field
-!        integer :: rank,lb(1),ub(1)
-!
-!        new_bundle = ESMF_FieldBundleCreate(_RC)
-!        iter = this%items%begin()
-!        do while (iter /= this%items%end())
-!           item => iter%get()
-!           if (item%itemType == ItemTypeScalar) then
-!              call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-!              call ESMF_FieldGet(src_field,rank=rank,_RC)
-!              if (rank==2) then
-!                 dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
-!                      typekind=ESMF_TYPEKIND_R4,_RC)
-!              else if (rank==3) then
-!                 call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-!                 if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-!                    lb(1)=1
-!                    ub(1)=this%vdata%lm
-!                 end if
-!                 dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
-!                      typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-!              end if
-!              call MAPL_FieldBundleAdd(new_bundle,dst_field,_RC)
-!           else if (item%itemType == ItemTypeVector) then
-!              _FAIL("ItemTypeVector not yet supported")
-!           end if
-!           call iter%next()
-!        enddo
-!        _RETURN(_SUCCESS)
-!
-
 
       
       subroutine create_file_handle(this,filename,rc)
@@ -449,8 +412,18 @@ module HistoryTrajectoryMod
          integer :: status
 
          this%file_name = trim(filename)
-         v = this%time_info%define_time_variable(_RC)
-         call this%metadata%modify_variable('time',v,_RC)
+         !!v = this%time_info%define_time_variable(_RC)
+
+         if (this%time_info%integer_time) then
+            v = Variable(type=PFIO_INT32,dimensions='time')
+         else
+            v = Variable(type=PFIO_REAL32,dimensions='time')
+         end if
+         call v%add_attribute('long_name', this%nc_time)
+         call v%add_attribute('units', this%datetime_units)         
+         call this%metadata%modify_variable(this%nc_time,v,_RC)
+
+
          if (mapl_am_I_root()) then
             call this%file_handle%create(trim(filename),_RC)
             call this%file_handle%write(this%metadata,_RC)
@@ -482,78 +455,86 @@ module HistoryTrajectoryMod
          integer :: status
          type(GriddedIOitemVectorIterator) :: iter
          type(GriddedIOitem), pointer :: item
-         type(ESMF_Field) :: src_field,dst_field
+         type(ESMF_Field) :: src_field,dst_field,acc_field
          integer :: rank,interval(2),number_to_write,previous_day,current_day
          real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
          real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
          real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)         
          real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
-         interval = this%get_current_interval(current_time)
-         if (all(interval==0)) then
-            number_to_write = 0
-         else
-            number_to_write = interval(2)-interval(1)+1
+         integer :: is, ie, nx
+!         
+!         interval = this%get_current_interval(current_time)
+!         if (all(interval==0)) then
+!            number_to_write = 0
+!         else
+!            number_to_write = interval(2)-interval(1)+1
+!         end if
+!         if (number_to_write>0) then
+!            rtimes = this%compute_times_for_interval(interval,_RC)
+!            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+!               call this%vdata%setup_eta_to_pressure(_RC)
+!            end if
+!
+
+         is = this%number_written + 1
+         nx = this%nobs_epoch
+      
+         if (mapl_am_i_root()) then
+            call this%file_handle%put_var(this%var_name_time, real(this%times_R8), &
+                 start=[is], count=[nx], _RC)
+            call this%file_handle%put_var(this%var_name_lon, this%lons, &
+                 start=[is], count=[nx], _RC)
+            call this%file_handle%put_var(this%var_name_lon, this%lons, &
+                 start=[is], count=[nx], _RC)
          end if
-         if (number_to_write>0) then
-            rtimes = this%compute_times_for_interval(interval,_RC)
-            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-               call this%vdata%setup_eta_to_pressure(_RC)
-            end if
-            if (mapl_am_i_root()) then
-               call this%file_handle%put_var('time',rtimes,&
-                 start=[this%number_written+1],count=[number_to_write],_RC)
-               call this%file_handle%put_var('longitude',this%lons(interval(1):interval(2)),&
-                 start=[this%number_written+1],count=[number_to_write],_RC)
-               call this%file_handle%put_var('latitude',this%lats(interval(1):interval(2)),&
-                 start=[this%number_written+1],count=[number_to_write],_RC)
-            end if
-            deallocate(rtimes)
-            iter = this%items%begin()
-            do while (iter /= this%items%end())
-               item => iter%get()
-               if (item%itemType == ItemTypeScalar) then
-                  call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-                  call ESMF_FieldBundleGet(this%output_bundle,trim(item%xname),field=dst_field,_RC)
-                  call ESMF_FieldGet(src_field,rank=rank,_RC)
-                  if (rank==2) then
-                     call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
-                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
-                     call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
-                     if (mapl_am_i_root()) then
-                        call this%file_handle%put_var(trim(item%xname),p_dst_2d(interval(1):interval(2)),&
+
+         iter = this%items%begin()
+         do while (iter /= this%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
+               call ESMF_FieldBundleGet(this%output_bundle,trim(item%xname),field=dst_field,_RC)
+               call ESMF_FieldGet(src_field,rank=rank,_RC)
+               if (rank==2) then
+                  call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+                  call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
+                  call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
+                  if (mapl_am_i_root()) then
+                     call this%file_handle%put_var(trim(item%xname),p_dst_2d(interval(1):interval(2)),&
                           start=[this%number_written+1],count=[number_to_write])
-                     end if
-                  else if (rank==3) then
-                     call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-                     if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                        allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
-                        call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
-                        call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
-                     else
-                        call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-                     end if
-                     if (mapl_am_i_root()) then
-                        call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
-                          start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])
-                     end if
+                  end if
+!                  else if (rank==3) then
+!                     call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+!                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+!                     if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+!                        allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
+!                        call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
+!                        call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
+!                     else
+!                        call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+!                     end if
+!                     if (mapl_am_i_root()) then
+!                        call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
+!                          start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])
+!                     end if
                   end if
                else if (item%itemType == ItemTypeVector) then
                   _FAIL("ItemTypeVector not yet supported")
                end if
                call iter%next()
             enddo
-            this%number_written=this%number_written+number_to_write
-         endif
+            this%number_written=this%number_written+nx
 
-         call ESMF_TimeGet(this%previous_time,dd=previous_day,_RC)
-         call ESMF_TimeGet(current_time,dd=current_day,_RC)
-         if (this%recycle_track .and. (current_day/=previous_day)) then
-            call this%reset_times_to_current_day(_RC)
-            this%previous_index = lbound(this%times,1)-1
-         end if
-         this%previous_time=current_time
+         
+!         call ESMF_TimeGet(this%previous_time,dd=previous_day,_RC)
+!         call ESMF_TimeGet(current_time,dd=current_day,_RC)
+!         if (this%recycle_track .and. (current_day/=previous_day)) then
+!            call this%reset_times_to_current_day(_RC)
+!            this%previous_index = lbound(this%times,1)-1
+!         end if
+!         this%previous_time=current_time
 
       end subroutine append_file
 
@@ -923,32 +904,15 @@ module HistoryTrajectoryMod
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
                this%epoch_index(1:2)=0
-               nx=0
+               this%nobs_epoch = 0
             endif
+            write(6,121) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
+               
 
-            write(6,121) 'epoch_index(1:2), nx', this%epoch_index(1:2), nx
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
             call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
             this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)         
-
-!! -- not used  seqIndex(:)
-!!            src_fld = ESMF_FieldCreate (this%LS_rt, name='A_index', typekind=ESMF_TYPEKIND_I4, _RC)
-!!            dst_fld = ESMF_FieldCreate (this%LS_ds, name='B_index', typekind=ESMF_TYPEKIND_I4, _RC)
-!!
-!!            call ESMF_FieldGet( src_fld, localDE=0, farrayPtr=ptAI)
-!!            call ESMF_FieldGet( dst_fld, localDE=0, farrayPtr=this%seqIndex)
-!!            if (mypet == 0) then
-!!               do i=1, nx
-!!                  ptAI(i)=i
-!!               enddo
-!!            end if
-!!            write(10+mypet,121)  'pet, ptAI(:)', mypet, ptAI(:)
-!!
-!!            call ESMF_FieldRedistStore (src_fld, dst_fld, RH, _RC)
-!!            call ESMF_FieldRedist      (src_fld, dst_fld, RH, _RC)
-!!            write(10+mypet,121)  'af redist pet, size(this%seqIndex), this%seqIndex(:)', mypet, size(this%seqIndex), this%seqIndex(:)
-
 
             src_fld2 = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
             dst_fld2 = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
@@ -958,11 +922,11 @@ module HistoryTrajectoryMod
             if (mypet == 0) then
                ptAT(:) = this%times_R8(:)
             end if
-            write(10+mypet,143)  'pet, ptAT(:)', mypet, ptAT(:)
+            !!write(10+mypet,143)  'pet, ptAT(:)', mypet, ptAT(:)
 
             call ESMF_FieldRedistStore (src_fld2, dst_fld2, RH, _RC)
             call ESMF_FieldRedist      (src_fld2, dst_fld2, RH, _RC)
-            write(10+mypet,148)  'af redist pet, size(this%obsTime), this%obsTime(:)', mypet, size(this%obsTime), this%obsTime(:)
+            !!write(10+mypet,148)  'af redist pet, size(this%obsTime), this%obsTime(:)', mypet, size(this%obsTime), this%obsTime(:)
          end if         
          
          _RETURN(_SUCCESS)
