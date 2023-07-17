@@ -57,6 +57,7 @@ contains
       call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts_out, _RC)
 
       supports = all(mod(counts_in(1:2), counts_out(1:2)) == 0) .or. all(mod(counts_out, counts_in) == 0)
+      _ASSERT(supports, "HFlux regridder requires local domains to be properly nested.")
 
       _RETURN(_SUCCESS)
    end function supports
