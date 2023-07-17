@@ -147,11 +147,8 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-      print*, __LINE__, __FILE__
       grid = this%create_basic_grid(_RC)
-      print*, __LINE__, __FILE__
       call this%add_horz_coordinates_from_file(grid,_RC)
-      print*, __LINE__, __FILE__
       _RETURN(_SUCCESS)
    end function make_new_grid
 
@@ -433,7 +430,7 @@ contains
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
       
-!      lgr => logging%get_logger('HISTORY.sampler')
+      lgr => logging%get_logger('HISTORY.sampler')
 !      call lgr%debug('%2x %a 2x %a', &
 !           'swath Epoch init time:', trim(tmp) )
 !      call lgr%debug('%2x %a 2x %a', &
@@ -506,7 +503,7 @@ contains
       j1= j0 + sec
       jx0= j0
       jx1= j1
-      call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
+      !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
       call lgr%debug ('%a %i4 %i4', 'j0,  j1 ', j0,  j1)
       
       this%epoch_index(1)= 1

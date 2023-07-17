@@ -578,7 +578,6 @@ contains
           end if
           call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
     enddo
-    print*, __LINE__, __FILE__
     if (nlist == 0) then
        _RETURN(ESMF_SUCCESS)
     end if
@@ -615,23 +614,17 @@ contains
                 call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
                 call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
              end if             
-             print*, __LINE__, __FILE__
              if (trim(grid_type)/='Swath') then
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
              else
-                print*, __LINE__, __FILE__
                 Hsampler = samplerHQ(clock, config, key, _RC)
-                print*, __LINE__, __FILE__
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
-                print*, __LINE__, __FILE__
              end if
-             print*, __LINE__, __FILE__
              call IntState%output_grids%set(key, output_grid)
              call iter%next()
           end do
        end block OUTPUT_GRIDS
     end if
-    print*, __LINE__, __FILE__
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.
@@ -656,7 +649,6 @@ contains
 
     end if
 
-    print*, __LINE__, __FILE__
     allocate(IntState%Regrid(nlist), _STAT)
     allocate(          Vvarn(nlist), _STAT)
     allocate(INTSTATE%STAMPOFFSET(nlist), _STAT)
@@ -704,7 +696,6 @@ contains
 
     end if
 
-    print*, __LINE__, __FILE__
     call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
@@ -1382,7 +1373,6 @@ contains
           end if
        enddo
     enddo
-    print*, __LINE__, __FILE__
 ! Get Output Export States
 ! ------------------------
 
