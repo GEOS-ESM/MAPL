@@ -106,6 +106,7 @@ contains
         clientPtr=>null()
       enddo
 
+      
       c_manager%client_comm = client_comm
       call MPI_Comm_rank(client_comm, c_manager%rank, rc)
       _RETURN(_SUCCESS)

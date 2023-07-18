@@ -373,36 +373,35 @@ contains
        dk= -1
     endif
 
+    !    ----|---------------------------|--------->
+    !  Y:   klo                         khi
+    !     x         x                       x
+    !
+    !        Y(n)  <  x  <=  Y(n+1)
+    
     rc=-1
     if ( x < xa(klo) ) then
        write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
-       n=klo
+       n=klo-1
        write(6,*) 'warning in bisect_find_LB_R8_I8:  x <  array:LB'
        !_FAIL('error in bisect_find_LB_R8_I8')
        return
-    elseif ( x > xa(khi) .OR. x < xa(klo) ) then
-       write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
+    elseif ( x > xa(khi) ) then
        n=khi
        write(6,*) 'warning in bisect_find_LB_R8_I8:  x >  array:UB'
-       !_FAIL('error in bisect_find_LB_R8_I8')
        return
-!--why?
-!    elseif ( abs(khi - klo) == 1 ) then
-!       n=0
-!       _FAIL('error in bisect_find_LB_R8_I8, khi=klo+1')
-!       return
     endif
 
     nmax = log(abs(real(khi-klo))) / log(2.0) + 2  ! LOG2(M)
     do i = 1, nmax
        k=(klo+khi)/2
-       if ( x < xa(k) ) then
+       if ( x <= xa(k) ) then
           khi = k
        else
           klo = k
        endif
        if( abs(klo-khi) <= 1 ) then
-          n=k
+          n=klo
           rc=0
           return
        endif
