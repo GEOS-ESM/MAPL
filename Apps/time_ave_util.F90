@@ -1166,12 +1166,14 @@ contains
       basic_metadata=formatter%read(_RC)
       call metadata%create(basic_metadata,trim(filename))
       lev_name = metadata%get_level_name(_RC)
-      call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
-            standard_name=standard_name,coordinate_attr=vcoord,_RC)
-      plevs => levs
-      vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
-            force_no_regrid=.true.,_RC)
-      nullify(plevs)
+      if (lev_name /= '') then
+         call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
+               standard_name=standard_name,coordinate_attr=vcoord,_RC)
+         plevs => levs
+         vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
+               force_no_regrid=.true.,_RC)
+         nullify(plevs)
+      end if
 
       if (present(rc)) then
          rc=_SUCCESS
@@ -1185,7 +1187,7 @@ contains
       integer, intent(out), optional :: rc
       integer :: status, global_dims(3)
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dims,_RC)
-      grid_has_level = (global_dims(3)/=1)
+      grid_has_level = (global_dims(3)>1)
       if (present(rc)) then
          RC=_SUCCESS
       end if
