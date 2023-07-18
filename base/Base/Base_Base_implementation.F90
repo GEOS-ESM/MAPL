@@ -24,6 +24,7 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
+  use MAPL_Geom
   use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry
@@ -2644,60 +2645,6 @@ contains
   end subroutine MAPL_FieldAttSetI4
   ! ========================================
 
-  module subroutine MAPL_FieldDestroy(Field,RC)
-    type(ESMF_Field),          intent(INOUT) :: Field
-    integer, optional,         intent(OUT  ) :: RC
-
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldDestroy"
-    integer                               :: STATUS
-
-    real(kind=ESMF_KIND_R4), pointer      :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:)
-    real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:) 
-    integer                      :: rank
-    type(ESMF_TypeKind_Flag)     :: tk
-
-    call ESMF_FieldGet(Field,typekind=tk,dimCount=rank,rc=status)
-    _VERIFY(STATUS)
-    if (tk == ESMF_TYPEKIND_R4 .and. rank == 1) then
-       call ESMF_FieldGet(Field,0,VAR_1d,rc=status)
-       _VERIFY(STATUS)
-       deallocate(Var_1d,stat=status)
-       _VERIFY(STATUS)
-    else if (tk == ESMF_TYPEKIND_R8 .and. rank == 1) then
-       call ESMF_FieldGet(Field,0,VR8_1d,rc=status)
-       _VERIFY(STATUS)
-       deallocate(VR8_1d,stat=status)
-       _VERIFY(STATUS)
-    else if (tk == ESMF_TYPEKIND_R4 .and. rank == 2) then
-       call ESMF_FieldGet(Field,0,VAR_2d,rc=status)
-       _VERIFY(STATUS)
-       deallocate(Var_2d,stat=status)
-       _VERIFY(STATUS)
-    else if (tk == ESMF_TYPEKIND_R8 .and. rank == 2) then
-       call ESMF_FieldGet(Field,0,VR8_2d,rc=status)
-       _VERIFY(STATUS)
-       deallocate(VR8_2d,stat=status)
-       _VERIFY(STATUS)
-    else if (tk == ESMF_TYPEKIND_R4 .and. rank == 3) then
-       call ESMF_FieldGet(Field,0,VAR_3D,rc=status)
-       _VERIFY(STATUS)
-       deallocate(Var_3d,stat=status)
-       _VERIFY(STATUS)
-    else if (tk == ESMF_TYPEKIND_R8 .and. rank == 3) then
-       call ESMF_FieldGet(Field,0,VR8_3D,rc=status)
-       _VERIFY(STATUS)
-       deallocate(VR8_3d,stat=status)
-       _VERIFY(STATUS)
-    else
-       _FAIL( 'unsupported typekind+rank')
-    end if
-    call ESMF_FieldDestroy(Field,rc=status)
-    _VERIFY(STATUS)
-
-    _RETURN(ESMF_SUCCESS)
-
-  end subroutine MAPL_FieldDestroy
-
   module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
     type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
     integer, optional,         intent(OUT  ) :: RC
@@ -2720,7 +2667,7 @@ contains
        do I = 1, FIELDCOUNT
           call ESMF_FieldBundleGet(BUNDLE, I, FIELD, RC=STATUS)
           _VERIFY(STATUS)
-          call MAPL_FieldDestroy(FIELD, RC=status)
+          call FieldDestroy(FIELD, RC=status)
           _VERIFY(STATUS)
        end do
     end if
