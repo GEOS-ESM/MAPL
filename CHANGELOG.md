@@ -59,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add ability to introduce a time-step delay in ExtDataDriver.x to simulate the timestep latency of a real model
+- Added a MAPL\_Sleep function, equivalent to some vendor supplied but non-standard sleep function
 - sampling IODA file with trajectory sampler (step-1): make it run
 - Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
   - Set required ESMF version to 8.5.0
