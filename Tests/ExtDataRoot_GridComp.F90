@@ -164,11 +164,10 @@ MODULE ExtDataUtRoot_GridCompMod
          synth => synthWrap%ptr
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
 
+         synth%delay = -1
          call ESMF_ConfigFindLabel(cf,label='delay:',isPresent=isPresent,_RC)
          if (isPresent) then
             call ESMF_ConfigGetAttribute(cf,label='delay:',value=synth%delay,_RC)
-         else
-            synth%delay = -1
          end if
 
          call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="FILL_DEF::",rc=status)
