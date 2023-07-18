@@ -39,7 +39,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(StringStringMap) :: fillDefs
          character(len=ESMF_MAXSTR) :: runMode
          type(timeVar) :: tFunc
-         integer :: delay ! in milliseconds
+         real :: delay ! in seconds
       end type SyntheticFieldSupport
 
       type :: SyntheticFieldSupportWrapper
@@ -164,7 +164,7 @@ MODULE ExtDataUtRoot_GridCompMod
          synth => synthWrap%ptr
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
 
-         synth%delay = -1
+         synth%delay = -1.0
          call ESMF_ConfigFindLabel(cf,label='delay:',isPresent=isPresent,_RC)
          if (isPresent) then
             call ESMF_ConfigGetAttribute(cf,label='delay:',value=synth%delay,_RC)
@@ -240,7 +240,7 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
-         if (synth%delay > -1) then
+         if (synth%delay > -1.0) then
             call MAPL_Sleep(synth%delay)
          end if
          call ESMF_GridCompGet(GC,grid=grid,_RC)
