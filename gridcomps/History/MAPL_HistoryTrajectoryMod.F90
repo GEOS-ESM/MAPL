@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module HistoryTrajectoryMod
-
+  
    use ESMF
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
@@ -76,12 +76,11 @@ module HistoryTrajectoryMod
          procedure :: create_file_handle
          procedure :: close_file_handle
          procedure :: append_file
-         procedure :: get_current_interval
-         procedure :: compute_times_for_interval
+!         procedure :: compute_times_for_interval
          procedure :: create_new_bundle
          !!procedure :: destroy_bundle         
-         procedure :: get_file_start_time
-         procedure :: get
+         !!procedure :: get_file_start_time
+         !!procedure :: get
          procedure :: reset_times_to_current_day
 !         procedure :: sort_arrays_by_time
          procedure :: time_real_to_ESMF
@@ -203,7 +202,6 @@ module HistoryTrajectoryMod
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
          
-
          this%time_info = timeInfo         
 
          call this%metadata%add_dimension('time', this%nobs_epoch)
@@ -238,11 +236,6 @@ module HistoryTrajectoryMod
             call iter%next()
          enddo
 
-!         this%number_written = 0
-!         this%previous_index = lbound(this%times,1)-1
-!         call timeInfo%get(clock=clock,_RC)
-!         call ESMF_ClockGet(clock,currTime=this%previous_time,_RC)
-
          this%file_name = ''
          
          this%recycle_track=.false.
@@ -255,71 +248,6 @@ module HistoryTrajectoryMod
          _RETURN(_SUCCESS)
 
       end subroutine initialize
-
-
-      function compute_times_for_interval(this,interval,rc) result(rtimes)
-         class(HistoryTrajectory), intent(inout) :: this
-         integer, intent(in) :: interval(2)
-         integer, optional, intent(out) :: rc
-         real(ESMF_KIND_R8), allocatable :: rtimes(:)
-         integer :: ntimes,i,status,icnt
-         type(ESMF_TimeInterval) :: tint
-         type(ESMF_Time) :: file_start_time
-         character(len=ESMF_MAXSTR) :: tunits
-
-         ntimes = interval(2)-interval(1)+1
-         if (all(interval==0)) then
-            _RETURN(_SUCCESS)
-         end if
-         call this%get_file_start_time(file_start_time,tunits,_RC)
-         allocate(rtimes(ntimes),_STAT)
-         icnt=0
-         do i=interval(1),interval(2)
-            icnt=icnt+1
-            tint = this%times(i)-file_start_time
-            select case(trim(tunits))
-            case ('days')
-              call ESMF_TimeIntervalGet(tint,d_r8=rtimes(icnt),_RC)
-            case ('hours')
-              call ESMF_TimeIntervalGet(tint,h_r8=rtimes(icnt),_RC)
-            case ('minutes')
-              call ESMF_TimeIntervalGet(tint,m_r8=rtimes(icnt),_RC)
-            end select
-         enddo
-         _RETURN(_SUCCESS)
-       end function compute_times_for_interval
-
-
-
-      function get_current_interval(this,current_time,rc) result(interval)
-         class(HistoryTrajectory), intent(inout) :: this
-         type(ESMF_Time), intent(inout) :: current_time
-         integer, optional, intent(out) :: rc
-         integer :: interval(2)
-         integer :: i,nfound
-         logical :: found
-
-         found = .false.
-         nfound = 0
-         interval = 0
-         do i=this%previous_index+1,size(this%times)
-            if (this%times(i) .ge. this%previous_time .and. this%times(i) .le. current_time) then
-               if (.not.found) then
-                  interval(1) = i
-                  found = .true.
-               end if
-               nfound = nfound + 1
-            end if
-            if (this%times(i) .ge. current_time) exit
-         enddo
-         if (found) then
-            interval(2) = interval(1)+nfound-1
-            this%previous_index = interval(2)
-         end if
-         _RETURN(_SUCCESS)
-
-      end function get_current_interval
-
        
       
       subroutine create_metadata_variable(this,vname,rc)
@@ -417,24 +345,13 @@ module HistoryTrajectoryMod
          integer :: status
 
          this%file_name = trim(filename)
-         !!v = this%time_info%define_time_variable(_RC)
-
-!         if (this%time_info%integer_time) then
-!            v = Variable(type=PFIO_INT32,dimensions='time')
-!         else
-!            v = Variable(type=PFIO_REAL32,dimensions='time')
-!         end if
-!         call v%add_attribute('long_name', this%nc_time)
-!         call v%add_attribute('units', this%datetime_units)         
-!         call this%metadata%modify_variable(this%nc_time,v,_RC)
-
-
+         ! __ update metadata
+         call this%metadata%modify_dimension('time', this%nobs_epoch)
          if (mapl_am_I_root()) then
             call this%file_handle%create(trim(filename),_RC)
             call this%file_handle%write(this%metadata,_RC)
          end if
-         this%number_written = 0
-
+        _RETURN(_SUCCESS)
       end subroutine create_file_handle
 
       subroutine close_file_handle(this,rc)
@@ -447,9 +364,7 @@ module HistoryTrajectoryMod
                call this%file_handle%close(_RC)
             end if
          end if
-
          _RETURN(_SUCCESS)
-
       end subroutine close_file_handle
 
       subroutine append_file(this,current_time,rc)
@@ -473,25 +388,19 @@ module HistoryTrajectoryMod
 
          integer :: is, ie, nx
          integer :: lb(1),ub(1)
-!         
-!         interval = this%get_current_interval(current_time)
-!         if (all(interval==0)) then
-!            number_to_write = 0
-!         else
-!            number_to_write = interval(2)-interval(1)+1
-!         end if
-!         if (number_to_write>0) then
-!            rtimes = this%compute_times_for_interval(interval,_RC)
-!            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-!               call this%vdata%setup_eta_to_pressure(_RC)
-!            end if
-!
-         
-         is = this%number_written + 1
-         nx = this%nobs_epoch
-         ie = this%number_written + nx
 
+         is=1
+         nx = this%nobs_epoch
+         if (nx==0)  _RETURN(_SUCCESS)            
+         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+            call this%vdata%setup_eta_to_pressure(_RC)
+         endif
          if (mapl_am_i_root()) then
+            print*, 'size(this%times_R8)'
+            print*, size(this%times_R8)
+            print*, real(this%times_R8(1:100:10))
+            print*, 'nx', nx
+
             call this%file_handle%put_var(this%var_name_time, real(this%times_R8), &
                  start=[is], count=[nx], _RC)
             call this%file_handle%put_var(this%var_name_lon, this%lons, &
@@ -504,6 +413,7 @@ module HistoryTrajectoryMod
          ! __ s1.  gather back to head node
          ! __ s2.  put_var
 
+         ! get RH
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -512,10 +422,8 @@ module HistoryTrajectoryMod
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
                if (rank==1) then
                   acc_field_rt = ESMF_FieldCreate (this%LS_rt, name='item_rt', typekind=ESMF_TYPEKIND_R4, _RC)
-                  !!call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
                   call ESMF_FieldRedistStore(acc_field, acc_field_rt, RH, _RC)
                   print*, 'nail: ESMF_FieldRedistStore'
-                  
                else if (rank==2) then
                   call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
                   call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -533,6 +441,7 @@ module HistoryTrajectoryMod
             exit
          enddo
 
+         ! redist and put_var
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -568,122 +477,121 @@ module HistoryTrajectoryMod
          call ESMF_FieldDestroy(acc_field_rt, noGarbage=.true., _RC)
          call ESMF_RouteHandleDestroy(RH, noGarbage=.true., _RC)
 
-
          _RETURN(_SUCCESS)
          
        end subroutine append_file
 
 
-      subroutine get_file_start_time(this,start_time,time_units,rc)
-         class(HistoryTrajectory), intent(inout) :: this
-         type(ESMF_Time), intent(inout) :: start_time
-         character(len=*), intent(inout) :: time_units
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         class(Variable), pointer :: var
-         type(Attribute), pointer :: attr
-         class(*), pointer :: pTimeUnits
-         character(len=ESMF_MAXSTR) :: timeUnits
-
-         integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
-         integer strlen
-         integer firstdash, lastdash
-         integer firstcolon, lastcolon
-         integer lastspace,since_pos
-         integer year,month,day,hour,min,sec
-
-         var => this%metadata%get_variable('time',_RC)
-         attr => var%get_attribute('units')
-         ptimeUnits => attr%get_value()
-         select type(pTimeUnits)
-         type is (character(*))
-            timeUnits = pTimeUnits
-            strlen = LEN_TRIM (TimeUnits)
-
-            since_pos = index(TimeUnits, 'since')
-            time_units = trim(TimeUnits(:since_pos-1))
-            time_units = trim(time_units)
-
-            firstdash = index(TimeUnits, '-')
-            lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
-
-            if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
-              rc = -1
-              return
-            endif
-            ypos(2) = firstdash - 1
-            mpos(1) = firstdash + 1
-            ypos(1) = ypos(2) - 3
-
-            mpos(2) = lastdash - 1
-            dpos(1) = lastdash + 1
-            dpos(2) = dpos(1) + 1
-
-            read ( TimeUnits(ypos(1):ypos(2)), * ) year
-            read ( TimeUnits(mpos(1):mpos(2)), * ) month
-            read ( TimeUnits(dpos(1):dpos(2)), * ) day
-
-            firstcolon = index(TimeUnits, ':')
-            if (firstcolon .LE. 0) then
-
-              ! If no colons, check for hour.
-
-              ! Logic below assumes a null character or something else is after the hour
-              ! if we do not find a null character add one so that it correctly parses time
-              if (TimeUnits(strlen:strlen) /= char(0)) then
-                 TimeUnits = trim(TimeUnits)//char(0)
-                 strlen=len_trim(TimeUnits)
-              endif
-              lastspace = index(TRIM(TimeUnits), ' ', BACK=.TRUE.)
-              if ((strlen-lastspace).eq.2 .or. (strlen-lastspace).eq.3) then
-                hpos(1) = lastspace+1
-                hpos(2) = strlen-1
-                read (TimeUnits(hpos(1):hpos(2)), * ) hour
-                min  = 0
-                sec  = 0
-              else
-                hour = 0
-                min  = 0
-                sec  = 0
-              endif
-
-            else
-              hpos(1) = firstcolon - 2
-              hpos(2) = firstcolon - 1
-              lastcolon =  index(TimeUnits, ':', BACK=.TRUE.)
-              if ( lastcolon .EQ. firstcolon ) then
-                mpos(1) = firstcolon + 1
-                mpos(2) = firstcolon + 2
-                read (TimeUnits(hpos(1):hpos(2)), * ) hour
-                read (TimeUnits(mpos(1):mpos(2)), * ) min
-                sec = 0
-              else
-                mpos(1) = firstcolon + 1
-                mpos(2) = lastcolon - 1
-                spos(1) = lastcolon + 1
-                spos(2) = lastcolon + 2
-                read (TimeUnits(hpos(1):hpos(2)), * ) hour
-                read (TimeUnits(mpos(1):mpos(2)), * ) min
-                read (TimeUnits(spos(1):spos(2)), * ) sec
-              endif
-            endif
-         class default
-            _FAIL("Time unit must be character")
-         end select
-         call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
-         _RETURN(_SUCCESS)
-
-      end subroutine get_file_start_time
-
-      subroutine get(this, file_name, rc)
-         class(HistoryTrajectory), intent(inout) :: this
-         character(len=*), intent(inout), optional :: file_name
-         integer, intent(out), optional :: rc
-
-         if (present(file_name)) file_name = trim(this%file_name)
-         _RETURN(_SUCCESS)
-      end subroutine get
+!      subroutine get_file_start_time(this,start_time,time_units,rc)
+!         class(HistoryTrajectory), intent(inout) :: this
+!         type(ESMF_Time), intent(inout) :: start_time
+!         character(len=*), intent(inout) :: time_units
+!         integer, optional, intent(out) :: rc
+!
+!         integer :: status
+!         class(Variable), pointer :: var
+!         type(Attribute), pointer :: attr
+!         class(*), pointer :: pTimeUnits
+!         character(len=ESMF_MAXSTR) :: timeUnits
+!
+!         integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
+!         integer strlen
+!         integer firstdash, lastdash
+!         integer firstcolon, lastcolon
+!         integer lastspace,since_pos
+!         integer year,month,day,hour,min,sec
+!
+!         var => this%metadata%get_variable('time',_RC)
+!         attr => var%get_attribute('units')
+!         ptimeUnits => attr%get_value()
+!         select type(pTimeUnits)
+!         type is (character(*))
+!            timeUnits = pTimeUnits
+!            strlen = LEN_TRIM (TimeUnits)
+!
+!            since_pos = index(TimeUnits, 'since')
+!            time_units = trim(TimeUnits(:since_pos-1))
+!            time_units = trim(time_units)
+!
+!            firstdash = index(TimeUnits, '-')
+!            lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
+!
+!            if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
+!              rc = -1
+!              return
+!            endif
+!            ypos(2) = firstdash - 1
+!            mpos(1) = firstdash + 1
+!            ypos(1) = ypos(2) - 3
+!
+!            mpos(2) = lastdash - 1
+!            dpos(1) = lastdash + 1
+!            dpos(2) = dpos(1) + 1
+!
+!            read ( TimeUnits(ypos(1):ypos(2)), * ) year
+!            read ( TimeUnits(mpos(1):mpos(2)), * ) month
+!            read ( TimeUnits(dpos(1):dpos(2)), * ) day
+!
+!            firstcolon = index(TimeUnits, ':')
+!            if (firstcolon .LE. 0) then
+!
+!              ! If no colons, check for hour.
+!
+!              ! Logic below assumes a null character or something else is after the hour
+!              ! if we do not find a null character add one so that it correctly parses time
+!              if (TimeUnits(strlen:strlen) /= char(0)) then
+!                 TimeUnits = trim(TimeUnits)//char(0)
+!                 strlen=len_trim(TimeUnits)
+!              endif
+!              lastspace = index(TRIM(TimeUnits), ' ', BACK=.TRUE.)
+!              if ((strlen-lastspace).eq.2 .or. (strlen-lastspace).eq.3) then
+!                hpos(1) = lastspace+1
+!                hpos(2) = strlen-1
+!                read (TimeUnits(hpos(1):hpos(2)), * ) hour
+!                min  = 0
+!                sec  = 0
+!              else
+!                hour = 0
+!                min  = 0
+!                sec  = 0
+!              endif
+!
+!            else
+!              hpos(1) = firstcolon - 2
+!              hpos(2) = firstcolon - 1
+!              lastcolon =  index(TimeUnits, ':', BACK=.TRUE.)
+!              if ( lastcolon .EQ. firstcolon ) then
+!                mpos(1) = firstcolon + 1
+!                mpos(2) = firstcolon + 2
+!                read (TimeUnits(hpos(1):hpos(2)), * ) hour
+!                read (TimeUnits(mpos(1):mpos(2)), * ) min
+!                sec = 0
+!              else
+!                mpos(1) = firstcolon + 1
+!                mpos(2) = lastcolon - 1
+!                spos(1) = lastcolon + 1
+!                spos(2) = lastcolon + 2
+!                read (TimeUnits(hpos(1):hpos(2)), * ) hour
+!                read (TimeUnits(mpos(1):mpos(2)), * ) min
+!                read (TimeUnits(spos(1):spos(2)), * ) sec
+!              endif
+!            endif
+!         class default
+!            _FAIL("Time unit must be character")
+!         end select
+!         call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
+!         _RETURN(_SUCCESS)
+!
+!      end subroutine get_file_start_time
+!
+!      subroutine get(this, file_name, rc)
+!         class(HistoryTrajectory), intent(inout) :: this
+!         character(len=*), intent(inout), optional :: file_name
+!         integer, intent(out), optional :: rc
+!
+!         if (present(file_name)) file_name = trim(this%file_name)
+!         _RETURN(_SUCCESS)
+!      end subroutine get
 
       subroutine reset_times_to_current_day(this,rc)
          class(HistoryTrajectory), intent(Inout) :: this
@@ -703,41 +611,6 @@ module HistoryTrajectoryMod
          enddo
 
       end subroutine reset_times_to_current_day
-
-
-!      subroutine sort_arrays_by_time(this,rc)
-!         class(HistoryTrajectory), intent(inout) :: this
-!         integer, optional, intent(out) :: rc
-!         integer :: status
-!
-!         integer :: i, len
-!         integer, allocatable :: IA(:)
-!         real(ESMF_KIND_R8), allocatable :: X(:), Y(:)
-!         integer(ESMF_KIND_I8), allocatable :: IX(:)
-!
-!         len = size (this%times_R8)
-!         allocate (IA(len), IX(len), X(len))
-!         do i=1, len
-!            IX(i)=this%times_R8(i)
-!            IA(i)=i
-!         enddo
-!         call MAPL_Sort(IX,IA)
-!
-!         X = this%lons
-!         do i=1, len
-!            this%lons(i) = X(IA(i))
-!         enddo
-!         X = this%lats
-!         do i=1, len
-!            this%lats(i) = X(IA(i))
-!         enddo
-!         X = this%times_R8
-!         do i=1, len
-!            this%times_R8(i) = X(IA(i))
-!         enddo
-!
-!         _RETURN(_SUCCESS)
-!       end subroutine sort_arrays_by_time
 
 
       subroutine sort_three_arrays_by_time(U,V,T,rc)
