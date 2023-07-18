@@ -271,6 +271,7 @@ contains
       integer, optional, intent(out) ::rc
 
       integer(kind=INT64) :: start_tick, stop_tick, tick_rate
+      integer :: rank, ierror
       integer :: status
       class(Logger), pointer :: lgr
       logical :: file_exists
@@ -279,8 +280,15 @@ contains
 
       call start_timer()
 
-      ! Look for a file called "ESMF.rc"
-      inquire(file='ESMF.rc', exist=file_exists)
+      ! Look for a file called "ESMF.rc" but we want to do this on root and then
+      ! broadcast the result to the other ranks
+
+      call MPI_COMM_RANK(comm, rank, ierror)
+
+      if (rank == 0) then
+         inquire(file='ESMF.rc', exist=file_exists)
+      end if
+      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, ierror)
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
