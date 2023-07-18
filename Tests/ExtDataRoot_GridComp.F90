@@ -39,7 +39,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(StringStringMap) :: fillDefs
          character(len=ESMF_MAXSTR) :: runMode
          type(timeVar) :: tFunc
-         integer :: delay
+         integer :: delay ! in milliseconds
       end type SyntheticFieldSupport
 
       type :: SyntheticFieldSupportWrapper
