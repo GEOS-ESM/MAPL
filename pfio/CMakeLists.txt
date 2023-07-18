@@ -126,7 +126,7 @@ if (DUSTY)
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 
-target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
