@@ -46,6 +46,7 @@ module pFIO_MultiGroupServerMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_FileMetadataMod
    use pFIO_IntegerMessageMapMod
+   use gFTL_StringIntegerMap
    use mpi
 
    implicit none
@@ -337,6 +338,7 @@ contains
      type (HistoryCollection), pointer :: hist_collection
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
+     character(512) :: FileName
 
      if (associated(ioserver_profiler)) call ioserver_profiler%start("receive_data")
      client_num = this%threads%size()
@@ -397,6 +399,14 @@ contains
         if (this%I_am_front_root) then
            collection_id = collection_ids%at(collection_counter)
            call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+           msg =>f_d_ms(collection_counter)%msg_vec%at(1) ! just pick first one. All messages should have the same filename
+           select type (q=>msg)
+           class is (AbstractCollectiveDataMessage)
+              Filename = q%file_name
+              call Mpi_Send(FileName, 512, MPI_CHARACTER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+           class default
+              _FAIL( "yet to implemented")
+           end select
            ! here thread_ptr can point to any thread
            hist_collection => thread_ptr%hist_collections%at(collection_id)
            call hist_collection%fmd%serialize(buffer)
@@ -440,6 +450,7 @@ contains
      integer, parameter :: stag = 6782
 
      integer :: status
+     type (StringIntegerMap) :: FilesBeingWritten
 
      allocate(this%serverthread_done_msgs(1))
      this%serverthread_done_msgs(:) = .false.
@@ -464,6 +475,7 @@ contains
        integer :: i, no_job, local_rank, node_rank, nth_writer
        integer :: terminate, idle_writer, ierr
        integer :: MPI_STAT(MPI_STATUS_SIZE)
+       character(len=512) :: FileName
 
        nwriter_per_node = this%nwriter/this%Node_Num
        allocate(num_idlePEs(0:this%Node_Num-1))
@@ -484,8 +496,12 @@ contains
               this%front_ranks(1), this%back_ranks(1), this%server_comm, &
               MPI_STAT, ierr)
          if (collection_id == -1) exit
+
+         call MPI_recv( FileName, 512 , MPI_CHARACTER, &
+              this%front_ranks(1), this%back_ranks(1), this%server_comm, &
+              MPI_STAT, ierr)
          ! 2) get an idle processor and notify front root
-         call dispatch_work(collection_id, idleRank, num_idlePEs, rc=status)
+         call dispatch_work(collection_id, idleRank, num_idlePEs, FileName, rc=status)
          _VERIFY(status)
        enddo ! while .true.
 
@@ -500,16 +516,19 @@ contains
        _RETURN(_SUCCESS)
      end subroutine start_back_captain
 
-     subroutine dispatch_work(collection_id, idleRank, num_idlePEs, rc)
+     subroutine dispatch_work(collection_id, idleRank, num_idlePEs, FileName,  rc)
        integer, intent(in) :: collection_id
        integer, intent(inout) :: idleRank(0:,0:)
        integer, intent(inout) :: num_idlePEs(0:)
+       character(*), intent(in) :: FileName
        integer, optional, intent(out) :: rc
 
        integer :: MPI_STAT(MPI_STATUS_SIZE)
        integer :: local_rank, idle_writer, nth_writer, node_rank
        integer :: i, ierr, nwriter_per_node
        logical :: flag
+       character(len=512) :: FileDone
+       type (StringIntegerMapIterator) :: iter
 
        ! 2.1)  try to retrieve idle writers
        !       keep looping (waiting) until there are idle processors
@@ -528,10 +547,21 @@ contains
                num_idlePEs(node_rank) = num_idlePEs(node_rank) + 1
                nth_writer = mod(local_rank, nwriter_per_node)
                idleRank(node_rank, nth_writer) = local_rank
+
+               call MPI_recv(FileDone, 512, MPI_CHARACTER, &
+                             local_rank, stag+1, this%back_comm, &
+                             MPI_STAT, ierr)
+
+               iter = FilesBeingWritten%find(FileDone)
+               _ASSERT( iter /= FilesBeingWritten%end(), "FileDone should be in the map")
+               call FilesBeingWritten%erase(iter)
              endif
           enddo
           ! if there is no idle processor, get back to probe
           if (all(num_idlePEs == 0)) cycle
+          ! if this file is still being written, get back to probe
+          iter = FilesBeingWritten%find(FileName)
+          if (iter /= FilesBeingWritten%end()) cycle
 
           ! get the node with the most idle processors
           node_rank = maxloc(num_idlePEs, dim=1) - 1
@@ -543,7 +573,8 @@ contains
             exit
           enddo
           _ASSERT(1<= idle_writer .and. idle_writer <= this%nwriter-1, "wrong local rank of writer")
-          exit ! exit while loop after get one idle processor
+          call FilesBeingWritten%insert(FileName, 1)
+          exit ! exit the loop after get one idle processor and the file is done
        enddo ! while,  get one idle writer
 
        ! 2.2) tell front comm which idel_worker is ready
@@ -561,6 +592,7 @@ contains
        integer :: MPI_STAT(MPI_STATUS_SIZE)
        integer :: node_rank, local_rank, nth_writer
        integer :: ierr, no_job, nwriter_per_node, idle_writer
+       character(len=512) :: FileDone
 
        no_job = -1
        nwriter_per_node = size(idleRank, 2)
@@ -575,6 +607,9 @@ contains
              ! For busy worker, wait to receive idle_writer and the send no_job
              call MPI_recv( idle_writer, 1, MPI_INTEGER, &
                             local_rank, stag, this%back_comm, &
+                            MPI_STAT, ierr)
+             call MPI_recv( FileDone, 512, MPI_CHARACTER, &
+                            local_rank, stag+1, this%back_comm, &
                             MPI_STAT, ierr)
              _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
              call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
@@ -611,6 +646,8 @@ contains
        type (c_ptr) :: address
        type (ForwardDataAndMessage), target :: f_d_m
        type (FileMetaData) :: fmd
+       character(len=:), allocatable :: filename
+       character(len=512) :: FileDone
 
        back_local_rank = this%rank
        thread_ptr => this%threads%at(1)
@@ -799,6 +836,7 @@ contains
             end select
             select type (q=>msg)
             class is (AbstractDataMessage)
+               filename =q%file_name
                call thread_ptr%put_dataToFile(q, address, _RC)
             end select
             call msg_iter%next()
@@ -811,6 +849,8 @@ contains
          ! telling captain it is idle by sending its own rank
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
+         FileDone = Filename
+         call MPI_send(FileDone, 512, MPI_CHARACTER, 0, stag+1, this%back_comm , ierr)
        enddo
        _RETURN(_SUCCESS)
      end subroutine start_back_writers
