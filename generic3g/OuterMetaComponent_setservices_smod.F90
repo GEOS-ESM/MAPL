@@ -11,7 +11,6 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
-   use yafyaml
    implicit none
 
 
@@ -66,13 +65,12 @@ contains
          type(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
 
-         class(YAML_Node), pointer :: config
-         class(YAML_Node), pointer :: child_spec
-         class(YAML_Node), pointer :: children_spec
+         type(ESMF_HConfig), pointer :: config
+         type(ESMF_HConfig) :: child_spec
+         type(ESMF_HConfig) :: children_spec
          logical :: return
 
-         class(NodeIterator), allocatable :: iter
-         integer :: status
+         integer :: status, num_children, i
          logical :: found
 
          if (.not. this%config%has_yaml()) then
@@ -81,32 +79,25 @@ contains
          
          config => this%config%yaml_cfg
 
-         if (.not. config%has('children')) then
+         found = ESMF_HConfigIsDefined(config,keyString='children')
+         if (.not. found) then
             _RETURN(_SUCCESS)
          end if
 
-         children_spec => config%at('children', found=found, _RC)
-         if (.not. found) return
-         _ASSERT(children_spec%is_sequence(), 'Children in config should be specified as a sequence.')
+         children_spec = ESMF_HConfigCreateAt(config,keyString='children',_RC)
+         _ASSERT(ESMF_HConfigIsSequence(children_spec), 'Children in config should be specified as a sequence.')
+         num_children = ESMF_HConfigGetSize(children_spec,_RC)
+         do i = 1,num_children
+            child_spec = ESMF_HConfigCreateAt(children_spec,index=i,_RC)
+            call add_child_from_config(this, child_spec, _RC)
+         end do
 
-         associate (e => children_spec%end() )
-
-           ! ifort 2022.0 polymorphic assign fails for the line below.
-           allocate(iter, source=children_spec%begin())
-
-           do while (iter /= e)
-              child_spec => iter%at(_RC)
-              call add_child_from_config(this, child_spec, _RC)
-              call iter%next()
-           end do
-         end associate
          _RETURN(_SUCCESS)
       end subroutine add_children_from_config
 
       subroutine add_child_from_config(this, child_spec, rc)
-         use yafyaml, only: Parser
          type(OuterMetaComponent), target, intent(inout) :: this
-         class(YAML_Node), intent(in) :: child_spec
+         type(ESMF_HConfig), intent(in) :: child_spec
          integer, optional, intent(out) :: rc
          
          integer :: status
@@ -119,28 +110,28 @@ contains
          character(:), allocatable :: dso_key, userProcedure_key, try_key
          logical :: dso_found, userProcedure_found
          character(:), allocatable :: sharedObj, userProcedure, config_file
-         type(Parser) :: p
          type(GenericConfig) :: generic_config
+         type(ESMF_HConfig) :: new_config
 
-         call child_spec%get(name, 'name', _RC)
+         name = ESMF_HConfigAsString(child_spec,keyString='name',_RC)
 
          dso_found = .false.
          ! Ensure precisely one name is used for dso
          do i = 1, size(dso_keys)
             try_key = trim(dso_keys(i))
-            if (child_spec%has(try_key)) then
+            if (ESMF_HConfigIsDefined(child_spec,keyString=try_key)) then
                _ASSERT(.not. dso_found, 'multiple specifications for dso in config for child <'//name//'>.')
                dso_found = .true.
                dso_key = try_key
             end if
          end do
          _ASSERT(dso_found, 'Must specify a dso for config of child <'//name//'>.')
-         call child_spec%get(sharedObj, dso_key, _RC)
+         sharedObj = ESMF_HConfigAsString(child_spec,keyString=dso_key,_RC)
 
          userProcedure_found = .false.
          do i = 1, size(userProcedure_keys)
             try_key = userProcedure_keys(i)
-            if (child_spec%has(try_key)) then
+            if (ESMF_HConfigIsDefined(child_spec,keyString=try_key)) then
                _ASSERT(.not. userProcedure_found, 'multiple specifications for dso in config for child <'//name//'>.')
                userProcedure_found = .true.
                userProcedure_key = try_key
@@ -148,14 +139,14 @@ contains
          end do
          userProcedure = 'setservices_'         
          if (userProcedure_found) then
-            call child_spec%get(userProcedure, userProcedure_key, _RC)
+            userProcedure = ESMF_HConfigAsString(child_spec,keyString=userProcedure_key,_RC)
          end if
 
-         if (child_spec%has('config_file')) then
-            call child_spec%get(config_file, 'config_file', _RC)
-            p = Parser()
+         if (ESMF_HConfigIsDefined(child_spec,keyString='config_file')) then
+            config_file = ESMF_HConfigAsString(child_spec,keyString='config_file',_RC)
 !!$            _HERE, 'config file? ', config_file
-            generic_config = GenericConfig(yaml_cfg=p%load_from_file(config_file))
+            new_config = ESMF_HConfigCreate(filename=config_file,_RC)
+            generic_config = GenericConfig(yaml_cfg=new_config)
          end if
 
          call this%add_child(name, user_setservices(sharedObj, userProcedure), generic_config, _RC)

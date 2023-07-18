@@ -1,6 +1,5 @@
 module mapl3g_GenericConfig
-   use esmf, only: Esmf_Config
-   use yaFyaml, only: YAML_Node
+   use esmf, only: Esmf_HConfig, ESMF_Config
    implicit none
    private
   
@@ -8,7 +7,7 @@ module mapl3g_GenericConfig
   
    type :: GenericConfig
       type(ESMF_Config), allocatable :: esmf_cfg
-      class(YAML_Node), allocatable :: yaml_cfg
+      type(ESMF_HConfig), allocatable :: yaml_cfg
    contains
       procedure :: has_yaml
       procedure :: has_esmf
@@ -24,7 +23,7 @@ contains
    function new_GenericConfig(esmf_cfg, yaml_cfg) result(config)
       type(GenericConfig) :: config
       type(ESMF_Config), optional, intent(in) :: esmf_cfg
-      class(YAML_Node), optional, intent(in) :: yaml_cfg
+      type(ESMF_HConfig), optional, intent(in) :: yaml_cfg
 
       if (present(esmf_cfg)) config%esmf_cfg = esmf_cfg
       if (present(yaml_cfg)) config%yaml_cfg = yaml_cfg

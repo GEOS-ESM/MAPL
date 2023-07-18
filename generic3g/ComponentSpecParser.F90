@@ -19,7 +19,6 @@ module mapl3g_ComponentSpecParser
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
    use mapl3g_Stateitem
-   use yaFyaml
    use gftl2_StringVector, only: StringVector
    use esmf
    implicit none
@@ -34,22 +33,24 @@ module mapl3g_ComponentSpecParser
    public :: parse_SetServices
    public :: var_parse_ChildSpecMap
 
-   public :: parse_UngriddedDimsSpec
+   !public :: parse_UngriddedDimsSpec
    
 contains
-
    type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
-      class(YAML_Node), target, intent(inout) :: config
+      type(ESMF_HConfig), target, intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_HConfig) :: subcfg
 
-      if (config%has('states')) then
-         spec%var_specs = process_var_specs(config%of('states'), _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='states')) then
+         subcfg = ESMF_HConfigCreateAt(config,keyString='states',_RC)
+         spec%var_specs = process_var_specs(subcfg)
       end if
 
-      if (config%has('connections')) then
-         spec%connections = process_connections(config%of('connections'), _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='connections')) then
+         subcfg = ESMF_HConfigCreateAt(config,keyString='connections',_RC)
+         spec%connections = process_connections(subcfg)
       end if
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
@@ -60,7 +61,7 @@ contains
 
    function process_var_specs(config, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
-      class(YAML_Node), optional, intent(in) :: config
+      type(ESMF_HConfig), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -69,14 +70,14 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      if (config%has('internal')) then
-         call process_state_specs(var_specs, config%of('internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='internal')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
       end if
-      if (config%has('import')) then
-         call process_state_specs(var_specs, config%of('import'), ESMF_STATEINTENT_IMPORT, _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='import')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
       end if
-      if (config%has('export')) then
-         call process_state_specs(var_specs, config%of('export'), ESMF_STATEINTENT_EXPORT, _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='export')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -84,16 +85,16 @@ contains
 
       subroutine process_state_specs(var_specs, config, state_intent, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
-         class(YAML_Node), target, intent(in) :: config
+         type(ESMF_HConfig), target, intent(in) :: config
          type(Esmf_StateIntent_Flag), intent(in) :: state_intent
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
-         class(NodeIterator), allocatable :: iter, e
-         character(:), pointer :: name
+         type(ESMF_HConfigIter) :: iter,e,b
+         character(:), allocatable :: name
          character(:), allocatable :: short_name
          character(:), allocatable :: substate
-         class(YAML_Node), pointer :: attributes
+         type(ESMF_HConfig) :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
          type(VerticalDimSpec) :: vertical_dim_spec
@@ -104,11 +105,12 @@ contains
 
          type(StringVector), allocatable :: service_items
 
-         allocate(e, source=config%end())
-         allocate(iter, source=config%begin())
-         do while (iter /= e)
-            name => to_string(iter%first())
-            attributes => iter%second()
+         b = ESMF_HConfigIterBegin(config) 
+         e = ESMF_HConfigIterEnd(config) 
+         iter = ESMF_HConfigIterBegin(config)
+         do while (ESMF_HConfigIterLoop(iter,b,e))
+            name = ESMF_HConfigAsStringMapKey(iter,_RC)
+            attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
             call split(name, short_name, substate)
             call to_typekind(typekind, attributes, _RC)
@@ -118,17 +120,17 @@ contains
 
             call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
 
-            if (attributes%has('standard_name')) then
-               standard_name = to_string(attributes%of('standard_name'))
+            if (ESMF_HConfigIsDefined(attributes,keyString='standard_name')) then
+               standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name',_RC)
             end if
             
-            if (attributes%has('units')) then
-               units = to_string(attributes%of('units'))
+            if (ESMF_HConfigIsDefined(attributes,keyString='units')) then
+               units = ESMF_HConfigAsString(attributes,keyString='units',_RC)
             end if
 
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
-            
+           
             var_spec = VariableSpec(state_intent, short_name=short_name, &
                  itemtype=itemtype, &
                  service_items=service_items, &
@@ -142,7 +144,6 @@ contains
                  )
 
             call var_specs%push_back(var_spec)
-            call iter%next()
          end do
 
          _RETURN(_SUCCESS)
@@ -167,32 +168,32 @@ contains
 
       subroutine val_to_float(x, attributes, key, rc)
          real, allocatable, intent(out) :: x
-         class(YAML_Node), intent(in) :: attributes
+         type(ESMF_HConfig), intent(in) :: attributes
          character(*), intent(in) :: key
          integer, optional, intent(out) :: rc
 
          integer :: status
 
-         _RETURN_UNLESS(attributes%has('default_value'))
+         _RETURN_UNLESS(ESMF_HConfigIsDefined(attributes,keyString='default_value'))
          allocate(x)
-         call attributes%get(x, 'default_value', _RC)
+         x = ESMF_HConfigAsR4(attributes,keyString='default_value',_RC)
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
 
       subroutine to_typekind(typekind, attributes, rc)
          type(ESMF_TypeKind_Flag) :: typekind
-         class(YAML_Node), intent(in) :: attributes
+         type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
          character(:), allocatable :: typekind_str
 
          typekind = ESMF_TYPEKIND_R4 ! GEOS default
-         if (.not. attributes%has('typekind')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='typekind')) then
             _RETURN(_SUCCESS)
          end if
-         call attributes%get(typekind_str, 'typekind', _RC)
+         typekind_str= ESMF_HConfigAsString(attributes,keyString='typekind',_RC)
 
          select case (typekind_str)
          case ('R4')
@@ -212,7 +213,7 @@ contains
 
       subroutine to_VerticalDimSpec(vertical_dim_spec, attributes, rc)
          type(VerticalDimSpec) :: vertical_dim_spec
-         class(YAML_Node), intent(in) :: attributes
+         type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -220,10 +221,10 @@ contains
 
          vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
          
-         if (.not. attributes%has('vertical_dim_spec')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='vertical_dim_spec')) then
             _RETURN(_SUCCESS)
          end if
-         call attributes%get(vertical_str, 'vertical_dim_spec', _RC)
+         vertical_str= ESMF_HConfigAsString(attributes,keyString='vertical_dim_spec',_RC)
 
          select case (vertical_str)
          case ('vertical_dim_none', 'N')
@@ -241,23 +242,24 @@ contains
 
       subroutine to_UngriddedDimsSpec(ungridded_dims_spec,attributes,rc)
          type(UngriddedDimsSpec) :: ungridded_dims_spec
-         class(YAML_Node), intent(in) :: attributes
+         type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(YAML_Node), pointer :: dim_specs, dim_spec
+         type(ESMF_HConfig) :: dim_specs, dim_spec
          character(len=:), allocatable :: dim_name
          integer :: dim_size,i
          type(UngriddedDimSpec) :: temp_dim_spec
 
-         if (.not.attributes%has('ungridded_dim_specs')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='ungridded_dim_specs')) then
             _RETURN(_SUCCESS)
          end if
-         dim_specs => attributes%of('ungridded_dim_specs')
-         do i=1,dim_specs%size()
-            dim_spec => dim_specs%of(i) 
-            call dim_spec%get(dim_name,'dim_name',_RC)
-            call dim_spec%get(dim_size,'extent',_RC)            
+         dim_specs = ESMF_HConfigCreateAt(attributes,keyString='ungridded_dim_specs',_RC)
+         
+         do i=1,ESMF_HConfigGetSize(dim_specs)
+            dim_spec = ESMF_HConfigCreateAt(dim_specs,index=i,_RC)
+            dim_name = ESMF_HConfigAsString(dim_spec,keyString='dim_name',_RC)
+            dim_size = ESMF_HConfigAsI4(dim_spec,keyString='extent',_RC)
             temp_dim_spec = UngriddedDimSpec(dim_size)
             call ungridded_dims_spec%add_dim_spec(temp_dim_spec,_RC)
          end do 
@@ -268,17 +270,17 @@ contains
 
       subroutine to_itemtype(itemtype, attributes, rc)
          type(ESMF_StateItem_Flag), allocatable, intent(out) :: itemtype
-         class(YAML_Node), target, intent(in) :: attributes
+         type(ESMF_HConfig), target, intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
          character(:), allocatable :: subclass
 
-         if (.not. attributes%has('class')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='class')) then
             _RETURN(_SUCCESS)
          end if
 
-         call attributes%get(subclass, 'class', _RC)
+         subclass= ESMF_HConfigAsString(attributes,keyString='class',_RC) 
 
          select case (subclass)
          case ('field')
@@ -294,30 +296,27 @@ contains
       
       subroutine to_service_items(service_items, attributes, rc)
          type(StringVector), allocatable, intent(out) :: service_items
-         class(YAML_Node), target, intent(in) :: attributes
+         type(ESMF_HConfig), target, intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(YAML_Node), pointer :: seq
-         class(YAML_Node), pointer :: item
-         class(NodeIterator), allocatable :: seq_iter
-         character(:), pointer :: item_name
+         type(ESMF_HConfig) :: seq
+         integer :: num_items, i
+         character(:), allocatable :: item_name
 
-         if (.not. attributes%has('items')) then
+         if (.not. ESMF_HConfigIsDefined(attributes,keyString='items')) then
             _RETURN(_SUCCESS)
          end if
 
          allocate(service_items)
-         seq => attributes%of('items')
-         associate (e => seq%end())
-           seq_iter = seq%begin()
-           do while (seq_iter /= e)
-              item => seq_iter%at(_RC)
-              item_name => to_string(item, _RC)
-              call service_items%push_back(item_name)
-              call seq_iter%next()
-           end do
-         end associate
+       
+         seq = ESMF_HConfigCreateAt(attributes,keyString='items',_RC)
+         _ASSERT(ESMF_HConfigIsSequence(seq),"items must be a sequence")
+         num_items = ESMF_HConfigGetSize(seq,_RC) 
+         do i = 1,num_items
+            item_name = ESMF_HConfigAsString(seq,index = i, _RC)
+            call service_items%push_back(item_name)
+         end do
 
          _RETURN(_SUCCESS)
       end subroutine to_service_items
@@ -326,33 +325,30 @@ contains
 
 
    type(ConnectionVector) function process_connections(config, rc) result(connections)
-      class(YAML_Node), optional, intent(in) :: config
+      type(ESMF_HConfig), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
-      class(NodeIterator), allocatable :: iter, e
+      type(ESMF_HConfig) :: conn_spec
       class(Connection), allocatable :: conn
-      class(YAML_Node), pointer :: conn_spec
-      integer :: status
+      integer :: status, i, num_specs
 
       if (.not. present(config)) then
          _RETURN(_SUCCESS)
       end if
 
-      allocate(e, source=config%end())
-      allocate(iter, source=config%begin())
-      do while (iter /= e)
-         conn_spec => iter%at(_RC)
+      num_specs = ESMF_HConfigGetSize(config,_RC)
+      do i =1,num_specs
+         conn_spec = ESMF_HConfigCreateAt(config,index=i,_RC)
          conn = process_connection(conn_spec, _RC)
          call connections%push_back(conn)
-         call iter%next()
-      end do
+      enddo 
 
       _RETURN(_SUCCESS)
    contains
 
       function process_connection(config, rc) result(conn)
          class(Connection), allocatable :: conn
-         class(YAML_Node), optional, intent(in) :: config
+         type(ESMF_HConfig), optional, intent(in) :: config
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -362,7 +358,7 @@ contains
 
          call get_comps(config, src_comp, dst_comp, _RC)
 
-         if (config%has('all_unsatisfied')) then
+         if (ESMF_HConfigIsDefined(config,keyString='all_unsatisfied')) then
             conn = MatchConnection( &
                  ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='*')), &
                  ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='*'))  &
@@ -393,7 +389,7 @@ contains
       end function process_connection
 
       subroutine get_names(config, src_name, dst_name, rc)
-         class(YAML_Node), intent(in) :: config
+         type(ESMF_HConfig), intent(in) :: config
          character(:), allocatable :: src_name
          character(:), allocatable :: dst_name
          integer, optional, intent(out) :: rc
@@ -401,41 +397,41 @@ contains
          integer :: status
 
          associate (provides_names => &
-              config%has('name') .or. &
-              (config%has('src_name') .and. config%has('dst_name')) &
+              ESMF_HConfigIsDefined(config,keyString='name') .or. &
+              (ESMF_HConfigIsDefined(config,keyString='src_name') .and. ESMF_HConfigIsDefined(config,keyString='dst_name')) &
               )
            _ASSERT(provides_names, "Must specify 'name' or 'src_name' .and. 'dst_name' in connection.")
          end associate
 
-         if (config%has('name')) then ! replicate for src and dst
-            call config%get(src_name, 'name', _RC)
+         if (ESMF_HConfigIsDefined(Config,keystring='name')) then ! replicate for src and dst
+            src_name = ESMF_HConfigAsString(config,keyString='name',_RC)
             dst_name = src_name
             _RETURN(_SUCCESS)
          end if
 
-         call config%get(src_name, 'src_name', _RC)
-         call config%get(dst_name, 'dst_name', _RC)
+         src_name = ESMF_HConfigAsString(config,keyString='src_name',_RC)
+         dst_name = ESMF_HConfigAsString(config,keyString='dst_name',_RC)
 
          _RETURN(_SUCCESS)
       end subroutine get_names
 
       subroutine get_comps(config, src_comp, dst_comp, rc)
-         class(YAML_Node), intent(in) :: config
+         type(ESMF_HConfig), intent(in) :: config
          character(:), allocatable :: src_comp
          character(:), allocatable :: dst_comp
          integer, optional, intent(out) :: rc
 
          integer :: status
          
-         _ASSERT(config%has('src_comp'), 'Connection must specify a src component')
-         _ASSERT(config%has('dst_comp'), 'Connection must specify a dst component')
-         call config%get(src_comp, 'src_comp', _RC)
-         call config%get(dst_comp, 'dst_comp', _RC)
+         _ASSERT(ESMF_HConfigIsDefined(config,keyString='src_comp'), 'Connection must specify a src component')
+         _ASSERT(ESMF_HConfigIsDefined(config,keyString='dst_comp'), 'Connection must specify a dst component')
+         src_comp = ESMF_HConfigAsString(config,keyString='src_comp',_RC)
+         dst_comp = ESMF_HConfigAsString(config,keyString='dst_comp',_RC)
          _RETURN(_SUCCESS)
       end subroutine get_comps
 
       subroutine get_intents(config, src_intent, dst_intent, rc)
-         class(YAML_Node), intent(in) :: config
+         type(ESMF_HConfig), intent(in) :: config
          character(:), allocatable :: src_intent
          character(:), allocatable :: dst_intent
          integer, optional, intent(out) :: rc
@@ -446,11 +442,11 @@ contains
          src_intent = 'export'
          dst_intent = 'import'
 
-         if (config%has('src_intent')) then
-            call config%get(src_intent,'src_intent', _RC)
+         if (ESMF_HConfigIsDefined(config,keyString='src_intent')) then
+            src_intent = ESMF_HConfigAsString(config,keyString='src_intent',_RC)
          end if
-         if (config%has('dst_intent')) then
-            call config%get(dst_intent,'dst_intent', _RC)
+         if (ESMF_HConfigIsDefined(config,keyString='dst_intent')) then
+            dst_intent = ESMF_HConfigAsString(config,keyString='dst_intent',_RC)
          end if
 
          _RETURN(_SUCCESS)
@@ -460,37 +456,38 @@ contains
 
    
    type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
-      class(YAML_Node), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       integer, optional, intent(out) :: rc
 
+      type(ESMF_HConfig) :: subcfg
       integer :: status
 
-      _ASSERT(config%has('setServices'),"child spec must specify a 'setServices' spec")
-      child_spec%user_setservices = parse_setservices(config%of('setServices'), _RC)
+      _ASSERT(ESMF_HConfigIsDefined(config,keyString='setServices'),"child spec must specify a 'setServices' spec")
+      subcfg = ESMF_HConfigCreateAt(config,keyString='setServices',_RC)
+      child_spec%user_setservices = parse_setservices(subcfg, _RC)
 
-      if (config%has('esmf_config')) then
-         call config%get(child_spec%esmf_config_file, 'esmf_config', _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='esmf_config')) then
+         child_spec%esmf_config_file = ESMF_HConfigAsString(config,keyString='esmf_config',_RC)
       end if
-
-      if (config%has('yaml_config')) then
-         call config%get(child_spec%yaml_config_file, 'yaml_config', _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='yaml_config')) then
+         child_spec%yaml_config_file = ESMF_HConfigAsString(config,keyString='yaml_config',_RC)
       end if
 
       _RETURN(_SUCCESS)
    end function parse_ChildSpec
 
    type(DSOSetServices) function parse_setservices(config, rc) result(user_ss)
-      class(YAML_Node), target, intent(in) :: config
+      type(ESMF_HConfig), target, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: sharedObj, userRoutine
       integer :: status
 
-      call config%get(sharedObj, 'sharedObj', rc=status)
+      sharedObj = ESMF_HConfigAsString(config,keyString='sharedObj',rc=status)
       _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
 
-      if (config%has('userRoutine')) then
-         call config%get(userRoutine, 'userRoutine', _RC)
+      if (ESMF_HConfigIsDefined(config,keyString='userRoutine')) then
+         userRoutine = ESMF_HConfigAsString(config,keyString='userRoutine',_RC)
       else
          userRoutine = 'setservices_'
       end if
@@ -506,45 +503,46 @@ contains
    ! making the relevant check.
 
    type(ChildSpecMap) function parse_ChildSpecMap(config, rc) result(specs)
-      class(YAML_Node), pointer, intent(in) :: config
+      type(ESMF_HConfig), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
-      character(:), pointer :: child_name
+      character(:), allocatable :: child_name
       type(ChildSpec) :: child_spec
-      class(NodeIterator), allocatable :: iter
-      class(YAML_Node), pointer :: subcfg
+      type(ESMF_HConfig) :: subcfg
 
       if (.not. associated(config)) then
          specs = ChildSpecMap()
          _RETURN(_SUCCESS)
       end if
-      _ASSERT(config%is_mapping(), 'children spec must be mapping of names to child specs')
+      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
+      
 
-      associate (e => config%end())
-        allocate(iter, source=config%begin())
-        do while (iter /= e)
-           child_name => to_string(iter%first(), _RC)
-           subcfg => iter%second()
-           child_spec = parse_ChildSpec(subcfg)
-           call specs%insert(child_name, child_spec)
-           call iter%next()
-        end do
-      end associate
+      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
+      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
+      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
+      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+         child_name = ESMF_HConfigAsStringMapKey(hconfigIter)
+         subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
+         child_spec = parse_ChildSpec(subcfg)
+         call specs%insert(child_name, child_spec)
+      end do
 
       _RETURN(_SUCCESS)
    end function parse_ChildSpecMap
 
    type(ChildSpecMap) function var_parse_ChildSpecMap(config, rc) result(specs)
-      class(YAML_Node), pointer, intent(in) :: config
+      type(ESMF_HConfig), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      character(:), pointer :: child_name
+      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+      character(:), allocatable :: child_name
+      type(ESMF_HConfig) :: subcfg
       type(ChildSpec) :: child_spec
-      class(NodeIterator), allocatable :: iter
 
       type(ChildSpecMap) :: kludge
       integer :: counter
@@ -556,18 +554,17 @@ contains
          specs = ChildSpecMap()
          _RETURN(_SUCCESS)
       end if
-      _ASSERT(config%is_mapping(), 'children spec must be mapping of names to child specs')
-
-      associate (e => config%end())
-        allocate(iter, source=config%begin())
-        do while (iter /= e)
-           counter = counter + 1
-           child_name => to_string(iter%first(), _RC)
-           child_spec = parse_ChildSpec(iter%second(), _RC)
-           call specs%insert(child_name, child_spec)
-           call iter%next()
-        end do
-      end associate
+      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
+      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
+      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
+      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
+      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd)) 
+        counter = counter + 1
+        child_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
+        subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
+        child_spec = parse_ChildSpec(subcfg, _RC)
+        call specs%insert(child_name, child_spec)
+      end do
 
 !!$      call specs%deep_copy(kludge)
       specs = kludge
@@ -579,7 +576,7 @@ contains
    function parse_UngriddedDimsSpec(config, rc) result(dims_spec)
       use mapl3g_UngriddedDimsSpec
       type(UngriddedDimsSpec) :: dims_spec
-      class(YAML_Node), pointer, intent(in) :: config
+      type(ESMF_HConfig), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
 !!$      dims_spec = UngriddedDimsSpec()

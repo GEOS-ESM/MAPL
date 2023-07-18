@@ -1,12 +1,12 @@
 #include "MAPL_ErrLog.h"
 module Test_ComponentSpecParser
    use funit
-   use yafyaml
    use mapl3g_UserSetServices
    use mapl3g_ComponentSpecParser
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
    use mapl_ErrorHandling
+   use esmf
    implicit none
 
 contains
@@ -17,12 +17,10 @@ contains
    !      userRoutine: <user_routine>  
    @test
    subroutine test_parse_setServices()
-      type(Parser) :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig) :: config
       class(DSOSetServices), allocatable :: ss_expected
 
-      p = Parser('core')
-      config = p%load(TextStream('{sharedObj: libA, userRoutine: procB}'))
+      config = ESMF_HConfigCreate(content='{sharedObj: libA, userRoutine: procB}')
 
       ss_expected = DSOSetServices('libA', 'procB')
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
@@ -31,12 +29,10 @@ contains
 
    @test
    subroutine test_parse_setServices_default()
-      type(Parser) :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig) :: config
       class(DSOSetServices), allocatable :: ss_expected
 
-      p = Parser('core')
-      config = p%load(TextStream('{sharedObj: libA}'))
+      config = ESMF_HConfigCreate(content='{sharedObj: libA}')
 
       ss_expected = DSOSetServices('libA', 'setservices_')
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
@@ -114,14 +110,12 @@ contains
 
    @test
    subroutine test_parse_childSpec_basic()
-      type(Parser) :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig) :: config
       type(ChildSpec) :: found
       integer :: rc, status
       type(ChildSpec) :: expected
 
-      p = Parser('core')
-      config = p%load(TextStream('{setServices: {sharedObj: libA}}'))
+      config = ESMF_HConfigCreate(content='{setServices: {sharedObj: libA}}')
 
       expected = ChildSpec(user_setservices('libA', 'setservices_'))
       found = parse_ChildSpec(config, _RC)
@@ -131,16 +125,14 @@ contains
 
    @test
    subroutine test_parse_childSpec_with_esmf_config()
-      type(Parser) :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig) :: config
       type(ChildSpec) :: found
       integer :: status, rc
 
       class(AbstractUserSetServices), allocatable :: ss
       type(ChildSpec) :: expected
 
-      p = Parser('core')
-      config = p%load(TextStream('{setServices: {sharedObj: libA}, esmf_config: a.rc}'))
+      config = ESMF_HConfigCreate(content='{setServices: {sharedObj: libA}, esmf_config: a.rc}')
 
       ss = user_setservices('libA', 'setservices_')
       expected = ChildSpec(ss, esmf_config='a.rc')
@@ -152,16 +144,14 @@ contains
 
    @test
    subroutine test_parse_childSpec_with_yaml_config()
-      type(Parser) :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig) :: config
       type(ChildSpec) :: found
       integer :: status, rc
 
       class(AbstractUserSetServices), allocatable :: ss
       type(ChildSpec) :: expected
 
-      p = Parser('core')
-      config = p%load(TextStream('{setServices: {sharedObj: libA}, yaml_config: a.yml}'))
+      config = ESMF_HConfigCreate(content='{setServices: {sharedObj: libA}, yaml_config: a.yml}')
 
       ss = user_setservices('libA', 'setservices_')
       expected = ChildSpec(ss, yaml_config='a.yml')
@@ -183,14 +173,12 @@ contains
 
    @test
    subroutine test_parse_ChildSpecMap_1()
-      type(Parser) :: p
-      class(YAML_Node), target, allocatable :: config
-      class(YAML_Node), pointer :: config_ptr
+      type(ESMF_HConfig), target :: config
+      type(ESMF_HConfig), pointer :: config_ptr
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
 
-      p = Parser('core')
-      config = p%load(TextStream('{A: {setServices: {sharedObj: libA}}}'))
+      config = ESMF_HConfigCreate(content='{A: {setServices: {sharedObj: libA}}}')
       config_ptr => config
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
       found = parse_ChildSpecMap(config_ptr, _RC)
@@ -200,17 +188,14 @@ contains
 
    @test
    subroutine test_parse_ChildSpecMap_2()
-      type(Parser) :: p
-      class(YAML_Node), target, allocatable :: config
-      class(YAML_Node), pointer :: config_ptr
+      type(ESMF_HConfig), target :: config
+      type(ESMF_HConfig), pointer :: config_ptr
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
 
-      p = Parser('core')
-
-      config = p%load(TextStream('{' // &
+      config = ESMF_HConfigCreate(content='{' // &
            'A: {setServices: {sharedObj: libA}},' // &
-           'B: {setServices: {sharedObj: libB}}}'))
+           'B: {setServices: {sharedObj: libB}}}')
       config_ptr => config
 
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
@@ -221,30 +206,5 @@ contains
       @assert_that(found%of('B') == expected%of('B'), is(true()))
       
    end subroutine test_parse_ChildSpecMap_2
-
-
-   @test
-   subroutine test_parse_UngriddedDimsSpec_default()
-      use mapl3g_VerticalDimSpec
-      use mapl3g_UngriddedDimsSpec
-
-      type(Parser) :: p
-!!$      class(YAML_Node), target, allocatable :: config
-!!$      class(YAML_Node), pointer :: cfg_ptr
-!!$      type(ChildSpecMap) :: expected, found
-!!$      integer :: status, rc
-!!$      type(UngriddedDimsSpec) :: dims_spec
-
-      p = Parser('core')
-      ! Simulate usage for emtpy config
-!!$      cfg_ptr => null()
-
-!!$      dims_spec = parse_UngriddedDimsSpec(cfg_ptr, rc=status)
-!!$      @assert_that(status, is(0))
-!!$
-!!$      @assert_that(dims_spec%vert_stagger_loc  == V_STAGGER_LOC_NONE, is(true()))
-
-      
-   end subroutine test_parse_UngriddedDimsSpec_default
 
 end module Test_ComponentSpecParser

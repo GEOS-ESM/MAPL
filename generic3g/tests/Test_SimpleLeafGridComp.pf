@@ -11,7 +11,6 @@ module Test_SimpleLeafGridComp
    use esmf
    use nuopc
    use pFunit
-   use yaFyaml
    use scratchpad
    implicit none
 
@@ -152,8 +151,8 @@ contains
 
       integer :: status, userrc
       type(ESMF_GridComp) :: outer_gc
-      type(Parser) :: p
 
+      type(ESMF_HConfig) :: hconfig
       type(ESMF_Clock) :: clock
       type(ESMF_State) :: importState, exportState
       integer :: i
@@ -164,9 +163,9 @@ contains
       call NUOPC_FieldDictionarySetup('./scenarios/FieldDictionary.yml', rc=status)
       @assert_that(status, is(0))
 
-      p = Parser()
-      config = GenericConfig(yaml_cfg=p%load_from_file('./scenarios/leaf_A.yaml', rc=status))
+      hconfig = ESMF_HConfigCreate(filename='./scenarios/leaf_A.yaml')
       @assert_that(status, is(0))
+      config = GenericConfig(yaml_cfg=hconfig)
 
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))

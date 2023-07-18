@@ -2,7 +2,6 @@ module Test_FieldDictionary
    use funit
    use mapl3g_FieldDictionary
    use mapl3g_FieldDictionaryItem
-   use yafyaml, only: TextStream
    implicit none
 
 contains
@@ -23,12 +22,12 @@ contains
    subroutine test_from_yaml_size()
       type(FieldDictionary) :: fd
 
-      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
+      fd = FieldDictionary(stream='{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}')
       @assert_that(1, is(fd%size()))
 
-      fd = FieldDictionary(TextStream( '{' // &
+      fd = FieldDictionary(stream = '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
-           'A_B_C: {canonical_units: m, long_name: "A B C"} }'))
+           'A_B_C: {canonical_units: m, long_name: "A B C"} }')
       @assert_that(2, is(fd%size()))
 
    end subroutine test_from_yaml_size
@@ -43,7 +42,7 @@ contains
 
       integer :: status
       
-      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
+      fd = FieldDictionary(stream='{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}')
 
       item = fd%get_item('X_Y_Z', rc=status)
       @assert_that(status, is(0))
@@ -60,9 +59,9 @@ contains
       character(:), allocatable :: units
       integer :: status
 
-      fd = FieldDictionary(TextStream( '{' // &
+      fd = FieldDictionary(stream='{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
-           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
+           'A_B_C: {canonical_units: s, long_name: "A B C"} }')
 
       units = fd%get_units('A_B_C', rc=status)
       @assert_that(status, is(0))
@@ -82,9 +81,9 @@ contains
       character(:), allocatable :: long_name
       integer :: status
       
-      fd = FieldDictionary(TextStream( '{' // &
+      fd = FieldDictionary(stream = '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
-           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
+           'A_B_C: {canonical_units: s, long_name: "A B C"} }')
 
       long_name = fd%get_long_name('A_B_C', rc=status)
       @assert_that(status, is(0))
@@ -105,9 +104,9 @@ contains
       character(:), allocatable :: standard_name
       integer :: status
       
-      fd = FieldDictionary(TextStream( '{' // &
+      fd = FieldDictionary(stream= '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' //  &
-           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a]} }'))
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a]} }')
 
       standard_name = fd%get_standard_name('x', rc=status)
       @assert_that(status, is(0))
@@ -128,9 +127,9 @@ contains
       character(:), allocatable :: standard_name
       integer :: status
       
-      fd = FieldDictionary(TextStream( '{' // &
+      fd = FieldDictionary(stream = '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, y]},' //  &
-           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a, b, c]} }'))
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a, b, c]} }')
 
       standard_name = fd%get_standard_name('y', rc=status)
       @assert_that(status, is(0))

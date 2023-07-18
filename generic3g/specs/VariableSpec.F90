@@ -107,28 +107,27 @@ contains
    ! left uninitialized. Constistency and sufficiency checks are
    ! relegated to the various StateItemSpec subclasses.
    subroutine initialize(this, config)
-      use yaFyaml
       class(VariableSpec), intent(out) :: this
-      class(YAML_Node), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
 
-      call config%get(this%standard_name, 'standard_name')
+      this%standard_name = ESMF_HConfigAsString(config,keyString='standard_name')
       this%itemtype = get_itemtype(config)
-      call config%get(this%units, 'units')
+      this%units = ESMF_HConfigAsString(config,keyString='units')
 
    contains
 
       
       function get_itemtype(config) result(itemtype)
          type(ESMF_StateItem_Flag) :: itemtype
-         class(YAML_Node), intent(in) :: config
+         type(ESMF_HConfig), intent(in) :: config
 
          character(:), allocatable :: itemtype_as_string
          integer :: status
 
          itemtype = MAPL_STATEITEM_FIELD ! default
-         if (.not. config%has('itemtype')) return
-         
-         call config%get(itemtype_as_string, 'itemtype', rc=status)
+         if (.not. ESMF_HConfigIsDefined(config,keyString='itemtype')) return
+        
+         itemtype_as_string = ESMF_HConfigAsString(config,keyString='itemtype',rc=status) 
          if (status /= 0) then
             itemtype = MAPL_STATEITEM_UNKNOWN
             return
