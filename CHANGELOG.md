@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add ability to introduce a time-step delay in ExtDataDriver.x to simulate the timestep latency of a real model
+- Added a MAPL\_Sleep function, equivalent to some vendor supplied but non-standard sleep function
+- sampling IODA file with trajectory sampler (step-1): make it run
+- Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
+  - Set required ESMF version to 8.5.0
+  - Add check in CMake to make sure ESMF version is at least 8.5.0b22 if using a beta snapshot
+- Add StationSamplerMod for station sampler
 - Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
 - Update arithemetic parser to work with any rank and type of ESMF fields
@@ -33,16 +40,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.28.0 → v3.29.0
     - Clean up for TOSS4 changes at NAS
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
+- Update CI to use BCs v11.1.0
 
 ### Fixed
 
+- Checked if a file is beig written before sending out to a writer 
 - Created cubed-sphere grid factory with files split by face
+- Removed unneeded and confusing default in History Grid Comp (see #2081)
+- Fixes in CMake for fArgParse transition
 
 ### Removed
 
 ### Deprecated
 
 - Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
+
+## [2.39.5] - 2023-07-10
+
+### Fixed
+
+- Fixed logic in generating the names of the split fields. If the alias field in the History.rc has separators (;), each substring is used to name the resulting fields. If there are no separators, this will be the exact name of the first split field
+
+## [2.39.4] - 2023-06-23
+
+### Fixed
+
+- Added bug fix when using climatology option in ExtData2G under certain scenarios
 
 ## [2.39.3] - 2023-06-12
 
