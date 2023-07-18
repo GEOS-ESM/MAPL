@@ -191,8 +191,9 @@ module HistoryTrajectoryMod
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC) 
+                  
+         this%time_info = timeInfo         
 
-         
          if (present(vdata)) then
             this%vdata=vdata
          else
@@ -202,8 +203,6 @@ module HistoryTrajectoryMod
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
          
-         this%time_info = timeInfo         
-
          call this%metadata%add_dimension('time', this%nobs_epoch)
          if (this%time_info%integer_time) then
             v = Variable(type=PFIO_INT32,dimensions='time')
@@ -223,7 +222,7 @@ module HistoryTrajectoryMod
          call v%add_attribute('units','degrees_east')
          call v%add_attribute('long_name','latitude')
          call this%metadata%add_variable(this%var_name_lat,v)
-         
+
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -236,6 +235,7 @@ module HistoryTrajectoryMod
             call iter%next()
          enddo
 
+         
          this%file_name = ''
          
          this%recycle_track=.false.
@@ -315,15 +315,21 @@ module HistoryTrajectoryMod
                       typekind=ESMF_TYPEKIND_R4,_RC)
                  call ESMF_FieldGet(dst_field,farrayptr=p_acc_2d,_RC)
                  p_acc_2d(:)=-1.0
-                 
+                 print*, 'new_bundle: p_acc_2d', p_acc_2d(1:100:10)
               else if (rank==3) then
                  call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-                 if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+                 print*, 'new_bundle 3d: lb, ub, this%vdata%lm'
+                 print*, lb, ub, this%vdata%lm
+
+                 if (this%vdata%lm/=(ub(1)-lb(1)+1) .AND. this%vdata%lm/=0) then
                     lb(1)=1
                     ub(1)=this%vdata%lm
                  end if
                  dst_field = ESMF_FieldCreate(this%LS_ds,name=trim(item%xname), &
                       typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+                 call ESMF_FieldGet(dst_field,farrayptr=p_acc_3d,_RC)
+                 p_acc_3d(:,:)=-2.0
+                 print*, 'new_bundle: p_acc_3d', p_acc_3d(1:100:10,:)                 
               end if
               call MAPL_FieldBundleAdd(new_bundle,dst_field,_RC)
            else if (item%itemType == ItemTypeVector) then
@@ -367,6 +373,7 @@ module HistoryTrajectoryMod
          _RETURN(_SUCCESS)
       end subroutine close_file_handle
 
+
       subroutine append_file(this,current_time,rc)
          class(HistoryTrajectory), intent(inout) :: this
          type(ESMF_Time), intent(inout) :: current_time
@@ -392,9 +399,9 @@ module HistoryTrajectoryMod
          is=1
          nx = this%nobs_epoch
          if (nx==0)  _RETURN(_SUCCESS)            
-         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-            call this%vdata%setup_eta_to_pressure(_RC)
-         endif
+         !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+         !   call this%vdata%setup_eta_to_pressure(_RC)
+         !endif
          if (mapl_am_i_root()) then
             print*, 'size(this%times_R8)'
             print*, size(this%times_R8)
@@ -877,6 +884,15 @@ module HistoryTrajectoryMod
     is=x_subset(1)
     ie=x_subset(2)
 
+    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+       call this%vdata%setup_eta_to_pressure(_RC)
+    endif
+
+!    if (is==0 .AND. ie==0) then
+!       rc=0
+!       return
+!    endif
+
     ! __ s2. regrid & accumulate
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -899,14 +915,20 @@ module HistoryTrajectoryMod
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-             call ESMF_FieldGet(dst_field,farrayptr=p_acc_3d,_RC)             
+             call ESMF_FieldGet(acc_field,farrayptr=p_acc_3d,_RC)             
              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                 allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
                 call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
                 call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
                 if(is>0) p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
              else
+                print*, 'size(p_src_3d)'
+                print*, size(p_src_3d)
+                print*, 'size(p_dst_3d)'
+                print*, size(p_dst_3d)                                
+
                 call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+
                 if(is>0) p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
              end if
           end if
