@@ -46,7 +46,7 @@ module pFIO_MultiGroupServerMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_FileMetadataMod
    use pFIO_IntegerMessageMapMod
-   use gFTL_StringIntegerMap
+   use gFTL2_StringSet, StringSetIterator =>SetIterator
    use mpi
    use pFlogger, only: logging, Logger
 
@@ -451,7 +451,7 @@ contains
      integer, parameter :: stag = 6782
 
      integer :: status
-     type (StringIntegerMap) :: FilesBeingWritten
+     type (StringSet) :: FilesBeingWritten
 
      allocate(this%serverthread_done_msgs(1))
      this%serverthread_done_msgs(:) = .false.
@@ -529,7 +529,7 @@ contains
        integer :: i, ierr, nwriter_per_node
        logical :: flag
        character(len=FNAME_LEN) :: FileDone
-       type (StringIntegerMapIterator) :: iter
+       type (StringSetIterator) :: iter
 
        ! 2.1)  try to retrieve idle writers
        !       keep looping (waiting) until there are idle processors
@@ -554,8 +554,8 @@ contains
                              MPI_STAT, ierr)
 
                iter = FilesBeingWritten%find(FileDone)
-               _ASSERT( iter /= FilesBeingWritten%end(), "FileDone should be in the map")
-               call FilesBeingWritten%erase(iter)
+               _ASSERT( iter /= FilesBeingWritten%end(), "FileDone should be in the set")
+               iter = FilesBeingWritten%erase(iter)
              endif
           enddo
           ! if there is no idle processor, get back to probe
@@ -574,7 +574,7 @@ contains
             exit
           enddo
           _ASSERT(1<= idle_writer .and. idle_writer <= this%nwriter-1, "wrong local rank of writer")
-          call FilesBeingWritten%insert(FileName, 1)
+          call FilesBeingWritten%insert(FileName)
           exit ! exit the loop after get one idle processor and the file is done
        enddo ! while,  get one idle writer
 
