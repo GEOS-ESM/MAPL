@@ -8,6 +8,7 @@
 MODULE ExtDataUtRoot_GridCompMod
       use ESMF
       use MAPL
+      use MAPLShared
       use VarspecDescriptionMod
       use VarspecDescriptionVectorMod
       use netcdf
@@ -39,6 +40,7 @@ MODULE ExtDataUtRoot_GridCompMod
          character(len=ESMF_MAXSTR) :: runMode
          type(timeVar) :: tFunc
          logical :: on_tiles
+         real :: delay ! in seconds
       end type SyntheticFieldSupport
 
       type :: SyntheticFieldSupportWrapper
@@ -164,6 +166,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(SyntheticFieldSupport), pointer :: synth => null()
          character(len=ESMF_MaxStr) :: key, keyVal
          type(MAPL_MetaComp), pointer :: MAPL
+         logical :: isPresent
 
          call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
          call MAPL_GetObjectFromGC ( GC, MAPL, _RC )
@@ -172,6 +175,12 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(status)
          synth => synthWrap%ptr
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
+
+         synth%delay = -1.0
+         call ESMF_ConfigFindLabel(cf,label='delay:',isPresent=isPresent,_RC)
+         if (isPresent) then
+            call ESMF_ConfigGetAttribute(cf,label='delay:',value=synth%delay,_RC)
+         end if
 
          call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="FILL_DEF::",rc=status)
          if (status==ESMF_SUCCESS) then
@@ -268,6 +277,9 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
+         if (synth%delay > -1.0) then
+            call MAPL_Sleep(synth%delay)
+         end if
          if (.not. synth%on_tiles) then
             call ESMF_GridCompGet(GC,grid=grid,_RC)
             call MAPL_GetPointer(internal,ptrR4,'lons',_RC)
