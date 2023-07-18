@@ -3586,7 +3586,6 @@ ENDDO PARSER
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
-            stop -1
             call list(n)%trajectory%destroy_rh_regen_LS ( _RC )
             print*, __LINE__, __FILE__
             stop -1

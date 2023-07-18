@@ -69,7 +69,6 @@ module HistoryTrajectoryMod
       integer(ESMF_KIND_I4), pointer :: seqIndex(:)
       real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
       integer :: nobs_epoch
-      type(ESMF_RouteHandle)         :: RH_redist
       
       contains
          procedure :: initialize
@@ -84,7 +83,7 @@ module HistoryTrajectoryMod
          procedure :: get_file_start_time
          procedure :: get
          procedure :: reset_times_to_current_day
-         procedure :: sort_arrays_by_time
+!         procedure :: sort_arrays_by_time
          procedure :: time_real_to_ESMF
 
          procedure :: create_grid
@@ -534,13 +533,12 @@ module HistoryTrajectoryMod
             exit
          enddo
 
-         
-
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
+               call ESMF_FieldGet(acc_field,rank=rank,_RC)
                if (rank==1) then
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
                   call ESMF_FieldGet( acc_field_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
@@ -549,8 +547,7 @@ module HistoryTrajectoryMod
                      write(6,*) 'here in append_file:  put_var 2d'
                      call this%file_handle%put_var(trim(item%xname),p_acc_rt_2d(1:nx),&
                           start=[is],count=[nx])
-                  end if
-
+                  end if                  
                else if (rank==2) then
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   call ESMF_FieldGet( acc_field_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
@@ -568,16 +565,11 @@ module HistoryTrajectoryMod
          enddo
          this%number_written=this%number_written+nx
 
-         stop -2
-         
-         !
-         ! destroy
-         !
+         call ESMF_FieldDestroy(acc_field_rt, noGarbage=.true., _RC)
+         call ESMF_RouteHandleDestroy(RH, noGarbage=.true., _RC)
 
-         
 
          _RETURN(_SUCCESS)
-
          
        end subroutine append_file
 
@@ -1131,37 +1123,36 @@ module HistoryTrajectoryMod
     type(ESMF_Field) :: field
     type(ESMF_Grid)  :: grid
 
-    block
-      type(GriddedIOitemVectorIterator) :: iter
-      type(GriddedIOitem), pointer :: item
-      type(ESMF_Field) :: acc_field
-!      real, pointer :: p_acc_2d(:)
-      real(kind=REAL32), pointer :: p_acc_2d(:)
-      integer :: rank
-      ! print acc_bundle, show -1
-      !
-      iter = this%items%begin()
-      do while (iter /= this%items%end())
-         item => iter%get()
-         if (item%itemType == ItemTypeScalar) then
-            call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
-            call ESMF_FieldGet(acc_field,rank=rank,_RC)
-            if (rank==1) then
-               call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
-!               print*, __LINE__, __FILE__    
-               write(6,113) 'p_acc_2d at end of epoch: ', p_acc_2d(1:100:10)
-            endif
-         end if
-         call iter%next()
-      end do
-    end block
+!    block
+!      type(GriddedIOitemVectorIterator) :: iter
+!      type(GriddedIOitem), pointer :: item
+!      type(ESMF_Field) :: acc_field
+!!      real, pointer :: p_acc_2d(:)
+!      real(kind=REAL32), pointer :: p_acc_2d(:)
+!      integer :: rank
+!      ! print acc_bundle, show -1
+!      !
+!      iter = this%items%begin()
+!      do while (iter /= this%items%end())
+!         item => iter%get()
+!         if (item%itemType == ItemTypeScalar) then
+!            call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
+!            call ESMF_FieldGet(acc_field,rank=rank,_RC)
+!            if (rank==1) then
+!               call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
+!!               print*, __LINE__, __FILE__    
+!               write(6,113) 'p_acc_2d at end of epoch: ', p_acc_2d(1:100:10)
+!            endif
+!         end if
+!         call iter%next()
+!      end do
+!    end block
 
     ! __ s1. destroy RH, LS, acc_bundle / output_bundle   
     call this%regridder%destroy(_RC)
     call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
     call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)    
     deallocate (this%lons, this%lats, this%times_R8)
-
 
     call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
     allocate(names(numVars),stat=status)
@@ -1171,6 +1162,7 @@ module HistoryTrajectoryMod
        call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
     enddo
     call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
+
     
     call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
     allocate(names(numVars),stat=status)
@@ -1181,10 +1173,6 @@ module HistoryTrajectoryMod
     enddo
     call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
 
-
-    !
-    ! destroy  this%RH_redist
-    !
     
     ! __ s2. regenerate LS, RH, bundles
     call this%create_grid(_RC)
