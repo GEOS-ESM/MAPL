@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Relaxed restriction in the tripolar grid factory so that grids can be made even when the decomposition deos not evenly divide the grid dimension so that the factory can be used in utilities where the core count makes such a condition impossible to satisfiy
 
 ### Fixed
+
+- Fix a bug so that MultigroupServer does not allow a file written by multiple processes at the same time.
 - Fix a bug in time\_ave\_util.x so that it can work with files with no veritcal coordinate
 
 ### Removed
