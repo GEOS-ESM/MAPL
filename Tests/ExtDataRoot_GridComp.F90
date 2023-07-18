@@ -45,6 +45,7 @@ MODULE ExtDataUtRoot_GridCompMod
       end type SyntheticFieldSupportWrapper
 
       character(len=*), parameter :: runModeGenerateExports = "GenerateExports"
+      character(len=*), parameter :: runModeGenerateImports = "GenerateImports"
       character(len=*), parameter :: runModeCompareImports = "CompareImports"
       character(len=*), parameter :: runModeFillExportFromImport = "FillExportsFromImports"
       character(len=*), parameter :: runModeFillImport = "FillImport"
@@ -73,8 +74,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          allocate(synth)
          synthWrap%ptr => synth
-         call ESMF_UserCompSetInternalState(gc,wrap_name,synthWrap,_RC)
-
+         call ESMF_UserCompSetInternalState(gc,wrap_name,synthWrap,status)
+         _VERIFY(status)
 
          call AddState(GC,CF,"IMPORT",_RC)
          call AddState(GC,CF,"EXPORT",_RC)
@@ -114,6 +115,13 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
                vlocation = MAPL_VLocationNone, _RC)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='rand', &
+               long_name='random number' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationNone, _RC)
+
 
          call MAPL_GenericSetServices ( GC, _RC)
 
@@ -148,7 +156,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
 
-         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,_RC)
+         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
+         _VERIFY(status)
          synth => synthWrap%ptr
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
 
@@ -219,7 +228,8 @@ MODULE ExtDataUtRoot_GridCompMod
          call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, _RC )
          call ESMF_ClockGet(Clock,currTime=currTime,_RC)
 
-         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,_RC)
+         call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
+         _VERIFY(status)
          synth => synthWrap%ptr
          call ESMF_GridCompGet(GC,grid=grid,_RC)
          call MAPL_GetPointer(internal,ptrR4,'lons',_RC)
@@ -238,6 +248,10 @@ MODULE ExtDataUtRoot_GridCompMod
          case(RunModeGenerateExports)
 
             call FillState(internal,export,currTime,grid,synth,_RC) 
+
+         case(RunModeGenerateImports)
+
+            call FillState(internal,import,currTime,grid,synth,_RC) 
 
          case(runModecompareImports)
             call FillState(internal,export,currTime,grid,synth,_RC)
@@ -351,7 +365,7 @@ MODULE ExtDataUtRoot_GridCompMod
       class(timeVar), intent(in) :: this
       type(ESMF_Time), intent(inout) :: currTime
       integer, optional, intent(out) :: rc
-      real(REAL64) :: dt
+      real(kind=ESMF_KIND_R8) :: dt
 
       integer :: status
 
@@ -476,10 +490,12 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: Exptr2(:,:) => null()
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
-      type(ESMF_Field) :: expf,farray(6)
+      type(ESMF_Field) :: expf,farray(7)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
-      integer :: i1,in,j1,jn,ldims(3),i,j
+      integer :: i1,in,j1,jn,ldims(3),i,j,seed_size,mypet
+      integer, allocatable :: seeds(:)
+      type(ESMF_VM) :: vm
 
       call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
       call MAPL_Grid_Interior(grid,i1,in,j1,jn)
@@ -503,8 +519,18 @@ MODULE ExtDataUtRoot_GridCompMod
             exPtr2(i,j)=j1+j-1
          enddo
       enddo
+
       call MAPL_GetPointer(inState,exPtr2,'doy',_RC)
       exPtr2 = compute_doy(time,_RC)
+
+      call MAPL_GetPointer(inState,exPtr2,'rand',_RC)
+      call random_seed(size=seed_size)
+      allocate(seeds(seed_size))
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm,localPet=mypet,_RC)
+      seeds = mypet
+      call random_seed(put=seeds)
+      call random_number(exPtr2)
 
       call ESMF_StateGet(inState,'time',farray(1),_RC)
       call ESMF_StateGet(inState,'lons',farray(2),_RC)
@@ -512,6 +538,7 @@ MODULE ExtDataUtRoot_GridCompMod
       call ESMF_StateGet(inState,'i_index',farray(4),_RC)
       call ESMF_StateGet(inState,'j_index',farray(5),_RC)
       call ESMF_StateGet(inState,'doy',farray(6),_RC)
+      call ESMF_StateGet(inState,'rand',farray(7),_RC)
       pstate = ESMF_StateCreate(_RC)
       call ESMF_StateAdd(pstate,farray,_RC)
 
@@ -554,8 +581,8 @@ MODULE ExtDataUtRoot_GridCompMod
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
             call ESMF_FieldGet(field2,rank=rank2,_RC)
-            all_undef1 = is_field_undef(field1,_RC)
-            all_undef2 = is_field_undef(field2,_RC)
+            all_undef1 = FieldIsConstant(field1,MAPL_UNDEF,_RC)
+            all_undef2 = FieldIsConstant(field2,MAPL_UNDEF,_RC)
             if (all_undef1 .or. all_undef2) then
                exit
             end if

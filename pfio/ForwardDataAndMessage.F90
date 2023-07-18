@@ -12,6 +12,7 @@ module pFIO_ForwardDataAndMessageMod
    use pFIO_FileMetaDataMod
    use pFIO_MessageVectorMod
    use pFIO_MessageVectorUtilMod
+   use, intrinsic :: iso_fortran_env, only: INT64
 
    implicit none
    private
@@ -45,6 +46,7 @@ contains
       integer :: i,k
       integer, allocatable :: buff_tmp(:)
 
+
       if (allocated(buffer)) deallocate(buffer)
       k = 0
       if (allocated(this%idata)) k = size(this%idata)
@@ -56,7 +58,7 @@ contains
       else
          buffer = buff_tmp
       endif
-      if ( size(buffer, kind=8) > huge(0)) then
+      if ( size(buffer, kind=INT64) > huge(0)) then
         _FAIL("need to increase oserver's number of front cores (nfront)")
       endif
       _RETURN(_SUCCESS)

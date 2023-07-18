@@ -1,14 +1,24 @@
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
-
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-!BOP
 !
-! !MODULE: MAPL_OrbGridCompMod - Implements MAPL Orbital Simulator
+!>
+!### MODULE: `MAPL_OrbGridCompMod`
 !
-! !INTERFACE:
+! Author: GMAO SI-Team
+!
+! The module `MAPL_OrbGridCompMod` is an ESMF gridded component implementing
+! the MAPL-5 Nominal Orbit Calculator.
+!
+! It was developed for MAPL-5 release Fortuna 2.3 and later.
+!
+!#### History
+!- 30Nov2010 da Silva  Initial version.
 !
    MODULE MAPL_OrbGridCompMod
 !
@@ -28,20 +38,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-!
-! !DESCRIPTION: 
-!
-!  {\tt MAPL_OrbGridComp} is an ESMF gridded component implementing
-!  the MAPL-5 Nominal Orbit Calculator.
-!
-!  Developed for MAPL-5 release Fortuna 2.3 and later.
-!
-! !REVISION HISTORY:
-!
-!  30Nov2010 da Silva  Initial version.
-!
-!EOP
-!-------------------------------------------------------------------------
 
 ! Legacy state
 ! ------------
@@ -67,36 +63,18 @@
   TYPE Orb_Wrap
      TYPE (Orb_State), pointer :: PTR => null()
   END TYPE Orb_WRAP
-
-
-
-
+!
+!------------------------------------------------------------------------------
 CONTAINS
-
-!-------------------------------------------------------------------------
-!     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
-!-------------------------------------------------------------------------
-!BOP
+!------------------------------------------------------------------------------
+!>
+! Sets IRF services for the Orb Grid Component. 
+! Sets Initialize, Run and Finalize services.
 !
-! !IROUTINE: SetServices --- Sets IRF services for the Orb Grid Component
-!
-! !INTERFACE:
-
    SUBROUTINE SetServices ( GC, RC )
 
-! !ARGUMENTS:
-
     type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
-    integer, optional                  :: RC  ! return code
-
-! !DESCRIPTION: Sets Initialize, Run and Finalize services. 
-!
-! !REVISION HISTORY:
-!
-!  30Nov2010 da Silva  Initial version.
-!
-!EOP
-!-------------------------------------------------------------------------
+    integer, intent(out), optional     :: RC  ! return code
 
 !   Local derived type aliases
 !   --------------------------
@@ -215,26 +193,17 @@ CONTAINS
 
   END SUBROUTINE SetServices
 
-!BOP
-
-! !IROUTINE: INITIALIZE_
-
-! !DESCRIPTION: The Initialize method of the orbital component, sets up bundle
+!------------------------------------------------------------------------------
+!>
+! The Initialize method of the orbital component, sets up bundle.
 !
-
-! !INTERFACE:
-
   subroutine Initialize_( GC, IMPORT, EXPORT, CLOCK, RC )
 
-! !ARGUMENTS:
-
-    type(ESMF_GridComp), intent(inout) :: GC     ! Gridded component 
-    type(ESMF_State),    intent(inout) :: IMPORT ! Import state
-    type(ESMF_State),    intent(inout) :: EXPORT ! Export state
-    type(ESMF_Clock),    intent(inout) :: CLOCK  ! The clock
-    integer, optional,   intent(  out) :: RC     ! Error code
-
-!EOP
+    type(ESMF_GridComp), intent(inout) :: GC     !! Gridded component 
+    type(ESMF_State),    intent(inout) :: IMPORT !! Import state
+    type(ESMF_State),    intent(inout) :: EXPORT !! Export state
+    type(ESMF_Clock),    intent(inout) :: CLOCK  !! The clock
+    integer, optional,   intent(  out) :: RC     !! Error code
 
 ! ErrLog Variables
 
@@ -327,13 +296,11 @@ CONTAINS
     _RETURN(ESMF_SUCCESS)
 
     end subroutine Initialize_
-!BOP
 !
-! !IROUTINE:  Run_ --- Runs Orb
+!-----------------------------------------------------------------------------------------------------
+!>
+! `Run_` --- Runs Orb
 !
-! !INTERFACE:
-!
-
    SUBROUTINE Run_ ( gc, IMPORT, EXPORT, CLOCK, rc )
 
 ! !USES:
@@ -342,16 +309,16 @@ CONTAINS
 
 ! !INPUT PARAMETERS:
 
-   type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
+   type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
 ! !OUTPUT PARAMETERS:
 
-   type(ESMF_GridComp), intent(inout)  :: GC     ! Grid Component
-   type(ESMF_State), intent(inout) :: IMPORT     ! Import State
-   type(ESMF_State), intent(inout) :: EXPORT     ! Export State
-   integer, optional ::  rc                   ! Error return code:
-                                                 !  0 - all is well
-                                                 !  1 - 
+   type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
+   type(ESMF_State), intent(inout) :: IMPORT     !! Import State
+   type(ESMF_State), intent(inout) :: EXPORT     !! Export State
+   integer, optional ::  rc                   !! Error return code:  
+                                                 !!  0 - all is well   
+                                                 !!  1 -   
   ! local
   type (ESMF_VM)                      :: VM
   type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
@@ -562,7 +529,10 @@ CONTAINS
 
    end subroutine extract_
 
-
+!------------------------------------------------------------------------
+!>
+! The routine `DoMasking_` ...
+!
        subroutine DoMasking_ (field, im, jm, lons, lats, undef, &
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, rc )
@@ -580,17 +550,17 @@ CONTAINS
        real, intent(in) :: swath(3)
        real, intent(in) :: undef
 
-       character(len=*), intent(in) :: sat_name     ! Satellite name
-       integer, intent(in) :: dt      ! delta t in secs
-       integer, intent(in) :: nymd(2) ! Beginning/ending date: YYYYMMDD
-       integer, intent(in) :: nhms(2) ! Beginning/ending time: HHMMSS
+       character(len=*), intent(in) :: sat_name     !! Satellite name
+       integer, intent(in) :: dt      !! delta t in secs
+       integer, intent(in) :: nymd(2) !! Beginning/ending date: YYYYMMDD
+       integer, intent(in) :: nhms(2) !! Beginning/ending time: HHMMSS
 
 ! !OUTPUT PARAMETERS:
 
        real,    intent(inout) :: field(im,jm)
-       integer, intent(out), optional   :: rc    ! Error return code
-                                       ! = 0  all is well
-                                       ! = 3  memory allocation error
+       integer, intent(out), optional   :: rc    !! Error return code     
+                                       !! = 0  all is well     
+                                       !! = 3  memory allocation error      
 
 !                               ----
 
@@ -664,6 +634,10 @@ CONTAINS
 !      --------
      end subroutine DoMasking_
 
+!--------------------------------------------------------------------------------
+!>
+! The routine `DoMasking_CS` ...
+!
        subroutine DoMasking_CS (field, im, jm, x, y, undef, &
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, face, rc )
@@ -681,18 +655,18 @@ CONTAINS
        real, intent(in) :: swath(3)
        real, intent(in) :: undef
 
-       character(len=*), intent(in) :: sat_name     ! Satellite name
-       integer, intent(in) :: dt      ! delta t in secs
-       integer, intent(in) :: nymd(2) ! Beginning/ending date: YYYYMMDD
-       integer, intent(in) :: nhms(2) ! Beginning/ending time: HHMMSS
+       character(len=*), intent(in) :: sat_name     !! Satellite name
+       integer, intent(in) :: dt      !! delta t in secs
+       integer, intent(in) :: nymd(2) !! Beginning/ending date: YYYYMMDD
+       integer, intent(in) :: nhms(2) !! Beginning/ending time: HHMMSS
        integer, intent(in) :: face
  
 ! !OUTPUT PARAMETERS:
 
        real,    intent(inout) :: field(im,jm)
-       integer, optional   :: rc    ! Error return code
-                                       ! = 0  all is well
-                                       ! = 3  memory allocation error
+       integer, optional   :: rc    !! Error return code    
+                                       !! = 0  all is well    
+                                       !! = 3  memory allocation error    
 
 !                               ----
 

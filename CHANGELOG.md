@@ -9,20 +9,148 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- sampling IODA file with trajectory sampler (step-1): make it run
+- Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
+  - Set required ESMF version to 8.5.0
+  - Add check in CMake to make sure ESMF version is at least 8.5.0b22 if using a beta snapshot
+- Add StationSamplerMod for station sampler
+- Added ReplaceMetadata message and method to replace oserver's metadata
+- Added field utilities to perform basic numeric operations on fields
+- Update arithemetic parser to work with any rank and type of ESMF fields
+- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
+- Added new fill option and run mode for ExtDataDriver.x
+
 ### Changed
 
-- Changed default decomposition algorithm in Base/base.
-  - More optimal for CS case
-  - Hopefully aligns with common choices for native decomp to reduce need for nontrivial regridding.
+- Updated programs using FLAP for command line parsing to use fArgParse instead
+- Updated `components.yaml` to match GEOSgcm v11.1.0
+  - ESMA_env v4.9.1 → v4.17.0
+    - Baselibs 7.13.0
+      - esmf v8.5.0b22
+      - GFE v1.10.0
+      - curl 8.1.1
+      - HDF5 1.10.10
+      - netCDF-C 4.9.2
+      - netCDF-Fortran 4.6.1
+      - CDO 2.2.0
+      - NCO 5.1.5
+    - Move to MPT 2.28 at NAS, and other various changes for TOSS4 at NAS
+  - ESMA_cmake v3.28.0 → v3.29.0
+    - Clean up for TOSS4 changes at NAS
+- Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
+- Update CI to use BCs v11.1.0
 
 ### Fixed
 
+- Created cubed-sphere grid factory with files split by face
+- Removed unneeded and confusing default in History Grid Comp (see #2081)
+- Fixes in CMake for fArgParse transition
 - Corrected bug in HorizontalFluxRegridder.  Fluxes need to be
   multiplied by edge length for correct treatment.
 
 ### Removed
 
 ### Deprecated
+
+- Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
+
+## [2.39.5] - 2023-07-10
+
+### Fixed
+
+- Fixed logic in generating the names of the split fields. If the alias field in the History.rc has separators (;), each substring is used to name the resulting fields. If there are no separators, this will be the exact name of the first split field
+
+## [2.39.4] - 2023-06-23
+
+### Fixed
+
+- Added bug fix when using climatology option in ExtData2G under certain scenarios
+
+## [2.39.3] - 2023-06-12
+
+### Fixed
+
+- Fixed a bug when performing vertical regridding in History when the output grid cannot be decomposed so that every core has a DE
+
+## [2.39.2] - 2023-05-30
+
+### Fixed
+
+- Fix unintentional PFLOGGER requirements in geom and pfio
+
+## [2.39.1] - 2023-05-16
+
+### Fixed
+
+- Fixed the handling of ungridded dims for averaged collections. When the grid rank is 2, the code erroneously assigned vertical dimension to the ungridded dims
+
+## [2.39.0] - 2023-05-12
+
+### Added
+
+- Added minimal support for NetCDF "groups".    `getvar*` can now optionally specify a `group_name` and the data will be returned from the named group rather than the default group.
+
+- New feature to allow for single component testing as code is refactored
+  - Created `Comp_Testing_Driver.F90` in Apps
+  - Created `subset_fields.py` to grab a subset of columns
+  - Created shell script to perform subsetting, run the driver, and evaluate differences
+  - Instructions for use can be viewed under Apps/Comp_Testing_Info.md
+- Added module to process datetime strings from NetCDF to ESMF\_Time and ESMF\_TimeInterval variables and vice versa
+
+### Fixed
+
+- `READ_RESTART_BY_FACE` has been fixed and now can read restarts from full CS grids as well as restarts that have been separated by face via `WRITE_RESTART_BY_FACE`.    The current implementation requires that both `num_readers` and `num_writers` must be multiple of 6.
+- 'config.py' has been fixed. python3 requires // for integer divides.
+
+## [2.38.1] - 2023-05-10
+
+### Added
+
+- Added new option "RUN_AT_INTERVAL_START:" so force component alarms ring at start of the interval, default still to ring at the end
+
+## [2.38.0] - 2023-05-01
+
+### Added
+
+- Printed time to write files to the disk in MultiGroupServer
+- Added merge function to Filemetadata to merge two meta objects
+- Added support for "DEPENDS_ON" and "DEPENDS_ON_CHILDREN" for export_specs. The typical usage on this feature is when the calculation of a variable involves other export variables, either from the same component (DEPENDS_ON specifies the list on such variables), or in the children (in this case the expectation is that all of the children have the SAME export). In both cases MAPL performs automatic allocation of these export variables.
+- Added support for use of pFlogger simTime in logging (only if `-DBUILD_WITH_PFLOGGER=ON`)
+  - Note: Due to bug in pFlogger v1.9.3 and older, you *must* specify a `dateFmt` in your logging configuration file in the
+    formatter when using `simTime` (see [pFlogger issue #90](https://github.com/Goddard-Fortran-Ecosystem/pFlogger/issues/90)).
+    This is fixed in pFlogger v1.10.0
+- Add geom subdirectory and contents for MAPL Geom framework
+
+### Changed
+
+- Add logic to GriddedIO class so that if an uninitialized time object is passed, the resulting file will not depend on time
+- Make sure the pfio files are closed when the time and speed appear in logfile
+- Enable more tests in CircleCI
+
+### Fixed
+
+- Move ioserver_profiler%stop call to the right place
+- Caught an untrapped error condition when writing to NetCDF
+
+## [2.37.3] - 2023-04-25
+
+### Fixed
+
+- Fixed the handling of vector regridding for a subdomain with no-DE.
+- Fixed the no-DE case related to vertical regridding.
+
+## [2.37.2] - 2023-04-17
+
+### Fixed
+
+- Pulled call MAPL_GridGetCorners out of the condition to avoid hang in MAPL_GetGlobalHorzIJIndex
+
+## [2.37.1] - 2023-04-14
+
+### Fixed
+
+ - Various nonstandard uses of Fortran caught by NAG compiler
+ - Various workarounds for NAG 7.1.113 where the compiler is wrong.
 
 ## [2.37.0] - 2023-04-03
 
@@ -33,6 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed message in _ASSERT statement in ESMFL_Mod.F90
 - Fixed bug in CubedSphereGridFactory when constructing a grid from a file
 - Cleaned up cubed-sphere grid factory and NCIO to produce files with consistent capitalization and types for the stretching factor
 

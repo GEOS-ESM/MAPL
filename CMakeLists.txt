@@ -1,20 +1,19 @@
 cmake_minimum_required (VERSION 3.17)
-cmake_policy (SET CMP0053 NEW)
-cmake_policy (SET CMP0054 NEW)
+
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(NOT is_multi_config AND NOT (CMAKE_BUILD_TYPE OR DEFINED ENV{CMAKE_BUILD_TYPE}))
+  message (STATUS "Setting build type to 'Release' as none was specified.")
+  set (CMAKE_BUILD_TYPE Release CACHE STRING "Default Release-Choose the type of build.")
+endif ()
 
 project (
   MAPL
-  VERSION 2.37.0
+  VERSION 2.39.5
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-# Set the default build type to release
-if (NOT CMAKE_BUILD_TYPE)
-  message (STATUS "Setting build type to 'Release' as none was specified.")
-  set (CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "Aggressive")
-endif ()
+# Set the possible values of build type for cmake-gui
+set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+  "Debug" "Release" "Aggressive")
 
 # mepo can now clone subrepos in three styles
 set (ESMA_CMAKE_DIRS
@@ -143,7 +142,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF 8.4.0 MODULE REQUIRED)
+    find_package(ESMF 8.5.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
@@ -157,6 +156,37 @@ if (NOT Baselibs_FOUND)
       # the latest FindESMF.cmake file from ESMF produces an ESMF target.
       add_library(esmf ALIAS ESMF)
     endif()
+  endif ()
+else ()
+  # This is an ESMF version test when using Baselibs which doesn't use the
+  # same find_package internally in ESMA_cmake as used above (with a version
+  # number) so this lets us at least trap use of old Baselibs here.
+  if (ESMF_VERSION VERSION_LESS 8.5.0)
+    message(FATAL_ERROR "ESMF must be at least 8.5.0")
+  endif ()
+endif ()
+
+# Due to use of a feature of ESMF that came in with ESMF v8.5.0b22,
+# a beta version of ESMF, we need to make sure that if we are using
+# ESMF 8.5.0, that we are using at least ESMF 8.5.0b22. This is
+# a temporary fix until ESMF 8.5.0 final is released. Our criterion are:
+#  1. ESMF version is 8.5.0 (from ESMF_VERSION)
+#  2. We are using a beta snapshot of ESMF (from ESMF_BETA_RELEASE)
+#  3. The ESMF version is at least v8.5.0b22 (from ESMF_BETA_SNAPSHOT)
+
+if (ESMF_VERSION VERSION_EQUAL 8.5.0 AND ESMF_BETA_RELEASE)
+  # So now we are using a beta version of ESMF 8.5.0. We need to make sure
+  # that the version is at least 8.5.0b22. That version information
+  # is stored in ESMF_BETA_SNAPSHOT and is of the form "v8.5.0b22"
+  set (ESMF_BETA_SNAPSHOT_TARGET 22)
+  string(REGEX REPLACE "v8.5.0b([0-9]+)" "\\1" ESMF_BETA_SNAPSHOT_NUMBER ${ESMF_BETA_SNAPSHOT})
+  if (ESMF_BETA_SNAPSHOT_NUMBER LESS ESMF_BETA_SNAPSHOT_TARGET)
+    message(FATAL_ERROR
+      "ERROR! ESMF version must be at least v8.5.0b22, but you are using ${ESMF_BETA_SNAPSHOT}\n"
+      ""
+      "This is due to the use of a feature of ESMF that came in with ESMF v8.5.0b22, a beta version of ESMF.\n"
+      "This is a temporary fix until stable ESMF 8.5.0 is released.\n"
+      )
   endif ()
 endif ()
 
@@ -202,6 +232,7 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
+add_subdirectory (geom)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
@@ -209,7 +240,7 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
-if (BUILD_WITH_FLAP)
+if (BUILD_WITH_FARGPARSE)
    add_subdirectory (tutorial)
 endif()
 
