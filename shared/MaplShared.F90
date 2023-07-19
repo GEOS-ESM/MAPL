@@ -21,5 +21,6 @@ module MaplShared
    use mapl_CommGroupDescriptionMod
    use mapl_AbstractCommSplitterMod
    use mapl_DownbitMod
+   use mapl_sleepMod
    
 end module MaplShared
