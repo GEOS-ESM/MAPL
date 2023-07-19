@@ -55,6 +55,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
 
+## [2.39.7] - 2023-07-18
+
+### Fixed
+
+- Fix a bug so that MultigroupServer does not allow a file written by multiple processes at the same time.
+
+## [2.39.6] - 2023-07-18
+
+### Changed
+
+- Relaxed restriction in the tripolar grid factory so that grids can be made even when the decomposition deos not evenly divide the grid dimension so that the factory can be used in utilities where the core count makes such a condition impossible to satisfiy
+
+### Fixed
+
+- Fix a bug in `time_ave_util.x` so that it can work with files with no vertical coordinate
+
 ## [2.39.5] - 2023-07-10
 
 ### Fixed
