@@ -19,7 +19,7 @@ module MAPL_FieldPointerUtilities
    public :: FieldsAreBroadcastConformable
    public :: FieldsAreSameTypeKind
    public :: FieldCopy
-   public :: FieldDestroy
+   public :: MAPL_FieldDestroy
    public :: FieldCopyBroadcast
 
    interface GetFieldsUndef
@@ -76,7 +76,7 @@ module MAPL_FieldPointerUtilities
       procedure copy_broadcast
    end interface FieldCopyBroadcast
 
-   interface FieldDestroy
+   interface MAPL_FieldDestroy
       procedure destroy
    end interface
 contains

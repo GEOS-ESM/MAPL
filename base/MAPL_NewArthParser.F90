@@ -132,8 +132,7 @@ CONTAINS
      integer :: status
 
      do i=1,comp%StackSize
-        !call ESMF_FieldDestroy(comp%stack(i),noGarbage=.true.,_RC)
-        call FieldDestroy(comp%stack(i),_RC)
+        call MAPL_FieldDestroy(comp%stack(i),_RC)
      end do
      deallocate(comp%stack)
      deallocate(comp%ByteCode)

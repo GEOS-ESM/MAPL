@@ -2667,7 +2667,7 @@ contains
        do I = 1, FIELDCOUNT
           call ESMF_FieldBundleGet(BUNDLE, I, FIELD, RC=STATUS)
           _VERIFY(STATUS)
-          call FieldDestroy(FIELD, RC=status)
+          call MAPL_FieldDestroy(FIELD, RC=status)
           _VERIFY(STATUS)
        end do
     end if
