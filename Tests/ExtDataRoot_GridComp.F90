@@ -1,10 +1,10 @@
-   
+
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
 !
 #include "MAPL_Generic.h"
-   
+
 MODULE ExtDataUtRoot_GridCompMod
       use ESMF
       use MAPL
@@ -152,7 +152,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_State), intent(inout) :: EXPORT     ! Export State
          integer, intent(out)            :: rc         ! Error return code:
 
-         type(ESMF_Config)           :: CF          ! Universal Config 
+         type(ESMF_Config)           :: CF          ! Universal Config
          integer                     :: status
          character(len=ESMF_MAXSTR)  :: comp_name
 
@@ -290,7 +290,7 @@ MODULE ExtDataUtRoot_GridCompMod
             call MAPL_GetPointer(internal,ptrR4,'lats',_RC)
             call ESMF_GridGetCoord (Grid, coordDim=2, localDE=0, &
                               staggerloc=ESMF_STAGGERLOC_CENTER, &
-                              farrayPtr=ptrR8, _RC) 
+                              farrayPtr=ptrR8, _RC)
             ptrR4=ptrR8
          end if
 
@@ -298,17 +298,17 @@ MODULE ExtDataUtRoot_GridCompMod
 
          case(RunModeGenerateExports)
 
-            call FillState(internal,export,currTime,grid,synth,_RC) 
+            call FillState(internal,export,currTime,grid,synth,_RC)
 
          case(RunModeGenerateImports)
 
-            call FillState(internal,import,currTime,grid,synth,_RC) 
+            call FillState(internal,import,currTime,grid,synth,_RC)
 
          case(runModecompareImports)
             call FillState(internal,export,currTime,grid,synth,_RC)
-            call CompareState(import,export,0.001,_RC) 
+            call CompareState(import,export,0.001,_RC)
 
-         case(runModeFillImport) 
+         case(runModeFillImport)
 ! Nothing to do, we are just letting ExtData run
 
          case(runModeFillExportFromImport)
@@ -430,9 +430,9 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_TimeIntervalSet(yearInterval,yy=yint,_RC)
          currTime = currTime+yearInterval
       end if
-      periodic_time = this%set_time_for_date(currTime,_RC) 
+      periodic_time = this%set_time_for_date(currTime,_RC)
       if (this%have_offset) then
-         timeInterval = periodic_time + this%update_offset - this%refTime 
+         timeInterval = periodic_time + this%update_offset - this%refTime
       else
          timeInterval = periodic_time - this%refTime
       end if
@@ -469,7 +469,7 @@ MODULE ExtDataUtRoot_GridCompMod
             returned_time = input_time
          else if (new_time < input_time) then
             returned_time = new_time
-         else if (new_time > input_time) then        
+         else if (new_time > input_time) then
             call ESMF_TimeSet(new_time,yy=year,mm=month,dd=day-1,h=hour,m=minute,s=second,_RC)
             returned_time = new_time
          end if
@@ -529,7 +529,7 @@ MODULE ExtDataUtRoot_GridCompMod
             EXptr3=IMptr3
          end if
       end do
-      deallocate(inNameList,outNameList) 
+      deallocate(inNameList,outNameList)
       _RETURN(ESMF_SUCCESS)
 
    end subroutine CopyState
@@ -554,9 +554,7 @@ MODULE ExtDataUtRoot_GridCompMod
       integer, allocatable :: seeds(:)
       type(ESMF_VM) :: vm
 
-      if (synth%on_tiles) then
-
-      else
+      if (.not. synth%on_tiles) then
          call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
          call MAPL_Grid_Interior(grid,i1,in,j1,jn)
       end if
@@ -649,7 +647,7 @@ MODULE ExtDataUtRoot_GridCompMod
       logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
       logical :: all_undef1, all_undef2
-    
+
       call ESMF_StateGet(State1,itemcount=itemCount,_RC)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
@@ -687,11 +685,11 @@ MODULE ExtDataUtRoot_GridCompMod
                    foundDiff(i) = .true.
                end if
             end if
-            if (foundDiff(i)) then 
+            if (foundDiff(i)) then
                _FAIL('found difference when compare state')
             end if
          enddo
-         
+
          _RETURN(ESMF_SUCCESS)
 
       end subroutine CompareState
@@ -699,9 +697,9 @@ MODULE ExtDataUtRoot_GridCompMod
       subroutine ForceAllocation(state,rc)
          type(ESMF_State), intent(inout) :: state
          integer, optional, intent(out) :: rc
-       
+
          integer :: status
-  
+
          real, pointer :: ptr3d(:,:,:)
          real, pointer :: ptr2d(:,:)
          integer       :: ii
