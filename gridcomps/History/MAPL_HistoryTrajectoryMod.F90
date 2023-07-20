@@ -107,6 +107,7 @@ module HistoryTrajectoryMod
          integer, optional, intent(out) :: rc
          integer :: status
 
+         
          character(len=ESMF_MAXSTR) :: filename
          type(NetCDF4_FileFormatter) :: formatter
          type(FileMetadataUtils) :: metadata_utils
@@ -184,15 +185,11 @@ module HistoryTrajectoryMod
          ! __ s.3   misc
 
          this%bundle=bundle
-         this%items=items
+         this%items=items         
          this%epoch_index(1:2)=0
          call this%create_grid(_RC)
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
-         this%output_bundle = this%create_new_bundle(_RC)
-         this%acc_bundle    = this%create_new_bundle(_RC) 
-                  
-         this%time_info = timeInfo         
 
          if (present(vdata)) then
             this%vdata=vdata
@@ -202,6 +199,20 @@ module HistoryTrajectoryMod
          call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC)
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
+
+
+!         !@test
+!         if (mapl_am_I_root()) then
+!            call this%file_handle%create('test.nc4',_RC)
+!            !!call this%file_handle%write(this%metadata,_RC)
+!         end if
+
+         
+         this%output_bundle = this%create_new_bundle(_RC)
+         this%acc_bundle    = this%create_new_bundle(_RC) 
+                  
+         this%time_info = timeInfo         
+
          
          call this%metadata%add_dimension('time', this%nobs_epoch)
          if (this%time_info%integer_time) then
@@ -222,6 +233,13 @@ module HistoryTrajectoryMod
          call v%add_attribute('units','degrees_east')
          call v%add_attribute('long_name','latitude')
          call this%metadata%add_variable(this%var_name_lat,v)
+
+
+!         !@test
+!         if (mapl_am_I_root()) then
+!            call this%file_handle%write(this%metadata,_RC)
+!         end if
+
 
          iter = this%items%begin()
          do while (iter /= this%items%end())
@@ -318,10 +336,7 @@ module HistoryTrajectoryMod
                  print*, 'new_bundle: p_acc_2d', p_acc_2d(1:100:10)
               else if (rank==3) then
                  call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-                 print*, 'new_bundle 3d: lb, ub, this%vdata%lm'
-                 print*, lb, ub, this%vdata%lm
-
-                 if (this%vdata%lm/=(ub(1)-lb(1)+1) .AND. this%vdata%lm/=0) then
+                 if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
                     lb(1)=1
                     ub(1)=this%vdata%lm
                  end if
@@ -350,6 +365,8 @@ module HistoryTrajectoryMod
          type(variable) :: v
          integer :: status
 
+
+
          this%file_name = trim(filename)
          ! __ update metadata
          call this%metadata%modify_dimension('time', this%nobs_epoch)
@@ -357,6 +374,8 @@ module HistoryTrajectoryMod
             call this%file_handle%create(trim(filename),_RC)
             call this%file_handle%write(this%metadata,_RC)
          end if
+
+
         _RETURN(_SUCCESS)
       end subroutine create_file_handle
 
@@ -431,21 +450,11 @@ module HistoryTrajectoryMod
                   acc_field_rt = ESMF_FieldCreate (this%LS_rt, name='item_rt', typekind=ESMF_TYPEKIND_R4, _RC)
                   call ESMF_FieldRedistStore(acc_field, acc_field_rt, RH, _RC)
                   print*, 'nail: ESMF_FieldRedistStore'
-               else if (rank==2) then
-                  call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-                  call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-                  if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
-                     lb(1)=1
-                     ub(1)=this%vdata%lm
-                  end if
-                  acc_field_rt = ESMF_FieldCreate(this%LS_rt,name='item_rt_3d',&
-                       typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-                  call ESMF_FieldRedistStore(acc_field, acc_field_rt, RH, _RC)
                endif
             else if (item%itemType == ItemTypeVector) then
                _FAIL("ItemTypeVector not yet supported")
             end if
-            exit
+            exit   ! jump out
          enddo
 
          ! redist and put_var
@@ -711,7 +720,6 @@ module HistoryTrajectoryMod
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
          !!real(kind=ESMF_KIND_R8), allocatable :: times_R8_full2(:)         
-
 
          integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
          real(ESMF_KIND_R8), pointer :: ptAT(:)
