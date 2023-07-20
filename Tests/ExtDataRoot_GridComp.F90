@@ -573,9 +573,7 @@ MODULE ExtDataUtRoot_GridCompMod
          exPtr2=synth%tFunc%evaluate_time(Time,_RC)
       end if
 
-      if (synth%on_tiles) then
-      
-      else
+      if (.not. synth%on_tiles) then
          call MAPL_GetPointer(inState,exPtr2,'i_index',_RC)
          do j = 1,ldims(2)
             do i=1,ldims(1)
