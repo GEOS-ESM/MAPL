@@ -554,9 +554,7 @@ MODULE ExtDataUtRoot_GridCompMod
       integer, allocatable :: seeds(:)
       type(ESMF_VM) :: vm
 
-      if (synth%on_tiles) then
-
-      else
+      if (.not. synth%on_tiles) then
          call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
          call MAPL_Grid_Interior(grid,i1,in,j1,jn)
       end if
