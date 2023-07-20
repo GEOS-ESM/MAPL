@@ -2445,6 +2445,7 @@ ENDDO PARSER
          print *, '    End_Date: ',       list(n)%end_date
          print *, '    End_Time: ',       list(n)%end_time
          endif
+         print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
 
          block
             integer :: im_world, jm_world,dims(3)
