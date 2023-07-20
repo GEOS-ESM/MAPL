@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added ability to use an `ESMF.rc` file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
   - NOTE: File *must* be called `ESMF.rc`
+- Added ability to run ExtDataDriver.x on a MAPL "tile" grid
 - Add ability to introduce a time-step delay in ExtDataDriver.x to simulate the timestep latency of a real model
 - Added a MAPL\_Sleep function, equivalent to some vendor supplied but non-standard sleep function
 - sampling IODA file with trajectory sampler (step-1): make it run
