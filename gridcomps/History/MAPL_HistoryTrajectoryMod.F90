@@ -4,6 +4,8 @@
 module HistoryTrajectoryMod
   
    use ESMF
+   use MAPL_ErrorHandlingMod
+   use MAPL_KeywordEnforcerMod
    use MAPL_FileMetadataUtilsMod
    use LocStreamFactoryMod
    use pFIO
@@ -67,37 +69,35 @@ module HistoryTrajectoryMod
       integer(ESMF_KIND_I4), pointer :: seqIndex(:)
       real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
       integer :: nobs_epoch
-      
+
     contains
-
-      interface
-         module subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
-           type(GriddedIOitemVector), target, intent(inout) :: items
-           type(ESMF_FieldBundle), intent(inout) :: bundle
-           type(TimeData), intent(inout) :: timeInfo
-           class (KeywordEnforcer), optional, intent(in) :: unusable
-           type(VerticalData), optional, intent(inout) :: vdata
-           logical, optional, intent(inout) :: recycle_track
-           integer, optional, intent(out) :: rc
-         end subroutine initialize
-      end interface
-
+!      procedure :: initialize
    end type HistoryTrajectory
 
    interface HistoryTrajectory
       module procedure HistoryTrajectory_from_config
    end interface HistoryTrajectory
    
- contains
-   
    interface
-      HistoryTrajectory module function HistoryTrajectory_from_config(config,string,clock,unusable,rc)
+      module function HistoryTrajectory_from_config(config,string,clock,unusable,rc) result(traj)
+        type(HistoryTrajectory) :: traj
         type(ESMF_Config), intent(inout) :: config
         character(len=*),  intent(in)    :: string
         type(ESMF_Clock),  intent(in)    :: clock
         class (KeywordEnforcer), optional, intent(in) :: unusable
         integer, optional, intent(out) :: rc
       end function HistoryTrajectory_from_config
+
+      module subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
+        class(HistoryTrajectory), intent(inout) :: this
+        type(GriddedIOitemVector), target, intent(inout) :: items
+        type(ESMF_FieldBundle), intent(inout) :: bundle
+        type(TimeData), intent(inout) :: timeInfo
+        class (KeywordEnforcer), optional, intent(in) :: unusable
+        type(VerticalData), optional, intent(inout) :: vdata
+        logical, optional, intent(inout) :: recycle_track
+        integer, optional, intent(out) :: rc
+      end subroutine initialize
    end interface
 
 end module HistoryTrajectoryMod  
