@@ -271,15 +271,32 @@ contains
       integer, optional, intent(out) ::rc
 
       integer(kind=INT64) :: start_tick, stop_tick, tick_rate
+      integer :: rank, ierror
       integer :: status
       class(Logger), pointer :: lgr
+      logical :: file_exists
 
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
 
-      call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
-      _VERIFY(status)
+      ! Look for a file called "ESMF.rc" but we want to do this on root and then
+      ! broadcast the result to the other ranks
+
+      call MPI_COMM_RANK(comm, rank, ierror)
+
+      if (rank == 0) then
+         inquire(file='ESMF.rc', exist=file_exists)
+      end if
+      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, ierror)
+
+      ! If the file exists, we pass it into ESMF_Initialize, else, we
+      ! use the one from the command line arguments
+      if (file_exists) then
+         call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, _RC)
+      else
+         call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, _RC)
+      end if
 
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
