@@ -71,6 +71,18 @@ module HistoryTrajectoryMod
 
    contains
      procedure :: initialize
+     procedure :: create_variable => create_metadata_variable
+     procedure :: create_file_handle
+     procedure :: close_file_handle
+     procedure :: append_file
+     procedure :: create_new_bundle
+     procedure :: reset_times_to_current_day
+     procedure :: time_real_to_ESMF
+     procedure :: create_grid
+     procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
+     procedure :: destroy_rh_regen_LS
+     procedure :: get_x_subset
+     
   end type HistoryTrajectory
 
   interface HistoryTrajectory
