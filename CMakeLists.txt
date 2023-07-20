@@ -58,6 +58,8 @@ if (NOT COMMAND esma)
 
 endif ()
 
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
 if (BUILD_SHARED_MAPL)
   set (MAPL_LIBRARY_TYPE SHARED)
@@ -119,7 +121,7 @@ if (BUILD_WITH_PFLOGGER)
   endif()
 endif()
 
-option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+option(BUILD_WITH_FLAP "Use FLAP for command line processing" OFF)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
 endif ()
@@ -250,7 +252,6 @@ if (PFUNIT_FOUND)
 endif ()
 
 # Support for automated code generation
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(mapl_acg)
 include(mapl_create_stub_component)
 add_subdirectory (Apps)
