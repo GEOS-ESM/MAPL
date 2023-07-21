@@ -261,7 +261,7 @@ module MAPL_VerticalDataMod
             integer, optional, intent(inout) :: rc
             integer :: status
             integer :: k, lev, km, D1, D2, levo
-            integer :: flip_sign
+            integer :: flip_sign, i,j
             real, allocatable :: pb(:,:), pt(:,:)
             real :: pp
 
@@ -274,8 +274,8 @@ module MAPL_VerticalDataMod
 
             if(allocated(this%ks))  deallocate(this%ks)
             if(allocated(this%weight)) deallocate(this%weight)
-            allocate(this%ks(D1,D2,levo),source  = 1)
-            allocate(this%weight(D1,D2,levo),source = 0.)
+            allocate(this%ks(D1,D2,levo),source  = -1)
+            allocate(this%weight(D1,D2,levo),source = 0.0)
 
             do lev =1, levo
                pp = flip_sign*this%interp_levels(lev)
@@ -314,9 +314,16 @@ module MAPL_VerticalDataMod
             do j = 1, D2
               do i = 1, D1
                  k = this%ks(i,j,lev)
+                 if (k == -1) cycle
                  weight = this%weight(i,j,lev)
-                 if (ptrin(i,j,k)   == MAPL_UNDEF) weight = 0.
-                 if (ptrin(i,j,k+1) == MAPL_UNDEF) weight = 1.
+                 if (ptrin(i,j,k)   == MAPL_UNDEF) then
+                    ptrout(i,j,lev) = ptrin(i,j,k+1)
+                    cycle
+                 endif
+                 if (ptrin(i,j,k+1) == MAPL_UNDEF) then
+                    ptrout(i,j,lev) = ptrin(i,j,k)
+                    cycle
+                 endif
                  ptrout(i,j,lev) = ptrin(i,j,k)*weight + ptrin(i,j,k+1)*(1.0-weight)
               enddo
             enddo
@@ -663,20 +670,20 @@ module MAPL_VerticalDataMod
 
     v2   = MAPL_UNDEF
 
-       pb   = plx(:,:,km)
-       do k=km-1,1,-1
-          pt = plx(:,:,k)
-          if(all(pb<ppx)) exit
-          where(ppx>pt .and. ppx<=pb)
-             al = (pb-ppx)/(pb-pt)
-             where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1)
-             where (v3(:,:,k+1) .eq. MAPL_UNDEF ) v2 = v3(:,:,k)
-             where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  )
-                    v2 = v3(:,:,k)*al + v3(:,:,k+1)*(1.0-al)
-             end where
+    pb   = plx(:,:,km)
+    do k=km-1,1,-1
+       pt = plx(:,:,k)
+       if(all(pb<ppx)) exit
+       where(ppx>pt .and. ppx<=pb)
+          al = (pb-ppx)/(pb-pt)
+          where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1)
+          where (v3(:,:,k+1) .eq. MAPL_UNDEF ) v2 = v3(:,:,k)
+          where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  )
+                 v2 = v3(:,:,k)*al + v3(:,:,k+1)*(1.0-al)
           end where
-          pb = pt
-       end do
+       end where
+       pb = pt
+    end do
 
 ! Extend Lowest Level Value to the Surface
 ! ----------------------------------------
