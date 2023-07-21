@@ -410,7 +410,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
       end procedure reset_times_to_current_day
 
 
-      module procedure sort_three_arrays_by_time(U,V,T,rc)
+      module procedure sort_three_arrays_by_time
         integer :: status
         integer :: i, len
         integer, allocatable :: IA(:)
@@ -471,7 +471,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
 
-        module procedure create_grid(this, rc)
+        module procedure create_grid
          integer :: status
 
          character(len=ESMF_MAXSTR) :: filename
@@ -636,10 +636,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
 
-         module procedure regrid_accumulate_on_xsubset (this, rc)
-           implicit none
-           class(HistoryTrajectory), intent(inout) :: this
-           integer, intent(out), optional :: rc
+         module procedure regrid_accumulate_on_xsubset
            integer :: status
 
            integer                 :: x_subset(2)
@@ -786,9 +783,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
 
-         module procedure destroy_rh_regen_LS (this, rc)
-           class(HistoryTrajectory), intent(inout) :: this
-           integer, intent(out), optional :: rc
+         module procedure destroy_rh_regen_LS
            integer :: status
 
            integer :: numVars, i
