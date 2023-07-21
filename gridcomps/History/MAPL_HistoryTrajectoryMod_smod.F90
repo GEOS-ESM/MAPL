@@ -289,10 +289,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         end procedure close_file_handle
 
 
-      module procedure append_file(this,current_time,rc)
-         class(HistoryTrajectory), intent(inout) :: this
-         type(ESMF_Time), intent(inout) :: current_time
-         integer, optional, intent(out) :: rc
+      module procedure append_file
 
          integer :: status
          type(GriddedIOitemVectorIterator) :: iter
