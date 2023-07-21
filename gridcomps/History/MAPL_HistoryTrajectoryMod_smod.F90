@@ -3,6 +3,26 @@
 
 
 submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
+  use ESMF
+  use MAPL_ErrorHandlingMod
+  use MAPL_KeywordEnforcerMod
+  use MAPL_FileMetadataUtilsMod
+  use LocStreamFactoryMod
+  use pFIO
+  use MAPL_GriddedIOItemVectorMod
+  use MAPL_GriddedIOItemMod
+  use MAPL_TimeDataMod
+  use MAPL_VerticalDataMod
+  use MAPL_BaseMod
+  use MAPL_CommsMod
+  use MAPL_SortMod
+  use MAPL_NetCDF
+  use MAPL_plain_netCDF_Time
+  use MAPL_LocstreamRegridderMod
+  use, intrinsic :: iso_fortran_env, only: REAL32
+  use, intrinsic :: iso_fortran_env, only: REAL64
+  implicit none
+
    contains
      module procedure HistoryTrajectory_from_config
          use pflogger, only : Logger, logging
@@ -78,10 +98,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%bundle=bundle
          this%items=items         
          this%epoch_index(1:2)=0
-!         call this%create_grid(_RC)
-!         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         call this%create_grid(_RC)
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
 
-!@debug
+
 !         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
 !
 !         if (present(vdata)) then
@@ -241,218 +261,218 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
       end procedure create_new_bundle
 
       
-!      module procedure create_file_handle
-!
-!         type(variable) :: v
-!         integer :: status
-!
-!         this%file_name = trim(filename)
-!         ! __ update metadata
-!         call this%metadata%modify_dimension('time', this%nobs_epoch)
-!         if (mapl_am_I_root()) then
-!            call this%file_handle%create(trim(filename),_RC)
-!            call this%file_handle%write(this%metadata,_RC)
-!         end if
-!
-!        _RETURN(_SUCCESS)
-!      end procedure create_file_handle
-!
-!      module procedure close_file_handle
-!         integer :: status
-!
-!         if (trim(this%file_name) /= '') then
-!            if (mapl_am_i_root()) then
-!               call this%file_handle%close(_RC)
-!            end if
-!         end if
-!         _RETURN(_SUCCESS)
-!      end procedure close_file_handle
-!
-!
-!      module procedure append_file(this,current_time,rc)
-!         class(HistoryTrajectory), intent(inout) :: this
-!         type(ESMF_Time), intent(inout) :: current_time
-!         integer, optional, intent(out) :: rc
-!
-!         integer :: status
-!         type(GriddedIOitemVectorIterator) :: iter
-!         type(GriddedIOitem), pointer :: item
-!         type(ESMF_RouteHandle) :: RH
-!
-!         type(ESMF_Field) :: src_field,dst_field,acc_field,acc_field_rt
-!         integer :: rank,interval(2),number_to_write,previous_day,current_day
-!         real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-!         real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-!         real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-!         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-!         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)         
-!         real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-!
-!         integer :: is, ie, nx
-!         integer :: lb(1),ub(1)
-!
-!         is=1
-!         nx = this%nobs_epoch
-!         if (nx==0)  _RETURN(_SUCCESS)            
-!         !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-!         !   call this%vdata%setup_eta_to_pressure(_RC)
-!         !endif
-!         if (mapl_am_i_root()) then
-!            print*, 'size(this%times_R8)'
-!            print*, size(this%times_R8)
-!            print*, real(this%times_R8(1:100:10))
-!            print*, 'nx', nx
-!
-!            call this%file_handle%put_var(this%var_name_time, real(this%times_R8), &
-!                 start=[is], count=[nx], _RC)
-!            call this%file_handle%put_var(this%var_name_lon, this%lons, &
-!                 start=[is], count=[nx], _RC)
-!            call this%file_handle%put_var(this%var_name_lat, this%lats, &
-!                 start=[is], count=[nx], _RC)
-!         end if
-!
-!         
-!         ! __ s1.  gather back to head node
-!         ! __ s2.  put_var
-!
-!         ! get RH
-!         iter = this%items%begin()
-!         do while (iter /= this%items%end())
-!            item => iter%get()
-!            if (item%itemType == ItemTypeScalar) then
-!               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
-!               call ESMF_FieldGet(acc_field,rank=rank,_RC)
-!               if (rank==1) then
-!                  acc_field_rt = ESMF_FieldCreate (this%LS_rt, name='item_rt', typekind=ESMF_TYPEKIND_R4, _RC)
-!                  call ESMF_FieldRedistStore(acc_field, acc_field_rt, RH, _RC)
-!                  print*, 'nail: ESMF_FieldRedistStore'
-!               endif
-!            else if (item%itemType == ItemTypeVector) then
-!               _FAIL("ItemTypeVector not yet supported")
-!            end if
-!            exit   ! jump out
-!         enddo
-!
-!         ! redist and put_var
-!         iter = this%items%begin()
-!         do while (iter /= this%items%end())
-!            item => iter%get()
-!            if (item%itemType == ItemTypeScalar) then
-!               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
-!               call ESMF_FieldGet(acc_field,rank=rank,_RC)
-!               if (rank==1) then
-!                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
-!                  call ESMF_FieldGet( acc_field_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
-!                  call ESMF_FieldRedist( acc_field,  acc_field_rt, RH, _RC)
-!                  if (mapl_am_i_root()) then
-!                     write(6,*) 'here in append_file:  put_var 2d'
-!                     call this%file_handle%put_var(trim(item%xname),p_acc_rt_2d(1:nx),&
-!                          start=[is],count=[nx])
-!                  end if                  
-!               else if (rank==2) then
-!                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
-!                  call ESMF_FieldGet( acc_field_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
-!                  call ESMF_FieldRedist( acc_field,  acc_field_rt, RH, _RC)
-!                  if (mapl_am_i_root()) then
-!                     write(6,*) 'here in append_file:  put_var 3d'                     
-!                     call this%file_handle%put_var(trim(item%xname),p_acc_rt_3d(is:ie,:),&
-!                          start=[ie,1],count=[nx,size(p_acc_3d,2)])
-!                  end if
-!               endif
-!            else if (item%itemType == ItemTypeVector) then
-!               _FAIL("ItemTypeVector not yet supported")
-!            end if
-!            call iter%next()
-!         enddo
-!         this%number_written=this%number_written+nx
-!
-!         call ESMF_FieldDestroy(acc_field_rt, noGarbage=.true., _RC)
-!         call ESMF_RouteHandleDestroy(RH, noGarbage=.true., _RC)
-!
-!         _RETURN(_SUCCESS)
-!         
-!       end procedure append_file
-!
-!
-!
-!      module procedure reset_times_to_current_day
-!
-!         integer :: i,status,h,m,yp,mp,dp,s,ms,us,ns
-!         type(ESMF_Clock) :: clock
-!         type(ESMF_Time) :: current_time
-!         integer :: year,month,day
-!
-!         call this%time_info%get(clock=clock,_RC)
-!         call ESMF_ClockGet(clock,currtime=current_time,_RC)
-!         call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,_RC)
-!         do i=1,size(this%times)
-!            call ESMF_TimeGet(this%times(i),yy=yp,mm=mp,dd=dp,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
-!            call ESMF_TimeSet(this%times(i),yy=year,mm=month,dd=day,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
-!         enddo
-!
-!      end procedure reset_times_to_current_day
-!
-!
-!      module procedure sort_three_arrays_by_time(U,V,T,rc)
-!        integer :: status
-!        integer :: i, len
-!        integer, allocatable :: IA(:)
-!        integer(ESMF_KIND_I8), allocatable :: IX(:)
-!        real(ESMF_KIND_R8), allocatable :: X(:)
-!
-!        _ASSERT (size(U)==size(V), 'U,V different dimension')
-!        _ASSERT (size(U)==size(T), 'U,T different dimension')        
-!        len = size (T)
-!        
-!         allocate (IA(len), IX(len), X(len))
-!         do i=1, len
-!            IX(i)=T(i)
-!            IA(i)=i
-!         enddo
-!         call MAPL_Sort(IX,IA)
-!
-!         X = U
-!         do i=1, len
-!            U(i) = X(IA(i))
-!         enddo
-!         X = V
-!         do i=1, len
-!            V(i) = X(IA(i))
-!         enddo
-!         X = T
-!         do i=1, len
-!            T(i) = X(IA(i))
-!         enddo
-!
-!         _RETURN(_SUCCESS)
-!       end procedure sort_three_arrays_by_time
-!       
-!       
-!
-!       module procedure time_real_to_ESMF
-!         integer :: status
-!
-!         integer :: i, len
-!         integer :: int_time
-!         type(ESMF_TimeInterval) :: interval
-!         type(ESMF_Time) :: time0
-!         type(ESMF_Time) :: time1
-!         character(len=:), allocatable :: tunit
-!         character(len=ESMF_MAXSTR) :: datetime_units
-!
-!         datetime_units = this%datetime_units
-!         len = size (this%times_R8)
-!
-!         do i=1, len
-!            int_time = this%times_R8(i)
-!            call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
-!            this%times(i) = time1
-!         enddo
-!
-!         _RETURN(_SUCCESS)
-!       end procedure time_real_to_ESMF
-!
-!
+      module procedure create_file_handle
+
+         type(variable) :: v
+         integer :: status
+
+         this%file_name = trim(filename)
+         ! __ update metadata
+         call this%metadata%modify_dimension('time', this%nobs_epoch)
+         if (mapl_am_I_root()) then
+            call this%file_handle%create(trim(filename),_RC)
+            call this%file_handle%write(this%metadata,_RC)
+         end if
+
+        _RETURN(_SUCCESS)
+      end procedure create_file_handle
+
+        module procedure close_file_handle
+           integer :: status
+
+           if (trim(this%file_name) /= '') then
+              if (mapl_am_i_root()) then
+                 call this%file_handle%close(_RC)
+              end if
+           end if
+           _RETURN(_SUCCESS)
+        end procedure close_file_handle
+
+
+      module procedure append_file(this,current_time,rc)
+         class(HistoryTrajectory), intent(inout) :: this
+         type(ESMF_Time), intent(inout) :: current_time
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
+         type(ESMF_RouteHandle) :: RH
+
+         type(ESMF_Field) :: src_field,dst_field,acc_field,acc_field_rt
+         integer :: rank,interval(2),number_to_write,previous_day,current_day
+         real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
+         real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+         real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
+         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)         
+         real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+
+         integer :: is, ie, nx
+         integer :: lb(1),ub(1)
+
+         is=1
+         nx = this%nobs_epoch
+         if (nx==0)  _RETURN(_SUCCESS)            
+         !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+         !   call this%vdata%setup_eta_to_pressure(_RC)
+         !endif
+         if (mapl_am_i_root()) then
+            print*, 'size(this%times_R8)'
+            print*, size(this%times_R8)
+            print*, real(this%times_R8(1:100:10))
+            print*, 'nx', nx
+
+            call this%file_handle%put_var(this%var_name_time, real(this%times_R8), &
+                 start=[is], count=[nx], _RC)
+            call this%file_handle%put_var(this%var_name_lon, this%lons, &
+                 start=[is], count=[nx], _RC)
+            call this%file_handle%put_var(this%var_name_lat, this%lats, &
+                 start=[is], count=[nx], _RC)
+         end if
+
+         
+         ! __ s1.  gather back to head node
+         ! __ s2.  put_var
+
+         ! get RH
+         iter = this%items%begin()
+         do while (iter /= this%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
+               call ESMF_FieldGet(acc_field,rank=rank,_RC)
+               if (rank==1) then
+                  acc_field_rt = ESMF_FieldCreate (this%LS_rt, name='item_rt', typekind=ESMF_TYPEKIND_R4, _RC)
+                  call ESMF_FieldRedistStore(acc_field, acc_field_rt, RH, _RC)
+                  print*, 'nail: ESMF_FieldRedistStore'
+               endif
+            else if (item%itemType == ItemTypeVector) then
+               _FAIL("ItemTypeVector not yet supported")
+            end if
+            exit   ! jump out
+         enddo
+
+         ! redist and put_var
+         iter = this%items%begin()
+         do while (iter /= this%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
+               call ESMF_FieldGet(acc_field,rank=rank,_RC)
+               if (rank==1) then
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_2d, _RC)
+                  call ESMF_FieldGet( acc_field_rt, localDE=0, farrayPtr=p_acc_rt_2d, _RC)
+                  call ESMF_FieldRedist( acc_field,  acc_field_rt, RH, _RC)
+                  if (mapl_am_i_root()) then
+                     write(6,*) 'here in append_file:  put_var 2d'
+                     call this%file_handle%put_var(trim(item%xname),p_acc_rt_2d(1:nx),&
+                          start=[is],count=[nx])
+                  end if                  
+               else if (rank==2) then
+                  call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
+                  call ESMF_FieldGet( acc_field_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
+                  call ESMF_FieldRedist( acc_field,  acc_field_rt, RH, _RC)
+                  if (mapl_am_i_root()) then
+                     write(6,*) 'here in append_file:  put_var 3d'                     
+                     call this%file_handle%put_var(trim(item%xname),p_acc_rt_3d(is:ie,:),&
+                          start=[ie,1],count=[nx,size(p_acc_3d,2)])
+                  end if
+               endif
+            else if (item%itemType == ItemTypeVector) then
+               _FAIL("ItemTypeVector not yet supported")
+            end if
+            call iter%next()
+         enddo
+         this%number_written=this%number_written+nx
+
+         call ESMF_FieldDestroy(acc_field_rt, noGarbage=.true., _RC)
+         call ESMF_RouteHandleDestroy(RH, noGarbage=.true., _RC)
+
+         _RETURN(_SUCCESS)
+         
+       end procedure append_file
+
+
+
+      module procedure reset_times_to_current_day
+
+         integer :: i,status,h,m,yp,mp,dp,s,ms,us,ns
+         type(ESMF_Clock) :: clock
+         type(ESMF_Time) :: current_time
+         integer :: year,month,day
+
+         call this%time_info%get(clock=clock,_RC)
+         call ESMF_ClockGet(clock,currtime=current_time,_RC)
+         call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,_RC)
+         do i=1,size(this%times)
+            call ESMF_TimeGet(this%times(i),yy=yp,mm=mp,dd=dp,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
+            call ESMF_TimeSet(this%times(i),yy=year,mm=month,dd=day,h=h,m=m,s=s,ms=ms,us=us,ns=ns,_RC)
+         enddo
+
+      end procedure reset_times_to_current_day
+
+
+      module procedure sort_three_arrays_by_time(U,V,T,rc)
+        integer :: status
+        integer :: i, len
+        integer, allocatable :: IA(:)
+        integer(ESMF_KIND_I8), allocatable :: IX(:)
+        real(ESMF_KIND_R8), allocatable :: X(:)
+
+        _ASSERT (size(U)==size(V), 'U,V different dimension')
+        _ASSERT (size(U)==size(T), 'U,T different dimension')        
+        len = size (T)
+        
+         allocate (IA(len), IX(len), X(len))
+         do i=1, len
+            IX(i)=T(i)
+            IA(i)=i
+         enddo
+         call MAPL_Sort(IX,IA)
+
+         X = U
+         do i=1, len
+            U(i) = X(IA(i))
+         enddo
+         X = V
+         do i=1, len
+            V(i) = X(IA(i))
+         enddo
+         X = T
+         do i=1, len
+            T(i) = X(IA(i))
+         enddo
+
+         _RETURN(_SUCCESS)
+       end procedure sort_three_arrays_by_time
+       
+       
+
+       module procedure time_real_to_ESMF
+         integer :: status
+
+         integer :: i, len
+         integer :: int_time
+         type(ESMF_TimeInterval) :: interval
+         type(ESMF_Time) :: time0
+         type(ESMF_Time) :: time1
+         character(len=:), allocatable :: tunit
+         character(len=ESMF_MAXSTR) :: datetime_units
+
+         datetime_units = this%datetime_units
+         len = size (this%times_R8)
+
+         do i=1, len
+            int_time = this%times_R8(i)
+            call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
+            this%times(i) = time1
+         enddo
+
+         _RETURN(_SUCCESS)
+       end procedure time_real_to_ESMF
+
+
 
         module procedure create_grid(this, rc)
          integer :: status
@@ -617,204 +637,205 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          _RETURN(_SUCCESS)
        end procedure create_grid
 
-!
-!
-!         module procedure regrid_accumulate_on_xsubset (this, rc)
-!           implicit none
-!           class(HistoryTrajectory), intent(inout) :: this
-!           integer, intent(out), optional :: rc
-!           integer :: status
-!
-!           integer                 :: x_subset(2)
-!           type(ESMF_Time)         :: timeset(2)
-!           type(ESMF_Time)         :: current_time
-!           type(ESMF_TimeInterval) :: dur
-!           type(GriddedIOitemVectorIterator) :: iter
-!           type(GriddedIOitem), pointer :: item
-!           type(ESMF_Field) :: src_field,dst_field,acc_field
-!           !    integer :: rank,interval(2),number_to_write,previous_day,current_day
-!           integer :: rank
-!           real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-!           real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-!           real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-!           real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-!           integer :: is, ie
-!
-!           ! __ s1.  get x_subset for each model time step interval on each pet
-!           call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
-!           call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
-!           timeset(1) = current_time - dur
-!           timeset(2) = current_time    
-!           call this%get_x_subset(timeset, x_subset, _RC)
-!           is=x_subset(1)
-!           ie=x_subset(2)
-!
-!           if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-!              call this%vdata%setup_eta_to_pressure(_RC)
-!           endif
-!
-!       !    if (is==0 .AND. ie==0) then
-!       !       rc=0
-!       !       return
-!       !    endif
-!
-!           ! __ s2. regrid & accumulate
-!           iter = this%items%begin()
-!           do while (iter /= this%items%end())
-!              item => iter%get()
-!              if (item%itemType == ItemTypeScalar) then
-!                 call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
-!                 call ESMF_FieldBundleGet(this%output_bundle,trim(item%xname),field=dst_field,_RC)
-!                 call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)          
-!                 call ESMF_FieldGet(src_field,rank=rank,_RC)
-!                 if (rank==2) then
-!                    call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
-!                    call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
-!                    call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
-!
-!                    print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
-!                    call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
-!                    if(is>0) p_acc_2d(is:ie) = p_dst_2d(is:ie)
-!                    !!if(is>0) p_acc_2d(is:ie) = -1.d0             
-!                    
-!                 else if (rank==3) then
-!                    call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
-!                    call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
-!                    call ESMF_FieldGet(acc_field,farrayptr=p_acc_3d,_RC)             
-!                    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-!                       allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
-!                       call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
-!                       call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
-!                       if(is>0) p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
-!                    else
-!                       print*, 'size(p_src_3d)'
-!                       print*, size(p_src_3d)
-!                       print*, 'size(p_dst_3d)'
-!                       print*, size(p_dst_3d)                                
-!
-!                       call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-!
-!                       if(is>0) p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
-!                    end if
-!                 end if
-!              else if (item%itemType == ItemTypeVector) then
-!                 _FAIL("ItemTypeVector not yet supported")
-!              end if
-!              call iter%next()
-!           enddo
-!           
-!
-!           _RETURN(ESMF_SUCCESS)
-!
-!         end procedure regrid_accumulate_on_xsubset
-!         
-!
-!         module procedure get_x_subset
-!           
-!           integer :: status
-!           type(ESMF_Time) :: T1, T2
-!           integer(ESMF_KIND_I8) :: i1, i2
-!           real(ESMF_KIND_R8) :: iT1, iT2
-!           integer(ESMF_KIND_I8) :: jt1, jt2, lb, ub
-!           integer :: jlo, jhi
-!           
-!           T1= interval(1)
-!           T2= interval(2)
-!           
-!           ! __ s1. find index on each PET
-!           !
-!           !              T1 <--> T2    
-!           !      --------------------------->
-!           !         |                |     
-!           !   epoch_index(1)        (2)
-!           
-!             call time_esmf_2_nc_int (T1, this%datetime_units, i1, _RC)
-!             call time_esmf_2_nc_int (T2, this%datetime_units, i2, _RC)
-!             iT1=i1; iT2=i2   ! int to real*8
-!             jlo = 1 ; jhi= size(this%obstime)
-!             if (jhi==0) then
-!                x_subset(1:2)=0
-!                _RETURN(_SUCCESS)
-!             endif
-!
-!             lb=int(jlo, ESMF_KIND_I8)
-!             ub=int(jhi, ESMF_KIND_I8)
-!             call bisect( this%obstime, iT1, jt1, n_LB=lb, n_UB=ub, rc=rc)
-!             call bisect( this%obstime, iT2, jt2, n_LB=lb, n_UB=ub, rc=rc)
-!             ! bisect design
-!             !    y(n)  < x(key) <=  y(n+1)
-!             !
-!             !     (x1, x2 ]
-!             !   o--o-o-o-o--o--o--o--
-!             !     |          |
-!             !
-!             x_subset(1) = jt1+1
-!             x_subset(2) = jt2
-!
-!             
-!             ! correction
-!             if (jt1==lb) then
-!                x_subset(1) = jt1
-!             endif
-!             
-!             if ( ((jt1<lb).AND.(jt2<lb)) .OR. ((jt1>ub).AND.(jt2>ub)) ) then         
-!                x_subset(1) = 0
-!                x_subset(2) = 0
-!             endif
-!             
-!             print*, 'x_subset(1:2)', x_subset(1:2)
-!             
-!           _RETURN(_SUCCESS)
-!         end procedure get_x_subset
-!
-!
-!
-!         module procedure destroy_rh_regen_LS (this, rc)
-!           class(HistoryTrajectory), intent(inout) :: this
-!           integer, intent(out), optional :: rc
-!           integer :: status
-!
-!           integer :: numVars, i
-!           character(len=ESMF_MAXSTR), allocatable :: names(:)
-!           type(ESMF_Field) :: field
-!           type(ESMF_Grid)  :: grid
-!
-!           ! __ s1. destroy RH, LS, acc_bundle / output_bundle   
-!           call this%regridder%destroy(_RC)
-!           call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
-!           call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)    
-!           deallocate (this%lons, this%lats, this%times_R8)
-!
-!           call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
-!           allocate(names(numVars),stat=status)
-!           call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
-!           do i=1,numVars
-!              call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
-!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-!           enddo
-!           call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
-!
-!           
-!           call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
-!           allocate(names(numVars),stat=status)
-!           call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
-!           do i=1,numVars
-!              call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
-!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-!           enddo
-!           call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
-!
-!           
-!           ! __ s2. regenerate LS, RH, bundles
-!           call this%create_grid(_RC)
-!           call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-!           this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
-!           this%output_bundle = this%create_new_bundle(_RC)
-!           this%acc_bundle    = this%create_new_bundle(_RC)
-!
-!               
-!           _RETURN(ESMF_SUCCESS)
-!
-!         end procedure destroy_rh_regen_LS
-  
+
+
+         module procedure regrid_accumulate_on_xsubset (this, rc)
+           implicit none
+           class(HistoryTrajectory), intent(inout) :: this
+           integer, intent(out), optional :: rc
+           integer :: status
+
+           integer                 :: x_subset(2)
+           type(ESMF_Time)         :: timeset(2)
+           type(ESMF_Time)         :: current_time
+           type(ESMF_TimeInterval) :: dur
+           type(GriddedIOitemVectorIterator) :: iter
+           type(GriddedIOitem), pointer :: item
+           type(ESMF_Field) :: src_field,dst_field,acc_field
+           !    integer :: rank,interval(2),number_to_write,previous_day,current_day
+           integer :: rank
+           real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
+           real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+           real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+           real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
+           integer :: is, ie
+
+           ! __ s1.  get x_subset for each model time step interval on each pet
+           call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+           call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
+           timeset(1) = current_time - dur
+           timeset(2) = current_time    
+           call this%get_x_subset(timeset, x_subset, _RC)
+           is=x_subset(1)
+           ie=x_subset(2)
+
+           if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+              call this%vdata%setup_eta_to_pressure(_RC)
+           endif
+
+       !    if (is==0 .AND. ie==0) then
+       !       rc=0
+       !       return
+       !    endif
+
+           ! __ s2. regrid & accumulate
+           iter = this%items%begin()
+           do while (iter /= this%items%end())
+              item => iter%get()
+              if (item%itemType == ItemTypeScalar) then
+                 call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
+                 call ESMF_FieldBundleGet(this%output_bundle,trim(item%xname),field=dst_field,_RC)
+                 call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)          
+                 call ESMF_FieldGet(src_field,rank=rank,_RC)
+                 if (rank==2) then
+                    call ESMF_FieldGet(src_field,farrayptr=p_src_2d,_RC)
+                    call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
+                    call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
+
+                    print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
+                    call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
+                    if(is>0) p_acc_2d(is:ie) = p_dst_2d(is:ie)
+                    !!if(is>0) p_acc_2d(is:ie) = -1.d0             
+                    
+                 else if (rank==3) then
+                    call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
+                    call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
+                    call ESMF_FieldGet(acc_field,farrayptr=p_acc_3d,_RC)             
+                    if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                       allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
+                       call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
+                       call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
+                       if(is>0) p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+                    else
+                       print*, 'size(p_src_3d)'
+                       print*, size(p_src_3d)
+                       print*, 'size(p_dst_3d)'
+                       print*, size(p_dst_3d)                                
+
+                       call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
+
+                       if(is>0) p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+                    end if
+                 end if
+              else if (item%itemType == ItemTypeVector) then
+                 _FAIL("ItemTypeVector not yet supported")
+              end if
+              call iter%next()
+           enddo
+           
+
+           _RETURN(ESMF_SUCCESS)
+
+         end procedure regrid_accumulate_on_xsubset
+         
+
+         module procedure get_x_subset
+           
+           integer :: status
+           type(ESMF_Time) :: T1, T2
+           integer(ESMF_KIND_I8) :: i1, i2
+           real(ESMF_KIND_R8) :: iT1, iT2
+           integer(ESMF_KIND_I8) :: jt1, jt2, lb, ub
+           integer :: jlo, jhi
+           
+           T1= interval(1)
+           T2= interval(2)
+           
+           ! __ s1. find index on each PET
+           !
+           !              T1 <--> T2    
+           !      --------------------------->
+           !         |                |     
+           !   epoch_index(1)        (2)
+           
+             call time_esmf_2_nc_int (T1, this%datetime_units, i1, _RC)
+             call time_esmf_2_nc_int (T2, this%datetime_units, i2, _RC)
+             iT1=i1; iT2=i2   ! int to real*8
+             jlo = 1 ; jhi= size(this%obstime)
+             if (jhi==0) then
+                x_subset(1:2)=0
+                _RETURN(_SUCCESS)
+             endif
+
+             lb=int(jlo, ESMF_KIND_I8)
+             ub=int(jhi, ESMF_KIND_I8)
+             call bisect( this%obstime, iT1, jt1, n_LB=lb, n_UB=ub, rc=rc)
+             call bisect( this%obstime, iT2, jt2, n_LB=lb, n_UB=ub, rc=rc)
+             ! bisect design
+             !    y(n)  < x(key) <=  y(n+1)
+             !
+             !     (x1, x2 ]
+             !   o--o-o-o-o--o--o--o--
+             !     |          |
+             !
+             x_subset(1) = jt1+1
+             x_subset(2) = jt2
+
+             
+             ! correction
+             if (jt1==lb) then
+                x_subset(1) = jt1
+             endif
+             
+             if ( ((jt1<lb).AND.(jt2<lb)) .OR. ((jt1>ub).AND.(jt2>ub)) ) then         
+                x_subset(1) = 0
+                x_subset(2) = 0
+             endif
+             
+             print*, 'x_subset(1:2)', x_subset(1:2)
+             
+           _RETURN(_SUCCESS)
+         end procedure get_x_subset
+
+
+
+         module procedure destroy_rh_regen_LS (this, rc)
+           class(HistoryTrajectory), intent(inout) :: this
+           integer, intent(out), optional :: rc
+           integer :: status
+
+           integer :: numVars, i
+           character(len=ESMF_MAXSTR), allocatable :: names(:)
+           type(ESMF_Field) :: field
+           type(ESMF_Grid)  :: grid
+
+           ! __ s1. destroy RH, LS, acc_bundle / output_bundle   
+           call this%regridder%destroy(_RC)
+           call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
+           call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)    
+           deallocate (this%lons, this%lats, this%times_R8)
+
+           call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
+           allocate(names(numVars),stat=status)
+           call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
+           do i=1,numVars
+              call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
+              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+           enddo
+           call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
+
+           
+           call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
+           allocate(names(numVars),stat=status)
+           call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
+           do i=1,numVars
+              call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
+              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+           enddo
+           call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
+
+           
+           ! __ s2. regenerate LS, RH, bundles
+           call this%create_grid(_RC)
+           call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+           this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
+           this%output_bundle = this%create_new_bundle(_RC)
+           this%acc_bundle    = this%create_new_bundle(_RC)
+
+               
+           _RETURN(ESMF_SUCCESS)
+
+         end procedure destroy_rh_regen_LS
+
+       
 end submodule HistoryTrajectory_implement
