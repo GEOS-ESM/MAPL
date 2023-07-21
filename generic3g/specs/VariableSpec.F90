@@ -8,6 +8,7 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_FieldSpec
+   use mapl3g_WildcardSpec
    use mapl3g_ServiceSpec
    use mapl3g_InvalidSpec
    use mapl3g_VirtualConnectionPt
@@ -51,6 +52,7 @@ module mapl3g_VariableSpec
       procedure :: make_ItemSpec
       procedure :: make_FieldSpec
       procedure :: make_ServiceSpec
+      procedure :: make_WildcardSpec
 !!$      procedure :: make_StateSpec
 !!$      procedure :: make_BundleSpec
 !!$      procedure :: initialize
@@ -144,6 +146,8 @@ contains
             itemtype = MAPL_STATEITEM_SERVICE_PROVIDER
          case ('service_subcriber')
             itemtype = MAPL_STATEITEM_SERVICE_SUBSCRIBER
+         case ('wildcard')
+            itemtype = MAPL_STATEITEM_WILDCARD
          case default
             itemtype = MAPL_STATEITEM_UNKNOWN
          end select
@@ -184,6 +188,9 @@ contains
       case (MAPL_STATEITEM_SERVICE%ot)
          allocate(ServiceSpec::item_spec)
          item_spec = this%make_ServiceSpec(_RC)
+      case (MAPL_STATEITEM_WILDCARD%ot)
+         allocate(WildcardSpec::item_spec)
+         item_spec = this%make_WildcardSpec(geom, vertical_geom,  _RC)
       case default
          ! Fail, but still need to allocate a result.
          allocate(InvalidSpec::item_spec)
@@ -278,5 +285,25 @@ contains
       end function valid
 
    end function make_ServiceSpec
+
+   function make_WildcardSpec(this, geom, vertical_geom, rc) result(wildcard_spec)
+      type(WildcardSpec) :: wildcard_spec
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      type(VerticalGeom), intent(in) :: vertical_geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(FieldSpec) :: field_spec
+      type(VariableSpec) :: tmp_spec
+
+      tmp_spec = this
+      tmp_spec%itemtype = MAPL_STATEITEM_FIELD
+
+      field_spec = tmp_spec%make_FieldSpec(geom, vertical_geom, _RC)
+      wildcard_spec = WildCardSpec(field_spec)
+
+      _RETURN(_SUCCESS)
+   end function make_WildcardSpec
 
 end module mapl3g_VariableSpec

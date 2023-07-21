@@ -108,36 +108,38 @@ contains
             _HERE, 'concrete dst pt is ', dst_v_pt
             associate (&
                  s_pt => ConnectionPt(src_pt%component_name, src_v_pt), &
-                 d_pt => ConnectionPt(dst_pt%component_name, dst_v_pt) )
+                 d_pt => ConnectionPt(dst_pt%component_name, dst_pattern) )
+!!$                 d_pt => ConnectionPt(dst_pt%component_name, dst_v_pt) )
 
 
-              if (dst_v_pt /= dst_pattern) then ! wildcard case
-                 _HERE, ' this is the wildcard case'
-                 ! In wildcard case, we need to create new virtual connection pts
-                 ! in the dst registry.
-                 ! For now, we require that it be unique
-                 _ASSERT(size(dst_specs) == 1, "Wildcard connection requires unique virtual connection point")
-                 _ASSERT(.not. dst_registry%has_item_spec(dst_v_pt), "Wildcard connection requires unique virtual connection point")
-                 new_spec = dst_specs(1)%ptr
-                 block
-                   use mapl3g_fieldspec
-                   select type (new_spec)
-                   type is (FieldSpec)
-                      _HERE,' is a field spec', dst_v_pt
-                   end select
-                 end block
-                 ! New payload for the new point
-                 call new_spec%create([StateItemSpecPtr::], _RC)
-                 call dst_registry%add_item_spec(dst_v_pt, new_spec, _RC)
-                 deallocate(new_spec) ! deallocate needed inside of loop
-              end if
+!!$              if (dst_v_pt /= dst_pattern) then ! wildcard case
+!!$                 _HERE, ' this is the wildcard case'
+!!$                 ! In wildcard case, we need to create new virtual connection pts
+!!$                 ! in the dst registry.
+!!$                 ! For now, we require that it be unique
+!!$                 _ASSERT(size(dst_specs) == 1, "Wildcard connection requires unique virtual connection point")
+!!$                 _ASSERT(.not. dst_registry%has_item_spec(dst_v_pt), "Wildcard connection requires unique virtual connection point")
+!!$                 new_spec = dst_specs(1)%ptr
+!!$                 block
+!!$                   use mapl3g_fieldspec
+!!$                   select type (new_spec)
+!!$                   type is (FieldSpec)
+!!$                      _HERE,' is a field spec', dst_v_pt
+!!$                   end select
+!!$                 end block
+!!$                 ! New payload for the new point
+!!$                 call new_spec%create([StateItemSpecPtr::], _RC)
+!!$                 call dst_registry%add_item_spec(dst_v_pt, new_spec, _RC)
+!!$                 deallocate(new_spec) ! deallocate needed inside of loop
+!!$              end if
 
-              _HERE, 'connecting: ',src_v_pt, dst_v_pt
+              _HERE, 'connecting: ',src_v_pt, d_pt%v_pt
               call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
-
+              _HERE
             end associate
          end do
       end do
+      _HERE
       
       _RETURN(_SUCCESS)
    end subroutine connect

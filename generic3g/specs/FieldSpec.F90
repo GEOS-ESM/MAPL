@@ -56,7 +56,6 @@ module mapl3g_FieldSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: requires_extension
       procedure :: add_to_state
       procedure :: add_to_bundle
 
@@ -299,9 +298,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_dependencies
 
-   subroutine connect_to(this, src_spec, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
+      type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -319,6 +319,7 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
 
@@ -341,33 +342,6 @@ contains
 
    end function can_connect_to
 
-
-   logical function requires_extension(this, src_spec)
-      class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-
-      type(ESMF_GeomType_Flag) :: geom_type, src_geom_type
-      integer :: status
-      
-      requires_extension = .true.
-      call ESMF_GeomGet(this%geom, geomtype=geom_type, rc=status)
-      if (status /= 0) return
-
-      select type(src_spec)
-      class is (FieldSpec)
-         call ESMF_GeomGet(src_spec%geom, geomtype=src_geom_type, rc=status)
-         if (status /= 0) return
-         requires_extension = any([ &
-              this%ungridded_dims /= src_spec%ungridded_dims, &
-              this%typekind /= src_spec%typekind,   &
-!!$              this%units /= src_spec%units, &
-!!$              this%freq_spec /= src_spec%freq_spec,   &
-!!$              this%halo_width /= src_spec%halo_width, &
-!!$              this%vm /= sourc%vm,               &
-              geom_type /= src_geom_type &
-              ])
-      end select
-   end function requires_extension
 
    logical function same_typekind(a, b)
       class(FieldSpec), intent(in) :: a

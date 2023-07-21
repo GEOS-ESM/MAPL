@@ -89,9 +89,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_dependencies
 
-   subroutine connect_to(this, src_spec, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
       class(InvalidSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       integer :: status

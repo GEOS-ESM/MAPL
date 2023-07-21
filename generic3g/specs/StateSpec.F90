@@ -31,7 +31,6 @@ module mapl3g_StateSpec
       
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: requires_extension
       procedure :: make_extension
       procedure :: extension_cost
       procedure :: add_to_state
@@ -123,9 +122,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_dependencies
    
-   subroutine connect_to(this, src_spec, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
       class(StateSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
+      type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -138,7 +138,7 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
-
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
 
@@ -150,15 +150,6 @@ contains
 
    end function can_connect_to
 
-
-   logical function requires_extension(this, src_spec)
-      class(StateSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-
-      requires_extension = .false.
-      error stop "unimplemented procedure StateSpec::requires_extension"
-
-   end function requires_extension
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(StateSpec), intent(in) :: this

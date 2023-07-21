@@ -17,7 +17,6 @@ module mapl3g_AbstractStateItemSpec
 
    contains
 
-!!$      procedure(I_initialize), deferred :: initialize
       procedure(I_create), deferred :: create
       procedure(I_destroy), deferred :: destroy
       procedure(I_allocate), deferred :: allocate
@@ -25,7 +24,6 @@ module mapl3g_AbstractStateItemSpec
 
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
-      procedure(I_can_connect), deferred :: requires_extension
       procedure(I_make_extension), deferred :: make_extension
       procedure(I_extension_cost), deferred :: extension_cost
 
@@ -49,10 +47,12 @@ module mapl3g_AbstractStateItemSpec
 
    abstract interface
 
-      subroutine I_connect(this, src_spec, rc)
+      subroutine I_connect(this, src_spec, actual_pt, rc)
+         use mapl3g_ActualConnectionPt
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), intent(inout) :: this
          class(AbstractStateItemSpec), intent(inout) :: src_spec
+         type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
       end subroutine I_connect
 

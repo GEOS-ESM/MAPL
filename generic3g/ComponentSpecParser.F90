@@ -234,7 +234,7 @@ contains
          case ('vertical_dim_edge', 'E')
             vertical_dim_spec = VERTICAL_DIM_EDGE
          case default
-            _FAIL('Unsupported typekind')
+            _FAIL('Unsupported vertical_dim_spec')
          end select
 
          _RETURN(_SUCCESS)
@@ -287,6 +287,8 @@ contains
             itemtype = MAPL_STATEITEM_FIELD
          case ('service')
             itemtype = MAPL_STATEITEM_SERVICE
+         case ('wildcard')
+            itemtype = MAPL_STATEITEM_WILDCARD
          case default
             _FAIL('unknown subclass for state item: '//subclass)
          end select

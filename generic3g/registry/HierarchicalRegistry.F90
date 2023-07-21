@@ -687,11 +687,13 @@ contains
 
       _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
 
+      _HERE
       associate (e => this%actual_specs_map%end())
 
         actual_iter = this%actual_specs_map%begin()
         do while (actual_iter /= e)
 
+           _HERE
            actual_pt => actual_iter%first()
 
            if (actual_pt%is_represented_in(mode)) then
@@ -699,11 +701,11 @@ contains
               item_spec => item_spec_ptr%ptr
               call item_spec%add_to_state(multi_state, actual_pt, _RC)
            end if
-
+           _HERE
            call actual_iter%next()
         end do
       end associate
-
+      _HERE
       _RETURN(_SUCCESS)
 
    end subroutine add_to_states

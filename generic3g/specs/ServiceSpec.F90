@@ -37,7 +37,6 @@ module mapl3g_ServiceSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: requires_extension
       procedure :: make_extension
       procedure :: extension_cost
       procedure :: make_action
@@ -148,9 +147,11 @@ contains
    end subroutine add_to_bundle
 
    
-   subroutine connect_to(this, src_spec, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
       class(ServiceSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
+      type(ActualConnectionPt), intent(in) :: actual_pt ! unused
+
       integer, optional, intent(out) :: rc
 
       integer :: fieldCount
@@ -167,6 +168,7 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
     logical function can_connect_to(this, src_spec)
@@ -195,17 +197,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
 
-
-   logical function requires_extension(this, src_spec)
-      class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-
-      type(ESMF_GeomType_Flag) :: geom_type
-      integer :: status
-      
-      requires_extension = .false.
-
-   end function requires_extension
 
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
