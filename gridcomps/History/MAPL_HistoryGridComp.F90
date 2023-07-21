@@ -2377,7 +2377,7 @@ ENDDO PARSER
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
-!!             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3431,8 +3431,8 @@ ENDDO PARSER
          if (list(n)%timeseries_output) then
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
-!               call list(n)%trajectory%close_file_handle(_RC)
-!               call list(n)%trajectory%create_file_handle(filename(n),_RC)
+               call list(n)%trajectory%close_file_handle(_RC)
+               call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
@@ -3588,10 +3588,10 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-!         call list(n)%trajectory%regrid_accumulate(_RC)
+         call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-!            call list(n)%trajectory%append_file(current_time,_RC)
-!            call list(n)%trajectory%destroy_rh_regen_LS ( _RC )
+            call list(n)%trajectory%append_file(current_time,_RC)
+            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
             print*, __LINE__, __FILE__
          end if
       end if
