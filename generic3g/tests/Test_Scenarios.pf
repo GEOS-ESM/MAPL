@@ -261,7 +261,6 @@ contains
 
          call comp_states%get_state(state, state_intent, _RC)
 
-
 !!$         print*, state
 
          hconfigIter = ESMF_HConfigIterBegin(state_items)
@@ -299,16 +298,11 @@ contains
       rc = 0
       idx = index(short_name,'/')
 
-      print*,__FILE__,__LINE__, short_name, idx
-      print*, state
       substate = state ! unless
       if (idx /= 0) then
          call ESMF_StateGet(state, short_name(:idx-1), itemtype=itemtype, _RC)
-         print*,__FILE__,__LINE__, 'is field? ', itemtype == ESMF_STATEITEM_FIELD
-         print*,__FILE__,__LINE__, 'is state? ', itemtype == ESMF_STATEITEM_STATE
          @assert_that(itemtype == ESMF_STATEITEM_STATE, is(true()))
          call ESMF_StateGet(state, short_name(:idx-1), substate, _RC)
-         print*,__FILE__,__LINE__, short_name
       end if
       call ESMF_StateGet(substate, short_name(idx+1:), itemtype=itemtype, _RC)
 
@@ -330,13 +324,8 @@ contains
       msg = description
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
-      print*,__FILE__,__LINE__, description
       
       itemtype=get_itemtype(state, short_name, _RC)
-      if (expected_itemtype /= itemtype) then
-         print*,__FILE__,__LINE__, short_name, expected_itemtype%ot, itemtype%ot
-         print*, state
-      end if
       @assert_that(expected_itemtype == itemtype, is(true()))
 
       rc = 0
@@ -411,9 +400,6 @@ contains
 
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, status=found_field_status, _RC)
-      print*,__FILE__,__LINE__, expected_field_status == found_field_status
-      print*,state
-      print*, short_name
       @assert_that(msg // ' field status: ',expected_field_status == found_field_status, is(true()))
 
       rc = 0
@@ -460,9 +446,6 @@ contains
       
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
-      if (expected_field_typekind /= found_field_typekind) then
-         print*,__FILE__,__LINE__,'expected: ', short_name, expected_field_typekind%dkind, found_field_typekind%dkind
-      end if
       @assert_that(msg // ' field typekind: ',expected_field_typekind == found_field_typekind, is(true()))
 
       rc = 0

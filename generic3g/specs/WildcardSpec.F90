@@ -51,7 +51,6 @@ contains
       type(WildcardSpec) :: wildcard_spec
       class(AbstractStateItemSpec), intent(in) :: reference_spec
 
-      _HERE
       wildcard_spec%reference_spec = reference_spec
       allocate(wildcard_spec%matched_specs)
 
@@ -123,7 +122,6 @@ contains
       integer :: status
       type(StateItemSpecPtr), pointer :: spec_ptr
 
-      _HERE
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
       _ASSERT(this%matched_specs%count(actual_pt) == 0, 'duplicate connection pt')
 
@@ -159,23 +157,16 @@ contains
       class(StateItemSpecPtr), pointer :: spec_ptr
       type(ActualConnectionPt), pointer :: effective_pt
 
-      _HERE
-      _HERE, this%matched_specs%size()
       associate (e => this%matched_specs%end())
-        _HERE
         iter = this%matched_specs%begin()
-        _HERE
         do while (iter /= e)
-           _HERE
            ! Ignore actual_pt argument and use internally recorded name
            effective_pt => iter%first()
-           _HERE, 'adding to state: ', effective_pt
            spec_ptr => iter%second()
            call spec_ptr%ptr%add_to_state(multi_state, effective_pt, _RC)
            iter = next(iter)
         end do
       end associate
-      _HERE
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state

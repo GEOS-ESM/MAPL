@@ -105,7 +105,6 @@ contains
       src_pt = this%get_source()
       dst_pt = this%get_destination()
 
-      _HERE, dst_pt%v_pt, src_pt%v_pt
       dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pt%v_pt, _RC)
       src_specs = src_registry%get_actual_pt_SpecPtrs(src_pt%v_pt, _RC)
           
@@ -143,12 +142,11 @@ contains
          end do
 
          call dst_spec%set_active()
-         _HERE
+
          ! This step (kludge) is for wildcard specs
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_esmf_name(), comp_name=src_pt%v_pt%get_comp_name()))
         call dst_spec%connect_to(old_spec, effective_pt, _RC)
-         _HERE
             
       end do
          
