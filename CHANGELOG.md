@@ -59,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added print of regrid method during History initialization
+- Added ability to use an `ESMF.rc` file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
+  - NOTE: File *must* be called `ESMF.rc`
+- Added ability to run ExtDataDriver.x on a MAPL "tile" grid
 - Add ability to introduce a time-step delay in ExtDataDriver.x to simulate the timestep latency of a real model
 - Added a MAPL\_Sleep function, equivalent to some vendor supplied but non-standard sleep function
 - sampling IODA file with trajectory sampler (step-1): make it run
@@ -91,6 +95,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Clean up for TOSS4 changes at NAS
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
 - Update CI to use BCs v11.1.0
+- Updates to support building MAPL with spack instead of Baselibs
+  - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
+  - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
+  - Default `BUILD_WITH_FLAP` to `OFF` as we don't build it in spack
+  - Explicitly build GEOSadas in CI with `-DBUILD_WITH_FLAP=ON` as GEOSadas is still behind in moving to use fArgParse
 
 ### Fixed
 
