@@ -49,7 +49,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          type(Logger), pointer :: lgr
 
-         _UNUSED_DUMMY(unusable)
 
          ! __ parse variables, set alarm
          !
@@ -89,7 +88,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(GriddedIOitemVectorIterator) :: iter
          type(GriddedIOitem), pointer :: item
 
-         _UNUSED_DUMMY(unusable)
 
          ! __ s.1   create LS grid, RH, output/acc bundle
          ! __ s.2   metadata
