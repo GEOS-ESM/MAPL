@@ -39,6 +39,7 @@ module mapl3g_ServiceSpec
       procedure :: can_connect_to
       procedure :: requires_extension
       procedure :: make_extension
+      procedure :: extension_cost
       procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -219,12 +220,21 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
-   function make_extension(this, src_spec, rc) result(action_spec)
-      class(AbstractActionSpec), allocatable :: action_spec
+   function make_extension(this, src_spec, rc) result(extension)
+      class(AbstractStateItemSpec), allocatable :: extension
       class(ServiceSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
+      _RETURN(_SUCCESS)
    end function make_extension
+   
+   integer function extension_cost(this, src_spec, rc) result(cost)
+      class(ServiceSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+      cost = 0
+      _RETURN(_SUCCESS)
+   end function extension_cost
    
 
 

@@ -27,6 +27,7 @@ module mapl3g_AbstractStateItemSpec
       procedure(I_can_connect), deferred :: can_connect_to
       procedure(I_can_connect), deferred :: requires_extension
       procedure(I_make_extension), deferred :: make_extension
+      procedure(I_extension_cost), deferred :: extension_cost
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -91,15 +92,21 @@ module mapl3g_AbstractStateItemSpec
          integer, optional, intent(out) :: rc
       end function I_get_dependencies
 
-      function I_make_extension(this, src_spec, rc) result(action_spec)
-         use mapl3g_AbstractActionSpec
+      function I_make_extension(this, src_spec, rc) result(extension)
          import AbstractStateItemSpec
-         class(AbstractActionSpec), allocatable :: action_spec
+         class(AbstractStateItemSpec), allocatable :: extension
          class(AbstractStateItemSpec), intent(in) :: this
          class(AbstractStateItemSpec), intent(in) :: src_spec
          integer, optional, intent(out) :: rc
       end function I_make_extension
          
+      integer function I_extension_cost(this, src_spec, rc) result(cost)
+         import AbstractStateItemSpec
+         class(AbstractStateItemSpec), intent(in) :: this
+         class(AbstractStateItemSpec), intent(in) :: src_spec
+         integer, optional, intent(out) :: rc
+       end function I_extension_cost
+
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
          use mapl3g_MultiState
          use mapl3g_ActualConnectionPt

@@ -628,7 +628,6 @@ contains
       call apply_to_children(this, clock, phase_idx=GENERIC_INIT_REALIZE, _RC)
 
       call this%registry%allocate(_RC)
-
       
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

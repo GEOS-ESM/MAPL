@@ -227,10 +227,10 @@ contains
       call regcomp(regex,this%get_full_name(),flags='xmi')
       matches = regexec(regex,item%get_full_name())
 
-      _HERE
-      _HERE, this%get_full_name()
-      _HERE, item%get_full_name()
-      _HERE, matches
+!!$      _HERE
+!!$      _HERE, this%get_full_name()
+!!$      _HERE, item%get_full_name()
+!!$      _HERE, matches
 
 !!$      if (this%get_full_name() == '*') then
 !!$         matches = .true.

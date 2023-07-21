@@ -30,9 +30,11 @@ module mapl3g_InvalidSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: requires_extension
-      procedure :: make_extension
       procedure :: add_to_state
       procedure :: add_to_bundle
+
+      procedure :: make_extension
+      procedure :: extension_cost
    end type InvalidSpec
 
 
@@ -139,18 +141,25 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function make_extension(this, src_spec, rc) result(action_spec)
-      class(AbstractActionSpec), allocatable :: action_spec
+   function make_extension(this, src_spec, rc) result(extension)
+      class(AbstractStateItemSpec), allocatable :: extension
       class(InvalidSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
-
       _FAIL('Attempt to use item of type InvalidSpec')
 
-      _RETURN(_SUCCESS)
    end function make_extension
 
+   integer function extension_cost(this, src_spec, rc) result(cost)
+      class(InvalidSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      _FAIL('Attempt to use item of type InvalidSpec')
+
+   end function extension_cost
 
 end module mapl3g_InvalidSpec

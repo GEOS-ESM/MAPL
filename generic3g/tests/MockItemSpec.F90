@@ -15,7 +15,7 @@ module MockItemSpecMod
    private
 
    public :: MockItemSpec
-   public :: MockActionSpec
+   public :: MockAction
 
    ! Note - this leaks memory
    type, extends(AbstractStateItemSpec) :: MockItemSpec
@@ -31,27 +31,26 @@ module MockItemSpecMod
       procedure :: can_connect_to
       procedure :: requires_extension
       procedure :: make_extension
+      procedure :: make_extension_typesafe
+      procedure :: extension_cost
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: make_action
    end type MockItemSpec
 
    type, extends(ExtensionAction) :: MockAction
+      character(:), allocatable :: details
    contains
       procedure :: run => mock_run
    end type MockAction
-
-   type, extends(AbstractActionSpec) :: MockActionSpec
-      character(:), allocatable :: details
-   end type MockActionSpec
 
    interface MockItemSpec
       module procedure new_MockItemSpec
    end interface MockItemSpec
 
-   interface MockActionSpec
-      module procedure new_MockActionSpec
-   end interface MockActionSpec
+   interface MockAction
+      module procedure new_MockAction
+   end interface MockAction
 
 contains
 
@@ -111,12 +110,13 @@ contains
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
 
-      print*,__FILE__,__LINE__
       select type (src_spec)
       class is (MockItemSpec)
          ! ok
-         print*,__FILE__,__LINE__
          this%name = src_spec%name
+         if (allocated(src_spec%subtype)) then
+            this%subtype = src_spec%subtype
+         end if
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -146,6 +146,10 @@ contains
 
       select type(src_spec)
       class is (MockItemSpec)
+         if (this%name /= src_spec%name) then
+            requires_extension = .true.
+            return
+         end if
          if (allocated(this%subtype) .and. allocated(src_spec%subtype)) then
             requires_extension = (this%subtype /= src_spec%subtype)
          else
@@ -177,29 +181,18 @@ contains
 
    end subroutine add_to_bundle
 
-   function new_MockActionSpec(subtype_1, subtype_2) result(action_spec)
-      type(MockActionSpec) :: action_spec
-      character(*), intent(in) :: subtype_1, subtype_2
+   function new_MockAction(src_spec, dst_spec) result(action)
+      type(MockAction) :: action
+      type(MockItemSpec), intent(in) :: src_spec
+      type(MockItemSpec), intent(in) :: dst_spec
 
-      action_spec%details = subtype_1 // ' ==> ' // subtype_2
-   end function new_MockActionSpec
+      if (allocated(src_spec%subtype) .and. allocated(dst_spec%subtype)) then
+         action%details = src_spec%subtype // ' ==> ' // dst_spec%subtype
+      else
+         action%details = 'no subtype'
+      end if
+   end function new_MockAction
 
-   function make_extension(this, src_spec, rc) result(action_spec)
-      class(AbstractActionSpec), allocatable :: action_spec
-      class(MockItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc
-
-      select type(src_spec)
-      type is (MockItemSpec)
-         action_spec = MockActionSpec(this%subtype, src_spec%subtype)
-      class default
-         _FAIL('incompatible spec')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_extension
-   
    function make_action(this, dst_spec, rc) result(action)
       use mapl3g_ExtensionAction
       class(ExtensionAction), allocatable :: action
@@ -207,7 +200,12 @@ contains
       class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
-      action = MockAction()
+      select type (dst_spec)
+      type is (Mockitemspec)
+         action = MockAction(this, dst_spec)
+      class default
+         _FAIL('unsupported subclass')
+      end select
 
       _RETURN(_SUCCESS)
    end function make_action
@@ -218,5 +216,66 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine mock_run
+
+   function make_extension(this, src_spec, rc) result(extension)
+      class(AbstractStateItemSpec), allocatable :: extension
+      class(MockItemSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type(src_spec)
+      type is (MockItemSpec)
+         extension = this%make_extension_typesafe(src_spec, rc)
+      class default
+         _FAIL('incompatible spec')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_extension
+
+   function make_extension_typesafe(this, src_spec, rc) result(extension)
+      type(MockItemSpec) :: extension
+      class(MockItemSpec), intent(in) :: this
+      class(MockItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (this%name /= src_spec%name) then
+         extension%name = src_spec%name
+         _RETURN(_SUCCESS)
+      end if
+
+      if (allocated(src_spec%subtype) .and. allocated(this%subtype)) then
+         if (this%subtype /= src_spec%subtype) then
+            extension%subtype = src_spec%subtype
+            _RETURN(_SUCCESS)
+         end if
+      end if
+
+   end function make_extension_typesafe
+
+   integer function extension_cost(this, src_spec, rc) result(cost)
+      class(MockItemSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      cost = 0
+      select type(src_spec)
+      type is (MockItemSpec)
+         if (this%name /= src_spec%name) cost = cost + 1
+         if (allocated(src_spec%subtype) .and. allocated(this%subtype)) then
+            if (this%subtype /= src_spec%subtype) cost = cost + 1
+         end if
+      class default
+         _FAIL('incompatible spec')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function extension_cost
 
 end module MockItemSpecMod

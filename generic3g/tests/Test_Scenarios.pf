@@ -325,6 +325,10 @@ contains
 
       
       itemtype=get_itemtype(state, short_name, _RC)
+      if (expected_itemtype /= itemtype) then
+         print*,__FILE__,__LINE__, short_name, expected_itemtype%ot, itemtype%ot
+         print*, state
+      end if
       @assert_that(expected_itemtype == itemtype, is(true()))
 
       rc = 0
@@ -445,6 +449,9 @@ contains
       
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
+      if (expected_field_typekind /= found_field_typekind) then
+         print*,__FILE__,__LINE__,'expected: ', short_name, expected_field_typekind%dkind, found_field_typekind%dkind
+      end if
       @assert_that(msg // ' field typekind: ',expected_field_typekind == found_field_typekind, is(true()))
 
       rc = 0

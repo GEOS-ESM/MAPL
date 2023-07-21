@@ -7,4 +7,6 @@ target_sources(MAPL.generic3g PRIVATE
   NullAction.F90
   ActionVector.F90
   CopyAction.F90
+
+  SequenceAction.F90
 )
