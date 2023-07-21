@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Saved weights and points for the vertical interpolation
 - Added print of regrid method during History initialization
 - Added ability to use an `ESMF.rc` file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
   - NOTE: File *must* be called `ESMF.rc`
@@ -53,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Checked if a file is beig written before sending out to a writer 
+- Checked if a file is being written before sending out request to a writer 
 - Created cubed-sphere grid factory with files split by face
 - Removed unneeded and confusing default in History Grid Comp (see #2081)
 - Fixes in CMake for fArgParse transition
