@@ -9,7 +9,8 @@ module mapl_HorizontalFluxRegridder
    use mapl_RegridMethods
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-   use mapl_BaseMod
+   use mapl_MaplGrid
+   use mapl_Base
    use mapl_SphericalGeometry
    implicit none
    private
@@ -75,7 +76,7 @@ contains
      integer :: counts(5)
      integer :: status
      integer :: units ! unused
-     real(kind=ESMF_KIND_R8), allocatable :: corner_lonsn(:,:), corner_lats(:,:)
+     real(kind=ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
 
      _UNUSED_DUMMY(unusable)
      spec = this%get_spec()
@@ -100,7 +101,7 @@ contains
 
          allocate(corner_lons(IM_in+1,JM_in+1), corner_lats(IM_in+1,JM_in+1))
          associate(lons => corner_lons, lats => corner_lats)
-           call MAPL_GridGetCorners(gridCornerLons=lons, gridCornerLats=lats, _RC)
+           call MAPL_GridGetCorners(grid_in, gridCornerLons=lons, gridCornerLats=lats, _RC)
            
            this%dx_in = distance( &
                 lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
@@ -111,9 +112,10 @@ contains
                 lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
          end associate
 
+         deallocate(corner_lons, corner_lats)
          allocate(corner_lons(IM_out+1,JM_out+1), corner_lats(IM_out+1,JM_out+1))
          associate(lons => corner_lons, lats => corner_lats)
-           call MAPL_GridGetCorners(gridCornerLons=lons, gridCornerLats=lats, _RC)
+           call MAPL_GridGetCorners(grid_out, gridCornerLons=lons, gridCornerLats=lats, _RC)
            
            this%dx_out = distance( &
                 lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
