@@ -75,7 +75,7 @@ contains
      integer :: counts(5)
      integer :: status
      integer :: units ! unused
-     real(kind=ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+     real(kind=ESMF_KIND_R8), allocatable :: corner_lonsn(:,:), corner_lats(:,:)
 
      _UNUSED_DUMMY(unusable)
      spec = this%get_spec()
@@ -98,31 +98,31 @@ contains
          
          this%resolution_ratio = (IM_in / IM_out)
 
-         call ESMF_GridGetCoord(grid_in, coordDim=1, farrayPtr=lons, &
-              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
-         call ESMF_GridGetCoord(grid_in, coordDim=2, farrayPtr=lats, &
-              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
+         allocate(corner_lons(IM_in+1,JM_in+1), corner_lats(IM_in+1,JM_in+1))
+         associate(lons => corner_lons, lats => corner_lats)
+           call MAPL_GridGetCorners(gridCornerLons=lons, gridCornerLats=lats, _RC)
+           
+           this%dx_in = distance( &
+                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
+                lons(2:IM_in+1,1:JM_in), lats(2:IM_in+1,1:JM_in))
+           
+           this%dy_in = distance( &
+                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
+                lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
+         end associate
 
-         this%dx_in = distance( &
-              lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
-              lons(2:IM_in+1,1:JM_in), lats(2:IM_in+1,1:JM_in))
-
-         this%dy_in = distance( &
-              lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
-              lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
-
-         call ESMF_GridGetCoord(grid_out, coordDim=1, farrayPtr=lons, &
-              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
-         call ESMF_GridGetCoord(grid_out, coordDim=2, farrayPtr=lats, &
-              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
-
-         this%dx_out = distance( &
-              lons(1:IM_out,1:JM_out), lats(1:IM_out,1:JM_out), &
-              lons(2:IM_out+1,1:JM_out), lats(2:IM_out+1,1:JM_out))
-
-         this%dy_out = distance( &
-              lons(1:IM_out,1:JM_out), lats(1:IM_out,1:JM_out), &
-              lons(1:IM_out,2:JM_out+1), lats(1:IM_out,2:JM_out+1))
+         allocate(corner_lons(IM_out+1,JM_out+1), corner_lats(IM_out+1,JM_out+1))
+         associate(lons => corner_lons, lats => corner_lats)
+           call MAPL_GridGetCorners(gridCornerLons=lons, gridCornerLats=lats, _RC)
+           
+           this%dx_out = distance( &
+                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
+                lons(2:IM_in+1,1:JM_in), lats(2:IM_in+1,1:JM_in))
+           
+           this%dy_out = distance( &
+                lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
+                lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
+         end associate
 
        end associate
      end associate
