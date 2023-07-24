@@ -23,7 +23,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lons(:),lats(:)
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
-     type(ESMF_FieldBundle) :: acc_bundle      
+     type(ESMF_FieldBundle) :: acc_bundle
 
      integer :: number_written
      type(GriddedIOitemVector) :: items
@@ -72,7 +72,7 @@ module HistoryTrajectoryMod
      procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
-     
+
   end type HistoryTrajectory
 
   interface HistoryTrajectory
@@ -114,7 +114,7 @@ module HistoryTrajectoryMod
      end function create_new_bundle
      !
 
-     
+
      module subroutine create_file_handle(this,filename,rc)
        class(HistoryTrajectory), intent(inout) :: this
        character(len=*), intent(inout) :: filename
