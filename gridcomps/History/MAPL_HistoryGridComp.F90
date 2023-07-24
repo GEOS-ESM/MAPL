@@ -2376,7 +2376,6 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-!TB removed
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
           elseif (list(n)%sampler_spec == 'station') then
@@ -3329,7 +3328,6 @@ ENDDO PARSER
          list(n)%disabled = .true.
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
-         !!Writing(n) = .true.
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
@@ -3593,7 +3591,6 @@ ENDDO PARSER
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
-            print*, __LINE__, __FILE__
          end if
       end if
       if (list(n)%sampler_spec == 'station') then
