@@ -227,18 +227,6 @@ contains
       call regcomp(regex,this%get_full_name(),flags='xmi')
       matches = regexec(regex,item%get_full_name())
 
-!!$      _HERE
-!!$      _HERE, this%get_full_name()
-!!$      _HERE, item%get_full_name()
-!!$      _HERE, matches
-
-!!$      if (this%get_full_name() == '*') then
-!!$         matches = .true.
-!!$         return
-!!$      end if
-!!$      matches = () .and. &
-!!$                (this%get_full_name() == item%get_full_name())
-      
    end function matches
 
 end module mapl3g_VirtualConnectionPt
