@@ -3,6 +3,7 @@
 module MAPL_VerticalDataMod
   use ESMF
   use MAPL_BaseMod
+  use MAPL_Profiler
   use pFIO
   use MAPL_AbstractRegridderMod
   use MAPL_ExceptionHandling
@@ -45,6 +46,8 @@ module MAPL_VerticalDataMod
      logical :: ascending
      integer, allocatable :: ks(:,:,:)
      real,    allocatable :: weight(:,:,:)
+     type(AdvancedMeter) :: timer1
+     type(AdvancedMeter) :: timer2
      contains
         procedure :: append_vertical_metadata
         procedure :: get_interpolating_variable
@@ -151,6 +154,8 @@ module MAPL_VerticalDataMod
               vdata%regrid_type = VERTICAL_METHOD_SELECT
            end if
         end if
+        vdata%timer1 = AdvancedMeter(MpiTimerGauge())
+        vdata%timer2 = AdvancedMeter(MpiTimerGauge())
      end function newVerticalData
 
      function skip_var(this,field,rc) result(skip)
@@ -250,8 +255,9 @@ module MAPL_VerticalDataMod
           _VERIFY(status)
        end if
        deallocate(orig_surface_level)
-
+       call this%timer1%start()
        call init_indices(_RC)
+       call this%timer1%stop()
 
        _RETURN(_SUCCESS)
 
@@ -306,6 +312,7 @@ module MAPL_VerticalDataMod
         integer :: i,j,k,lev,levo, D1,D2
 
         if (size(ptrin,3) == size(this%pl3d,3)) then
+          call this%timer1%start()
           D1   = size(this%pl3d,1)
           D2   = size(this%pl3d,2)
           levo = size(ptrout,3)
@@ -328,13 +335,19 @@ module MAPL_VerticalDataMod
               enddo
             enddo
           enddo
-          _RETURN(_SUCCESS)
+          !_RETURN(_SUCCESS)
+          call this%timer1%stop()
         endif
 
+        call this%timer2%start()
         do k=1,size(ptrout,3)
           call vertinterp(ptrout(:,:,k),ptrin,this%interp_levels(k),this%ple3d,this%pl3d,rc=status)
           _VERIFY(status)
         end do
+        call this%timer2%stop()
+
+        print*, "new_way_total: ", this%timer1%get_total()
+        print*, "old_way_total: ", this%timer2%get_total()
        _RETURN(_SUCCESS)
 
      end subroutine regrid_eta_to_pressure
