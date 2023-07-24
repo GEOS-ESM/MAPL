@@ -1,22 +1,10 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
 module HistoryTrajectoryMod
   use ESMF
-  use MAPL_ErrorHandlingMod
-  use MAPL_KeywordEnforcerMod
   use MAPL_FileMetadataUtilsMod
-  use LocStreamFactoryMod
-  use pFIO
   use MAPL_GriddedIOItemVectorMod
-  use MAPL_GriddedIOItemMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
-  use MAPL_BaseMod
-  use MAPL_CommsMod
-  use MAPL_SortMod
-  use MAPL_NetCDF
-  use MAPL_plain_netCDF_Time
+  use LocStreamFactoryMod
   use MAPL_LocstreamRegridderMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
