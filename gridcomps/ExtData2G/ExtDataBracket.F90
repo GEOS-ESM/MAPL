@@ -178,8 +178,11 @@ contains
 
       type(ESMF_TimeInterval)    :: tinv1, tinv2
       real                       :: alpha
+      real, pointer              :: var1d(:)     => null()
       real, pointer              :: var2d(:,:)   => null()
       real, pointer              :: var3d(:,:,:) => null()
+      real, pointer              :: var1d_left(:)   => null()
+      real, pointer              :: var1d_right(:)   => null()
       real, pointer              :: var2d_left(:,:)   => null()
       real, pointer              :: var2d_right(:,:)   => null()
       real, pointer              :: var3d_left(:,:,:) => null()
@@ -204,7 +207,40 @@ contains
          tinv2 = this%right_node%time - this%left_node%time
          alpha = tinv1/tinv2
       end if
-      if (field_rank==2) then
+      if (field_rank==1) then
+
+         call esmf_fieldget(field,localde=0,farrayptr=var1d,_RC)
+         if (right_node_set) then
+            call esmf_fieldget(this%right_node%field,localde=0,farrayptr=var1d_right,_RC)
+         end if
+         if (left_node_set) then
+            call esmf_fieldget(this%left_node%field,localde=0,farrayptr=var1d_left,_RC)
+         end if
+         if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation)) then
+            var1d = var1d_left
+         else if (right_node_set .and. (time == this%right_node%time)) then
+            var1d = var1d_right
+         else if ( (left_node_set .and. right_node_set) .and. (.not.this%exact) ) then
+            where( (var1d_left /= mapl_undef) .and. (var1d_right /= mapl_undef))
+               var1d = var1d_left + alpha*(var1d_right-var1d_left)
+            elsewhere
+               var1d = mapl_undef
+            endwhere
+         else
+            var1d = mapl_undef
+         end if
+
+         if (this%scale_factor == 0.0 .and. this%offset /= 0.0) then
+            where(var1d /= MAPL_UNDEF) var1d=var1d+this%offset
+         end if
+         if (this%scale_factor /= 0.0 .and. this%offset == 0.0) then
+            where(var1d /= MAPL_UNDEF) var1d=var1d*this%scale_factor
+         end if
+         if (this%scale_factor /= 0.0 .and. this%offset /= 0.0) then
+            where(var1d /= MAPL_UNDEF) var1d=var1d*this%scale_factor+this%offset
+         end if
+
+      else if (field_rank==2) then
 
          call esmf_fieldget(field,localde=0,farrayptr=var2d,_RC)
          if (right_node_set) then
