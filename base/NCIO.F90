@@ -40,7 +40,7 @@ module NCIOMod
   public MAPL_VarRead
   public MAPL_VarWrite
   public get_fname_by_face
-  public MAPL_TileMaskGet
+  !public MAPL_TileMaskGet
   public MAPL_NCIOGetFileType
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
