@@ -622,8 +622,9 @@ module MAPL_VerticalDataMod
       end where
     end if
 
-    deallocate(plx,_STAT)
-
+    if (flip) then
+      deallocate(plx,_STAT)
+    endif
     _RETURN(ESMF_SUCCESS)
   end subroutine VertInterp
 
