@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed index bound and extended to the surface layer 
+- Fixed lower bound of plx ( non-flip) and fixed extension to the surface value for verticla interpolation 
 
 ### Removed
 
