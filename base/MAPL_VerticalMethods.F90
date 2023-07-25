@@ -585,14 +585,13 @@ module MAPL_VerticalDataMod
 
     flip = pl(1,1,2) < pl(1,1,1)
 
-    allocate(plx(size(pl,1),size(pl,2),size(pl,3)),stat=status)
     if(flip) then
-       _VERIFY(STATUS)
+       allocate(plx(size(pl,1),size(pl,2),size(pl,3)),_STAT)
        plx = -pl
        ppx = -pp
        msn = -1
     else
-       plx = pl
+       plx => pl
        ppx = pp
        msn = 1
     end if

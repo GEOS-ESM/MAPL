@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed lower bound of plx ( non-flip) and fixed extension to the surface value for vertical interpolation 
+- Fixed extension to the surface in vertical interpolation 
 
 ### Removed
 
