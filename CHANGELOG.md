@@ -13,8 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added assert that may cause crash
-- Extended to the surface layer 
+- Fixed index bound and extended to the surface layer 
 
 ### Removed
 

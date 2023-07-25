@@ -585,49 +585,46 @@ module MAPL_VerticalDataMod
 
     flip = pl(1,1,2) < pl(1,1,1)
 
+    allocate(plx(size(pl,1),size(pl,2),size(pl,3)),stat=status)
     if(flip) then
-       allocate(plx(size(pl,1),size(pl,2),size(pl,3)),stat=status)
        _VERIFY(STATUS)
        plx = -pl
        ppx = -pp
        msn = -1
     else
-       plx => pl
+       plx = pl
        ppx = pp
        msn = 1
-       _ASSERT(lbound(plx,3) == 1, "the lower bound of pl_ should be 1")
     end if
 
 
     v2   = MAPL_UNDEF
 
-       pb   = plx(:,:,km)
-       do k=km-1,1,-1
-          pt = plx(:,:,k)
-          if(all(pb<ppx)) exit
-          where(ppx>pt .and. ppx<=pb)
-             al = (pb-ppx)/(pb-pt)
-             where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1)
-             where (v3(:,:,k+1) .eq. MAPL_UNDEF ) v2 = v3(:,:,k)
-             where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  )
-                    v2 = v3(:,:,k)*al + v3(:,:,k+1)*(1.0-al)
-             end where
+    pb   = plx(:,:,km)
+    do k=km-1,1,-1
+       pt = plx(:,:,k)
+       if(all(pb<ppx)) exit
+       where(ppx>pt .and. ppx<=pb)
+          al = (pb-ppx)/(pb-pt)
+          where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1)
+          where (v3(:,:,k+1) .eq. MAPL_UNDEF ) v2 = v3(:,:,k)
+          where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  )
+                 v2 = v3(:,:,k)*al + v3(:,:,k+1)*(1.0-al)
           end where
-          pb = pt
-       end do
+       end where
+       pb = pt
+    end do
 
 ! Extend Lowest Level Value to the Surface
 ! ----------------------------------------
-    if( associated(ps) ) then
-        where( ppx>plx(:,:,km) )
-                v2 = v3(:,:,km)
-        end where
+    if ( associated(ps) ) then
+      where( ppx>plx(:,:,km) )
+          v2 = v3(:,:,km)
+      end where
     end if
 
-    if(flip) then
-       deallocate(plx,stat=status)
-       _VERIFY(STATUS)
-    end if
+    deallocate(plx,stat=status)
+    _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine VertInterp
