@@ -595,6 +595,7 @@ module MAPL_VerticalDataMod
        plx => pl
        ppx = pp
        msn = 1
+       _ASSERT(lbound(plx,3) == 1, "the lower bound of pl_ should be 1")
     end if
 
 
@@ -618,7 +619,7 @@ module MAPL_VerticalDataMod
 ! Extend Lowest Level Value to the Surface
 ! ----------------------------------------
     if( associated(ps) ) then
-        where( (ppx>plx(:,:,km).and.ppx<=ps*msn) )
+        where( ppx>plx(:,:,km) )
                 v2 = v3(:,:,km)
         end where
     end if
