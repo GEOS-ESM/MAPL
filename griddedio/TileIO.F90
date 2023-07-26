@@ -13,6 +13,7 @@ module MAPL_TileIOMod
    private
 
    type, public :: MAPL_TileIO
+     private
       type(ESMF_FieldBundle) :: bundle
       integer :: read_collection_id
       type(tile_buffer), allocatable :: tile_buffer(:)
