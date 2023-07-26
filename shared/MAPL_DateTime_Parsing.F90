@@ -41,13 +41,21 @@
 module MAPL_DateTime_Parsing
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
+   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
+
    implicit none
 
-!   private 
+! PUBLIC =======================================================================
+
    public :: date_fields
    public :: time_fields
+   public :: datetime_duration
    public :: convert_to_ISO8601DateTime
-   public :: MAX_LEN
+   public :: is_digit
+   public :: is_positive_digit
+   public :: MAX_CHARACTER_LENGTH
+
+!   private 
 
    interface operator(.divides.)
       module procedure :: divides
@@ -61,16 +69,9 @@ module MAPL_DateTime_Parsing
       module procedure :: is_in_open_interval
    end interface 
 
-   ! Error handling
-   integer, parameter :: INVALID = -1
-
-   ! parameters for processing date, time, and datetime strings
-   character(len=10), parameter :: DIGIT_CHARACTERS = '0123456789'
-
-   ! Timezone offset for Timezone Z !wdb keep for now
-   integer, parameter :: Z = 0
-
-   integer, parameter :: MAX_LEN = 1024
+   interface operator(.isvalidindexof.)
+      module procedure :: valid_index
+   end interface
 
    ! Derived type for communicating date fields internally
    type :: date_fields
@@ -114,6 +115,83 @@ module MAPL_DateTime_Parsing
       module procedure :: construct_time_fields_null
    end interface time_fields
 
+   type :: datetime_fields
+       integer  :: yy   =   0
+       integer  :: mm   =   0
+       integer  :: dd   =   0
+       integer  :: h    =   0
+       integer  :: m    =   0
+       integer  :: s    =   0
+       real     :: sr8  = 0.0
+   contains
+      procedure, public, pass(this) :: as_array => datetime_fields_as_array
+   end type datetime_fields
+
+   interface datetime_fields
+       module procedure :: construct_datetime_fields
+       module procedure :: construct_datetime_fields_array
+   interface datetime_fields
+
+   ! DATETIME_DURATION: Derived type for communicating datetime durations internally
+   
+   type :: datetime_duration
+      public
+      integer :: year, month, day, hour, minute, second
+      real(kind=R64) :: hour_real, minute_real, second_real
+      logical :: hour_is_set, minute_is_set, second_is_set
+   contains
+      public
+      procedure, pass(this) ::  set_year => set_year_datetime_duration
+      procedure, pass(this) ::  set_month => set_month_datetime_duration
+      procedure, pass(this) ::  set_day => set_day_datetime_duration
+      procedure, pass(this) ::  set_hour => set_hour_datetime_duration
+      procedure, pass(this) ::  set_minute => set_minute_datetime_duration
+      procedure, pass(this) ::  set_second => set_second_datetime_duration
+      procedure, pass(this) ::  set_hour_real => set_hour_real_datetime_duration
+      procedure, pass(this) ::  set_minute_real => set_minute_real_datetime_duration
+      procedure, pass(this) ::  set_second_real => set_second_real_datetime_duration
+      procedure, pass(this) ::  set_real_value => set_real_value_datetime_duration
+      procedure, pass(this) ::  set_integer_value => set_integer_value_datetime_duration
+      generic :: set_value => set_real_value, set_integer_value
+   end type datetime_duration
+
+   interface datetime_duration
+      module procedure :: construct_datetime_duration
+   end interface datetime_duration
+
+   ! END DATETIME_DURATION
+
+
+   ! TIME_UNIT: enumerators for standard handling of time units (strings, etc)
+
+   enum, bind(c)
+      enumerator :: TIME_UNIT = 0
+      enumerator :: YEAR
+      enumerator :: MONTH
+      enumerator :: DAY
+      enumerator :: HOUR
+      enumerator :: MINUTE
+      enumerator :: SECOND
+      enumerator :: LAST_TIME_UNIT
+      enumerator :: TIME_UNIT_UNKNOWN = -1
+   end enum
+
+   integer(kind(TIME_UNIT)), parameter :: NUM_TIME_UNITS = LAST_TIME_UNIT - 1
+
+   ! END TIME_UNIT
+
+
+   ! Error handling
+   integer, parameter :: INVALID = -1
+
+   ! parameters for processing date, time, and datetime strings
+   character(len=10), parameter :: DIGIT_CHARACTERS = '0123456789'
+
+   ! Timezone offset for Timezone Z !wdb keep for now
+   integer, parameter :: Z = 0
+
+   integer, parameter :: MAX_CHARACTER_LENGTH = 64
+
 contains
 
 ! NUMBER HANDLING PROCEDURES
@@ -122,7 +200,8 @@ contains
    pure logical function divides(factor, dividend)
       integer, intent(in) :: factor
       integer, intent(in) :: dividend
-      ! mod returns the remainder of dividend/factor, and if it is 0, factor divides dividend evenly
+      ! mod returns the remainder of dividend/factor, 
+      ! and if it is 0, factor divides dividend evenly
       if(factor /= 0) then ! To avoid divide by 0
           divides = mod(dividend, factor)==0
       else
@@ -147,6 +226,12 @@ contains
       character, intent(in) :: c
       is_digit = scan(c, DIGIT_CHARACTERS) > 0
    end function is_digit
+
+   ! Check if c is a positive digit character
+   elemental pure logical function is_positive_digit(c)
+      character, intent(in) :: c
+      is_positive_digit = is_digit(c) .and. (c /= '0')
+   end function is_positive_digit
 
    ! Check if n is an integer >= 0
    pure logical function is_whole_number(n)
@@ -212,6 +297,7 @@ contains
    end function read_whole_number_indexed
 
 ! END NUMBER HANDLING PROCEDURES
+
 
 ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
@@ -455,7 +541,7 @@ contains
 
       character(len=:), allocatable :: timestring_
       integer, parameter :: LENGTH = 6
-      character, parameter :: DECIMAL_POINT = '.'
+      character, parameter :: decimal_seconds_POINT = '.'
       integer, parameter :: FIELDWIDTH = 2
       integer, parameter :: MS_WIDTH = 3
       integer :: pos
@@ -510,9 +596,9 @@ contains
       ! Select portion starting at fields%hour and ending before timezone
       undelimited = adjustl(timestring_(1:pos-1))
 
-      ! Remove delimiter and decimal point
+      ! Remove delimiter and decimal_seconds point
       undelimited = undelimit(undelimited, delimiter)
-      undelimited=trim(undelimit(undelimited, DECIMAL_POINT))
+      undelimited=trim(undelimit(undelimited, decimal_seconds_POINT))
       undelimited_length = len(undelimited)
 
       ! Check length of undelimited string with or without milliseconds
@@ -538,6 +624,8 @@ contains
 
 ! CONSTRUCTORS
 
+! DATE_FIELDS:
+
    pure function construct_date_fields_default(year, month, day) result(fields)
       integer, intent(in) :: year
       integer, intent(in) :: month
@@ -560,6 +648,9 @@ contains
       type(date_fields) :: fields
       fields%is_valid_ = .FALSE.
    end function construct_date_fields_null
+
+
+! TIME_FIELDS:
 
    pure function construct_time_fields_default(hour, minute, second, millisecond, &
       timezone_offset) result(fields)
@@ -589,10 +680,89 @@ contains
       fields%is_valid_ = .FALSE.
    end function construct_time_fields_null
 
+! DATETIME_FIELDS:
+
+   pure function construct_datetime_fields(yy, mm, dd, h, m, s, s8) result(fields)
+      integer, optional, intent(in) :: yy, mm, dd, h, m, s
+      real(kind=real64), optional, intent(in) :: s8
+      type(datetime_fields) :: fields
+
+      if(present(yy)) fields % yy = yy
+      if(present(mm)) fields % mm = mm
+      if(present(dd)) fields % dd = dd
+      if(present(h)) fields % h = h
+      if(present(m)) fields % m = m
+
+      if(present(s8)) then
+         fields % s8 = s8
+         fields % s = int(s8)
+      else if(present(s))
+         fields % s = s
+         fields % s8 = real(s, real64)
+      end if
+
+   end function construct_datetime_fields
+
+   pure function construct_datetime_fields_array(dur, s8) result(fields)
+      integer, intent(in) :: dur
+      real(real64), optional, intent(in) :: s8
+      type(datetime_fields) :: fields
+      integer :: yy, mm, dd, h, m, s
+
+      yy = dur(1)
+      mm = dur(2)
+      dd = dur(3)
+      h =  dur(4)
+      m =  dur(5)
+      
+      if(present(s8)) then
+         fields = datetime_fields(yy = yy, mm = mm, dd = dd, h = h, m = m, s8 = s8)
+         return
+      end if
+
+      fields = datetime_fields(yy = yy, mm = mm, dd = dd, h = h, m = m, s = s)
+
+   end function construct_datetime_fields_array
+
+   pure function datetime_fields_as_array(this) result(array)
+      class(datetime_fields), intent(in) :: this
+      integer :: array(6)
+
+      array = [this % yy, this % mm, this % dd, this % h, this % m, this % s]
+
+   end function datetime_fields_as_array
+      
+! DATETIME_DURATION:
+
+   function construct_datetime_duration() result(that)
+      type(datetime_duration) :: that
+      
+      that % year = 0
+      that % month = 0
+      that % day = 0
+      that % hour = 0
+      that % minute = 0
+      that % second = 0
+
+      that % hour_real = 0.0
+      that % minute_real = 0.0
+      that % second_real = 0.0
+
+      that % year_is_set = .FALSE.
+      that % month_is_set = .FALSE.
+      that % day_is_set = .FALSE.
+      that % hour_is_set = .FALSE.
+      that % minute_is_set = .FALSE.
+      that % second_is_set = .FALSE.
+
+   end function construct_datetime_duration
+
 ! END CONSTRUCTORS
 
 
 ! TYPE-BOUND METHODS
+
+! DATE_FIELDS:
 
    pure integer function get_year_field(this)
       class(date_fields), intent(in) :: this
@@ -613,6 +783,9 @@ contains
       class(date_fields), intent(in) :: this
       are_valid_date_fields = this%is_valid_
    end function are_valid_date_fields
+
+
+! TIME_FIELDS:
 
    pure integer function get_hour_field(this)
       class(time_fields), intent(in) :: this
@@ -643,6 +816,190 @@ contains
       class(time_fields), intent(in) :: this
       are_valid_time_fields = this%is_valid_
    end function are_valid_time_fields
+      
+
+   ! DATETIME_DURATION:
+
+   subroutine set_year_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      this % year = val
+      this % year_is_set = .TRUE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_year_datetime_duration
+      
+   subroutine set_month_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      this % month = val
+      this % month_is_set = .TRUE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_month_datetime_duration
+   
+   subroutine set_day_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      this % day = val
+      this % day_is_set = .TRUE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_day_datetime_duration
+
+   subroutine set_hour_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(.not. this % hour_is_set, 'Hour has already been set to a real value.') 
+
+      this % hour = val
+      this % hour_is_set = .FALSE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_hour_datetime_duration
+
+   subroutine set_hour_real_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      real(kind=R64), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(.not. this % hour_is_set, 'Hour has already been set to an integer value.') 
+
+      this % hour_real = val
+      this % hour_is_set = .FALSE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_hour_real_datetime_duration
+
+   subroutine set_minute_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(.not. this % minute_is_set, 'Minute has already been set to a real value'.) 
+
+      this % minute = val
+      this % minute_is_set = .FALSE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_minute_datetime_duration
+
+   subroutine set_minute_real_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      real(kind=R64), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(.not. this % minute_is_set, 'Minute has already been set to an integer value.') 
+
+      this % minute_real = val
+      this % minute_is_set = .FALSE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_minute_real_datetime_duration
+
+   subroutine set_second_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(.not. this % second_is_set, 'Minute has already been set to a real value'.) 
+
+      this % second = val
+      this % second_is_set = .FALSE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_second_datetime_duration
+
+   subroutine set_second_real_datetime_duration(this, val, rc)
+      class(datetime_duration), intent(in) :: this
+      real(kind=R64), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(.not. this % second_is_set, 'Second has already been set to an integer value.') 
+
+      this % second_real = val
+      this % second_is_set = .FALSE.
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_second_real_datetime_duration
+
+   subroutine set_value_datetime_duration_integer(this, tunit, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer(kind(TIME_UNIT)), intent(in) :: tunit
+      integer, intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      select case(tunit)
+      case (YEAR)
+         call this % set_year(val)
+      case (MONTH)
+         call this % set_month(val)
+      case (DAY)
+         call this % set_day(val)
+      case (HOUR)
+         call this % set_hour(val)
+      case (MINUTE)
+         call this % set_minute(val)
+      case (SECOND)
+         call this % set_second(val)
+      case default
+         _FAIL('Invalid Time Unit')
+      end select
+      
+   end subroutine set_value_datetime_duration_integer
+
+   subroutine set_value_datetime_duration_real(this, tunit, val, rc)
+      class(datetime_duration), intent(in) :: this
+      integer(kind(TIME_UNIT)), intent(in) :: tunit
+      real(kind=R64), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(tunit <= NUM_TIME_UNITS .and. tunit > 0, )
+      select case(tunit)
+      case (HOUR)
+         call this % set_hour_real(val)
+      case (MINUTE)
+         call this % set_minute_real(val)
+      case (SECOND)
+         call this % set_second_real(val)
+      case default
+         _FAIL('Invalid Time Unit')
+      end select
+      
+   end subroutine set_value_datetime_duration_integer
+
+   ! END CF Time: Type-bound procedues
+
+
+! END TYPE-BOUND METHODS
 
    subroutine convert_to_ISO8601DateTime(datetime_string, iso_string, rc)
       character(len=*), intent(in) :: datetime_string
@@ -675,7 +1032,8 @@ contains
                      undelimited(N(1,HH):N(2,HH)) // ISO_TD // &
                      undelimited(N(1,M):N(2,M)) // ISO_TD // &
                      undelimited(N(1,S):N(2,S))
-      if(undelimited_length > MIN_LEN) intermediate = intermediate // ISO_POINT // undelimited(MIN_LEN+1:undelimited_length)
+      if(undelimited_length > MIN_LEN) intermediate = &
+          intermediate // ISO_POINT // undelimited(MIN_LEN+1:undelimited_length)
       
       iso_string = intermediate
 
@@ -683,6 +1041,9 @@ contains
 
    end subroutine convert_to_ISO8601DateTime 
 
+
+   ! UTILITY PROCEDURES
+   
    function is_valid_datestring(datestring, string_format) result(tval)
       character(len=*), intent(in) :: datestring
       character(len=*), intent(in) :: string_format
@@ -704,4 +1065,164 @@ contains
       tval = .true.
 
    end function is_valid_datestring
+
+   logical function is_in_char_set(element, char_set)
+      character, intent(in) :: element
+      character(len=*), intent(in) :: char_set
+      is_in_set = (verify(element, char_set) == 0)
+   end function is_in_set
+
+   function find_delta(string, chars, istart, istop_in) result(next)
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: chars
+      integer, intent(in) :: istart
+      integer, optional, intent(in) :: istop_in
+      integer :: next
+      logical :: in_set
+      integer :: istop
+
+      if(len(chars) == 0) return
+      if(istart < 1) return
+
+      istop = len(string)
+      if(istop == 0) return
+
+      if(present(istop_in)) then
+         if(istop_in > istop) return
+         istop = istop_in
+      end if
+
+      if(istop < istart) return
+
+      next = istart
+      in_set = is_in_char_set(string(next:next), chars)
+
+      do 
+         next = next + 1
+         if(next > len(string)) exit
+         if(in_set .neqv. is_in_char_set(string(next:next), chars)) exit
+      end do
+
+   end function find_delta
+
+   function find_delta_datestring(string, istart, istop) result(next)
+      character(len=*), intent(in) :: string
+      integer, intent(in) :: istart, istop
+      integer :: next
+
+      next = find_delta(string, DIGITS, istart, istop)
+
+   end function find_delta_datestring
+
+   subroutine split_digit_string_delimited(string, parts, rc)
+      character(len=*), intent(in) :: string
+      class(StringVector), intent(inout) :: parts
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: next, start, strlen, last
+
+      strlen = len(string)
+      _FAIL(strlen == 0, 'Empty string')
+
+      start = 1
+      do
+         next = find_delta_datestring(string, start) 
+         if(.not. (next > start)) exit
+         last = next - 1
+         _ASSERT(last <= strlen, 'Exceeded string length')
+         parts % push_back(string(start:(next-1)))
+         start = next 
+         if(start > len(string)) exit
+      end do
+      
+      _RETURN(_SUCCESS)
+
+   end subroutine split_digit_string_delimited
+
+   logical function valid_index(n, string)
+      integer, intent(in) :: n
+      character(len=*), intent(in) :: string
+
+      valid_index = .not. (n < 1 .or. n > len(string)) 
+
+   end function valid_index
+
+   subroutine split_digit_string_indexed(string, length, parts, rc)
+      character(len=*), intent(in) :: string
+      integer, intent(in) :: length(:)
+      class(StringVector), intent(inout) :: parts
+      integer, optional, intent(out) :: rc
+      integer, allocatable :: indices(:, :)
+      integer :: status
+      integer :: i 
+      integer :: n(2)
+
+      indices = convert_lengths_to_indices(length)
+
+      do i = 1, length(indices, 2)
+         n = indices(:,i)
+         parts % push_back(string(n(1):n(2)))
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine split_digit_string_indexed
+
+   function convert_lengths_to_indices(length) result(indices)
+      integer, intent(in) :: length(:)
+      integer :: indices(size(length), 2)
+      integer :: i
+
+      indices(:, 1) = [1, length(1)]
+      do i = 2, size(indices)
+         indices(:, i) = [1, length(i)] + indices(i-1) 
+      end do
+      
+   end function convert_lengths_to_indices
+
+
+! TIME_UNIT ====================================================================
+
+   function time_units() result(units)
+      character(MAX_CHARACTER_LENGTH), allocatable, save :: units(:)
+      logical, save :: uninitialized = .TRUE.
+
+      if(uninitialized) then
+         allocate(units(NUM_TIME_UNITS))
+         units(YEAR) = "year"
+         units(MONTH) = "month"
+         units(DAY) = "day"
+         units(HOUR) = "hour"
+         units(MINUTE) = "minute"
+         units(SECOND) = "second"
+         uninitialized = .FALSE.
+      end if
+
+   end function time_units
+
+   function time_unit(unit_name, check_plural) result(n)
+      character(len=*), intent(in) :: unit_name
+      logical, intent(in) :: check_plural
+      character(len=:), allocatable  :: unit_name_
+      logical :: check_plural_ = .TRUE.
+      character(len=:), allocatable :: tunits(:)
+      character(len=:), allocatable :: tunit, unit_name_plural
+      character, parameter :: PLURAL = 's'
+      integer(kind(TIME_UNIT)) :: n, i
+
+      if(present(check_plural)) check_plural_ = check_plural
+      unit_name_ = trim(unit_name)
+      tunits = time_units()
+
+      n = TIME_UNIT_UNKNOWN
+      do i = 1, NUM_TIME_UNITS
+         tunit = trim(tunits(i))
+         if((tunit == unit_name_) .or. (check_plural_ .and. ((tunit // PLURAL) == unit_name_))) then
+            n = i
+            exit
+         end if
+      end do
+      
+   end function time_unit
+
 end module MAPL_DateTime_Parsing
