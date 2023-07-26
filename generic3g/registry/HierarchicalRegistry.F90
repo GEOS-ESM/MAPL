@@ -6,6 +6,7 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
+   use mapl3g_VirtualConnectionPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemVector
    use mapl3g_RegistryPtr
@@ -20,6 +21,7 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_StateExtension
    use mapl3g_ExtensionVector
    use mapl3g_ExtensionAction
+   use mapl3g_NullAction
 
    implicit none
    private
@@ -92,7 +94,8 @@ module mapl3g_HierarchicalRegistry
 
       procedure :: allocate
 
-      procedure :: get_range
+!!$      procedure :: get_range
+      procedure :: filter
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -261,7 +264,6 @@ contains
       integer :: status
       type(ActualConnectionPt) :: actual_pt
 
-      
       actual_pt = ActualConnectionPt(virtual_pt)
       call this%add_item_spec(virtual_pt, spec, actual_pt, _RC)
 
@@ -422,10 +424,11 @@ contains
    end subroutine add_connection
 
 
-   subroutine extend_(this, v_pt, spec, rc)
+   subroutine extend_(this, v_pt, spec, extension, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: v_pt
       class(AbstractStateItemSpec), intent(in) :: spec
+      class(AbstractStateItemSpec), intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -433,40 +436,31 @@ contains
       type(ActualPtVector), pointer :: actual_pts
       type(ActualConnectionPt), pointer :: actual_pt
 
-      ! 1. Get existing actual pts for v_pt
       actual_pts => this%get_actual_pts(v_pt)
       _ASSERT(associated(actual_pts), 'No actual pts found for v_pt')
-      ! 2. Get last actual_pt so that we can generate "next" name
+
       actual_pt => actual_pts%back()
-      
-      ! 3. Create extension pt that is an extension of last actual_pt in list.
       extension_pt = actual_pt%extend()
-      ! 4. Put spec in registry under actual_pt
-      call this%add_item_spec(v_pt, spec, extension_pt, _RC)
-      call this%add_state_extension(v_pt, extension_pt, spec, _RC)
+
+      call this%add_item_spec(v_pt, extension, extension_pt, _RC)
+
+!!$      action = spec%make_action(extension, _RC)
+      call this%add_state_extension(extension_pt, spec, extension, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine extend_
 
-   subroutine add_state_extension(this, v_pt, a_pt, dst_spec, rc)
+   subroutine add_state_extension(this, extension_pt, src_spec, extension, rc)
       class(HierarchicalRegistry), target, intent(inout) :: this
-      type(VirtualConnectionPt), intent(in) :: v_pt
-      type(ActualConnectionPt), intent(in) :: a_pt
-      class(AbstractStateItemSpec), intent(in) :: dst_spec
+      type(ActualConnectionPt), intent(in) :: extension_pt
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(in) :: extension
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(ExtensionAction), allocatable :: action
-      class(AbstractStateItemSpec), pointer :: src_spec
-      type(ActualPtVector), pointer :: actual_pts
 
-      ! Determine which actual_pt in v_p we should use as the starting
-      ! point.
-      actual_pts => this%get_actual_pts(v_pt)
-      _ASSERT(associated(actual_pts), 'No actual pts found for v_pt')
-      src_spec => this%get_item_spec(actual_pts%front(), _RC)
-
-      action = src_spec%make_action(dst_spec, _RC)
+      action = src_spec%make_action(extension, _RC)
       call this%extensions%push_back(StateExtension(action))
 
       _RETURN(_SUCCESS)
@@ -705,8 +699,8 @@ contains
               item_spec => item_spec_ptr%ptr
               call item_spec%add_to_state(multi_state, actual_pt, _RC)
            end if
-
            call actual_iter%next()
+
         end do
       end associate
 
@@ -823,5 +817,27 @@ contains
       range(1) = this%virtual_pts%begin()
       range(2) = this%virtual_pts%end()
    end function get_range
+
+
+   function filter(this, pattern) result(matches)
+      type(VirtualConnectionPtVector) :: matches
+      class(HierarchicalRegistry), target, intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: pattern
+
+      type(VirtualConnectionPt), pointer :: v_pt
+      type(ActualPtVec_MapIterator) :: iter
+      
+      associate (e => this%virtual_pts%end())
+        iter = this%virtual_pts%begin()
+        do while (iter /= e)
+           v_pt => iter%first()
+
+           if (pattern%matches(v_pt)) call matches%push_back(v_pt)
+           
+           call iter%next()
+        end do
+      end associate
+
+   end function filter
 
 end module mapl3g_HierarchicalRegistry

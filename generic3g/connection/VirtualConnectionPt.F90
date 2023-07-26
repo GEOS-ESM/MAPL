@@ -9,6 +9,7 @@ module mapl3g_VirtualConnectionPt
    public :: VirtualConnectionPt
    public :: operator(<)
    public :: operator(==)
+   public :: operator(/=)
 
    type :: VirtualConnectionPt
       private
@@ -26,6 +27,8 @@ module mapl3g_VirtualConnectionPt
       procedure :: is_import
       procedure :: is_export
       procedure :: is_internal
+
+      procedure :: matches
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -45,6 +48,10 @@ module mapl3g_VirtualConnectionPt
    interface operator(==)
       module procedure equal_to
    end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_to
+   end interface operator(/=)
 
 contains
 
@@ -171,6 +178,14 @@ contains
 
    end function equal_to
 
+   logical function not_equal_to(lhs, rhs)
+      type(VirtualConnectionPt), intent(in) :: lhs
+      type(VirtualConnectionPt), intent(in) :: rhs
+
+      not_equal_to = .not. (lhs == rhs)
+
+   end function not_equal_to
+
    logical function is_import(this)
       class(VirtualConnectionPt), intent(in) :: this
       is_import = (this%get_state_intent() == 'import')
@@ -198,5 +213,20 @@ contains
       write(unit, '("Virtual{intent: <",a,">, name: <",a,">}")', iostat=iostat, iomsg=iomsg) &
            this%get_state_intent(), this%get_full_name()
    end subroutine write_formatted
+
+   logical function matches(this, item)
+      use regex_module
+      class(VirtualConnectionPt), intent(in) :: this
+      type(VirtualConnectionPt), intent(in) :: item
+
+      type(regex_type) :: regex
+
+      matches = (this%get_state_intent() == item%get_state_intent())
+      if (.not. matches) return
+
+      call regcomp(regex,this%get_full_name(),flags='xmi')
+      matches = regexec(regex,item%get_full_name())
+
+   end function matches
 
 end module mapl3g_VirtualConnectionPt

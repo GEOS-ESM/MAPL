@@ -37,8 +37,8 @@ module mapl3g_ServiceSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: requires_extension
       procedure :: make_extension
+      procedure :: extension_cost
       procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -147,9 +147,11 @@ contains
    end subroutine add_to_bundle
 
    
-   subroutine connect_to(this, src_spec, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
       class(ServiceSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
+      type(ActualConnectionPt), intent(in) :: actual_pt ! unused
+
       integer, optional, intent(out) :: rc
 
       integer :: fieldCount
@@ -166,6 +168,7 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
     logical function can_connect_to(this, src_spec)
@@ -195,17 +198,6 @@ contains
    end subroutine destroy
 
 
-   logical function requires_extension(this, src_spec)
-      class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-
-      type(ESMF_GeomType_Flag) :: geom_type
-      integer :: status
-      
-      requires_extension = .false.
-
-   end function requires_extension
-
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(ServiceSpec), intent(in) :: this
@@ -219,12 +211,21 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
-   function make_extension(this, src_spec, rc) result(action_spec)
-      class(AbstractActionSpec), allocatable :: action_spec
+   function make_extension(this, src_spec, rc) result(extension)
+      class(AbstractStateItemSpec), allocatable :: extension
       class(ServiceSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
+      _RETURN(_SUCCESS)
    end function make_extension
+   
+   integer function extension_cost(this, src_spec, rc) result(cost)
+      class(ServiceSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+      cost = 0
+      _RETURN(_SUCCESS)
+   end function extension_cost
    
 
 

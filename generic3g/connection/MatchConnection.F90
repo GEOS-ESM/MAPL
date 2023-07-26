@@ -7,9 +7,11 @@ module mapl3g_MatchConnection
    use mapl3g_HierarchicalRegistry
    use mapl3g_SimpleConnection
    use mapl3g_VirtualConnectionPt
+   use mapl3g_VirtualConnectionPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
+   use mapl3g_AbstractStateItemSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -62,38 +64,48 @@ contains
       type(HierarchicalRegistry), target, intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
-      type(HierarchicalRegistry), pointer :: src_registry, dst_registry
       integer :: status
-      type(VirtualConnectionPt) :: s_v_pt
-      type(VirtualConnectionPt), pointer :: d_v_pt
-      type(ConnectionPt) :: s_pt,d_pt
-      type(ActualPtVec_MapIterator) :: iter
 
       type(ConnectionPt) :: src_pt, dst_pt
+      type(HierarchicalRegistry), pointer :: src_registry, dst_registry
+      type(VirtualConnectionPtVector) :: src_v_pts, dst_v_pts
+      type(VirtualConnectionPt), pointer :: dst_pattern, src_v_pt
+      type(VirtualConnectionPt) :: src_pattern, dst_v_pt
+      type(VirtualConnectionPt), pointer :: s_v_pt, d_v_pt
+      type(StateItemSpecPtr), allocatable :: dst_specs(:)
+      integer :: i, j, k
+      class(AbstractStateItemSpec), allocatable :: new_spec
+      type(ConnectionPt) :: s_pt, d_pt
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
 
+      src_registry => registry%get_subregistry(src_pt)
       dst_registry => registry%get_subregistry(dst_pt)
-      ! TODO: Move this into a separate procedure, or introduce
-      ! a 2nd type of connection
-      if (dst_pt%get_esmf_name() == '*') then
-         associate (range => dst_registry%get_range())
-           iter = range(1)
-           do while (iter /= range(2))
-              d_v_pt => iter%first()
-              if (d_v_pt%get_state_intent() /= 'import') cycle
-              s_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
-                   d_v_pt%get_esmf_name(), &
-                   comp_name=d_v_pt%get_comp_name())
-              s_pt = ConnectionPt(src_pt%component_name, s_v_pt)
-              d_pt = ConnectionPt(dst_pt%component_name, d_v_pt)
-              call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
-              call iter%next()
-           end do
-         end associate
-         _RETURN(_SUCCESS)
-      end if
+
+      dst_v_pts = dst_registry%filter(dst_pt%v_pt)
+
+      do i = 1, dst_v_pts%size()
+         dst_pattern => dst_v_pts%of(i)
+         dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pattern, _RC)
+
+         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+              dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
+
+         src_v_pts = src_registry%filter(src_pattern)
+         do j = 1, src_v_pts%size()
+            src_v_pt => src_v_pts%of(j)
+
+            dst_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+                 src_v_pt%get_esmf_name(), comp_name=src_v_pt%get_comp_name())
+
+            s_pt = ConnectionPt(src_pt%component_name, src_v_pt)
+            d_pt = ConnectionPt(dst_pt%component_name, dst_pattern)
+
+            call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+
+         end do
+      end do
       
       _RETURN(_SUCCESS)
    end subroutine connect

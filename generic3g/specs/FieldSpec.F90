@@ -2,7 +2,6 @@
 
 module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
-   use mapl3g_AbstractActionSpec
    use mapl3g_UngriddedDimsSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
@@ -13,10 +12,12 @@ module mapl3g_FieldSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
-   use mapl3g_NullAction
    use mapl3g_CopyAction
    use mapl3g_VerticalGeom
    use mapl3g_VerticalDimSpec
+   use mapl3g_AbstractActionSpec
+   use mapl3g_NullAction
+   use mapl3g_SequenceAction
    use esmf
    use nuopc
 
@@ -29,7 +30,7 @@ module mapl3g_FieldSpec
    type, extends(AbstractStateItemSpec) :: FieldSpec
       private
 
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: geom
       type(VerticalGeom) :: vertical_geom
       type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
@@ -55,19 +56,39 @@ module mapl3g_FieldSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: requires_extension
-      procedure :: make_extension
-      procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
 
       procedure :: check_complete
+
+      procedure :: extension_cost
+      procedure :: make_extension
+      procedure :: make_extension_safely
+      procedure :: make_action
    end type FieldSpec
 
    interface FieldSpec
       module procedure new_FieldSpec_geom
 !!$      module procedure new_FieldSpec_defaults
    end interface FieldSpec
+
+   interface match
+!!$      procedure :: match_geom
+      procedure :: match_typekind
+      procedure :: match_string
+   end interface match
+
+   interface get_cost
+!!$      procedure :: get_cost_geom
+      procedure :: get_cost_typekind
+      procedure :: get_cost_string
+   end interface get_cost
+
+   interface update_item
+!!$      procedure update_item_geom
+      procedure update_item_typekind
+      procedure update_item_string
+   end interface update_item
 
 contains
 
@@ -277,9 +298,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_dependencies
 
-   subroutine connect_to(this, src_spec, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
       class(FieldSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
+      type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -289,12 +311,15 @@ contains
       select type (src_spec)
       class is (FieldSpec)
          ! ok
+         call this%destroy(_RC)
          this%payload = src_spec%payload
+         call this%set_created()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
 
@@ -317,32 +342,6 @@ contains
 
    end function can_connect_to
 
-
-   logical function requires_extension(this, src_spec)
-      class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-
-      type(ESMF_GeomType_Flag) :: geom_type
-      integer :: status
-      
-      requires_extension = .true.
-      call ESMF_GeomGet(this%geom, geomtype=geom_type, rc=status)
-      if (status /= 0) return
-
-      select type(src_spec)
-      class is (FieldSpec)
-         requires_extension = any([ &
-              this%ungridded_dims /= src_spec%ungridded_dims, &
-              this%typekind /= src_spec%typekind,   &
-!!$              this%units /= src_spec%units, &
-!!$              this%freq_spec /= src_spec%freq_spec,   &
-!!$              this%halo_width /= src_spec%halo_width, &
-!!$              this%vm /= sourc%vm,               &
-              geom_type /= geom_type &
-              ])
-!!$         requires_extension = .false.
-      end select
-   end function requires_extension
 
    logical function same_typekind(a, b)
       class(FieldSpec), intent(in) :: a
@@ -395,13 +394,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function make_extension(this, src_spec, rc) result(action_spec)
-      class(AbstractActionSpec), allocatable :: action_spec
-      class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
-      integer, optional, intent(out) :: rc 
-   end function make_extension
-
    logical function check_complete(this, rc)
       class(FieldSpec), intent(in) :: this
       integer, intent(out), optional :: rc
@@ -414,6 +406,64 @@ contains
 
    end function check_complete
 
+   integer function extension_cost(this, src_spec, rc) result(cost)
+      class(FieldSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      cost = 0
+      select type (src_spec)
+      type is (FieldSpec)
+!!$         cost = cost + get_cost(this%geom, src_spec%geom)
+         cost = cost + get_cost(this%typekind, src_spec%typekind)
+!!$         cost = cost + get_cost(this%units, src_spec%units)
+      class default
+         _FAIL('Cannot extend to this StateItemSpec subclass.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function extension_cost
+
+   function make_extension(this, src_spec, rc) result(extension)
+      class(AbstractStateItemSpec), allocatable :: extension
+      class(FieldSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      find_mismatch: select type (src_spec)
+      type is (FieldSpec)
+         extension = this%make_extension_safely(src_spec)
+         call extension%create([StateItemSpecPtr::], _RC)
+      class default
+         extension = this
+         _FAIL('Unsupported subclass.')
+      end select find_mismatch
+
+      _RETURN(_SUCCESS)
+   end function make_extension
+
+   function make_extension_safely(this, src_spec) result(extension)
+      type(FieldSpec) :: extension
+      class(FieldSpec), intent(in) :: this
+      type(FieldSpec), intent(in) :: src_spec
+
+      logical :: found
+
+      extension = this
+!!$      if (update_item(extension%geom, src_spec%geom)) return
+      if (update_item(extension%typekind, src_spec%typekind)) then
+         return
+      end if
+!!$      if (update_item(extension%units, src_spec%units)) return
+
+    end function make_extension_safely
+
+   ! Return an atomic action that tranforms payload of "this"
+   ! to payload of "goal".
    function make_action(this, dst_spec, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldSpec), intent(in) :: this
@@ -422,9 +472,27 @@ contains
 
       integer :: status
 
+      action = NullAction() ! default
+
       select type (dst_spec)
       type is (FieldSpec)
-         action = CopyAction(this%payload, dst_spec%payload)
+
+!!$         if (this%geom /= dst_spec%geom) then
+!!$            action = RegridAction(this%payload, spec%payload)
+!!$            _RETURN(_SUCCESS)
+!!$         end if
+
+         if (this%typekind /= dst_spec%typekind) then
+            deallocate(action)
+            action = CopyAction(this%payload, dst_spec%payload)
+            _RETURN(_SUCCESS)
+         end if
+         
+!!$         if (this%units /= dst_spec%units) then
+!!$            action = ChangeUnitsAction(this%payload, dst_spec%payload)
+!!$            _RETURN(_SUCCESS)
+!!$         end if
+         
       class default
          action = NullAction()
          _FAIL('Dst spec is incompatible with FieldSpec.')
@@ -433,5 +501,79 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
+!!$   logical function match_geom(a, b) result(match)
+!!$      type(ESMF_Geom), allocatable, intent(in) :: a, b
+!!$      match = .true.
+!!$      if (allocated(a) .and. allocated(b)) then
+!!$         call ESMF_GeomGet(a, geomtype=geomtype_a, _RC)
+!!$         call ESMF_GeomGet(b, geomtype=geomtype_b, _RC)
+!!$         match = (a == b)
+!!$      end if
+!!$      _RETURN(_SUCCESS)
+!!$   end function match_geom
 
+   logical function match_typekind(a, b) result(match)
+      type(ESMF_TypeKind_Flag), intent(in) :: a, b
+      match = (a == b)
+   end function match_typekind
+
+   logical function match_string(a, b) result(match)
+      character(:), allocatable, intent(in) :: a, b
+      match = .true.
+      if (allocated(a) .and. allocated(b)) then
+         match = (a == b)
+      end if
+   end function match_string
+
+!!$   integer function get_cost_geom(a, b) result(cost)
+!!$      type(ESMF_GEOM), allocatable, intent(in) :: a, b
+!!$      cost = 0
+!!$      if (.not. match(a, b)) cost = 1
+!!$   end function get_cost_geom
+
+   integer function get_cost_typekind(a, b) result(cost)
+      type(ESMF_TypeKind_Flag), intent(in) :: a, b
+      cost = 0
+      if (.not. match(a,b)) cost = 1
+   end function get_cost_typekind
+
+   integer function get_cost_string(a, b) result(cost)
+      character(:), allocatable, intent(in) :: a, b
+      cost = 0
+      if (.not. match(a,b)) cost = 1
+   end function get_cost_string
+
+!!$   logical function update_item_geom(a, b)
+!!$      type(ESMF_GEOM), allocatable, intent(inout) :: a
+!!$      type(ESMF_GEOM), allocatable, intent(in) :: b
+!!$
+!!$      update_item_geom = .false.
+!!$      if (.not. match(a, b)) then
+!!$         a = b
+!!$         update_item_geom = .true.
+!!$      end if
+!!$   end function update_item_geom
+
+   logical function update_item_typekind(a, b)
+      type(ESMF_TypeKind_Flag), intent(inout) :: a
+      type(ESMF_TypeKind_Flag), intent(in) :: b
+
+      update_item_typekind = .false.
+      if (.not. match(a, b)) then
+         a = b
+         update_item_typekind = .true.
+      end if
+   end function update_item_typekind
+
+   logical function update_item_string(a, b)
+      character(:), allocatable, intent(inout) :: a
+      character(:), allocatable, intent(in) :: b
+      
+      update_item_string = .false.
+      if (.not. match(a, b)) then
+         a = b
+         update_item_string = .true.
+      end if
+   end function update_item_string
+   
 end module mapl3g_FieldSpec

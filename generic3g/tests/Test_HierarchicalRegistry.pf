@@ -9,7 +9,7 @@ module Test_HierarchicalRegistry
    use mapl3g_ActualConnectionPt
    use mapl3g_SimpleConnection
    use mapl3g_ReexportConnection
-   use mapl3g_AbstractActionSpec
+   use mapl3g_ExtensionAction
    use MockItemSpecMod
    implicit none
 
@@ -460,9 +460,10 @@ contains
    subroutine test_create_extension()
       type(HierarchicalRegistry), target :: r_A, r_B
       class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
-      class(AbstractActionSpec), allocatable :: action_spec
+      class(ExtensionAction), allocatable :: action
 
       type(ActualConnectionPt) :: e1, i1
+      integer :: status
 
       e1 = new_a_pt('export', 'Q')
       i1 = new_a_pt('import', 'Q')
@@ -473,12 +474,13 @@ contains
       dst_spec => r_B%get_item_spec(i1)
 
       @assert_that((dst_spec%can_connect_to(src_spec)), is(true()))
-      @assert_that((dst_spec%requires_extension(src_spec)), is(true()))
 
-      action_spec = src_spec%make_extension(dst_spec)
-      select type (action_spec)
-      type is (MockActionSpec)
-         @assertEqual('fruit ==> animal', action_spec%details)
+      action = src_spec%make_action(dst_spec, rc=status)
+      @assert_that(status, is(0))
+
+      select type (action)
+      type is (MockAction)
+         @assertEqual('fruit ==> animal', action%details)
       class default
          @assert_that(1, is(2))
       end select

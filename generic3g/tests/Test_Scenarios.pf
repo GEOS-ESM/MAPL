@@ -5,6 +5,7 @@
    endif
 #define _RC rc=status); _VERIFY(status
 
+#define _HERE print*,__FILE__,__LINE__
 
 module Test_Scenarios
    use mapl3g_Generic
@@ -126,6 +127,7 @@ contains
               ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_stateitem), &
               ScenarioDescription('history_1',               'cap.yaml',         check_name, check_stateitem), &
+              ScenarioDescription('history_wildcard',        'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), & 
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem),  &
@@ -221,7 +223,7 @@ contains
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
 
-      components: do i = 1, ESMF_HConfigGetSize(this%expectations)
+     components: do i = 1, ESMF_HConfigGetSize(this%expectations)
 
          comp_expectations = ESMF_HConfigCreateAt(this%expectations,index=i,_RC)
 
@@ -261,6 +263,7 @@ contains
          call comp_states%get_state(state, state_intent, _RC)
 
 !!$         print*, state
+
          hconfigIter = ESMF_HConfigIterBegin(state_items)
          hconfigIterBegin = ESMF_HConfigIterBegin(state_items)
          hconfigIterEnd = ESMF_HConfigIterEnd(state_items)
