@@ -437,8 +437,6 @@ contains
       find_mismatch: select type (src_spec)
       type is (FieldSpec)
          extension = this%make_extension_safely(src_spec)
-         ! payload is shallow - need to recreate
-!!$         call extension%destroy(_RC)
          call extension%create([StateItemSpecPtr::], _RC)
       class default
          extension = this
@@ -485,6 +483,7 @@ contains
 !!$         end if
 
          if (this%typekind /= dst_spec%typekind) then
+            deallocate(action)
             action = CopyAction(this%payload, dst_spec%payload)
             _RETURN(_SUCCESS)
          end if
