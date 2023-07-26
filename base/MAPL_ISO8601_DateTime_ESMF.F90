@@ -7,6 +7,7 @@ module MAPL_ISO8601_DateTime_ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ISO8601_DateTime
+   use MAPL_DateTimeParsing
    use ESMF
    implicit none
 
@@ -51,4 +52,8 @@ contains
       _RETURN(_SUCCESS)
    end function convert_ISO8601_to_esmf_timeinterval
 
+   subroutine convert_datetime_fields_to_esmf_timeinterval(datef, timef, interval, rc)
+      class(datefields)
+      type(ESMF_TimeInterval), intent(out) :: interval
+   end subroutine convert_datetime_fields_to_esmf_timeinterval
 end module MAPL_ISO8601_DateTime_ESMF
