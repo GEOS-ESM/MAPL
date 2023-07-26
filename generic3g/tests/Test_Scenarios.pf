@@ -5,6 +5,7 @@
    endif
 #define _RC rc=status); _VERIFY(status
 
+#define _HERE print*,__FILE__,__LINE__
 
 module Test_Scenarios
    use mapl3g_Generic
@@ -222,7 +223,7 @@ contains
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
 
-      components: do i = 1, ESMF_HConfigGetSize(this%expectations)
+     components: do i = 1, ESMF_HConfigGetSize(this%expectations)
 
          comp_expectations = ESMF_HConfigCreateAt(this%expectations,index=i,_RC)
 

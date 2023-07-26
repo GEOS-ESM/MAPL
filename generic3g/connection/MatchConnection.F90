@@ -75,6 +75,7 @@ contains
       type(StateItemSpecPtr), allocatable :: dst_specs(:)
       integer :: i, j, k
       class(AbstractStateItemSpec), allocatable :: new_spec
+      type(ConnectionPt) :: s_pt, d_pt
 
       src_pt = this%get_source()
       dst_pt = this%get_destination()
@@ -98,13 +99,11 @@ contains
             dst_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
                  src_v_pt%get_esmf_name(), comp_name=src_v_pt%get_comp_name())
 
-            associate (&
-                 s_pt => ConnectionPt(src_pt%component_name, src_v_pt), &
-                 d_pt => ConnectionPt(dst_pt%component_name, dst_pattern) )
+            s_pt = ConnectionPt(src_pt%component_name, src_v_pt)
+            d_pt = ConnectionPt(dst_pt%component_name, dst_pattern)
 
-              call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
+            call registry%add_connection(SimpleConnection(s_pt, d_pt), _RC)
 
-            end associate
          end do
       end do
       
