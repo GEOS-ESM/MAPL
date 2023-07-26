@@ -2370,9 +2370,8 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
-
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
              call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
@@ -3324,7 +3323,7 @@ ENDDO PARSER
          list(n)%disabled = .true.
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
-         Writing(n) = .true.
+         Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
@@ -3396,9 +3395,21 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
+         write(6,'(a)') 'bf fill_grads_template'
+         write(6,'(10a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
+         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
+         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
+
+         
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
+
+         write(6,'(a)') 'af fill_grads_template'
+         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
+         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
+         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
+         
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
@@ -3424,14 +3435,13 @@ ENDDO PARSER
 
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
-            if (list(n)%unit.eq.0) then
+            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
                call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-            list(n)%currentFile = filename(n)
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) call lgr%debug('%a %a',&
@@ -3584,8 +3594,11 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-         call ESMF_ClockGet(clock,currTime=current_time,_RC)
-         call list(n)%trajectory%append_file(current_time,_RC)
+         call list(n)%trajectory%regrid_accumulate(_RC)
+         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+            call list(n)%trajectory%append_file(current_time,_RC)
+            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+         end if
       end if
       if (list(n)%sampler_spec == 'station') then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
@@ -5147,4 +5160,3 @@ ENDDO PARSER
 
 
 end module MAPL_HistoryGridCompMod
-
