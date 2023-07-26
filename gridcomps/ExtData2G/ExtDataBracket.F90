@@ -193,8 +193,6 @@ contains
       right_node_set = right_file /= file_not_found
       left_node_set = left_file /= file_not_found
 
-
-      call ESMF_FieldGet(field,dimCount=field_rank,_RC)
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
          tinv1 = time - this%left_node%time
@@ -240,24 +238,15 @@ contains
       class(ExtDataBracket), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: field_rank
-      real, pointer :: var3d_left(:,:,:),var3d_right(:,:,:)
-      real, pointer :: var2d_left(:,:),var2d_right(:,:)
+      real, pointer :: left_ptr(:), right_ptr(:)
       logical :: left_created, right_created
 
       left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
       right_created = ESMF_FieldIsCreated(this%right_node%field,_RC)
       if (left_created .and. right_created) then     
-         call ESMF_FieldGet(this%left_node%field,dimCount=field_rank,_RC)
-         if (field_rank == 2) then
-            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var2d_right,_RC)
-            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var2d_left,_RC)
-            var2d_left = var2d_right
-         else if (field_rank ==3) then
-            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var3d_right,_RC)
-            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var3d_left,_RC)
-            var3d_left = var3d_right
-         end if
+         call assign_fptr(this%left_node%field,left_ptr,_RC) 
+         call assign_fptr(this%right_node%field,right_ptr,_RC) 
+         left_ptr = right_ptr
       end if
       _RETURN(_SUCCESS)
    end subroutine swap_node_fields

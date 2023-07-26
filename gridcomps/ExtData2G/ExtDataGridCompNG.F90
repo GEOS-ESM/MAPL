@@ -1465,7 +1465,7 @@ CONTAINS
      logical :: on_tiles
 
      dimensions => item%file_metadata%get_dimensions()
-     tile_size => dimensions%at("num_tiles")
+     tile_size => dimensions%at("tile_index")
      on_tiles = associated(tile_size)
      call item%modelGridFields%comp1%get_parameters('L',update=update,file=current_file,time_index=time_index)
      if (update) then

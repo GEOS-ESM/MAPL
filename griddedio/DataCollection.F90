@@ -107,7 +107,7 @@ contains
        deallocate(metadata)
        metadata => this%metadatas%back()
        dimensions => metadata%get_dimensions()
-       tile_size => dimensions%at("num_tiles") 
+       tile_size => dimensions%at("tile_index") 
        skip_grid = associated(tile_size)   
  
        if ( (.not. allocated(this%src_grid)) .and. (.not. skip_grid)) then
