@@ -2347,18 +2347,12 @@ ENDDO PARSER
        end if
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
-          print*, 'associated(list(n)%levels), list(n)%vvars(1), list(n)%levels, list(n)%positive'
-          print*, associated(list(n)%levels), list(n)%vvars(1)
-
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
              list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,_RC)
-             print*,'n1'
           else if (associated(list(n)%levels) .and. list(n)%vvars(1) == "") then
              list(n)%vdata = VerticalData(levels=list(n)%levels,_RC)
-             print*,'n2'
           else
              list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
-             print*,'n3'
           end if
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)

@@ -381,14 +381,13 @@ contains
     
     rc=-1
     if ( x < xa(klo) ) then
-       write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
+       !!write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=klo-1
-       write(6,*) 'warning in bisect_find_LB_R8_I8:  x <  array:LB'
-       !_FAIL('error in bisect_find_LB_R8_I8')
+       !!write(6,*) 'warning in bisect_find_LB_R8_I8:  x <  array:LB'
        return
     elseif ( x > xa(khi) ) then
        n=khi
-       write(6,*) 'warning in bisect_find_LB_R8_I8:  x >  array:UB'
+       !!write(6,*) 'warning in bisect_find_LB_R8_I8:  x >  array:UB'
        return
     endif
 

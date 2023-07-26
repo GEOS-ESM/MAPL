@@ -276,7 +276,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          nx=this%nobs_epoch
          is=1
          ie=nx
-         print*, 'append_file, nobs_epoch=', nx
+!!         print*, 'append_file, nobs_epoch=', nx
 
          if (mapl_am_i_root()) then
             _ASSERT (nx /= 0, 'wrong, we should never have zero obs here!')
@@ -320,7 +320,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call ESMF_FieldRedist( acc_field,  acc_field_3d_rt, RH, _RC)
                   if (mapl_am_i_root()) then
                      !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
-                     write(6,*) 'here in append_file:  put_var 3d'
+                     !!write(6,*) 'here in append_file:  put_var 3d'
                      call this%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
                           start=[is,1],count=[nx,size(p_acc_3d,2)])
                   end if
@@ -462,6 +462,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%datetime_units = "seconds since 1970-01-01 00:00:00"
 
          filename=trim(this%obsFile)
+!!         print*, 'obs file name=', trim(filename)
          call formatter%open(trim(filename),pFIO_READ,_RC)
          if (this%nc_index == '') then
             basic_metadata = formatter%read(_RC)
@@ -498,7 +499,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             ! get pet info
             call ESMF_VMGetGlobal(vm,_RC)
             call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
-            write(6,*) 'mypet, petcount', mypet, petcount
+!            write(6,*) 'mypet, petcount', mypet, petcount
+!            write(6,'(2x,a,i10,2x,2(E20.9,2x))') &
+!                 'num_times, T1, TN', num_times, times_R8_full(1), times_R8_full(len)
 
 
             !__ epoch grid on root
@@ -514,7 +517,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                jx0 = real ( j0, kind=ESMF_KIND_R8)
                jx1 = real ( j1, kind=ESMF_KIND_R8)
                !!call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
-               write(6,*) 'jx0, jx1', jx0, jx1
+               !!write(6,*) 'jx0, jx1', jx0, jx1
 
                nstart=1; nend=size(times_R8_full)
                call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
@@ -547,7 +550,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                this%epoch_index(1:2)=0
                this%nobs_epoch = 0
             endif
-            write(6,*) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
+            !!write(6,*) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
 
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
@@ -706,7 +709,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                 x_subset(2) = 0
              endif
 
-             print*, 'x_subset(1:2)', x_subset(1:2)
+             !!print*, 'x_subset(1:2)', x_subset(1:2)
 
            _RETURN(_SUCCESS)
          end procedure get_x_subset
