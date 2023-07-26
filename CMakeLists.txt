@@ -176,21 +176,21 @@ endif ()
 #  2. We are using a beta snapshot of ESMF (from ESMF_BETA_RELEASE)
 #  3. The ESMF version is at least v8.5.0b22 (from ESMF_BETA_SNAPSHOT)
 
- if (ESMF_VERSION VERSION_EQUAL 8.5.0 AND ESMF_BETA_RELEASE)
-   # So now we are using a beta version of ESMF 8.5.0. We need to make sure
-   # that the version is at least 8.5.0b22. That version information
-   # is stored in ESMF_BETA_SNAPSHOT and is of the form "v8.5.0b22"
-   set (ESMF_BETA_SNAPSHOT_TARGET 22)
-   string(REGEX REPLACE "v8.5.0b([0-9]+)" "\\1" ESMF_BETA_SNAPSHOT_NUMBER ${ESMF_BETA_SNAPSHOT})
-   if (ESMF_BETA_SNAPSHOT_NUMBER LESS ESMF_BETA_SNAPSHOT_TARGET)
-     message(FATAL_ERROR
-       "ERROR! ESMF version must be at least v8.5.0b22, but you are using ${ESMF_BETA_SNAPSHOT}\n"
-       ""
-       "This is due to the use of a feature of ESMF that came in with ESMF v8.5.0b22, a beta version of ESMF.\n"
-       "This is a temporary fix until stable ESMF 8.5.0 is released.\n"
-       )
-   endif ()
- endif ()
+if (ESMF_VERSION VERSION_EQUAL 8.5.0 AND ESMF_BETA_RELEASE)
+  # So now we are using a beta version of ESMF 8.5.0. We need to make sure
+  # that the version is at least 8.5.0b22. That version information
+  # is stored in ESMF_BETA_SNAPSHOT and is of the form "v8.5.0b22"
+  set (ESMF_BETA_SNAPSHOT_TARGET 22)
+  string(REGEX REPLACE "v8.5.0b([0-9]+)" "\\1" ESMF_BETA_SNAPSHOT_NUMBER ${ESMF_BETA_SNAPSHOT})
+  if (ESMF_BETA_SNAPSHOT_NUMBER LESS ESMF_BETA_SNAPSHOT_TARGET)
+    message(FATAL_ERROR
+      "ERROR! ESMF version must be at least v8.5.0b22, but you are using ${ESMF_BETA_SNAPSHOT}\n"
+      ""
+      "This is due to the use of a feature of ESMF that came in with ESMF v8.5.0b22, a beta version of ESMF.\n"
+      "This is a temporary fix until stable ESMF 8.5.0 is released.\n"
+      )
+  endif ()
+endif ()
 
 # We wish to add extra flags when compiling as Debug. We should only
 # do this if we are using esma_cmake since the flags are defined
