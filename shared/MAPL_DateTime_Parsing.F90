@@ -541,7 +541,7 @@ contains
 
       character(len=:), allocatable :: timestring_
       integer, parameter :: LENGTH = 6
-      character, parameter :: decimal_seconds_POINT = '.'
+      character, parameter :: DECIMAL_POINT = '.'
       integer, parameter :: FIELDWIDTH = 2
       integer, parameter :: MS_WIDTH = 3
       integer :: pos
@@ -596,9 +596,9 @@ contains
       ! Select portion starting at fields%hour and ending before timezone
       undelimited = adjustl(timestring_(1:pos-1))
 
-      ! Remove delimiter and decimal_seconds point
+      ! Remove delimiter and decimal point
       undelimited = undelimit(undelimited, delimiter)
-      undelimited=trim(undelimit(undelimited, decimal_seconds_POINT))
+      undelimited=trim(undelimit(undelimited, DECIMAL_POINT))
       undelimited_length = len(undelimited)
 
       ! Check length of undelimited string with or without milliseconds

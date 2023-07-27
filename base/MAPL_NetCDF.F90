@@ -5,6 +5,70 @@
 ! {1800, 'seconds since 2010-01-23 18:30:37'}
 ! {TIME_SPAN, 'TIME_UNIT since YYYY-MM-DD hh:mm:ss'}
 
+module cf_timeunit_mod
+
+   implicit none
+  
+   public :: CF_TimeUnit
+
+   private
+
+   type :: CF_TimeUnit   
+   contains
+      procedure, public, pass(this) :: name
+      procedure, public, pass(this) :: is_null
+   end type CF_TimeUnit
+
+   interface CF_TimeUnit
+      module procedure :: get_cf_timeunit
+   end interface CF_TimeUnit
+
+   type, extends(CF_TimeUnit) :: CF_TimeUnit_Impl
+      private
+      character(len=:), allocatable :: name_
+      logical, protected :: is_null_ = .FALSE.
+   contains
+      procedure, public, pass(this) :: name => name_impl
+      procedure, public, pass(this) :: is_null => is_null_impl
+   end type CF_TimeUnit
+
+   type(CF_TimeUnit_Impl) :: cf_timeunits(0:2) = [CF_TimeUnit('unspecified', .TRUE.),&
+      CF_TimeUnit('hours'), CF_TimeUnit('minutes'), CF_TimeUnit('seconds')]
+
+   interface CF_TimeUnit_Impl
+      module procedure :: mk_cf_tunit
+   end interface CF_TimeUnit_Impl
+
+contains
+
+   function mk_cf_timenit(unit_name) result(tunit)
+      character(len=*), intent(in) :: unit_name
+      type(CF_TimeUnit_Impl) :: tunit
+      
+      tunit % name_ = unit_name
+
+   end function mk_cf_timenit
+
+   function get_cf_timeunit(unit_name) result(tunit)
+      character(len=*), optional, intent(in) :: unit_name
+      class(CF_TimeUnit) :: tunit
+      integer :: i
+      
+      if(present(unit_name)) then
+         ! starts at 1 to skip the null unit
+         do i = 1, size(cf_timeunits)
+            tunit = cf_timeunits(i)
+            if(tunit % name() == unit_name) return
+         end do
+      end if
+
+      ! if no match, return null unit (index 0)
+      tunit = cf_timeunits(0)
+      
+   end function get_cf_timeunit
+
+end module cf_timeunit_mod
+
 module MAPL_NetCDF
 
    use MAPL_ExceptionHandling
@@ -16,6 +80,7 @@ module MAPL_NetCDF
 
    public :: get_NetCDF_duration_from_ESMF_Time
    public :: get_ESMF_Time_from_NetCDF_DateTime
+   public :: CF_TimeUnit
 
    interface get_NetCDF_duration_from_ESMF_Time
       module procedure :: get_NetCDF_duration_from_ESMF_Time_integer
@@ -50,7 +115,6 @@ module MAPL_NetCDF
    character, parameter :: PART_DELIM = ' '
    character, parameter :: DATE_DELIM = '-'
    character, parameter :: TIME_DELIM = ':'
-   character, parameter :: DELIMS(3) = [PART_DELIM, DATE_DELIM, TIME_DELIM]
    character, parameter :: POINT = '.'
    character(len=*), parameter :: NETCDF_DATE = '0000' // DATE_DELIM // '00' // DATE_DELIM // '00'
    character(len=*), parameter :: NETCDF_TIME = '00' // TIME_DELIM // '00' // TIME_DELIM // '00'
@@ -70,6 +134,7 @@ module MAPL_NetCDF
    character(len=*), parameter :: SIGNS = PLUS // MINUS
    character(len=*), parameter :: EMPTY_STRING = ''
    integer, parameter :: MAX_CHARACTER_LENGTH = 64
+
 
 contains
 
@@ -291,7 +356,6 @@ contains
       part = datetime_string(i:j)
       call convert_to_integer(part, s, rc = status)
       _ASSERT(status == 0, 'Unable to convert second string')
-      call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
       call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
 
       _RETURN(_SUCCESS)
@@ -343,8 +407,6 @@ contains
       _ASSERT(status == 0, 'Unable to convert second string')
 
       ! no need to call this unless datetime units are correct
-      call ESMF_CalendarSetDefault(CALKIND_FLAG, _RC)
-
       call ESMF_TimeSet(datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s_r8=s_r8, _RC)
 
       _RETURN(_SUCCESS)
