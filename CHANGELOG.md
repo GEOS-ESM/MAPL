@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - sampling IODA file with trajectory sampler (step-1): make it run
 - Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
   - Set required ESMF version to 8.5.0
-  - Add check in CMake to make sure ESMF version is at least 8.5.0b22 if using a beta snapshot
 - Add StationSamplerMod for station sampler
 - Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
