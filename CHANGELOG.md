@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed yaFyaml as dependency
 - Updated programs using FLAP for command line parsing to use fArgParse instead
 - Updated `components.yaml` to use Baselibs 7.14.0
-  - ESMA_env v4.9.1 → v4.18.0
+  - ESMA_env v4.9.1 → v4.19.0
     - Baselibs 7.14.0
       - esmf v8.5.0
       - GFE v1.11.0
