@@ -1,6 +1,5 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataRule
-   use yaFyaml
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -74,7 +73,7 @@ contains
       end if
 
       if (ESMF_HConfigIsDefined(config,keyString="sample")) then
-         
+
          config1 = ESMF_HConfigCreateAt(config,keyString="sample",_RC)
          if (ESMF_HConfigIsMap(config1)) then
             ts = ExtDataTimeSample(config1,_RC)
@@ -83,7 +82,7 @@ contains
          else
             rule%sample_key=ESMF_HConfigAsString(config1,_RC)
          end if
-      else 
+      else
          rule%sample_key = ""
       end if
 
@@ -94,12 +93,12 @@ contains
       else
          allocate(rule%linear_trans,source=[0.0,0.0])
       end if
-    
+
       if (allocated(tempc)) deallocate(tempc)
       if (ESMF_HConfigIsDefined(config,keyString="regrid")) then
          tempc = ESMF_HConfigAsString(config,keyString="regrid",_RC)
          rule%regrid_method=tempc
-      else 
+      else
          rule%regrid_method="BILINEAR"
       end if
 
@@ -111,7 +110,7 @@ contains
       if (ESMF_HConfigIsDefined(config,keyString="fail_on_missing_file")) then
          rule%fail_on_missing_file = ESMF_HConfigAsLogical(config,keyString="fail_on_missing_file",_RC)
       end if
-  
+
       rule%multi_rule=usable_multi_rule
 
       _RETURN(_SUCCESS)
@@ -137,7 +136,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: semi_pos
       character(len=:),allocatable :: uname,vname
-    
+
       _UNUSED_DUMMY(unusable)
 
       semi_pos = index(this%file_var,";")
