@@ -476,7 +476,7 @@ contains
     !        Y(n)  <  x  <=  Y(n+1)
     
     rc=-1
-    if ( x < xa(klo) ) then
+    if ( x <= xa(klo) ) then
        !!write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=klo-1
        !!write(6,*) 'warning in bisect_find_LB_R8_I8:  x <  array:LB'

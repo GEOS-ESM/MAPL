@@ -25,7 +25,9 @@ module HistoryTrajectoryMod
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
      type(ESMF_FieldBundle) :: acc_bundle
-
+     type(ESMF_Field)       :: fieldA
+     type(ESMF_Field)       :: fieldB
+     
      type(GriddedIOitemVector) :: items
      type(FileMetadata) :: metadata
      type(VerticalData) :: vdata
