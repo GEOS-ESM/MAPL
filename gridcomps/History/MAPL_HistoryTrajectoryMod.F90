@@ -54,6 +54,7 @@ module HistoryTrajectoryMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      integer :: nobs_epoch
+     integer :: nobs_epoch_sum
      type(ESMF_Time)                :: obsfile_start_time   ! user specify
      type(ESMF_Time)                :: obsfile_end_time
      type(ESMF_TimeInterval)        :: obsfile_interval

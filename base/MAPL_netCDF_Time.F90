@@ -25,10 +25,17 @@ module MAPL_plain_netCDF_Time
      procedure :: time_esmf_2_nc_int
   end interface convert_time_esmf2nc
 
-  interface get_ncfile_dimension
-     procedure :: get_ncfile_dimension
-  end interface get_ncfile_dimension
+!!  interface get_ncfile_dimension
+!     procedure :: get_ncfile_dimension
+!     procedure :: get_ncfile_dimension_I8     
+!!  end interface get_ncfile_dimension
+!
+!!  interface get_v1d_netcdf
+!     procedure :: get_v1d_netcdf_R8
+!     procedure :: get_v1d_netcdf_R8_I8
+!!  end interface get_v1d_netcdf
 
+  
   interface get_v2d_netcdf
      procedure ::  get_v2d_netcdf_R4
      procedure ::  get_v2d_netcdf_R8
@@ -53,34 +60,81 @@ contains
     use netcdf
     implicit none
     character(len=*), intent(in) :: filename
-    integer, intent(out) :: nlat, nlon, tdim
+    integer, optional,intent(out) :: nlat, nlon, tdim
     character(len=*), optional, intent(in)  :: key_lon, key_lat, key_time
     integer, optional, intent(out) :: rc
     integer :: ncid , dimid
     integer :: status
     character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
+    
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
+    if (present(key_lon)) then
+       lon_name=trim(key_lon)
+       !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), _RC)
+       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
+    endif
 
-    if (present(key_lon)) lon_name=trim(key_lon)
-    if (present(key_lat)) lat_name=trim(key_lat)
-    if (present(key_time)) time_name=trim(key_time)    
+    if (present(key_lat)) then
+       lat_name=trim(key_lat)
+       !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
+       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+       call check_nc_status(nf90_close(ncid), _RC)
+    endif
 
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
-    !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
-    call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
-    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
-    !
-    !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
-    call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), _RC)
-    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
-    !
-    !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
-    call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
-    call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+    if (present(key_time)) then
+       time_name=trim(key_time)    
+       !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
+       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
+       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
+    endif
     call check_nc_status(nf90_close(ncid), _RC)
+
     !! debug summary
-    !! write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+    !!write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
+!
+!  subroutine get_ncfile_dimension_I8(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, rc)
+!    use netcdf
+!    implicit none
+!    character(len=*), intent(in) :: filename
+!    integer*8, optional,intent(out) :: nlat, nlon, tdim
+!    character(len=*), optional, intent(in)  :: key_lon, key_lat, key_time
+!    integer, optional, intent(out) :: rc
+!    integer :: ncid , dimid
+!    integer :: status
+!    character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
+!    
+!    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
+!    if (present(key_lon)) then
+!       lon_name=trim(key_lon)
+!       !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
+!       call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), _RC)
+!       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
+!    endif
+!
+!    if (present(key_lat)) then
+!       lat_name=trim(key_lat)
+!       !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
+!       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
+!       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
+!       call check_nc_status(nf90_close(ncid), _RC)
+!    endif
+!
+!    if (present(key_time)) then
+!       time_name=trim(key_time)    
+!       !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
+!       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
+!       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
+!    endif
+!    call check_nc_status(nf90_close(ncid), _RC)
+!
+!    !! debug summary
+!    !!write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+!  end subroutine get_ncfile_dimension_I8
+!  
 
   subroutine get_v2d_netcdf_R4(filename, name, array, Xdim, Ydim)
     use netcdf
@@ -129,6 +183,48 @@ contains
     iret = nf90_close(ncid)
   end subroutine get_v2d_netcdf_R8
 
+
+  subroutine get_v1d_netcdf_R8(filename, name, array, Xdim, group_name)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: name, filename
+    character(len=*), optional, intent(in) :: group_name
+    integer, intent(in) :: Xdim
+    real*8, dimension(Xdim), intent(out) :: array
+    integer :: ncid, varid, ncid2
+    integer :: rc, status, iret
+
+    call check_nc_status (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC )
+    if (present(group_name)) then
+       ncid2= ncid
+       call check_nc_status ( nf90_inq_ncid ( ncid2, group_name, ncid),  _RC )
+    end if
+    call check_nc_status (  nf90_inq_varid (ncid,  name,  varid), _RC )
+    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
+    iret = nf90_close(ncid)
+  end subroutine get_v1d_netcdf_R8
+
+
+!  subroutine get_v1d_netcdf_R8_I8(filename, name, array, Xdim, group_name)
+!    use netcdf
+!    implicit none
+!    character(len=*), intent(in) :: name, filename
+!    character(len=*), optional, intent(in) :: group_name
+!    integer*8, intent(in) :: Xdim
+!    real*8, dimension(Xdim), intent(out) :: array
+!    integer :: ncid, varid, ncid2
+!    integer :: rc, status, iret
+!
+!    call check_nc_status (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC )
+!    if (present(group_name)) then
+!       ncid2= ncid
+!       call check_nc_status ( nf90_inq_ncid ( ncid2, group_name, ncid),  _RC )
+!    end if
+!    call check_nc_status (  nf90_inq_varid (ncid,  name,  varid), _RC )
+!    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
+!    iret = nf90_close(ncid)
+!  end subroutine get_v1d_netcdf_R8_I8
+  
 
   subroutine check_nc_status(status, rc)
     use netcdf
