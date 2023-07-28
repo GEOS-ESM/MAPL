@@ -874,7 +874,7 @@ contains
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%obsFile, default="", &
-                                    label=trim(string) // 'track_file:', _RC)
+                                    label=trim(string) // 'obs_file:', _RC)
        if (trim(list(n)%obsFile) /= '') list(n)%timeseries_output = .true.
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
@@ -3395,20 +3395,20 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-         write(6,'(a)') 'bf fill_grads_template'
-         write(6,'(10a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
-         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
-         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
+!         write(6,'(a)') 'bf fill_grads_template'
+!         write(6,'(10a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
+!         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
+!         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
 
          
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
 
-         write(6,'(a)') 'af fill_grads_template'
-         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
-         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
-         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
+!         write(6,'(a)') 'af fill_grads_template'
+!         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
+!         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
+!         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
          
 
          if(list(n)%monthly .and. list(n)%partial) then

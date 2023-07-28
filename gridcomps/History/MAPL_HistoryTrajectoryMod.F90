@@ -38,10 +38,10 @@ module HistoryTrajectoryMod
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
-     type(ESMF_TimeInterval)  :: Frequency_epoch
+     type(ESMF_TimeInterval)  :: epoch_frequency
 
      character(len=ESMF_MAXSTR)     :: obsFile
-     character(len=ESMF_MAXSTR)     :: obsTemplate
+     character(len=ESMF_MAXSTR)     :: obsfile_template
      character(len=ESMF_MAXSTR)     :: nc_index
      character(len=ESMF_MAXSTR)     :: nc_time
      character(len=ESMF_MAXSTR)     :: nc_latitude
@@ -54,6 +54,11 @@ module HistoryTrajectoryMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      integer :: nobs_epoch
+     type(ESMF_Time)                :: obsfile_start_time   ! user specify
+     type(ESMF_Time)                :: obsfile_end_time
+     type(ESMF_TimeInterval)        :: obsfile_interval
+     integer                        :: obsfile_Ts_index     ! for epoch
+     integer                        :: obsfile_Te_index     
 
    contains
      procedure :: initialize
@@ -70,7 +75,9 @@ module HistoryTrajectoryMod
      procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
-
+     procedure :: get_obsfile_Tbracket_from_epoch
+     procedure :: get_filename_from_template_use_index
+     
   end type HistoryTrajectory
 
   interface HistoryTrajectory
@@ -162,6 +169,27 @@ module HistoryTrajectoryMod
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine destroy_rh_regen_LS
+
+     module subroutine get_obsfile_Tbracket_from_epoch(this, currTime, rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       type(ESMF_Time), intent(in)             :: currTime
+       integer, optional, intent(out)          :: rc
+     end subroutine get_obsfile_Tbracket_from_epoch
+     
+     module function get_filename_from_template (time, file_template, rc) result(filename)
+       type(ESMF_Time), intent(in)             :: time
+       character(len=*), intent(in)            :: file_template
+       character(len=ESMF_MAXSTR)              :: filename              
+       integer, optional, intent(out)          :: rc
+     end function get_filename_from_template
+ 
+     module function get_filename_from_template_use_index (this, f_index, rc) result(filename)
+       class(HistoryTrajectory), intent(inout) :: this
+!       character(len=*), intent(in)            :: file_template
+       character(len=ESMF_MAXSTR)              :: filename
+       integer, intent(in)                     :: f_index
+       integer, optional, intent(out)          :: rc
+     end function get_filename_from_template_use_index
 
   end interface
 

@@ -409,4 +409,28 @@ contains
   end subroutine bisect_find_LB_R8_I8
     
 
+  subroutine convert_twostring_2_esmfinterval (symd, shms, interval, rc)
+    character(len=*) :: symd
+    character(len=*) :: shms
+    type (ESMF_TimeInterval), intent(out) :: interval
+    integer, optional, intent(out) :: rc
+    integer :: status    
+    character(len=20) :: s1, s2
+    integer :: y, m, d, hh, mm, ss
+
+    
+    s1=trim(symd)
+    read(s1, '(3i2)') y, m, d
+    s2=trim(shms)
+    read(s2, '(3i2)') hh, mm, ss
+
+    write(6,'(3a10)') 's1, s2', s1, s2
+    write(6,*) 'int y,m,d,hh,mm,ss', y,m,d,hh,mm,ss
+
+    call ESMF_TimeIntervalSet(interval, yy=y, mm=m, d=d, h=hh, m=mm, s=ss, rc=rc)
+
+    if (present(rc)) rc=0
+  end subroutine convert_twostring_2_esmfinterval
+
+    
 end module MAPL_Plain_NetCDF_Time
