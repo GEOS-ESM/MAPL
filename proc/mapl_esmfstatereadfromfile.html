@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.5% of total for procedures.">257 statements</a>
+               title=" 0.6% of total for procedures.">273 statements</a>
           </li>
 
             <li id="source-file">
@@ -354,8 +354,6 @@
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">FileType</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">isNC4</span><span class="w"></span>
 <span class="w">      </span><span class="kt">logical</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">app_factory</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_factory</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_type</span><span class="w"></span>
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="w"></span>
 
@@ -591,15 +589,9 @@
 <span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">               call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">GRID</span><span class="p">%</span><span class="n">ESMFGRID</span><span class="p">,</span><span class="s1">&#39;GridType&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">grid_type</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">end if</span><span class="w"></span>
-<span class="w">            </span><span class="c">!note this only works for geos cubed-sphere restarts currently because of</span>
-<span class="w">            </span><span class="c">!possible insufficent metadata in the other restarts to support the other grid factories</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_type</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;Cubed-Sphere&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">               </span><span class="n">app_factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_factory</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">GRID</span><span class="p">%</span><span class="n">ESMFGRID</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="k">allocate</span><span class="p">(</span><span class="n">file_factory</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_factory</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">fname</span><span class="p">)))</span><span class="w"></span>
-<span class="w">               </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">file_factory</span><span class="p">%</span><span class="n">physical_params_are_equal</span><span class="p">(</span><span class="n">app_factory</span><span class="p">),</span><span class="s2">&quot;Factories not equal&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">            </span><span class="k">end if</span>
-<span class="k">            call </span><span class="n">ArrDescrSetNCPar</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="n">MPL</span><span class="p">,</span><span class="n">num_readers</span><span class="o">=</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">num_readers</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="k">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">grid_is_consistent</span><span class="p">(</span><span class="n">grid_type</span><span class="p">,</span><span class="w"> </span><span class="n">fname</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;grid in the file is different from app&#39;s grid&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">ArrDescrSetNCPar</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="n">MPL</span><span class="p">,</span><span class="n">num_readers</span><span class="o">=</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">num_readers</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">end if </span><span class="n">PNC4_TILE</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="o">/=</span><span class="n">MPI_COMM_NULL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -663,7 +655,36 @@
 <span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_ESMFStateReadFromFile</span><span class="w"></span>
+<span class="w">   </span>
+<span class="w">     </span><span class="k">contains</span>
+<span class="k">       function </span><span class="n">grid_is_consistent</span><span class="p">(</span><span class="n">grid_type</span><span class="p">,</span><span class="w"> </span><span class="n">fname</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="w"> </span><span class="n">consistent</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">consistent</span><span class="w"></span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_type</span><span class="w"></span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fname</span><span class="w"></span>
+<span class="w">         </span><span class="c">!note this only works for geos cubed-sphere restarts currently because of</span>
+<span class="w">         </span><span class="c">!possible insufficent metadata in the other restarts to support the other grid factories</span>
+<span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">app_factory</span><span class="w"></span>
+<span class="w">         </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_factory</span><span class="w"></span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fname_by_face</span><span class="w"></span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fexist</span><span class="w"></span>
+<span class="w">    </span>
+<span class="w">         </span><span class="n">consistent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">True</span><span class="p">.</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">grid_type</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;Cubed-Sphere&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">app_factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_factory</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">GRID</span><span class="p">%</span><span class="n">ESMFGRID</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="c">! at this point, arrdes%read_restart_by_face is not initialized</span>
+<span class="w">            </span><span class="c">! pick the first face</span>
+<span class="w">            </span><span class="n">fname_by_face</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_fname_by_face</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">inquire</span><span class="p">(</span><span class="k">FILE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fname_by_face</span><span class="p">),</span><span class="w"> </span><span class="n">EXIST</span><span class="o">=</span><span class="n">fexist</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">fexist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               allocate</span><span class="p">(</span><span class="n">file_factory</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_factory</span><span class="p">(</span><span class="n">fname_by_face</span><span class="p">))</span><span class="w"></span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               allocate</span><span class="p">(</span><span class="n">file_factory</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">grid_manager</span><span class="p">%</span><span class="n">make_factory</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">fname</span><span class="p">)))</span><span class="w"></span>
+<span class="w">            </span><span class="k">endif</span>
+<span class="k">            </span><span class="n">consistent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_factory</span><span class="p">%</span><span class="n">physical_params_are_equal</span><span class="p">(</span><span class="n">app_factory</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">       end function</span>
+
+<span class="k">   end subroutine </span><span class="n">MAPL_ESMFStateReadFromFile</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -684,7 +705,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-07-18T19:09:49.913656             </p>
+ on 2023-07-28T13:08:04.831464             </p>
           </div>
         </div>
         <br>

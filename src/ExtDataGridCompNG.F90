@@ -61,6 +61,7 @@
    use pflogger, only: logging, Logger
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
+   use gFTL_StringIntegerMap
 
    IMPLICIT NONE
    PRIVATE
@@ -1346,7 +1347,7 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
-        call io_bundle%make_cfio(_RC)
+        call io_bundle%make_io(_RC)
         call bundle_iter%next()
      enddo
 
@@ -1386,8 +1387,11 @@ CONTAINS
 
      do n = 1, nfiles
         io_bundle => IOBundles%at(n)
-        call io_bundle%cfio%request_data_from_file(io_bundle%file_name,io_bundle%time_index,rc=status)
-        _VERIFY(status)
+        if (io_bundle%on_tiles) then
+           call io_bundle%tile_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
+        else
+           call io_bundle%grid_io%request_data_from_file(io_bundle%file_name,io_bundle%time_index,_RC)
+        end if
      enddo
 
      _RETURN(ESMF_SUCCESS)
@@ -1406,8 +1410,11 @@ CONTAINS
      nfiles = IOBundles%size()
      do n=1, nfiles
         io_bundle => IOBundles%at(n)
-        call io_bundle%cfio%process_data_from_file(rc=status)
-        _VERIFY(status)
+        if (io_bundle%on_tiles) then
+           call io_bundle%tile_io%process_data_from_file(_RC)
+        else
+           call io_bundle%grid_io%process_data_from_file(_RC)
+        end if
      enddo
 
      _RETURN(ESMF_SUCCESS)
@@ -1453,13 +1460,19 @@ CONTAINS
      logical :: update
      character(len=ESMF_MAXPATHLEN) :: current_file
      integer :: time_index
+     type(StringIntegerMap), pointer :: dimensions
+     integer, pointer :: tile_size
+     logical :: on_tiles
 
+     dimensions => item%file_metadata%get_dimensions()
+     tile_size => dimensions%at("tile_index")
+     on_tiles = associated(tile_size)
      call item%modelGridFields%comp1%get_parameters('L',update=update,file=current_file,time_index=time_index)
      if (update) then
         if (trim(current_file)/=file_not_found) then
            call itemsL%push_back(item%fileVars)
            io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-               item%pfioCollection_id,item%iclient_collection_id,itemsL,rc=status)
+               item%pfioCollection_id,item%iclient_collection_id,itemsL,on_tiles,rc=status)
            _VERIFY(status)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated L bracket with: %a at time index %i3 ',item%name, current_file, time_index)
@@ -1470,7 +1483,7 @@ CONTAINS
         if (trim(current_file)/=file_not_found) then
            call itemsR%push_back(item%fileVars)
            io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-               item%pfioCollection_id,item%iclient_collection_id,itemsR,rc=status)
+               item%pfioCollection_id,item%iclient_collection_id,itemsR,on_tiles,rc=status)
            _VERIFY(status)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated R bracket with: %a at time index %i3 ',item%name,current_file, time_index)
@@ -1768,19 +1781,14 @@ CONTAINS
      character(len=*), intent(in) :: yaml_file
      integer, intent(out), optional :: rc
 
-      type(Parser)              :: p
-      class(YAML_Node), allocatable :: config
+      type(ESMF_HConfig), allocatable :: config
       integer :: status
 
       am_running=.true.
-      p = Parser('core')
-      config = p%load(yaml_file,rc=status)
-      if (status/=_SUCCESS) then
-          _FAIL("Error parsing: "//trim(yaml_file))
-      end if
 
-      if (config%has("USE_EXTDATA")) then
-         am_running = config%of("USE_EXTDATA")
+      config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
+      if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
+         am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
       end if
       _RETURN(_SUCCESS)
 

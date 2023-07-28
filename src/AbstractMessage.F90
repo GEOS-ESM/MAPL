@@ -23,6 +23,7 @@ module pFIO_AbstractMessageMod
    public :: COLLECTIVEPrefetchData_ID
    public :: COLLECTIVEStageData_ID
    public :: ModifyMetadata_ID
+   public :: ReplaceMetadata_ID
    public :: HandShake_ID
    public :: DUMMY_ID
    public :: ForwardData_ID
@@ -42,6 +43,7 @@ module pFIO_AbstractMessageMod
       enumerator :: StageData_ID
       enumerator :: COLLECTIVEStageData_ID
       enumerator :: ModifyMetadata_ID
+      enumerator :: ReplaceMetadata_ID
       enumerator :: HandShake_ID
       enumerator :: DUMMY_ID
       enumerator :: ForwardData_ID 

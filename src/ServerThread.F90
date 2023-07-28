@@ -41,6 +41,7 @@ module pFIO_ServerThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
 
    use pFIO_NetCDF4_FileFormatterMod
    use pFIO_HistoryCollectionMod
@@ -95,6 +96,7 @@ module pFIO_ServerThreadMod
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
       procedure :: handle_ModifyMetadata
+      procedure :: handle_ReplaceMetadata
       procedure :: handle_HandShake
 
       procedure :: get_hist_collection
@@ -592,6 +594,25 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
+
+   subroutine handle_ReplaceMetadata(this, message, rc)
+      class (ServerThread), intent(inout) :: this
+      type (ReplaceMetadataMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      type (HistoryCollection),pointer :: hist_collection
+      class(AbstractSocket),pointer :: connection
+      type (DummyMessage) :: handshake_msg
+      integer :: status
+
+      hist_collection=>this%hist_collections%at(message%collection_id)
+      call hist_collection%ReplaceMetadata(message%fmd)
+
+      connection=>this%get_connection()
+      call connection%send(handshake_msg,_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine handle_ReplaceMetadata
 
    subroutine handle_HandShake(this, message, rc)
       class (ServerThread), target, intent(inout) :: this

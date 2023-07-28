@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">20 statements</a>
+               title=" 0.0% of total for procedures.">22 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_FieldBLAS.pf"> Source File</a>
+              <a href="../src/geom_setup.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_fieldblas.pf.html'>Test_FieldBLAS.pf</a></li>
-              <li><a href='../module/test_fieldblas.html'>Test_FieldBLAS</a></li>
+              <li><a href='../sourcefile/geom_setup.f90.html'>geom_setup.F90</a></li>
+              <li><a href='../module/geom_setup.html'>geom_setup</a></li>
           <li class="active">mk_field_common</li>
         </ol>
       </div>
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)  
+    <h2>public  function mk_field_common(tk, regDecomp, minIndex, maxIndex, indexflag, name, ungriddedLBound, ungriddedUBound, rc) result(field)  
 </h2>
     
 
@@ -273,7 +273,37 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1258"></span>
+              <span class="anchor" id="variable-ungriddedlbound"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ungriddedLBound</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ungriddedubound"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ungriddedUBound</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1307"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -291,7 +321,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-field~38"></span>
+          <span class="anchor" id="variable-field~42"></span>
           type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>)
         </small>
       </h3>
@@ -341,13 +371,15 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">mk_field_common</span><span class="p">(</span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="n">regDecomp</span><span class="p">,</span><span class="w"> </span><span class="n">minIndex</span><span class="p">,</span><span class="w"> </span><span class="n">maxIndex</span><span class="p">,</span><span class="w"> </span><span class="n">indexflag</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">mk_field_common</span><span class="p">(</span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="n">regDecomp</span><span class="p">,</span><span class="w"> </span><span class="n">minIndex</span><span class="p">,</span><span class="w"> </span><span class="n">maxIndex</span><span class="p">,</span><span class="w"> </span><span class="n">indexflag</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">ungriddedLBound</span><span class="p">,</span><span class="w"> </span><span class="n">ungriddedUBound</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tk</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regDecomp</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">minIndex</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">maxIndex</span><span class="w"></span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Index_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">indexflag</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungriddedLBound</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungriddedUBound</span><span class="p">(:)</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID_SUFFIX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;_grid&#39;</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD_SUFFIX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;_field&#39;</span><span class="w"></span>
@@ -357,7 +389,7 @@
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 
 <span class="w">      </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_grid</span><span class="p">(</span><span class="n">regDecomp</span><span class="o">=</span><span class="n">regDecomp</span><span class="p">,</span><span class="w"> </span><span class="n">minIndex</span><span class="o">=</span><span class="n">minIndex</span><span class="p">,</span><span class="w"> </span><span class="n">maxIndex</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">,</span><span class="w"> </span><span class="n">indexflag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">indexflag</span><span class="p">,</span><span class="w"> </span><span class="n">grid_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">GRID_SUFFIX</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">FIELD_SUFFIX</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">FIELD_SUFFIX</span><span class="p">,</span><span class="w"> </span><span class="n">ungriddedLBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ungriddedLBound</span><span class="p">,</span><span class="w"> </span><span class="n">ungriddedUBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ungriddedUBound</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
 <span class="w">   </span><span class="k">end function </span><span class="n">mk_field_common</span><span class="w"></span>
@@ -381,7 +413,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-07-18T19:09:49.913656             </p>
+ on 2023-07-28T13:08:04.831464             </p>
           </div>
         </div>
         <br>

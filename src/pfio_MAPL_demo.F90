@@ -10,7 +10,7 @@
 !
 !#### Usage:
 !
-!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores 
+!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores
 !   and use 1 MultiGroup with 5 backend processes, then the execution command is:
 !```
 ! mpiexec -np 56 pfio_MAPL_demo.x --npes_model 28 --oserver_type multigroup --nodes_output_server 1 --npes_backend_pernode 5
@@ -38,7 +38,7 @@ program main
       integer,           parameter ::              num_dims = 2 ! number of dimension to decompose
 
       ! PFIO specific variables
-      type(MAPL_FlapCLI)      :: cli
+      type(MAPL_FargparseCLI) :: cli
       type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
@@ -85,8 +85,7 @@ program main
 !------------------------------------------------------------------------------
 
       ! Read and parse the command line, and set parameters
-      cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
-                         authors     = 'GMAO')
+      cli = MAPL_FargparseCLI()
       cap_options = MAPL_CapOptions(cli)
 
       ! Initialize MPI if MPI_Init has not been called
@@ -123,22 +122,22 @@ program main
             ! ---> Perform domain decomposition for the model
             !------------------------------------------------
             call perform_domain_deposition()
-   
+
             ! Allocate model variables
             !-------------------------
             ALLOCATE(local_tracer(i1:i2, j1:j2))
             ALLOCATE(local_temp(i1:i2, j1:j2, k1:k2))
-   
+
             ! if there are multiple oserver, split it into large and small pool
             call o_clients%split_server_pools()
-   
+
             call create_file_metada()
-   
+
             !---------------------------------------------
             ! ---> Model time stepping and writing outputs
             !---------------------------------------------
             call run_model()
-   
+
             deallocate(local_temp)
             deallocate(local_tracer)
             deallocate(points_per_procX)
@@ -157,11 +156,11 @@ program main
       call ioserver_manager%finalize()
 
       call MPI_finalize(ierror)
-      
+
 !------------------------------------------------------------------------------
 CONTAINS
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `create_member_subcommunicator` -- Create a subcommunicator
 !
    integer function create_member_subcommunicator(comm, n_members, npes_member, rc) result(subcommunicator)
@@ -183,7 +182,7 @@ CONTAINS
 
    end function create_member_subcommunicator
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `initialize_mpi` -- Initialized MPI is MPI_Init has not been called yet.
 !
    subroutine initialize_mpi(comm)
@@ -204,7 +203,7 @@ CONTAINS
 
    end subroutine initialize_mpi
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `initialize_ioserver` -- Initialize the IO Server using the command line options
 !
    subroutine initialize_ioserver(comm)
@@ -224,7 +223,7 @@ CONTAINS
       _VERIFY(status)
    end subroutine initialize_ioserver
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `perform_domain_deposition` -- Perfom the domain decomposition
 !
    subroutine perform_domain_deposition()
@@ -267,7 +266,7 @@ CONTAINS
       print '(a7,i5,a5,4i5)', 'pe_id: ', pe_id, '-->', i1, i2, j1, j2
    end subroutine perform_domain_deposition
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `create_file_metada` -- Create the file metada using PFIO methods and the file collection identifier
 !
    subroutine create_file_metada()
@@ -348,7 +347,7 @@ CONTAINS
       hist_id = o_clients%add_hist_collection(fmd)
    end subroutine create_file_metada
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `run_model` -- Run the model and write out the data
 !
    subroutine run_model()
@@ -415,7 +414,7 @@ CONTAINS
       enddo
    end subroutine run_model
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `add_fvar` -- PFIO utility routine to create a variable and set attributes
 !
    subroutine add_fvar(cf, vname, vtype, dims, units, long_name ,rc)
@@ -449,10 +448,10 @@ CONTAINS
       _VERIFY(status)
    end subroutine add_fvar
 !------------------------------------------------------------------------------
-!> 
-! `decompose_dim` -- 
-! For a given number of grid points along a dimension and a number of 
-! available processors for that diemsion,, !! determine the number of 
+!>
+! `decompose_dim` --
+! For a given number of grid points along a dimension and a number of
+! available processors for that diemsion,, !! determine the number of
 ! grid points assigned to each processor.
 !
    subroutine decompose_dim(dim_world, dim_array, num_procs )
@@ -472,7 +471,7 @@ CONTAINS
    end subroutine decompose_dim
 !------------------------------------------------------------------------------
 !>
-! `decompose_proc` -- 
+! `decompose_proc` --
 !  Given the total number of available processors and the number of dimensions,
 ! determine the number of processors along each dimension.
 !
@@ -491,10 +490,10 @@ CONTAINS
       END DO
    end subroutine decompose_proc
 !------------------------------------------------------------------------------
-!> 
-! `mapping_domain` -- 
+!>
+! `mapping_domain` --
 ! Determime the indices of the local domain corners
-! with respect to the global domain. 
+! with respect to the global domain.
 !
    subroutine mapping_domain(map_proc, map_domainX, map_domainY, &
                         points_per_procX, points_per_procY, NX, NY, &
@@ -550,7 +549,7 @@ CONTAINS
       enddo
    end subroutine mapping_domain
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `set_tracer` -- Arbitrary set values for a field
 !
    subroutine set_tracer(var)
@@ -566,7 +565,7 @@ CONTAINS
 
    end subroutine set_tracer
 !------------------------------------------------------------------------------
-!> 
+!>
 ! `set_temperature` -- Arbitrary set values for the temperature field.
 !
    subroutine set_temperature(var)
