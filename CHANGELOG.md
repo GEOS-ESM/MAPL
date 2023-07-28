@@ -78,11 +78,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unneeded and confusing default in History Grid Comp (see #2081)
 - Fixes in CMake for fArgParse transition
 
-### Removed
-
 ### Deprecated
 
 - Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
+
 ## [2.39.7] - 2023-07-18
 
 ### Fixed
