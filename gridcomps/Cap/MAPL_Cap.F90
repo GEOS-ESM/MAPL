@@ -104,14 +104,13 @@ contains
          cap%comm_world = cap%cap_options%comm
       endif
 
-      call cap%initialize_mpi(_RC)
+      call cap%initialize_mpi(rc=status)
+      _VERIFY(status)
 
-      call MAPL_Initialize( &
-           comm=cap%comm_world, &
-           logging_config=cap%cap_options%logging_config, &
-           enable_global_timeprof=cap%cap_options%enable_global_timeprof, &
-           enable_global_memprof=cap%cap_options%enable_global_memprof, &
-           _RC)
+      call MAPL_Initialize(comm=cap%comm_world, &
+                           logging_config=cap%cap_options%logging_config, &
+                           rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -141,14 +140,13 @@ contains
          cap%comm_world = cap%cap_options%comm
       endif
 
-      call cap%initialize_mpi(_RC)
+      call cap%initialize_mpi(rc=status)
+      _VERIFY(status)
 
-      call MAPL_Initialize( &
-           comm=cap%comm_world, &
-           logging_config=cap%cap_options%logging_config, &
-           enable_global_timeprof=cap%cap_options%enable_global_timeprof, &
-           enable_global_memprof=cap%cap_options%enable_global_memprof, &
-           _RC)
+      call MAPL_Initialize(comm=cap%comm_world, &
+                           logging_config=cap%cap_options%logging_config, &
+                           rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -226,6 +224,7 @@ contains
      integer, optional, intent(out) :: rc
      integer :: status
 
+     _UNUSED_DUMMY(unusable)
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &
@@ -236,10 +235,11 @@ contains
          npes_backend_pernode=this%cap_options%npes_backend_pernode, &
          isolate_nodes = this%cap_options%isolate_nodes, &
          fast_oclient  = this%cap_options%fast_oclient, &
-         with_profiler = this%cap_options%with_io_profiler, _RC)
-
+         with_profiler = this%cap_options%with_io_profiler, &
+         rc=status)
+     _VERIFY(status)
      _RETURN(_SUCCESS)
-     _UNUSED_DUMMY(unusable)
+
    end subroutine initialize_io_clients_servers
 
    ! This layer splits the communicator to support separate i/o servers
@@ -301,19 +301,26 @@ contains
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
       ! test it
-      call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, _RC)
+      call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
+      _VERIFY(status)
 
       lgr => logging%get_logger('MAPL')
       call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
-      call this%initialize_cap_gc(_RC)
+      call this%initialize_cap_gc(rc=status)
+      _VERIFY(status)
 
-      call this%cap_gc%set_services(_RC)
-      call this%cap_gc%initialize(_RC)
-      call this%cap_gc%run(_RC)
-      call this%cap_gc%finalize(_RC)
+      call this%cap_gc%set_services(rc = status)
+      _VERIFY(status)
+      call this%cap_gc%initialize(rc=status)
+      _VERIFY(status)
+      call this%cap_gc%run(rc=status)
+      _VERIFY(status)
+      call this%cap_gc%finalize(rc=status)
+      _VERIFY(status)
 
-      call ESMF_Finalize(endflag=ESMF_END_KEEPMPI, _RC)
+      call ESMF_Finalize(endflag=ESMF_END_KEEPMPI, rc=status)
+      _VERIFY(status)
       call stop_timer()
 
       call report_throughput()
@@ -361,17 +368,18 @@ contains
 
      integer :: status
 
+     _UNUSED_DUMMY(unusable)
+
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file(), this%comm_world, n_run_phases=n_run_phases, root_set_services = this%set_services,rc=status)
+           this%name, this%get_egress_file(), n_run_phases=n_run_phases, root_set_services = this%set_services,rc=status)
      else
         _ASSERT(this%cap_options%root_dso /= 'none',"No set services specified, must pass a dso")
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file(), this%comm_world, n_run_phases=n_run_phases, root_dso = this%cap_options%root_dso,rc=status)
+           this%name, this%get_egress_file(), n_run_phases=n_run_phases, root_dso = this%cap_options%root_dso,rc=status)
      end if
      _VERIFY(status)
      _RETURN(_SUCCESS)
-     _UNUSED_DUMMY(unusable)
    end subroutine initialize_cap_gc
 
 
@@ -480,15 +488,15 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      _UNUSED_DUMMY(unusable)
 
       call MAPL_Finalize(comm=this%comm_world)
-
       if (.not. this%mpi_already_initialized) then
          call MPI_Finalize(status)
       end if
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+
    end subroutine finalize_mpi
 
    function get_npes_model(this) result(npes_model)

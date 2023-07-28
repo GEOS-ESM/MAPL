@@ -123,7 +123,6 @@ module MAPL_GenericMod
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    use MAPL_StringTemplate
-   use MAPL_SetServicesWrapper
    use MAPL_TimeDataMod, only: parse_time_string
    use mpi
    use netcdf
@@ -144,7 +143,6 @@ module MAPL_GenericMod
    private
 
    public MAPL_GenericSetServices
-   public new_generic_setservices
    public MAPL_GenericInitialize
    public MAPL_GenericRunChildren
    public MAPL_GenericFinalize
@@ -408,7 +406,6 @@ module MAPL_GenericMod
       character(:), allocatable :: full_name ! Period separated list of ancestor names
       real                                     :: HEARTBEAT
 
-      class(AbstractSetServicesWrapper), allocatable, public :: user_setservices_wrapper
       ! Move to decorator?
       type (DistributedProfiler), public :: t_profiler
 
@@ -517,6 +514,7 @@ contains
 ! only be five children, one for each {\tt SSn}, and the names must be in
 ! `SSn` order.
 !
+
    recursive subroutine MAPL_GenericSetServices ( GC, RC )
 
       !ARGUMENTS:
@@ -538,17 +536,269 @@ contains
       ! Create the generic state, intializing its configuration and grid.
       !----------------------------------------------------------
       call MAPL_InternalStateRetrieve( GC, meta, _RC)
-!!$
-!!$      call meta%t_profiler%start('generic',_RC)
-!!$
-!!$      call register_generic_entry_points(gc, _RC)
-      call MAPL_GetRootGC(GC, meta%rootGC, _RC)
 
-!!$      call meta%t_profiler%stop('generic',_RC)
-!!$
+      call meta%t_profiler%start('generic',_RC)
+
+      call register_generic_entry_points(gc, _RC)
+      call MAPL_GetRootGC(GC, meta%rootGC, _RC)
+      call setup_children(meta, _RC)
+
+      call process_spec_dependence(meta, _RC)
+      call meta%t_profiler%stop('generic',_RC)
+
       _RETURN(ESMF_SUCCESS)
 
    contains
+
+     subroutine process_spec_dependence(meta, rc)
+       type (MAPL_MetaComp), target, intent(inout) :: meta
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       integer :: k, i, j, nc, nvars
+       logical :: depends_on_children
+       character(len=:), allocatable :: depends_on(:)
+       character(len=ESMF_MAXSTR) :: SHORT_NAME, NAME
+       type (MAPL_VarSpec), pointer :: ex_specs(:), c_ex_specs(:)
+       type (MAPL_MetaComp), pointer :: cmeta
+       type(ESMF_GridComp), pointer :: childgridcomp
+       logical :: found
+
+       ! get the export specs
+       call  MAPL_StateGetVarSpecs(meta, export=ex_specs, _RC)
+       ! allow for possibility we do not have export specs
+       _RETURN_IF(.not. associated(ex_specs))
+
+       ! check for DEPENDS_ON_CHILDREN
+       do K=1,size(EX_SPECS)
+          call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, &
+               DEPENDS_ON_CHILDREN=DEPENDS_ON_CHILDREN, &
+               DEPENDS_ON=DEPENDS_ON, _RC)
+          if (DEPENDS_ON_CHILDREN) then
+!             mark SHORT_NAME in each child "alwaysAllocate"
+             nc = meta%get_num_children()
+             _ASSERT(nc > 0, 'DEPENDS_ON_CHILDREN requires at least 1 child')
+             do I=1, nc
+                childgridcomp => meta%get_child_gridcomp(i)
+                call MAPL_InternalStateRetrieve(childgridcomp, cmeta, _RC)
+                found = .false.
+                call  MAPL_StateGetVarSpecs(cmeta, export=c_ex_specs, _RC)
+                _ASSERT(associated(c_ex_specs), 'Component '//trim(cmeta%compname)//' must have a valid export spec')
+                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
+                do j=1,size(c_ex_specs)
+                   call MAPL_VarSpecGet(c_ex_specs(j), SHORT_NAME=NAME, _RC)
+                   if (short_name == name) then
+                      call MAPL_VarSpecSet(c_ex_specs(j), alwaysAllocate=.true., _RC)
+                      found = .true.
+                      exit
+                   end if
+                end do ! spec loop
+                _ASSERT(found, 'All children must have '//trim(short_name))
+             end do
+          end if ! DEPENDS_ON_CHILDREN
+
+          if (allocated(depends_on)) then
+!             mark SHORT_NAME in each variable "alwaysAllocate"
+             nvars = size(depends_on)
+             _ASSERT(nvars > 0, 'DEPENDS_ON requires at least 1 var')
+             do I=1, nvars
+                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
+                do j=1,size(ex_specs)
+                   call MAPL_VarSpecGet(ex_specs(j), SHORT_NAME=NAME, _RC)
+                   if (name == depends_on(i)) then
+                      call MAPL_VarSpecSet(ex_specs(j), alwaysAllocate=.true., _RC)
+                      exit
+                   end if
+                end do ! spec loop
+             end do
+          end if ! DEPENDS_ON
+       end do
+
+       _RETURN(ESMF_SUCCESS)
+     end subroutine process_spec_dependence
+
+           subroutine register_generic_entry_points(gc, rc)
+         type(ESMF_GridComp), intent(inout) :: gc
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         if (.not. associated(meta%phase_init)) then
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_INITIALIZE, MAPL_GenericInitialize,  _RC)
+         endif
+
+         if (.not. associated(meta%phase_run)) then
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_RUN, MAPL_GenericRunChildren,  _RC)
+         endif
+
+
+         if (.not. associated(meta%phase_final)) then
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_FINALIZE, MAPL_GenericFinalize,  _RC)
+         endif
+
+         !ALT check record!
+         if (.not. associated(meta%phase_record)) then
+            call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_WRITERESTART, MAPL_GenericRecord, _RC)
+         end if
+         _ASSERT(size(meta%phase_record)==1,'needs informative message')  !ALT: currently we support only 1 record
+
+         if (.not.associated(meta%phase_coldstart)) then
+            !ALT: this part is not supported yet
+            !      call MAPL_GridCompSetEntryPoint(GC, ESMF_METHOD_READRESTART, &
+            !                                      MAPL_Coldstart, _RC)
+         endif
+      end subroutine register_generic_entry_points
+
+#define LOWEST_(c) m=0; do while (m /= c) ;\
+      m = c; c=label(c);\
+   enddo
+
+      ! Complex algorithm - difficult to explain
+      recursive subroutine setup_children(meta, rc)
+         type (MAPL_MetaComp), target, intent(inout) :: meta
+         integer, optional, intent(out) :: rc
+
+         integer :: nc
+         integer :: i
+         integer :: ts
+         integer :: lbl, k, m
+         type (VarConn), pointer :: connect
+         type(StateSpecification) :: specs
+         type (MAPL_VarSpec), pointer :: im_specs(:)
+         type (MAPL_VarSpec), pointer :: ex_specs(:)
+         type (MAPL_VarSpecPtr), pointer :: ImSpecPtr(:)
+         type (MAPL_VarSpecPtr), pointer :: ExSpecPtr(:)
+         type(ESMF_Field), pointer :: field
+         type(ESMF_FieldBundle), pointer :: bundle
+         type(ESMF_State), pointer :: state
+         integer :: fLBL, tLBL
+         integer :: good_label, bad_label
+         integer, pointer :: label(:)
+
+         NC = meta%get_num_children()
+         CHILDREN: if(nc > 0) then
+
+            do I=1,NC
+               call MAPL_GenericStateClockAdd(GC, name=trim(meta%GCNameList(I)), _RC)
+            end do
+
+
+            ! The child should've been already created by MAPL_AddChild
+            ! and set his services should've been called.
+            ! -------------------------------------
+
+            ! Create internal couplers and composite
+            ! component's Im/Ex specs.
+            !---------------------------------------
+
+            call MAPL_WireComponent(GC, _RC)
+
+            ! Relax connectivity for non-existing imports
+            if (NC > 0) then
+
+               CONNECT => meta%connectList%CONNECT
+
+               allocate (ImSpecPtr(NC), ExSpecPtr(NC), __STAT__)
+
+               DO I = 1, NC
+                  gridcomp => meta%get_child_gridcomp(i)
+                  call MAPL_GridCompGetVarSpecs(gridcomp, &
+                       IMPORT=IM_SPECS, EXPORT=EX_SPECS, _RC)
+                  ImSpecPtr(I)%Spec => IM_SPECS
+                  ExSpecPtr(I)%Spec => EX_SPECS
+               END DO
+
+               call connect%checkReq(ImSpecPtr, ExSpecPtr, _RC)
+
+               deallocate (ImSpecPtr, ExSpecPtr)
+
+            end if
+
+            ! If I am root call Label from here; everybody else
+            !  will be called recursively from Label
+            !--------------------------------------------------
+            ROOT: if (.not. associated(meta%parentGC)) then
+
+               call MAPL_GenericConnCheck(GC, _RC)
+
+               ! Collect all IMPORT and EXPORT specs in the entire tree in one list
+               !-------------------------------------------------------------------
+               call MAPL_GenericSpecEnum(GC, SPECS, _RC)
+
+               ! Label each spec by its place on the list--sort of.
+               !--------------------------------------------------
+
+               TS = SPECS%var_specs%size()
+               allocate(LABEL(TS), __STAT__)
+
+               do I = 1, TS
+                  LABEL(I)=I
+               end do
+
+               ! For each spec...
+               !-----------------
+
+               do I = 1, TS
+
+                  !  Get the LABEL attribute on the spec
+                  !-------------------------------------
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(I), LABEL=LBL, _RC)
+                  _ASSERT(LBL > 0, "GenericSetServices :: Expected LBL > 0.")
+
+                  ! Do something to sort labels???
+                  !-------------------------------
+                  LOWEST_(LBL)
+
+                  good_label = min(lbl, i)
+                  bad_label = max(lbl, i)
+                  label(bad_label) = good_label
+
+
+               end do
+                  if (associated(meta%LINK)) then
+                  do I = 1, size(meta%LINK)
+                     fLBL = MAPL_LabelGet(meta%LINK(I)%ptr%FROM, _RC)
+                     tLBL = MAPL_LabelGet(meta%LINK(I)%ptr%TO,   _RC)
+                     LOWEST_(fLBL)
+                     LOWEST_(tLBL)
+
+                     if (fLBL < tLBL) then
+                        good_label = fLBL
+                        bad_label  = tLBL
+                     else
+                        good_label = tLBL
+                        bad_label  = fLBL
+                     end if
+                     label(bad_label) = good_label
+                  end do
+               end if
+
+               K=0
+               do I = 1, TS
+                  LBL = LABEL(I)
+                  LOWEST_(LBL)
+
+                  if (LBL == I) then
+                     K = K+1
+                  else
+                     call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), FIELDPTR = FIELD, _RC)
+                     call MAPL_VarSpecSet(SPECS%old_var_specs(I), FIELDPTR = FIELD, _RC)
+                     call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), BUNDLEPTR = BUNDLE, _RC  )
+                     call MAPL_VarSpecSet(SPECS%old_var_specs(I), BUNDLEPTR = BUNDLE, _RC  )
+                     call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), STATEPTR = STATE, _RC  )
+                     call MAPL_VarSpecSet(SPECS%old_var_specs(I), STATEPTR = STATE, _RC  )
+                  end if
+
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), LABEL=LBL, _RC)
+               end do
+
+               deallocate(LABEL, __STAT__)
+
+            end if ROOT
+
+         end if CHILDREN  !  Setup children
+      end subroutine setup_children
+#undef LOWEST_
 
    end subroutine MAPL_GenericSetServices
 
@@ -4560,7 +4810,7 @@ contains
 
 !C$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
       call lgr%debug("Started %a", stage_description)
-      child_meta%user_setservices_wrapper = ProcSetServicesWrapper(SS)
+      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, _RC )
       call lgr%debug("Finished %a", stage_description)
 !!$      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, _RC )
 !!$      _VERIFY(userRC)
@@ -4808,15 +5058,14 @@ contains
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
-!!$      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
-!!$           sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
-!!$     _VERIFY(userRC)
+      shared_object_library_to_load = adjust_dso_name(sharedObj)
+      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
+           sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
+      _VERIFY(userRC)
 
-      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(shared_object_library_to_load, userRoutine)
       call child_meta%t_profiler%stop('SetService',_RC)
       call child_meta%t_profiler%stop(_RC)
-      call t_p%stop(trim(name),_RC)
-      call m_p%stop(trim(name),_RC)
+      call t_p%stop(trim(name),_RC)    
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSOMeta
@@ -11154,285 +11403,5 @@ contains
 
    end subroutine MAPL_MethodAdd
 
-   ! Interface mandated by ESMF
-   recursive subroutine new_generic_setservices(gc, rc)
-      type(ESMF_GridComp), intent(inout) :: gc
-      integer, intent(out) :: rc
-
-      type(MAPL_MetaComp), pointer :: meta
-      integer :: status
-
-      call MAPL_InternalStateGet (gc, meta, _RC)
-      call meta%t_profiler%start(_RC)
-
-      call meta%user_setservices_wrapper%run(gc, _RC)
-      ! TODO: Fix this is a terrible kludge.
-      if (meta%compname /= 'CAP') then
-         call register_generic_entry_points(gc, _RC)
-      end if
-      call run_children_generic_setservices(meta,_RC)
-
-      ! TODO: Fix this is a terrible kludge.
-      if (meta%compname /= 'CAP') then
-         call process_connections(meta,_RC) ! needs better name
-         call process_spec_dependence(meta, _RC)
-      end if
-
-      call meta%t_profiler%stop(_RC)
-
-      _RETURN(_SUCCESS)
-   contains
-
-#define LOWEST_(c) m=0; do while (m /= c) ; m = c; c=label(c); enddo
-
-      recursive subroutine run_children_generic_setservices(meta, rc)
-         type(MAPL_MetaComp), pointer :: meta
-         integer, intent(out) :: rc
-
-         integer :: status, i
-         type(ESMF_GridComp), pointer :: child_gc
-
-         do i = 1, meta%get_num_children()
-            child_gc => meta%get_child_gridcomp(i)
-            call new_generic_setservices(child_gc, _RC)
-         end do
-
-         _RETURN(_SUCCESS)
-      end subroutine run_children_generic_setservices
-
-      recursive subroutine process_connections(meta, rc)
-         type(MAPL_MetaComp), pointer :: meta
-         integer, intent(out) :: rc
-
-         integer :: status
-         integer :: i, m, k
-         integer :: ts
-         integer :: fLBL, tLBL, lbl
-         integer :: good_label, bad_label
-         integer, pointer :: label(:)
-         type(StateSpecification) :: specs
-         type(ESMF_Field), pointer :: field
-         type(ESMF_FieldBundle), pointer :: bundle
-         type(ESMF_State), pointer :: state
-         type (MAPL_VarSpec), pointer :: im_specs(:)
-         type (MAPL_VarSpec), pointer :: ex_specs(:)
-         type (MAPL_VarSpecPtr), pointer :: ImSpecPtr(:)
-         type (MAPL_VarSpecPtr), pointer :: ExSpecPtr(:)
-         type (VarConn), pointer :: connect
-         type(ESMF_GridComp), pointer :: child_gc
-         integer :: nc
-         nc = meta%get_num_children()
-
-         call MAPL_WireComponent(gc, _RC)
-
-         nc = meta%get_num_children()
-
-         ! Relax connectivity for non-existing imports
-         CONNECT => meta%connectList%CONNECT
-
-         allocate (ImSpecPtr(nc), ExSpecPtr(nc), __STAT__)
-
-         do I = 1, nc
-            child_gc => meta%get_child_gridcomp(i)
-            call MAPL_GridCompGetVarSpecs(child_gc, &
-                 import=IM_SPECS, EXPORT=EX_SPECS, _RC)
-            ImSpecPtr(I)%Spec => IM_SPECS
-            ExSpecPtr(I)%Spec => EX_SPECS
-         end do
-
-         call connect%checkReq(ImSpecPtr, ExSpecPtr, _RC)
-
-         deallocate (ImSpecPtr, ExSpecPtr)
-
-
-
-
-         ! If I am root call Label from here; everybody else
-         !  will be called recursively from Label
-         !--------------------------------------------------
-         ROOT: if (.not. associated(meta%parentGC)) then
-
-            call MAPL_GenericConnCheck(GC, _RC)
-
-            ! Collect all IMPORT and EXPORT specs in the entire tree in one list
-            !-------------------------------------------------------------------
-            call MAPL_GenericSpecEnum(GC, SPECS, _RC)
-
-            ! Label each spec by its place on the list--sort of.
-            !--------------------------------------------------
-
-            TS = SPECS%var_specs%size()
-            allocate(LABEL(TS), __STAT__)
-
-            do I = 1, TS
-               LABEL(I)=I
-            end do
-
-            ! For each spec...
-            !-----------------
-
-            do I = 1, TS
-
-               !  Get the LABEL attribute on the spec
-               !-------------------------------------
-               call MAPL_VarSpecGet(SPECS%old_var_specs(I), LABEL=LBL, _RC)
-               _ASSERT(LBL > 0, "GenericSetServices :: Expected LBL > 0.")
-
-               ! Do something to sort labels???
-               !-------------------------------
-               LOWEST_(LBL)
-
-               good_label = min(lbl, i)
-               bad_label = max(lbl, i)
-               label(bad_label) = good_label
-
-
-            end do
-
-            if (associated(meta%LINK)) then
-               do I = 1, size(meta%LINK)
-                  fLBL = MAPL_LabelGet(meta%LINK(I)%ptr%FROM, _RC)
-                  tLBL = MAPL_LabelGet(meta%LINK(I)%ptr%TO,   _RC)
-                  LOWEST_(fLBL)
-                  LOWEST_(tLBL)
-
-                  if (fLBL < tLBL) then
-                     good_label = fLBL
-                     bad_label  = tLBL
-                  else
-                     good_label = tLBL
-                     bad_label  = fLBL
-                  end if
-                  label(bad_label) = good_label
-               end do
-            end if
-
-            K=0
-            do I = 1, TS
-               LBL = LABEL(I)
-               LOWEST_(LBL)
-
-               if (LBL == I) then
-                  K = K+1
-               else
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), FIELDPTR = FIELD, _RC)
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), FIELDPTR = FIELD, _RC)
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), BUNDLEPTR = BUNDLE, _RC  )
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), BUNDLEPTR = BUNDLE, _RC  )
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), STATEPTR = STATE, _RC  )
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), STATEPTR = STATE, _RC  )
-               end if
-
-               call MAPL_VarSpecSet(SPECS%old_var_specs(I), LABEL=LBL, _RC)
-            end do
-
-            deallocate(LABEL, __STAT__)
-
-         end if ROOT
-
-         _RETURN(_SUCCESS)
-      end subroutine process_connections
-#undef LOWEST_
-
-     subroutine process_spec_dependence(meta, rc)
-       type (MAPL_MetaComp), target, intent(inout) :: meta
-       integer, optional, intent(out) :: rc
-
-       integer :: status
-       integer :: k, i, j, nc, nvars
-       logical :: depends_on_children
-       character(len=:), allocatable :: depends_on(:)
-       character(len=ESMF_MAXSTR) :: SHORT_NAME, NAME
-       type (MAPL_VarSpec), pointer :: ex_specs(:), c_ex_specs(:)
-       type (MAPL_MetaComp), pointer :: cmeta
-       type(ESMF_GridComp), pointer :: childgridcomp
-       logical :: found
-
-       ! get the export specs
-       call  MAPL_StateGetVarSpecs(meta, export=ex_specs, _RC)
-       ! allow for possibility we do not have export specs
-       _RETURN_IF(.not. associated(ex_specs))
-
-       ! check for DEPENDS_ON_CHILDREN
-       do K=1,size(EX_SPECS)
-          call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, &
-               DEPENDS_ON_CHILDREN=DEPENDS_ON_CHILDREN, &
-               DEPENDS_ON=DEPENDS_ON, _RC)
-          if (DEPENDS_ON_CHILDREN) then
-!!!             mark SHORT_NAME in each child "alwaysAllocate"
-             nc = meta%get_num_children()
-             _ASSERT(nc > 0, 'DEPENDS_ON_CHILDREN requires at least 1 child')
-             do I=1, nc
-                childgridcomp => meta%get_child_gridcomp(i)
-                call MAPL_InternalStateRetrieve(childgridcomp, cmeta, _RC)
-                found = .false.
-                call  MAPL_StateGetVarSpecs(cmeta, export=c_ex_specs, _RC)
-                _ASSERT(associated(c_ex_specs), 'Component '//trim(cmeta%compname)//' must have a valid export spec')
-                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
-                do j=1,size(c_ex_specs)
-                   call MAPL_VarSpecGet(c_ex_specs(j), SHORT_NAME=NAME, _RC)
-                   if (short_name == name) then
-                      call MAPL_VarSpecSet(c_ex_specs(j), alwaysAllocate=.true., _RC)
-                      found = .true.
-                      exit
-                   end if
-                end do ! spec loop
-                _ASSERT(found, 'All children must have '//trim(short_name))
-             end do
-          end if ! DEPENDS_ON_CHILDREN
-
-          if (allocated(depends_on)) then
-!!!             mark SHORT_NAME in each variable "alwaysAllocate"
-             nvars = size(depends_on)
-             _ASSERT(nvars > 0, 'DEPENDS_ON requires at least 1 var')
-             do I=1, nvars
-                ! find the "correct" export spec (i.e. has the same SHORT_NAME)
-                do j=1,size(ex_specs)
-                   call MAPL_VarSpecGet(ex_specs(j), SHORT_NAME=NAME, _RC)
-                   if (name == depends_on(i)) then
-                      call MAPL_VarSpecSet(ex_specs(j), alwaysAllocate=.true., _RC)
-                      exit
-                   end if
-                end do ! spec loop
-             end do
-          end if ! DEPENDS_ON
-       end do
-
-       _RETURN(ESMF_SUCCESS)
-     end subroutine process_spec_dependence
-
-      subroutine register_generic_entry_points(gc, rc)
-         type(ESMF_GridComp), intent(inout) :: gc
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-
-         if (.not. associated(meta%phase_init)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_INITIALIZE, MAPL_GenericInitialize,  _RC)
-         endif
-
-         if (.not. associated(meta%phase_run)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_RUN, MAPL_GenericRunChildren,  _RC)
-         endif
-
-
-         if (.not. associated(meta%phase_final)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_FINALIZE, MAPL_GenericFinalize,  _RC)
-         endif
-
-         if (.not. associated(meta%phase_record)) then
-            call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_WRITERESTART, MAPL_GenericRecord, _RC)
-         end if
-         _ASSERT(size(meta%phase_record)==1,'Currently, only 1 record is supported.')
-
-         if (.not.associated(meta%phase_coldstart)) then
-            ! not supported
-         endif
-         _RETURN(_SUCCESS)
-      end subroutine register_generic_entry_points
-
-
-
-   end subroutine new_generic_setservices
 
 end module MAPL_GenericMod
