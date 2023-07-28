@@ -52,11 +52,13 @@
   use MAPL_DownbitMod
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
+  use StationSamplerMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
+  use pflogger, only: Logger, logging
 
   implicit none
   private
@@ -192,10 +194,10 @@ contains
 ! Diagnostics have the following attributes:
 !
 !1. Diagnostics may be `instantaneous` or `time-averaged`
-!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time` 
-!    from which the frequency is based. An `end_date` and `end_time` may also be 
+!2. Diagnostics have a `frequency` and an associated `ref_date` and `ref_time`
+!    from which the frequency is based. An `end_date` and `end_time` may also be
 !    used to turn off diagnostics after a given date and time.
-!3. Time-Averaged Diagnostics have an associated accumulation interval, 
+!3. Time-Averaged Diagnostics have an associated accumulation interval,
 !    `acc_interval`, which may be <= to the diagnostic `frequency`
 !4. Diagnostics are `time-stamped` with the center of the time-averaged period.
 !5. The default `acc_interval` is the diagnostic `frequency`
@@ -207,7 +209,7 @@ contains
 ! History Lists contain the following attributes:
 !
 !- **filename**:     Character string defining the filename of a particular diagnostic output stream.
-!- **template**:     Character string defining the time stamping template following GrADS convensions. 
+!- **template**:     Character string defining the time stamping template following GrADS convensions.
 !    The default value depends on the duration of the file.
 !- **format**:       Character string defining file format ("flat" or "CFIO"). Default = "flat".
 !- **mode**:         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
@@ -861,15 +863,19 @@ contains
           end if
        end if
        if (has_regrid_keyword) then
-          call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
-                                         label=trim(string) // 'regrid_method:'  ,_RC )
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, label=trim(string) // 'regrid_method:'  ,_RC )
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_spec, default="", &
+            label=trim(string) // 'sampler_spec:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
+            label=trim(string) // 'station_id_file:', _RC)
+
 ! Get an optional file containing a 1-D track for the output
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obsFile, default="", &
                                     label=trim(string) // 'track_file:', _RC)
-       if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
+       if (trim(list(n)%obsFile) /= '') list(n)%timeseries_output = .true.
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
 
@@ -2332,6 +2338,9 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
+       string = trim( list(n)%collection ) // '.'
+       cfg = ESMF_ConfigCreate(_RC)
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
        if (list(n)%format == 'CFIOasync') then
           list(n)%format = 'CFIO'
           if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
@@ -2361,8 +2370,12 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,_RC)
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,_RC)
+
+          elseif (list(n)%sampler_spec == 'station') then
+             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile),_RC)
+             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
@@ -2375,6 +2388,7 @@ ENDDO PARSER
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
        end if
+       call ESMF_ConfigDestroy(cfg, _RC)
    end do
 
 ! Echo History List Data Structure
@@ -2426,6 +2440,7 @@ ENDDO PARSER
          print *, '    End_Date: ',       list(n)%end_date
          print *, '    End_Time: ',       list(n)%end_time
          endif
+         print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
 
          block
             integer :: im_world, jm_world,dims(3)
@@ -3201,6 +3216,7 @@ ENDDO PARSER
 !   ErrLog vars
     integer                        :: status
     logical                        :: file_exists
+    type(Logger), pointer          :: lgr
 
 !=============================================================================
 
@@ -3406,6 +3422,7 @@ ENDDO PARSER
             end if
          endif
 
+         lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
@@ -3415,6 +3432,15 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
             list(n)%currentFile = filename(n)
+         elseif (list(n)%sampler_spec == 'station') then
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+                    "Station_data output to new file:",trim(filename(n)))
+               call list(n)%station_sampler%close_file_handle(_RC)
+               call list(n)%station_sampler%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
@@ -3561,6 +3587,10 @@ ENDDO PARSER
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
          call list(n)%trajectory%append_file(current_time,_RC)
       end if
+      if (list(n)%sampler_spec == 'station') then
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+         call list(n)%station_sampler%append_file(current_time,_RC)
+      endif
 
       if( Writing(n) .and. list(n)%unit < 0) then
 
@@ -3586,9 +3616,9 @@ ENDDO PARSER
  end subroutine Run
 
 !======================================================
-!> 
+!>
 ! Finanlize the `MAPL_HistoryGridComp` component.
-!  
+!
   subroutine Finalize ( gc, import, export, clock, rc )
 
     type(ESMF_GridComp), intent(inout)    :: gc     !! composite gridded component
@@ -5080,7 +5110,7 @@ ENDDO PARSER
           call ESMF_StateGet(src, itemNames(n), bundle(1), _RC)
           call ESMF_StateAdd(dst, bundle, _RC)
        end if
-    end do 
+    end do
 
     deallocate(itemTypes)
     deallocate(itemNames)

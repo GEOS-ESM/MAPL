@@ -2,7 +2,6 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataFileStream
    use ESMF
-   use yaFyaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_TimeStringConversion
@@ -15,7 +14,7 @@ module MAPL_ExtDataFileStream
    private
 
    type, public :: ExtDataFileStream
-      character(:), allocatable :: file_template
+      character(len=:), allocatable :: file_template
       type(ESMF_TimeInterval) :: frequency
       type(ESMF_Time) :: reff_time
       integer :: collection_id
@@ -30,8 +29,8 @@ module MAPL_ExtDataFileStream
     end interface ExtDataFileStream
 contains
 
-   function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set) 
-      class(Yaml_node), intent(in) :: config
+   function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set)
+      type(ESMF_HConfig), intent(in) :: config
       type(ESMF_Time), intent(in) :: current_time
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -46,18 +45,15 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (config%is_scalar()) then
 
-      else if (config%is_mapping()) then
-         is_present = config%has("template")
-         _ASSERT(is_present,"no file template in the collection")
-         if (is_present) then
-            call config%get(data_set%file_template,"template",rc=status)
-            _VERIFY(status)
-            file_frequency = get_string_with_default(config,"freq")
-            file_reff_time = get_string_with_default(config,"ref_time")
-            range_str = get_string_with_default(config,"valid_range")
-         end if
+      is_present = ESMF_HConfigIsDefined(config,keyString="template",_RC)
+      _ASSERT(is_present,"no file template in the collection")
+
+      if (is_present) then
+         data_set%file_template = ESMF_HConfigAsString(config,keyString="template",_RC)
+         file_frequency = get_string_with_default(config,"freq")
+         file_reff_time = get_string_with_default(config,"ref_time")
+         range_str = get_string_with_default(config,"valid_range")
       end if
 
       if (file_frequency /= '') then
@@ -142,12 +138,12 @@ contains
       contains
 
          function get_string_with_default(config,selector) result(string)
-            class(Yaml_Node), intent(in) :: config
+            type(ESMF_HConfig), intent(in) :: config
             character(len=*), intent(In) :: selector
             character(len=:), allocatable :: string
 
-            if (config%has(selector)) then
-               string=config%of(selector)
+            if (ESMF_HConfigIsDefined(config,keyString=selector)) then
+               string = ESMF_HConfigAsString(config,keyString=selector,_RC)
             else
                string=''
             end if
@@ -163,7 +159,7 @@ contains
       logical, optional, intent(in)  :: get_range
       integer, optional, intent(out) :: rc
 
-      logical :: get_range_      
+      logical :: get_range_
       type(MAPLDataCollection), pointer :: collection
       type(FileMetadataUtils), pointer :: metadata
       type(ESMF_Time), allocatable :: time_series(:)

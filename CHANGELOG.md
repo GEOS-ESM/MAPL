@@ -17,6 +17,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.40.0] - 2023-07-29
+
+### Added
+
+- Add ability of ExtData to fill variables on MAPL "tile" grids.
+- Added print of regrid method during History initialization
+- Added ability to use an `ESMF.rc` file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
+  - NOTE: File *must* be called `ESMF.rc`
+- Added ability to run ExtDataDriver.x on a MAPL "tile" grid
+- Add ability to introduce a time-step delay in ExtDataDriver.x to simulate the timestep latency of a real model
+- Added a MAPL\_Sleep function, equivalent to some vendor supplied but non-standard sleep function
+- sampling IODA file with trajectory sampler (step-1): make it run
+- Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
+  - Set required ESMF version to 8.5.0
+- Add StationSamplerMod for station sampler
+- Added ReplaceMetadata message and method to replace oserver's metadata
+- Added field utilities to perform basic numeric operations on fields
+- Update arithemetic parser to work with any rank and type of ESMF fields
+- For ExtDataDriver.x only, added logging config to Tests/ExtDataDriverMod.F90 to enable Logger there
+- Added new fill option and run mode for ExtDataDriver.x
+
+### Changed
+
+- Updates to GFE library dependency
+  - Require gFTL v1.10.0
+  - Require gFTL-shared v1.6.1
+  - Require fArgParse v1.5.0
+  - Require pFlogger v1.9.5
+  - Removed yaFyaml as dependency
+- Updated programs using FLAP for command line parsing to use fArgParse instead
+- Updated `components.yaml` to use Baselibs 7.14.0
+  - ESMA_env v4.9.1 → v4.19.0
+    - Baselibs 7.14.0
+      - esmf v8.5.0
+      - GFE v1.11.0
+      - curl 8.2.1
+      - HDF5 1.10.10
+      - netCDF-C 4.9.2
+      - netCDF-Fortran 4.6.1
+      - CDO 2.2.1
+      - NCO 5.1.7
+    - Move to MPT 2.28 at NAS, and other various changes for TOSS4 at NAS
+    - Remove Haswell from `build.csh`
+  - ESMA_cmake v3.28.0 → v3.31.0
+    - Clean up for TOSS4 changes at NAS
+    - Add `QUIET_DEBUG` flag
+    - Suppress some common warnings with Intel Debug
+- Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
+- Update CI to use BCs v11.1.0 and Baselibs 7.14.0
+- Updates to support building MAPL with spack instead of Baselibs
+  - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
+  - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
+  - Default `BUILD_WITH_FLAP` to `OFF` as we don't build it in spack
+  - Explicitly build GEOSadas in CI with `-DBUILD_WITH_FLAP=ON` as GEOSadas is still behind in moving to use fArgParse
+
+### Fixed
+
+- Created cubed-sphere grid factory with files split by face
+- Removed unneeded and confusing default in History Grid Comp (see #2081)
+- Fixes in CMake for fArgParse transition
+
+### Deprecated
+
+- Deprecate the use of FLAP for command line parsing in favor of fArgParse. FLAP support will be removed in MAPL 3
+
 ## [2.39.7] - 2023-07-18
 
 ### Fixed

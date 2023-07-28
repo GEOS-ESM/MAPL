@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.39.7
+  VERSION 2.40.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -58,6 +58,8 @@ if (NOT COMMAND esma)
 
 endif ()
 
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
 if (BUILD_SHARED_MAPL)
   set (MAPL_LIBRARY_TYPE SHARED)
@@ -71,38 +73,40 @@ message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 # This would then populate the target already leading to find_package()
 # errors.
 if(NOT TARGET GFTL::gftl)
-  # MAPL currently requires at least GFTL 1.5.1
-  find_package(GFTL 1.5.1 REQUIRED)
+  find_package(GFTL 1.10.0 REQUIRED)
 else()
-  if (GFTL_VERSION VERSION_LESS 1.5.1)
-    message(FATAL_ERROR "GFTL must be at least 1.5.1")
+  if (GFTL_VERSION VERSION_LESS 1.10.0)
+    message(FATAL_ERROR "gFTL must be at least 1.10.0")
   endif ()
 endif()
+message (STATUS "Found gFTL: ${GFTL_DIR} (found version ${GFTL_VERSION})")
+
 if(NOT TARGET GFTL_SHARED::gftl-shared)
-  find_package(GFTL_SHARED REQUIRED)
+  # MAPL currently requires at least gFTL-shared 1.6.1
+  find_package(GFTL_SHARED 1.6.1 REQUIRED)
+else ()
+  if (GFTL_SHARED_VERSION VERSION_LESS 1.6.1)
+    message(FATAL_ERROR "gFTL-shared must be at least 1.6.1")
+  endif ()
 endif()
+message (STATUS "Found gFTL-shared: ${GFTL_DIR} (found version ${GFTL_SHARED_VERSION})")
 
 option(BUILD_WITH_FARGPARSE "Use fArgParse for command line processing" ON)
 if(BUILD_WITH_FARGPARSE)
   if(NOT TARGET FARGPARSE::fargparse)
-    find_package(FARGPARSE 1.4.1 REQUIRED)
+    find_package(FARGPARSE 1.5.0 REQUIRED)
   else()
-    if (FARGPARSE_VERSION VERSION_LESS 1.4.1)
-      message(FATAL_ERROR "fArgParse must be at least 1.4.1")
+    if (FARGPARSE_VERSION VERSION_LESS 1.5.0)
+      message(FATAL_ERROR "fArgParse must be at least 1.5.0")
     endif ()
   endif()
+  message (STATUS "Building with fArgParse")
+  message (STATUS "Found fArgParse: ${FARGPARSE_DIR} (found version ${FARGPARSE_VERSION})")
 endif()
 
 option(USE_EXTDATA2G "Use ExtData2G" ON)
 if(USE_EXTDATA2G)
   set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
-  if(NOT TARGET YAFYAML::yafyaml)
-    find_package(YAFYAML 1.0.4 REQUIRED)
-  else()
-    if (YAFYAML_VERSION VERSION_LESS 1.0.4)
-      message(FATAL_ERROR "yaFyaml must be at least 1.0.4")
-    endif ()
-  endif()
   message (STATUS "Building with ExtData2G")
 else()
   set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
@@ -111,15 +115,17 @@ endif()
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
   if(NOT TARGET PFLOGGER::pflogger)
-    find_package(PFLOGGER 1.9.1 REQUIRED)
+    find_package(PFLOGGER 1.9.5 REQUIRED)
   else()
-    if (PFLOGGER_VERSION VERSION_LESS 1.9.1)
-      message(FATAL_ERROR "pFlogger must be at least 1.9.1")
+    if (PFLOGGER_VERSION VERSION_LESS 1.9.5)
+      message(FATAL_ERROR "pFlogger must be at least 1.9.5")
     endif ()
   endif()
+  message (STATUS "Building with pFlogger")
+  message (STATUS "Found pFlogger: ${PFLOGGER_DIR} (found version ${PFLOGGER_VERSION})")
 endif()
 
-option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+option(BUILD_WITH_FLAP "Use FLAP for command line processing" OFF)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
 endif ()
@@ -142,7 +148,7 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET esmf)
-    find_package(ESMF 8.4.0 MODULE REQUIRED)
+    find_package(ESMF 8.5.0 MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     # NOTE: This looks odd because some versions of FindESMF.cmake out in the
@@ -156,6 +162,13 @@ if (NOT Baselibs_FOUND)
       # the latest FindESMF.cmake file from ESMF produces an ESMF target.
       add_library(esmf ALIAS ESMF)
     endif()
+  endif ()
+else ()
+  # This is an ESMF version test when using Baselibs which doesn't use the
+  # same find_package internally in ESMA_cmake as used above (with a version
+  # number) so this lets us at least trap use of old Baselibs here.
+  if (ESMF_VERSION VERSION_LESS 8.5.0)
+    message(FATAL_ERROR "ESMF must be at least 8.5.0")
   endif ()
 endif ()
 
@@ -209,7 +222,7 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
-if (BUILD_WITH_FLAP)
+if (BUILD_WITH_FARGPARSE)
    add_subdirectory (tutorial)
 endif()
 
@@ -219,7 +232,6 @@ if (PFUNIT_FOUND)
 endif ()
 
 # Support for automated code generation
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(mapl_acg)
 include(mapl_create_stub_component)
 add_subdirectory (Apps)
