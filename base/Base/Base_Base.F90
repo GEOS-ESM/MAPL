@@ -58,7 +58,6 @@ module MAPL_Base
   public MAPL_StateAdd
   public MAPL_FieldBundleAdd
   public MAPL_FieldBundleGet
-  public MAPL_FieldDestroy
   public MAPL_FieldBundleDestroy
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
@@ -641,12 +640,6 @@ module MAPL_Base
        integer, optional,                intent(  OUT) :: RC
      end subroutine MAPL_FieldAttSetI4
      ! ========================================
-
-     module subroutine MAPL_FieldDestroy(Field,RC)
-       use ESMF, only: ESMF_Field
-       type(ESMF_Field),          intent(INOUT) :: Field
-       integer, optional,         intent(OUT  ) :: RC
-     end subroutine MAPL_FieldDestroy
 
      module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
        use ESMF, only: ESMF_FieldBundle
