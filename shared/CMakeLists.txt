@@ -29,7 +29,6 @@ set (srcs
     DownBit.F90
     ShaveMantissa.c
     MAPL_Sleep.F90
-    Plain_netCDF_Time.F90
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
