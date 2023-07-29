@@ -97,9 +97,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          endif
          call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)         
 
-         call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)     ! gives obsfile_is_valid
-
          _RETURN(_SUCCESS)
 
        end procedure
@@ -120,7 +117,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%items=items
          this%epoch_index(1:2)=0
 
-
          if (present(vdata)) then
             this%vdata=vdata
          else
@@ -130,14 +126,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
-
-         if (this%obsfile_is_available) then
-            call this%create_grid(_RC)
-            call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-            this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)         
-            this%output_bundle = this%create_new_bundle(_RC)
-            this%acc_bundle    = this%create_new_bundle(_RC)
-         endif
+         call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC) 
+         call this%create_grid(_RC)
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)         
+         this%output_bundle = this%create_new_bundle(_RC)
+         this%acc_bundle    = this%create_new_bundle(_RC)
+         
          
          this%time_info = timeInfo
 
@@ -976,15 +972,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            this%obsfile_Ts_index = n1
            this%obsfile_Te_index = n2
 
-
-           dT3 = Tn - T1
-           call ESMF_TimeIntervalGet(dT3, s_r8=dT3_s, rc=status)
-           K   = floor (dT3_s / dT0_s)
-           if (n1>=0 .AND. n2<=K) then
-              this%obsfile_is_available = .true.
-           else
-              this%obsfile_is_available = .false.
-           end if
+           !! -- prone to error
+           !!dT3 = Tn - T1
+           !!call ESMF_TimeIntervalGet(dT3, s_r8=dT3_s, rc=status)
+           !!K   = floor (dT3_s / dT0_s)
+           !!if (n1>=0 .AND. n2<=K) then
+           !!   this%obsfile_is_available = .true.
+           !!else
+           !!   this%obsfile_is_available = .false.
+           !!end if
            
            _RETURN(ESMF_SUCCESS)           
          end procedure get_obsfile_Tbracket_from_epoch
@@ -1005,6 +1001,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            print*, 'ck: this%obsFile_T=', trim(filename)
            _RETURN(ESMF_SUCCESS)
          end procedure
+
 
          module procedure  get_filename_from_template_use_index
             integer :: itime(2)
