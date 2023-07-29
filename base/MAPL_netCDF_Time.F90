@@ -520,13 +520,13 @@ contains
     s2=trim(shms)
     read(s2, '(3i2)') hh, mm, ss
 
-    write(6,'(3a10)') 's1, s2', s1, s2
-    write(6,*) 'int y,m,d,hh,mm,ss', y,m,d,hh,mm,ss
+    !!! debug
+    !!write(6,'(3a10)') 's1, s2', s1, s2
+    !!write(6,*) 'int y,m,d,hh,mm,ss', y,m,d,hh,mm,ss
 
     call ESMF_TimeIntervalSet(interval, yy=y, mm=m, d=d, h=hh, m=mm, s=ss, rc=rc)
 
     if (present(rc)) rc=0
   end subroutine convert_twostring_2_esmfinterval
 
-    
 end module MAPL_Plain_NetCDF_Time

@@ -62,6 +62,7 @@ module HistoryTrajectoryMod
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index     
+     logical                        :: obsfile_is_available
 
    contains
      procedure :: initialize
