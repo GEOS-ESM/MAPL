@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataConfig
    use ESMF
-   use yaFyaml
    use PFIO
    use gFTL_StringVector
    use MAPL_KeywordEnforcerMod
@@ -93,7 +92,7 @@ contains
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-            single_sample = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC) 
+            single_sample = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ts = ExtDataTimeSample(single_sample,_RC)
             call ext_config%sample_map%insert(trim(hconfig_key),ts)
          enddo
@@ -108,7 +107,7 @@ contains
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             temp_ds => ext_config%file_stream_map%at(hconfig_key)
             _ASSERT(.not.associated(temp_ds),"defined duplicate named collection")
-            single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC) 
+            single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ds = ExtDataFileStream(single_collection,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
          enddo
@@ -133,7 +132,7 @@ contains
                   new_key = hconfig_key//rule_sep//i_char
                   call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
                enddo
-            else 
+            else
                _FAIL("Unsupported type")
             end if
          enddo
@@ -419,7 +418,7 @@ contains
             found_rule = (key(:rule_sep_loc-1) == base_name)
          else
             found_rule = (key == base_name)
-         end if 
+         end if
          if (found_rule) exit
          call iter%next()
       enddo
