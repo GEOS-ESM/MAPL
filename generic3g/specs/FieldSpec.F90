@@ -18,6 +18,7 @@ module mapl3g_FieldSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
    use mapl3g_SequenceAction
+   use mapl3g_ESMF_Utilities, only: ESMF_TYPEKIND_MIRROR
    use esmf
    use nuopc
 
@@ -115,8 +116,8 @@ contains
       field_spec%typekind = typekind
       field_spec%ungridded_dims = ungridded_dims
 
-      field_spec%units = standard_name
-      field_spec%units = long_name
+      field_spec%standard_name = standard_name
+      field_spec%long_name = long_name
       field_spec%units = units
 
       if (present(default_value)) field_spec%default_value = default_value
@@ -313,6 +314,8 @@ contains
          ! ok
          call this%destroy(_RC)
          this%payload = src_spec%payload
+         call mirror(dst=this%typekind, src=src_spec%typekind, _RC)
+
          call this%set_created()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -320,7 +323,28 @@ contains
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
+
+   contains
+      
+      subroutine mirror(dst, src, rc)
+         type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
+         integer, optional, intent(out) :: rc
+         if (dst /= src) then
+            if (dst == ESMF_TYPEKIND_MIRROR) then
+               dst = src
+               _RETURN(_SUCCESS)
+            end if
+            if (src == ESMF_TYPEKIND_MIRROR) then
+               src = dst
+               _RETURN(_SUCCESS)
+            end if
+         end if
+
+         _ASSERT(dst == src, 'unsupported typekind mismatch')
+      end subroutine mirror
+
    end subroutine connect_to
+
 
 
    logical function can_connect_to(this, src_spec)
@@ -426,19 +450,20 @@ contains
       _RETURN(_SUCCESS)
    end function extension_cost
 
-   function make_extension(this, src_spec, rc) result(extension)
+   function make_extension(this, dst_spec, rc) result(extension)
       class(AbstractStateItemSpec), allocatable :: extension
       class(FieldSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      find_mismatch: select type (src_spec)
+      find_mismatch: select type (dst_spec)
       type is (FieldSpec)
-         extension = this%make_extension_safely(src_spec)
+         extension = this%make_extension_safely(dst_spec)
          call extension%create([StateItemSpecPtr::], _RC)
       class default
+         allocate(extension, source=this)
          extension = this
          _FAIL('Unsupported subclass.')
       end select find_mismatch
@@ -514,7 +539,13 @@ contains
 
    logical function match_typekind(a, b) result(match)
       type(ESMF_TypeKind_Flag), intent(in) :: a, b
-      match = (a == b)
+
+      ! If both typekinds are MIRROR then must fail (but not here)
+      if (a /= b) then
+         match = any([a%dkind,b%dkind] == ESMF_TYPEKIND_MIRROR%dkind)
+      else
+         match = (a == b)
+      end if
    end function match_typekind
 
    logical function match_string(a, b) result(match)

@@ -827,14 +827,16 @@ contains
       type(VirtualConnectionPt), pointer :: v_pt
       type(ActualPtVec_MapIterator) :: iter
       
-      associate (e => this%virtual_pts%end())
-        iter = this%virtual_pts%begin()
+      associate (e => this%virtual_pts%ftn_end())
+        iter = this%virtual_pts%ftn_begin()
         do while (iter /= e)
+           call iter%next()
            v_pt => iter%first()
 
-           if (pattern%matches(v_pt)) call matches%push_back(v_pt)
-           
-           call iter%next()
+           if (pattern%matches(v_pt)) then
+              call matches%push_back(v_pt)
+           end if
+
         end do
       end associate
 

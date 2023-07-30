@@ -142,10 +142,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   function make_extension(this, src_spec, rc) result(extension)
+   function make_extension(this, dst_spec, rc) result(extension)
       class(AbstractStateItemSpec), allocatable :: extension
       class(InvalidSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
