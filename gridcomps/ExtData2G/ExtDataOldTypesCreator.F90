@@ -4,7 +4,6 @@
 module MAPL_ExtDataOldTypesCreator
    use ESMF
    use MAPL_BaseMod
-   use yafYaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ExtDataTypeDef
