@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Ranamed "geom" subdir to "field_utils"
 - Updated programs using FLAP for command line parsing to use fArgParse instead
 - Updated `components.yaml` to match GEOSgcm v11.1.0
   - ESMA_env v4.9.1 → v4.17.0
