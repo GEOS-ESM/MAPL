@@ -128,6 +128,7 @@ contains
               ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_stateitem), &
               ScenarioDescription('history_1',               'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('history_wildcard',        'cap.yaml',         check_name, check_stateitem), &
+              ScenarioDescription('extdata_1',               'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), & 
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem),  &
@@ -325,9 +326,9 @@ contains
       msg = description
       expected_itemtype = get_expected_itemtype(expectations, _RC)
 
-      
+
       itemtype=get_itemtype(state, short_name, _RC)
-      @assert_that(expected_itemtype == itemtype, is(true()))
+      @assert_that(short_name, expected_itemtype == itemtype, is(true()))
 
       rc = 0
 

@@ -1,12 +1,18 @@
 esma_set_this ()
 
 add_library(simple_leaf_gridcomp SHARED SimpleLeafGridComp.F90)
-target_link_libraries(simple_leaf_gridcomp MAPL.generic3g scratchpad)
-target_include_directories(simple_leaf_gridcomp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)
+target_link_libraries(simple_leaf_gridcomp scratchpad)
 
 add_library(simple_parent_gridcomp SHARED SimpleParentGridComp.F90)
-target_link_libraries(simple_parent_gridcomp MAPL.generic3g scratchpad)
-target_include_directories(simple_parent_gridcomp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)
+target_link_libraries(simple_parent_gridcomp scratchpad)
+
+add_library(proto_extdata_gc SHARED ProtoExtDataGC.F90)
+
+set (comps simple_parent_gridcomp simple_leaf_gridcomp proto_extdata_gc)
+foreach (comp ${comps})
+  target_link_libraries(${comp} MAPL.generic3g)
+  target_include_directories(${comp} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)
+endforeach()  
 
 #add_library(parameterized_gridcomp SHARED ParameterizedGridComp.F90)
 #target_link_libraries(parameterized_gridcomp MAPL.generic3g scratchpad)
@@ -14,4 +20,4 @@ target_include_directories(simple_parent_gridcomp PRIVATE ${CMAKE_CURRENT_BINARY
 
 # These targets are not part of all, nor do the tests directly depend upon them (by design).
 # So, we need to ensure that build-tests builds them.
-add_dependencies(build-tests simple_leaf_gridcomp simple_parent_gridcomp) # parameterized_gridcomp)
+add_dependencies(build-tests ${comps}) # parameterized_gridcomp)

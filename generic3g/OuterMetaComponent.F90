@@ -251,7 +251,7 @@ contains
 
       integer :: status
       type(ChildComponent), pointer :: child_ptr
-      
+
       child_ptr => this%children%at(child_name, rc=status)
       _ASSERT(associated(child_ptr), 'Child not found: <'//child_name//'>.')
 
@@ -600,6 +600,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_POST_ADVERTISE'
       type(MultiState) :: outer_states
 
+      call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call this%registry%add_to_states(this%user_states, mode='user', _RC)
       this%state_extensions = this%registry%get_extensions()
       

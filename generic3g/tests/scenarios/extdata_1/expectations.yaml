@@ -1,0 +1,33 @@
+# For each component:
+#   - provide a path to the outer/user componen in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: root/<user>
+  import:
+    E1: {status: complete, typekind: R4}
+
+- component: root
+  import:
+    E1: {status: complete, typekind: R4}
+
+- component: extdata/collection_1/<user>
+  export:
+    E1: {status: complete, typekind: R8}
+
+- component: extdata/collection_1
+  export:
+    E1: {status: complete, typekind: R8}
+    E1(0): {status: complete, typekind: R4}
+
+- component: extdata/<user>
+  export:
+    E1: {status: complete, typekind: R4}
+  import:
+    E1: {status: complete, typekind: R4}
+
+- component: extdata
+#  export:
+#    "collection_1/E1": {status: complete, typekind: R8}
+#    "collection_1/E1(0)": {status: complete, typekind: R4}
+

@@ -104,6 +104,7 @@ contains
          type(ESMF_StateItem_Flag), allocatable :: itemtype
 
          type(StringVector), allocatable :: service_items
+         integer :: status
 
          b = ESMF_HConfigIterBegin(config) 
          e = ESMF_HConfigIterEnd(config) 
@@ -182,6 +183,7 @@ contains
       end subroutine val_to_float
 
       subroutine to_typekind(typekind, attributes, rc)
+         use :: mapl3g_ESMF_Utilities, only: ESMF_TYPEKIND_MIRROR
          type(ESMF_TypeKind_Flag) :: typekind
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
@@ -204,8 +206,10 @@ contains
             typekind = ESMF_TYPEKIND_I4
          case ('I8')
             typekind = ESMF_TYPEKIND_I8
+         case ('mirror')
+            typekind = ESMF_TYPEKIND_MIRROR
          case default
-            _FAIL('Unsupported typekind')
+            _FAIL('Unsupported typekind: <'//typekind_str//'>')
          end select
 
          _RETURN(_SUCCESS)

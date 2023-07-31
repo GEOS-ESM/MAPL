@@ -196,17 +196,17 @@ contains
       _RETURN(_SUCCESS)
    end subroutine mock_run
 
-   function make_extension(this, src_spec, rc) result(extension)
+   function make_extension(this, dst_spec, rc) result(extension)
       class(AbstractStateItemSpec), allocatable :: extension
       class(MockItemSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      select type(src_spec)
+      select type(dst_spec)
       type is (MockItemSpec)
-         extension = this%make_extension_typesafe(src_spec, rc)
+         extension = this%make_extension_typesafe(dst_spec, rc)
       class default
          _FAIL('incompatible spec')
       end select
