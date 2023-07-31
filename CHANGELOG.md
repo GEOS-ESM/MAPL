@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Workaround for ESMF for `MAPL_SetAttribute`.   Appears to be a consistency bug in ESMF, but only affects NAG compiler.  Probably because of how `ESMF_HAS_ACHAR_BUG` is established per compiler.
+- Workaround for ESMF for `MAPL_SetAttribute` when using NAG.   Appears to be a consistency bug in ESMF, but only affects NAG compiler.  Probably because of how `ESMF_HAS_ACHAR_BUG` is established per compiler.  
 
 ### Removed
 
