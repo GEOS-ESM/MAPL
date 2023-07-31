@@ -51,10 +51,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Trajectory sampler with Epoch time span
 ### Added
 
+- Trajectory sampler with Epoch time span
+
 ### Changed
+
+- Renamed "geom" subdir and library to "field_utils"
 
 ### Fixed
 

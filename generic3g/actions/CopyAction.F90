@@ -6,7 +6,7 @@ module mapl3g_CopyAction
    use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    use esmf
-   use mapl_geom
+   use MAPL_FieldUtils
    implicit none
 
    type, extends(ExtensionAction) :: CopyAction
@@ -38,7 +38,7 @@ contains
       integer :: status
 
       call FieldCopy(this%f_in, this%f_out, _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine run
 
