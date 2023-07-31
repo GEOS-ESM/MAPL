@@ -21,7 +21,6 @@ exclude_dir: ../Ford
              ../build
              ../gFTL
              ../esmf
-             ../yaFyaml
              ../pFUnit
              ../fArgParse
              ../pFlogger
