@@ -1,15 +1,5 @@
-esma_set_this (OVERRIDE MAPL.geom)
+esma_set_this (OVERRIDE MAPL.field_utils)
 
-
-#set(srcs
-#  EsmfRegridder.F90
-#  FieldBLAS.F90
-#  FieldBLAS_IntrinsicFunctions.F90
-#  GeomManager.F90
-#  MaplGeom.F90
-#  Regridder.F90
-#  StateSupplement.F90
-#  )
 set(srcs
   FieldUtils.F90
   FieldBLAS.F90
