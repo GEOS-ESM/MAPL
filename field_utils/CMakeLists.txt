@@ -11,7 +11,7 @@ esma_set_this (OVERRIDE MAPL.geom)
 #  StateSupplement.F90
 #  )
 set(srcs
-  geom.F90
+  FieldUtils.F90
   FieldBLAS.F90
   FieldPointerUtilities.F90
   FieldUtilities.F90

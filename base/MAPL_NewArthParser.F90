@@ -52,7 +52,7 @@ MODULE MAPL_NewArthParserMod
 
   use ESMF
   use MAPL_BaseMod
-  use MAPL_Geom
+  use MAPL_FieldUtils
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
   use gFTL_StringVector

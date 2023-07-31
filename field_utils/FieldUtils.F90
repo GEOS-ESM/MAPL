@@ -1,7 +1,7 @@
-module MAPL_Geom
+module MAPL_FieldUtils
    use MAPL_FieldUnaryFunctions
    use MAPL_FieldBinaryOperations
    use MAPL_FieldUtilities
    use MAPL_FieldPointerUtilities
    use mapl3g_FieldBlas
-end module
+end module MAPL_FieldUtils
