@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Trajectory sampler with Epoch time span
 ### Added
 
+- Trajectory sampler with Epoch time span
+
 ### Changed
+
+- Renamed "geom" subdir to "field_utils"
 
 ### Fixed
 
@@ -41,7 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Ranamed "geom" subdir to "field_utils"
 - Updates to GFE library dependency
   - Require gFTL v1.10.0
   - Require gFTL-shared v1.6.1
