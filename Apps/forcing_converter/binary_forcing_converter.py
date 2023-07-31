@@ -79,9 +79,14 @@ if __name__ == '__main__':
 
        input_file = file
        grid_type = files[file]['grid_type']
-       if grid_type == "tile":
-          create_tile_from_map(input_file,files[file])
-       elif grid_type == "latlon":
-          create_latlon_from_map(input_file,files[file])
-       elif grid_type == "cube":
-          create_cube_from_map(input_file,files[file])
+       try:
+          if grid_type == "tile":
+             create_tile_from_map(input_file,files[file])
+          elif grid_type == "latlon":
+             create_latlon_from_map(input_file,files[file])
+          elif grid_type == "cube":
+             create_cube_from_map(input_file,files[file])
+          else:
+             raise ValueError()
+       except ValueError as err:
+          print("Incorrect grid type specified")

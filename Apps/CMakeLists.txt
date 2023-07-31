@@ -7,7 +7,6 @@
 file (COPY MAPL_GridCompSpecs_ACG.py DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_acg.pl DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_stub.pl DESTINATION ${esma_etc}/MAPL)
-file (GLOB pythonscripts CONFIGURE_DEPENDS ./forcing_converter/*.py)
 
 install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
@@ -17,9 +16,14 @@ install (PROGRAMS
   )
 
 install(
-  PROGRAMS ${pythonscripts}
-  DESTINATION: bin)
+  PROGRAMS forcing_converter/binary_forcing_converter.py
+  PROGRAMS forcing_converter/ll_formatter.py
+  PROGRAMS forcing_converter/cs_formatter.py
+  PROGRAMS forcing_converter/tile_formatter.py
+  PROGRAMS forcing_converter/utilities.py
+  DESTINATION bin/forcing_converter)
 
+#file(GLOB pythonscripts CONFIGURE_DEPENDS ./forcing_converter/*.py)
 
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90)
 target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran esmf)
