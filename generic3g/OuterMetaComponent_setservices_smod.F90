@@ -144,7 +144,6 @@ contains
 
          if (ESMF_HConfigIsDefined(child_spec,keyString='config_file')) then
             config_file = ESMF_HConfigAsString(child_spec,keyString='config_file',_RC)
-!!$            _HERE, 'config file? ', config_file
             new_config = ESMF_HConfigCreate(filename=config_file,_RC)
             generic_config = GenericConfig(yaml_cfg=new_config)
          end if

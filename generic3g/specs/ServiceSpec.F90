@@ -211,10 +211,10 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
-   function make_extension(this, src_spec, rc) result(extension)
+   function make_extension(this, dst_spec, rc) result(extension)
       class(AbstractStateItemSpec), allocatable :: extension
       class(ServiceSpec), intent(in) :: this
-      class(AbstractStateItemSpec), intent(in) :: src_spec
+      class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
       _RETURN(_SUCCESS)
    end function make_extension

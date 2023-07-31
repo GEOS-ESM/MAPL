@@ -47,7 +47,7 @@ contains
 
    end function new_MatchConnection
 
-  function get_source(this) result(source)
+   function get_source(this) result(source)
       type(ConnectionPt) :: source
       class(MatchConnection), intent(in) :: this
       source = this%source
@@ -87,6 +87,8 @@ contains
 
       do i = 1, dst_v_pts%size()
          dst_pattern => dst_v_pts%of(i)
+         src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+              '^'//dst_pattern%get_esmf_name()//'$', comp_name=dst_pattern%get_comp_name())
          dst_specs = dst_registry%get_actual_pt_SpecPtrs(dst_pattern, _RC)
 
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
@@ -106,9 +108,9 @@ contains
 
          end do
       end do
-      
+
       _RETURN(_SUCCESS)
    end subroutine connect
 
 
- end module mapl3g_MatchConnection
+end module mapl3g_MatchConnection

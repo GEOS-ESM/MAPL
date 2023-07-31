@@ -92,11 +92,11 @@ module mapl3g_AbstractStateItemSpec
          integer, optional, intent(out) :: rc
       end function I_get_dependencies
 
-      function I_make_extension(this, src_spec, rc) result(extension)
+      function I_make_extension(this, dst_spec, rc) result(extension)
          import AbstractStateItemSpec
          class(AbstractStateItemSpec), allocatable :: extension
          class(AbstractStateItemSpec), intent(in) :: this
-         class(AbstractStateItemSpec), intent(in) :: src_spec
+         class(AbstractStateItemSpec), intent(in) :: dst_spec
          integer, optional, intent(out) :: rc
       end function I_make_extension
          

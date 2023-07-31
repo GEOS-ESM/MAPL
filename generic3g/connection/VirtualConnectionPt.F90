@@ -64,7 +64,9 @@ contains
 
       v_pt%state_intent = state_intent
       v_pt%short_name = short_name
-      if (present(comp_name)) v_pt%comp_name = comp_name
+      if (present(comp_name)) then
+         if (comp_name /= '') v_pt%comp_name = comp_name
+      end if
 
       _UNUSED_DUMMY(unusable)
     end function new_VirtualPt_basic
@@ -224,7 +226,7 @@ contains
       matches = (this%get_state_intent() == item%get_state_intent())
       if (.not. matches) return
 
-      call regcomp(regex,this%get_full_name(),flags='xmi')
+      call regcomp(regex,'^'//this%get_full_name()//'$',flags='xmi')
       matches = regexec(regex,item%get_full_name())
 
    end function matches
