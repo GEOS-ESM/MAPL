@@ -3,5 +3,5 @@ module MAPL_FieldUtils
    use MAPL_FieldBinaryOperations
    use MAPL_FieldUtilities
    use MAPL_FieldPointerUtilities
-   use mapl3g_FieldBlas
+   use mapl_FieldBlas
 end module MAPL_FieldUtils

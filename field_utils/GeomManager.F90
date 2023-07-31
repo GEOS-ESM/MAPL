@@ -1,4 +1,4 @@
-module mapl3g_GeomManager
+module mapl_GeomManager
    implicit none
    private
 
@@ -25,4 +25,4 @@ contains
    end function new_GeomManager
 
 
-end module mapl3g_GeomManager
+end module mapl_GeomManager
