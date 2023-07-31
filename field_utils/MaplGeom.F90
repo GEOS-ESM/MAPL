@@ -1,4 +1,4 @@
-module mapl3g_MaplGeom
+module mapl_MaplGeom
    implicit none
    private
 
@@ -32,4 +32,4 @@ contains
       end do
 
    end subroutine spherical_to_cartesian
-end module mapl3g_MaplGeom
+end module mapl_MaplGeom

@@ -24,7 +24,7 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
-  use MAPL_Geom
+  use MAPL_FieldUtils
   use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry
