@@ -36,7 +36,7 @@ module mapl_FieldBLAS
 !   public :: ACosh
 !   public :: ATanh
 !   public :: Heavyside
-   
+
 
    ! Misc utiliities
    public :: FieldSpread
@@ -64,7 +64,7 @@ module mapl_FieldBLAS
    interface FieldConvertPrec
       module procedure convert_prec
    end interface FieldConvertPrec
-   
+
    interface FieldSpread
       module procedure spread_scalar
    end interface FieldSpread
@@ -89,11 +89,11 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine scale_r4
-   
+
    subroutine scale_r8(a, x, rc)
       real(kind=ESMF_KIND_R8), intent(in) :: a
       type(ESMF_Field), intent(inout) :: x
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
 
       real(kind=ESMF_KIND_R8), pointer :: x_ptr(:)
       integer :: status
@@ -119,7 +119,7 @@ contains
 
       conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
-      
+
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
@@ -143,7 +143,7 @@ contains
 
       conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
-      
+
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
@@ -277,7 +277,7 @@ contains
       integer :: status
 
       _ASSERT(ncopies > 0, 'ncopies must be positive')
-      
+
       allocate(vector(ncopies))
 
       do i=1, ncopies
@@ -292,10 +292,10 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tks(:)
       type(ESMF_TypeKind_Flag), intent(out) :: actual_tk
       type(ESMF_TypeKind_Flag) :: found_tk
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
       integer :: status
       integer :: i
-      
+
       do i = 1, size(expected_tks)
          actual_tk = expected_tks(i)
          call ESMF_FieldGet(x, typekind=found_tk, _RC)
@@ -310,43 +310,43 @@ contains
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
 
       type(ESMF_TypeKind_Flag) :: found_tk
-      
+
       call ESMF_FieldGet(x, typekind=found_tk, _RC)
 
       _ASSERT((found_tk == expected_tk), 'Found incorrect typekind.')
-      _RETURN(_SUCCESS)   
+      _RETURN(_SUCCESS)
    end subroutine verify_typekind_scalar
 
    subroutine verify_typekind_array(x, expected_tk, rc)
       type(ESMF_Field), intent(inout) :: x(:)
       type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       integer :: i
 
       do i = 1, size(x)
          call verify_typekind(x(i), expected_tk, _RC)
       end do
-      _RETURN(_SUCCESS)   
+      _RETURN(_SUCCESS)
    end subroutine verify_typekind_array
 
 !   subroutine verify_typekind_rank1(x, expected_tk, rc)
 !      type(ESMF_Field), intent(inout) :: x(:)
 !      type(ESMF_TypeKind_Flag), intent(in) :: expected_tk
 !      integer, optional, intent(out) :: rc
-!      
+!
 !      integer :: status
 !      integer :: i
-!      
+!
 !      do i = 1, size(x)
 !         call verify_typekind(x(i), expected_tk, _RC)
 !      end do
-!      
+!
 !      _RETURN(_SUCCESS)
 !   end subroutine verify_typekind_rank1
 
@@ -374,7 +374,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine convert_prec
-   
+
    function is_valid_typekind(actual_tk, valid_tks) result(is_valid)
       type(ESMF_TypeKind_Flag), intent(in) :: actual_tk
       type(ESMF_TypeKind_Flag), intent(in) :: valid_tks(:)
@@ -414,7 +414,7 @@ contains
 
       real(kind=ESMF_KIND_R8), pointer :: original_ptr(:)
       real(kind=ESMF_KIND_R4), pointer :: converted_ptr(:)
-      
+
       call assign_fptr(original, original_ptr, _RC)
       call assign_fptr(converted, converted_ptr, _RC)
 
@@ -424,4 +424,3 @@ contains
    end subroutine convert_prec_R8_to_R4
 
 end module mapl_FieldBLAS
-

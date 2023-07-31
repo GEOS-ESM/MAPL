@@ -3,7 +3,7 @@
 module Test_FieldBLAS
 
    use mapl_FieldBLAS
-   use geom_setup
+   use field_utils_setup
    use MAPL_FieldPointerUtilities
    use ESMF
    use funit
@@ -51,7 +51,7 @@ contains
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
       integer :: status, rc
-      
+
       x = XR4
       y = YR4
       call FieldCOPY(x, y, _RC)
@@ -69,8 +69,8 @@ contains
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
       integer :: status, rc
-      
-      x = XR8 
+
+      x = XR8
       y = YR8
       call FieldCOPY(x, y, _RC)
       call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
@@ -87,8 +87,8 @@ contains
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
       integer :: status, rc
-      
-      x = XR4 
+
+      x = XR4
       y = YR8
       call FieldCOPY(x, y, _RC)
       call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
@@ -105,7 +105,7 @@ contains
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
       integer :: status, rc
-      
+
       x = XR8
       y = YR4
       call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
@@ -210,7 +210,7 @@ contains
       integer, allocatable :: expected_count(:)
       integer, allocatable :: actual_count(:)
       integer :: status, rc
-      
+
       x = XR4
       call ESMF_FieldGet(x, rank=rank, _RC)
       allocate(expected_count(rank))
@@ -218,7 +218,7 @@ contains
       actual_count = FieldGetLocalElementCount(x, _RC)
       @assertEqual(actual_count, expected_count)
       if(allocated(expected_count)) deallocate(expected_count)
-   
+
    end subroutine test_FieldGetLocalElementCount
 
    @Test
@@ -301,7 +301,7 @@ contains
       y = YR4
       are_same_typekind = .FALSE.
       are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
-      @assertTrue(are_same_typekind) 
+      @assertTrue(are_same_typekind)
       x = XR8
       y = YR8
       are_same_typekind = .FALSE.
@@ -388,9 +388,9 @@ contains
 
       y = X
       @assertTrue(are_almost_equal(X, y), trim(MSG))
-      
+
    end subroutine test_almost_equal_scalar
-      
+
    @Test
    subroutine test_almost_equal_array()
       integer, parameter :: N = 3
@@ -433,7 +433,7 @@ end module Test_FieldBLAS
 
 !         call FieldAXPY(a, x, y, _RC)
 !         if(status /= ESMF_SUCCESS) exit
-!         
+!
 !         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
 !         if(status /= ESMF_SUCCESS) exit
 

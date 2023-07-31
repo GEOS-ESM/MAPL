@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module geom_setup
+module field_utils_setup
 
    use ESMF
    use funit
@@ -30,8 +30,8 @@ module geom_setup
    real, parameter :: undef = 42.0
 
    real(kind=ESMF_KIND_R4), parameter :: R4_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R4)], DIMR4_DEFAULT)
-   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT) 
-   
+   real(kind=ESMF_KIND_R8), parameter :: R8_ARRAY_DEFAULT(*,*) = reshape([(i, i = 1, SIZE_R8)], DIMR8_DEFAULT)
+
    type(ESMF_Field) :: XR4
    type(ESMF_Field) :: XR8
    type(ESMF_Field) :: YR4
@@ -40,7 +40,7 @@ module geom_setup
    type(ESMF_Field) :: XR8_3D
    type(ESMF_Field) :: YR4_3D
    type(ESMF_Field) :: YR8_3D
-   
+
 contains
 
    ! MAKE GRID FOR FIELDS
@@ -79,7 +79,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function mk_field_r4_ungrid
-   
+
    function mk_field_r4_2d(farray, regDecomp, minIndex, maxIndex, indexflag, name, rc) result(field)
       real(kind=ESMF_KIND_R4), dimension(:,:), target, intent(in) :: farray
       integer, dimension(:), intent(in) :: regDecomp
@@ -134,7 +134,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: GRID_SUFFIX = '_grid'
       character(len=*), parameter :: FIELD_SUFFIX = '_field'
-      
+
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       integer :: status
@@ -183,4 +183,4 @@ contains
 
    end subroutine initialize_array_R8
 
-end module geom_setup
+end module field_utils_setup

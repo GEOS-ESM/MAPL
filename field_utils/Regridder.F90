@@ -1,4 +1,4 @@
-module mapl3g_Regridder
+module mapl_Regridder
    implicit none
    private
 
@@ -22,5 +22,5 @@ module mapl3g_Regridder
       end subroutine I_regrid
    end interface
 
-end module mapl3g_Regridder
+end module mapl_Regridder
       
