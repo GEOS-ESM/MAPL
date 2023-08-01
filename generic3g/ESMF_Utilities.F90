@@ -8,9 +8,9 @@ module mapl3g_ESMF_Utilities
 
    public :: write(formatted)
    public :: get_substate
-   public :: ESMF_TYPEKIND_MIRROR
+   public :: MAPL_TYPEKIND_MIRROR
 
-   type(ESMF_TypeKind_Flag), parameter :: ESMF_TYPEKIND_MIRROR = ESMF_TypeKind_Flag(200)
+   type(ESMF_TypeKind_Flag), parameter :: MAPL_TYPEKIND_MIRROR = ESMF_TypeKind_Flag(200)
 
    interface write(formatted)
       procedure write_state

@@ -18,7 +18,7 @@ module mapl3g_FieldSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
    use mapl3g_SequenceAction
-   use mapl3g_ESMF_Utilities, only: ESMF_TYPEKIND_MIRROR
+   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
    use nuopc
 
@@ -330,11 +330,11 @@ contains
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
          integer, optional, intent(out) :: rc
          if (dst /= src) then
-            if (dst == ESMF_TYPEKIND_MIRROR) then
+            if (dst == MAPL_TYPEKIND_MIRROR) then
                dst = src
                _RETURN(_SUCCESS)
             end if
-            if (src == ESMF_TYPEKIND_MIRROR) then
+            if (src == MAPL_TYPEKIND_MIRROR) then
                src = dst
                _RETURN(_SUCCESS)
             end if
@@ -460,11 +460,10 @@ contains
 
       find_mismatch: select type (dst_spec)
       type is (FieldSpec)
-         extension = this%make_extension_safely(dst_spec)
+         allocate(extension, source=this%make_extension_safely(dst_spec))
          call extension%create([StateItemSpecPtr::], _RC)
       class default
-         allocate(extension, source=this)
-         extension = this
+         extension=this
          _FAIL('Unsupported subclass.')
       end select find_mismatch
 
@@ -542,7 +541,7 @@ contains
 
       ! If both typekinds are MIRROR then must fail (but not here)
       if (a /= b) then
-         match = any([a%dkind,b%dkind] == ESMF_TYPEKIND_MIRROR%dkind)
+         match = any([a%dkind,b%dkind] == MAPL_TYPEKIND_MIRROR%dkind)
       else
          match = (a == b)
       end if

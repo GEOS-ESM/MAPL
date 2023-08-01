@@ -183,7 +183,7 @@ contains
       end subroutine val_to_float
 
       subroutine to_typekind(typekind, attributes, rc)
-         use :: mapl3g_ESMF_Utilities, only: ESMF_TYPEKIND_MIRROR
+         use :: mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
          type(ESMF_TypeKind_Flag) :: typekind
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
@@ -207,7 +207,7 @@ contains
          case ('I8')
             typekind = ESMF_TYPEKIND_I8
          case ('mirror')
-            typekind = ESMF_TYPEKIND_MIRROR
+            typekind = MAPL_TYPEKIND_MIRROR
          case default
             _FAIL('Unsupported typekind: <'//typekind_str//'>')
          end select
