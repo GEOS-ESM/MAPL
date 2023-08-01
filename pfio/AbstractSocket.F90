@@ -31,7 +31,7 @@ module pFIO_AbstractSocketMod
          use pFIO_AbstractMessageMod
          import AbstractSocket
          implicit none
-         class (AbstractSocket), intent(inout) :: this
+         class (AbstractSocket), target, intent(inout) :: this
          class (AbstractMessage), intent(in) :: message
          integer, optional, intent(out) :: rc
       end subroutine send

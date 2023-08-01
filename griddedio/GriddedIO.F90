@@ -457,7 +457,7 @@ module MAPL_GriddedIOMod
       end subroutine modifyTimeIncrement
 
      subroutine bundlepost(this,filename,oClients,rc)
-        class (MAPL_GriddedIO), intent(inout) :: this
+        class (MAPL_GriddedIO), target, intent(inout) :: this
         character(len=*), intent(in) :: filename
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
@@ -550,6 +550,8 @@ module MAPL_GriddedIOMod
         type(ESMF_Grid) :: gridIn,gridOut
         logical :: hasDE_in, hasDE_out
 
+        ptr3d => null()
+        
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
