@@ -39,7 +39,7 @@ module pFIO_AbstractDirectoryServiceMod
          import KeywordEnforcer
          class (AbstractDirectoryService), target, intent(inout) :: this
          character(len=*), intent(in) :: port_name
-         class (ClientThread), intent(inout) :: client
+         class (ClientThread), target, intent(inout) :: client
          integer, intent(in) :: client_comm
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: server_size

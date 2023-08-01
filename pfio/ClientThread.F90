@@ -131,14 +131,14 @@ contains
 
    function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
-      class (ClientThread), intent(inout) :: this
+      class (ClientThread), target, intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), pointer :: message
-      class(AbstractSocket),pointer :: connection
+      class(AbstractSocket), pointer :: connection
       integer :: status
 
       connection=>this%get_connection()
