@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.40.2] - 2023-08-01
+
+### Fixed
+
+- Fixed missing TARGET attribute on dummy argument.   NAG aggressively uses copy-in/copy-out which exposes these missing attributes.   This fix probably did not find all - just the ones exercised by one failing test.
+
 ## [2.40.1] - 2023-08-01
 
 ### Fixed

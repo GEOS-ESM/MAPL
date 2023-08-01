@@ -350,7 +350,7 @@ contains
 
    subroutine def_dimensions(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -389,7 +389,7 @@ contains
 
    subroutine put_attributes(this, cf, varid, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       integer, intent(in) :: varid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -480,7 +480,7 @@ contains
 
    subroutine write_const_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -534,7 +534,7 @@ contains
 
    subroutine write_coordinate_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 

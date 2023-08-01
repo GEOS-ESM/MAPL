@@ -192,7 +192,7 @@ module MAPL_ESMFFieldBundleRead
                exit
             end if
          end do
-         _ASSERT(time_index/=-1,"Time not found on file"//trim(file_name))
+         _ASSERT(time_index/=-1,"Time not found on file "//trim(file_name))
          deallocate(time_series)
 
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
