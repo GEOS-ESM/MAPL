@@ -15,6 +15,14 @@ install (PROGRAMS
   TYPE SYSCONF
   )
 
+install(
+  PROGRAMS forcing_converter/binary_forcing_converter.py
+  PROGRAMS forcing_converter/ll_formatter.py
+  PROGRAMS forcing_converter/cs_formatter.py
+  PROGRAMS forcing_converter/tile_formatter.py
+  PROGRAMS forcing_converter/utilities.py
+  DESTINATION bin/forcing_converter)
+
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90)
 target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran esmf)
 target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
