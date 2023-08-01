@@ -42,11 +42,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character, parameter :: EOB = achar(00)   !! end of buffer mark (null)
-#ifdef ESMF_HAS_ACHAR_BUG
+!!$#ifdef ESMF_HAS_ACHAR_BUG
       character, parameter :: EOL = achar(12)   !! end of line mark (cr)
-#else
-      character, parameter :: EOL = achar(10)   !! end of line mark (newline)
-#endif
+!!$#else
+!!$      character, parameter :: EOL = achar(10)   !! end of line mark (newline)
+!!$#endif
       character, parameter :: NUL = achar(00)   !! what it says
 
       _UNUSED_DUMMY(unusable)
