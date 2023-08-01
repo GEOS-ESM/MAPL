@@ -66,6 +66,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.40.1] - 2023-08-01
+
+### Fixed
+
+- Workaround for NAG which prevents reading values from ESMF Config files that have been set using `SetAttribute()`.    The immediate issue appears to be due to a wrong CPP conditional on `ESMF_HAS_ACHAR_BUG', but it is not immediately clear if this is due to recent changes in ESMF or some change in NAG.  Probably ESMF though.  Once the ESMF core team analyzes we will potentially update this fix.
+
 ## [2.40.0] - 2023-07-29
 
 ### Added
