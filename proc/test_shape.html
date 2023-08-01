@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">30 statements</a>
+               title=" 0.1% of total for procedures.">43 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_LatLon_GridFactory.pf"> Source File</a>
+              <a href="../src/Test_LatLon_Corners.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_latlon_gridfactory.pf.html'>Test_LatLon_GridFactory.pf</a></li>
-              <li><a href='../module/test_latlon_gridfactory.html'>Test_LatLon_GridFactory</a></li>
+              <li><a href='../sourcefile/test_latlon_corners.pf.html'>Test_LatLon_Corners.pf</a></li>
+              <li><a href='../module/test_latlon_corners.html'>Test_LatLon_Corners</a></li>
           <li class="active">test_shape</li>
         </ol>
       </div>
@@ -183,8 +183,8 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~3717"></span>
-              class(<a href='../type/test_latlongridfactory.html'>Test_LatLonGridFactory</a>),
+              <span class="anchor" id="variable-this~3728"></span>
+              class(<a href='../type/test_latloncorners.html'>Test_LatLonCorners</a>),
             </td>
 <td>intent(inout)</td>
               <td></td>            <td>
@@ -245,18 +245,31 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_shape</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Test_LatLonGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Test_LatLonCorners</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(:,:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corners</span><span class="p">(:,:)</span><span class="w"></span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">petX</span><span class="p">,</span><span class="w"> </span><span class="n">petY</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">imc</span><span class="p">(:),</span><span class="w"> </span><span class="n">jmc</span><span class="p">(:)</span><span class="w"></span>
 
 <span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">testParameter</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">)</span><span class="w"></span>
+
 <span class="w">         </span><span class="n">petX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">getLocalPET</span><span class="p">(),</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="n">nx</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="n">petY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">getLocalPET</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="n">nx</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">imc</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="n">ims</span><span class="p">)),</span><span class="n">jmc</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="n">jms</span><span class="p">)))</span><span class="w"></span>
+<span class="w">         </span><span class="n">imc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="n">ims</span><span class="w"></span>
+<span class="w">         </span><span class="n">jmc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">%</span><span class="n">jms</span><span class="w"></span>
+<span class="w">         </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">testParameter</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="n">dateline</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;XY&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="n">petX</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="n">ims</span><span class="p">))</span><span class="w"> </span><span class="n">imc</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">imc</span><span class="p">(</span><span class="n">petX</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end select</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="n">jms</span><span class="p">))</span><span class="w"> </span><span class="n">jmc</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">jmc</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
 
 <span class="w">         </span><span class="err">@</span><span class="n">mpiAssertTrue</span><span class="p">(</span><span class="n">petX</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="err">@</span><span class="n">mpiAssertTrue</span><span class="p">(</span><span class="n">petX</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">p</span><span class="p">%</span><span class="n">ims</span><span class="p">))</span><span class="w"></span>
@@ -265,21 +278,28 @@
 <span class="w">      </span><span class="k">end select</span><span class="w"></span>
 
 <span class="w">      </span><span class="c">! X</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CORNER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">mpiAssertTrue</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="n">SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;Failed to get grid x corners.&#39;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">testparameter</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">mpiAssertEqual</span><span class="p">([</span><span class="n">p</span><span class="p">%</span><span class="n">ims</span><span class="p">(</span><span class="n">petX</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">p</span><span class="p">%</span><span class="n">jms</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="nb">shape</span><span class="p">(</span><span class="n">centers</span><span class="p">),</span><span class="w"> </span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;Wrong shape.&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">mpiAssertEqual</span><span class="p">([</span><span class="n">imc</span><span class="p">(</span><span class="n">petX</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">jmc</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="nb">shape</span><span class="p">(</span><span class="n">corners</span><span class="p">),</span><span class="w"> </span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;Wrong shape.&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">end select</span><span class="w"></span>
 
 <span class="w">      </span><span class="c">! Y</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">staggerLoc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CORNER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">mpiAssertTrue</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="n">SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;Failed to geet grid x corners.&#39;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">testparameter</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">@</span><span class="n">mpiAssertEqual</span><span class="p">([</span><span class="n">p</span><span class="p">%</span><span class="n">ims</span><span class="p">(</span><span class="n">petX</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">p</span><span class="p">%</span><span class="n">jms</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="nb">shape</span><span class="p">(</span><span class="n">centers</span><span class="p">),</span><span class="w"> </span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;Wrong shape.&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">mpiAssertEqual</span><span class="p">([</span><span class="n">imc</span><span class="p">(</span><span class="n">petX</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">jmc</span><span class="p">(</span><span class="n">petY</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="nb">shape</span><span class="p">(</span><span class="n">corners</span><span class="p">),</span><span class="w"> </span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;Wrong shape.&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">      select type</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">testparameter</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">GridCase</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">imc</span><span class="p">,</span><span class="n">jmc</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">end select</span>
 <span class="k">      </span>
 <span class="k">   end subroutine </span><span class="n">test_shape</span><span class="w"></span>
@@ -303,7 +323,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-08-01T14:52:25.168852             </p>
+ on 2023-08-01T14:56:33.207089             </p>
           </div>
         </div>
         <br>

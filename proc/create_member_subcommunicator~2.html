@@ -8,7 +8,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>finalize &ndash; MAPL</title>
+    <title>create_member_subcommunicator &ndash; MAPL</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -92,8 +92,8 @@
 
     <div class="container">
   <div class="row">
-    <h1>finalize
-      <small>Subroutine</small>
+    <h1>create_member_subcommunicator
+      <small>Function</small>
       
     </h1>
       <div class="row" id="info-bar">
@@ -104,18 +104,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">7 statements</a>
+               title=" 0.0% of total for procedures.">13 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_CompositeComponent.pf"> Source File</a>
+              <a href="../src/pfio_MAPL_demo.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_compositecomponent.pf.html'>Test_CompositeComponent.pf</a></li>
-              <li><a href='../module/test_compositecomponent.html'>Test_CompositeComponent</a></li>
-          <li class="active">finalize</li>
+              <li><a href='../sourcefile/pfio_mapl_demo.f90.html'>pfio_MAPL_demo.F90</a></li>
+              <li><a href='../program/main~3.html'>main</a></li>
+          <li class="active">create_member_subcommunicator</li>
         </ol>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/finalize~10.html#src">finalize</a>
+        <a class="list-group-item" href="../proc/create_member_subcommunicator~2.html#src">create_member_subcommunicator</a>
       </div>
     </div>
 
@@ -164,13 +164,24 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine finalize(this, clock, phase, unusable, rc)  
+    <h2> function create_member_subcommunicator(comm, n_members, npes_member, rc) result(subcommunicator)  
 </h2>
-    
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/mapl_simplecommsplittermod.html'>MAPL_SimpleCommSplitterMod</a></li>
+            </ul>
+          </li>
+      </ul>
+    </div>
 
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/completecomponent.html'>CompleteComponent</a></p>
+    <p><code>create_member_subcommunicator</code> &ndash; Create a subcommunicator</p>
+
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -185,67 +196,52 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~3310"></span>
-              class(<a href='../type/completecomponent.html'>CompleteComponent</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>this</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-clock~26"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>clock</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-phase~18"></span>
-              character(len=*),
+              <span class="anchor" id="variable-comm~35"></span>
+              integer,
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>phase</strong></td>
+            <td><strong>comm</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-unusable~325"></span>
-              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+              <span class="anchor" id="variable-n_members~3"></span>
+              integer
             </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
+<td></td>
+              <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>unusable</strong></td>
+            <td><strong>n_members</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1062"></span>
+              <span class="anchor" id="variable-npes_member~2"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npes_member</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1234"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -261,6 +257,13 @@
     </tbody>
   </table>
 
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-subcommunicator~2"></span>
+          integer
+        </small>
+      </h3>
+      
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -287,7 +290,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/finalize~10.html#src">finalize</a>
+        <a class="list-group-item" href="../proc/create_member_subcommunicator~2.html#src">create_member_subcommunicator</a>
       </div>
     </div>
 
@@ -306,13 +309,24 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">finalize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">CompleteComponent</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phase</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="kt">integer </span><span class="k">function </span><span class="n">create_member_subcommunicator</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">n_members</span><span class="p">,</span><span class="w"> </span><span class="n">npes_member</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">subcommunicator</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL_SimpleCommSplitterMod</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_members</span><span class="p">,</span><span class="w"> </span><span class="n">npes_member</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">finalize</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">SimpleCommSplitter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">splitter</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">SplitCommunicator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">split_comm</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">subcommunicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span><span class="w"> </span><span class="c">! in case of failure</span>
+<span class="w">      </span><span class="n">splitter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SimpleCommSplitter</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">n_members</span><span class="p">,</span><span class="w"> </span><span class="n">npes_member</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">split_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">splitter</span><span class="p">%</span><span class="n">split</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">! _VERIFY(status)</span>
+<span class="w">      </span><span class="n">subcommunicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">split_comm</span><span class="p">%</span><span class="n">get_subcommunicator</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">end function </span><span class="n">create_member_subcommunicator</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -333,7 +347,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-08-01T14:52:25.168852             </p>
+ on 2023-08-01T14:56:33.207089             </p>
           </div>
         </div>
         <br>

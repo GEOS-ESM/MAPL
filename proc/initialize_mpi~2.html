@@ -8,7 +8,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>get_grid &ndash; MAPL</title>
+    <title>initialize_mpi &ndash; MAPL</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -92,8 +92,8 @@
 
     <div class="container">
   <div class="row">
-    <h1>get_grid
-      <small>Function</small>
+    <h1>initialize_mpi
+      <small>Subroutine</small>
       
     </h1>
       <div class="row" id="info-bar">
@@ -104,18 +104,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">11 statements</a>
+               title=" 0.0% of total for procedures.">16 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/MaplGenericComponent.F90"> Source File</a>
+              <a href="../src/pfio_MAPL_demo.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/maplgenericcomponent.f90.html'>MaplGenericComponent.F90</a></li>
-              <li><a href='../module/mapl_maplgenericcomponent.html'>mapl_MaplGenericComponent</a></li>
-          <li class="active">get_grid</li>
+              <li><a href='../sourcefile/pfio_mapl_demo.f90.html'>pfio_MAPL_demo.F90</a></li>
+              <li><a href='../program/main~3.html'>main</a></li>
+          <li class="active">initialize_mpi</li>
         </ol>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/get_grid~2.html#src">get_grid</a>
+        <a class="list-group-item" href="../proc/initialize_mpi~2.html#src">initialize_mpi</a>
       </div>
     </div>
 
@@ -164,13 +164,12 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  function get_grid(this) result(grid)  
+    <h2> subroutine initialize_mpi(comm)  
 </h2>
     
 
+    <p><code>initialize_mpi</code> &ndash; Initialized MPI is MPI_Init has not been called yet.</p>
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/maplgenericcomponent.html'>MaplGenericComponent</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -185,15 +184,15 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-this~2966"></span>
-              class(<a href='../type/maplgenericcomponent.html'>MaplGenericComponent</a>),
+              <span class="anchor" id="variable-comm~37"></span>
+              integer,
             </td>
-<td>intent(in),</td>
+<td>intent(in)</td>
               <td></td>            <td>
-              target
+              
             </td>
             <td>::</td>
-            <td><strong>this</strong></td>
+            <td><strong>comm</strong></td>
             <td>
                 
             </td>
@@ -201,13 +200,6 @@
     </tbody>
   </table>
 
-      <h3>Return Value
-        <small>
-          <span class="anchor" id="variable-grid~75"></span>
-          type(<a href='../type/maplgrid.html'>MaplGrid</a>), pointer
-        </small>
-      </h3>
-      
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -234,7 +226,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/get_grid~2.html#src">get_grid</a>
+        <a class="list-group-item" href="../proc/initialize_mpi~2.html#src">initialize_mpi</a>
       </div>
     </div>
 
@@ -253,18 +245,23 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_grid</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="k">class</span><span class="p">(</span><span class="n">MaplGenericComponent</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
-<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">MaplGrid</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span><span class="w"></span>
-<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_mpi</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span><span class="w"></span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpi_already_initialized</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">provided</span><span class="w"></span>
 
-<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">is_threading_active</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
-<span class="k">        </span><span class="n">grid</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="w"></span>
-<span class="w">     </span><span class="k">else</span>
-<span class="k">        </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_current_thread</span><span class="p">()</span><span class="w"></span>
-<span class="w">        </span><span class="n">grid</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">subcomponents</span><span class="p">(</span><span class="n">thread</span><span class="o">+</span><span class="mi">1</span><span class="p">)%</span><span class="n">grid</span><span class="w"> </span><span class="c">! subgrids is of type ESMF_Grid because of the return type of make_subgrids</span>
-<span class="w">     </span><span class="k">end if</span>
-<span class="k">   end function </span><span class="n">get_grid</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Initialized</span><span class="p">(</span><span class="n">mpi_already_initialized</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">mpi_already_initialized</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MPI_Init_thread</span><span class="p">(</span><span class="n">MPI_THREAD_SINGLE</span><span class="p">,</span><span class="w"> </span><span class="n">provided</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">provided</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MPI_THREAD_SINGLE</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MPI_THREAD_SINGLE not supported by this MPI.&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">pe_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">npes_world</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_mpi</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -285,7 +282,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-08-01T14:52:25.168852             </p>
+ on 2023-08-01T14:56:33.207089             </p>
           </div>
         </div>
         <br>

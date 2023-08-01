@@ -8,7 +8,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>SetServices &ndash; MAPL</title>
+    <title>setservices &ndash; MAPL</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -92,7 +92,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>SetServices
+    <h1>setservices
       <small>Subroutine</small>
       
     </h1>
@@ -104,18 +104,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">27 statements</a>
+               title=" 0.0% of total for procedures.">15 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ut_ExtData.F90"> Source File</a>
+              <a href="../src/AAA_GridComp.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/ut_extdata.f90.html'>ut_ExtData.F90</a></li>
-              <li><a href='../module/rutmod.html'>RUTMod</a></li>
-          <li class="active">SetServices</li>
+              <li><a href='../sourcefile/aaa_gridcomp.f90.html'>AAA_GridComp.F90</a></li>
+              <li><a href='../module/aaa_gridcomp.html'>AAA_GridComp</a></li>
+          <li class="active">setservices</li>
         </ol>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setservices.html#src">SetServices</a>
+        <a class="list-group-item" href="../proc/setservices.html#src">setservices</a>
       </div>
     </div>
 
@@ -164,16 +164,10 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine SetServices(GC, RC)  
+    <h2>public  subroutine setservices(gc, rc)  
 </h2>
     
 
-    <p><code>SetServices</code> &mdash; Sets IRF services for the RUT</p>
-<p>Sets Initialize, Run and Finalize services.</p>
-<h4 id="history">History</h4>
-<ul>
-<li>29Sep2011  Anton Darmenov   Cloned from the ExtData GC code</li>
-</ul>
 
 
     <h3>Arguments</h3>
@@ -189,7 +183,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc"></span>
+              <span class="anchor" id="variable-gc~19"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -197,14 +191,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>GC</strong></td>
+            <td><strong>gc</strong></td>
             <td>
-                <p>gridded component</p>
+                
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2"></span>
+              <span class="anchor" id="variable-rc~1153"></span>
               integer,
             </td>
 <td></td>
@@ -212,9 +206,9 @@
               
             </td>
             <td>::</td>
-            <td><strong>RC</strong></td>
+            <td><strong>rc</strong></td>
             <td>
-                <p>return code</p>
+                
             </td>
         </tr>
     </tbody>
@@ -246,7 +240,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setservices.html#src">SetServices</a>
+        <a class="list-group-item" href="../proc/setservices.html#src">setservices</a>
       </div>
     </div>
 
@@ -265,56 +259,25 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">SUBROUTINE </span><span class="n">SetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">setservices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">! !ARGUMENTS:</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w"></span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">  </span><span class="c">!! gridded component</span>
-<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span><span class="c">!! return code</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 
-<span class="c">!</span>
-<span class="c">!-------------------------------------------------------------------------</span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">my_initialize</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">  </span><span class="n">my_run</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">                            </span><span class="err">__</span><span class="n">Iam__</span><span class="p">(</span><span class="s1">&#39;SetServices&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_AddExportSpec</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;field1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                                 </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                                 </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w"> </span>
 
-<span class="c">!   Local derived type aliases</span>
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">CF</span><span class="w"></span>
-<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span><span class="w"></span>
+<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">!                              ------------</span>
-
-<span class="c">!   Get my name and set-up traceback handle</span>
-<span class="c">!   ---------------------------------------</span>
-<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;::&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!   Greetings</span>
-<span class="c">!   ---------</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;: ACTIVE&#39;</span><span class="w"></span>
-<span class="w">         </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
-<span class="w">    </span><span class="k">end if</span><span class="w"></span>
-
-<span class="c">!   Set the Initialize, Run, Finalize entry points</span>
-<span class="c">!   ----------------------------------------------</span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_SETINIT</span><span class="p">,</span><span class="w">  </span><span class="n">Initialize_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_SETRUN</span><span class="p">,</span><span class="w">   </span><span class="n">Run_</span><span class="p">,</span><span class="w">        </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_SETFINAL</span><span class="p">,</span><span class="w"> </span><span class="n">Finalize_</span><span class="p">,</span><span class="w">   </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!   Add the ExtData as a child</span>
-<span class="c">!   --------------------------</span>
-<span class="w">    </span><span class="n">ExtData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AddChild</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;ExtData&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">SS</span><span class="o">=</span><span class="n">ExtData_SetServices</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!   Generic Set Services</span>
-<span class="c">!   --------------------</span>
-<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-
-<span class="c">!   All done</span>
-<span class="c">!   --------</span>
-
-<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">SetServices</span><span class="w"></span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">setservices</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -335,7 +298,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-08-01T14:52:25.168852             </p>
+ on 2023-08-01T14:56:33.207089             </p>
           </div>
         </div>
         <br>
