@@ -42,11 +42,11 @@ contains
       integer, optional, intent(out) :: rc
 
       character, parameter :: EOB = achar(00)   !! end of buffer mark (null)
-!!$#ifdef ESMF_HAS_ACHAR_BUG
+#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
       character, parameter :: EOL = achar(12)   !! end of line mark (cr)
-!!$#else
-!!$      character, parameter :: EOL = achar(10)   !! end of line mark (newline)
-!!$#endif
+#else
+      character, parameter :: EOL = achar(10)   !! end of line mark (newline)
+#endif
       character, parameter :: NUL = achar(00)   !! what it says
 
       _UNUSED_DUMMY(unusable)
@@ -95,7 +95,7 @@ contains
 
        character, parameter :: BLK = achar(32)   ! blank (space)
        character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
+#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
        character, parameter :: EOL = achar(12)   ! end of line mark (cr)
 #else
        character, parameter :: EOL = achar(10)   ! end of line mark (newline)
@@ -264,7 +264,7 @@ contains
 
        character, parameter :: BLK = achar(32)   ! blank (space)
        character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
+#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
        character, parameter :: EOL = achar(12)   ! end of line mark (cr)
 #else
        character, parameter :: EOL = achar(10)   ! end of line mark (newline)
@@ -433,7 +433,7 @@ contains
 
        character, parameter :: BLK = achar(32)   ! blank (space)
        character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
+#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
        character, parameter :: EOL = achar(12)   ! end of line mark (cr)
 #else
        character, parameter :: EOL = achar(10)   ! end of line mark (newline)
@@ -678,7 +678,7 @@ contains
 
        character, parameter :: BLK = achar(32)   ! blank (space)
        character, parameter :: TAB = achar(09)   ! TAB
-#ifdef ESMF_HAS_ACHAR_BUG
+#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
        character, parameter :: EOL = achar(12)   ! end of line mark (cr)
 #else
        character, parameter :: EOL = achar(10)   ! end of line mark (newline)
