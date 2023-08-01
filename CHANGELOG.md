@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed missing TARGET attribute on dummy argument.   NAG aggressively uses copy-in/copy-out which exposes these missing attributes.   This fix probably did not find all - just the ones exercised by one failing test.
 - Workaround for NAG which prevents reading values from ESMF Config files that have been set using `SetAttribute()`.    The immediate issue appears to be due to a wrong CPP conditional on `ESMF_HAS_ACHAR_BUG', but it is not immediately clear if this is due to recent changes in ESMF or some change in NAG.  Probably ESMF though.  Once the ESMF core team analyzes we will potentially update this fix.
 
 ## [2.40.0] - 2023-07-29
