@@ -51,7 +51,7 @@ contains
 
   function find(this, file_name, rc) result(metadata)
     type (FileMetadataUtils), pointer :: metadata
-    class (MAPLDataCollection), intent(inout) :: this
+    class (MAPLDataCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer, optional, intent(out) :: rc
 

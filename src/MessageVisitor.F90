@@ -138,7 +138,7 @@ contains
    end subroutine handle
 
    subroutine handle_CollectivePrefetchData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (CollectivePrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_CollectivePrefetchData should not be called")
@@ -147,7 +147,7 @@ contains
    end subroutine handle_CollectivePrefetchData
 
    subroutine handle_CollectiveStageData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (CollectiveStageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_CollectiveStageData should not be called")
@@ -237,7 +237,7 @@ contains
    end subroutine handle_Id
 
    subroutine handle_PrefetchData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_PrefetchData should not be called")
@@ -246,7 +246,7 @@ contains
    end subroutine handle_PrefetchData
 
    subroutine handle_StageData(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (StageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_StageData should not be called")
@@ -255,7 +255,7 @@ contains
    end subroutine handle_StageData
 
    subroutine handle_ModifyMetadata(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_ModifyMetadata should not be called")
@@ -264,7 +264,7 @@ contains
    end subroutine handle_ModifyMetadata
 
    subroutine handle_ReplaceMetadata(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
+      class (MessageVisitor), target, intent(inout) :: this
       type (ReplaceMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       _FAIL( "Warning : dummy handle_ReplaceMetadata should not be called")

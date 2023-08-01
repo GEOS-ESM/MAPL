@@ -545,7 +545,7 @@ contains
    end subroutine handle_AddHistCollection
 
    subroutine handle_PrefetchData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -561,7 +561,7 @@ contains
    end subroutine handle_PrefetchData
 
    subroutine handle_CollectivePrefetchData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (CollectivePrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -577,7 +577,7 @@ contains
    end subroutine handle_CollectivePrefetchData
 
    subroutine handle_ModifyMetadata(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -596,7 +596,7 @@ contains
    end subroutine handle_ModifyMetadata
 
    subroutine handle_ReplaceMetadata(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (ReplaceMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -739,7 +739,7 @@ contains
    end subroutine get_DataFromFile
 
    subroutine handle_StageData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (StageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -761,7 +761,7 @@ contains
    end subroutine handle_StageData
 
    subroutine handle_CollectiveStageData(this, message, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       type (CollectiveStageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 

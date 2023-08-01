@@ -120,7 +120,7 @@ contains
    end function receive
 
    subroutine send(this, message, rc)
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
