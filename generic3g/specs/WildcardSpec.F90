@@ -114,6 +114,7 @@ contains
    end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
+      use pFlogger
       class(WildcardSpec), intent(inout) :: this
       class(AbstractStateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt
@@ -121,11 +122,13 @@ contains
 
       integer :: status
       type(StateItemSpecPtr), pointer :: spec_ptr
+      class(Logger), pointer :: lgr
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
       _ASSERT(this%matched_specs%count(actual_pt) == 0, 'duplicate connection pt')
 
-      _HERE,'Warning - this is a memory leak.'
+      lgr => logging%get_logger('MAPL.generic3g')
+      call lgr%warning("Potential memory leak.")
       allocate(spec_ptr)
       allocate(spec_ptr%ptr, source=this%reference_spec)
 
