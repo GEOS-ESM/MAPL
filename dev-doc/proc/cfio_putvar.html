@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CFIO_PutVar &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>CFIO_PutVar
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">261 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOUtilMod.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/esmf_cfioutilmod.f90.html'>ESMF_CFIOUtilMod.F90</a></li>
+              <li><a href='../module/esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
+          <li class="active">CFIO_PutVar</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/cfio_putvar.html#src">CFIO_PutVar</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine CFIO_PutVar(fid, vname, yyyymmdd, hhmmss, im, jm, kbeg, kount, grid, useFaceDim, rc)  
+</h2>
+    
+
+    <p><code>CFIO_PutVar</code> &ndash; Write a variable to the file</p>
+<p>This routine is used to write a variable to an open CFIO
+ stream.  Multiple vertical levels can be written at one
+ time provided they are contiguous in memory.  Date and time
+ must be consistent with the time increment and the starting
+ date/time as defined in CFIO_Create.  Times must fall on
+ minute boundaries to allow GrADS to work.  Error checking is
+ done for dimensions that are out of bounds.</p>
+<h4 id="history">HIstory</h4>
+<ul>
+<li>1997.10.13 da Silva/Lucchesi   Initial interface design.</li>
+<li>1998.02.10 Lucchesi  Added support for applications running with 64-bit reals.</li>
+<li>1998.03.30 Lucchesi  Documentation expanded.  Clean-up of code.</li>
+<li>1998.07.02 Lucchesi  Replaced vid with vname in argument list &amp; made related mods to code.</li>
+<li>1998.09.24 Lucchesi  Changed error codes, removed DIM_CHECK if-def</li>
+<li>1998.10.27 Lucchesi  Added support for packing and range checks</li>
+<li>1998.12.15 Lucchesi  Added support for skipping times (allTimes)</li>
+<li>1999.01.04 Lucchesi  Fixed bug in skipping times (allTimes)/also changed variable initialization.</li>
+<li>1999.07.13 Lucchesi  Changes for REAL or INT time dimension</li>
+</ul>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fid~19"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fid</strong></td>
+            <td>
+                <p>File handle</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vname~5"></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vname</strong></td>
+            <td>
+                <p>Variable name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-yyyymmdd~4"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>yyyymmdd</strong></td>
+            <td>
+                <p>Year-month-day, e.g., 19971003</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hhmmss~4"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hhmmss</strong></td>
+            <td>
+                <p>Hour-minute-second, e.g., 120000</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-im~9"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>im</strong></td>
+            <td>
+                <p>size of longitudinal dimension</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jm~9"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>jm</strong></td>
+            <td>
+                <p>size of latitudinal  dimension</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kbeg~18"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kbeg</strong></td>
+            <td>
+                <p>first level to write; if 2-D grid
+  use kbeg = 0.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kount~18"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kount</strong></td>
+            <td>
+                <p>number of levels to write</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~9"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>grid</strong>(im,jm,kount)</td>
+            <td>
+                <p>Gridded data to write at this time</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-usefacedim~3"></span>
+              logical
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>useFaceDim</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~80"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:   <br>
+ rc =  0  all is well   <br>
+ rc = -2  time is inconsistent with increment   <br>
+ rc = -3  number of levels is incompatible with file   <br>
+ rc = -4  im is incompatible with file   <br>
+ rc = -5  jm is incompatible with file   <br>
+ rc = -6  time must fall on a minute boundary   <br>
+ rc = -7  error in diffdate   <br>
+ rc = -12  error determining default precision   <br>
+ rc = -13  error determining variable type   <br>
+ rc = -15  data outside of valid range   <br>
+ rc = -16  data outside of packing range   <br>
+ rc = -17  data outside of pack and valid range     </p>
+<p>NetCDF Errors     </p>
+<hr>
+<p>rc = -38  error from NF90_PUT_VAR (dimension variable)   <br>
+ rc = -40  error from NF90_INQ_VARID   <br>
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)   <br>
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)   <br>
+ rc = -43  error from NF90_INQ_VARID (time variable)   <br>
+ rc = -44  error from NF90_GET_ATT (time attribute)   <br>
+ rc = -45  error from NF90_PUT_VAR   <br>
+ rc = -46  error from NF90_GET_VAR   <br>
+ rc = -52  error from NF90_INQUIRE_VARIABLE   <br>
+ rc = -53  error from NF90_GET_ATT     </p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/cfio_putvar.html#src">CFIO_PutVar</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">CFIO_PutVar</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vname</span><span class="p">,</span><span class="w"> </span><span class="n">yyyymmdd</span><span class="p">,</span><span class="w"> </span><span class="n">hhmmss</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                              </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="n">kbeg</span><span class="p">,</span><span class="w"> </span><span class="n">kount</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                              </span><span class="n">useFaceDim</span><span class="p">,</span><span class="w">                    </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                              </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="c">!</span>
+<span class="c">! !USES:</span>
+
+<span class="w">      </span><span class="k">Implicit NONE</span><span class="w"></span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">                 </span><span class="c">!! File handle</span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">            </span><span class="c">!! Year-month-day, e.g., 19971003</span>
+<span class="w">      </span><span class="kt">integer        </span><span class="n">hhmmss</span><span class="w">              </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
+
+<span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">                 </span><span class="c">!! size of longitudinal dimension</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">jm</span><span class="w">                 </span><span class="c">!! size of latitudinal  dimension</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">kbeg</span><span class="w">               </span><span class="c">!! first level to write; if 2-D grid</span>
+<span class="w">                                         </span><span class="c">!!   use kbeg = 0.</span>
+<span class="w">      </span><span class="kt">integer         </span><span class="n">kount</span><span class="w">              </span><span class="c">!! number of levels to write</span>
+<span class="w">      </span><span class="kt">real            </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data to write at this time</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w">      </span><span class="n">useFaceDim</span><span class="w"></span>
+
+
+<span class="c">! !OUTPUT PARAMETERS:</span>
+
+<span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:     </span>
+<span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
+<span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
+<span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
+<span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
+<span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
+<span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
+<span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
+<span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range     </span>
+<span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range     </span>
+<span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range     </span>
+<span class="w">                         </span><span class="c">!!     </span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
+<span class="w">                         </span><span class="c">!!  -------------     </span>
+<span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
+<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
+<span class="w">                         </span><span class="c">!!  rc = -45  error from NF90_PUT_VAR     </span>
+<span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
+<span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
+<span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT     </span>
+<span class="c">!</span>
+<span class="c">!-------------------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="kt">integer </span><span class="n">timeid</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">timeType</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">corner</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">edges</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">vid</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="n">seconds</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">timeIndex</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">minutes</span><span class="w">                       </span><span class="c">! added as a work-around</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">begDate</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">,</span><span class="w"> </span><span class="n">timInc</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">hour</span><span class="p">,</span><span class="nb">min</span><span class="p">,</span><span class="n">sec</span><span class="p">,</span><span class="n">incSecs</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">allTimes</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">fillTime</span><span class="w"></span>
+
+<span class="c">! Variables for dealing with precision</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_32</span><span class="p">(:,:,:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_64</span><span class="p">(:,:,:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="n">dummy32</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="n">dummy64</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real   </span><span class="n">dummy</span><span class="w"></span>
+
+<span class="c">! Variables for NF90_INQUIRE_VARIABLE</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vdims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="w"></span>
+
+<span class="c">! Variables for packing and range checking</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT16</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_16</span><span class="p">(:,:,:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fminutes_32</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="n">high_32</span><span class="p">,</span><span class="w"> </span><span class="n">low_32</span><span class="p">,</span><span class="w"> </span><span class="n">amiss_32</span><span class="w"></span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">)</span><span class="w"> </span><span class="n">scale_32</span><span class="p">,</span><span class="w"> </span><span class="n">offset_32</span><span class="w"></span>
+<span class="w">      </span><span class="kt">logical </span><span class="n">outRange</span><span class="w"></span>
+<span class="w">      </span><span class="kt">logical </span><span class="n">outPRange</span><span class="w"></span>
+
+<span class="c">! Variable initialization</span>
+
+<span class="w">      </span><span class="n">outRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="n">outPRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
+
+<span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
+<span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_PutVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="s1">&#39;dimName array size.&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span><span class="w"></span>
+
+<span class="c">! Determine NetCDF variable ID.</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vname</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: variable not defined&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="c">! Determine number of seconds since starting date/time.</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_VARID</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">timeId</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: time not defined&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">43</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQ_DIMID</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="s1">&#39;begin_date&#39;</span><span class="p">,</span><span class="n">begDate</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: missing begin_date&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="s1">&#39;begin_time&#39;</span><span class="p">,</span><span class="n">begTime</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: missing begin_time&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+
+<span class="k">      </span><span class="n">seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DiffDate</span><span class="w"> </span><span class="p">(</span><span class="n">begDate</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">,</span><span class="w"> </span><span class="n">yyyymmdd</span><span class="p">,</span><span class="w"> </span><span class="n">hhmmss</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">seconds</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_PutVar: Error code from diffdate.  Problem with&#39;</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="s1">&#39; date/time.&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">7</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      endif</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">MOD</span><span class="w"> </span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">),</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">minutes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="w"></span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_PutVar: Currently, times must fall on minute &#39;</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="s1">&#39;boundaries.&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">6</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      endif</span><span class="w"></span>
+
+<span class="c">! Confirm that this time is consistent with the starting time coupled with</span>
+<span class="c">! the time increment.</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="s1">&#39;time_increment&#39;</span><span class="p">,</span><span class="n">timInc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: missing time increment&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="c">! Convert time increment to seconds.</span>
+
+<span class="c">!ams      write (strBuf,203) timinc</span>
+<span class="c">!ams 203   format (I6)</span>
+<span class="c">!ams      read (strBuf,204) hour, min, sec</span>
+<span class="c">!ams 204   format (3I2)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">CFIO_parseIntTime</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">timinc</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">incSecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hour</span><span class="o">*</span><span class="mi">3600</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">min</span><span class="o">*</span><span class="mi">60</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sec</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">MOD</span><span class="w"> </span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">),</span><span class="w"> </span><span class="n">incSecs</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_putvar: Absolute time of &#39;</span><span class="p">,</span><span class="n">seconds</span><span class="p">,</span><span class="s1">&#39; not &#39;</span><span class="p">,&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="s1">&#39;possible with an interval of &#39;</span><span class="p">,</span><span class="n">incSecs</span><span class="w"></span>
+<span class="w">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      else</span>
+<span class="k">        </span><span class="n">timeIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seconds</span><span class="o">/</span><span class="n">incSecs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span><span class="w"></span>
+
+<span class="c">! Load starting indicies.</span>
+
+<span class="w">      </span><span class="n">corner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">edges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">kbeg</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">edges</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">im</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">useFaceDim</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">jm</span><span class="o">/</span><span class="mi">6</span><span class="w"></span>
+<span class="w">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="mi">6</span><span class="w"></span>
+<span class="w">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">=</span><span class="n">timeIndex</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">jm</span><span class="w"></span>
+<span class="w">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="n">timeIndex</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">      else</span>
+<span class="k">        </span><span class="n">edges</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">im</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">useFaceDim</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">=</span><span class="n">kbeg</span><span class="w"></span>
+<span class="w">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">=</span><span class="n">timeIndex</span><span class="w"></span>
+<span class="w">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">jm</span><span class="o">/</span><span class="mi">6</span><span class="w"></span>
+<span class="w">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="mi">6</span><span class="w"></span>
+<span class="w">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">=</span><span class="n">kount</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="n">kbeg</span><span class="w"></span>
+<span class="w">           </span><span class="n">corner</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">=</span><span class="n">timeIndex</span><span class="w"></span>
+<span class="w">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">jm</span><span class="w"></span>
+<span class="w">           </span><span class="n">edges</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="n">kount</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">      endif</span><span class="w"></span>
+
+<span class="c">! Check variable against valid range.</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;vmin&#39;</span><span class="p">,</span><span class="n">low_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: can&#39;t get vmin&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;vmax&#39;</span><span class="p">,</span><span class="n">high_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: can&#39;t get vmax&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;fmissing_value&#39;</span><span class="p">,</span><span class="n">amiss_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: can&#39;t get fmissing_value&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">low_32</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">amiss_32</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">high_32</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">amiss_32</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">kount</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jm</span><span class="w"></span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">im</span><span class="w"></span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="n">high_32</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">             </span><span class="n">low_32</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">outRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span><span class="w"></span>
+<span class="w">                </span><span class="k">goto</span><span class="w"> </span><span class="mi">100</span><span class="w"></span>
+<span class="w">              </span><span class="k">endif</span>
+<span class="k">            enddo</span>
+<span class="k">          enddo</span>
+<span class="k">        enddo</span>
+<span class="mi">100</span><span class="w">     </span><span class="k">continue</span>
+<span class="k">      endif</span><span class="w"></span>
+
+<span class="c">! Determine if we are writing single- or double-precision.</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_VARIABLE</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vDims</span><span class="p">,</span><span class="w"> </span><span class="n">nvAtts</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error in variable inquire&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">52</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="c">! Write variable in the appropriate precision.</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">HUGE</span><span class="p">(</span><span class="n">dummy</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="nb">HUGE</span><span class="p">(</span><span class="n">dummy32</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w">        </span><span class="c">! -r4</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_FLOAT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                     </span><span class="c">! 32-bit</span>
+<span class="w">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_DOUBLE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">               </span><span class="c">! 64-bit</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_64</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">kount</span><span class="w"></span>
+<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jm</span><span class="w"></span>
+<span class="w">              </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">im</span><span class="w"></span>
+<span class="w">                </span><span class="n">grid_64</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"></span>
+<span class="w">              </span><span class="k">enddo</span>
+<span class="k">            enddo</span>
+<span class="k">          enddo</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid_64</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_64</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_SHORT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;packmax&#39;</span><span class="p">,</span><span class="n">high_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting packmax&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;packmin&#39;</span><span class="p">,</span><span class="n">low_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting packmin&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;scale_factor&#39;</span><span class="p">,</span><span class="n">scale_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting scale&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;add_offset&#39;</span><span class="p">,</span><span class="n">offset_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting offset&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_16</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">kount</span><span class="w"></span>
+<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jm</span><span class="w"></span>
+<span class="w">              </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">im</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">low_32</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">               </span><span class="n">high_32</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">grid_16</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PACK_FILL</span><span class="w"></span>
+<span class="w">                  </span><span class="n">outPRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span><span class="w"></span>
+<span class="w">                </span><span class="k">else</span>
+<span class="k">                  </span><span class="n">grid_16</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">offset_32</span><span class="p">)</span><span class="o">/</span><span class="n">scale_32</span><span class="w"></span>
+<span class="w">                </span><span class="k">endif</span>
+<span class="k">              enddo</span>
+<span class="k">            enddo</span>
+<span class="k">          enddo</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid_16</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_16</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">13</span><span class="w"></span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">        endif</span>
+<span class="k">      else if</span><span class="w"> </span><span class="p">(</span><span class="nb">HUGE</span><span class="p">(</span><span class="n">dummy</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="nb">HUGE</span><span class="p">(</span><span class="n">dummy64</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w">   </span><span class="c">! -r8</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_FLOAT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                     </span><span class="c">! 32-bit</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_32</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">kount</span><span class="w"></span>
+<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jm</span><span class="w"></span>
+<span class="w">              </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">im</span><span class="w"></span>
+<span class="w">                </span><span class="n">grid_32</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"></span>
+<span class="w">              </span><span class="k">enddo</span>
+<span class="k">            enddo</span>
+<span class="k">          enddo</span>
+<span class="k">          </span><span class="n">rc</span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid_32</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_DOUBLE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                </span><span class="c">! 64-bit</span>
+<span class="w">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_SHORT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;packmax&#39;</span><span class="p">,</span><span class="n">high_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting packmax&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;packmin&#39;</span><span class="p">,</span><span class="n">low_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting packmin&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;scale_factor&#39;</span><span class="p">,</span><span class="n">scale_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting scale&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">vid</span><span class="p">,</span><span class="s1">&#39;add_offset&#39;</span><span class="p">,</span><span class="n">offset_32</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error getting offset&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">53</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_16</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">kount</span><span class="w"></span>
+<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">jm</span><span class="w"></span>
+<span class="w">              </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">im</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">low_32</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">               </span><span class="n">high_32</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">grid_16</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PACK_FILL</span><span class="w"></span>
+<span class="w">                  </span><span class="n">outPRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span><span class="w"></span>
+<span class="w">                </span><span class="k">else</span>
+<span class="k">                  </span><span class="n">grid_16</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">grid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">offset_32</span><span class="p">)</span><span class="o">/</span><span class="n">scale_32</span><span class="w"></span>
+<span class="w">                </span><span class="k">endif</span>
+<span class="k">              enddo</span>
+<span class="k">            enddo</span>
+<span class="k">          enddo</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid_16</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">grid_16</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">13</span><span class="w"></span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">        endif</span>
+<span class="k">      else</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">12</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span>
+<span class="k">      endif</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error writing variable&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">45</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="c">! Read time dimension scale and fill all values up to the current time.</span>
+<span class="c">! This will insure missing times are defined with the proper time value.</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_DIMENSION</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">dimSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dimSize</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w">                           </span><span class="c">! We&#39;ve already written the</span>
+<span class="w">                                                      </span><span class="c">! the new time.</span>
+<span class="w">      </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">allTimes</span><span class="w"> </span><span class="p">(</span><span class="nb">MAX</span><span class="p">(</span><span class="n">timeIndex</span><span class="p">,</span><span class="n">dimSize</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fminutes_32</span><span class="w"> </span><span class="p">(</span><span class="nb">MAX</span><span class="p">(</span><span class="n">timeIndex</span><span class="p">,</span><span class="n">dimSize</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_INQUIRE_VARIABLE</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="n">dimName</span><span class="p">,</span><span class="n">timeType</span><span class="p">,</span><span class="n">nvDims</span><span class="p">,</span><span class="n">vDims</span><span class="p">,</span><span class="n">nvAtts</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dimSize</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
+<span class="w">        </span><span class="c">! Depending on the version of CFIO used to write the file, the Time</span>
+<span class="w">        </span><span class="c">! dimension variable can either be floating point or integer.</span>
+
+<span class="w">        </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">edges</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">dimSize</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">timeType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_FLOAT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">timeId</span><span class="p">,</span><span class="w"> </span><span class="n">fminutes_32</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">          </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">dimSize</span><span class="w"></span>
+<span class="w">            </span><span class="n">allTimes</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">INT</span><span class="p">(</span><span class="n">fminutes_32</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="k">enddo</span>
+<span class="k">        else if</span><span class="w"> </span><span class="p">(</span><span class="n">timeType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_INT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">timeId</span><span class="p">,</span><span class="w"> </span><span class="n">allTimes</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">endif</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error reading times from file&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">46</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)&amp;</span><span class="w"></span>
+<span class="w">           </span><span class="k">return</span>
+<span class="k">      endif</span><span class="w"></span>
+
+<span class="w">      </span><span class="c">! This loop fills the time dimension scale based on the time increment</span>
+<span class="w">      </span><span class="c">! specified in CFIO_Create.  If CFIO ever changes to support variable</span>
+<span class="w">      </span><span class="c">! time increments, this code MUST be changed.</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">timeIndex</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">fillTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">incSecs</span><span class="o">/</span><span class="mi">60</span><span class="w"></span>
+<span class="w">        </span><span class="n">allTimes</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fillTime</span><span class="w"></span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      </span><span class="n">allTimes</span><span class="p">(</span><span class="n">timeIndex</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">minutes</span><span class="w"></span>
+
+<span class="c">! Write filled time array to file.</span>
+
+<span class="w">      </span><span class="n">corner</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">edges</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">timeIndex</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">timeType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_FLOAT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">timeIndex</span><span class="w"></span>
+<span class="w">          </span><span class="n">fminutes_32</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">INT</span><span class="p">(</span><span class="n">allTimes</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="k">enddo</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="n">fminutes_32</span><span class="p">,</span><span class="n">corner</span><span class="p">,</span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">timeType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_INT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="n">timeId</span><span class="p">,</span><span class="n">allTimes</span><span class="p">,</span><span class="n">corner</span><span class="p">,</span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;PutVar: error writing time&quot;</span><span class="p">,</span><span class="n">rc</span><span class="p">,</span><span class="o">-</span><span class="mi">38</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">outRange</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">outPRange</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">17</span><span class="w"></span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">outPRange</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">16</span><span class="w"></span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">outRange</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">15</span><span class="w"></span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">        </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      deallocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">allTimes</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fminutes_32</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">return</span>
+<span class="k">      end subroutine </span><span class="n">CFIO_PutVar</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-08-01T14:56:39.569898             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
