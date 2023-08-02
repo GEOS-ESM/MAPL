@@ -1,17 +1,7 @@
-esma_set_this (OVERRIDE MAPL.geom)
+esma_set_this (OVERRIDE MAPL.field_utils)
 
-
-#set(srcs
-#  EsmfRegridder.F90
-#  FieldBLAS.F90
-#  FieldBLAS_IntrinsicFunctions.F90
-#  GeomManager.F90
-#  MaplGeom.F90
-#  Regridder.F90
-#  StateSupplement.F90
-#  )
 set(srcs
-  geom.F90
+  FieldUtils.F90
   FieldBLAS.F90
   FieldPointerUtilities.F90
   FieldUtilities.F90
@@ -30,7 +20,6 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-#  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   DEPENDENCIES MAPL.shared PFLOGGER::pflogger
   TYPE ${MAPL_LIBRARY_TYPE}
   )

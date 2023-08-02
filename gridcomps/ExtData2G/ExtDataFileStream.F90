@@ -2,7 +2,6 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataFileStream
    use ESMF
-   use yaFyaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_TimeStringConversion
@@ -30,7 +29,7 @@ module MAPL_ExtDataFileStream
     end interface ExtDataFileStream
 contains
 
-   function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set) 
+   function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set)
       type(ESMF_HConfig), intent(in) :: config
       type(ESMF_Time), intent(in) :: current_time
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -56,7 +55,7 @@ contains
          file_reff_time = get_string_with_default(config,"ref_time")
          range_str = get_string_with_default(config,"valid_range")
       end if
-     
+
       if (file_frequency /= '') then
          data_set%frequency = string_to_esmf_timeinterval(file_frequency)
       else
@@ -160,7 +159,7 @@ contains
       logical, optional, intent(in)  :: get_range
       integer, optional, intent(out) :: rc
 
-      logical :: get_range_      
+      logical :: get_range_
       type(MAPLDataCollection), pointer :: collection
       type(FileMetadataUtils), pointer :: metadata
       type(ESMF_Time), allocatable :: time_series(:)

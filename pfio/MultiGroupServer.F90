@@ -46,7 +46,7 @@ module pFIO_MultiGroupServerMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_FileMetadataMod
    use pFIO_IntegerMessageMapMod
-   use gFTL2_StringSet, StringSetIterator =>SetIterator
+   use gFTL2_StringSet
    use mpi
    use pFlogger, only: logging, Logger
 
@@ -272,7 +272,7 @@ contains
    end subroutine put_DataToFile
 
    subroutine clean_up(this, rc)
-      class(MultiGroupServer),intent(inout) :: this
+      class(MultiGroupServer),target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
       integer :: num_clients, n
@@ -560,9 +560,9 @@ contains
           enddo
           ! if there is no idle processor, get back to probe
           if (all(num_idlePEs == 0)) cycle
-          ! if this file is still being written, get back to probe  
+          ! if this file is still being written, get back to probe
           iter = FilesBeingWritten%find(FileName)
-          if (iter /= FilesBeingWritten%end()) cycle 
+          if (iter /= FilesBeingWritten%end()) cycle
 
           ! get the node with the most idle processors
           node_rank = maxloc(num_idlePEs, dim=1) - 1

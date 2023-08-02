@@ -1,6 +1,6 @@
-module mapl3g_EsmfRegridder
+module mapl_EsmfRegridder
 
-   use mapl3g_FieldBLAS, only: FieldGEMV, FieldsAreConformable
+   use mapl_FieldBLAS, only: FieldGEMV, FieldsAreConformable
 
    implicit none
 
@@ -49,4 +49,4 @@ contains
       call FieldGEMV('T', ...)
       
    end subroutine regrid_scalar2
-end module mapl3g_EsmfRegridder
+end module mapl_EsmfRegridder

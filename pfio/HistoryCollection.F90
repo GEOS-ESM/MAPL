@@ -42,7 +42,7 @@ contains
   end function new_HistoryCollection
 
   function find(this, file_name,rc) result(formatter)
-    class (HistoryCollection), intent(inout) :: this
+    class (HistoryCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer,optional,intent(out) :: rc 
 
@@ -73,7 +73,7 @@ contains
   end function find
 
   subroutine  ModifyMetadata(this,var_map,rc)
-    class (HistoryCollection), intent(inout) :: this
+    class (HistoryCollection), target, intent(inout) :: this
     type (StringVariableMap), intent(in) :: var_map
     integer, optional, intent(out) :: rc 
 
@@ -105,7 +105,7 @@ contains
   end subroutine ReplaceMetadata
 
   subroutine clear(this, rc)
-    class (HistoryCollection), intent(inout) :: this
+    class (HistoryCollection), target, intent(inout) :: this
     integer, optional, intent(out) :: rc 
 
     type(NetCDF4_FileFormatter), pointer :: f_ptr

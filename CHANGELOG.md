@@ -9,8 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-
 - Saved weights and points for the vertical interpolation
+- Trajectory sampler with Epoch time span
+- Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
+
+### Changed
+
+- Renamed "geom" subdir and library to "field_utils"
+
+### Fixed
+
+- Add call to initialize pFlogger layer for the unit tests.
+
+### Removed
+
+### Deprecated
+
+## [2.40.2] - 2023-08-01
+
+### Fixed
+
+- Fixed missing TARGET attribute on dummy argument.   NAG aggressively uses copy-in/copy-out which exposes these missing attributes.   This fix probably did not find all - just the ones exercised by one failing test.
+
+## [2.40.1] - 2023-08-01
+
+### Fixed
+
+- Workaround for NAG which prevents reading values from ESMF Config files that have been set using `SetAttribute()`.    The immediate issue appears to be due to a wrong CPP conditional on `ESMF_HAS_ACHAR_BUG', but it is not immediately clear if this is due to recent changes in ESMF or some change in NAG.  Probably ESMF though.  Once the ESMF core team analyzes we will potentially update this fix.
+
+## [2.40.0] - 2023-07-29
+
+### Added
+
 - Add ability of ExtData to fill variables on MAPL "tile" grids.
 - Added print of regrid method during History initialization
 - Added ability to use an `ESMF.rc` file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
@@ -21,7 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - sampling IODA file with trajectory sampler (step-1): make it run
 - Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
   - Set required ESMF version to 8.5.0
-  - Add check in CMake to make sure ESMF version is at least 8.5.0b22 if using a beta snapshot
 - Add StationSamplerMod for station sampler
 - Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
@@ -31,23 +60,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updates to GFE library dependency
+  - Require gFTL v1.10.0
+  - Require gFTL-shared v1.6.1
+  - Require fArgParse v1.5.0
+  - Require pFlogger v1.9.5
+  - Removed yaFyaml as dependency
 - Updated programs using FLAP for command line parsing to use fArgParse instead
-- Updated `components.yaml` to match GEOSgcm v11.1.0
-  - ESMA_env v4.9.1 → v4.17.0
-    - Baselibs 7.13.0
-      - esmf v8.5.0b22
-      - GFE v1.10.0
-      - curl 8.1.1
+- Updated `components.yaml` to use Baselibs 7.14.0
+  - ESMA_env v4.9.1 → v4.19.0
+    - Baselibs 7.14.0
+      - esmf v8.5.0
+      - GFE v1.11.0
+      - curl 8.2.1
       - HDF5 1.10.10
       - netCDF-C 4.9.2
       - netCDF-Fortran 4.6.1
-      - CDO 2.2.0
-      - NCO 5.1.5
+      - CDO 2.2.1
+      - NCO 5.1.7
     - Move to MPT 2.28 at NAS, and other various changes for TOSS4 at NAS
-  - ESMA_cmake v3.28.0 → v3.29.0
+    - Remove Haswell from `build.csh`
+  - ESMA_cmake v3.28.0 → v3.31.0
     - Clean up for TOSS4 changes at NAS
+    - Add `QUIET_DEBUG` flag
+    - Suppress some common warnings with Intel Debug
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
-- Update CI to use BCs v11.1.0
+- Update CI to use BCs v11.1.0 and Baselibs 7.14.0
 - Updates to support building MAPL with spack instead of Baselibs
   - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
   - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
@@ -59,8 +97,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created cubed-sphere grid factory with files split by face
 - Removed unneeded and confusing default in History Grid Comp (see #2081)
 - Fixes in CMake for fArgParse transition
-
-### Removed
 
 ### Deprecated
 
