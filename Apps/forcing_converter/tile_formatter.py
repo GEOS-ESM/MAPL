@@ -14,7 +14,7 @@ def create_tile_from_map(input_file,spec):
        units = spec['units']
     long_name = "NA"
     if 'long_name' in spec.keys():
-       units = spec['long_name']
+       long_name = spec['long_name']
     is_clim = False
     if 'clim' in spec.keys():
        is_clim = spec['clim']
