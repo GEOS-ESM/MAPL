@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Undoing previous workaround for NAG + `MAPL_Config.F90`   That workaround was not portable to Linux.  Instead have fixed with compiler flags in `ESMA_cmake`.   But did a wee bit of refactoring while I was in the file.
+
 ### Removed
 
 ### Deprecated
