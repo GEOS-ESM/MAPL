@@ -309,10 +309,6 @@ module MAPL_VerticalDataMod
             do lev =1, levo
                pp = flip_sign*this%interp_levels(lev)
                pb = flip_sign*ple3d(:,:,km_e)
-               !where (pp > pb)
-               !   this%ks_e(:,:,lev) = km_e
-               !   this%weight_e(:,:,lev) = 1.
-               !endwhere
                do k = km_e-1, 1,-1 ! levels of input
                  if(all(pb<pp)) exit
                  pt = flip_sign*ple3d(:,:,k)
