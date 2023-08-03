@@ -33,6 +33,29 @@ module MAPL_ConfigMod
       module procedure :: MAPL_ConfigSetAttribute_string
    end interface
 
+   integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
+   integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
+                                      ! usually *less* than the number
+                                      ! of non-blank/comment lines
+                                      ! (because most lines are shorter
+                                      ! then LSZ)
+
+   integer,   parameter :: NBUF_MAX = MSZ*LSZ     ! max size of buffer
+   integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
+                                                  ! assumes an average line
+                                                  ! size of 16, the code
+                                                  ! will do a bound check
+
+   character, parameter :: BLK = achar(32)   ! blank (space)
+   character, parameter :: TAB = achar(09)   ! TAB
+#if defined(ESMF_HAS_ACHAR_BUG)
+       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
+#else
+       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
+#endif
+       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
+       character, parameter :: NUL = achar(00)   ! what it says
+
 contains
 
    function MAPL_ConfigCreate(unusable, rc) result(config)
@@ -42,7 +65,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character, parameter :: EOB = achar(00)   !! end of buffer mark (null)
-#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
+#if defined(__NAG_COMPILER_BUILD) && defined(__DARWIN)
       character, parameter :: EOL = achar(12)   !! end of line mark (cr)
 #else
       character, parameter :: EOL = achar(10)   !! end of line mark (newline)
@@ -79,29 +102,6 @@ contains
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
 !
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_int32'
 
@@ -248,29 +248,6 @@ contains
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
 !
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_int32'
 
@@ -417,29 +394,6 @@ contains
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
 !
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_int32'
 
@@ -581,7 +535,6 @@ contains
 ! !INTERFACE:
       ! Private name; call using MAPL_ConfigSetAttribute()
 
-     integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
      character(len=LSZ) :: buffer
      character(len=12) :: tmpStr, newVal
      integer :: count, i, j
@@ -626,7 +579,6 @@ contains
      ! 18 is needed for gfortran
      ! Hopefully 32 is large enough to fit-all.
 #define IWSZ 32
-     integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
      character(len=LSZ) :: buffer
      character(len=IWSZ) :: tmpStr, newVal
      integer :: count, i, j
@@ -662,29 +614,6 @@ contains
       character(len=*), intent(in), optional       :: label
       integer, intent(out), optional               :: rc
 !
-       !integer,   parameter :: LSZ = 256  ! Maximum line size
-       integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
-       integer,   parameter :: MSZ = 256  ! Used to size buffer; this is
-                                          ! usually *less* than the number
-                                          ! of non-blank/comment lines
-                                          ! (because most lines are shorter
-                                          ! then LSZ)
-
-       integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
-                                                  ! assumes an average line
-                                                  ! size of 16, the code
-                                                  ! will do a bound check
-
-       character, parameter :: BLK = achar(32)   ! blank (space)
-       character, parameter :: TAB = achar(09)   ! TAB
-#if defined(ESMF_HAS_ACHAR_BUG) | defined(__NAG_COMPILER_BUILD)
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
-       character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
-       character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
-       character, parameter :: NUL = achar(00)   ! what it says
 
 !$$      character(len=ESMF_MAXSTR) :: Iam = 'MAPL_ConfigSetAttribute_string'
 
