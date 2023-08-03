@@ -11,9 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v3.31.1 (Fixes for NAG)
+
 ### Fixed
 
-- Undoing previous workaround for NAG + `MAPL_Config.F90`   That workaround was not portable to Linux.  Instead have fixed with compiler flags in `ESMA_cmake`.   But did a wee bit of refactoring while I was in the file.
+- Undoing previous workaround for NAG + `MAPL_Config.F90` in v2.40.1 which was a workaround was not portable to Linux. Instead, this uses changes in ESMA_cmake v3.31.1 for flags with NAG.
 
 ### Removed
 
