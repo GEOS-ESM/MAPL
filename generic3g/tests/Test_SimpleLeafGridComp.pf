@@ -1,5 +1,4 @@
 module Test_SimpleLeafGridComp
-   use mapl3g_GenericConfig
    use mapl3g_Generic
    use mapl3g_GenericPhases
    use mapl3g_UserSetServices
@@ -18,7 +17,7 @@ contains
 
    subroutine setup(outer_gc, config, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
-      type(GenericConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       integer, intent(out) :: rc
       
       integer :: status, userRC
@@ -52,7 +51,7 @@ contains
    subroutine test_wasrun_1(this)
       class(MpiTestMethod), intent(inout) :: this
 
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
       integer :: status, userRC
       type(ESMF_GridComp) :: outer_gc
 
@@ -83,7 +82,7 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
 
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
@@ -103,7 +102,7 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
 
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
@@ -124,7 +123,7 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: outer_gc
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
 
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
@@ -147,12 +146,11 @@ contains
       use scratchpad
       use iso_fortran_env
       class(MpiTestMethod), intent(inout) :: this
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
 
       integer :: status, userrc
       type(ESMF_GridComp) :: outer_gc
 
-      type(ESMF_HConfig) :: hconfig
       type(ESMF_Clock) :: clock
       type(ESMF_State) :: importState, exportState
       integer :: i
@@ -163,9 +161,8 @@ contains
       call NUOPC_FieldDictionarySetup('./scenarios/FieldDictionary.yml', rc=status)
       @assert_that(status, is(0))
 
-      hconfig = ESMF_HConfigCreate(filename='./scenarios/leaf_A.yaml')
+      config = ESMF_HConfigCreate(filename='./scenarios/leaf_A.yaml')
       @assert_that(status, is(0))
-      config = GenericConfig(yaml_cfg=hconfig)
 
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))

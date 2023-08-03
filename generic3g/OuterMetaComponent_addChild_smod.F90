@@ -14,7 +14,7 @@ contains
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
-      type(GenericConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status

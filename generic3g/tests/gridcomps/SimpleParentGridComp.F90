@@ -6,7 +6,6 @@
 module SimpleParentGridComp
    use mapl_ErrorHandling
    use mapl3g_OuterMetaComponent
-   use mapl3g_GenericConfig
    use mapl3g_Generic
    use mapl3g_UserSetServices
    use scratchpad
@@ -24,20 +23,17 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      type(GenericConfig) :: config_A, config_B
-      type(ESMF_HConfig) :: hconfig_A, hconfig_B 
+      type(ESMF_HConfig) :: config_A, config_B
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run_extra, phase_name='extra', _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, finalize, _RC)
 
-      hconfig_A = ESMF_HConfigCreate(filename='./scenarios/leaf_A.yaml',rc=status)
+      config_A = ESMF_HConfigCreate(filename='./scenarios/leaf_A.yaml',rc=status)
       _ASSERT(status == 0, 'bad config')
-      config_A = GenericConfig(yaml_cfg=hconfig_A)
-      hconfig_B = ESMF_HConfigCreate(filename='./scenarios/leaf_B.yaml',rc=status)
+      config_B = ESMF_HConfigCreate(filename='./scenarios/leaf_B.yaml',rc=status)
       _ASSERT(status == 0, 'bad config')
-      config_B = GenericConfig(yaml_cfg=hconfig_B)
       
 
       _RETURN(ESMF_SUCCESS)

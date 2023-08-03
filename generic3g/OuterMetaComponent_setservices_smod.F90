@@ -40,9 +40,8 @@ contains
 !!$      call before(this, _RC)
 !!$
 
-      if (this%config%has_yaml()) then
-         this%component_spec = parse_component_spec(this%config%yaml_cfg, _RC)
-      end if
+
+      this%component_spec = parse_component_spec(this%config, _RC)
 
       call process_user_gridcomp(this, _RC)
       call add_children_from_config(this, _RC)
@@ -65,7 +64,6 @@ contains
          type(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
 
-         type(ESMF_HConfig), pointer :: config
          type(ESMF_HConfig) :: child_spec
          type(ESMF_HConfig) :: children_spec
          logical :: return
@@ -73,18 +71,12 @@ contains
          integer :: status, num_children, i
          logical :: found
 
-         if (.not. this%config%has_yaml()) then
-            _RETURN(_SUCCESS)
-         end if
-         
-         config => this%config%yaml_cfg
-
-         found = ESMF_HConfigIsDefined(config,keyString='children')
+         found = ESMF_HConfigIsDefined(this%config,keyString='children')
          if (.not. found) then
             _RETURN(_SUCCESS)
          end if
 
-         children_spec = ESMF_HConfigCreateAt(config,keyString='children',_RC)
+         children_spec = ESMF_HConfigCreateAt(this%config,keyString='children',_RC)
          _ASSERT(ESMF_HConfigIsSequence(children_spec), 'Children in config should be specified as a sequence.')
          num_children = ESMF_HConfigGetSize(children_spec,_RC)
          do i = 1,num_children
@@ -110,7 +102,6 @@ contains
          character(:), allocatable :: dso_key, userProcedure_key, try_key
          logical :: dso_found, userProcedure_found
          character(:), allocatable :: sharedObj, userProcedure, config_file
-         type(GenericConfig) :: generic_config
          type(ESMF_HConfig) :: new_config
 
          name = ESMF_HConfigAsString(child_spec,keyString='name',_RC)
@@ -145,10 +136,9 @@ contains
          if (ESMF_HConfigIsDefined(child_spec,keyString='config_file')) then
             config_file = ESMF_HConfigAsString(child_spec,keyString='config_file',_RC)
             new_config = ESMF_HConfigCreate(filename=config_file,_RC)
-            generic_config = GenericConfig(yaml_cfg=new_config)
          end if
 
-         call this%add_child(name, user_setservices(sharedObj, userProcedure), generic_config, _RC)
+         call this%add_child(name, user_setservices(sharedObj, userProcedure), new_config, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine add_child_from_config

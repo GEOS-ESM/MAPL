@@ -33,6 +33,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_Clock
+   use :: esmf, only: ESMF_HConfig
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
@@ -129,11 +130,10 @@ contains
 
    subroutine add_child_by_name(gridcomp, child_name, setservices, config, rc)
       use mapl3g_UserSetServices
-      use mapl3g_GenericConfig
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
-      type(GenericConfig), intent(inout) :: config
+      type(ESMF_HConfig), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status

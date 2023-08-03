@@ -12,7 +12,6 @@ module mapl3g_OuterMetaComponent
    use mapl3g_StateSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_VariableSpecVector
-   use mapl3g_GenericConfig
    use mapl3g_ComponentSpec
    use mapl3g_GenericPhases
    use mapl3g_ChildComponent
@@ -52,10 +51,10 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_Geom), allocatable            :: geom
+      type(ESMF_Geom), allocatable                :: geom
       type(VerticalGeom), allocatable             :: vertical_geom
       type(MultiState)                            :: user_states
-      type(GenericConfig)                         :: config
+      type(ESMF_HConfig)                          :: config
       type(ChildComponentMap)                     :: children
       logical                                     :: is_root_ = .false.
 
@@ -71,12 +70,8 @@ module mapl3g_OuterMetaComponent
       type(ExtensionVector) :: state_extensions
 
    contains
-      procedure :: set_esmf_config
-      procedure :: set_yaml_config
-      generic   :: set_config => set_esmf_config, set_yaml_config
-!!$      procedure :: get_esmf_config
-!!$      procedure :: get_yaml_config
-!!$      generic   :: get_config => get_esmf_config, get_yaml_config
+      procedure :: set_config
+      procedure :: get_config
 
       procedure :: get_phases
 !!$      procedure :: get_gridcomp
@@ -161,7 +156,7 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
          class(AbstractUserSetServices), intent(in) :: setservices
-         type(GenericConfig), intent(in) :: config
+         type(ESMF_HConfig), intent(in) :: config
          integer, optional, intent(out) :: rc
       end subroutine add_child_by_name
 
@@ -194,7 +189,7 @@ contains
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(ESMF_GridComp), intent(in) :: user_gridcomp
       class(AbstractUserSetServices), intent(in) :: set_services
-      type(GenericConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
 
       outer_meta%self_gridcomp = gridcomp
       outer_meta%user_setservices = set_services
@@ -387,30 +382,22 @@ contains
    end function get_user_states
 
 
-   subroutine set_esmf_config(this, config)
-      class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_Config), intent(in) :: config
-
-      this%config%esmf_cfg = config
-
-   end subroutine set_esmf_config
-
-   subroutine set_yaml_config(this, config)
+   subroutine set_config(this, config)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_HConfig), intent(in) :: config
 
-      allocate(this%config%yaml_cfg, source=config)
+      this%config = config
 
-   end subroutine set_yaml_config
+   end subroutine set_config
 
-!!$   subroutine get_esmf_config(this, config)
-!!$      class(OuterMetaComponent), intent(inout) :: this
-!!$      type(ESMF_Config), intent(out) :: config
-!!$
-!!$      if (.not. allocated(this%esmf_cfg)) return
-!!$      config = this%esmf_cfg
-!!$
-!!$   end subroutine get_esmf_config
+   function get_config(this) result(config)
+      type(ESMF_HConfig) :: config
+      class(OuterMetaComponent), intent(inout) :: this
+
+      config = this%config
+
+   end function get_config
+
 !!$
 !!$
 !!$   subroutine get_yaml_config(this, config)

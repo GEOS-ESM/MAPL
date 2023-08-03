@@ -26,7 +26,13 @@
   import:
     E1: {status: complete, typekind: R4}
 
-- component: extdata
+# Because collection_1 is added _after_ the usual advertise phase some
+# connections are too late for the automated propagation of exports.
+# We don't expect this to be a problem in practice, but for now the
+# expectations on extdata should be left commented out below.  A
+# workaround can be implemented if the situation changes.
+
+#- component: extdata
 #  export:
 #    "collection_1/E1": {status: complete, typekind: R8}
 #    "collection_1/E1(0)": {status: complete, typekind: R4}

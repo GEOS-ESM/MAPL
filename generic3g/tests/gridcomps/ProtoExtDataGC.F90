@@ -6,7 +6,6 @@
 module ProtoExtDataGC
    use mapl_ErrorHandling
    use mapl3g_OuterMetaComponent
-   use mapl3g_GenericConfig
    use mapl3g_Generic
    use mapl3g_UserSetServices
    use mapl3g_HierarchicalRegistry
