@@ -56,7 +56,8 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status,int_time,year,month,day,hour,minute,second
+      integer :: status,int_time,year,month,day,hour,minute,second,neg_index
+      logical :: negative_offset
 
       this%last_checked = time
       if (update_freq == "-") then
@@ -72,7 +73,17 @@ module MAPL_ExtDataPointerUpdate
          this%last_ring = this%reference_time
          this%update_freq = string_to_esmf_timeinterval(update_freq,_RC)
       end if
-      this%offset=string_to_esmf_timeinterval(update_offset,_RC)
+      negative_offset = .false.
+      if (index(update_offset,"-") > 0) then
+         negative_offset = .true. 
+         neg_index = index(update_offset,"-")
+      end if
+      if (negative_offset) then
+         this%offset=string_to_esmf_timeinterval(update_offset(neg_index+1:),_RC)
+         this%offset = -this%offset
+      else
+         this%offset=string_to_esmf_timeinterval(update_offset,_RC)
+      end if
       _RETURN(_SUCCESS)
 
    end subroutine create_from_parameters
