@@ -62,6 +62,7 @@
    use MAPL_ExtDataLogger
    use MAPL_ExtDataConstants
    use gFTL_StringIntegerMap
+   use MAPL_TimeStringConversion
 
    IMPLICIT NONE
    PRIVATE
@@ -108,6 +109,7 @@
                                           !! are not actually required
      type(ESMF_Config)    :: CF
      logical              :: active
+     type(ESMF_TimeInterval) :: offset
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -269,6 +271,7 @@ CONTAINS
    character(len=1) :: sidx
    type(ESMF_VM) :: vm
    type(ESMF_StateItem_Flag) :: state_item_type
+   type(ESMF_Clock) :: internal_clock
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
@@ -280,6 +283,7 @@ CONTAINS
 !  ------------------------------------
    call extract_ ( GC, self, CF_master, _RC)
    self%CF = CF_master
+   internal_clock = ESMF_ClockCreate(clock,_RC)
 
 !  Start Some Timers
 !  -----------------
@@ -291,7 +295,9 @@ CONTAINS
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
    self%active = am_i_running(new_rc_file,_RC)
 
-   call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
+   self%offset = get_offset(new_rc_file,_RC)
+   call adjust_clock(internal_clock,clock,self%offset)
+   call ESMF_ClockGet(internal_clock, currTIME=time, _RC)
 ! Get information from export state
 !----------------------------------
     call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, RC=STATUS)
@@ -322,7 +328,7 @@ CONTAINS
 !                               --------
 !  Initialize MAPL Generic
 !  -----------------------
-   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  _RC )
+   call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, internal_clock,  _RC )
 
 !                         ---------------------------
 !                         Parse ExtData Resource File
@@ -387,14 +393,14 @@ CONTAINS
          do j=1,num_rules
             num_primary=num_primary+1
             write(sidx,'(I1)')j
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,internal_clock,_RC)
             allocate(self%primary%item(num_primary)%start_end_time(2))
             self%primary%item(num_primary)%start_end_time(1)=time_ranges(j)
             self%primary%item(num_primary)%start_end_time(2)=time_ranges(j+1)
          enddo
       else
          num_primary=num_primary+1
-         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,internal_clock,_RC)
       end if
       call ESMF_StateGet(Export,current_base_name,state_item_type,_RC)
       if (state_item_type /= ESMF_STATEITEM_NOTFOUND) then
@@ -410,7 +416,7 @@ CONTAINS
    do i=1,self%derived%import_names%size()
       current_base_name => self%derived%import_names%at(i)
       num_derived=num_derived+1
-      call config_yaml%fillin_derived(current_base_name,self%derived%item(num_derived),time,clock,_RC)
+      call config_yaml%fillin_derived(current_base_name,self%derived%item(num_derived),time,internal_clock,_RC)
       call ESMF_StateGet(Export,current_base_name,field,_RC)
       call MAPL_StateAdd(self%ExtDataState,field,_RC)
    enddo
@@ -514,6 +520,7 @@ CONTAINS
    integer :: idx,nitems
    type(ESMF_Config) :: cf_master
    type(ESMF_Time) :: adjusted_time
+   type(ESMF_Clock) :: internal_clock
 
    _UNUSED_DUMMY(IMPORT)
    _UNUSED_DUMMY(EXPORT)
@@ -535,7 +542,10 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Run")
 
-   call ESMF_ClockGet(CLOCK, currTIME=current_time, _RC)
+   internal_clock = ESMF_ClockCreate(clock,_RC)
+   call adjust_clock(internal_clock,clock,self%offset,_RC)
+
+   call ESMF_ClockGet(internal_clock, currTIME=current_time, _RC)
 
 !  Fill in the internal state with data from the files
 !  ---------------------------------------------------
@@ -1792,6 +1802,47 @@ CONTAINS
       end if
       _RETURN(_SUCCESS)
 
-   end function am_i_running
+  end function am_i_running
+
+  function get_offset(input_file,rc) result(offset)
+     type(ESMF_TimeInterval) :: offset
+     character(len=*), intent(in) :: input_file
+     integer, intent(out), optional :: rc
+
+     integer :: status,neg_pos
+     character(len=:), allocatable :: temp_string,iso_duration
+     type(ESMF_HConfig) :: config
+     logical :: negative_duration
+    
+     negative_duration = .false. 
+     config = ESMF_HConfigCreate(filename = trim(input_file),_RC)
+	  if (ESMF_HConfigIsDefined(config,keyString="time_offset")) then
+		  temp_string = ESMF_HConfigAsString(config,keyString="time_offset",_RC)
+        iso_duration = temp_string
+        if (index(temp_string,"-") > 0) then
+           negative_duration = .true.
+           neg_pos = index(temp_string,"-") 
+           iso_duration = temp_string(neg_pos+1:)
+        end if
+		  offset = string_to_esmf_timeinterval(iso_duration,_RC)
+        if (negative_duration) offset = -offset
+	  end if
+     _RETURN(_SUCCESS)
+  end function get_offset
+
+  subroutine adjust_clock(internal_clock,external_clock,offset,rc)
+     type(ESMF_Clock), intent(inout) :: internal_clock
+     type(ESMF_Clock), intent(in) :: external_clock
+     type(ESMF_TimeInterval), intent(in) :: offset
+     integer, optional, intent(out) :: rc
+     
+     integer :: status
+     type(ESMF_Time) :: current_time
+
+     call ESMF_ClockGet(external_clock,currTime = current_time, _RC)
+     current_time = current_time + offset
+     call ESMF_ClockSet(internal_clock,currTime = current_time, _RC)
+     _RETURN(_SUCCESS)
+  end subroutine
 
  END MODULE MAPL_ExtDataGridComp2G

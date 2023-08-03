@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trajectory sampler with Epoch time span
 - Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
+- Add option to ExtData2G to provide a new key "time\_offset" whose value is an ISO time duration in the input yaml file. This may also be prepended with a negative sign for a negative duration. This offset shifts the clock seen by ExtData2G. This can be used if you do not have data for the time period your application will run and want to simply "trick" ExtData2G.
 
 ### Changed
 
