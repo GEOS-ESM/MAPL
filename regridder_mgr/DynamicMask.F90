@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl_DynamicMask
+module mapl3g_DynamicMask
    use esmf
    use mapl_ErrorHandlingMod
    use mapl_Base, only: MAPL_UNDEF
@@ -578,4 +578,4 @@ contains
       match_r8 = (missing==b) 
    end function match_r8
 
-end module mapl_DynamicMask
+end module mapl3g_DynamicMask

@@ -1,7 +1,7 @@
 ! NullGeomSpec is used to return a concrete object fore failing
 ! factory methods that return GeomSpec objects.
-module mapl_NullGeomSpec
-   use mapl_GeomSpec
+module mapl3g_NullGeomSpec
+   use mapl3g_GeomSpec
    implicit none
 
    type, extends(GeomSpec) :: NullGeomSpec
@@ -17,4 +17,4 @@ contains
       equal_to = .false.
    end function equal_to
 
-end module mapl_NullGeomSpec
+end module mapl3g_NullGeomSpec

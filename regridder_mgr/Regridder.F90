@@ -1,11 +1,11 @@
 #include "MAPL_Generic.h"
 
-module mapl_Regridder
+module mapl3g_Regridder
    use esmf
    use mapl_ErrorHandlingMod
-   use mapl_geom_mgr
-   use mapl_RegridderSpec
-   use mapl_VectorBasis
+   use mapl3g_geom_mgr
+   use mapl3g_RegridderSpec
+   use mapl3g_VectorBasis
    implicit none
    private
 
@@ -100,5 +100,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy_field_vector
 
-end module mapl_Regridder
+end module mapl3g_Regridder
       

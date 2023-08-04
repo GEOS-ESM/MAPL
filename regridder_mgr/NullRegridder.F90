@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
 
-module mapl_NullRegridder
+module mapl3g_NullRegridder
    use esmf
-   use mapl_Regridder
+   use mapl3g_Regridder
    use mapl_ErrorHandlingMod
    implicit none
    private
@@ -32,5 +32,5 @@ contains
       _FAIL('Null regridder')
    end subroutine regrid_scalar
 
-end module mapl_NullRegridder
+end module mapl3g_NullRegridder
       

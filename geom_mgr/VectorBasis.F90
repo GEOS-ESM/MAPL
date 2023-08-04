@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module mapl_VectorBasis
+module mapl3g_VectorBasis
    use esmf
    use mapl_FieldBLAS
    use mapl_FieldPointerUtilities
@@ -510,7 +510,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine grid_get_corners
 
-
-end module mapl_VectorBasis
+end module mapl3g_VectorBasis
 
 

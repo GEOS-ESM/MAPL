@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl_GeomSpec
+module mapl3g_GeomSpec
    use esmf
    implicit none
    private
@@ -23,4 +23,4 @@ module mapl_GeomSpec
       end function I_equal_to
    end interface
    
-end module mapl_GeomSpec
+end module mapl3g_GeomSpec

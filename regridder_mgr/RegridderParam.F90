@@ -1,4 +1,4 @@
-module mapl_RegridderParam
+module mapl3g_RegridderParam
    implicit none
    private
 
@@ -18,4 +18,4 @@ module mapl_RegridderParam
       end function I_equal_to
    end interface
 
-end module mapl_RegridderParam
+end module mapl3g_RegridderParam

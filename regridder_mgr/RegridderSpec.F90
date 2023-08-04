@@ -1,7 +1,7 @@
-module mapl_RegridderSpec
+module mapl3g_RegridderSpec
    use esmf
-   use mapl_RegridderParam
-   use mapl_geom_mgr, only: MAPL_SameGeom
+   use mapl3g_RegridderParam
+   use mapl3g_geom_mgr, only: MAPL_SameGeom
    implicit none
    private
 
@@ -58,5 +58,5 @@ contains
       
    end function equal_to
 
-      
-end module mapl_RegridderSpec
+   
+end module mapl3g_RegridderSpec

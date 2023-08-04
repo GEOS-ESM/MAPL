@@ -1,5 +1,5 @@
-module mapl_IntegerMaplGeomMap
-   use mapl_MaplGeom
+module mapl3g_IntegerMaplGeomMap
+   use mapl3g_MaplGeom
 
 #define Key __INTEGER
 #define T MaplGeom
@@ -13,4 +13,4 @@ module mapl_IntegerMaplGeomMap
 #undef Key
 #undef T
    
-end module mapl_IntegerMaplGeomMap
+end module mapl3g_IntegerMaplGeomMap

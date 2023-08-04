@@ -1,14 +1,14 @@
 #include "MAPL_Generic.h"
 
-module mapl_EsmfRegridderFactory
-   use mapl_RegridderFactory
-   use mapl_Regridder
-   use mapl_RoutehandleParam
-   use mapl_RoutehandleManager
-   use mapl_EsmfRegridder
-   use mapl_RegridderParam
-   use mapl_RegridderSpec
-   use mapl_NullRegridder
+module mapl3g_EsmfRegridderFactory
+   use mapl3g_RegridderFactory
+   use mapl3g_Regridder
+   use mapl3g_RoutehandleParam
+   use mapl3g_RoutehandleManager
+   use mapl3g_EsmfRegridder
+   use mapl3g_RegridderParam
+   use mapl3g_RegridderSpec
+   use mapl3g_NullRegridder
    use mapl_ErrorHandlingMod
    implicit none
    private
@@ -70,4 +70,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_regridder_typesafe
    
-end module mapl_EsmfRegridderFactory
+end module mapl3g_EsmfRegridderFactory

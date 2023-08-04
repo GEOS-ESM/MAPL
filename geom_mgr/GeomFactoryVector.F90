@@ -1,5 +1,5 @@
-module mapl_GeomFactoryVector
-   use mapl_GeomFactory
+module mapl3g_GeomFactoryVector
+   use mapl3g_GeomFactory
 
 #define T GeomFactory
 #define T_polymorphic
@@ -13,4 +13,4 @@ module mapl_GeomFactoryVector
 #undef T_polymorphic
 #undef T
 
-end module mapl_GeomFactoryVector
+end module mapl3g_GeomFactoryVector

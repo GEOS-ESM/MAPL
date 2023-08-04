@@ -1,14 +1,14 @@
 #include "MAPL_Generic.h"
 
-module mapl_GeomManager
-   use mapl_GeomSpec
-   use mapl_NullGeomSpec
-   use mapl_MaplGeom
-   use mapl_GeomFactory
-   use mapl_GeomFactoryVector
-   use mapl_GeomSpecVector
-   use mapl_IntegerMaplGeomMap
-   use mapl_GeomUtilities, only: MAPL_GeomSetId
+module mapl3g_GeomManager
+   use mapl3g_GeomSpec
+   use mapl3g_NullGeomSpec
+   use mapl3g_MaplGeom
+   use mapl3g_GeomFactory
+   use mapl3g_GeomFactoryVector
+   use mapl3g_GeomSpecVector
+   use mapl3g_IntegerMaplGeomMap
+   use mapl3g_GeomUtilities, only: MAPL_GeomSetId
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod
    use esmf
@@ -332,4 +332,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_geom_from_id
 
-end module mapl_GeomManager
+end module mapl3g_GeomManager

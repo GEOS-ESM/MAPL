@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
 
-module mapl_RoutehandleParam
+module mapl3g_RoutehandleParam
    use esmf
-   use mapl_geom_mgr, only: MaplGeom, geom_manager, MAPL_SameGeom
+   use mapl3g_geom_mgr, only: MaplGeom, geom_manager, MAPL_SameGeom
    use mapl_ErrorHandlingMod
    implicit none
    private
@@ -253,4 +253,4 @@ contains
    end function equal_to
 
 
-end module mapl_RoutehandleParam
+end module mapl3g_RoutehandleParam

@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module mapl_GeomUtilities
+module mapl3g_GeomUtilities
    use esmf
    use mapl_ErrorHandlingMod
    implicit none
@@ -70,5 +70,4 @@ contains
 
    end function same_geom
 
-   
-end module mapl_GeomUtilities
+end module mapl3g_GeomUtilities

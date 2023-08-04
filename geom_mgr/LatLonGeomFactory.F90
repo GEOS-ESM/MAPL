@@ -1,9 +1,9 @@
 #include "MAPL_Generic.h"
 
-module mapl_LatLonGeomFactory
-   use mapl_GeomFactory
-   use mapl_GeomSpec
-   use mapl_NullGeomSpec
+module mapl3g_LatLonGeomFactory
+   use mapl3g_GeomFactory
+   use mapl3g_GeomSpec
+   use mapl3g_NullGeomSpec
    implicit none
 
    public :: LatLonGeomFactory
@@ -221,6 +221,6 @@ contains
 
    end function equal_to
 
-end module mapl_LatLonGeomFactory
+end module mapl3g_LatLonGeomFactory
 
 

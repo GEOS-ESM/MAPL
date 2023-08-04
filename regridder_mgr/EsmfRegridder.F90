@@ -1,13 +1,13 @@
 #include "MAPL_Generic.h"
 
-module mapl_EsmfRegridder
-   use mapl_RegridderParam
-   use mapl_RegridderSpec
-   use mapl_Regridder
-   use mapl_RoutehandleParam
-   use mapl_RoutehandleManager
-   use mapl_DynamicMask
-   use mapl_NullRegridder
+module mapl3g_EsmfRegridder
+   use mapl3g_RegridderParam
+   use mapl3g_RegridderSpec
+   use mapl3g_Regridder
+   use mapl3g_RoutehandleParam
+   use mapl3g_RoutehandleManager
+   use mapl3g_DynamicMask
+   use mapl3g_NullRegridder
    use mapl_ErrorHandlingMod
    use esmf
    implicit none
@@ -170,4 +170,4 @@ contains
       routehandle_param = this%routehandle_param
    end function get_routehandle_param
 
-end module mapl_EsmfRegridder
+end module mapl3g_EsmfRegridder

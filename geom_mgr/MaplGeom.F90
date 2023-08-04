@@ -1,8 +1,8 @@
 #include "MAPL_ErrLog.h"
 
-module mapl_MaplGeom
-   use mapl_GeomSpec
-   use mapl_VectorBasis
+module mapl3g_MaplGeom
+   use mapl3g_GeomSpec
+   use mapl3g_VectorBasis
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
@@ -124,5 +124,5 @@ contains
       _RETURN(_SUCCESS)
    end function get_basis
 
-end module mapl_MaplGeom
+end module mapl3g_MaplGeom
 

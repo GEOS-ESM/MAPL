@@ -1,10 +1,10 @@
 #include "MAPL_Generic.h"
 
-module mapl_RoutehandleManager
+module mapl3g_RoutehandleManager
    use esmf
-   use mapl_RoutehandleSpec
-   use mapl_RoutehandleSpecVector
-   use mapl_RoutehandleVector
+   use mapl3g_RoutehandleSpec
+   use mapl3g_RoutehandleSpecVector
+   use mapl3g_RoutehandleVector
    use mapl_ErrorHandlingMod
    implicit none
 
@@ -99,4 +99,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine delete_routehandle
 
-end module mapl_RoutehandleManager
+end module mapl3g_RoutehandleManager

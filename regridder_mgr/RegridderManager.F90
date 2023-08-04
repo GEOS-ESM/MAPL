@@ -1,15 +1,15 @@
 #include "MAPL_Generic.h"
-module mapl_RegridderManager
+module mapl3g_RegridderManager
 
-   use mapl_RegridderSpec
-   use mapl_Regridder
-   use mapl_NullRegridder
-   use mapl_RegridderFactory
+   use mapl3g_RegridderSpec
+   use mapl3g_Regridder
+   use mapl3g_NullRegridder
+   use mapl3g_RegridderFactory
 
-   use mapl_RegridderFactoryVector
-   use mapl_RegridderSpecVector
-   use mapl_RegridderVector
-   use mapl_EsmfRegridderFactory
+   use mapl3g_RegridderFactoryVector
+   use mapl3g_RegridderSpecVector
+   use mapl3g_RegridderVector
+   use mapl3g_EsmfRegridderFactory
 
    use mapl_ErrorHandlingMod
    implicit none
@@ -138,4 +138,4 @@ contains
    end function make_regridder
 
 
-end module mapl_RegridderManager
+end module mapl3g_RegridderManager
