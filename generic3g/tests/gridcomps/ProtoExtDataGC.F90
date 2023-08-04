@@ -16,7 +16,6 @@ module ProtoExtDataGC
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ESMF_Subset
 
-   use pFlogger
    implicit none
    private
 
@@ -54,31 +53,45 @@ contains
       type(HierarchicalRegistry), pointer :: registry
       class(AbstractStateItemSpec), pointer :: export_spec
       class(AbstractStateItemSpec), pointer :: import_spec
-      class(Logger), pointer :: lgr
-      type(ESMF_HConfig) :: hconfig
+      type(ESMF_HConfig) :: hconfig, states_spec, state_spec
+      type(ESMF_HConfigIter) :: iter,e,b
+      character(:), allocatable :: var_name
 
+      call MAPL_Get(gc, hconfig=hconfig, registry=registry, _RC)
 
-      call MAPL_Get(gc, hconfig=hconfig, registry=registry, lgr=lgr, _RC)
-      call lgr%warning('Names are hardwired - should derive from config.')
+      ! We would do this quite differently in an actual ExtData implementation.
+      ! Here we are using information from the generic spec.
 
-      export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'E1')
-      import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, 'E1')
-      a_pt = ActualConnectionPt(export_v_pt)
-      export_spec => registry%get_item_spec(a_pt, _RC)
+      if (ESMF_HConfigIsDefined(hconfig, keystring='states')) then
+         states_spec = ESMF_HConfigCreateAt(hconfig, keystring='states')
+         if (ESMF_HConfigIsDefined(states_spec, keystring='export')) then
+            state_spec = ESMF_HConfigCreateAt(states_spec, keystring='export')
 
-      allocate(import_spec, source=export_spec)
-!!$      import_spec = export_spec
-      ! Need new payload ... (but maybe not as it will get tossed at connect() anyway.)
-      call import_spec%create([StateItemSpecPtr::], _RC)
-      call registry%add_item_spec(import_v_pt, import_spec)
+            b = ESMF_HConfigIterBegin(state_spec)
+            e = ESMF_HConfigIterEnd(state_spec) 
+            iter = ESMF_HConfigIterBegin(state_spec)
+            do while (ESMF_HConfigIterLoop(iter,b,e))
+               var_name = ESMF_HConfigAsStringMapKey(iter,_RC)
+               export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
+               import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_name)
+               a_pt = ActualConnectionPt(export_v_pt)
+               export_spec => registry%get_item_spec(a_pt, _RC)
 
-      ! And now connect
-      export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'E1')
-      s_pt = ConnectionPt('collection_1', export_v_pt)
-      d_pt = ConnectionPt('<self>', import_v_pt)
-      conn = SimpleConnection(source=s_pt, destination=d_pt)
+               allocate(import_spec, source=export_spec)
 
-      call registry%add_connection(conn, _RC)
+               ! Need new payload ... (but maybe not as it will get tossed at connect() anyway.)
+               call import_spec%create([StateItemSpecPtr::], _RC)
+               call registry%add_item_spec(import_v_pt, import_spec)
+
+               ! And now connect
+               export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, var_name)
+               s_pt = ConnectionPt('collection_1', export_v_pt)
+               d_pt = ConnectionPt('<self>', import_v_pt)
+               conn = SimpleConnection(source=s_pt, destination=d_pt)
+               call registry%add_connection(conn, _RC)
+            end do
+         end if
+      end if
 
       _RETURN(ESMF_SUCCESS)
    end subroutine init_post_advertise

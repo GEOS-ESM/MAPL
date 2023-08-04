@@ -13,6 +13,7 @@ module mapl3g_ESMF_Subset
         ESMF_Config, &
         ESMF_Field, &
         ESMF_HConfig, &
+        ESMF_HConfigIter, &
         ESMF_GridComp, &
         ESMF_State
 
@@ -25,6 +26,15 @@ module mapl3g_ESMF_Subset
         ESMF_STATEINTENT_EXPORT, &
         ESMF_STATEINTENT_IMPORT, &
         ESMF_SUCCESS
+        
+   ! procedures
+   use:: esmf, only: &
+        ESMF_HConfigAsStringMapKey, &
+        ESMF_HConfigCreateAt, &
+        ESMF_HConfigIsDefined, &
+        ESMF_HConfigIterBegin, &
+        ESMF_HConfigIterEnd, &
+        ESMF_HConfigIterLoop
         
    implicit none
 

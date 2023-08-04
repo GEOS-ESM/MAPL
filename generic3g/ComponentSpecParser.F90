@@ -59,33 +59,33 @@ contains
    end function parse_component_spec
 
 
-   function process_var_specs(config, rc) result(var_specs)
+   function process_var_specs(hconfig, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
-      type(ESMF_HConfig), optional, intent(in) :: config
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      if (.not. present(config)) then
+      if (.not. present(hconfig)) then
          _RETURN(_SUCCESS)
       end if
 
-      if (ESMF_HConfigIsDefined(config,keyString='internal')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+      if (ESMF_HConfigIsDefined(hconfig,keyString='internal')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(hconfig,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
       end if
-      if (ESMF_HConfigIsDefined(config,keyString='import')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
+      if (ESMF_HConfigIsDefined(hconfig,keyString='import')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(hconfig,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
       end if
-      if (ESMF_HConfigIsDefined(config,keyString='export')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
+      if (ESMF_HConfigIsDefined(hconfig,keyString='export')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(hconfig,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
       end if
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine process_state_specs(var_specs, config, state_intent, rc)
+      subroutine process_state_specs(var_specs, hconfig, state_intent, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
-         type(ESMF_HConfig), target, intent(in) :: config
+         type(ESMF_HConfig), target, intent(in) :: hconfig
          type(Esmf_StateIntent_Flag), intent(in) :: state_intent
          integer, optional, intent(out) :: rc
 
@@ -106,9 +106,9 @@ contains
          type(StringVector), allocatable :: service_items
          integer :: status
 
-         b = ESMF_HConfigIterBegin(config) 
-         e = ESMF_HConfigIterEnd(config) 
-         iter = ESMF_HConfigIterBegin(config)
+         b = ESMF_HConfigIterBegin(hconfig) 
+         e = ESMF_HConfigIterEnd(hconfig) 
+         iter = ESMF_HConfigIterBegin(hconfig)
          do while (ESMF_HConfigIterLoop(iter,b,e))
             name = ESMF_HConfigAsStringMapKey(iter,_RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
