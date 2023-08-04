@@ -718,6 +718,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
            integer :: is, ie
            integer :: status
+           integer :: ic
 
            ! __ s1.  get x_subset for each model time step interval on each pet
            call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -727,7 +728,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%get_x_subset(timeset, x_subset, _RC)
            is=x_subset(1)
            ie=x_subset(2)
-           
+
            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
               call this%vdata%setup_eta_to_pressure(_RC)
            endif
@@ -755,6 +756,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     !!if (is>0) write(6,'(a)')  'regrid_accu:  p_dst_2d'
                     !!if (is>0) write(6,'(10f7.1)')  p_dst_2d
 
+
                  else if (rank==3) then
                     call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,_RC)
@@ -775,6 +777,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               call iter%next()
            enddo
         endif
+
            _RETURN(ESMF_SUCCESS)
 
          end procedure regrid_accumulate_on_xsubset
