@@ -3595,14 +3595,8 @@ ENDDO PARSER
 
       if (list(n)%timeseries_output) then
          call mpi_barrier(mpi_comm_world, status)
-         print*, 'bf list(n)%trajectory%regrid_accumulate'
          call list(n)%trajectory%regrid_accumulate(_RC)
-         print*, 'af list(n)%trajectory%regrid_accumulate'         
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-
-            stop -1
-            _ASSERT(.false., 'stop here to test regrid only')
-
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if

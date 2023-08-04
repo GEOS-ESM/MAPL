@@ -295,11 +295,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: src_field, dst_field
          type(ESMF_Field) :: acc_field         
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
-         real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-         real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-         real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+         !!real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
+         !!real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+         !!real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
          real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
+         real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
          real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
          integer :: is, ie, nx
@@ -357,12 +358,27 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                else if (rank==2) then
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
-                  call ESMF_FieldRedist( acc_field,  acc_field_3d_rt, RH, _RC)
+                  
+                  dst_field=ESMF_FieldCreate(this%LS_rt,typekind=ESMF_TYPEKIND_R4, &
+                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+                  src_field=ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4, &
+                       gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
+                  
+                  call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,_RC)
+                  call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,_RC)
+
+                  p_src= reshape(p_acc_3d,shape(p_src), order=[2,1])
+                  call ESMF_FieldRegrid(src_field,dst_field,RH,_RC)
+                  p_acc_rt_3d=reshape(p_dst, shape(p_acc_rt_3d), order=[2,1])
+
+                  call ESMF_FieldDestroy(dst_field,noGarbage=.true.,_RC)
+                  call ESMF_FieldDestroy(src_field,noGarbage=.true.,_RC)
+
                   if (mapl_am_i_root()) then
                      !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
                      !!write(6,*) 'here in append_file:  put_var 3d'
                      call this%file_handle%put_var(trim(item%xname),p_acc_rt_3d(:,:),&
-                          start=[is,1],count=[nx,size(p_acc_3d,2)])
+                          start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                   end if
                endif
             else if (item%itemType == ItemTypeVector) then
@@ -375,7 +391,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
          print*, 'end append_file, nobs_epoch=', nx         
-         print*, __LINE__, __FILE__
          write(6,'(//)')
          
          _RETURN(_SUCCESS)
@@ -681,6 +696,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
             ! defer destroy fieldB at regen_grid step
 
+!!            allocate (AA(size(obstime))
+!!            AA = this%obsTime
+            
             !!write(6,'(2x,a,10E20.11)') 'obstime af destroy'
             !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)
             
@@ -720,6 +738,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            integer :: status
            integer :: ic
 
+           type (ESMF_VM) :: vm
+           integer :: mypet, petcount
+
+
            ! __ s1.  get x_subset for each model time step interval on each pet
            call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
@@ -734,8 +756,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            endif
 
 
-           ! __ s2. regrid & accumulate
-           if (is > 0 .AND. is <= ie ) then
+            call ESMF_VMGetGlobal(vm,_RC)
+            call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
+            
+            ! __ s2. regrid & accumulate
+
            iter = this%items%begin()
            do while (iter /= this%items%end())
               item => iter%get()
@@ -749,9 +774,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
                     call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
 
+                    !!print*, 'ck mypet in regrid:', mypet
                     print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
                     call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
-                    p_acc_2d(is:ie) = p_dst_2d(is:ie)
+                    if (is > 0 .AND. is <= ie ) then
+                       p_acc_2d(is:ie) = p_dst_2d(is:ie)
+                    endif
 
                     !!if (is>0) write(6,'(a)')  'regrid_accu:  p_dst_2d'
                     !!if (is>0) write(6,'(10f7.1)')  p_dst_2d
@@ -765,10 +793,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                        allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),_STAT)
                        call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,_RC)
                        call this%regridder%regrid(p_new_lev,p_dst_3d,_RC)
-                       p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+                       if (is > 0 .AND. is <= ie ) then
+                          p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+                       end if
                     else
                        call this%regridder%regrid(p_src_3d,p_dst_3d,_RC)
-                       p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+                       if (is > 0 .AND. is <= ie ) then
+                          p_acc_3d(is:ie,:) = p_dst_3d(is:ie,:)
+                       end if
                     end if
                  end if
               else if (item%itemType == ItemTypeVector) then
@@ -776,7 +808,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               end if
               call iter%next()
            enddo
-        endif
+
 
            _RETURN(ESMF_SUCCESS)
 
