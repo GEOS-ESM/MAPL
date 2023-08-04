@@ -1,0 +1,256 @@
+#include "MAPL_Generic.h"
+
+module mapl_RoutehandleParam
+   use esmf
+   use mapl_geom_mgr, only: MaplGeom, geom_manager, MAPL_SameGeom
+   use mapl_ErrorHandlingMod
+   implicit none
+   private
+
+   public :: RoutehandleParam
+   public :: make_routehandle
+   public :: operator(==)
+
+   ! If an argument to FieldRegridStore is optional _and_ has no default
+   ! value, then we use the ALLOCATABLE attribute.  This allows us to
+   ! treate the optional argument as not present in the call.
+   type :: RoutehandleParam
+      private
+
+      ! Use allocatable attribute so that null() acts as non-present
+      ! optional argument in new_ESMF_Routehandle
+      integer(kind=ESMF_KIND_I4),   allocatable :: srcMaskValues(:)
+      integer(kind=ESMF_KIND_I4),   allocatable  :: dstMaskValues(:)
+      type(ESMF_RegridMethod_Flag) :: regridmethod
+      type(ESMF_PoleMethod_Flag) :: polemethod
+      integer, allocatable :: regridPoleNPnts
+      type(ESMF_LineType_Flag) :: linetype
+      type(ESMF_NormType_Flag) :: normtype
+      type (ESMF_ExtrapMethod_Flag) :: extrapmethod
+      integer :: extrapNumSrcPnts
+      real(kind=ESMF_KIND_R4)  :: extrapDistExponent
+      integer, allocatable :: extrapNumLevels
+      type(ESMF_UnmappedAction_Flag) :: unmappedaction
+      logical :: ignoreDegenerate
+   end type RoutehandleParam
+
+
+   interface make_routehandle
+      procedure :: make_routehandle_from_param
+   end interface make_routehandle
+
+   interface operator(==)
+      procedure :: equal_to
+   end interface operator(==)
+   
+   type(ESMF_RegridMethod_Flag), parameter :: &
+        CONSERVATIVE_METHODS(*) = [ESMF_REGRIDMETHOD_CONSERVE, ESMF_REGRIDMETHOD_CONSERVE_2ND]
+   type(ESMF_RegridMethod_Flag), parameter :: &
+        NONCONSERVATIVE_METHODS(*) = [ESMF_REGRIDMETHOD_BILINEAR, ESMF_REGRIDMETHOD_PATCH, ESMF_REGRIDMETHOD_NEAREST_STOD]
+
+   interface RouteHandleParam
+      procedure :: new_RoutehandleParam
+   end interface RouteHandleParam
+
+contains
+
+   function new_RoutehandleParam( &
+        srcMaskValues, dstMaskValues, &
+        regridmethod, polemethod, regridPoleNPnts, &
+        linetype, normtype, &
+        extrapmethod, extrapNumSrcPnts, extrapDistExponent, extrapNumLevels, &
+        unmappedaction, ignoreDegenerate) result(param)
+      type(RoutehandleParam) :: param
+
+      integer, optional, intent(in) :: srcMaskValues(:)
+      integer, optional, intent(in) :: dstMaskValues(:)
+      type(ESMF_RegridMethod_Flag), optional, intent(in) :: regridmethod
+      type(ESMF_PoleMethod_Flag), optional, intent(in) :: polemethod
+      integer, optional, intent(in) :: regridPoleNPnts
+      type(ESMF_LineType_Flag), optional, intent(in) :: linetype
+      type(ESMF_NormType_Flag), optional, intent(in) :: normtype
+      type(ESMF_ExtrapMethod_Flag), optional, intent(in) :: extrapmethod
+      integer, optional, intent(in) :: extrapNumSrcPnts
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: extrapDistExponent
+      integer, optional, intent(in) :: extrapNumLevels
+      type(ESMF_UnmappedAction_Flag), optional, intent(in) :: unmappedaction
+      logical, optional, intent(in) :: ignoreDegenerate
+
+      if (present(srcMaskValues)) param%srcMaskValues = srcMaskValues
+      if (present(dstMaskValues)) param%dstMaskValues = dstMaskValues
+
+      ! Simple ESMF defaults listed here. 
+      param%regridmethod = ESMF_REGRIDMETHOD_BILINEAR
+      param%normtype = ESMF_NORMTYPE_DSTAREA
+      param%extrapmethod = ESMF_EXTRAPMETHOD_NONE
+      param%extrapNumSrcPnts = 8
+      param%extrapDistExponent = 2.0
+      param%unmappedaction = ESMF_UNMAPPEDACTION_ERROR
+      param%ignoreDegenerate = .false.
+
+      if (present(regridmethod)) param%regridmethod = regridmethod
+
+      ! Contingent ESMF defaults
+      param%polemethod = get_default_polemethod(param%regridmethod)
+      param%linetype = get_default_linetype(param%regridmethod)
+
+      if (present(polemethod)) param%polemethod = polemethod
+      if (present(regridPoleNPnts)) param%regridPoleNPnts = regridPoleNPnts
+      if (present(linetype)) param%linetype = linetype
+      if (present(normtype)) param%normtype = normtype
+      if (present(extrapmethod)) param%extrapmethod = extrapmethod
+      if (present(extrapNumSrcPnts)) param%extrapNumSrcPnts = extrapNumSrcPnts
+      if (present(extrapDistExponent)) param%extrapDistExponent = extrapDistExponent
+      if (present(extrapNumLevels)) param%extrapNumLevels = extrapNumLevels
+      if (present(unmappedaction)) param%unmappedaction = unmappedaction
+      if (present(ignoreDegenerate)) param%ignoreDegenerate = ignoreDegenerate
+
+   contains
+
+      function get_default_polemethod(regridmethod) result(polemethod)
+         type(ESMF_PoleMethod_Flag) :: polemethod
+         type(ESMF_RegridMethod_Flag), intent(in) :: regridmethod
+         integer :: i
+
+         if (any([(regridmethod == CONSERVATIVE_METHODS(i), i=1, size(CONSERVATIVE_METHODS))])) then
+            polemethod = ESMF_POLEMETHOD_NONE
+         else
+            polemethod = ESMF_POLEMETHOD_ALLAVG
+         end if
+            
+      end function get_default_polemethod
+
+
+      function get_default_linetype(regridmethod) result(linetype)
+         type(ESMF_LineType_Flag) :: linetype
+         type(ESMF_RegridMethod_Flag), intent(in) :: regridmethod
+         integer :: i
+
+         if (any([(regridmethod == CONSERVATIVE_METHODS(i), i= 1, size(CONSERVATIVE_METHODS))])) then
+            linetype = ESMF_LINETYPE_GREAT_CIRCLE
+         else
+            linetype = ESMF_LINETYPE_CART
+         end if
+            
+      end function get_default_linetype
+
+      
+
+   end function new_RoutehandleParam
+
+   function make_routehandle_from_param(geom_in, geom_out, param, rc) result(routehandle)
+      type(ESMF_Routehandle) :: routehandle
+      type(ESMF_Geom), intent(in) :: geom_in
+      type(ESMF_Geom), intent(in) :: geom_out
+      type(RoutehandleParam), intent(in) :: param
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: field_in
+      type(ESMF_Field) :: field_out
+
+      field_in = ESMF_FieldEmptyCreate(name='tmp', _RC)
+      call ESMF_FieldEmptySet(field_in, geom_in, _RC)
+      
+      field_out = ESMF_FieldEmptyCreate(name='tmp', _RC)
+      call ESMF_FieldEmptySet(field_in, geom_out, _RC)
+
+      call ESMF_FieldRegridStore(field_in, field_out, &
+           srcMaskValues=param%srcMaskValues, &
+           dstMaskValues=param%dstMaskValues, &
+           regridmethod=param%regridmethod, &
+           polemethod=param%polemethod, &
+           regridPoleNPnts=param%regridPoleNPnts, &
+           linetype=param%linetype, &
+           normtype=param%normtype, &
+           extrapmethod=param%extrapmethod, &
+           extrapNumSrcPnts=param%extrapNumSrcPnts, &
+           extrapDistExponent=param%extrapDistExponent, &
+           extrapNumLevels=param%extrapNumLevels, &
+           unmappedaction=param%unmappedaction, &
+           ignoreDegenerate=param%ignoreDegenerate, &
+           routehandle=routehandle, &
+           _RC)
+
+      call ESMF_FieldDestroy(field_in, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(field_out, noGarbage=.true., _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_routehandle_from_param
+
+
+   ! Ignore routehandle component itself.  
+   logical function equal_to(a, b) result(eq)
+      type(RoutehandleParam), intent(in) :: a
+      type(RoutehandleParam), intent(in) :: b
+
+      eq = same_mask_values(a%srcMaskValues, b%srcMaskValues)
+      if (.not. eq) return
+      eq = same_mask_values(a%dstMaskValues, b%dstMaskValues)
+      if (.not. eq) return
+
+      eq = a%regridmethod == b%regridmethod
+      if (.not. eq) return
+
+      eq = a%polemethod == b%polemethod
+      if (.not. eq) return
+
+      eq = same_scalar_int(a%regridPoleNPnts, b%regridPoleNPnts)
+      if (.not. eq) return
+
+      eq = a%linetype == b%linetype
+      if (.not. eq) return
+
+      eq = a%normtype == b%normtype
+      if (.not. eq) return
+
+      eq = a%extrapmethod == b%extrapmethod
+      if (.not. eq) return
+
+      eq = a%extrapNumSrcPnts == b%extrapNumSrcPnts
+      if (.not. eq) return
+
+      eq = a%extrapDistExponent == b%extrapDistExponent
+      if (.not. eq) return
+
+      eq = same_scalar_int(a%extrapNumLevels, b%extrapNumLevels)
+      if (.not. eq) return
+
+      eq = a%unmappedaction == b%unmappedaction
+      if (.not. eq) return
+
+      eq = a%ignoreDegenerate .eqv. b%ignoreDegenerate
+      if (.not. eq) return
+      
+   contains
+
+      logical function same_mask_values(a, b) result(eq)
+         integer, allocatable, intent(in) :: a(:)
+         integer, allocatable, intent(in) :: b(:)
+
+         eq = .false.
+         if (allocated(a) .neqv. allocated(b)) return
+         if (.not. allocated(a)) then ! trivial case
+            eq = .true.
+            return
+         end if
+         if (.not. (size(a) == size(b))) return
+         eq = all(a == b)
+
+      end function same_mask_values
+
+
+      logical function same_scalar_int(a, b) result(eq)
+         integer, allocatable, intent(in) :: a
+         integer, allocatable, intent(in) :: b
+
+         eq = .false.
+         if (allocated(a) .neqv. allocated(b)) return
+         eq = (a == b)
+
+      end function same_scalar_int
+
+   end function equal_to
+
+
+end module mapl_RoutehandleParam

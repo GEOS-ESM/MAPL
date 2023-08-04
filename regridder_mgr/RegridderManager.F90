@@ -1,0 +1,141 @@
+#include "MAPL_Generic.h"
+module mapl_RegridderManager
+
+   use mapl_RegridderSpec
+   use mapl_Regridder
+   use mapl_NullRegridder
+   use mapl_RegridderFactory
+
+   use mapl_RegridderFactoryVector
+   use mapl_RegridderSpecVector
+   use mapl_RegridderVector
+   use mapl_EsmfRegridderFactory
+
+   use mapl_ErrorHandlingMod
+   implicit none
+   private
+
+   public :: RegridderManager
+
+   type :: RegridderManager
+      private
+      type(RegridderFactoryVector) :: factories
+      ! Next two vectors grow together
+      type(RegridderSpecVector) :: specs
+      type(RegridderVector) :: regridders
+   contains
+      procedure :: get_regridder
+      procedure :: add_factory
+      procedure :: make_regridder
+      procedure :: add_regridder
+      procedure :: delete_regridder
+   end type RegridderManager
+
+contains
+
+   function new_RegridderManager() result(mgr)
+      type(RegridderManager) :: mgr
+
+      ! Load default factories
+
+      call mgr%add_factory(EsmfRegridderFactory())
+!!$      call mgr%add_factory(horzHorzFluxRegridderFactory())
+
+   end function new_RegridderManager
+
+
+   ! TODO - do we need an RC here for duplicate name?
+   subroutine add_factory(this, factory)
+      class(RegridderManager), intent(inout) :: this
+      class(RegridderFactory), intent(in) :: factory
+      call this%factories%push_back(factory)
+   end subroutine add_factory
+
+
+   subroutine add_regridder(this, spec, regriddr)
+      class(RegridderManager), intent(inout) :: this
+      class(RegridderSpec), intent(in) :: spec
+      class(Regridder), intent(in) :: regriddr
+
+      call this%specs%push_back(spec)
+      call this%regridders%push_back(regriddr)
+     
+   end subroutine add_regridder
+
+   subroutine delete_regridder(this, spec, rc)
+      class(RegridderManager), target, intent(inout) :: this
+      class(RegridderSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(RegridderSpecVectorIterator) :: spec_iter
+      type(RegridderVectorIterator) :: regridder_iter
+
+      associate (specs => this%specs, regridders => this%regridders)
+        associate (b => specs%begin(), e => specs%end())
+
+          spec_iter = find(b, e, spec)
+          _ASSERT(spec_iter /= e, 'spec not found in RegridderManager.')
+
+          regridder_iter = regridders%begin() + (spec_iter - b)
+          regridder_iter = regridders%erase(regridder_iter)
+
+          spec_iter = specs%erase(spec_iter)
+
+        end associate
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine delete_regridder
+
+   function get_regridder(this, spec, rc) result(regriddr)
+      class(Regridder), pointer :: regriddr
+      class(RegridderManager), target, intent(inout) :: this
+      class(RegridderSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(Regridder), allocatable :: tmp_regridder
+
+      associate (b => this%specs%begin(), e => this%specs%end())
+        associate (iter => find(b, e, spec))
+
+          if (iter /= e) then
+             regriddr => this%regridders%of((iter-b+1))
+             _RETURN(_SUCCESS)
+          end if
+
+          tmp_regridder = this%make_regridder(spec, _RC)
+          call this%add_regridder(spec, tmp_regridder)
+          regriddr => this%regridders%back()
+
+        end associate
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function get_regridder
+
+   function make_regridder(this, spec, rc) result(regriddr)
+      class(Regridder), allocatable :: regriddr
+      class(RegridderManager), target, intent(in) :: this
+      class(RegridderSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(RegridderFactory), pointer :: factory
+
+      regriddr = NULL_REGRIDDER
+      do i = 1, this%factories%size()
+         factory => this%factories%of(i)
+         if (factory%supports(spec%get_param())) then
+            regriddr = factory%make_regridder(spec, _RC)
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      _FAIL('No factory found to make regridder for spec.')
+   end function make_regridder
+
+
+end module mapl_RegridderManager
