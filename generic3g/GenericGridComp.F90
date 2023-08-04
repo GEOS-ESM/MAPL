@@ -108,6 +108,7 @@ contains
       ! An internal procedure is a workaround, but ... ridiculous.
       call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gridcomp, set_services, config))
 #endif
+      call outer_meta%init_meta(_RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

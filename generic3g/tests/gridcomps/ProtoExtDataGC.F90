@@ -14,7 +14,8 @@ module ProtoExtDataGC
    use mapl3g_ConnectionPt
    use mapl3g_SimpleConnection
    use mapl3g_AbstractStateItemSpec
-   use esmf
+   use mapl3g_ESMF_Subset
+
    use pFlogger
    implicit none
    private
@@ -54,12 +55,12 @@ contains
       class(AbstractStateItemSpec), pointer :: export_spec
       class(AbstractStateItemSpec), pointer :: import_spec
       class(Logger), pointer :: lgr
+      type(ESMF_HConfig) :: hconfig
 
-      outer_meta => get_outer_meta_from_inner_gc(gc, _RC)
-      registry => outer_meta%get_registry()
 
-      lgr => logging%get_logger('MAPL.generic3g.ProtoExtDataGC')
+      call MAPL_Get(gc, hconfig=hconfig, registry=registry, lgr=lgr, _RC)
       call lgr%warning('Names are hardwired - should derive from config.')
+
       export_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'E1')
       import_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, 'E1')
       a_pt = ActualConnectionPt(export_v_pt)

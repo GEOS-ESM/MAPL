@@ -54,7 +54,7 @@ module mapl3g_OuterMetaComponent
       type(ESMF_Geom), allocatable                :: geom
       type(VerticalGeom), allocatable             :: vertical_geom
       type(MultiState)                            :: user_states
-      type(ESMF_HConfig)                          :: config
+      type(ESMF_HConfig)                          :: hconfig
       type(ChildComponentMap)                     :: children
       logical                                     :: is_root_ = .false.
 
@@ -62,16 +62,21 @@ module mapl3g_OuterMetaComponent
       type(MethodPhasesMap)                       :: phases_map
       type(InnerMetaComponent), allocatable       :: inner_meta
 
-      class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
+      class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
       type(ComponentSpec)                         :: component_spec
       type(OuterMetaComponent), pointer           :: parent_private_state
       type(HierarchicalRegistry) :: registry
       type(ExtensionVector) :: state_extensions
 
+      integer :: counter
+
    contains
-      procedure :: set_config
-      procedure :: get_config
+      
+      procedure :: set_hconfig
+      procedure :: get_hconfig
+      procedure :: get_registry
+      procedure :: get_lgr
 
       procedure :: get_phases
 !!$      procedure :: get_gridcomp
@@ -83,7 +88,9 @@ module mapl3g_OuterMetaComponent
       ! Generic methods
       procedure :: setServices => setservices_
 
-!!$      procedure :: initialize ! main/any phase
+      procedure :: init_meta  ! object
+
+      procedure :: initialize ! init by phase name
       procedure :: initialize_user
       procedure :: initialize_geom
       procedure :: initialize_advertise
@@ -113,7 +120,6 @@ module mapl3g_OuterMetaComponent
       procedure :: get_user_gridcomp_name
       procedure :: get_gridcomp
       procedure :: is_root
-      procedure :: get_registry
 
       procedure :: get_component_spec
       procedure :: get_internal_state
@@ -152,11 +158,11 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
 
-      module subroutine add_child_by_name(this, child_name, setservices, config, rc)
+      module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
          class(AbstractUserSetServices), intent(in) :: setservices
-         type(ESMF_HConfig), intent(in) :: config
+         type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
       end subroutine add_child_by_name
 
@@ -181,25 +187,47 @@ module mapl3g_OuterMetaComponent
       module procedure apply_to_children_custom
    end interface apply_to_children
 
+   integer, save :: counter = 0
+
 contains
 
 
    ! Keep the constructor simple
-   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gridcomp, set_services, config) result(outer_meta)
+   type(OuterMetaComponent) function new_outer_meta(gridcomp, user_gridcomp, set_services, hconfig) result(outer_meta)
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(ESMF_GridComp), intent(in) :: user_gridcomp
       class(AbstractUserSetServices), intent(in) :: set_services
-      type(ESMF_HConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: hconfig
 
       outer_meta%self_gridcomp = gridcomp
       outer_meta%user_setservices = set_services
       outer_meta%user_gridcomp = user_gridcomp
-      outer_meta%config = config
+      outer_meta%hconfig = hconfig
 
-      !TODO: this may be able to move outside of constructor
-      call initialize_phases_map(outer_meta%phases_map)
+      counter = counter + 1
+      outer_meta%counter = counter
 
-      call create_user_states(outer_meta)
+   end function new_outer_meta
+
+   ! NOTE: _Not_ an ESMF phase - this is initializing the object itself.
+   ! Constructor (new_outer_meta) only copies basic parameters.  All
+   ! other initialization is in this procedure.
+
+   subroutine init_meta(this, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: user_gc_name
+
+      call initialize_phases_map(this%phases_map)
+      call create_user_states(this, _RC)
+      user_gc_name = this%get_user_gridcomp_name(_RC)
+      this%registry = HierarchicalRegistry(user_gc_name)
+
+      this%lgr => logging%get_logger('MAPL.GENERIC')
+
+      _RETURN(_SUCCESS)
 
    contains
 
@@ -208,34 +236,21 @@ contains
       ! should be all-but-impossible and the usual error handling
       ! would induce tedious changes in the design. (Function ->
       ! Subroutine)
-      subroutine create_user_states(this)
+      subroutine create_user_states(this, rc)
          type(OuterMetaComponent), intent(inout) :: this
-         type(ESMF_State) :: importState, exportState, internalState
+         integer, optional, intent(out) :: rc
 
+         type(ESMF_State) :: importState, exportState, internalState
          integer :: status
 
-         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=this%get_name(), rc=status)
-         if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user importState.'
-         
-         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=this%get_name(), rc=status)
-         if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user exportState'
-
-         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, name=this%get_name(), rc=status)
-         if (status/= 0) error stop 'Failure in OuterMetaComponent.F90 when creating user internalState.'
-
+         importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=this%get_name(), _RC)
+         exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=this%get_name(), _RC)
+         internalState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_INTERNAL, name=this%get_name(), _RC)
          this%user_states = MultiState(importState=importState, exportState=exportState, internalState=internalState)
+         _RETURN(_SUCCESS)
       end subroutine create_user_states
       
-   end function new_outer_meta
-
-   subroutine initialize_meta(this, gridcomp)
-      class(OuterMetaComponent), intent(out) :: this
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-
-      this%self_gridcomp = gridcomp
-      call initialize_phases_map(this%phases_map)
-
-   end subroutine initialize_meta
+   end subroutine init_meta
 
    ! Deep copy of shallow ESMF objects - be careful using result
    ! TODO: Maybe this should return a POINTER
@@ -324,9 +339,6 @@ contains
 
       _SET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE, outer_meta)
 
-      call initialize_meta(outer_meta, gridcomp)
-      outer_meta%lgr => logging%get_logger('MAPL.GENERIC')
-
       _RETURN(_SUCCESS)
    end subroutine attach_outer_meta
 
@@ -341,7 +353,7 @@ contains
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
       call free_inner_meta(wrapper%outer_meta%user_gridcomp)
-      
+
       deallocate(wrapper%outer_meta)
 
       _RETURN(_SUCCESS)
@@ -382,34 +394,34 @@ contains
    end function get_user_states
 
 
-   subroutine set_config(this, config)
+   subroutine set_hconfig(this, hconfig)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_HConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: hconfig
 
-      this%config = config
+      this%hconfig = hconfig
 
-   end subroutine set_config
+   end subroutine set_hconfig
 
-   function get_config(this) result(config)
-      type(ESMF_HConfig) :: config
+   function get_hconfig(this) result(hconfig)
+      type(ESMF_Hconfig) :: hconfig
       class(OuterMetaComponent), intent(inout) :: this
 
-      config = this%config
+      hconfig = this%hconfig
 
-   end function get_config
+   end function get_hconfig
 
 !!$
 !!$
-!!$   subroutine get_yaml_config(this, config)
+!!$   subroutine get_yaml_hconfig(this, hconfig)
 !!$      class(OuterMetaComponent), target, intent(inout) :: this
-!!$      class(YAML_Node), pointer :: config
+!!$      class(YAML_Node), pointer :: hconfig
 !!$
-!!$      config => null
+!!$      hconfig => null
 !!$      if (.not. allocated(this%yaml_cfg)) return
 !!$
-!!$      config => this%yaml_cfg
+!!$      hconfig => this%yaml_cfg
 !!$
-!!$   end subroutine get_yaml_config
+!!$   end subroutine get_yaml_hconfig
 
    subroutine set_user_setservices(this, user_setservices)
       class(OuterMetaComponent), intent(inout) :: this
@@ -546,6 +558,7 @@ contains
 
          virtual_pt = var_spec%make_virtualPt()
          call registry%add_item_spec(virtual_pt, item_spec)
+
          
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
@@ -965,11 +978,11 @@ contains
 
    end subroutine set_vertical_geom
  
-  function get_registry(this) result(r)
-      type(HierarchicalRegistry), pointer :: r
+  function get_registry(this) result(registry)
+      type(HierarchicalRegistry), pointer :: registry
       class(OuterMetaComponent), target, intent(in) :: this
 
-      r => this%registry
+      registry => this%registry
    end function get_registry
 
 
@@ -989,5 +1002,13 @@ contains
 
    end function get_internal_state
 
+
+   function get_lgr(this) result(lgr)
+      class(Logger), pointer :: lgr
+      class(OuterMetaComponent), target, intent(in) :: this
+
+      lgr => this%lgr
+
+   end function get_lgr
 
 end module mapl3g_OuterMetaComponent
