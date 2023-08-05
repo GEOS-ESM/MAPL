@@ -40,10 +40,12 @@ contains
    end subroutine setup
 
 
-   subroutine tearDown(outer_gc)
+   subroutine tearDown(outer_gc, hconfig)
       type(ESMF_GridComp), intent(inout) :: outer_gc
+      type(ESMF_HConfig), intent(inout) :: hconfig
 
       call clear_log()
+      call ESMF_HConfigDestroy(hconfig)
 
    end subroutine tearDown
 
@@ -55,6 +57,7 @@ contains
       integer :: status, userRC
       type(ESMF_GridComp) :: outer_gc
 
+      config = ESMF_HConfigCreate(content='{}', rc=status)
       call setup(outer_gc, config, status)
       @assert_that('DSO problem', status, is(0))
 
@@ -63,7 +66,7 @@ contains
       @assert_that(userRC, is(0))
       @assertEqual("wasRun_A", log)
 
-      call teardown(outer_gc)
+      call teardown(outer_gc, config)
 
       if(.false.) print*,shape(this)
    end subroutine test_wasrun_1
@@ -84,6 +87,7 @@ contains
       type(ESMF_GridComp) :: outer_gc
       type(ESMF_HConfig) :: config
 
+      config = ESMF_HConfigCreate(content='{}', rc=status)
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
@@ -91,7 +95,7 @@ contains
       @assert_that(status, is(0))
       @assertEqual("wasRun_extra_A", log)
 
-      call teardown(outer_gc)
+      call teardown(outer_gc, config)
       if(.false.) print*,shape(this)
    end subroutine test_wasrun_extra
 
@@ -104,6 +108,7 @@ contains
       type(ESMF_GridComp) :: outer_gc
       type(ESMF_HConfig) :: config
 
+      config = ESMF_HConfigCreate(content='{}', rc=status)
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 
@@ -111,7 +116,7 @@ contains
       @assert_that(status, is(0))
       @assertEqual("wasInit_A", log)
 
-      call teardown(outer_gc)
+      call teardown(outer_gc, config)
 
       if(.false.) print*,shape(this)
    end subroutine test_wasinit
@@ -125,6 +130,7 @@ contains
       type(ESMF_GridComp) :: outer_gc
       type(ESMF_HConfig) :: config
 
+      config = ESMF_HConfigCreate(content='{}', rc=status)
       call setup(outer_gc, config, status)
       @assert_that(status, is(0))
 

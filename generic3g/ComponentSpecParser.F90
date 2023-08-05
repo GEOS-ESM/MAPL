@@ -34,6 +34,8 @@ module mapl3g_ComponentSpecParser
    public :: var_parse_ChildSpecMap
 
    !public :: parse_UngriddedDimsSpec
+
+   character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
    
 contains
    type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
@@ -43,11 +45,8 @@ contains
       integer :: status
       type(ESMF_HConfig) :: subcfg
 
-      if (ESMF_HConfigIsDefined(config,keyString='states')) then
-         subcfg = ESMF_HConfigCreateAt(config,keyString='states',_RC)
-         spec%var_specs = process_var_specs(subcfg)
-      end if
-
+      spec%var_specs = process_var_specs(config, _RC)
+      
       if (ESMF_HConfigIsDefined(config,keyString='connections')) then
          subcfg = ESMF_HConfigCreateAt(config,keyString='connections',_RC)
          spec%connections = process_connections(subcfg)
@@ -65,20 +64,25 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_states_section
+      type(ESMF_HConfig) :: subcfg
 
-      if (.not. present(hconfig)) then
-         _RETURN(_SUCCESS)
+      has_states_section = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
+      _RETURN_UNLESS(has_states_section)
+
+      subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
+
+      if (ESMF_HConfigIsDefined(subcfg, keyString='internal')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+      end if
+      if (ESMF_HConfigIsDefined(subcfg, keyString='import')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
+      end if
+      if (ESMF_HConfigIsDefined(subcfg, keyString='export')) then
+         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
       end if
 
-      if (ESMF_HConfigIsDefined(hconfig,keyString='internal')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(hconfig,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
-      end if
-      if (ESMF_HConfigIsDefined(hconfig,keyString='import')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(hconfig,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
-      end if
-      if (ESMF_HConfigIsDefined(hconfig,keyString='export')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(hconfig,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
-      end if
+      call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains

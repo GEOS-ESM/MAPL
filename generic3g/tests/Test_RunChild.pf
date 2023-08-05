@@ -23,6 +23,9 @@ contains
       type(ESMF_HConfig) :: config
       integer :: status
 
+      config = ESMF_HConfigCreate(content='{}', rc=status)
+      @assert_that(status, is(0))
+
       associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
         parent_gc = create_grid_comp('parent', ss_parent, config, rc=status)
       end associate
@@ -42,6 +45,9 @@ contains
       @assert_that(status, is(0))
 
       user_gc = parent_meta%get_user_gridcomp()
+
+      call ESMF_HConfigDestroy(config, rc=status)
+      @assert_that(status, is(0))
 
       call clear_log()
       rc = ESMF_SUCCESS
@@ -138,6 +144,9 @@ contains
 
       integer :: status
 
+      config = ESMF_HConfigCreate(content='{}', rc=status)
+      @assert_that(status, is(0))
+
       associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
         parent_gc = create_grid_comp('parent', ss_parent, config, rc=status)
       end associate
@@ -161,5 +170,9 @@ contains
 
       end associate
 
+      call ESMF_HConfigDestroy(config, rc=status)
+      @assert_that(status, is(0))
+      
    end subroutine test_MAPL_invalid_name
+
 end module Test_RunChild
