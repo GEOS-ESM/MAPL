@@ -40,6 +40,10 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'
    character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = 'export'
    character(*), parameter :: COMPONENT_INTERNAL_STATE_SECTION = 'internal'
+   character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_SPECS = 'ungridded_dim_specs'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_NAME = 'dim_name'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
    
 contains
    type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
@@ -100,7 +104,7 @@ contains
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
          type(VerticalDimSpec) :: vertical_dim_spec
-         type(UngriddedDimsSpec) :: ungridded_dims_spec
+         type(UngriddedDimsSpec) :: ungridded_dim_specs
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
          type(ESMF_StateItem_Flag), allocatable :: itemtype
@@ -128,7 +132,7 @@ contains
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
             call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
-            call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
+            ungridded_dim_specs = to_UngriddedDimsSpec(attributes, _RC)
 
             if (ESMF_HConfigIsDefined(attributes,keyString='standard_name')) then
                standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
@@ -152,10 +156,13 @@ contains
                  substate=substate, &
                  default_value=default_value, &
                  vertical_dim_spec = vertical_dim_spec, &
-                 ungridded_dims = ungridded_dims_spec &
+                 ungridded_dims = ungridded_dim_specs &
                  )
 
             call var_specs%push_back(var_spec)
+
+            call ESMF_HConfigDestroy(attributes, _RC)
+            
          end do
 
          call ESMF_HConfigDestroy(subcfg, _RC)
@@ -187,10 +194,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
+         logical :: has_default_value
 
-         _RETURN_UNLESS(ESMF_HConfigIsDefined(attributes,keyString='default_value'))
+         has_default_value = ESMF_HConfigIsDefined(attributes,keyString=KEY_DEFAULT_VALUE, _RC)
+         _RETURN_UNLESS(has_default_value)
+
          allocate(x)
-         x = ESMF_HConfigAsR4(attributes,keyString='default_value',_RC)
+         x = ESMF_HConfigAsR4(attributes,keyString=KEY_DEFAULT_VALUE,_RC)
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
@@ -257,7 +267,7 @@ contains
          _RETURN(_SUCCESS)
       end subroutine to_VerticalDimSpec
 
-      subroutine to_UngriddedDimsSpec(ungridded_dims_spec,attributes,rc)
+      function to_UngriddedDimsSpec(attributes,rc) result(ungridded_dims_spec)
          type(UngriddedDimsSpec) :: ungridded_dims_spec
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
@@ -268,21 +278,28 @@ contains
          integer :: dim_size,i
          type(UngriddedDimSpec) :: temp_dim_spec
 
-         if (.not. ESMF_HConfigIsDefined(attributes,keyString='ungridded_dim_specs')) then
-            _RETURN(_SUCCESS)
-         end if
-         dim_specs = ESMF_HConfigCreateAt(attributes,keyString='ungridded_dim_specs',_RC)
-         
-         do i=1,ESMF_HConfigGetSize(dim_specs)
-            dim_spec = ESMF_HConfigCreateAt(dim_specs,index=i,_RC)
-            dim_name = ESMF_HConfigAsString(dim_spec,keyString='dim_name',_RC)
-            dim_size = ESMF_HConfigAsI4(dim_spec,keyString='extent',_RC)
+         logical :: has_ungridded_dim_specs
+         integer :: n_specs
+
+         has_ungridded_dim_specs = ESMF_HConfigIsDefined(attributes, keyString=KEY_UNGRIDDED_DIM_SPECS, _RC)
+         _RETURN_UNLESS(has_ungridded_dim_specs)
+
+         dim_specs = ESMF_HConfigCreateAt(attributes, keyString=KEY_UNGRIDDED_DIM_SPECS, _RC)
+
+         n_specs = ESMF_HConfigGetSize(dim_specs, _RC)
+         do i = 1, n_specs
+            dim_spec = ESMF_HConfigCreateAt(dim_specs, index=i, _RC)
+            dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
+            dim_size = ESMF_HConfigAsI4(dim_spec, keyString=KEY_UNGRIDDED_DIM_EXTENT, _RC)
             temp_dim_spec = UngriddedDimSpec(dim_size)
-            call ungridded_dims_spec%add_dim_spec(temp_dim_spec,_RC)
+            call ungridded_dims_spec%add_dim_spec(temp_dim_spec, _RC)
+            call ESMF_HConfigDestroy(dim_spec, _RC)
          end do 
 
+         call ESMF_HConfigDestroy(dim_specs, _RC)
+         
          _RETURN(_SUCCESS)
-      end subroutine to_UngriddedDimsSpec
+      end function to_UngriddedDimsSpec
 
 
       subroutine to_itemtype(itemtype, attributes, rc)
