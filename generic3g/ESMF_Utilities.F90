@@ -8,6 +8,7 @@ module mapl3g_ESMF_Utilities
 
    public :: write(formatted)
    public :: get_substate
+   public :: to_esmf_state_intent
    public :: MAPL_TYPEKIND_MIRROR
 
    type(ESMF_TypeKind_Flag), parameter :: MAPL_TYPEKIND_MIRROR = ESMF_TypeKind_Flag(200)
@@ -167,5 +168,25 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_substate
 
+
+   function to_esmf_state_intent(str_state_intent, rc) result(state_intent)
+      type(ESMF_StateIntent_Flag) :: state_intent
+      character(*), intent(in) :: str_state_intent
+      integer, optional, intent(out) :: rc
+
+      select case (str_state_intent)
+      case ('import')
+         state_intent = ESMF_STATEINTENT_IMPORT
+      case ('export')
+         state_intent = ESMF_STATEINTENT_EXPORT
+      case ('internal')
+         state_intent = ESMF_STATEINTENT_INTERNAL
+      case default
+         state_intent = ESMF_STATEINTENT_INVALID
+         _FAIL('invalid state intent: ' // str_state_intent)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_esmf_state_intent
 
 end module mapl3g_ESMF_Utilities

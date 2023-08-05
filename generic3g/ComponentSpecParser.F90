@@ -19,6 +19,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
    use mapl3g_Stateitem
+   use mapl3g_ESMF_Utilities
    use gftl2_StringVector, only: StringVector
    use esmf
    implicit none
@@ -79,16 +80,6 @@ contains
       call process_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, _RC)
       call process_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, _RC)
 
-!!$      if (ESMF_HConfigIsDefined(subcfg, keyString='internal')) then
-!!$         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
-!!$      end if
-!!$      if (ESMF_HConfigIsDefined(subcfg, keyString='import')) then
-!!$         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
-!!$      end if
-!!$      if (ESMF_HConfigIsDefined(subcfg, keyString='export')) then
-!!$         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
-!!$      end if
-
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
@@ -125,42 +116,32 @@ contains
 
          subcfg = ESMF_HConfigCreateAt(hconfig,keyString=state_intent, _RC)
 
-         b = ESMF_HConfigIterBegin(subcfg) 
-         e = ESMF_HConfigIterEnd(subcfg) 
-         iter = ESMF_HConfigIterBegin(subcfg)
+         b = ESMF_HConfigIterBegin(subcfg, _RC) 
+         e = ESMF_HConfigIterEnd(subcfg, _RC) 
+         iter = ESMF_HConfigIterBegin(subcfg, _RC)
          do while (ESMF_HConfigIterLoop(iter,b,e))
-            name = ESMF_HConfigAsStringMapKey(iter,_RC)
+            name = ESMF_HConfigAsStringMapKey(iter, _RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
             call split(name, short_name, substate)
-            call to_typekind(typekind, attributes, _RC)
+
+            typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
-
             call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
-
             call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
 
             if (ESMF_HConfigIsDefined(attributes,keyString='standard_name')) then
-               standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name',_RC)
+               standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
             end if
             
             if (ESMF_HConfigIsDefined(attributes,keyString='units')) then
-               units = ESMF_HConfigAsString(attributes,keyString='units',_RC)
+               units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
             end if
 
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
-            select case (state_intent)
-            case (COMPONENT_INTERNAL_STATE_SECTION)
-                esmf_state_intent = ESMF_STATEINTENT_INTERNAL
-             case (COMPONENT_EXPORT_STATE_SECTION)
-                esmf_state_intent = ESMF_STATEINTENT_EXPORT
-            case (COMPONENT_IMPORT_STATE_SECTION)
-                esmf_state_intent = ESMF_STATEINTENT_IMPORT
-            case default
-               _FAIL('unknown state intent: <'//state_intent//'>')
-             end select
+            esmf_state_intent = to_esmf_state_intent(state_intent)
              
             var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
                  itemtype=itemtype, &
@@ -176,6 +157,8 @@ contains
 
             call var_specs%push_back(var_spec)
          end do
+
+         call ESMF_HConfigDestroy(subcfg, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine process_state_specs
@@ -212,7 +195,7 @@ contains
          _RETURN(_SUCCESS)
       end subroutine val_to_float
 
-      subroutine to_typekind(typekind, attributes, rc)
+      function to_typekind(attributes, rc) result(typekind)
          use :: mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
          type(ESMF_TypeKind_Flag) :: typekind
          type(ESMF_HConfig), intent(in) :: attributes
@@ -243,7 +226,7 @@ contains
          end select
 
          _RETURN(_SUCCESS)
-      end subroutine to_typekind
+      end function to_typekind
 
       subroutine to_VerticalDimSpec(vertical_dim_spec, attributes, rc)
          type(VerticalDimSpec) :: vertical_dim_spec
