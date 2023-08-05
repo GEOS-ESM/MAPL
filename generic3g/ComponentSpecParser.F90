@@ -40,25 +40,28 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'
    character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = 'export'
    character(*), parameter :: COMPONENT_INTERNAL_STATE_SECTION = 'internal'
+   character(*), parameter :: COMPONENT_CONNECTIONS_SECTION = 'connections'
+
    character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
    character(*), parameter :: KEY_UNGRIDDED_DIM_SPECS = 'ungridded_dim_specs'
    character(*), parameter :: KEY_UNGRIDDED_DIM_NAME = 'dim_name'
    character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
+   character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
+   
    
 contains
-   type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
-      type(ESMF_HConfig), target, intent(inout) :: config
+   type(ComponentSpec) function parse_component_spec(hconfig, rc) result(spec)
+      type(ESMF_HConfig), target, intent(inout) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_connections
       type(ESMF_HConfig) :: subcfg
 
-      spec%var_specs = process_var_specs(config, _RC)
-      
-      if (ESMF_HConfigIsDefined(config,keyString='connections')) then
-         subcfg = ESMF_HConfigCreateAt(config,keyString='connections',_RC)
-         spec%connections = process_connections(subcfg)
-      end if
+      spec%var_specs = process_var_specs(hconfig, _RC)
+
+      spec%connections = process_connections(hconfig, _RC)
+
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
 
@@ -113,6 +116,8 @@ contains
          type(StringVector), allocatable :: service_items
          integer :: status
          logical :: has_state
+         logical :: has_standard_name
+         logical :: has_units
          type(ESMF_HConfig) :: subcfg
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
@@ -131,14 +136,16 @@ contains
 
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
-            call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
+            vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
             ungridded_dim_specs = to_UngriddedDimsSpec(attributes, _RC)
 
-            if (ESMF_HConfigIsDefined(attributes,keyString='standard_name')) then
+            has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
+            if (has_standard_name) then
                standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
             end if
-            
-            if (ESMF_HConfigIsDefined(attributes,keyString='units')) then
+
+            has_units = ESMF_HConfigIsDefined(attributes,keyString='units', _RC)
+            if (has_units) then
                units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
             end if
 
@@ -155,8 +162,8 @@ contains
                  typekind=typekind, &
                  substate=substate, &
                  default_value=default_value, &
-                 vertical_dim_spec = vertical_dim_spec, &
-                 ungridded_dims = ungridded_dim_specs &
+                 vertical_dim_spec=vertical_dim_spec, &
+                 ungridded_dims=ungridded_dim_specs &
                  )
 
             call var_specs%push_back(var_spec)
@@ -238,20 +245,20 @@ contains
          _RETURN(_SUCCESS)
       end function to_typekind
 
-      subroutine to_VerticalDimSpec(vertical_dim_spec, attributes, rc)
+      function to_VerticalDimSpec(attributes, rc) result(vertical_dim_spec)
          type(VerticalDimSpec) :: vertical_dim_spec
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
          character(:), allocatable :: vertical_str
+         logical :: has_dim_spec
 
          vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
+         has_dim_spec = ESMF_HConfigIsDefined(attributes,keyString=KEY_VERTICAL_DIM_SPEC, _RC)
+         _RETURN_UNLESS(has_dim_spec)
          
-         if (.not. ESMF_HConfigIsDefined(attributes,keyString='vertical_dim_spec')) then
-            _RETURN(_SUCCESS)
-         end if
-         vertical_str= ESMF_HConfigAsString(attributes,keyString='vertical_dim_spec',_RC)
+         vertical_str= ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
 
          select case (vertical_str)
          case ('vertical_dim_none', 'N')
@@ -265,7 +272,7 @@ contains
          end select
 
          _RETURN(_SUCCESS)
-      end subroutine to_VerticalDimSpec
+      end function to_VerticalDimSpec
 
       function to_UngriddedDimsSpec(attributes,rc) result(ungridded_dims_spec)
          type(UngriddedDimsSpec) :: ungridded_dims_spec
@@ -360,26 +367,29 @@ contains
    end function process_var_specs
 
 
-   type(ConnectionVector) function process_connections(config, rc) result(connections)
-      type(ESMF_HConfig), optional, intent(in) :: config
+   type(ConnectionVector) function process_connections(hconfig, rc) result(connections)
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      type(ESMF_HConfig) :: conn_spec
+      type(ESMF_HConfig) :: conn_specs, conn_spec
       class(Connection), allocatable :: conn
       integer :: status, i, num_specs
+      logical :: has_connections
 
-      if (.not. present(config)) then
-         _RETURN(_SUCCESS)
-      end if
+      has_connections = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_CONNECTIONS_SECTION,_RC)
+      _RETURN_UNLESS(has_connections)
 
-      num_specs = ESMF_HConfigGetSize(config,_RC)
-      do i =1,num_specs
-         conn_spec = ESMF_HConfigCreateAt(config,index=i,_RC)
+      conn_specs = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_CONNECTIONS_SECTION, _RC)
+
+      num_specs = ESMF_HConfigGetSize(conn_specs, _RC)
+      do i = 1, num_specs
+         conn_spec = ESMF_HConfigCreateAt(conn_specs, index=i, _RC)
          conn = process_connection(conn_spec, _RC)
          call connections%push_back(conn)
       enddo 
 
       _RETURN(_SUCCESS)
+
    contains
 
       function process_connection(config, rc) result(conn)
@@ -396,8 +406,8 @@ contains
 
          if (ESMF_HConfigIsDefined(config,keyString='all_unsatisfied')) then
             conn = MatchConnection( &
-                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='.*')), &
-                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='.*'))  &
+                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='^.*$'))  &
                  )
             _RETURN(_SUCCESS)
          end if
