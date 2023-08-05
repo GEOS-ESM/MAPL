@@ -36,6 +36,9 @@ module mapl3g_ComponentSpecParser
    !public :: parse_UngriddedDimsSpec
 
    character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
+   character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'
+   character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = 'export'
+   character(*), parameter :: COMPONENT_INTERNAL_STATE_SECTION = 'internal'
    
 contains
    type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
@@ -72,15 +75,19 @@ contains
 
       subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
 
-      if (ESMF_HConfigIsDefined(subcfg, keyString='internal')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
-      end if
-      if (ESMF_HConfigIsDefined(subcfg, keyString='import')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
-      end if
-      if (ESMF_HConfigIsDefined(subcfg, keyString='export')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
-      end if
+      call process_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  _RC)
+      call process_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, _RC)
+      call process_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, _RC)
+
+!!$      if (ESMF_HConfigIsDefined(subcfg, keyString='internal')) then
+!!$         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
+!!$      end if
+!!$      if (ESMF_HConfigIsDefined(subcfg, keyString='import')) then
+!!$         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
+!!$      end if
+!!$      if (ESMF_HConfigIsDefined(subcfg, keyString='export')) then
+!!$         call process_state_specs(var_specs, ESMF_HConfigCreateAt(subcfg,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
+!!$      end if
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
@@ -90,7 +97,7 @@ contains
       subroutine process_state_specs(var_specs, hconfig, state_intent, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
          type(ESMF_HConfig), target, intent(in) :: hconfig
-         type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+         character(*), intent(in) :: state_intent
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
@@ -106,13 +113,21 @@ contains
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
          type(ESMF_StateItem_Flag), allocatable :: itemtype
+         type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
          type(StringVector), allocatable :: service_items
          integer :: status
+         logical :: has_state
+         type(ESMF_HConfig) :: subcfg
 
-         b = ESMF_HConfigIterBegin(hconfig) 
-         e = ESMF_HConfigIterEnd(hconfig) 
-         iter = ESMF_HConfigIterBegin(hconfig)
+         has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
+         _RETURN_UNLESS(has_state)
+
+         subcfg = ESMF_HConfigCreateAt(hconfig,keyString=state_intent, _RC)
+
+         b = ESMF_HConfigIterBegin(subcfg) 
+         e = ESMF_HConfigIterEnd(subcfg) 
+         iter = ESMF_HConfigIterBegin(subcfg)
          do while (ESMF_HConfigIterLoop(iter,b,e))
             name = ESMF_HConfigAsStringMapKey(iter,_RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
@@ -135,8 +150,19 @@ contains
 
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
-           
-            var_spec = VariableSpec(state_intent, short_name=short_name, &
+
+            select case (state_intent)
+            case (COMPONENT_INTERNAL_STATE_SECTION)
+                esmf_state_intent = ESMF_STATEINTENT_INTERNAL
+             case (COMPONENT_EXPORT_STATE_SECTION)
+                esmf_state_intent = ESMF_STATEINTENT_EXPORT
+            case (COMPONENT_IMPORT_STATE_SECTION)
+                esmf_state_intent = ESMF_STATEINTENT_IMPORT
+            case default
+               _FAIL('unknown state intent: <'//state_intent//'>')
+             end select
+             
+            var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
                  itemtype=itemtype, &
                  service_items=service_items, &
                  standard_name=standard_name, &
