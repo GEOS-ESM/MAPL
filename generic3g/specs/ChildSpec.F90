@@ -13,9 +13,9 @@ module mapl3g_ChildSpec
    public :: dump
    
    type :: ChildSpec
-      character(:), allocatable :: yaml_config_file
-      character(:), allocatable :: esmf_config_file
+      character(:), allocatable :: name  ! TBD - remove - make key of container
       class(AbstractUserSetServices), allocatable :: user_setservices
+      character(:), allocatable :: config_file
       ! Prevent default structure constructor
       integer, private ::  hack
    contains
@@ -38,17 +38,16 @@ module mapl3g_ChildSpec
 
 contains
 
-   pure function new_ChildSpec(user_setservices, unusable, yaml_config, esmf_config) result(spec)
+   pure function new_ChildSpec(user_setservices, unusable, config_file, name) result(spec)
       type(ChildSpec) :: spec
       class(AbstractUserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: yaml_config
-      character(*), optional, intent(in) :: esmf_config
+      character(*), optional, intent(in) :: config_file
+      character(*), optional, intent(in) :: name ! TBD -remove
 
       spec%user_setservices = user_setservices
-
-      if (present(yaml_config)) spec%yaml_config_file = yaml_config
-      if (present(esmf_config)) spec%esmf_config_file = esmf_config
+      if (present(config_file)) spec%config_file = config_file
+      if (present(name)) spec%name = name
 
    end function new_ChildSpec
       
@@ -60,15 +59,15 @@ contains
       equal = (a%user_setservices == b%user_setservices)
       if (.not. equal) return
       
-      equal = equal_config(a%yaml_config_file, b%yaml_config_file)
+      equal = equal_alloc_str(a%config_file, b%config_file)
       if (.not. equal) return
 
-      equal = equal_config(a%esmf_config_file, b%esmf_config_file)
+      equal = equal_alloc_str(a%name, b%name)
       if (.not. equal) return
 
    contains
 
-      logical function equal_config(a, b) result(equal)
+      logical function equal_alloc_str(a, b) result(equal)
          character(:), allocatable, intent(in) :: a
          character(:), allocatable, intent(in) :: b
 
@@ -77,7 +76,7 @@ contains
 
          if (allocated(a)) equal = (a == b)
 
-      end function equal_config
+      end function equal_alloc_str
 
    end function equal
 
@@ -107,20 +106,13 @@ contains
 
       character(:), allocatable :: file
 
-      if (allocated(this%yaml_config_file)) then
-         file = this%yaml_config_file
+      if (allocated(this%config_file)) then
+         file = this%config_file
       else
          file = '<none>'
       end if
-      write(unit,'(a,a)',iostat=iostat) 'YAML config file: ', file
-      if (iostat /= 0) return
-      
-      if (allocated(this%esmf_config_file)) then
-         file = this%yaml_config_file
-      else
-         file = '<none>'
-      end if
-      write(unit,'(a,a)',iostat=iostat) 'ESMF config file: ', file
+
+      write(unit,'(a,a)',iostat=iostat) 'Config file: ', file
       if (iostat /= 0) return
 
       write(unit,'(a, DT)', iostat=iostat) 'UserSetServices: ', this%user_setservices
