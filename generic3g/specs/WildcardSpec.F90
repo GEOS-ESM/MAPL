@@ -22,7 +22,7 @@ module mapl3g_WildcardSpec
    type, extends(AbstractStateItemSpec) :: WildcardSpec
       private
       class(AbstractStateItemSpec), allocatable :: reference_spec
-      type(ActualPtStateItemSpecMap) :: matched_items
+      type(ActualPtStateItemSpecMap), pointer :: matched_items
    contains
       procedure :: create
       procedure :: destroy
@@ -51,6 +51,7 @@ contains
       class(AbstractStateItemSpec), intent(in) :: reference_spec
 
       wildcard_spec%reference_spec = reference_spec
+      allocate(wildcard_spec%matched_items)
 
    end function new_WildcardSpec
 
