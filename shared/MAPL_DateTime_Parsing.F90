@@ -59,7 +59,7 @@ module MAPL_DateTime_Parsing
 !   private
 
    interface operator(.multipleof.)
-      module procedure :: divisible_by
+      module procedure :: multipleof
    end interface
 
    interface operator(.in.)
@@ -199,17 +199,17 @@ contains
 ! NUMBER HANDLING PROCEDURES
 
    ! Return true if factor divides dividend evenly, false otherwise
-   pure logical function divisible_by(factor, dividend)
+   pure logical function multipleof(factor, dividend)
       integer, intent(in) :: factor
       integer, intent(in) :: dividend
       ! mod returns the remainder of dividend/factor,
       ! and if it is 0, factor divides dividend evenly
       if(factor /= 0) then ! To avoid divide by 0
-          divisible_by = mod(dividend, factor)==0
+          multipleof = mod(dividend, factor)==0
       else
-          divisible_by = .FALSE.
+          multipleof = .FALSE.
       endif
-   end function divisible_by
+   end function multipleof
 
    pure logical function is_in_closed_interval(n, clint)
       integer, intent(in) :: n

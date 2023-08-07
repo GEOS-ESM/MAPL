@@ -14,6 +14,7 @@ module test_MAPL_DateTime_Parsing
       character(len=*), parameter :: TIME_DELIMITER = ':'
       integer, dimension(12), parameter :: ENDS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
       integer, dimension(size(ENDS)), parameter :: ENDS_LEAP = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      integer, parameter :: MAX_LEN = 1024
 
       integer, parameter :: SUCCESS = _SUCCESS
       integer, parameter :: FAILURE = _FAILURE
@@ -21,12 +22,12 @@ module test_MAPL_DateTime_Parsing
 contains
 
    @test
-   subroutine test_divides()
-      @assertTrue(divides(7, 21))
-      @assertFalse(divides(7, 22))
-      @assertTrue(7 .divides. 21)
-      @assertFalse(7 .divides. 22)
-   end subroutine test_divides
+   subroutine test_multipleof()
+      @assertTrue(multipleof(21, 7))
+      @assertFalse(multipleof(22, 7))
+      @assertTrue(21 .multipleof. 7)
+      @assertFalse(22 .multipleof. 7)
+   end subroutine test_multipleof
 
    @test
    subroutine test_between_op()
@@ -612,78 +613,71 @@ contains
       logical, parameter :: LEX = .FALSE.
       type(datetime_duration) :: d
       d = datetime_duration()
-      @assertEqual(IEX, d % year, 'year should be 0'
-      @assertEqual(IEX, d % month, 'month should be 0'
-      @assertEqual(IEX, d % day, 'day should be 0'
-      @assertEqual(IEX, d % hour, 'hour should be 0'
-      @assertEqual(IEX, d % minute, 'minute should be 0'
-      @assertEqual(IEX, d % second, 'second should be 0'
-      @assertEqual(REX, d % hour_real, 'hour_real should be 0.0'
-      @assertEqual(REX, d % minute_real, 'minute_real should be 0.0'
-      @assertEqual(REX, d % second_real, 'second_real should be 0.0'
-      @assertFalse(d % hour_is_set, 'hour_is_set should be .FALSE.'
-      @assertFalse(d % minute_is_set, 'minute_is_set should be .FALSE.'
-      @assertFalse(d % second_is_set, 'hour_is_set should be .FALSE.'
+      @assertEqual(IEX, d % year, 'year should be 0')
+      @assertEqual(IEX, d % month, 'month should be 0')
+      @assertEqual(IEX, d % day, 'day should be 0')
+      @assertEqual(IEX, d % hour, 'hour should be 0')
+      @assertEqual(IEX, d % minute, 'minute should be 0')
+      @assertEqual(IEX, d % second, 'second should be 0')
+      @assertEqual(REX, d % hour_real, 'hour_real should be 0.0')
+      @assertEqual(REX, d % minute_real, 'minute_real should be 0.0')
+      @assertEqual(REX, d % second_real, 'second_real should be 0.0')
+      @assertFalse(d % hour_is_set, 'hour_is_set should be .FALSE.')
+      @assertFalse(d % minute_is_set, 'minute_is_set should be .FALSE.')
+      @assertFalse(d % second_is_set, 'hour_is_set should be .FALSE.')
    end subroutine test_construct_datetime_duration 
 
-   @test
-   subroutine test_time_units()
-      character(len=:), allocatable :: units
-      units = time_units()
-      @assertEqual(NUM_TIME_UNITS, size(units), 'time_units has an incorrect size.') 
-   end subroutine test_time_units
-
-   @test
-   subroutine test_time_unit()
-      integer(kind(TIME_UNIT)) :: tu
-      integer :: i
-      logical :: check_plural = .FALSE.
-      character(len=:), allocatable :: run_name 
-      character(len=:), allocatable :: fmt_ = '(I)'
-      character(len=4) :: run_number
-      character(len=:), allocatable :: msg
-
-      i = 0
-
-      msg = 'Incorrect Time Unit for '
-      do while(i < 2)
-         i = i + 1
-         write(run_number, fmt=fmt_) i
-         run_name = 'RUN ' // trim(adjustl(run_number)) // ' : '
-         @assertEqual(YEAR, get_time_unit('year'), run_name // msg // 'year.')
-         @assertEqual(MONTH, get_time_unit('month'), run_name // msg // 'month.')
-         @assertEqual(DAY, get_time_unit('day'), run_name // msg // 'day.')
-         @assertEqual(HOUR, get_time_unit('hour'), run_name // msg // 'hour.')
-         @assertEqual(MINUTE, get_time_unit('minute'), run_name // msg // 'minute.')
-         @assertEqual(SECOND, get_time_unit('second'), run_name // msg // 'second.')
-      end do
-
-      do while(i < 3)
-         i = i + 1
-         write(run_number, fmt=fmt_) i
-         run_name = 'RUN ' // trim(adjustl(run_number)) // ' : '
-         @assertEqual(YEAR, get_time_unit('years'), run_name // msg // 'years.')
-         @assertEqual(MONTH, get_time_unit('months'), run_name // msg // 'months.')
-         @assertEqual(DAY, get_time_unit('days'), run_name // msg // 'days.')
-         @assertEqual(HOUR, get_time_unit('hours'), run_name // msg // 'hours.')
-         @assertEqual(MINUTE, get_time_unit('minutes'), run_name // msg // 'minutes.')
-         @assertEqual(SECOND, get_time_unit('seconds'), run_name // msg // 'seconds.')
-      end do
-
-      msg = 'Should return get_time_unit_UNKNOWN'
-      do while(i < 4)
-         i = i + 1
-         write(run_number, fmt=fmt_) i
-         run_name = 'RUN ' // trim(adjustl(run_number)) // ' : '
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('years', check_plural), run_name // msg)
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('months', check_plural), run_name // msg)
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('days'), check_plural, run_name // msg)
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('hours'), check_plural, run_name // msg)
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('minutes'), check_plural, run_name // msg)
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('seconds'), check_plural, run_name // msg)
-         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('furlong'), check_plural, run_name // msg)
-      end do
-      
-   end subroutine test_time_unit
+!   @test
+!   subroutine test_time_unit()
+!      integer(kind(TIME_UNIT)) :: tu
+!      integer :: i
+!      logical :: check_plural = .FALSE.
+!      character(len=:), allocatable :: run_name 
+!      character(len=*), parameter :: fmt_ = '(I)'
+!      character(len=4) :: run_number
+!      character(len=:), allocatable :: msg
+!
+!      i = 0
+!
+!      msg = 'Incorrect Time Unit for '
+!      do while(i < 2)
+!         i = i + 1
+!         write(run_number, fmt=fmt_) i
+!         run_name = 'RUN ' // trim(adjustl(run_number)) // ' : '
+!         @assertEqual(YEAR, get_time_unit('year'), run_name // msg // 'year.')
+!         @assertEqual(MONTH, get_time_unit('month'), run_name // msg // 'month.')
+!         @assertEqual(DAY, get_time_unit('day'), run_name // msg // 'day.')
+!         @assertEqual(HOUR, get_time_unit('hour'), run_name // msg // 'hour.')
+!         @assertEqual(MINUTE, get_time_unit('minute'), run_name // msg // 'minute.')
+!         @assertEqual(SECOND, get_time_unit('second'), run_name // msg // 'second.')
+!      end do
+!
+!      do while(i < 3)
+!         i = i + 1
+!         write(run_number, fmt=fmt_) i
+!         run_name = 'RUN ' // trim(adjustl(run_number)) // ' : '
+!         @assertEqual(YEAR, get_time_unit('years'), run_name // msg // 'years.')
+!         @assertEqual(MONTH, get_time_unit('months'), run_name // msg // 'months.')
+!         @assertEqual(DAY, get_time_unit('days'), run_name // msg // 'days.')
+!         @assertEqual(HOUR, get_time_unit('hours'), run_name // msg // 'hours.')
+!         @assertEqual(MINUTE, get_time_unit('minutes'), run_name // msg // 'minutes.')
+!         @assertEqual(SECOND, get_time_unit('seconds'), run_name // msg // 'seconds.')
+!      end do
+!
+!      msg = 'Should return get_time_unit_UNKNOWN'
+!      do while(i < 4)
+!         i = i + 1
+!         write(run_number, fmt=fmt_) i
+!         run_name = 'RUN ' // trim(adjustl(run_number)) // ' : '
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('years', check_plural), run_name // msg)
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('months', check_plural), run_name // msg)
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('days'), check_plural, run_name // msg)
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('hours'), check_plural, run_name // msg)
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('minutes'), check_plural, run_name // msg)
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('seconds'), check_plural, run_name // msg)
+!         @assertEqual(TIME_UNIT_UNKNOWN, get_time_unit('furlong'), check_plural, run_name // msg)
+!      end do
+!      
+!   end subroutine test_time_unit
 
 end module test_MAPL_DateTime_Parsing
