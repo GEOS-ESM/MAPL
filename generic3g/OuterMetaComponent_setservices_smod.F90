@@ -4,7 +4,6 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use esmf
    use gFTL2_StringVector
    use mapl3g_ESMF_Interfaces, only: I_Run
-   use mapl3g_UserSetServices, only: user_setservices
    use mapl3g_ComponentSpecParser
    use mapl3g_HierarchicalRegistry
    use mapl3g_ChildSpec
@@ -62,13 +61,22 @@ contains
       recursive subroutine process_children(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
-         
-         type(ChildSpecVectorIterator) :: iter
-         type(ChildComponentMapIterator) :: iter2
+
          integer :: status
+
+         call add_children(this, _RC)
+         call run_children_setservices(this, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine process_children
+
+      recursive subroutine add_children(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+         type(ChildSpecVectorIterator) :: iter
          type(ChildSpec), pointer :: child_spec
-         type(ChildComponent), pointer :: child_comp
-         type(ESMF_GridComp) :: child_outer_gc
          type(ESMF_HConfig), allocatable :: child_hconfig
 
          associate ( e => this%component_spec%children%ftn_end() )
@@ -84,19 +92,32 @@ contains
            end do
          end associate
 
-         associate ( e => this%children%ftn_end() )
-           iter2 = this%children%ftn_begin()
+         _RETURN(_SUCCESS)
+      end subroutine add_children
 
-           do while (iter2 /= e)
-              call iter2%next()
-              child_comp => iter2%second()
-              child_outer_gc = child_comp%get_outer_gridcomp()
-              call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
-           end do
+      ! By now children have either been added by specs or by direct
+      ! calls in the parent gc's setservices.
+      recursive subroutine run_children_setservices(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ChildComponent), pointer :: child_comp
+         type(ESMF_GridComp) :: child_outer_gc
+         type(ChildComponentMapIterator) :: iter
+
+          associate ( e => this%children%ftn_end() )
+            iter = this%children%ftn_begin()
+            do while (iter /= e)
+               call iter%next()
+               child_comp => iter%second()
+               child_outer_gc = child_comp%get_outer_gridcomp()
+               call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
+            end do
          end associate
 
          _RETURN(ESMF_SUCCESS)
-      end subroutine process_children
+      end subroutine run_children_setservices
 
    end subroutine SetServices_
 
