@@ -2,7 +2,6 @@ target_sources(MAPL.generic3g PRIVATE
   VariableSpec.F90
   StateItem.F90
   VariableSpecVector.F90
-  ChildSpecVector.F90
 
   HorizontalDimsSpec.F90
   VerticalDimSpec.F90

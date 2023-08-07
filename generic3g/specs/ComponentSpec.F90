@@ -6,7 +6,7 @@ module mapl3g_ComponentSpec
    use mapl3g_HierarchicalRegistry, only: Connection
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector
-   use mapl3g_ChildSpecVector
+   use mapl3g_ChildSpecMap
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -18,7 +18,7 @@ module mapl3g_ComponentSpec
 !!$      private
       type(VariableSpecVector) :: var_specs
       type(ConnectionVector) :: connections
-      type(ChildSpecVector) :: children
+      type(ChildSpecMap) :: children
    contains
       procedure :: add_var_spec
       procedure :: add_connection

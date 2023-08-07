@@ -13,7 +13,6 @@ module mapl3g_ChildSpec
    public :: dump
    
    type :: ChildSpec
-      character(:), allocatable :: name  ! TBD - remove - make key of container
       class(AbstractUserSetServices), allocatable :: user_setservices
       character(:), allocatable :: config_file
       ! Prevent default structure constructor
@@ -38,16 +37,14 @@ module mapl3g_ChildSpec
 
 contains
 
-   pure function new_ChildSpec(user_setservices, unusable, config_file, name) result(spec)
+   pure function new_ChildSpec(user_setservices, unusable, config_file) result(spec)
       type(ChildSpec) :: spec
       class(AbstractUserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: config_file
-      character(*), optional, intent(in) :: name ! TBD -remove
 
       spec%user_setservices = user_setservices
       if (present(config_file)) spec%config_file = config_file
-      if (present(name)) spec%name = name
 
    end function new_ChildSpec
       
@@ -60,9 +57,6 @@ contains
       if (.not. equal) return
       
       equal = equal_alloc_str(a%config_file, b%config_file)
-      if (.not. equal) return
-
-      equal = equal_alloc_str(a%name, b%name)
       if (.not. equal) return
 
    contains

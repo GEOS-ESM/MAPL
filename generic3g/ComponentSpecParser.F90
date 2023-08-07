@@ -3,7 +3,6 @@
 module mapl3g_ComponentSpecParser
    use mapl3g_ComponentSpec
    use mapl3g_ChildSpec
-   use mapl3g_ChildSpecVector
    use mapl3g_ChildSpecMap
    use mapl3g_UserSetServices
    use mapl_ErrorHandling
@@ -32,9 +31,10 @@ module mapl3g_ComponentSpecParser
 
    ! The following interfaces are public only for testing purposes.
    public :: parse_children
-   public :: parse_ChildSpecMap
-   public :: parse_ChildSpec
+   public :: parse_child
    public :: parse_SetServices
+!!$   public :: parse_ChildSpecMap
+!!$   public :: parse_ChildSpec
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
@@ -513,25 +513,25 @@ contains
    end function parse_connections
 
    
-   type(ChildSpec) function parse_ChildSpec(hconfig, rc) result(child_spec)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_HConfig) :: subcfg
-      integer :: status
-      logical :: has_config_file
-
-      _ASSERT(ESMF_HConfigIsDefined(hconfig, keyString='setServices'),"child spec must specify a 'setServices' spec")
-      subcfg = ESMF_HConfigCreateAt(hconfig, keyString='setServices', _RC)
-      child_spec%user_setservices = parse_setservices(subcfg, _RC)
-
-      has_config_file = ESMF_HConfigIsDefined(hconfig, keyString='config_file', _RC)
-      if (has_config_file) then
-         child_spec%config_file = ESMF_HConfigAsString(hconfig, keyString='config_file',_RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end function parse_ChildSpec
+!!$   type(ChildSpec) function parse_ChildSpec(hconfig, rc) result(child_spec)
+!!$      type(ESMF_HConfig), intent(in) :: hconfig
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      type(ESMF_HConfig) :: subcfg
+!!$      integer :: status
+!!$      logical :: has_config_file
+!!$
+!!$      _ASSERT(ESMF_HConfigIsDefined(hconfig, keyString='setServices'),"child spec must specify a 'setServices' spec")
+!!$      subcfg = ESMF_HConfigCreateAt(hconfig, keyString='setServices', _RC)
+!!$      child_spec%user_setservices = parse_setservices(subcfg, _RC)
+!!$
+!!$      has_config_file = ESMF_HConfigIsDefined(hconfig, keyString='config_file', _RC)
+!!$      if (has_config_file) then
+!!$         child_spec%config_file = ESMF_HConfigAsString(hconfig, keyString='config_file',_RC)
+!!$      end if
+!!$
+!!$      _RETURN(_SUCCESS)
+!!$   end function parse_ChildSpec
 
    type(DSOSetServices) function parse_setservices(config, rc) result(user_ss)
       type(ESMF_HConfig), target, intent(in) :: config
@@ -554,70 +554,74 @@ contains
       _RETURN(_SUCCESS)
    end function parse_setservices
 
-
-   ! Note: It is convenient to allow a null pointer for the config in
-   ! the case of no child specs.  It spares the higher level procedure
-   ! making the relevant check.
-
-   type(ChildSpecMap) function parse_ChildSpecMap(config, rc) result(specs)
-      type(ESMF_HConfig), pointer, intent(in) :: config
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
-
-      character(:), allocatable :: child_name
-      type(ChildSpec) :: child_spec
-      type(ESMF_HConfig) :: subcfg
-
-      if (.not. associated(config)) then
-         specs = ChildSpecMap()
-         _RETURN(_SUCCESS)
-      end if
-      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
-      
-
-      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
-      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
-      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
-      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
-         child_name = ESMF_HConfigAsStringMapKey(hconfigIter)
-         subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
-         child_spec = parse_ChildSpec(subcfg)
-         call specs%insert(child_name, child_spec)
-      end do
-
-      _RETURN(_SUCCESS)
-   end function parse_ChildSpecMap
-
+!!$
+!!$   ! Note: It is convenient to allow a null pointer for the config in
+!!$   ! the case of no child specs.  It spares the higher level procedure
+!!$   ! making the relevant check.
+!!$
+!!$   type(ChildSpecMap) function parse_ChildSpecMap(config, rc) result(specs)
+!!$      type(ESMF_HConfig), pointer, intent(in) :: config
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      integer :: status
+!!$      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+!!$
+!!$      character(:), allocatable :: child_name
+!!$      type(ChildSpec) :: child_spec
+!!$      type(ESMF_HConfig) :: subcfg
+!!$
+!!$      if (.not. associated(config)) then
+!!$         specs = ChildSpecMap()
+!!$         _RETURN(_SUCCESS)
+!!$      end if
+!!$      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
+!!$      
+!!$
+!!$      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
+!!$      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
+!!$      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
+!!$      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+!!$         child_name = ESMF_HConfigAsStringMapKey(hconfigIter)
+!!$         subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
+!!$         child_spec = parse_ChildSpec(subcfg)
+!!$         call specs%insert(child_name, child_spec)
+!!$      end do
+!!$
+!!$      _RETURN(_SUCCESS)
+!!$   end function parse_ChildSpecMap
+!!$
 
 
    function parse_children(hconfig, rc) result(children)
-      type(ChildSpecVector) :: children
+      type(ChildSpecMap) :: children
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_children
-      integer :: num_specs
-      logical :: is_sequence
+      logical :: is_map
       type(ESMF_HConfig) :: children_cfg, child_cfg
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ChildSpec) :: child_spec
-      integer :: i
+      character(:), allocatable :: child_name
+
 
       has_children = ESMF_HConfigIsDefined(hconfig, keyString=COMPONENT_CHILDREN_SECTION, _RC)
       _RETURN_UNLESS(has_children)
 
       children_cfg = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_CHILDREN_SECTION, _RC)
-      is_sequence = ESMF_HConfigIsSequence(children_cfg, _RC)
+      is_map = ESMF_HConfigIsMap(children_cfg, _RC)
 
-      _ASSERT(is_sequence, 'children spec must be sequence of mappings')
-      
-      num_specs = ESMF_HConfigGetSize(children_cfg, _RC)
-      do i = 1, num_specs
-         child_cfg = ESMF_HConfigCreateAt(children_cfg, index=i, _RC)
+      _ASSERT(is_map, 'children spec must be mapping')
+
+      iter_begin = ESMF_HCOnfigIterBegin(children_cfg, _RC)
+      iter_end = ESMF_HConfigIterEnd(children_cfg, _RC)
+      iter = ESMF_HConfigIterBegin(children_cfg, _RC)
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end))
+         child_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         child_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
          child_spec = parse_child(child_cfg, _RC)
-         call children%push_back(child_spec)
+         call children%insert(child_name, child_spec)
          call ESMF_HConfigDestroy(child_cfg, _RC)
       end do
 
@@ -634,7 +638,6 @@ contains
 
       integer :: status
       class(AbstractUserSetServices), allocatable :: setservices
-      character(:), allocatable :: name
 
       character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
       character(*), parameter :: userProcedure_keys(*) = [character(len=10) :: 'SetServices', 'setServices', 'setservices']
@@ -642,15 +645,9 @@ contains
       character(:), allocatable :: dso_key, userProcedure_key, try_key
       logical :: dso_found, userProcedure_found
       logical :: has_key
-      logical :: has_name
       logical :: has_config_file
       character(:), allocatable :: sharedObj, userProcedure, config_file
 
-
-      has_name = ESMF_HconfigIsDefined(hconfig, keyString='name', _RC)
-      _ASSERT(has_name, 'Must specify a name for hconfig of child.')
-      
-      name = ESMF_HconfigAsString(hconfig, keyString='name', _RC)
 
       dso_found = .false.
       ! Ensure precisely one name is used for dso
@@ -658,19 +655,19 @@ contains
          try_key = trim(dso_keys(i))
          has_key = ESMF_HconfigIsDefined(hconfig, keyString=try_key, _RC)
          if (has_key) then
-            _ASSERT(.not. dso_found, 'multiple specifications for dso in hconfig for child <'//name//'>.')
+            _ASSERT(.not. dso_found, 'multiple specifications for dso in hconfig for child')
             dso_found = .true.
             dso_key = try_key
          end if
       end do
-      _ASSERT(dso_found, 'Must specify a dso for hconfig of child <'//name//'>.')
+      _ASSERT(dso_found, 'Must specify a dso for hconfig of child')
       sharedObj = ESMF_HconfigAsString(hconfig, keyString=dso_key, _RC)
 
       userProcedure_found = .false.
       do i = 1, size(userProcedure_keys)
          try_key = userProcedure_keys(i)
          if (ESMF_HconfigIsDefined(hconfig, keyString=try_key)) then
-            _ASSERT(.not. userProcedure_found, 'multiple specifications for dso in hconfig for child <'//name//'>.')
+            _ASSERT(.not. userProcedure_found, 'multiple specifications for dso in hconfig for child')
             userProcedure_found = .true.
             userProcedure_key = try_key
          end if
@@ -686,7 +683,7 @@ contains
       end if
 
       setservices = user_setservices(sharedObj, userProcedure)
-      child = ChildSpec(setservices, config_file=config_file, name=name)
+      child = ChildSpec(setservices, config_file=config_file)
 
       _RETURN(_SUCCESS)
    end function parse_child

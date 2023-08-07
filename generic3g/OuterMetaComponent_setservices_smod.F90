@@ -7,7 +7,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use mapl3g_ComponentSpecParser
    use mapl3g_HierarchicalRegistry
    use mapl3g_ChildSpec
-   use mapl3g_ChildSpecVector
+   use mapl3g_ChildSpecMap
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
@@ -75,20 +75,22 @@ contains
          integer, optional, intent(out) :: rc
          
          integer :: status
-         type(ChildSpecVectorIterator) :: iter
+         type(ChildSpecMapIterator) :: iter
          type(ChildSpec), pointer :: child_spec
          type(ESMF_HConfig), allocatable :: child_hconfig
+         character(:), allocatable :: child_name
 
          associate ( e => this%component_spec%children%ftn_end() )
            iter = this%component_spec%children%ftn_begin()
            do while (iter /= e)
               call iter%next()
-              child_spec => iter%of()
+              child_name = iter%first()
+              child_spec => iter%second()
 
               if (allocated(child_spec%config_file)) then
                  child_hconfig = ESMF_HConfigCreate(filename=child_spec%config_file, _RC)
               end if
-              call this%add_child(child_spec%name, child_spec%user_setservices, child_hconfig, _RC)
+              call this%add_child(child_name, child_spec%user_setservices, child_hconfig, _RC)
            end do
          end associate
 
