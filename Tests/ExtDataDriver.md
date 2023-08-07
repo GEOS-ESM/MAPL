@@ -113,7 +113,7 @@ and results in a MAPL_AddExportSpec being added with the SHORT_NAME, LONG_NAME, 
 
 You can have as many entries here as you want. In the AGCM1.rc example we add a single 2D and a single 3D variable. Note there are some limitations. In particular there is no mechanism now to add varspecs with ungridded dimensions.
 
-Finally lines 19 to 22 define what to fill the export variables with. You basically give it an expression that is a function of the allowed input variables (which at this point are time, lons, and lats). In this case we are filling them with a variable named time which is a constant field that is the delta relative to the reference time (defined on line 24). Another example to specify expressions for fields with spherical coordinates is 
+Finally lines 19 to 22 define what to fill the export variables with. You basically give it an expression that is a function of the allowed input variables. In this case we are filling them with a variable named time which is a constant field that is the delta relative to the reference time (defined on line 24). Another example to specify expressions for fields with spherical coordinates is 
 ```
 FILL_DEF::
 VAR2D cos(lons)*cos(lats)
@@ -182,7 +182,29 @@ To modify this behavior you use the RUN_MODE: option and it can be set to:
 **FillImport** - this really does nothing, it add the import fields and that's it
 
 ## Specifying Import and Export State
+The import and export state of the root component is specified via a tables named `EXPORT_STATE` and `IMPORT_STATE`. Each table consists of multiple lines where each line is a comma separated list with the following values. 
+
+`short_name , units , long_name , horiztonal_defintion , vertical_definition`
+
+The `horizontal_definition`, can be xy for 2D gridded, xyz for 3D gridded, or tileonly for tiles
+The `vertical_definition`, can be c or e (center or edge), if the `horizontal_definition` was 2D or tile this is ignored
+
+These are ultimately translated into the standard MAPL mechanism to add the fields via the MAPL AddSpec calls.
 
 ## Setting the Fill Definitions for Export Fields
+If the run mode is set to GenerateExports, each export state is filled using the supplied definition in the `FILL_DEF::` table. Each line of the table consists of the export name followed by an expression. The expression can be any valid expression understood by the MAPL arithemtic parser. The allowed variable names are any of the predefined variables 2D (or 1D if on tiles) in the internal state of the Root component. At this time the following variables are available:
+If the run mode is set to GenerateExports, each export state is filled using the supplied definition in the `FILL_DEF::` table. Each line of the table consists of the export name followed by an expression. The expression can be any valid expression understood by the MAPL arithemtic parser. Since the parser supports broadcasting these variables may be used to fill either 2D or 3D variables. The allowed variable names are any of the predefined variables in the internal state of the Root component. At this time the following variables are available:
+1. `time` - time relative to the reference time, if not specified this is the initialization time of the component. To specify a reference time add a `REF_TIME: integer_date integer_time` keyword to the resource file, where the value of the is two 8 digit integer encodings for the date and time
+2. `lats` - latitudes of the root component grid
+3. `lons` - longitude of the root component grid
+4. `i_index` - i index of the root component grid
+5. `j_index` - j index of the root component grid
+6. `doy` - integer day of the year
+7. `rand` - the array is filled with random numbers using Fortran intrinsic random number generator
 
+Note that if `ExtDataDriver.x` was set to run on tiles, then the `lons`, `last`, `i_index`, and `j_index` can not be used. Also note that `time` and `doy` are not spatially varying and constant for every grid point.
 
+## Running ExtDataDriver.x on MAPL Tiles
+
+`ExtDataDrivers.x` root component can be run on a MAPL tile grid rather than a standard grid. To do this simply define the corresponding grid that the tile file you will provide was created for then specify:
+`tiling_file: tile_file` where you define the path to the tile file. This is the standard tile file used by MAPL and can be in either binary or ASCII form. If this keyword is found the Root component will be on a tile grid. Don't forget ot update your `EXPORT_STATE` and `IMPORT_STATE` definitions. Also note in the previous section the limitations on filling exports.
