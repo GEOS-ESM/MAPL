@@ -8,11 +8,11 @@
   * [2.3 Samplings](#23-samplings)
   * [2.4 Exports](#24-exports)
     + [2.4.1 Specifying Multiple Rules for a Single Key](#241-specifying-multiple-rules)
-  * [4.5 Derived Rules](#25-derived-rules)
-    + [4.5.1 Mask Functions](#251-mask-functions)
-    + [4.5.2 Arithmetic Functions](#252-arithmetic-functions)
-  * [4.6 Example file](#26-example-file)
-  * [4.7 Special Cases](#27-special-cases)
+  * [2.5 Derived Rules](#25-derived-rules)
+    + [2.5.1 Mask Functions](#251-mask-functions)
+    + [2.5.2 Arithmetic Functions](#252-arithmetic-functions)
+  * [2.6 Example file](#26-example-file)
+  * [2.7 Special Cases](#27-special-cases)
 
 # 1 General function of ExtData
 `ExtData` is a MAPL component that can provide data from external files. The component receives a list of fields. It then has a list of rules to fill those fields from a time varying sequence of files which is assumes contains no gaps. Each time it runs, based on the rules it first checks if the user wants to even try to update the field at the current time, if so it fills it generally either from the last value in the past or interpolates to the current time, transforming the external data to the application grid if needed. It also has options in cases when the time may fall outside of the dataset such as persisting the closest value either in the future or past or using the closest FULL year of data as a climatology.
