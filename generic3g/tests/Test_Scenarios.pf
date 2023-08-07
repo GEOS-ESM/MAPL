@@ -13,7 +13,6 @@ module Test_Scenarios
    use mapl3g_MultiState
    use mapl3g_OuterMetaComponent
    use mapl3g_ChildComponent
-   use mapl3g_GenericConfig
    use mapl3g_GenericGridComp
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
@@ -142,8 +141,7 @@ contains
    subroutine setup(this)
       class(Scenario), intent(inout) :: this
 
-      type(ESMF_HConfig) :: yaml_config
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
       integer :: status, user_status
       type(ESMF_Clock) :: clock
       integer :: i
@@ -152,9 +150,7 @@ contains
       type(VerticalGeom) :: vertical_geom
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
-      yaml_config = ESMF_HConfigCreate(filename=file_name)
-
-      config = GenericConfig(yaml_cfg=yaml_config)
+      config = ESMF_HConfigCreate(filename=file_name)
 
       call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
       @assert_that(status, is(0))

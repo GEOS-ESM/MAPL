@@ -1,13 +1,13 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
 set(srcs
+  ESMF_Subset.F90
   Generic3g.F90
 
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
 
-  GenericConfig.F90
   GenericGrid.F90
 
   ComponentSpecParser.F90

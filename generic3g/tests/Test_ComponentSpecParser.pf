@@ -70,34 +70,20 @@ contains
       
       ss = user_setservices('libA', 'setservices_')
 
-      a = ChildSpec(ss, yaml_config='a.yml')
+      a = ChildSpec(ss, config_file='a.yml')
 
       b = ChildSpec(ss)
       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss, yaml_config='a2.yml')
+      b = ChildSpec(ss, config_file='a2.yml')
       @assert_that(a == b, is(false()))
-
-          
-      b = ChildSpec(ss, esmf_config='a2.rc')
-      @assert_that(a == b, is(false()))
-
-      b = ChildSpec(ss, esmf_config='a2.rc', yaml_config='a.yml')
-      @assert_that(a == b, is(false()))
-
-      a = ChildSpec(ss, esmf_config='a.rc')
 
       b = ChildSpec(ss)
       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss, yaml_config='a2.yml')
+      b = ChildSpec(ss, config_file='a2.yml')
       @assert_that(a == b, is(false()))
           
-      b = ChildSpec(ss, esmf_config='a2.rc')
-      @assert_that(a == b, is(false()))
-
-      b = ChildSpec(ss, esmf_config='a.rc', yaml_config='a.yml')
-      @assert_that(a == b, is(false()))
 
    contains
       subroutine gamma(gc, rc)
@@ -115,16 +101,17 @@ contains
       integer :: rc, status
       type(ChildSpec) :: expected
 
-      config = ESMF_HConfigCreate(content='{setServices: {sharedObj: libA}}')
+      config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
 
       expected = ChildSpec(user_setservices('libA', 'setservices_'))
-      found = parse_ChildSpec(config, _RC)
+      found = parse_child(config, _RC)
       @assert_that(expected == found, is(true()))
 
    end subroutine test_parse_childSpec_basic
 
+
    @test
-   subroutine test_parse_childSpec_with_esmf_config()
+   subroutine test_parse_childSpec_with_config_file()
       type(ESMF_HConfig) :: config
       type(ChildSpec) :: found
       integer :: status, rc
@@ -132,33 +119,14 @@ contains
       class(AbstractUserSetServices), allocatable :: ss
       type(ChildSpec) :: expected
 
-      config = ESMF_HConfigCreate(content='{setServices: {sharedObj: libA}, esmf_config: a.rc}')
+      config = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
 
       ss = user_setservices('libA', 'setservices_')
-      expected = ChildSpec(ss, esmf_config='a.rc')
-      found = parse_ChildSpec(config, _RC)
+      expected = ChildSpec(ss, config_file='a.yml')
+      found = parse_child(config, _RC)
       @assert_that(expected == found, is(true()))
 
-   end subroutine test_parse_ChildSpec_with_esmf_config
-
-
-   @test
-   subroutine test_parse_childSpec_with_yaml_config()
-      type(ESMF_HConfig) :: config
-      type(ChildSpec) :: found
-      integer :: status, rc
-
-      class(AbstractUserSetServices), allocatable :: ss
-      type(ChildSpec) :: expected
-
-      config = ESMF_HConfigCreate(content='{setServices: {sharedObj: libA}, yaml_config: a.yml}')
-
-      ss = user_setservices('libA', 'setservices_')
-      expected = ChildSpec(ss, yaml_config='a.yml')
-      found = parse_ChildSpec(config, _RC)
-      @assert_that(expected == found, is(true()))
-
-   end subroutine test_parse_childSpec_with_yaml_config
+   end subroutine test_parse_childSpec_with_config_file
 
 
    @test
@@ -166,9 +134,14 @@ contains
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
 
-      found = parse_ChildSpecMap(null(), _RC)
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+
+      found = parse_children(hconfig, _RC)
       @assert_that(found == expected, is(true()))
-      
+
+      call ESMF_HConfigDestroy(hconfig)
    end subroutine test_parse_ChildSpecMap_empty
 
    @test
@@ -178,10 +151,10 @@ contains
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
 
-      config = ESMF_HConfigCreate(content='{A: {setServices: {sharedObj: libA}}}')
+      config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
       config_ptr => config
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
-      found = parse_ChildSpecMap(config_ptr, _RC)
+      found = parse_children(config_ptr, _RC)
       @assert_that(found == expected, is(true()))
       
    end subroutine test_parse_ChildSpecMap_1
@@ -193,14 +166,14 @@ contains
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
 
-      config = ESMF_HConfigCreate(content='{' // &
-           'A: {setServices: {sharedObj: libA}},' // &
-           'B: {setServices: {sharedObj: libB}}}')
+      config = ESMF_HConfigCreate(content='children: {' // &
+           'A: {sharedObj: libA},' // &
+           'B: {sharedObj: libB}}')
       config_ptr => config
 
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
       call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
-      found = parse_ChildSpecMap(config_ptr, _RC)
+      found = parse_children(config_ptr, _RC)
 
       @assert_that(found%of('A') == expected%of('A'), is(true()))
       @assert_that(found%of('B') == expected%of('B'), is(true()))

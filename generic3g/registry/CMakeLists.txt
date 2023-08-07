@@ -4,6 +4,7 @@ target_sources(MAPL.generic3g PRIVATE
   ActualPtSpecPtrMap.F90
   VirtualPtStateItemPtrMap.F90
   VirtualPtStateItemSpecMap.F90
+  ActualPtStateItemSpecMap.F90
   StateItemVector.F90
 
   AbstractRegistry.F90

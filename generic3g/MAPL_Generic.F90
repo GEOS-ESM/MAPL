@@ -27,12 +27,14 @@ module mapl3g_Generic
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_AbstractStateItemSpec
    use :: mapl3g_VerticalGeom
+   use :: mapl3g_HierarchicalRegistry
    use mapl_InternalConstantsMod
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_Geom, ESMF_GeomCreate
    use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
    use :: esmf, only: ESMF_Clock
+   use :: esmf, only: ESMF_HConfig
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
    use :: esmf, only: ESMF_STAGGERLOC_INVALID
@@ -41,6 +43,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
    use :: esmf, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
+   use :: pflogger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    implicit none
@@ -48,6 +51,7 @@ module mapl3g_Generic
 
    public :: get_outer_meta_from_inner_gc
 
+   public :: MAPL_Get
    public :: MAPL_GridCompSetEntryPoint
    public :: MAPL_add_child
    public :: MAPL_run_child
@@ -127,13 +131,31 @@ module mapl3g_Generic
 
 contains
 
+   subroutine MAPL_Get(gridcomp, hconfig, registry, lgr, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_Hconfig), optional, intent(out) :: hconfig
+      type(HierarchicalRegistry), optional, pointer, intent(out) :: registry
+      class(Logger), optional, pointer, intent(out) :: lgr
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+
+      if (present(hconfig)) hconfig = outer_meta%get_hconfig()
+      if (present(registry)) registry => outer_meta%get_registry()
+      if (present(lgr)) lgr => outer_meta%get_lgr()
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_Get
+
    subroutine add_child_by_name(gridcomp, child_name, setservices, config, rc)
       use mapl3g_UserSetServices
-      use mapl3g_GenericConfig
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
-      type(GenericConfig), intent(inout) :: config
+      type(ESMF_HConfig), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status

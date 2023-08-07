@@ -19,6 +19,8 @@ module mapl3g_ComponentSpecParser
    use mapl3g_UngriddedDimsSpec
    use mapl3g_UngriddedDimSpec
    use mapl3g_Stateitem
+   use mapl3g_ESMF_Utilities
+   use mapl3g_UserSetServices
    use gftl2_StringVector, only: StringVector
    use esmf
    implicit none
@@ -28,65 +30,84 @@ module mapl3g_ComponentSpecParser
    public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
-   public :: parse_ChildSpecMap
-   public :: parse_ChildSpec
+   public :: parse_children
+   public :: parse_child
    public :: parse_SetServices
-   public :: var_parse_ChildSpecMap
+!!$   public :: parse_ChildSpecMap
+!!$   public :: parse_ChildSpec
 
-   !public :: parse_UngriddedDimsSpec
+   character(*), parameter :: MAPL_SECTION = 'mapl'
+   character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
+   character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'
+   character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = 'export'
+   character(*), parameter :: COMPONENT_INTERNAL_STATE_SECTION = 'internal'
+   character(*), parameter :: COMPONENT_CONNECTIONS_SECTION = 'connections'
+   character(*), parameter :: COMPONENT_CHILDREN_SECTION = 'children'
+
+   character(*), parameter :: KEY_DEFAULT_VALUE = 'default_value'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_SPECS = 'ungridded_dim_specs'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_NAME = 'dim_name'
+   character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
+   character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
    
 contains
-   type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
-      type(ESMF_HConfig), target, intent(inout) :: config
+
+   type(ComponentSpec) function parse_component_spec(hconfig, rc) result(spec)
+      type(ESMF_HConfig), target, intent(inout) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_mapl_section
       type(ESMF_HConfig) :: subcfg
 
-      if (ESMF_HConfigIsDefined(config,keyString='states')) then
-         subcfg = ESMF_HConfigCreateAt(config,keyString='states',_RC)
-         spec%var_specs = process_var_specs(subcfg)
-      end if
+!!$      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
+!!$      _RETURN_UNLESS(has_mapl_section)
+!!$
+!!$      subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
+      subcfg = hconfig
+      
+      spec%var_specs = parse_var_specs(subcfg, _RC)
 
-      if (ESMF_HConfigIsDefined(config,keyString='connections')) then
-         subcfg = ESMF_HConfigCreateAt(config,keyString='connections',_RC)
-         spec%connections = process_connections(subcfg)
-      end if
+      spec%connections = parse_connections(subcfg, _RC)
+
+      spec%children = parse_children(subcfg, _RC)
+
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
+
+!!$      call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    end function parse_component_spec
 
 
-   function process_var_specs(config, rc) result(var_specs)
+   function parse_var_specs(hconfig, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
-      type(ESMF_HConfig), optional, intent(in) :: config
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_states_section
+      type(ESMF_HConfig) :: subcfg
 
-      if (.not. present(config)) then
-         _RETURN(_SUCCESS)
-      end if
+      has_states_section = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
+      _RETURN_UNLESS(has_states_section)
 
-      if (ESMF_HConfigIsDefined(config,keyString='internal')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='internal'), ESMF_STATEINTENT_INTERNAL, _RC)
-      end if
-      if (ESMF_HConfigIsDefined(config,keyString='import')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='import'), ESMF_STATEINTENT_IMPORT, _RC)
-      end if
-      if (ESMF_HConfigIsDefined(config,keyString='export')) then
-         call process_state_specs(var_specs, ESMF_HConfigCreateAt(config,keyString='export'), ESMF_STATEINTENT_EXPORT, _RC)
-      end if
+      subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
+
+      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, _RC)
+
+      call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine process_state_specs(var_specs, config, state_intent, rc)
+      subroutine parse_state_specs(var_specs, hconfig, state_intent, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
-         type(ESMF_HConfig), target, intent(in) :: config
-         type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+         type(ESMF_HConfig), target, intent(in) :: hconfig
+         character(*), intent(in) :: state_intent
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
@@ -98,41 +119,54 @@ contains
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
          type(VerticalDimSpec) :: vertical_dim_spec
-         type(UngriddedDimsSpec) :: ungridded_dims_spec
+         type(UngriddedDimsSpec) :: ungridded_dim_specs
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
          type(ESMF_StateItem_Flag), allocatable :: itemtype
+         type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
          type(StringVector), allocatable :: service_items
          integer :: status
+         logical :: has_state
+         logical :: has_standard_name
+         logical :: has_units
+         type(ESMF_HConfig) :: subcfg
 
-         b = ESMF_HConfigIterBegin(config) 
-         e = ESMF_HConfigIterEnd(config) 
-         iter = ESMF_HConfigIterBegin(config)
+         has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
+         _RETURN_UNLESS(has_state)
+
+         subcfg = ESMF_HConfigCreateAt(hconfig,keyString=state_intent, _RC)
+
+         b = ESMF_HConfigIterBegin(subcfg, _RC) 
+         e = ESMF_HConfigIterEnd(subcfg, _RC) 
+         iter = ESMF_HConfigIterBegin(subcfg, _RC)
          do while (ESMF_HConfigIterLoop(iter,b,e))
-            name = ESMF_HConfigAsStringMapKey(iter,_RC)
+            name = ESMF_HConfigAsStringMapKey(iter, _RC)
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
             call split(name, short_name, substate)
-            call to_typekind(typekind, attributes, _RC)
+
+            typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, 'default_value', _RC)
+            vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
+            ungridded_dim_specs = to_UngriddedDimsSpec(attributes, _RC)
 
-            call to_VerticalDimSpec(vertical_dim_spec,attributes,_RC)
-
-            call to_UngriddedDimsSpec(ungridded_dims_spec,attributes,_RC)
-
-            if (ESMF_HConfigIsDefined(attributes,keyString='standard_name')) then
-               standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name',_RC)
+            has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
+            if (has_standard_name) then
+               standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
             end if
-            
-            if (ESMF_HConfigIsDefined(attributes,keyString='units')) then
-               units = ESMF_HConfigAsString(attributes,keyString='units',_RC)
+
+            has_units = ESMF_HConfigIsDefined(attributes,keyString='units', _RC)
+            if (has_units) then
+               units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
             end if
 
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
-           
-            var_spec = VariableSpec(state_intent, short_name=short_name, &
+
+            esmf_state_intent = to_esmf_state_intent(state_intent)
+             
+            var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
                  itemtype=itemtype, &
                  service_items=service_items, &
                  standard_name=standard_name, &
@@ -140,15 +174,20 @@ contains
                  typekind=typekind, &
                  substate=substate, &
                  default_value=default_value, &
-                 vertical_dim_spec = vertical_dim_spec, &
-                 ungridded_dims = ungridded_dims_spec &
+                 vertical_dim_spec=vertical_dim_spec, &
+                 ungridded_dims=ungridded_dim_specs &
                  )
 
             call var_specs%push_back(var_spec)
+
+            call ESMF_HConfigDestroy(attributes, _RC)
+            
          end do
 
+         call ESMF_HConfigDestroy(subcfg, _RC)
+
          _RETURN(_SUCCESS)
-      end subroutine process_state_specs
+      end subroutine parse_state_specs
 
       subroutine split(name, short_name, substate)
          character(*), intent(in) :: name
@@ -174,16 +213,19 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
+         logical :: has_default_value
 
-         _RETURN_UNLESS(ESMF_HConfigIsDefined(attributes,keyString='default_value'))
+         has_default_value = ESMF_HConfigIsDefined(attributes,keyString=KEY_DEFAULT_VALUE, _RC)
+         _RETURN_UNLESS(has_default_value)
+
          allocate(x)
-         x = ESMF_HConfigAsR4(attributes,keyString='default_value',_RC)
+         x = ESMF_HConfigAsR4(attributes,keyString=KEY_DEFAULT_VALUE,_RC)
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
 
-      subroutine to_typekind(typekind, attributes, rc)
-         use :: mapl3g_ESMF_Utilities, only: ESMF_TYPEKIND_MIRROR
+      function to_typekind(attributes, rc) result(typekind)
+         use :: mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
          type(ESMF_TypeKind_Flag) :: typekind
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
@@ -207,28 +249,28 @@ contains
          case ('I8')
             typekind = ESMF_TYPEKIND_I8
          case ('mirror')
-            typekind = ESMF_TYPEKIND_MIRROR
+            typekind = MAPL_TYPEKIND_MIRROR
          case default
             _FAIL('Unsupported typekind: <'//typekind_str//'>')
          end select
 
          _RETURN(_SUCCESS)
-      end subroutine to_typekind
+      end function to_typekind
 
-      subroutine to_VerticalDimSpec(vertical_dim_spec, attributes, rc)
+      function to_VerticalDimSpec(attributes, rc) result(vertical_dim_spec)
          type(VerticalDimSpec) :: vertical_dim_spec
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
          character(:), allocatable :: vertical_str
+         logical :: has_dim_spec
 
          vertical_dim_spec = VERTICAL_DIM_NONE ! GEOS default
+         has_dim_spec = ESMF_HConfigIsDefined(attributes,keyString=KEY_VERTICAL_DIM_SPEC, _RC)
+         _RETURN_UNLESS(has_dim_spec)
          
-         if (.not. ESMF_HConfigIsDefined(attributes,keyString='vertical_dim_spec')) then
-            _RETURN(_SUCCESS)
-         end if
-         vertical_str= ESMF_HConfigAsString(attributes,keyString='vertical_dim_spec',_RC)
+         vertical_str= ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
 
          select case (vertical_str)
          case ('vertical_dim_none', 'N')
@@ -242,9 +284,9 @@ contains
          end select
 
          _RETURN(_SUCCESS)
-      end subroutine to_VerticalDimSpec
+      end function to_VerticalDimSpec
 
-      subroutine to_UngriddedDimsSpec(ungridded_dims_spec,attributes,rc)
+      function to_UngriddedDimsSpec(attributes,rc) result(ungridded_dims_spec)
          type(UngriddedDimsSpec) :: ungridded_dims_spec
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
@@ -255,21 +297,28 @@ contains
          integer :: dim_size,i
          type(UngriddedDimSpec) :: temp_dim_spec
 
-         if (.not. ESMF_HConfigIsDefined(attributes,keyString='ungridded_dim_specs')) then
-            _RETURN(_SUCCESS)
-         end if
-         dim_specs = ESMF_HConfigCreateAt(attributes,keyString='ungridded_dim_specs',_RC)
-         
-         do i=1,ESMF_HConfigGetSize(dim_specs)
-            dim_spec = ESMF_HConfigCreateAt(dim_specs,index=i,_RC)
-            dim_name = ESMF_HConfigAsString(dim_spec,keyString='dim_name',_RC)
-            dim_size = ESMF_HConfigAsI4(dim_spec,keyString='extent',_RC)
+         logical :: has_ungridded_dim_specs
+         integer :: n_specs
+
+         has_ungridded_dim_specs = ESMF_HConfigIsDefined(attributes, keyString=KEY_UNGRIDDED_DIM_SPECS, _RC)
+         _RETURN_UNLESS(has_ungridded_dim_specs)
+
+         dim_specs = ESMF_HConfigCreateAt(attributes, keyString=KEY_UNGRIDDED_DIM_SPECS, _RC)
+
+         n_specs = ESMF_HConfigGetSize(dim_specs, _RC)
+         do i = 1, n_specs
+            dim_spec = ESMF_HConfigCreateAt(dim_specs, index=i, _RC)
+            dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
+            dim_size = ESMF_HConfigAsI4(dim_spec, keyString=KEY_UNGRIDDED_DIM_EXTENT, _RC)
             temp_dim_spec = UngriddedDimSpec(dim_size)
-            call ungridded_dims_spec%add_dim_spec(temp_dim_spec,_RC)
+            call ungridded_dims_spec%add_dim_spec(temp_dim_spec, _RC)
+            call ESMF_HConfigDestroy(dim_spec, _RC)
          end do 
 
+         call ESMF_HConfigDestroy(dim_specs, _RC)
+         
          _RETURN(_SUCCESS)
-      end subroutine to_UngriddedDimsSpec
+      end function to_UngriddedDimsSpec
 
 
       subroutine to_itemtype(itemtype, attributes, rc)
@@ -279,12 +328,12 @@ contains
 
          integer :: status
          character(:), allocatable :: subclass
+         logical :: has_itemtype
 
-         if (.not. ESMF_HConfigIsDefined(attributes,keyString='class')) then
-            _RETURN(_SUCCESS)
-         end if
-
-         subclass= ESMF_HConfigAsString(attributes,keyString='class',_RC) 
+         has_itemtype = ESMF_HConfigIsDefined(attributes,keyString='class',_RC)
+         _RETURN_UNLESS(has_itemtype)
+         
+         subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC) 
 
          select case (subclass)
          case ('field')
@@ -309,11 +358,11 @@ contains
          type(ESMF_HConfig) :: seq
          integer :: num_items, i
          character(:), allocatable :: item_name
+         logical :: has_service_items
 
-         if (.not. ESMF_HConfigIsDefined(attributes,keyString='items')) then
-            _RETURN(_SUCCESS)
-         end if
-
+         has_service_items = ESMF_HConfigIsDefined(attributes,keyString='items',_RC)
+         _RETURN_UNLESS(has_service_items)
+         
          allocate(service_items)
        
          seq = ESMF_HConfigCreateAt(attributes,keyString='items',_RC)
@@ -327,32 +376,35 @@ contains
          _RETURN(_SUCCESS)
       end subroutine to_service_items
       
-   end function process_var_specs
+   end function parse_var_specs
 
 
-   type(ConnectionVector) function process_connections(config, rc) result(connections)
-      type(ESMF_HConfig), optional, intent(in) :: config
+   type(ConnectionVector) function parse_connections(hconfig, rc) result(connections)
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      type(ESMF_HConfig) :: conn_spec
+      type(ESMF_HConfig) :: conn_specs, conn_spec
       class(Connection), allocatable :: conn
       integer :: status, i, num_specs
+      logical :: has_connections
 
-      if (.not. present(config)) then
-         _RETURN(_SUCCESS)
-      end if
+      has_connections = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_CONNECTIONS_SECTION,_RC)
+      _RETURN_UNLESS(has_connections)
 
-      num_specs = ESMF_HConfigGetSize(config,_RC)
-      do i =1,num_specs
-         conn_spec = ESMF_HConfigCreateAt(config,index=i,_RC)
-         conn = process_connection(conn_spec, _RC)
+      conn_specs = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_CONNECTIONS_SECTION, _RC)
+
+      num_specs = ESMF_HConfigGetSize(conn_specs, _RC)
+      do i = 1, num_specs
+         conn_spec = ESMF_HConfigCreateAt(conn_specs, index=i, _RC)
+         conn = parse_connection(conn_spec, _RC)
          call connections%push_back(conn)
       enddo 
 
       _RETURN(_SUCCESS)
+
    contains
 
-      function process_connection(config, rc) result(conn)
+      function parse_connection(config, rc) result(conn)
          class(Connection), allocatable :: conn
          type(ESMF_HConfig), optional, intent(in) :: config
          integer, optional, intent(out) :: rc
@@ -366,8 +418,8 @@ contains
 
          if (ESMF_HConfigIsDefined(config,keyString='all_unsatisfied')) then
             conn = MatchConnection( &
-                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='.*')), &
-                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='.*'))  &
+                 ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+                 ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='^.*$'))  &
                  )
             _RETURN(_SUCCESS)
          end if
@@ -392,7 +444,7 @@ contains
          end associate
 
          _RETURN(_SUCCESS)
-      end function process_connection
+      end function parse_connection
 
       subroutine get_names(config, src_name, dst_name, rc)
          type(ESMF_HConfig), intent(in) :: config
@@ -458,29 +510,28 @@ contains
          _RETURN(_SUCCESS)
       end subroutine get_intents
 
-   end function process_connections
+   end function parse_connections
 
    
-   type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
-      type(ESMF_HConfig), intent(in) :: config
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_HConfig) :: subcfg
-      integer :: status
-
-      _ASSERT(ESMF_HConfigIsDefined(config,keyString='setServices'),"child spec must specify a 'setServices' spec")
-      subcfg = ESMF_HConfigCreateAt(config,keyString='setServices',_RC)
-      child_spec%user_setservices = parse_setservices(subcfg, _RC)
-
-      if (ESMF_HConfigIsDefined(config,keyString='esmf_config')) then
-         child_spec%esmf_config_file = ESMF_HConfigAsString(config,keyString='esmf_config',_RC)
-      end if
-      if (ESMF_HConfigIsDefined(config,keyString='yaml_config')) then
-         child_spec%yaml_config_file = ESMF_HConfigAsString(config,keyString='yaml_config',_RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end function parse_ChildSpec
+!!$   type(ChildSpec) function parse_ChildSpec(hconfig, rc) result(child_spec)
+!!$      type(ESMF_HConfig), intent(in) :: hconfig
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      type(ESMF_HConfig) :: subcfg
+!!$      integer :: status
+!!$      logical :: has_config_file
+!!$
+!!$      _ASSERT(ESMF_HConfigIsDefined(hconfig, keyString='setServices'),"child spec must specify a 'setServices' spec")
+!!$      subcfg = ESMF_HConfigCreateAt(hconfig, keyString='setServices', _RC)
+!!$      child_spec%user_setservices = parse_setservices(subcfg, _RC)
+!!$
+!!$      has_config_file = ESMF_HConfigIsDefined(hconfig, keyString='config_file', _RC)
+!!$      if (has_config_file) then
+!!$         child_spec%config_file = ESMF_HConfigAsString(hconfig, keyString='config_file',_RC)
+!!$      end if
+!!$
+!!$      _RETURN(_SUCCESS)
+!!$   end function parse_ChildSpec
 
    type(DSOSetServices) function parse_setservices(config, rc) result(user_ss)
       type(ESMF_HConfig), target, intent(in) :: config
@@ -503,90 +554,138 @@ contains
       _RETURN(_SUCCESS)
    end function parse_setservices
 
+!!$
+!!$   ! Note: It is convenient to allow a null pointer for the config in
+!!$   ! the case of no child specs.  It spares the higher level procedure
+!!$   ! making the relevant check.
+!!$
+!!$   type(ChildSpecMap) function parse_ChildSpecMap(config, rc) result(specs)
+!!$      type(ESMF_HConfig), pointer, intent(in) :: config
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      integer :: status
+!!$      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+!!$
+!!$      character(:), allocatable :: child_name
+!!$      type(ChildSpec) :: child_spec
+!!$      type(ESMF_HConfig) :: subcfg
+!!$
+!!$      if (.not. associated(config)) then
+!!$         specs = ChildSpecMap()
+!!$         _RETURN(_SUCCESS)
+!!$      end if
+!!$      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
+!!$      
+!!$
+!!$      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
+!!$      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
+!!$      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
+!!$      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
+!!$         child_name = ESMF_HConfigAsStringMapKey(hconfigIter)
+!!$         subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
+!!$         child_spec = parse_ChildSpec(subcfg)
+!!$         call specs%insert(child_name, child_spec)
+!!$      end do
+!!$
+!!$      _RETURN(_SUCCESS)
+!!$   end function parse_ChildSpecMap
+!!$
 
-   ! Note: It is convenient to allow a null pointer for the config in
-   ! the case of no child specs.  It spares the higher level procedure
-   ! making the relevant check.
 
-   type(ChildSpecMap) function parse_ChildSpecMap(config, rc) result(specs)
-      type(ESMF_HConfig), pointer, intent(in) :: config
+   function parse_children(hconfig, rc) result(children)
+      type(ChildSpecMap) :: children
+      type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
-
-      character(:), allocatable :: child_name
+      logical :: has_children
+      logical :: is_map
+      type(ESMF_HConfig) :: children_cfg, child_cfg
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ChildSpec) :: child_spec
-      type(ESMF_HConfig) :: subcfg
+      character(:), allocatable :: child_name
 
-      if (.not. associated(config)) then
-         specs = ChildSpecMap()
-         _RETURN(_SUCCESS)
-      end if
-      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
-      
 
-      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
-      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
-      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
-      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
-         child_name = ESMF_HConfigAsStringMapKey(hconfigIter)
-         subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
-         child_spec = parse_ChildSpec(subcfg)
-         call specs%insert(child_name, child_spec)
+      has_children = ESMF_HConfigIsDefined(hconfig, keyString=COMPONENT_CHILDREN_SECTION, _RC)
+      _RETURN_UNLESS(has_children)
+
+      children_cfg = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_CHILDREN_SECTION, _RC)
+      is_map = ESMF_HConfigIsMap(children_cfg, _RC)
+
+      _ASSERT(is_map, 'children spec must be mapping')
+
+      iter_begin = ESMF_HCOnfigIterBegin(children_cfg, _RC)
+      iter_end = ESMF_HConfigIterEnd(children_cfg, _RC)
+      iter = ESMF_HConfigIterBegin(children_cfg, _RC)
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end))
+         child_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         child_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+         child_spec = parse_child(child_cfg, _RC)
+         call children%insert(child_name, child_spec)
+         call ESMF_HConfigDestroy(child_cfg, _RC)
       end do
 
-      _RETURN(_SUCCESS)
-   end function parse_ChildSpecMap
+      call ESMF_HConfigDestroy(children_cfg, _RC)
 
-   type(ChildSpecMap) function var_parse_ChildSpecMap(config, rc) result(specs)
-      type(ESMF_HConfig), pointer, intent(in) :: config
+      _RETURN(_SUCCESS)
+   end function parse_children
+
+
+   function parse_child(hconfig, rc) result(child)
+      type(ChildSpec) :: child
+      type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(AbstractUserSetServices), allocatable :: setservices
 
-      type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
-      character(:), allocatable :: child_name
-      type(ESMF_HConfig) :: subcfg
-      type(ChildSpec) :: child_spec
+      character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
+      character(*), parameter :: userProcedure_keys(*) = [character(len=10) :: 'SetServices', 'setServices', 'setservices']
+      integer :: i
+      character(:), allocatable :: dso_key, userProcedure_key, try_key
+      logical :: dso_found, userProcedure_found
+      logical :: has_key
+      logical :: has_config_file
+      character(:), allocatable :: sharedObj, userProcedure, config_file
 
-      type(ChildSpecMap) :: kludge
-      integer :: counter
-      
-      counter = 0
-!!$      specs = ChildSpecMap()
-      
-      if (.not. associated(config)) then
-         specs = ChildSpecMap()
-         _RETURN(_SUCCESS)
-      end if
-      _ASSERT(ESMF_HConfigIsMap(config), 'children spec must be mapping of names to child specs')
-      hconfigIter = ESMF_HConfigIterBegin(config,_RC)
-      hconfigIterBegin = ESMF_HConfigIterBegin(config,_RC)
-      hconfigIterEnd = ESMF_HConfigIterEnd(config,_RC)
-      do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd)) 
-        counter = counter + 1
-        child_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-        subcfg = ESMF_HConfigCreateAtMapVal(hconfigIter)
-        child_spec = parse_ChildSpec(subcfg, _RC)
-        call specs%insert(child_name, child_spec)
+
+      dso_found = .false.
+      ! Ensure precisely one name is used for dso
+      do i = 1, size(dso_keys)
+         try_key = trim(dso_keys(i))
+         has_key = ESMF_HconfigIsDefined(hconfig, keyString=try_key, _RC)
+         if (has_key) then
+            _ASSERT(.not. dso_found, 'multiple specifications for dso in hconfig for child')
+            dso_found = .true.
+            dso_key = try_key
+         end if
       end do
+      _ASSERT(dso_found, 'Must specify a dso for hconfig of child')
+      sharedObj = ESMF_HconfigAsString(hconfig, keyString=dso_key, _RC)
 
-!!$      call specs%deep_copy(kludge)
-      specs = kludge
+      userProcedure_found = .false.
+      do i = 1, size(userProcedure_keys)
+         try_key = userProcedure_keys(i)
+         if (ESMF_HconfigIsDefined(hconfig, keyString=try_key)) then
+            _ASSERT(.not. userProcedure_found, 'multiple specifications for dso in hconfig for child')
+            userProcedure_found = .true.
+            userProcedure_key = try_key
+         end if
+      end do
+      userProcedure = 'setservices_'         
+      if (userProcedure_found) then
+         userProcedure = ESMF_HconfigAsString(hconfig, keyString=userProcedure_key,_RC)
+      end if
+
+      has_config_file = ESMF_HconfigIsDefined(hconfig, keyString='config_file', _RC)
+      if (has_config_file) then
+         config_file = ESMF_HconfigAsString(hconfig, keyString='config_file',_RC)
+      end if
+
+      setservices = user_setservices(sharedObj, userProcedure)
+      child = ChildSpec(setservices, config_file=config_file)
+
       _RETURN(_SUCCESS)
-   end function var_parse_ChildSpecMap
+   end function parse_child
 
-      
-
-   function parse_UngriddedDimsSpec(config, rc) result(dims_spec)
-      use mapl3g_UngriddedDimsSpec
-      type(UngriddedDimsSpec) :: dims_spec
-      type(ESMF_HConfig), pointer, intent(in) :: config
-      integer, optional, intent(out) :: rc
-
-!!$      dims_spec = UngriddedDimsSpec()
-      
-   end function parse_UngriddedDimsSpec
-   
 end module mapl3g_ComponentSpecParser

@@ -13,7 +13,6 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
-   use :: mapl3g_GenericConfig
    use :: mapl3g_GenericPhases
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
@@ -85,7 +84,7 @@ contains
 
       character(*), intent(in) :: name
       class(AbstractUserSetServices), intent(in) :: set_services
-      type(GenericConfig), intent(in) :: config
+      type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
@@ -109,6 +108,7 @@ contains
       ! An internal procedure is a workaround, but ... ridiculous.
       call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gridcomp, set_services, config))
 #endif
+      call outer_meta%init_meta(_RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

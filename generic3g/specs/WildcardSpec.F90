@@ -2,17 +2,17 @@
 
 module mapl3g_WildcardSpec
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_ActualPtStateItemSpecMap
    use mapl3g_ActualConnectionPt
-   use mapl3g_ActualPtVector
-   use mapl3g_ActualPtSpecPtrMap
    use mapl3g_MultiState
+   use mapl3g_ActualPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
-   use nuopc
+   use pFlogger
 
    implicit none
    private
@@ -22,7 +22,7 @@ module mapl3g_WildcardSpec
    type, extends(AbstractStateItemSpec) :: WildcardSpec
       private
       class(AbstractStateItemSpec), allocatable :: reference_spec
-      type(ActualPtSpecPtrMap), pointer :: matched_specs
+      type(ActualPtStateItemSpecMap), pointer :: matched_items
    contains
       procedure :: create
       procedure :: destroy
@@ -35,7 +35,6 @@ module mapl3g_WildcardSpec
       procedure :: make_action
       procedure :: add_to_state
       procedure :: add_to_bundle
-
       procedure :: extension_cost
 
    end type WildcardSpec
@@ -52,7 +51,7 @@ contains
       class(AbstractStateItemSpec), intent(in) :: reference_spec
 
       wildcard_spec%reference_spec = reference_spec
-      allocate(wildcard_spec%matched_specs)
+      allocate(wildcard_spec%matched_items)
 
    end function new_WildcardSpec
 
@@ -87,9 +86,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ActualPtSpecPtrMapIterator) :: iter
-      class(StateItemSpecPtr), pointer :: spec_ptr
-
+!!$      type(ActualPtSpecPtrMapIterator) :: iter
+!!$      class(StateItemSpecPtr), pointer :: spec_ptr
+!!$
 !!$      _FAIL('should not do anything?')
 !!$      associate (e => this%matched_specs%end())
 !!$        iter = this%matched_specs%begin()
@@ -120,21 +119,30 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemSpecPtr), pointer :: spec_ptr
 
-      _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
-      _ASSERT(this%matched_specs%count(actual_pt) == 0, 'duplicate connection pt')
+      call with_target_attribute(this, src_spec, actual_pt, rc)
 
-      _HERE,'Warning - this is a memory leak.'
-      allocate(spec_ptr)
-      allocate(spec_ptr%ptr, source=this%reference_spec)
+      _RETURN(_SUCCESS)
+   contains
+      subroutine with_target_attribute(this, src_spec, actual_pt, rc)
+         class(WildcardSpec), target, intent(inout) :: this
+         class(AbstractStateItemSpec), intent(inout) :: src_spec
+         type(ActualConnectionPt), intent(in) :: actual_pt
+         integer, optional, intent(out) :: rc
 
-      call this%matched_specs%insert(actual_pt, spec_ptr)
-      spec_ptr => this%matched_specs%of(actual_pt)
-      call spec_ptr%ptr%create([StateItemSpecPtr::], _RC)
-      call spec_ptr%ptr%connect_to(src_spec, actual_pt, _RC)
+         integer :: status
+         class(AbstractStateItemSpec), pointer :: spec
 
-      _RETURN(ESMF_SUCCESS)
+         _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
+         _ASSERT(this%matched_items%count(actual_pt) == 0, 'duplicate connection pt')
+         
+         call this%matched_items%insert(actual_pt, this%reference_spec)
+         spec => this%matched_items%of(actual_pt)
+         call spec%create([StateItemSpecPtr::], _RC)
+         call spec%connect_to(src_spec, actual_pt, _RC)
+
+         _RETURN(ESMF_SUCCESS)
+      end subroutine with_target_attribute
    end subroutine connect_to
 
 
@@ -152,23 +160,37 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ActualPtSpecPtrMapIterator) :: iter
       integer :: status
-      class(StateItemSpecPtr), pointer :: spec_ptr
-      type(ActualConnectionPt), pointer :: effective_pt
 
-      associate (e => this%matched_specs%end())
-        iter = this%matched_specs%begin()
-        do while (iter /= e)
-           ! Ignore actual_pt argument and use internally recorded name
-           effective_pt => iter%first()
-           spec_ptr => iter%second()
-           call spec_ptr%ptr%add_to_state(multi_state, effective_pt, _RC)
-           iter = next(iter)
-        end do
-      end associate
+      call with_target_attribute(this, multi_state, actual_pt, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+      
+      subroutine with_target_attribute(this, multi_state, actual_pt, rc)
+         class(WildcardSpec), target, intent(in) :: this
+         type(MultiState), intent(inout) :: multi_state
+         type(ActualConnectionPt), intent(in) :: actual_pt
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+         type(ActualPtStateItemSpecMapIterator) :: iter
+         class(AbstractStateItemSpec), pointer :: spec_ptr
+         type(ActualConnectionPt), pointer :: effective_pt
+         
+         associate (e => this%matched_items%ftn_end())
+           iter = this%matched_items%ftn_begin()
+           do while (iter /= e)
+              iter = next(iter)
+              ! Ignore actual_pt argument and use internally recorded name
+              effective_pt => iter%first()
+              spec_ptr => iter%second()
+              call spec_ptr%add_to_state(multi_state, effective_pt, _RC)
+           end do
+         end associate
+         
+         _RETURN(_SUCCESS)
+      end subroutine with_target_attribute
    end subroutine add_to_state
 
    subroutine add_to_bundle(this, bundle, rc)

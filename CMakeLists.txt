@@ -227,7 +227,8 @@ if (BUILD_WITH_FARGPARSE)
    add_subdirectory (tutorial)
 endif()
 
-#add_subdirectory (geom)
+add_subdirectory (geom_mgr)
+add_subdirectory (regridder_mgr)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

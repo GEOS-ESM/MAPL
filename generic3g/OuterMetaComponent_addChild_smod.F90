@@ -10,11 +10,11 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_addChild_smod
    
 contains
 
-   module subroutine add_child_by_name(this, child_name, setservices, config, rc)
+   module subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
-      type(GenericConfig), intent(in) :: config
+      type(ESMF_Hconfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -24,7 +24,7 @@ contains
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
-      child_gc = create_grid_comp(child_name, setservices, config, _RC)
+      child_gc = create_grid_comp(child_name, setservices, hconfig, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name=child_name, _RC)
       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name=child_name,  _RC)
       child_comp = ChildComponent(child_gc, MultiState(importState=importState, exportState=exportState))

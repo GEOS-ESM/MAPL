@@ -13,11 +13,14 @@ contains
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status, userRC
 
       call clear_log()
+
+      config = ESMF_HConfigCreate(content='{}', rc=status)
+      @assert_that(status, is(0))
 
       associate (ss => user_setservices(sharedObj='libsimple_parent_gridcomp'))
         parent_gc = create_grid_comp('A0', ss, config, rc=status)
@@ -39,6 +42,8 @@ contains
 
       @assertEqual('pre<[A0]> :: pre<[A1]>', log)
 
+      call ESMF_HConfigDestroy(config, rc=status)
+      @assert_that(status, is(0))
       
    end subroutine test_traverse_pre
       
@@ -49,11 +54,14 @@ contains
       type(ESMF_GridComp) :: parent_gc
       
       integer :: status, userRC
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
       type(OuterMetaComponent), pointer :: outer_meta
 
       call clear_log()
       
+      config = ESMF_HConfigCreate(content='{}', rc=status)
+      @assert_that(status, is(0))
+
       associate (ss => user_setservices(sharedObj='libsimple_parent_gridcomp'))
         parent_gc = create_grid_comp('A0', ss, config, rc=status)
       end associate
@@ -74,7 +82,10 @@ contains
 
       @assertEqual('post<[A1]> :: post<[A0]>', log)
       
-   end subroutine test_traverse_post
+       call ESMF_HConfigDestroy(config, rc=status)
+      @assert_that(status, is(0))
+
+  end subroutine test_traverse_post
       
    @test(npes=[0])
    subroutine test_traverse_complex(this)
@@ -84,7 +95,7 @@ contains
       type(ESMF_GridComp) :: parent_gc
       
       integer :: status, userRC
-      type(GenericConfig) :: config
+      type(ESMF_HConfig) :: config
       type(OuterMetaComponent), pointer :: outer_meta, child_meta
       type(ChildComponent) :: child
       character(:), allocatable :: expected
@@ -95,6 +106,9 @@ contains
       associate ( &
            ss_parent => user_setservices(sharedObj='libsimple_parent_gridcomp'), &
            ss_leaf   => user_setservices(sharedObj='libsimple_leaf_gridcomp'))
+
+        config = ESMF_HConfigCreate(content='{}', rc=status)
+        @assert_that(status, is(0))
 
         parent_gc = create_grid_comp('A', ss_parent, config, rc=status)
         @assert_that(status, is(0))
@@ -143,6 +157,8 @@ contains
            'post<[A]>'
       @assertEqual(expected, log)
       
+      call ESMF_HConfigDestroy(config, rc=status)
+      @assert_that(status, is(0))
    end subroutine test_traverse_complex
 
    ! Helper procedure
