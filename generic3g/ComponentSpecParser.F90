@@ -31,6 +31,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
+   public :: parse_children
    public :: parse_ChildSpecMap
    public :: parse_ChildSpec
    public :: parse_SetServices
@@ -65,11 +66,11 @@ contains
 !!$      subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
       subcfg = hconfig
       
-      spec%var_specs = process_var_specs(subcfg, _RC)
+      spec%var_specs = parse_var_specs(subcfg, _RC)
 
-      spec%connections = process_connections(subcfg, _RC)
+      spec%connections = parse_connections(subcfg, _RC)
 
-      spec%children = process_children(subcfg, _RC)
+      spec%children = parse_children(subcfg, _RC)
 
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
@@ -80,7 +81,7 @@ contains
    end function parse_component_spec
 
 
-   function process_var_specs(hconfig, rc) result(var_specs)
+   function parse_var_specs(hconfig, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -94,16 +95,16 @@ contains
 
       subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
 
-      call process_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  _RC)
-      call process_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, _RC)
-      call process_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine process_state_specs(var_specs, hconfig, state_intent, rc)
+      subroutine parse_state_specs(var_specs, hconfig, state_intent, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
          type(ESMF_HConfig), target, intent(in) :: hconfig
          character(*), intent(in) :: state_intent
@@ -186,7 +187,7 @@ contains
          call ESMF_HConfigDestroy(subcfg, _RC)
 
          _RETURN(_SUCCESS)
-      end subroutine process_state_specs
+      end subroutine parse_state_specs
 
       subroutine split(name, short_name, substate)
          character(*), intent(in) :: name
@@ -375,10 +376,10 @@ contains
          _RETURN(_SUCCESS)
       end subroutine to_service_items
       
-   end function process_var_specs
+   end function parse_var_specs
 
 
-   type(ConnectionVector) function process_connections(hconfig, rc) result(connections)
+   type(ConnectionVector) function parse_connections(hconfig, rc) result(connections)
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
@@ -395,7 +396,7 @@ contains
       num_specs = ESMF_HConfigGetSize(conn_specs, _RC)
       do i = 1, num_specs
          conn_spec = ESMF_HConfigCreateAt(conn_specs, index=i, _RC)
-         conn = process_connection(conn_spec, _RC)
+         conn = parse_connection(conn_spec, _RC)
          call connections%push_back(conn)
       enddo 
 
@@ -403,7 +404,7 @@ contains
 
    contains
 
-      function process_connection(config, rc) result(conn)
+      function parse_connection(config, rc) result(conn)
          class(Connection), allocatable :: conn
          type(ESMF_HConfig), optional, intent(in) :: config
          integer, optional, intent(out) :: rc
@@ -443,7 +444,7 @@ contains
          end associate
 
          _RETURN(_SUCCESS)
-      end function process_connection
+      end function parse_connection
 
       subroutine get_names(config, src_name, dst_name, rc)
          type(ESMF_HConfig), intent(in) :: config
@@ -509,7 +510,7 @@ contains
          _RETURN(_SUCCESS)
       end subroutine get_intents
 
-   end function process_connections
+   end function parse_connections
 
    
    type(ChildSpec) function parse_ChildSpec(hconfig, rc) result(child_spec)
@@ -591,7 +592,7 @@ contains
 
 
 
-   function process_children(hconfig, rc) result(children)
+   function parse_children(hconfig, rc) result(children)
       type(ChildSpecVector) :: children
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -615,7 +616,7 @@ contains
       num_specs = ESMF_HConfigGetSize(children_cfg, _RC)
       do i = 1, num_specs
          child_cfg = ESMF_HConfigCreateAt(children_cfg, index=i, _RC)
-         child_spec = process_child(child_cfg, _RC)
+         child_spec = parse_child(child_cfg, _RC)
          call children%push_back(child_spec)
          call ESMF_HConfigDestroy(child_cfg, _RC)
       end do
@@ -623,10 +624,10 @@ contains
       call ESMF_HConfigDestroy(children_cfg, _RC)
 
       _RETURN(_SUCCESS)
-   end function process_children
+   end function parse_children
 
 
-   function process_child(hconfig, rc) result(child)
+   function parse_child(hconfig, rc) result(child)
       type(ChildSpec) :: child
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -688,6 +689,6 @@ contains
       child = ChildSpec(setservices, config_file=config_file, name=name)
 
       _RETURN(_SUCCESS)
-   end function process_child
+   end function parse_child
 
 end module mapl3g_ComponentSpecParser
