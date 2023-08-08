@@ -2,6 +2,12 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
+!
+!>
+!### MODULE: `MAPL_plain_netCDF_Time`
+!
+! Author: GMAO SI-Team
+!
 module MAPL_plain_netCDF_Time
   use MAPL_KeywordEnforcerMod
   use MAPL_ExceptionHandling
@@ -25,15 +31,15 @@ module MAPL_plain_netCDF_Time
      procedure :: time_esmf_2_nc_int
   end interface convert_time_esmf2nc
 
-!!  interface get_ncfile_dimension
+!C  interface get_ncfile_dimension
 !     procedure :: get_ncfile_dimension
 !     procedure :: get_ncfile_dimension_I8     
-!!  end interface get_ncfile_dimension
+!C  end interface get_ncfile_dimension
 !
-!!  interface get_v1d_netcdf
+!C  interface get_v1d_netcdf
 !     procedure :: get_v1d_netcdf_R8
 !     procedure :: get_v1d_netcdf_R8_I8
-!!  end interface get_v1d_netcdf
+!C  end interface get_v1d_netcdf
 
   
   interface get_v2d_netcdf
@@ -91,8 +97,8 @@ contains
     endif
     call check_nc_status(nf90_close(ncid), _RC)
 
-    !! debug summary
-    !!write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+    ! debug summary
+    !write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
 !
@@ -131,8 +137,8 @@ contains
 !    endif
 !    call check_nc_status(nf90_close(ncid), _RC)
 !
-!    !! debug summary
-!    !!write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
+!    !- debug summary
+!    !write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
 !  end subroutine get_ncfile_dimension_I8
 !  
 
@@ -285,7 +291,7 @@ contains
 
     ! check
     ! -----
-    !! write(6, *) 'dt in unit second  is', n
+    ! write(6, *) 'dt in unit second  is', n
 
     if(present(rc)) rc=0
   end subroutine time_esmf_2_nc_int
@@ -316,10 +322,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-!!    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
-!!    write(6,*) 's1, s2 ', trim(s1), trim(s2)
-!!    write(6,*) 'y, m, d', y, m, d
-!!    write(6,*) 'hour,min,sec', hour,min,sec
+!    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
+!    write(6,*) 's1, s2 ', trim(s1), trim(s2)
+!    write(6,*) 'y, m, d', y, m, d
+!    write(6,*) 'hour,min,sec', hour,min,sec
 
     if (trim(s_unit) == 'seconds') then
        isec=n
@@ -364,10 +370,10 @@ contains
     read(s1, '(i4,a1,i2,a1,i2)') y, c1, m, c1, d
     read(s2, '(i2,a1,i2,a1,i2)') hour, c1, min, c1, sec
 
-!!    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
-!!    write(6,*) 's1, s2 ', trim(s1), trim(s2)
-!!    write(6,*) 'y, m, d', y, m, d
-!!    write(6,*) 'hour,min,sec', hour,min,sec
+!    write(6,*) 's_time, s_unit', trim(s_time), trim(s_unit)
+!    write(6,*) 's1, s2 ', trim(s1), trim(s2)
+!    write(6,*) 'y, m, d', y, m, d
+!    write(6,*) 'hour,min,sec', hour,min,sec
 
     if (trim(s_unit) == 'seconds') then
        isec=n
@@ -462,7 +468,7 @@ contains
     if(present(n_UB)) UB=n_UB
     klo=LB; khi=UB; dk=1
     
-    !! write(6,*) 'init klo, khi', klo, khi
+    ! write(6,*) 'init klo, khi', klo, khi
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB
@@ -477,13 +483,13 @@ contains
     
     rc=-1
     if ( x <= xa(klo) ) then
-       !!write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
+       !write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
        n=klo-1
-       !!write(6,*) 'warning in bisect_find_LB_R8_I8:  x <  array:LB'
+       !write(6,*) 'warning in bisect_find_LB_R8_I8:  x <  array:LB'
        return
     elseif ( x > xa(khi) ) then
        n=khi
-       !!write(6,*) 'warning in bisect_find_LB_R8_I8:  x >  array:UB'
+       !write(6,*) 'warning in bisect_find_LB_R8_I8:  x >  array:UB'
        return
     endif
 
@@ -520,9 +526,9 @@ contains
     s2=trim(shms)
     read(s2, '(3i2)') hh, mm, ss
 
-    !!! debug
-    !!write(6,'(3a10)') 's1, s2', s1, s2
-    !!write(6,*) 'int y,m,d,hh,mm,ss', y,m,d,hh,mm,ss
+    ! debug
+    !write(6,'(3a10)') 's1, s2', s1, s2
+    !write(6,*) 'int y,m,d,hh,mm,ss', y,m,d,hh,mm,ss
 
     call ESMF_TimeIntervalSet(interval, yy=y, mm=m, d=d, h=hh, m=mm, s=ss, rc=rc)
 
