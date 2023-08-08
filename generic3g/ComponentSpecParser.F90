@@ -60,22 +60,17 @@ contains
       logical :: has_mapl_section
       type(ESMF_HConfig) :: subcfg
 
-!!$      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
-!!$      _RETURN_UNLESS(has_mapl_section)
-!!$
-!!$      subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
-      subcfg = hconfig
+      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
+      _RETURN_UNLESS(has_mapl_section)
+
+      subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
       
       spec%var_specs = parse_var_specs(subcfg, _RC)
-
       spec%connections = parse_connections(subcfg, _RC)
-
       spec%children = parse_children(subcfg, _RC)
-
 !!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
-!!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
 
-!!$      call ESMF_HConfigDestroy(subcfg, _RC)
+      call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    end function parse_component_spec

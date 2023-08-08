@@ -53,7 +53,7 @@ contains
       type(HierarchicalRegistry), pointer :: registry
       class(AbstractStateItemSpec), pointer :: export_spec
       class(AbstractStateItemSpec), pointer :: import_spec
-      type(ESMF_HConfig) :: hconfig, states_spec, state_spec
+      type(ESMF_HConfig) :: hconfig, states_spec, state_spec, mapl_config
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name
 
@@ -61,9 +61,10 @@ contains
 
       ! We would do this quite differently in an actual ExtData implementation.
       ! Here we are using information from the generic spec.
-
-      if (ESMF_HConfigIsDefined(hconfig, keystring='states')) then
-         states_spec = ESMF_HConfigCreateAt(hconfig, keystring='states')
+      mapl_config = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
+         
+      if (ESMF_HConfigIsDefined(mapl_config, keystring='states')) then
+         states_spec = ESMF_HConfigCreateAt(mapl_config, keystring='states')
          if (ESMF_HConfigIsDefined(states_spec, keystring='export')) then
             state_spec = ESMF_HConfigCreateAt(states_spec, keystring='export')
 
@@ -93,6 +94,7 @@ contains
          end if
       end if
 
+      call ESMF_HConfigDestroy(mapl_config, _RC)
       _RETURN(ESMF_SUCCESS)
    end subroutine init_post_advertise
 
