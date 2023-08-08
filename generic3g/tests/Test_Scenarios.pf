@@ -377,7 +377,7 @@ contains
       character(len=:), allocatable :: msg
 
 
-      msg = description
+      msg = short_name // ':: '// description
 
       call ESMF_StateGet(state, short_name, itemtype=itemtype, _RC)
       if (itemtype /= ESMF_STATEITEM_FIELD) then

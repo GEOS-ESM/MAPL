@@ -31,6 +31,7 @@ module mapl3g_ESMF_Subset
    use:: esmf, only: &
         ESMF_HConfigAsStringMapKey, &
         ESMF_HConfigCreateAt, &
+        ESMF_HConfigDestroy, &
         ESMF_HConfigIsDefined, &
         ESMF_HConfigIterBegin, &
         ESMF_HConfigIterEnd, &
