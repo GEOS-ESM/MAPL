@@ -1621,8 +1621,6 @@ contains
     call ESMF_GridSet(tilegrid,  &
          name="tile_grid_"//trim(Stream%NAME)//'@'//trim(GNAME),    &
          distgrid=distgrid, & 
-!         gridMemLBound=(/1/), &
-!         indexFlag=ESMF_INDEX_USER, &
          indexFlag=ESMF_INDEX_DELOCAL, &
          distDim = (/1/), &
          localArbIndexCount=arbIndexCount, &
