@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Saved weights and points for the vertical interpolation
 - Trajectory sampler with Epoch time span
 - Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
+- Allow a negative "update\_offset" keyword in the sampling section of ExtData2G's input file by prepending the ISO time duration with a negative sign. I.E -PT12H for example
 
 ### Changed
 
@@ -24,6 +25,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.40.3] - 2023-08-03
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v3.31.1 (Fixes for NAG)
+
+### Fixed
+
+- Undoing previous workaround for NAG + `MAPL_Config.F90` in v2.40.1 which was a workaround was not portable to Linux. Instead, this uses changes in ESMA_cmake v3.31.1 for flags with NAG.
+- Updated `FindESMF.cmake` file to match that of ESMF v8.5.0
 
 ## [2.40.2] - 2023-08-01
 
