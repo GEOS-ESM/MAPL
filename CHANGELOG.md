@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
 
 ### Fixed

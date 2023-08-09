@@ -1541,7 +1541,10 @@ contains
     JM_WORLD = DIMS(2)
    
     _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
-    _ASSERT(JM_WORLD==TILING%JM,'needs informative message')
+    if (JM_WORLD /= TILING%JM) then
+       print *,'error tiling jm/jm ',jm_world, tiling%jm
+       _RETURN(_FAILURE)
+    end if
     
 ! Find out which tiles are in local PE
 !-------------------------------------
@@ -1619,8 +1622,7 @@ contains
     call ESMF_GridSet(tilegrid,  &
          name="tile_grid_"//trim(Stream%NAME)//'@'//trim(GNAME),    &
          distgrid=distgrid, & 
-         gridMemLBound=(/1/), &
-         indexFlag=ESMF_INDEX_USER, &
+         indexFlag=ESMF_INDEX_DELOCAL, &
          distDim = (/1/), &
          localArbIndexCount=arbIndexCount, &
          localArbIndex=arbIndex, &
