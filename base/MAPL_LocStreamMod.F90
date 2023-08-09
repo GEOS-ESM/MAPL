@@ -1541,10 +1541,10 @@ contains
     JM_WORLD = DIMS(2)
    
     _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
-    if (JM_WORLD/=TILING%JM) then
+    if (JM_WORLD /= TILING%JM) then
        print *,'error tiling jm/jm ',jm_world, tiling%jm
+       _RETURN(_FAILURE)
     end if
-    _ASSERT(JM_WORLD==TILING%JM,'needs informative message')
     
 ! Find out which tiles are in local PE
 !-------------------------------------
