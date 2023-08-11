@@ -176,6 +176,8 @@ contains
          ftime = this%reff_time+(n+shift)*this%frequency
       end if
       call fill_grads_template(filename,this%file_template,time=ftime,_RC)
+      print*, 'ck: ExtDataSimpleFileHandler.F90  filename =', trim(filename)
+
       inquire(file=trim(filename),exist=file_found)
       if (.not.file_found) then
          if (allow_Missing_file) then
