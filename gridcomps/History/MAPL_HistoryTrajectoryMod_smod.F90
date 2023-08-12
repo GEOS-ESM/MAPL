@@ -74,7 +74,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'obs_file:', _RC)
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
-         if (mapl_am_I_root()) write(6,*) 'obs_file_begin:', trim(STR1)
+         if (mapl_am_I_root() .and. trim(STR1)/='') write(6,*) 'obs_file_begin:', trim(STR1)
          call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
