@@ -1,0 +1,341 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_LatLonGeomFactory
+   use pfunit
+   use esmf_TestCase_mod
+   use esmf_TestMethod_mod
+   use esmf_TestParameter_mod
+   use mapl3g_LatLonGeomFactory
+   use MAPL_Constants, only: MAPL_PI_R8
+   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
+   use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
+   use MAPL_MinMaxMod
+   use esmf
+   implicit none
+
+@testParameter
+   type, extends(ESMF_TestParameter) :: GeomScenario
+      ! always inputs
+      logical :: default_decomposition = .false.
+      character(len=2) :: dateline
+      character(len=2) :: pole
+      type (RealMinMax) :: lon_range
+      type (RealMinMax) :: lat_range
+      ! inputs/outputs depending on toggle
+      integer :: nx
+      integer :: ny
+      integer :: im_world
+      integer :: jm_world
+      integer, allocatable :: ims(:)
+      integer, allocatable :: jms(:)
+      ! outputs
+      real, allocatable :: lons(:)
+      real, allocatable :: lats(:)
+   contains
+      procedure :: toString
+   end type GeomScenario
+   
+@testCase(constructor=Test_LatLonGeomFactory, testParameters={getParameters()})
+   type, extends(ESMF_TestCase) :: Test_LatLonGeomFactory
+      integer :: numThreads
+      type (LatLonGeomFactory) :: factory
+      type (ESMF_Grid) :: grid
+   contains
+      procedure :: setUp
+      procedure :: tearDown
+   end type Test_LatLonGeomFactory
+
+
+   interface GeomScenario
+      module procedure GeomScenario_global
+      module procedure GeomScenario_local
+   end interface GeomScenario
+
+   interface Test_LatLonGeomFactory
+      module procedure newTest_LatLonGeomFactory
+   end interface Test_LatLonGeomFactory
+
+   character(len=*), parameter :: resource_file = 'Test_LatLonGeomFactory.rc'
+
+contains
+
+
+   function newTest_LatLonGeomFactory(testParameter) result(aTest)
+      type (Test_LatLonGeomFactory) :: aTest
+      class (GeomScenario), intent(in) :: testParameter
+
+   end function newTest_LatLonGeomFactory
+
+
+   function GeomScenario_global(nx, ny, im_world, jm_world, dateline, pole, default_decomposition, ims, jms, lons, lats) result(param)
+      integer, intent(in) :: nx, ny
+      integer, intent(in) :: im_world, jm_world
+      character(len=2), intent(in) :: dateline, pole
+      logical, intent(in) :: default_decomposition
+      integer, intent(in) :: ims(:), jms(:)
+      real, intent(in) :: lons(:), lats(:) ! in degrees
+
+      type (GeomScenario) :: param
+
+      param%nx = nx
+      param%ny = ny
+      param%im_world = im_world
+      param%jm_world = jm_world
+      param%dateline = dateline
+      param%pole = pole
+
+      param%default_decomposition = default_decomposition
+      param%ims = ims
+      param%jms = jms
+
+      param%lons = lons
+      param%lats = lats
+
+      call param%setNumPETsRequested(nx*ny)
+      
+   end function GeomScenario_global
+
+   function GeomScenario_local(nx, ny, im_world, jm_world, lon_range, lat_range, default_decomposition, ims, jms, lons, lats) result(param)
+      integer, intent(in) :: nx, ny
+      integer, intent(in) :: im_world, jm_world
+      type (RealMinMax), intent(in) :: lon_range, lat_range
+      logical, intent(in) :: default_decomposition
+      integer, intent(in) :: ims(:), jms(:)
+      real, intent(in) :: lons(:), lats(:) ! in degrees
+
+      type (GeomScenario) :: param
+
+      param%nx = nx
+      param%ny = ny
+      param%im_world = im_world
+      param%jm_world = jm_world
+      param%dateline = 'XY'
+      param%lon_range = lon_range
+      param%pole = 'XY'
+      param%lat_range = lat_range
+
+      param%default_decomposition = default_decomposition
+      param%ims = ims
+      param%jms = jms
+
+      param%lons = lons
+      param%lats = lats
+
+      call param%setNumPETsRequested(nx*ny)
+      
+   end function GeomScenario_local
+
+
+   subroutine setUp(this)
+      class (Test_LatLonGeomFactory), intent(inout) :: this
+
+      integer :: status
+
+      type (ESMF_Config) :: config
+      integer :: unit
+
+      if (this%getLocalPET() == 0) then
+         select type (p => this%testParameter)
+         type is (GeomScenario)
+            call write_config(resource_file, p)
+         end select
+      end if
+      call this%barrier()
+
+      config = ESMF_ConfigCreate(_RC)
+
+      call ESMF_ConfigLoadFile(config, resource_file, _RC)
+      @mpiAssertEqual(ESMF_SUCCESS, 0)
+
+      call this%barrier()
+
+      if (this%getLocalPET() == 0) then
+         open (newunit=unit, file=resource_file)
+         close(unit, status='delete')
+      end if
+
+      call this%factory%initialize(config, _RC)
+
+      call ESMF_ConfigDestroy(config, _RC)
+
+      this%grid = this%factory%make_grid()
+
+   contains
+
+      subroutine write_config(file_name, param)
+         character(len=*), intent(in) :: file_name
+         type (GeomScenario), intent(in) :: param
+
+         integer :: unit
+
+         open(newunit=unit, file=file_name, form='formatted', status='unknown')
+
+         if (param%default_decomposition) then
+            write(unit,*)'NX: ', param%nx
+            write(unit,*)'NY: ', param%ny
+            write(unit,*)'IM_WORLD: ', param%im_world
+            write(unit,*)'JM_WORLD: ', param%jm_world
+         else
+            write(unit,*)'IMS: ', param%ims
+            write(unit,*)'JMS: ', param%jms
+         end if
+         write(unit,*)"POLE: '", param%pole, "'"
+         if (param%pole == 'XY') then
+            write(unit,*)'LAT_RANGE: ', param%lat_range%min, param%lat_range%max
+         end if
+         write(unit,*)"DATELINE: '", param%dateline, "'"
+         if (param%dateline == 'XY') then
+            write(unit,*)'LON_RANGE: ', param%lon_range%min, param%lon_range%max
+         end if
+
+         close(unit)
+
+      end subroutine write_config
+
+   end subroutine setUp
+
+
+   subroutine tearDown(this)
+      class (Test_LatLonGeomFactory), intent(inout) :: this
+
+      call ESMF_GridDestroy(this%grid)
+      
+   end subroutine tearDown
+
+
+   function getParameters() result(params)
+      type (GeomScenario), allocatable :: params(:)
+
+      !              nx ny  im jm pole date    dec   ims   jms      lon range               lat range
+      params = [ &
+           ! Default decomposition
+           & GeomScenario(1, 1, 4, 2, 'DC', 'PE', .true., [4],   [2],   [-180., -90., 0., 90.],    [-45., 45.]), & 
+           & GeomScenario(2, 1, 4, 2, 'DC', 'PE', .true., [2,2], [2],   [-180., -90., 0., 90.],    [-45., 45.]), &
+           & GeomScenario(1, 2, 4, 6, 'DC', 'PE', .true., [4],   [3,3], [-180., -90., 0., 90.],    [-75., -45., -15., 15., 45., 75.]), &
+           & GeomScenario(1, 1, 4, 3, 'DC', 'PC', .true., [4],   [3],   [-180., -90., 0., 90.],    [-90., 0., 90.]), &
+           & GeomScenario(1, 1, 4, 2, 'DE', 'PE', .true., [4],   [2],   [-135., -45., +45., 135.], [-45., 45.]), &
+           & GeomScenario(1, 1, 4, 2, 'GC', 'PE', .true., [4],   [2],   [0., 90., 180., 270.],     [-45., 45.]), &
+           & GeomScenario(1, 1, 4, 2, RealMinMax(0.,40.), RealMinMax(10.,30.), .true., [4],[2], [5.,15.,25.,35.], [15.,25.]), &
+           ! Custom decomposition
+           & GeomScenario(1, 1, 4, 2, 'DC', 'PE', .false., [4],   [2],   [-180., -90., 0., 90.],    [-45., 45.]), & 
+           & GeomScenario(2, 1, 4, 2, 'DC', 'PE', .false., [2,2], [2],   [-180., -90., 0., 90.],    [-45., 45.]), &
+           & GeomScenario(1, 2, 4, 6, 'DC', 'PE', .false., [4],   [3,3], [-180., -90., 0., 90.],    [-75., -45., -15., 15., 45., 75.]), &
+           & GeomScenario(3, 1, 8, 2, 'DC', 'PE', .false., [2,4,2], [2], [-180.,-135.,-90.,-45., 0., 45., 90.,135.],    [-45., 45.]), &
+           & GeomScenario(1, 1, 4, 3, 'DC', 'PC', .false., [4],   [3],   [-180., -90., 0., 90.],    [-90., 0., 90.]), &
+           & GeomScenario(1, 1, 4, 2, 'DE', 'PE', .false., [4],   [2],   [-135., -45., +45., 135.], [-45., 45.]), &
+           & GeomScenario(1, 1, 4, 2, 'GC', 'PE', .false., [4],   [2],   [0., 90., 180., 270.],     [-45., 45.]) &
+           & ]
+
+   end function getParameters
+
+
+   @test
+   subroutine test_shape(this)
+      class (Test_LatLonGeomFactory), intent(inout) :: this
+
+      integer :: status
+      integer, parameter :: SUCCESS = 0
+      real(ESMF_KIND_R8), pointer :: centers(:,:)
+
+      integer :: petX, petY
+
+      select type (p => this%testParameter)
+      type is (GeomScenario)
+         petX = mod(this%getLocalPET(), p%nx)
+         petY = this%getLocalPET() / p%nx
+
+         @mpiAssertTrue(petX >= 0)
+         @mpiAssertTrue(petX < size(p%ims))
+         @mpiAssertTrue(petY >= 0)
+         @mpiAssertTrue(petY < size(p%jms))
+      end select
+
+      ! X
+      call ESMF_GridGetCoord(this%grid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+           & farrayPtr=centers, _RC)
+
+      select type (p => this%testparameter)
+      type is (GeomScenario)
+         @mpiAssertEqual([p%ims(petX+1),p%jms(petY+1)], shape(centers), message='Wrong shape.')
+      end select
+
+      ! Y
+      call ESMF_GridGetCoord(this%grid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+           & farrayPtr=centers, _RC)
+
+      select type (p => this%testparameter)
+      type is (GeomScenario)
+         @mpiAssertEqual([p%ims(petX+1),p%jms(petY+1)], shape(centers), message='Wrong shape.')
+      end select
+      
+   end subroutine test_shape
+
+   @test
+   subroutine test_centers(this)
+      class (Test_LatLonGeomFactory), intent(inout) :: this
+
+      integer :: status
+      integer, parameter :: SUCCESS = 0
+      real(ESMF_KIND_R8), pointer :: centers(:,:)
+
+      integer :: petX, petY
+      integer :: i_1, i_n, j_1, j_n
+
+      select type (p => this%testParameter)
+      type is (GeomScenario)
+         petX = mod(this%getLocalPET(), p%nx)
+         petY = this%getLocalPET() / p%nx
+
+         @mpiAssertTrue(petX >= 0)
+         @mpiAssertTrue(petX < size(p%ims))
+         @mpiAssertTrue(petY >= 0)
+         @mpiAssertTrue(petY < size(p%jms))
+
+         i_1 = 1 + sum(p%ims(:petX))
+         i_n = sum(p%ims(:petX+1))
+         j_1 = 1 + sum(p%jms(:petY))
+         j_n = sum(p%jms(:petY+1))
+      end select
+
+      ! X
+      call ESMF_GridGetCoord(this%grid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+           & farrayPtr=centers, _RC)
+
+      select type (p => this%testparameter)
+      type is (GeomScenario)
+         @mpiAssertEqual(p%lons(i_1:i_n), centers(:,1)*MAPL_RADIANS_TO_DEGREES, message='Wrong centers X.', tolerance=1.d-5)
+      end select
+
+      ! Y
+      call ESMF_GridGetCoord(this%grid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+           & farrayPtr=centers, _RC)
+
+      select type (p => this%testparameter)
+      type is (GeomScenario)
+         @mpiAssertEqual(p%lats(j_1:j_n), centers(1,:)*MAPL_RADIANS_TO_DEGREES, message='Wrong centers Y.', tolerance=1.d-5)
+      end select
+      
+   end subroutine test_centers
+
+
+   function toString(this) result(string)
+      character(len=:), allocatable :: string
+      class (GeomScenario), intent(in) :: this
+
+      character(len=1) :: buf
+
+      write(buf,'(i1)') this%nx
+      string = '{nx:'//buf
+
+      write(buf,'(i1)') this%ny
+      string = string // ',ny:'//buf
+
+      string = string // ',pole:'//this%pole
+      string = string // ',dateline:'//this%dateline
+
+      string = string // '}'
+
+   end function toString
+
+end module Test_LatLon_GridFactory

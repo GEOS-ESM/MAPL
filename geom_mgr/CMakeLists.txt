@@ -9,7 +9,11 @@ set(srcs
   MaplGeom.F90
 
   GeomFactory.F90
-#  LatLonGeomFactory.F90
+
+  latlon/GeomDecomposition2D.F90
+  latlon/HConfigUtils.F90
+#  latlon/LatLonGeomSpec.F90
+#  latlon/LatLonGeomFactory.F90
   
   GeomManager.F90
 
@@ -32,6 +36,6 @@ target_include_directories (${this} PUBLIC
 target_link_libraries (${this} PUBLIC esmf)
 
 if (PFUNIT_FOUND)
-#  add_subdirectory(tests EXCLUDE_FROM_ALL)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 

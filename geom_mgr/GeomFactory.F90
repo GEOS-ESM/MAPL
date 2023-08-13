@@ -10,9 +10,9 @@ module mapl3g_GeomFactory
    type, abstract :: GeomFactory
       private
    contains
-      procedure(I_make_geom_spec_from_config),   deferred :: make_geom_spec_from_config
+      procedure(I_make_geom_spec_from_hconfig),  deferred :: make_geom_spec_from_hconfig
       procedure(I_make_geom_spec_from_metadata), deferred :: make_geom_spec_from_metadata
-      generic :: make_spec => make_geom_spec_from_config
+      generic :: make_spec => make_geom_spec_from_hconfig
       generic :: make_spec => make_geom_spec_from_metadata
       procedure(I_supports), deferred :: supports
 
@@ -24,18 +24,18 @@ module mapl3g_GeomFactory
 
    abstract interface
 
-     function I_make_geom_spec_from_config(this, config, supports, rc) result(spec)
-         use esmf, only: ESMF_Config
+     function I_make_geom_spec_from_hconfig(this, hconfig, supports, rc) result(spec)
+         use esmf, only: ESMF_HConfig
          use mapl3g_GeomSpec
          import GeomFactory
          implicit none
 
          class(GeomSpec), allocatable :: spec
          class(GeomFactory), intent(in) :: this
-         type(ESMF_Config), intent(inout) :: config
+         type(ESMF_HConfig), intent(inout) :: hconfig
          logical, optional, intent(out) :: supports
          integer, optional, intent(out) :: rc
-      end function I_make_geom_spec_from_config
+      end function I_make_geom_spec_from_hconfig
 
       function I_make_geom_spec_from_metadata(this, file_metadata, supports, rc) result(spec)
          use pfio_FileMetadataMod
@@ -65,7 +65,6 @@ module mapl3g_GeomFactory
 
       function I_make_file_metadata(this, geom_spec, supports, rc) result(file_metadata)
          use mapl3g_GeomSpec
-         use esmf, only: ESMF_Geom
          use pfio_FileMetadataMod
          import GeomFactory
          implicit none
@@ -79,7 +78,6 @@ module mapl3g_GeomFactory
 
       function I_make_gridded_dims(this, geom_spec, supports, rc) result(gridded_dims)
          use mapl3g_GeomSpec
-         use esmf, only: ESMF_Geom
          use gFTL2_StringVector
          import GeomFactory
          implicit none

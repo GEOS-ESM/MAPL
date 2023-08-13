@@ -39,12 +39,12 @@ module mapl3g_GeomManager
 
       ! Public API
       ! ----------
-      procedure :: get_mapl_geom_from_config
+      procedure :: get_mapl_geom_from_hconfig
       procedure :: get_mapl_geom_from_metadata
       procedure :: get_mapl_geom_from_spec
       procedure :: get_mapl_geom_from_id
       generic :: get_mapl_geom => &
-           get_mapl_geom_from_config, &
+           get_mapl_geom_from_hconfig, &
            get_mapl_geom_from_metadata, &
            get_mapl_geom_from_spec, &
            get_mapl_geom_from_id
@@ -54,10 +54,10 @@ module mapl3g_GeomManager
       procedure :: delete_mapl_geom
       procedure :: set_id
 
-      procedure :: make_geom_spec_from_config
+      procedure :: make_geom_spec_from_hconfig
       procedure :: make_geom_spec_from_metadata
       generic :: make_geom_spec => &
-           make_geom_spec_from_config, &
+           make_geom_spec_from_hconfig, &
            make_geom_spec_from_metadata
       procedure :: make_mapl_geom_from_spec
       generic :: make_mapl_geom => make_mapl_geom_from_spec
@@ -105,9 +105,7 @@ contains
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: id, idx
-      type(GeomSpecVectorIterator) :: spec_iter
       integer :: n
 
       associate (specs => this%geom_specs)
@@ -131,20 +129,20 @@ contains
    end subroutine delete_mapl_geom
 
 
-   function get_mapl_geom_from_config(this, config, rc) result(mapl_geom)
+   function get_mapl_geom_from_hconfig(this, hconfig, rc) result(mapl_geom)
       type(MaplGeom), pointer :: mapl_geom
       class(GeomManager), target, intent(inout) :: this
-      type(ESMF_Config), intent(inout) :: config
+      type(ESMF_HConfig), intent(inout) :: hconfig
       integer, optional, intent(out) :: rc
 
       class(GeomSpec), allocatable :: geom_spec
       integer :: status
 
-      geom_spec = this%make_geom_spec(config, _RC)
+      geom_spec = this%make_geom_spec(hconfig, _RC)
       mapl_geom => this%get_mapl_geom(geom_spec, _RC)
 
       _RETURN(_SUCCESS)
-   end function get_mapl_geom_from_config
+   end function get_mapl_geom_from_hconfig
 
    function get_mapl_geom_from_metadata(this, metadata, rc) result(mapl_geom)
       type(MaplGeom), pointer :: mapl_geom
@@ -153,7 +151,6 @@ contains
       integer, optional, intent(out) :: rc
 
       class(GeomSpec), allocatable :: geom_spec
-      type(MaplGeom), allocatable :: tmp_mapl_geom
       integer :: status
 
       geom_spec = this%make_geom_spec(metadata, _RC)
@@ -250,10 +247,10 @@ contains
       _FAIL("No factory found to interpret metadata")
    end function make_geom_spec_from_metadata
 
-   function make_geom_spec_from_config(this, config, rc) result(geom_spec)
+   function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
       class(GeomManager), target, intent(inout) :: this
-      type(ESMF_Config), intent(inout) :: config
+      type(ESMF_HConfig), intent(inout) :: hconfig
       integer, optional, intent(out) :: rc
 
       class(GeomFactory), pointer :: factory
@@ -263,12 +260,12 @@ contains
 
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
-         geom_spec = factory%make_spec(config, supports=supports, _RC)
+         geom_spec = factory%make_spec(hconfig, supports=supports, _RC)
          _RETURN_IF(supports)
       end do
 
-      _FAIL("No factory found to interpret config")
-   end function make_geom_spec_from_config
+      _FAIL("No factory found to interpret hconfig")
+   end function make_geom_spec_from_hconfig
 
 
    function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)

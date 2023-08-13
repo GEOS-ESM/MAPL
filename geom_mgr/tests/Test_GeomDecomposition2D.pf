@@ -1,0 +1,109 @@
+module Test_GeomDecomposition2D
+   use mapl3g_GeomDecomposition2D
+   use pfunit
+   use esmf_TestMethod_mod
+   use esmf
+   implicit none
+
+contains
+   
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_from_hconfig_simple(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(GeomDecomposition2D) :: decomp
+      
+      integer :: status
+      hconfig = ESMF_HConfigCreate(content='{nx: 1, ny: 1, ims: [1], jms: [1]}', rc=status)
+      @assert_that(status, is(0))
+
+      decomp = GeomDecomposition2D(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(decomp%nx, is(1))
+      @assert_that(decomp%ny, is(1))
+      @assert_that(decomp%ims, is(equal_to([1])))
+      @assert_that(decomp%jms, is(equal_to([1])))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_from_hconfig_simple
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_from_hconfig_more(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(GeomDecomposition2D) :: decomp
+      
+      integer :: status
+      hconfig = ESMF_HConfigCreate(content='{nx: 2, ny: 3, ims: [1,1], jms: [1,2]}', rc=status)
+      @assert_that(status, is(0))
+
+      decomp = GeomDecomposition2D(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(decomp%nx, is(2))
+      @assert_that(decomp%ny, is(3))
+      @assert_that(decomp%ims, is(equal_to([1,1])))
+      @assert_that(decomp%jms, is(equal_to([1,2])))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_from_hconfig_more
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_from_hconfig_from_file(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(GeomDecomposition2D) :: decomp
+      
+      integer :: status
+      integer :: unit
+      character(*), parameter :: tmp_file = 'tmp_test_from_hconfig'
+
+      hconfig = ESMF_HConfigCreate(content='{nx: 2, ny: 3, ims_file: '//tmp_file//', jms: [1,2]}', rc=status)
+      @assert_that(status, is(0))
+
+      call make_tmp_file()
+      decomp = GeomDecomposition2D(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      call delete_tmp_file()
+
+      @assert_that(decomp%nx, is(2))
+      @assert_that(decomp%ny, is(3))
+      @assert_that(decomp%ims, is(equal_to([1,1])))
+      @assert_that(decomp%jms, is(equal_to([1,2])))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+   contains
+
+      subroutine make_tmp_file()
+         integer :: pet
+         pet = this%getLocalPet()
+         if (pet == 0) then
+            open(newunit=unit, file=tmp_file, form='formatted', status='unknown')
+            write(unit,*) 2 ! nx
+            write(unit,*) 1
+            write(unit,*) 1
+            close(unit)
+         end if
+      end subroutine make_tmp_file
+
+      subroutine delete_tmp_file()
+         integer :: pet
+         pet = this%getLocalPet()
+         if (pet == 0) then
+            open(newunit=unit, file=tmp_file, form='formatted', status='unknown')
+            close(unit, status='delete')
+         end if
+      end subroutine delete_tmp_file
+
+   end subroutine test_from_hconfig_from_file
+
+end module Test_GeomDecomposition2D
