@@ -1008,7 +1008,9 @@ contains
        DX = 360./float(tiling%IM)
 
        I  = index(TILING%NAME,'-',.true.) !bmaa got rid
-       _ASSERT(I>0,'needs informative message')
+       if ( I <=0) then
+          _ASSERT(index(TILING%NAME,'EASE') /=0, "The new EASE grid name only contains underscore _ ")
+       endif
        I  = I+1
 
        if    (TILING%NAME(I:I+1)=='DC') then
