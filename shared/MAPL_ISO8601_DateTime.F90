@@ -674,6 +674,9 @@ contains
       else
          _FAIL('Invalid ISO 8601 date string')
       end if
+
+      _RETURN(_SUCCESS)
+
    end function construct_ISO8601Date
 
    function construct_ISO8601Time(isostring, rc) result(time)
@@ -693,6 +696,9 @@ contains
       else
          _FAIL('Invalid ISO 8601 time string')
       end if
+
+      _RETURN(_SUCCESS)
+
    end function construct_ISO8601Time
 
    function construct_ISO8601DateTime(isostring, rc) result(datetime)

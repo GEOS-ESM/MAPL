@@ -53,8 +53,13 @@ module MAPL_DateTime_Parsing
    public :: datetime_duration
    public :: convert_to_ISO8601DateTime
    public :: is_digit
+   public :: is_digit_string
    public :: is_positive_digit
    public :: MAX_CHARACTER_LENGTH
+   public :: is_time_unit
+
+   public :: YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, TIME_UNIT_UNKNOWN
+   public :: TIME_UNIT, NUM_TIME_UNITS 
 
 !   private
 
@@ -140,6 +145,7 @@ module MAPL_DateTime_Parsing
       real(kind=R64) :: hour_real, minute_real, second_real
       logical :: hour_is_set, minute_is_set, second_is_set
       logical :: year_is_set, month_is_set, day_is_set
+      logical :: hour_is_real, minute_is_real, second_is_real
    contains
       procedure, pass(this) ::  set_year => set_year_datetime_duration
       procedure, pass(this) ::  set_month => set_month_datetime_duration
@@ -228,6 +234,15 @@ contains
       character, intent(in) :: c
       is_digit = scan(c, DIGIT_CHARACTERS) > 0
    end function is_digit
+
+   ! Check is s is a digit-only string
+   logical function is_digit_string(s)
+      character(len=*), intent(in) :: s
+
+      is_digit_string = (len_trim(s) > 0) .and. &
+         (verify(s(:len_trim(s)), DIGIT_CHARACTERS) == 0)
+
+   end function is_digit_string
 
    ! Check if c is a positive digit character
    elemental pure logical function is_positive_digit(c)
@@ -757,6 +772,10 @@ contains
       that % minute_is_set = .FALSE.
       that % second_is_set = .FALSE.
 
+      that % hour_is_real = .FALSE.
+      that % minute_is_real = .FALSE.
+      that % second_is_real = .FALSE.
+
    end function construct_datetime_duration
 
 ! END CONSTRUCTORS
@@ -872,7 +891,7 @@ contains
       end if
 
       this % hour = val
-      this % hour_is_set = .FALSE.
+      this % hour_is_set = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -889,7 +908,8 @@ contains
       end if
 
       this % hour_real = val
-      this % hour_is_set = .FALSE.
+      this % hour_is_set = .TRUE.
+      this % hour_is_real = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -906,7 +926,7 @@ contains
       end if
 
       this % minute = val
-      this % minute_is_set = .FALSE.
+      this % minute_is_set = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -923,7 +943,8 @@ contains
       end if
 
       this % minute_real = val
-      this % minute_is_set = .FALSE.
+      this % minute_is_set = .TRUE.
+      this % minute_is_real = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -940,7 +961,7 @@ contains
       end if
 
       this % second = val
-      this % second_is_set = .FALSE.
+      this % second_is_set = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -957,7 +978,8 @@ contains
       end if
 
       this % second_real = val
-      this % second_is_set = .FALSE.
+      this % second_is_set = .TRUE.
+      this % second_is_real = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -987,6 +1009,8 @@ contains
          _FAIL('Invalid Time Unit')
       end select
 
+      _RETURN(_SUCCESS)
+
    end subroutine set_integer_value_datetime_duration
 
    subroutine set_real_value_datetime_duration(this, tunit, val, rc)
@@ -1006,6 +1030,8 @@ contains
       case default
          _FAIL('Invalid Time Unit')
       end select
+
+      _RETURN(_SUCCESS)
 
    end subroutine set_real_value_datetime_duration
 
@@ -1203,7 +1229,6 @@ contains
 
    end function convert_lengths_to_indices
 
-
 ! TIME_UNIT ====================================================================
 
    function get_time_unit(unit_name, check_plural) result(n)
@@ -1212,10 +1237,11 @@ contains
       character(len=:), allocatable  :: unit_name_
       logical :: check_plural_ = .TRUE.
       character(len=:), pointer, save :: tunits(:)
-      character(len=:), allocatable :: tunit, unit_name_plural
+      character(len=:), allocatable :: tunit
       character, parameter :: PLURAL = 's'
       integer :: n, i
 
+      check_plural_ = .TRUE.
       if(present(check_plural)) check_plural_ = check_plural
       unit_name_ = trim(unit_name)
       tunits = get_time_units()
@@ -1250,5 +1276,10 @@ contains
       end function get_time_units
 
    end function get_time_unit
+
+   logical function is_time_unit(string)
+      character(len=*), intent(in) :: string
+      is_time_unit = (get_time_unit(string) /= TIME_UNIT_UNKNOWN)
+   end function is_time_unit
 
 end module MAPL_DateTime_Parsing

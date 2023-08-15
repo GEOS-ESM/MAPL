@@ -2,6 +2,7 @@
 #include "MAPL_ErrLog.h"
 module MAPL_CF_Time
 
+   use, intrinsic :: iso_fortran_env, only : R64 => real64
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_DateTime_Parsing
@@ -11,11 +12,10 @@ module MAPL_CF_Time
 ! Comment to test all procedures
    private
 
-
 ! PUBLIC PROCEDURES (ACCESS):
    public :: extract_ISO8601_from_CF_Time
    public :: extract_CF_Time_duration
-   public :: extract_CF_Time_units
+   public :: extract_CF_Time_unit
    public :: convert_CF_Time_to_datetime_duration
 ! Convert ISO8601 datetime string to CF_Time_base_datetime
    public :: convert_ISO8601_to_CF_Time_base_datetime
@@ -61,7 +61,6 @@ module MAPL_CF_Time
 
 ! CF_TIME: derived type to hold the data for CF Time values
    type, abstract :: CF_Time
-      public
       logical :: is_valid
       character(len=:), allocatable :: time_unit
       character(len=:), allocatable :: base_datetime
@@ -70,12 +69,10 @@ module MAPL_CF_Time
    end type CF_Time
 
    type, extends(CF_Time) :: CF_Time_Integer
-      public
       integer :: duration
    end type CF_Time_Integer
 
    type, extends(CF_Time) :: CF_Time_Real
-      public
       real(kind=R64) :: duration
    end type CF_Time_Real
    
@@ -93,8 +90,9 @@ module MAPL_CF_Time
    character, parameter :: TIME_DELIM = ':'
    character, parameter :: ISO_DELIM = 'T'
    character(len=2), parameter :: CF_DELIM = ' ' // ISO_DELIM
-   character(len=*), parameter = EMPTY_STRING = ''
-
+   character(len=*), parameter :: EMPTY_STRING = ''
+   character, parameter :: DECIMAL_POINT = '.'
+   character(len=*), parameter :: DIGIT_CHARACTERS = '1234567890'
 
 contains
 
@@ -114,7 +112,7 @@ contains
 
    end subroutine extract_ISO8601_from_CF_Time_units
 
-   function extract_ISO8601_from_CF_Time_cf_time(cft, isostring, rc)
+   subroutine extract_ISO8601_from_CF_Time_cf_time(cft, isostring, rc)
       class(CF_Time), intent(in) :: cft
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: isostring
       integer, optional, intent(out) :: rc 
@@ -122,11 +120,11 @@ contains
 
       call cft % check(_RC)
       
-      call convert_CF_Time_datetime_string_to_ISO8601(cft % base_datetime, isostring, _RC)
+      isostring = convert_CF_Time_datetime_string_to_ISO8601(cft % base_datetime)
 
       _RETURN(_SUCCESS)
       
-   end function extract_ISO8601_from_CF_Time_cf_time
+   end subroutine extract_ISO8601_from_CF_Time_cf_time
    
    subroutine extract_CF_Time_duration_cf_time_real(cft, duration, rc)
       class(CF_Time_Real), intent(in) :: cft
@@ -160,10 +158,11 @@ contains
       class(CF_Time), intent(in) :: cft
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: time_unit
       integer, optional, intent(out) :: rc
+      integer :: status
 
       call cft % check(_RC)
 
-      time_units = cft % time_unit
+      time_unit = cft % time_unit
 
       _RETURN(_SUCCESS)
 
@@ -174,22 +173,11 @@ contains
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: time_unit
       integer, optional, intent(out) :: rc
 
-      call extract_CF_Time_units(CF_Time(0, units), time_units, _RC)
+      call extract_CF_Time_unit(CF_Time(0, units), time_unit, _RC)
 
       _RETURN(_SUCCESS)
 
    end subroutine extract_CF_Time_unit_units
-
-   subroutine convert_ISO8601_to_CF_Time_datestring(isostring, datestring, rc)
-      character(len=*), intent(in) :: isostring
-      character(len=MAX_CHARACTER_LENGTH), intent(out) :: datestring
-      integer, optional, intent(out) :: rc
-      
-      datestring = remove_zero_pad(isostring)
-
-      _RETURN(_SUCCESS)
-      
-   end subroutine convert_ISO8601_to_CF_Time_datestring
 
    subroutine convert_CF_Time_to_datetime_duration_integer(cft, dt_duration, rc)
       class(CF_Time_Integer), intent(in) :: cft
@@ -220,7 +208,7 @@ contains
 
       call cft % check(_RC)
 
-      tu = time_unit(cft % time_units())
+      tu = get_time_unit(cft % time_units())
       if(tu == TIME_UNIT_UNKNOWN) then
          _FAIL('Unrecognized time unit in CF Time')
       endif
@@ -262,10 +250,10 @@ contains
       character(len=MAX_CHARACTER_LENGTH) :: isodatetime
       character(len=MAX_CHARACTER_LENGTH) :: remainder
       ! parts [year, month, day, hour, minute, second)
-      character(len=MAX_CHARACTER_LENGTH) :: part(NUM_CF_TIME_UNITS)
-      character(len=MAX_CHARACTER_LENGTH) :: delimiters(NUM_CF_TIME_UNITS)
+      character(len=MAX_CHARACTER_LENGTH) :: part(NUM_TIME_UNITS)
+      character(len=MAX_CHARACTER_LENGTH) :: delimiters(NUM_TIME_UNITS)
 
-      datetime = EMPTY_STRING
+      isodatetime = EMPTY_STRING
       remainder = datetime_string
 
       call split(trim(remainder), part(YEAR), remainder, DATE_DELIM)
@@ -300,6 +288,15 @@ contains
 
    end function convert_CF_Time_datetime_string_to_ISO8601
 
+   function convert_ISO8601_to_CF_Time_base_datetime(isostring) result(base_datetime) 
+      character(len=*), intent(in) :: isostring
+      character(len=len(isostring)) :: base_datetime
+
+      base_datetime = remove_zero_pad(isostring)
+      base_datetime = substitute(base_datetime, 'T', ' ')
+
+   end function convert_ISO8601_to_CF_Time_base_datetime 
+
 ! END PUBLIC PROCEDURES (DEFINITION)
 
 
@@ -310,37 +307,33 @@ contains
    function construct_cf_time_integer(duration, units) result (cft)
       integer, intent(in) :: duration
       character(len=*), intent(in) :: units
-      type(CF_Time) :: cft
+      type(CF_Time_Integer) :: cft
       integer :: status
       
       if(duration < 0) return
 
-      call cft % initialize_cf_time(units, rc=status)
-      
       cft % duration = duration
-
-      cft % valid = status
+      call initialize_cf_time(cft, units, rc=status)
+      cft % is_valid = status
 
    end function construct_cf_time_integer
 
    function construct_cf_time_real(duration, units) result (cft)
       real(kind=R64), intent(in) :: duration
       character(len=*), intent(in) :: units
-      type(CF_Time) :: cft
+      type(CF_Time_Real) :: cft
       integer :: status
       
       if(duration < 0) return
 
-      call cft % initialize_cf_time(units, rc=status)
-      
       cft % duration = duration
-
-      cft % valid = status
+      call initialize_cf_time(cft, units, rc=status)
+      cft % is_valid = status
 
    end function construct_cf_time_real
 
-   subroutine initialize_cf_time(this, units, rc)
-      class(CF_time), intent(inout) :: this
+   subroutine initialize_cf_time(cft, units, rc)
+      class(CF_Time), intent(inout) :: cft
       character(len=*), intent(in) :: units
       integer, optional, intent(out) :: rc
       character(len=MAX_CHARACTER_LENGTH) :: token(2), remainder
@@ -418,27 +411,123 @@ contains
 
    end subroutine split_characters
       
-! REMOVE_ZERO_PAD - UTILITY
-   function remove_zero_pad(s) result(u)
-      character(len=*), intent(in) :: s
-      character(len=len(string)) :: u
-      character :: c
-      integer :: i, n
-      logical :: follows(len(s))
-      integer, allocatable :: indices
+! UTILITIES
 
-      indices = .not. findloc((follows_digit(s) .and. (s == '0')), .TRUE.)
-      u = s(indices)
+   function remove_zero_pad(isostring) result(unpadded)
+      character(len=*), intent(in) :: isostring
+      character(len=len(isostring)) :: unpadded
+      character(len=DT_PART_WIDTH) :: part(NUM_DT_PARTS)
+      character(len=len(isostring)) :: fraction_part
+      integer :: i
+
+      part = get_ISO8601_substrings(isostring)
+      fraction_part = get_ISO8601_fractional_seconds(isostring)
+      unpadded = trim(part(1))
+      do i = 2, size(part)
+         part(i) = strip_zero(part(i))
+         unpadded = trim(unpadded) // trim(part(i)) 
+      end do
+
+      fraction_part = strip_zero(fraction_part, back = .TRUE.)
+      if(len_trim(fraction_part) > 0) unpadded = trim(unpadded) // DECIMAL_POINT // trim(fraction_part)
+
    end function remove_zero_pad
-
-! FOLLOWS_DIGIT - UTILITY
-   function follows_digit(s) result(follows)
-      character(len=*), intent(in) :: s
-      logical :: follows(len(s))
-      
-      follows(1) = .FALSE.
-      follows(2:) = is_digit(1:(len(s)-1))
-
-   end function follows_digit
    
+   function substitute(string, ch1, ch2) result(replaced)
+      character(len=*), intent(in) :: string
+      character, intent(in) :: ch1, ch2
+      character(len=len(string)) :: replaced
+      integer :: i, j
+
+      j = 0
+      replaced = string
+      i = index(replaced((j+1):), ch1) 
+      do while (i > 0)
+         j = j + i
+         if(j > len(replaced)) exit
+         replaced(j:j) = ch2
+         if(j == len(replaced)) exit
+         i = index(replaced((j+1):), ch1) 
+      end do
+
+   end function substitute
+
+   elemental logical function is_zero(ch)
+      character, intent(in) :: ch
+      is_zero = (ch == '0')
+   end function is_zero
+
+   function get_ISO8601_substrings(isostring) result(substring)
+      character(len=*), intent(in) :: isostring
+      integer, parameter :: NUM_DT_PARTS = 6
+      integer, parameter :: DT_PART_WIDTH = 5
+      character(len=DT_PART_WIDTH) :: substring(NUM_DT_PARTS)
+
+      substring = EMPTY_STRING
+
+      substring(1) = isostring(1:5)
+      substring(2) = isostring(6:8)
+      substring(3) = isostring(9:11)
+      substring(4) = isostring(12:14)
+      substring(5) = isostring(15:17)
+      substring(6) = isostring(18:19)
+      
+   end function get_ISO8601_substrings
+
+   function get_ISO8601_fractional_seconds(isostring) result(fs)
+      character(len=*), intent(in) :: isostring
+      integer, parameter :: FIRST_INDEX = 20
+      character(len=len(isostring)) :: fs
+      integer :: i, j
+
+      fs = EMPTY_STRING
+      if(len_trim(isostring) < FIRST_INDEX) return
+      i = FIRST_INDEX
+      if(isostring(i:i) /= DECIMAL_POINT) return
+      i = i + 1
+      j = verify(isostring(i:), DIGIT_CHARACTERS)
+      select case(j)
+         case(0)
+            fs = isostring(i:)
+         case(1)
+            return
+         case default
+            j = j + i - 2
+            fs = isostring(i:j)
+      end select
+
+   end function get_ISO8601_fractional_seconds
+
+   function strip_zero(string, back) result(stripped)
+      character(len=*), intent(in) :: string
+      logical, optional, intent(in) :: back
+      character(len=len(string)) :: stripped
+      logical :: back_
+      integer :: i, j, k, n
+      character :: ch
+
+      stripped = EMPTY_STRING
+      back_ = .FALSE.
+      if(present(back)) back_ = back
+
+      n = len_trim(string)
+      if(back_) then
+         i = 1
+         do j = n, i, -1
+            ch = string(j:j)
+            if(.not. is_zero(ch)) exit
+         end do
+      else
+         j = n
+         do i = 1, n
+            ch = string(i:i)
+            if(.not. is_zero(ch)) exit
+         end do
+         i = min(i, j)
+      end if
+
+      stripped = string(i:j)
+
+   end function strip_zero
+
 end module MAPL_CF_Time
