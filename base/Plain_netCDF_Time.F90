@@ -1,3 +1,10 @@
+!-------------------------------------------------------------------
+! Note:
+!   Subroutines from this file will be replaced by more systematic 
+!   implementations. Currently it contains temporary implementation 
+!   for time conversion and time bisect in seconds
+!-------------------------------------------------------------------
+
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"

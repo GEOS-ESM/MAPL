@@ -34,21 +34,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR) :: var_name_lon
          character(len=ESMF_MAXSTR) :: var_name_lat
          character(len=ESMF_MAXSTR) :: var_name_time
-         type(ESMF_TimeInterval)    :: epoch_frequency
          type(ESMF_Time)            :: currTime
+         type(ESMF_TimeInterval)    :: epoch_frequency
+         type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: ncid, grpid, ncid0
          integer                    :: len, status
          integer                    :: itime(2), nymd, nhms
          character(len=ESMF_MAXSTR) :: STR1
-         character(len=ESMF_MAXSTR) :: symd, shms         
+         character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: i, j, k         
-         ! __ parse variables, set alarm
-         !
-         !!call ESMF_ConfigGetAttribute(config, value=traj%obsFile, default="", &
-         !!     label=trim(string) // 'obs_file:', _RC)
 
-         
+         ! __ s1. parse variables; set alarm
+         ! __ s2. retrieve obs_file; set default for obs_begin, end, is_valid
+         !
          call ESMF_ConfigGetAttribute(config, value=traj%nc_index, default="", &
               label=trim(string) // 'nc_Index:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%nc_time, default="", &
@@ -65,8 +64,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call hms_2_s (time_integer, second, _RC)
          call ESMF_TimeIntervalSet(epoch_frequency, s=second, _RC)
          traj%Epoch = time_integer
+         traj%RingTime = currTime
          traj%epoch_frequency = epoch_frequency
-         traj%RingTime  = currTime
          traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
               RingTime=traj%RingTime, sticky=.false., _RC )
 
@@ -74,18 +73,39 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'obs_file:', _RC)
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
-         if (mapl_am_I_root() .and. trim(STR1)/='') write(6,*) 'obs_file_begin:', trim(STR1)
-         call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
+         if (trim(STR1)=='') then
+            traj%obsfile_start_time = currTime
+            call ESMF_TimeGet(currTime, timestring=STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+            endif
+         else
+            call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_begin provided: ', trim(STR1)
+            end if
+         end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_end:', _RC)
-         if (mapl_am_I_root()) write(6,*) 'obs_file_end:', trim(STR1)
-         call ESMF_TimeSet(traj%obsfile_end_time, STR1, _RC)         
-
+         if (trim(STR1)=='') then
+            call ESMF_TimeIntervalSet(obs_time_span, d=14, _RC)
+            traj%obsfile_end_time = traj%obsfile_start_time + obs_time_span
+            call ESMF_TimeGet(traj%obsfile_end_time, timestring=STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_end missing, set to begin + 14 day:', trim(STR1)
+            endif
+         else
+            call ESMF_TimeSet(traj%obsfile_end_time, STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_end provided:', trim(STR1)
+            end if
+         end if
+         
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_interval:', _RC)         
-         if (mapl_am_I_root()) write(6,*) 'obs_file_interval:', trim(STR1)
-
+         _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+         if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
 
          i= index( trim(STR1), ' ' )
          if (i>0) then
@@ -95,10 +115,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             symd=''
             shms=trim(STR1)
          endif
-         call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)         
+         call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)
 
+         !
+         ! when obs is valid, traj sampler is valid
+         !
+         traj%is_valid = .true.
+         
          _RETURN(_SUCCESS)
 
+105 format (1x,a,2x,a)
        end procedure
 
 
@@ -116,7 +142,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%bundle=bundle
          this%items=items
          this%epoch_index(1:2)=0
-
+         
          if (present(vdata)) then
             this%vdata=vdata
          else
@@ -126,15 +152,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
-         call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC) 
+         call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
+         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
+         if (this%obsfile_Te_index < 0) then
+            if (mapl_am_I_root()) then
+               write(6,*) "model start time is earlier than obsfile_start_time"
+               write(6,*) "solution: adjust obsfile_start_time and Epoch in rc file"
+            end if
+            _FAIL("obs file not found at init time")
+         endif
          call this%create_grid(_RC)
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)         
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC)
-         
-         
          this%time_info = timeInfo
 
          call this%metadata%add_dimension('time', this%nobs_epoch)
@@ -263,7 +294,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(variable) :: v
          integer :: status
 
+         if (.NOT. this%is_valid) then
+            _RETURN(ESMF_SUCCESS)
+         endif
+
          this%file_name = trim(filename)
+         if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename)
          ! __ update metadata
          call this%metadata%modify_dimension('time', this%nobs_epoch)
          if (mapl_am_I_root()) then
@@ -278,6 +314,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        module procedure close_file_handle
           integer :: status
 
+          if (.NOT. this%is_valid) then
+             _RETURN(ESMF_SUCCESS)
+          endif
+           
           if (trim(this%file_name) /= '') then
              if (mapl_am_i_root()) then
                 call this%file_handle%close(_RC)
@@ -309,10 +349,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: rank
          integer :: status
 
+         if (.NOT. this%is_valid) then
+            _RETURN(ESMF_SUCCESS)
+         endif
+
          nx=this%nobs_epoch
          is=1
          ie=nx
-         print*, 'begin append_file, nobs_epoch=', nx
 
          if (this%nobs_epoch_sum==0) then
             rc=0
@@ -390,8 +433,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_3d_rt, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
-         print*, 'end append_file, nobs_epoch=', nx         
-         write(6,'(//)')
+         !!print*, 'end append_file, nobs_epoch=', nx         
          
          _RETURN(_SUCCESS)
 
@@ -514,7 +556,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: mypet, petcount
 
          integer :: i, j, k, L
-         integer :: is, ie
+         integer :: fid_s, fid_e
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2
          integer(kind=ESMF_KIND_I8) :: nstart, nend
@@ -526,6 +568,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! TOBE removed: hard coded tunits
          this%datetime_units = "seconds since 1970-01-01 00:00:00"
 
+         call ESMF_VMGetGlobal(vm,_RC)
+         call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)         
 
          if (this%nc_index == '') then
             filename=trim(this%obsFile)
@@ -550,14 +594,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%var_name_lon = this%nc_longitude(i+1:)
             this%var_name_time= this%nc_time(i+1:)
 
-
             ! __ loop obsfile_index for epoch
             !    get max len, allocate array, concatenate , get_var
             !
             L=0
-            is=this%obsfile_Ts_index   ! from call get_obsfile_Tbracket_from_epoch
-            ie=this%obsfile_Te_index
-            if(ie < L) then
+            fid_s=this%obsfile_Ts_index   ! from call get_obsfile_Tbracket_from_epoch
+            fid_e=this%obsfile_Te_index
+            if(fid_e < L) then
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
                this%epoch_index(1:2)=0
@@ -565,41 +608,44 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                rc=0
                return
             end if
+            
+            
+            ! __ this is all fid_e >= L case : file exist at this time
+            !    read in dim
+            !    read in data in full on mypet=0
+            !
+            if (mapl_am_I_root()) then
+               j = max (fid_s, L)
+               len = 0
+               do while (j<=fid_e)
+                  filename = this%get_filename_from_template_use_index(j, _RC)
+                  !!call get_ncfile_dimension_I8(filename, tdim=num_times, key_time=this%nc_index, _RC)
+                  call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)               
+                  len = len + num_times
+                  j=j+1
+                  write(6,*) 'input filename: ', trim(filename)
+               enddo            
+               len_full = len
+               write(6,*) 'nobs from file:', len_full
+               allocate(lons_full(len),lats_full(len),_STAT)
+               allocate(times_R8_full(len),_STAT)
 
-            ! -- this is all  ie >= L case
-            !    get bounds, get_var
-            j = max (is, L)
-            len = 0 
-            do while (j<=ie)
-               filename = this%get_filename_from_template_use_index(j, _RC)
-               !!call get_ncfile_dimension_I8(filename, tdim=num_times, key_time=this%nc_index, _RC)
-               call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)               
-               len = len + num_times
-               j=j+1
-               if (mapl_am_I_root()) write(6,*) 'input filename=', trim(filename)
-            enddo            
-            len_full = len
-            write(6,*) 'len_full=', len_full
-            allocate(lons_full(len),lats_full(len),_STAT)
-            allocate(times_R8_full(len),_STAT)
+               j = max (fid_s, L)
+               len = 0 
+               do while (j<=fid_e)
+                  filename = this%get_filename_from_template_use_index(j, _RC)
+                  call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
+                  call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
+                  call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
+                  call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+                  len = len + num_times
+                  j=j+1
+               enddo
+            end if
 
-            j = max (is, L)
-            len = 0 
-            do while (j<=ie)
-               filename = this%get_filename_from_template_use_index(j, _RC)
-               call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
-               call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
-               call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
-               call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
-               len = len + num_times
-               j=j+1
-            enddo
-
-            call ESMF_VMGetGlobal(vm,_RC)
-            call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
-
-
+            
             !__ epoch grid on root
+            !   
             !
             if (mapl_am_I_root()) then
                call sort_three_arrays_by_time(lons_full, lats_full, times_R8_full, _RC)               
@@ -612,7 +658,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                jx0 = real ( j0, kind=ESMF_KIND_R8)
                jx1 = real ( j1, kind=ESMF_KIND_R8)
                !!call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
-               write(6,*) 'jx0, jx1', jx0, jx1
 
                nstart=1; nend=size(times_R8_full)
                call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
@@ -630,21 +675,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                else
                   this%epoch_index(1)= this%epoch_index(2)  !  previous save
                end if
-!               if (jt2<=nend) then
-                  this%epoch_index(2)= jt2
-!               else
-!                  this%epoch_index(2)= nend
-!               endif
+               this%epoch_index(2)= jt2
 
                nx= this%epoch_index(2) - this%epoch_index(1) + 1
                this%nobs_epoch = nx
                allocate(this%lons(nx),this%lats(nx),_STAT)
                allocate(this%times_R8(nx),_STAT)
-
-
-               write(6,*) 'jx0, jx1', jx0, jx1
-               write(6,*) 'full time array, nstart, nend', nstart, nend               
-               write(6,*) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
                
                j=this%epoch_index(1)
                do i=1, nx
@@ -654,6 +690,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   j=j+1
                enddo
                arr(1)=nx
+               deallocate(lons_full, lats_full, times_R8_full)
             else
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
@@ -662,13 +699,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                nx=0
                arr(1)=nx               
             endif
-
-
+            
             call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
                  count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
-            write(6,*) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
-            write(6,*) 'nx_sum', nx_sum
-            this%nobs_epoch_sum = nx_sum
+            this%nobs_epoch_sum = nx_sum            
+            !! write(6,*) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
+            if (mapl_am_I_root()) write(6,*) 'nobs in Epoch :', nx_sum
 
             
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
@@ -695,20 +731,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
             call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
             ! defer destroy fieldB at regen_grid step
-
-!!            allocate (AA(size(obstime))
-!!            AA = this%obsTime
             
-            !!write(6,'(2x,a,10E20.11)') 'obstime af destroy'
-            !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)
-            
-            print*, 'end create_grid'
 
          end if
-
-         deallocate(lons_full, lats_full, times_R8_full)
-
-         
          _RETURN(_SUCCESS)
        end procedure create_grid
             !! debug
@@ -717,8 +742,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !!write(6, '(10E25.12)')  times_R8_full(1:3*num_times:num_times/2)
             !!write(6, '(10E25.12)')  times_R8_full(1:len:20)
 
-
-       
 
 
          module procedure regrid_accumulate_on_xsubset
@@ -741,7 +764,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            type (ESMF_VM) :: vm
            integer :: mypet, petcount
 
-
+           if (.NOT. this%is_valid) then
+              _RETURN(ESMF_SUCCESS)
+           endif
+           
            ! __ s1.  get x_subset for each model time step interval on each pet
            call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
@@ -755,12 +781,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               call this%vdata%setup_eta_to_pressure(_RC)
            endif
 
-
-            call ESMF_VMGetGlobal(vm,_RC)
-            call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
-            
-            ! __ s2. regrid & accumulate
-
+           ! __ s2. regrid & accumulate
            iter = this%items%begin()
            do while (iter /= this%items%end())
               item => iter%get()
@@ -774,8 +795,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
                     call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
 
-                    !!print*, 'ck mypet in regrid:', mypet
-                    print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
+
+                    !! print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
                     call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
                     if (is > 0 .AND. is <= ie ) then
                        p_acc_2d(is:ie) = p_dst_2d(is:ie)
@@ -808,7 +829,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               end if
               call iter%next()
            enddo
-
 
            _RETURN(ESMF_SUCCESS)
 
@@ -895,7 +915,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                 endif
              endif
              
-             print*, 'x_subset(1:2)', x_subset(1:2)
+             !! print*, 'x_subset(1:2)', x_subset(1:2)
 
            _RETURN(_SUCCESS)
          end procedure get_x_subset
@@ -909,6 +929,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            type(ESMF_Field) :: field
            type(ESMF_Grid)  :: grid
            type(ESMF_Time)  :: currTime
+
+          if (.NOT. this%is_valid) then
+             _RETURN(ESMF_SUCCESS)
+          endif           
 
            ! __ s1. destroy RH, LS, acc_bundle / output_bundle
            call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
@@ -935,8 +959,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            enddo
            call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
 
-           ! __ s2. regenerate LS, RH, bundles
+           ! __ s2. Set when traj sampling is invalid
            call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+           if (currTime > this%obsfile_end_time) then
+              this%is_valid = .false.
+              _RETURN(ESMF_SUCCESS)              
+           end if
+
+           ! __ s3. regenerate LS, RH, bundles
            call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
            call this%create_grid(_RC)  !  setup LS_rt, LS_ds
            call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
@@ -944,9 +974,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            this%output_bundle = this%create_new_bundle(_RC)
            this%acc_bundle    = this%create_new_bundle(_RC)
 
-           ! __ s3. Epoch reset
+           ! __ s4. Epoch reset
            this%epoch_index(1:2)=0
            
+
            _RETURN(ESMF_SUCCESS)
 
          end procedure destroy_rh_regen_LS
@@ -1005,7 +1036,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            !!!write(6,*) 'ck: due to epoch,  integer multiple of obsfile_interval', n1, n2
 
            this%obsfile_Ts_index = n1
-           this%obsfile_Te_index = n2
+           if ( dT2_s - n2*dT0_s < 1 ) then 
+              this%obsfile_Te_index = n2 - 1
+           else
+              this%obsfile_Te_index = n2
+           end if
+              
 
            !! -- prone to error
            !!dT3 = Tn - T1

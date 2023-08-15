@@ -3436,7 +3436,6 @@ ENDDO PARSER
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-               if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
                call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
