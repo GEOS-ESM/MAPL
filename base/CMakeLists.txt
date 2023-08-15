@@ -54,7 +54,7 @@ set (srcs
   MAPL_ISO8601_DateTime_ESMF.F90
   MAPL_Resource.F90
   MAPL_XYGridFactory.F90
-  MAPL_NetCDF.F90
+  MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
   MAPL_DateTime_Parsing_ESMF.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
@@ -67,7 +67,7 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.geom PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field_utils PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE ${MAPL_LIBRARY_TYPE})
@@ -77,6 +77,11 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 
+# Workaround for bizarre switch in ESMF
+if (ESMF_HAS_ACHAR_BUG)
+  set_source_files_properties(MAPL_Config.F90  PROPERTIES COMPILE_DEFINITIONS ESMF_HAS_ACHAR_BUG)
+endif()
+      
 if(DISABLE_GLOBAL_NAME_WARNING)
   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
 endif()

@@ -595,7 +595,7 @@ module MAPL_FileMetadataUtilsMod
    end subroutine get_coordinate_info
 
    function get_level_name(this,rc) result(lev_name)
-      class (FileMetadataUtils), intent(inout) :: this
+      class (FileMetadataUtils), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       character(len=:), pointer :: units

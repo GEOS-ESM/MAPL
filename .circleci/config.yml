@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.13.0
+baselibs_version: &baselibs_version v7.14.0
 bcs_version: &bcs_version v11.1.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -35,7 +35,6 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
-              #cmake_generator: ['Unix Makefiles', 'Ninja']
               cmake_generator: ['Unix Makefiles']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -62,7 +61,6 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran]
-              #cmake_generator: ['Unix Makefiles', 'Ninja']
               cmake_generator: ['Unix Makefiles']
           baselibs_version: *baselibs_version
           repo: MAPL
