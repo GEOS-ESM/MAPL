@@ -130,7 +130,7 @@ contains
 
       ranges = get_lon_range(hconfig, im_world, regional, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, im_world, _RC)
-      corners = MAPL_Range(ranges%corner_min, ranges%corner_max, im_world, _RC)
+      corners = MAPL_Range(ranges%corner_min, ranges%corner_max, im_world+1, _RC)
       distribution = get_distribution(hconfig, im_world, 'nx', 'ims', _RC)
 
       axis = LatLonAxis(centers, corners, distribution)
@@ -155,7 +155,7 @@ contains
 
       ranges = get_lat_range(hconfig, jm_world, regional, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, jm_world, _RC)
-      corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world, _RC)
+      corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world+1, _RC)
       distribution = get_distribution(hconfig, jm_world, 'ny', 'jms', _RC)
 
       axis = LatLonAxis(centers, corners, distribution)
