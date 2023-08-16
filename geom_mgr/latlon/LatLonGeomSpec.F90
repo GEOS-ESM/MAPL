@@ -156,6 +156,8 @@ contains
       ranges = get_lat_range(hconfig, jm_world, regional, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, jm_world, _RC)
       corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world+1, _RC)
+      if (corners(1) < -90.d0) corners(1) = -90.0d0
+      if (corners(jm_world+1) > 90.d0) corners(jm_world+1) = 90.0d0
       distribution = get_distribution(hconfig, jm_world, 'ny', 'jms', _RC)
 
       axis = LatLonAxis(centers, corners, distribution)
