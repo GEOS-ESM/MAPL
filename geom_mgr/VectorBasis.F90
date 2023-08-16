@@ -126,7 +126,6 @@ contains
       integer :: i, j
       real(kind=ESMF_KIND_R8), allocatable :: centers(:,:,:)
       real(kind=ESMF_KIND_R8), allocatable :: corners(:,:,:)
-      real(kind=ESMF_KIND_R8), allocatable :: corner_lats(:,:), corner_lons(:,:)
 
       inverse_ = .false.
       if (present(inverse)) inverse_ = inverse

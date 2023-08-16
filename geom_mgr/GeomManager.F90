@@ -1,3 +1,4 @@
+
 #include "MAPL_Generic.h"
 
 module mapl3g_GeomManager
@@ -52,7 +53,6 @@ module mapl3g_GeomManager
       ! Internal API
       ! ------------
       procedure :: delete_mapl_geom
-      procedure :: set_id
 
       procedure :: make_geom_spec_from_hconfig
       procedure :: make_geom_spec_from_metadata
@@ -181,15 +181,22 @@ contains
 
       type(MaplGeom) :: tmp_mapl_geom
       integer :: status
+      type(GeomSpecVectorIterator) :: iter
+      integer :: idx
 
-!!$      iter = find(this%geom_ids, geom_spec)
-!!$      if (iter /= this%geom_ids%end()) then
-!!$         mapl_geom => this%mapl_geoms%at(iter - this%geom_ids%begin(), _RC)
-!!$         _RETURN(_SUCCESS)
-!!$      end if
-!!$
-!!$      ! Otherwise build a new geom and store it.
-!!$      mapl_geom => this%add_mapl_geom(geom_spec, _RC)
+      associate (b => this%geom_specs%begin(), e => this%geom_specs%end())
+        iter = find(first=b, last=e, value=geom_spec)
+
+        if (iter /= this%geom_specs%end()) then
+           idx = iter - b
+           mapl_geom => this%mapl_geoms%at(idx, _RC)
+           _RETURN(_SUCCESS)
+        end if
+
+      end associate
+
+      ! Otherwise build a new geom and store it.
+      mapl_geom => this%add_mapl_geom(geom_spec, _RC)
 
       _RETURN(_SUCCESS)
    end function get_mapl_geom_from_spec
@@ -204,32 +211,38 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(MaplGeom) :: tmp_geom
+      type(MaplGeom) :: tmp_mapl_geom
+      type(GeomSpecVectorIterator) :: iter
 
       mapl_geom => null() ! unless
-      
-!!$      iter = find(this%mapl_geoms, geom_spec)
-!!$      _ASSERT(iter /= this%mapl_geoms%end(), "Requested geom_spec already exists.")
-!!$
-!!$      tmp_geom = this%make_mapl_geom(geom_spec, _RC)
-!!$      associate(id => this%global_id)
-!!$        id = id + 1
-!!$        _ASSERT(id <= MAX_ID, "Too many geoms created.")
-!!$
-!!$        call tmp_geom%set_id(id, _RC)
-!!$        call this%geom_ids%insert(geom_spec, id)
-!!$        call this%mapl_geoms%insert(id, tmp_geom)
-!!$        mapl_geom => this%mapl_geoms%of(id)
-!!$      end associate
+
+      associate (b => this%geom_specs%begin(), e => this%geom_specs%end())
+        iter = find(b, e, geom_spec)
+        _ASSERT(iter /= e, "Requested geom_spec already exists.")
+      end associate
+
+      tmp_mapl_geom = this%make_mapl_geom(geom_spec, _RC)
+
+      associate (id => this%id_counter)
+        id = id + 1
+        _ASSERT(id <= MAX_ID, "Too many geoms created.")
+
+        call tmp_mapl_geom%set_id(id, _RC)
+        call this%geom_ids%push_back(id)
+        call this%geom_specs%push_back(geom_spec)
+        call this%mapl_geoms%insert(id, tmp_mapl_geom)
+
+        mapl_geom => this%mapl_geoms%of(id)
+      end associate
 
       _RETURN(_SUCCESS)
    end function add_mapl_geom
 
 
-   function make_geom_spec_from_metadata(this, metadata, rc) result(geom_spec)
+   function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
       class(GeomManager), target, intent(inout) :: this
-      type(FileMetadata), intent(in) :: metadata
+      type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
 
       class(GeomFactory), pointer :: factory
@@ -240,8 +253,11 @@ contains
       geom_spec = NullGeomSpec()
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
-         geom_spec = factory%make_spec(metadata, supports=supports, _RC)
-         _RETURN_IF(supports)
+         supports = factory%supports(file_metadata)
+         if (supports) then
+            geom_spec = factory%make_spec(file_metadata, _RC)
+            _RETURN(_SUCCESS)
+         end if
       end do
 
       _FAIL("No factory found to interpret metadata")
@@ -260,8 +276,11 @@ contains
 
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
-         geom_spec = factory%make_spec(hconfig, supports=supports, _RC)
-         _RETURN_IF(supports)
+         supports = factory%supports(hconfig, _RC)
+         if (supports) then
+            geom_spec = factory%make_spec(hconfig, _RC)
+            _RETURN(_SUCCESS)
+         end if
       end do
 
       _FAIL("No factory found to interpret hconfig")
@@ -281,38 +300,26 @@ contains
       type(ESMF_Geom) :: geom
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims
+      logical :: found
 
+      found = .false.
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          if (.not. factory%supports(spec)) cycle
-
-         geom = factory%make_geom(spec, _RC)
-         file_metadata = factory%make_file_metadata(spec, _RC)
-         gridded_dims = factory%make_gridded_dims(spec, _RC)
-         call this%set_id(geom, _RC)
-         
-         mapl_geom = MaplGeom(spec, geom, file_metadata, gridded_dims)
-         _RETURN(_SUCCESS)
+         found = .true.
+         exit
       end do
 
-      _FAIL("No factory found to interpret geom spec")
-   end function make_mapl_geom_from_spec
+      _ASSERT(found, 'No factory supports spec.')
 
-   subroutine set_id(this, geom, rc)
-      class(GeomManager), target, intent(inout) :: this
-      type(ESMF_Geom), intent(inout) :: geom
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Info) :: info
-      integer :: status
-
-      associate (id => this%id_counter)
-        id = id + 1
-        call MAPL_GeomSetId(geom, id, _RC)
-      end associate
+      geom = factory%make_geom(spec, _RC)
+      file_metadata = factory%make_file_metadata(spec, _RC)
+      gridded_dims = factory%make_gridded_dims(spec, _RC)
+         
+      mapl_geom = MaplGeom(spec, geom, file_metadata, gridded_dims)
 
       _RETURN(_SUCCESS)
-   end subroutine set_id
+   end function make_mapl_geom_from_spec
 
    function get_geom_from_id(this, id, rc) result(geom)
       type(ESMF_Geom) :: geom

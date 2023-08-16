@@ -8,7 +8,7 @@ module mapl3g_GeomDecomposition2D
    private
 
    public :: GeomDecomposition2D
-
+   public :: make_GeomDecomposition2D
 
    type :: GeomDecomposition2D
       integer :: nx = MAPL_UNDEFINED_INTEGER
@@ -18,29 +18,48 @@ module mapl3g_GeomDecomposition2D
    end type GeomDecomposition2D
 
    interface GeomDecomposition2D
-      procedure new_GeomDecomposition_from_hconfig
+      procedure new_GeomDecomposition
    end interface GeomDecomposition2D
+
+   interface make_GeomDecomposition2D
+      procedure make_GeomDecomposition_from_hconfig
+   end interface Make_GeomDecomposition2D
 
 contains
 
 
-   function new_GeomDecomposition_from_hconfig(hconfig, rc) result(decomposition)
+   function new_GeomDecomposition(nx, ny, ims, jms) result(decomposition)
+      type(GeomDecomposition2D) :: decomposition
+      integer, intent(in) :: nx, ny
+      integer, intent(in) :: ims(:), jms(:)
+
+      decomposition%nx = nx
+      decomposition%ny = ny
+
+      decomposition%ims = ims
+      decomposition%jms = jms
+
+   end function new_GeomDecomposition
+
+   function make_GeomDecomposition_from_hconfig(hconfig, rc) result(decomposition)
       type(GeomDecomposition2D) :: decomposition
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer, allocatable :: ims(:), jms(:)
+      integer :: nx, ny
 
-      associate (nx => decomposition%nx, ny => decomposition%ny)
-        call MAPL_GetResource(nx, hconfig, 'nx', default=MAPL_UNDEFINED_INTEGER, _RC)
-        decomposition%ims = get_1d_layout(hconfig, 'ims', nx, _RC)
+      call MAPL_GetResource(nx, hconfig, 'nx', default=MAPL_UNDEFINED_INTEGER, _RC)
+      ims = get_1d_layout(hconfig, 'ims', nx, _RC)
 
-        call MAPL_GetResource(ny, hconfig, 'ny', default=MAPL_UNDEFINED_INTEGER, _RC)
-        decomposition%jms = get_1d_layout(hconfig, 'jms', ny, _RC)
-      end associate
+      call MAPL_GetResource(ny, hconfig, 'ny', default=MAPL_UNDEFINED_INTEGER, _RC)
+      jms = get_1d_layout(hconfig, 'jms', ny, _RC)
+
+      decomposition = GeomDecomposition2D(nx, ny, ims, jms)
 
       _RETURN(_SUCCESS)
-   end function new_GeomDecomposition_from_hconfig
+   end function make_GeomDecomposition_from_hconfig
 
 
    function get_1d_layout(hconfig, key, n, rc) result(ms)

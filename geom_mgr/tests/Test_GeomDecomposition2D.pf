@@ -18,7 +18,7 @@ contains
       hconfig = ESMF_HConfigCreate(content='{nx: 1, ny: 1, ims: [1], jms: [1]}', rc=status)
       @assert_that(status, is(0))
 
-      decomp = GeomDecomposition2D(hconfig, rc=status)
+      decomp = make_GeomDecomposition2D(hconfig, rc=status)
       @assert_that(status, is(0))
 
       @assert_that(decomp%nx, is(1))
@@ -41,7 +41,7 @@ contains
       hconfig = ESMF_HConfigCreate(content='{nx: 2, ny: 3, ims: [1,1], jms: [1,2]}', rc=status)
       @assert_that(status, is(0))
 
-      decomp = GeomDecomposition2D(hconfig, rc=status)
+      decomp = make_GeomDecomposition2D(hconfig, rc=status)
       @assert_that(status, is(0))
 
       @assert_that(decomp%nx, is(2))
@@ -68,7 +68,7 @@ contains
       @assert_that(status, is(0))
 
       call make_tmp_file()
-      decomp = GeomDecomposition2D(hconfig, rc=status)
+      decomp = make_GeomDecomposition2D(hconfig, rc=status)
       @assert_that(status, is(0))
 
       call delete_tmp_file()

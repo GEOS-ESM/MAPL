@@ -10,10 +10,12 @@ set(srcs
 
   GeomFactory.F90
 
-  latlon/GeomDecomposition2D.F90
   latlon/HConfigUtils.F90
-#  latlon/LatLonGeomSpec.F90
-#  latlon/LatLonGeomFactory.F90
+
+  latlon/LatLonAxis.F90
+  latlon/LatLonGeomSpec.F90
+  latlon/GeomDecomposition2D.F90
+  latlon/LatLonGeomFactory.F90
   
   GeomManager.F90
 

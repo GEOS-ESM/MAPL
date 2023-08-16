@@ -6,6 +6,9 @@ module mapl3g_MaplGeom
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
+   use ESMF, only: ESMF_Info
+   use ESMF, only: ESMF_InfoGetFromHost
+   use ESMF, only: ESMF_InfoSet
    use gftl2_StringVector
    implicit none
    private
@@ -33,6 +36,7 @@ module mapl3g_MaplGeom
       ! Derived - lazy initialization
       type(VectorBases) :: bases
    contains
+      procedure :: set_id
       procedure :: get_spec
       procedure :: get_geom
 !!$      procedure :: get_grid
@@ -62,6 +66,20 @@ contains
       if (present(gridded_dims)) mapl_geom%gridded_dims = gridded_dims
 
    end function new_MaplGeom
+
+   subroutine set_id(this, id, rc)
+      class(MaplGeom), intent(inout) :: this
+      integer, intent(in) :: id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: infoh
+
+      call ESMF_InfoGetFromHost(this%geom, infoh, _RC)
+      call ESMF_InfoSet(infoh, 'MAPL::id', id, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine set_id
 
    function get_spec(this) result(spec)
       class(GeomSpec), allocatable :: spec
