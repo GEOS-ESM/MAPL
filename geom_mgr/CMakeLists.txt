@@ -7,16 +7,21 @@ set(srcs
   GeomSpec.F90
   NullGeomSpec.F90
   MaplGeom.F90
+  MaplGeom_smod.F90
 
   GeomFactory.F90
 
   latlon/HConfigUtils.F90
 
   latlon/LatLonAxis.F90
+  latlon/LatLonAxis_smod.F90
   latlon/LatLonGeomSpec.F90
+  latlon/LatLonGeomSpec_smod.F90
   latlon/LatLonGeomFactory.F90
+  latlon/LatLonGeomFactory_smod.F90
   
   GeomManager.F90
+  GeomManager_smod.F90
 
 # gFTL containers
   GeomFactoryVector.F90
@@ -24,6 +29,7 @@ set(srcs
   IntegerMaplGeomMap.F90
 
   VectorBasis.F90
+  VectorBasis_smod.F90
   )
 
 esma_add_library(${this}
