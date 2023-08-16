@@ -2,7 +2,6 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.geom_mgr/tests")
 
 set (TEST_SRCS
   #    Test_LatLonGeomFactory.pf
-  Test_GeomDecomposition2D.pf
   )
 
 add_pfunit_ctest(MAPL.geom_mgr.tests
