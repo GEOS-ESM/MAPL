@@ -535,6 +535,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR) :: var_name_lon
          character(len=ESMF_MAXSTR) :: var_name_lat
          character(len=ESMF_MAXSTR) :: var_name_time
+         character(len=ESMF_MAXSTR) :: attr_name
+         character(len=ESMF_MAXSTR) :: attr
 
          type(ESMF_Config) :: config_grid
          character(len=ESMF_MAXSTR) :: time_string
@@ -594,6 +596,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%var_name_lon = this%nc_longitude(i+1:)
             this%var_name_time= this%nc_time(i+1:)
 
+            
             ! __ loop obsfile_index for epoch
             !    get max len, allocate array, concatenate , get_var
             !
@@ -638,9 +641,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+
+                  !! this code for attribute failed, needs to rework on it
+                  !!attr_name = 'units'
+                  !!call get_attribute_from_group(filename, this%var_name_time, grp_name, attr_name, attr)
+                  !!this%datetime_units = trim(attr)
                   len = len + num_times
                   j=j+1
                enddo
+               print *, 'this%datetime_units from file = ', trim(this%datetime_units)
             end if
 
             

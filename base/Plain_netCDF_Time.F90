@@ -102,6 +102,42 @@ contains
     !!write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
+
+  subroutine get_attribute_from_group(filename, name, group_name, attr_name, attr)
+    use netcdf
+    implicit none
+    character(len=*), intent(in) :: name, filename, group_name, attr_name
+    character(len=*), intent(INOUT) :: attr
+    integer :: ncid, varid, ncid2
+    integer :: rc, status, iret
+    integer :: validRangeLength, titleLength ! Attribute lengths
+    character(len=1000) :: timeunits
+    integer :: number
+    
+    call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2), _RC )
+    call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid),  _RC )
+    call check_nc_status ( nf90_inq_varid (ncid,  name,  varid), _RC )
+    !!call check_nc_status ( nf90_inq_varid (ncid,  name,  varid), _RC )    
+
+    call check_nc_status ( nf90_inquire_attribute(ncid, varid, "units", len = validrangelength), _RC )
+!!    call check_nc_status ( nf90_inquire_attribute(ncid, varid, "dateTime:units", len = validrangelength), _RC )
+    print*, 'validrangelength:', validrangelength
+    
+    call check_nc_status ( nf90_get_att(ncid, varid, "units", timeunits), _RC)
+    !!call check_nc_status ( nf90_get_att(ncid, varid, "units", number), _RC)    
+    !!    call check_nc_status ( nf90_get_att(ncid, varid, "dateTime:units", timeunits), _RC)
+    print*, 'number=', number
+    print*, 'timeunits=', trim (timeunits)
+
+    _FAIL('stop -11')
+
+!    call check_nc_status ( nf90_get_att  (ncid,  varid, attr_name, attr), _RC )
+    iret = nf90_close(ncid)
+  end subroutine get_attribute_from_group
+
+
+
+  
 !
 !  subroutine get_ncfile_dimension_I8(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, rc)
 !    use netcdf
