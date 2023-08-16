@@ -202,7 +202,7 @@ contains
       
 
    subroutine add_factory(this, factory, id)
-      class (GridManager), intent(inout) :: this
+      class (GridManager), target, intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
       integer(kind=ESMF_KIND_I8), optional, intent(out)  :: id
 
@@ -246,7 +246,7 @@ contains
 
       use ESMF
       type (ESMF_Grid) :: grid
-      class (GridManager), intent(inout) :: this
+      class (GridManager), target, intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional,  intent(out) :: rc
@@ -455,7 +455,7 @@ contains
 
    function get_factory(this, grid, unusable, rc) result(factory)
       class (AbstractGridFactory), pointer :: factory
-      class (GridManager), intent(in) :: this
+      class (GridManager), target, intent(in) :: this
       type (ESMF_Grid), intent(in) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc

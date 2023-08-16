@@ -147,7 +147,7 @@ contains
       use pFIO_ClientThreadMod
       class (DirectoryService), target, intent(inout) :: this
       character(*), intent(in) :: port_name
-      class (ClientThread), intent(inout) :: client
+      class (ClientThread), target, intent(inout) :: client
       integer, intent(in) :: client_comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: server_size

@@ -57,6 +57,8 @@ contains
          VarspecDescr%dims = MAPL_DimsHorzOnly
       else if (trim(tmpstring) == 'xyz') then
          VarspecDescr%dims = MAPL_DimsHorzVert
+      else if (trim(tmpstring) == 'tileonly') then
+         VarspecDescr%dims = MAPL_DimsTileOnly
       end if
       tmpstring = svec%at(5)
       if (trim(tmpstring) == 'none') then

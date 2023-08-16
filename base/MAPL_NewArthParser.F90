@@ -52,7 +52,7 @@ MODULE MAPL_NewArthParserMod
 
   use ESMF
   use MAPL_BaseMod
-  use MAPL_Geom
+  use MAPL_FieldUtils
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
   use gFTL_StringVector
@@ -132,7 +132,7 @@ CONTAINS
      integer :: status
 
      do i=1,comp%StackSize
-        call ESMF_FieldDestroy(comp%stack(i),noGarbage=.true.,_RC)
+        call MAPL_FieldDestroy(comp%stack(i),_RC)
      end do
      deallocate(comp%stack)
      deallocate(comp%ByteCode)

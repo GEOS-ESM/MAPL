@@ -92,7 +92,7 @@ contains
    end function receive
 
    recursive subroutine send(this, message, rc)
-      class (SimpleSocket), intent(inout) :: this
+      class (SimpleSocket), target, intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
       class (AbstractSocket),pointer :: connection
       integer, optional, intent(out) :: rc

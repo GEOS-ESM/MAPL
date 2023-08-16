@@ -19,6 +19,7 @@ module MAPL_FieldPointerUtilities
    public :: FieldsAreBroadcastConformable
    public :: FieldsAreSameTypeKind
    public :: FieldCopy
+   public :: MAPL_FieldDestroy
    public :: FieldCopyBroadcast
 
    interface GetFieldsUndef
@@ -74,6 +75,10 @@ module MAPL_FieldPointerUtilities
    interface FieldCopyBroadcast
       procedure copy_broadcast
    end interface FieldCopyBroadcast
+
+   interface MAPL_FieldDestroy
+      procedure destroy
+   end interface
 contains
 
 
@@ -373,21 +378,56 @@ contains
       character(len=ESMF_MAXSTR) :: name
       integer :: status
       integer :: field_rank, grid_rank,ungrid_size
+      type(ESMF_Index_Flag) :: index_flag
+      real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
+      real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
+      integer, allocatable :: lc(:)
 
       call ESMF_FieldGet(x,grid=grid,rank=field_rank,_RC)
-      call ESMF_GridGet(grid,dimCount=grid_rank,_RC)
+      lc = get_local_element_count(x,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank,indexFlag=index_flag,_RC)
       ungrid_size = field_rank-grid_rank
       allocate(gridToFieldMap(grid_rank))
       allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
       call ESMF_FieldGet(x, typekind=tk, name = name, &
          staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
-         ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound, _RC)
+         ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound,  _RC)
 
       name = trim(name) // CLONE_TAG
 
-      y = ESMF_FieldCreate(grid, typekind=tk, staggerloc=staggerloc, &
-         gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
-         ungriddedUBound=ungriddedUBound, name=name, _RC)
+      if (index_flag == ESMF_INDEX_USER) then
+         if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 1) then
+            allocate(VR4_1d(lc(1)),_STAT)
+            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 1) then
+            allocate(VR8_1d(lc(1)),_STAT)
+            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 2) then
+            allocate(VR4_2d(lc(1),lc(2)),_STAT)
+            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 2) then
+            allocate(VR8_2d(lc(1),lc(2)),_STAT)
+            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 3) then
+            allocate(VR4_3d(lc(1),lc(2),lc(3)),_STAT)
+            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 3) then
+            allocate(VR8_3d(lc(1),lc(2),lc(3)),_STAT)
+            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 4) then
+            allocate(VR4_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
+            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 4) then
+            allocate(VR8_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
+            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+         else
+            _FAIL( 'unsupported typekind+field_rank')
+         end if
+      else
+         y = ESMF_FieldCreate(grid, tk, staggerloc=staggerloc, &
+            gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
+            ungriddedUBound=ungriddedUBound, name=name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine clone
@@ -859,4 +899,51 @@ contains
      _RETURN(_SUCCESS)
   end subroutine GetFieldsUndef_r8
 
+subroutine Destroy(Field,RC)
+    type(ESMF_Field),          intent(INOUT) :: Field
+    integer, optional,         intent(OUT  ) :: RC
+
+    integer                               :: STATUS
+
+    real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
+    real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
+    integer                      :: rank
+    type(ESMF_TypeKind_Flag)     :: tk
+    logical :: esmf_allocated
+
+    call ESMF_FieldGet(Field,typekind=tk,dimCount=rank,isESMFAllocated=esmf_allocated,_RC)
+    if (.not. esmf_allocated) then
+       if (tk == ESMF_TYPEKIND_R4 .and. rank == 1) then
+          call ESMF_FieldGet(Field,0,VR4_1d,_RC)
+          deallocate(VR4_1d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 1) then
+          call ESMF_FieldGet(Field,0,VR8_1d,_RC)
+          deallocate(VR8_1d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R4 .and. rank == 2) then
+          call ESMF_FieldGet(Field,0,VR4_2d,_RC)
+          deallocate(VR4_2d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 2) then
+          call ESMF_FieldGet(Field,0,VR8_2d,_RC)
+          deallocate(VR8_2d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R4 .and. rank == 3) then
+          call ESMF_FieldGet(Field,0,VR4_3D,_RC)
+          deallocate(VR4_3d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 3) then
+          call ESMF_FieldGet(Field,0,VR8_3D,_RC)
+          deallocate(VR8_3d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R4 .and. rank == 4) then
+          call ESMF_FieldGet(Field,0,VR4_4D,_RC)
+          deallocate(VR4_3d,_STAT)
+       else if (tk == ESMF_TYPEKIND_R8 .and. rank == 4) then
+          call ESMF_FieldGet(Field,0,VR8_4D,_RC)
+          deallocate(VR8_3d,_STAT)
+       else
+          _FAIL( 'unsupported typekind+rank')
+       end if
+    end if
+    call ESMF_FieldDestroy(Field,noGarbage = .true., rc=status)
+    _VERIFY(STATUS)
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine Destroy
 end module

@@ -490,6 +490,7 @@ contains
 !=============================================================================
 !>
 ! `MAPL_GenericSetServices` performs the following tasks:
+!
 !- Allocate an instance of MAPL\_GenericState, wrap it, and set it as the
 !   GC's internal state.
 !- Exract the grid and configuration from the GC and save them in the

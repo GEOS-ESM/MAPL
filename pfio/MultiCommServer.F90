@@ -432,7 +432,7 @@ contains
    end subroutine put_DataToFile
 
   subroutine clean_up(this, rc)
-      class(MultiCommServer),intent(inout) :: this
+      class(MultiCommServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       class (ServerThread),pointer :: threadPtr
       class (AbstractMessage),pointer :: msg

@@ -2,7 +2,6 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataDerived
    use ESMF
-   use yaFyaml
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use gFTL_StringVector
@@ -40,7 +39,7 @@ contains
 
       if (allocated(tempc)) deallocate(tempc)
       is_present = ESMF_HConfigIsDefined(config,keyString="function",_RC)
-      _ASSERT(is_present,"no expression found in derived entry") 
+      _ASSERT(is_present,"no expression found in derived entry")
       if (is_present) then
          tempc = ESMF_HConfigAsString(config,keyString="function",_RC)
          rule%expression=tempc
@@ -67,14 +66,14 @@ contains
       if (index(this%expression,"mask")/=0) then
          allocate(temp_mask)
          temp_mask = ExtDataMask(this%expression)
-         variables_in_expression = temp_mask%get_mask_variables(_RC) 
+         variables_in_expression = temp_mask%get_mask_variables(_RC)
       else
          variables_in_expression = parser_variables_in_expression(this%expression,_RC)
       end if
       _RETURN(_SUCCESS)
 
    end function
-      
+
 
    subroutine set_defaults(this,unusable,rc)
       class(ExtDataDerived), intent(inout), target :: this
@@ -90,7 +89,7 @@ contains
       class(ExtDataDerived) :: this
       write(*,*)"function: ",trim(this%expression)
    end subroutine display
- 
+
 end module MAPL_ExtDataDerived
 
 module MAPL_ExtDataDerivedMap

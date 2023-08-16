@@ -370,7 +370,7 @@ contains
    subroutine add_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
       character(len=*), intent(in) :: var_name
-      class (Variable), intent(in) :: var
+      class (Variable), target, intent(in) :: var
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 

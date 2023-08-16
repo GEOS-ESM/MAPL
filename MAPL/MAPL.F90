@@ -15,7 +15,7 @@ module MAPL
    use MAPL_OpenMP_Support, only : MAPL_find_bounds => find_bounds
    use MAPL_OpenMP_Support, only : MAPL_Interval => Interval
    use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
-   use MAPL_Geom
+   use MAPL_FieldUtils
    implicit none
 end module MAPL
 

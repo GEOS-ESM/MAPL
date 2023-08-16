@@ -24,6 +24,7 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
+  use MAPL_FieldUtils
   use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry
@@ -3909,7 +3910,6 @@ contains
       deallocate(tmp)
       ! if the user did no supply enough separated alias field names,
       ! append 00i to the original field name
-      if (n==1) nn=0
       do i=nn+1,n
          write(splitNameArray(i),'(A,I3.3)') trim(name), i
       end do

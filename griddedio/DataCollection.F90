@@ -51,7 +51,7 @@ contains
 
   function find(this, file_name, rc) result(metadata)
     type (FileMetadataUtils), pointer :: metadata
-    class (MAPLDataCollection), intent(inout) :: this
+    class (MAPLDataCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer, optional, intent(out) :: rc
 
@@ -61,6 +61,9 @@ contains
     type (StringIntegerMapIterator) :: iter
     class (AbstractGridFactory), allocatable :: factory
     integer :: status
+    type(StringIntegerMap), pointer :: dimensions
+    integer, pointer :: tile_size
+    logical :: skip_grid
 
 
     file_id => this%file_ids%at(file_name)
@@ -103,7 +106,11 @@ contains
        call this%metadatas%push_back(metadata)
        deallocate(metadata)
        metadata => this%metadatas%back()
-       if (.not. allocated(this%src_grid)) then
+       dimensions => metadata%get_dimensions()
+       tile_size => dimensions%at("tile_index") 
+       skip_grid = associated(tile_size)   
+ 
+       if ( (.not. allocated(this%src_grid)) .and. (.not. skip_grid)) then
           allocate(factory, source=grid_manager%make_factory(trim(file_name),force_file_coordinates=this%use_file_coords))
           this%src_grid = grid_manager%make_grid(factory)
        end if

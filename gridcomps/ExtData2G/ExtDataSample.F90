@@ -1,6 +1,5 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataTimeSample
-   use yaFyaml
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -75,10 +74,10 @@ contains
          allocate(TimeSample%source_time(2))
          TimeSample%source_time(1)=string_to_esmf_time(source_str(:idx-1))
          TimeSample%source_time(2)=string_to_esmf_time(source_str(idx+1:))
-      else 
+      else
          if (.not.allocated(TimeSample%source_time)) allocate(TimeSample%source_time(0))
       end if
-     
+
       _RETURN(_SUCCESS)
 
    end function new_ExtDataTimeSample
@@ -89,14 +88,14 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status 
+      integer :: status
       _UNUSED_DUMMY(unusable)
       this%time_interpolation=.true.
       this%extrap_outside='none'
       this%refresh_time="00"
       this%refresh_frequency="PT0S"
       this%refresh_offset="PT0S"
-      if (allocated(this%source_time)) then 
+      if (allocated(this%source_time)) then
          deallocate(this%source_time,stat=status)
          _VERIFY(status)
       end if
