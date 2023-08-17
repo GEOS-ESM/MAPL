@@ -8,7 +8,6 @@ submodule (mapl3g_MaplGeom) MaplGeom_smod
    use ESMF, only: ESMF_Info
    use ESMF, only: ESMF_InfoGetFromHost
    use ESMF, only: ESMF_InfoSet
-   use gftl2_StringVector
 
 contains
    
