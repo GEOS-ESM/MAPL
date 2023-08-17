@@ -66,7 +66,7 @@ module mapl3g_LatLonGeomSpec
       real(kind=ESMF_KIND_R8) :: corner_max
    end type AxisRanges
 
-   interface
+interface
 
       ! Basic constructor for LatLonGeomSpec
       module function new_LatLonGeomSpec(lon_axis, lat_axis) result(spec)
