@@ -49,16 +49,15 @@ contains
       integer :: status
 
       call MAPL_GetResource(is_regional, hconfig, 'regional', default=.false., _RC)
-      spec%lon_axis = make_LonAxis(hconfig, is_regional, _RC)
-      spec%lat_axis = make_LatAxis(hconfig, is_regional, _RC)
+      spec%lon_axis = make_LonAxis(hconfig, _RC)
+      spec%lat_axis = make_LatAxis(hconfig, _RC)
 
       _RETURN(_SUCCESS)
    end function make_LatLonGeomSpec_from_hconfig
 
-   module function make_LonAxis_from_hconfig(hconfig, is_regional, rc) result(axis)
+   module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
       type(LatLonAxis) :: axis
       type(ESMF_HConfig), intent(in) :: hconfig
-      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -70,7 +69,7 @@ contains
       call MAPL_GetResource(im_world, hconfig, 'im_world', _RC)
       _ASSERT(im_world > 0, 'im_world must be greater than 0')
 
-      ranges = get_lon_range(hconfig, im_world, is_regional, _RC)
+      ranges = get_lon_range(hconfig, im_world, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, im_world, _RC)
       corners = MAPL_Range(ranges%corner_min, ranges%corner_max, im_world+1, _RC)
       distribution = get_distribution(hconfig, im_world, 'nx', 'ims', _RC)
@@ -80,10 +79,9 @@ contains
       _RETURN(_SUCCESS)
    end function make_LonAxis_from_hconfig
 
-   module function make_LatAxis_from_hconfig(hconfig, is_regional, rc) result(axis)
+   module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
       type(LatLonAxis) :: axis
       type(ESMF_HConfig), intent(in) :: hconfig
-      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -95,7 +93,7 @@ contains
       call MAPL_GetResource(jm_world, hconfig, 'jm_world', _RC)
       _ASSERT(jm_world > 1, 'jm_world must be greater than 1')
 
-      ranges = get_lat_range(hconfig, jm_world, is_regional, _RC)
+      ranges = get_lat_range(hconfig, jm_world, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, jm_world, _RC)
 
       corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world+1, _RC)
@@ -142,76 +140,85 @@ contains
       _RETURN(_SUCCESS)
    end function get_distribution
 
-   module function get_lon_range(hconfig, im_world, is_regional, rc) result(ranges)
+   module function get_lon_range(hconfig, im_world, rc) result(ranges)
       type(AxisRanges) :: ranges
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: im_world
-      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
       
       integer :: status
       real(kind=ESMF_KIND_R8) :: delta
-      real(kind=ESMF_KIND_R8) :: zero = 0
       character(:), allocatable :: dateline
       real(kind=ESMF_KIND_R4), allocatable :: t_range(:)
+      logical :: has_range
+      logical :: has_dateline
 
-      if (is_regional) then
+      has_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
+      has_dateline = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
+      _ASSERT(has_range .neqv. has_dateline, 'Exactly one of lon_range or dateline must be defined in hconfig')
+
+      if (has_range) then ! is regional
          call MAPL_GetResource(t_range, hconfig, 'lon_range', _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
-         _ASSERT(range(1) < range(2), 'illegal lon_range')
-         delta = (range(2) - range(1)) / im_world
+         _ASSERT(t_range(1) < t_range(2), 'illegal lon_range')
+         delta = (t_range(2) - t_range(1)) / im_world
 
          ranges%corner_min = t_range(1)
          ranges%corner_max = t_range(2)
          ranges%center_min = t_range(1) + delta/2
-         ranges%corner_max = t_range(2) - delta/2
-
-      else
-         delta = 360.d0 / im_world
-         call MAPL_GetResource(dateline, hconfig, 'dateline', _RC)
-         select case (dateline)
-         case ('DC')
-            ranges%corner_min = -180.d0 - delta/2
-            ranges%corner_max = +180.d0 - delta/2
-            ranges%center_min = -180
-            ranges%center_max = +180 - delta
-         case ('DE')
-            ranges%corner_min = -180
-            ranges%corner_max = +180
-            ranges%center_min = -180 + delta/2
-            ranges%center_max = +180 - delta/2
-         case ('GC')
-            ranges%corner_min = -delta/2
-            ranges%corner_max = 360 - delta/2
-            ranges%center_min = 0
-            ranges%center_max = 360 - delta
-         case ('GE')
-            ranges%corner_min = 0
-            ranges%corner_max = 360 - delta
-            ranges%center_min = delta/2
-            ranges%center_max = 360 - delta/2
-         case default
-            _FAIL("Illegal value for dateline: "//dateline)
-         end select
+         ranges%center_max = t_range(2) - delta/2
+         _RETURN(_SUCCESS)
       end if
+
+
+      delta = 360.d0 / im_world
+      call MAPL_GetResource(dateline, hconfig, 'dateline', _RC)
+      select case (dateline)
+      case ('DC')
+         ranges%corner_min = -180.d0 - delta/2
+         ranges%corner_max = +180.d0 - delta/2
+         ranges%center_min = -180
+         ranges%center_max = +180 - delta
+      case ('DE')
+         ranges%corner_min = -180
+         ranges%corner_max = +180
+         ranges%center_min = -180 + delta/2
+         ranges%center_max = +180 - delta/2
+      case ('GC')
+         ranges%corner_min = -delta/2
+         ranges%corner_max = 360 - delta/2
+         ranges%center_min = 0
+         ranges%center_max = 360 - delta
+      case ('GE')
+         ranges%corner_min = 0
+         ranges%corner_max = 360 - delta
+         ranges%center_min = delta/2
+         ranges%center_max = 360 - delta/2
+      case default
+         _FAIL("Illegal value for dateline: "//dateline)
+      end select
 
       _RETURN(_SUCCESS)
    end function get_lon_range
 
-   module function get_lat_range(hconfig, jm_world, is_regional, rc) result(ranges)
+   module function get_lat_range(hconfig, jm_world, rc) result(ranges)
       type(AxisRanges) :: ranges
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: jm_world
-      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
       
       integer :: status
       real(kind=ESMF_KIND_R8) :: delta
-      real(kind=ESMF_KIND_R8), parameter :: zero = 0
       character(:), allocatable :: pole
       real(kind=ESMF_KIND_R4), allocatable :: t_range(:)
+      logical :: has_range
+      logical :: has_pole
+
+      has_range = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
+      has_pole = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
+      _ASSERT(has_range .neqv. has_pole, 'Exactly one of lon_range or pole must be defined in hconfig')
       
-      if (is_regional) then
+      if (has_range) then ! is_regional
          call MAPL_GetResource(t_range, hconfig, 'lat_range', _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(range(1) < range(2), 'illegal lat_range')
@@ -221,26 +228,27 @@ contains
          ranges%center_max = t_range(2) - delta/2
          ranges%corner_min = t_range(1)
          ranges%corner_max = t_range(2)
-         
-      else
-         call MAPL_GetResource(pole, hconfig, 'pole', _RC)
-         select case (pole)
-         case ('PE')
-            delta = 180.d0 / jm_world
-            ranges%center_min = -90 + delta/2
-            ranges%center_max = +90 - delta/2
-            ranges%corner_min = -90
-            ranges%corner_max = +90
-         case ('PC')
-            delta = 180.d0 / (jm_world-1)
-            ranges%center_min = -90
-            ranges%center_max = +90
-            ranges%corner_min = -90 - delta/2
-            ranges%corner_max = +90 + delta/2
-         case default
-            _FAIL("Illegal value for pole: "//pole)
-         end select
+         _RETURN(_SUCCESS)
       end if
+         
+      call MAPL_GetResource(pole, hconfig, 'pole', _RC)
+      select case (pole)
+      case ('PE')
+         delta = 180.d0 / jm_world
+         ranges%center_min = -90 + delta/2
+         ranges%center_max = +90 - delta/2
+         ranges%corner_min = -90
+         ranges%corner_max = +90
+      case ('PC')
+         delta = 180.d0 / (jm_world-1)
+         ranges%center_min = -90
+         ranges%center_max = +90
+         ranges%corner_min = -90 - delta/2
+         ranges%corner_max = +90 + delta/2
+      case default
+         _FAIL("Illegal value for pole: "//pole)
+      end select
+
       _RETURN(_SUCCESS)
    end function get_lat_range
    
