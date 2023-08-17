@@ -1,6 +1,8 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.geom_mgr/tests")
 
 set (TEST_SRCS
+  Test_LatLonAxis.pf
+  Test_LatLonGeomSpec.pf
   #    Test_LatLonGeomFactory.pf
   )
 

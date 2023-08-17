@@ -10,6 +10,10 @@ module mapl3g_LatLonGeomSpec
    public :: LatLonGeomSpec
    public :: make_LatLonGeomSpec
 
+   ! Exposedfor testing
+   public :: AxisRanges
+   public :: get_lon_range
+
    type, extends(GeomSpec) :: LatLonGeomSpec
       private
       type(LatLonAxis) :: lon_axis
@@ -87,21 +91,21 @@ module mapl3g_LatLonGeomSpec
          integer, optional, intent(out) :: rc
       end function make_LatLonGeomSpec_from_hconfig
 
-      module function make_LonAxis_from_hconfig(hconfig, regional, rc) result(axis)
+      module function make_LonAxis_from_hconfig(hconfig, is_regional, rc) result(axis)
          use mapl3g_LatLonAxis, only: LatLonAxis
          use esmf, only: ESMF_HConfig
          type(LatLonAxis) :: axis
          type(ESMF_HConfig), intent(in) :: hconfig
-         logical, intent(in) :: regional
+         logical, intent(in) :: is_regional
          integer, optional, intent(out) :: rc
       end function make_LonAxis_from_hconfig
 
-      module function make_LatAxis_from_hconfig(hconfig, regional, rc) result(axis)
+      module function make_LatAxis_from_hconfig(hconfig, is_regional, rc) result(axis)
          use mapl3g_LatLonAxis, only: LatLonAxis
          use esmf, only: ESMF_HConfig
          type(LatLonAxis) :: axis
          type(ESMF_HConfig), intent(in) :: hconfig
-         logical, intent(in) :: regional
+         logical, intent(in) :: is_regional
          integer, optional, intent(out) :: rc
       end function make_LatAxis_from_hconfig
 
@@ -116,21 +120,21 @@ module mapl3g_LatLonGeomSpec
          integer, optional, intent(out) :: rc
       end function get_distribution
 
-      module function get_lon_range(hconfig, im_world, regional, rc) result(ranges)
+      module function get_lon_range(hconfig, im_world, is_regional, rc) result(ranges)
          use esmf, only: ESMF_HConfig
          type(AxisRanges) :: ranges
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, intent(in) :: im_world
-         logical, intent(in) :: regional
+         logical, intent(in) :: is_regional
          integer, optional, intent(out) :: rc
       end function get_lon_range
 
-      module function get_lat_range(hconfig, jm_world, regional, rc) result(ranges)
+      module function get_lat_range(hconfig, jm_world, is_regional, rc) result(ranges)
          use esmf, only: ESMF_HConfig
          type(AxisRanges) :: ranges
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, intent(in) :: jm_world
-         logical, intent(in) :: regional
+         logical, intent(in) :: is_regional
          integer, optional, intent(out) :: rc
       end function get_lat_range
 

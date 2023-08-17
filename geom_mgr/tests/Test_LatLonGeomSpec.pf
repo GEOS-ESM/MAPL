@@ -1,0 +1,105 @@
+module Test_LatLonGeomSpec
+   use mapl3g_LatLonAxis
+   use mapl3g_LatLonGeomSpec
+   use esmf
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_get_lon_range_DC()
+      type(AxisRanges) :: ranges
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{dateline: DC}", rc=status)
+      @assert_that(status, is(0))
+
+      ranges = get_lon_range(hconfig, 4, is_regional=.false., rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(ranges%center_min, is(-180._ESMF_KIND_R8))
+      @assert_that(ranges%center_max, is(90._ESMF_KIND_R8))
+      @assert_that(ranges%corner_min, is(-225._ESMF_KIND_R8))
+      @assert_that(ranges%corner_max, is(135._ESMF_KIND_R8))
+      
+   end subroutine test_get_lon_range_DC
+
+   @test
+   subroutine test_get_lon_range_DE()
+      type(AxisRanges) :: ranges
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{dateline: DE}", rc=status)
+      @assert_that(status, is(0))
+
+      ranges = get_lon_range(hconfig, 4, is_regional=.false., rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(ranges%center_min, is(-135._ESMF_KIND_R8))
+      @assert_that(ranges%center_max, is(+135._ESMF_KIND_R8))
+      @assert_that(ranges%corner_min, is(-180._ESMF_KIND_R8))
+      @assert_that(ranges%corner_max, is(+180._ESMF_KIND_R8))
+      
+   end subroutine test_get_lon_range_DE
+
+   @test
+   subroutine test_get_lon_range_GC()
+      type(AxisRanges) :: ranges
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{dateline: GC}", rc=status)
+      @assert_that(status, is(0))
+
+      ranges = get_lon_range(hconfig, 4, is_regional=.false., rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(ranges%center_min, is(0._ESMF_KIND_R8))
+      @assert_that(ranges%center_max, is(270._ESMF_KIND_R8))
+      @assert_that(ranges%corner_min, is(-45._ESMF_KIND_R8))
+      @assert_that(ranges%corner_max, is(+315._ESMF_KIND_R8))
+      
+   end subroutine test_get_lon_range_GC
+
+   @test
+   subroutine test_get_lon_range_GE()
+      type(AxisRanges) :: ranges
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{dateline: GE}", rc=status)
+      @assert_that(status, is(0))
+
+      ranges = get_lon_range(hconfig, 4, is_regional=.false., rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(ranges%center_min, is(+45._ESMF_KIND_R8))
+      @assert_that(ranges%center_max, is(+315._ESMF_KIND_R8))
+      @assert_that(ranges%corner_min, is(0._ESMF_KIND_R8))
+      @assert_that(ranges%corner_max, is(270._ESMF_KIND_R8))
+      
+   end subroutine test_get_lon_range_GE
+
+!#   @test
+!#   subroutine test_make_lon_axis_from_hconfig()
+!#
+!#      type(ESMF_HConfig) :: hconfig
+!#
+!#      hconfig = ESMF_HConfigCreate( &
+!#           content="{im_world: 4, jm_world: 5, nx: 1 ny: 1, ", &
+!#           rc=status)
+!#      @assert_that(status, is(0))
+!#
+!#      axis = make_LonAxis(hconfig, rc=status)
+!#      @assert_that(status, is(0))
+!#
+!#      expected_centers = ([
+!#      @assert_that(axis
+!#      
+!#   end subroutine test_make_lon_axis_from_hconfig
+!#      
+   
+end module Test_LatLonGeomSpec

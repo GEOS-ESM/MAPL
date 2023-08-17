@@ -45,20 +45,20 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      logical :: regional
+      logical :: is_regional
       integer :: status
 
-      call MAPL_GetResource(regional, hconfig, 'regional', default=.false., _RC)
-      spec%lon_axis = make_LonAxis(hconfig, regional, _RC)
-      spec%lat_axis = make_LatAxis(hconfig, regional, _RC)
+      call MAPL_GetResource(is_regional, hconfig, 'regional', default=.false., _RC)
+      spec%lon_axis = make_LonAxis(hconfig, is_regional, _RC)
+      spec%lat_axis = make_LatAxis(hconfig, is_regional, _RC)
 
       _RETURN(_SUCCESS)
    end function make_LatLonGeomSpec_from_hconfig
 
-   module function make_LonAxis_from_hconfig(hconfig, regional, rc) result(axis)
+   module function make_LonAxis_from_hconfig(hconfig, is_regional, rc) result(axis)
       type(LatLonAxis) :: axis
       type(ESMF_HConfig), intent(in) :: hconfig
-      logical, intent(in) :: regional
+      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -70,7 +70,7 @@ contains
       call MAPL_GetResource(im_world, hconfig, 'im_world', _RC)
       _ASSERT(im_world > 0, 'im_world must be greater than 0')
 
-      ranges = get_lon_range(hconfig, im_world, regional, _RC)
+      ranges = get_lon_range(hconfig, im_world, is_regional, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, im_world, _RC)
       corners = MAPL_Range(ranges%corner_min, ranges%corner_max, im_world, _RC)
       distribution = get_distribution(hconfig, im_world, 'nx', 'ims', _RC)
@@ -80,10 +80,10 @@ contains
       _RETURN(_SUCCESS)
    end function make_LonAxis_from_hconfig
 
-   module function make_LatAxis_from_hconfig(hconfig, regional, rc) result(axis)
+   module function make_LatAxis_from_hconfig(hconfig, is_regional, rc) result(axis)
       type(LatLonAxis) :: axis
       type(ESMF_HConfig), intent(in) :: hconfig
-      logical, intent(in) :: regional
+      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -95,7 +95,7 @@ contains
       call MAPL_GetResource(jm_world, hconfig, 'jm_world', _RC)
       _ASSERT(jm_world > 1, 'jm_world must be greater than 1')
 
-      ranges = get_lat_range(hconfig, jm_world, regional, _RC)
+      ranges = get_lat_range(hconfig, jm_world, is_regional, _RC)
       centers = MAPL_Range(ranges%center_min, ranges%center_max, jm_world, _RC)
       corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world, _RC)
       distribution = get_distribution(hconfig, jm_world, 'ny', 'jms', _RC)
@@ -137,11 +137,11 @@ contains
       _RETURN(_SUCCESS)
    end function get_distribution
 
-   module function get_lon_range(hconfig, im_world, regional, rc) result(ranges)
+   module function get_lon_range(hconfig, im_world, is_regional, rc) result(ranges)
       type(AxisRanges) :: ranges
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: im_world
-      logical, intent(in) :: regional
+      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -150,7 +150,7 @@ contains
       character(:), allocatable :: dateline
       real(kind=ESMF_KIND_R4), allocatable :: t_range(:)
 
-      if (regional) then
+      if (is_regional) then
          call MAPL_GetResource(t_range, hconfig, 'lon_range', _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(range(1) < range(2), 'illegal lon_range')
@@ -193,11 +193,11 @@ contains
       _RETURN(_SUCCESS)
    end function get_lon_range
 
-   module function get_lat_range(hconfig, jm_world, regional, rc) result(ranges)
+   module function get_lat_range(hconfig, jm_world, is_regional, rc) result(ranges)
       type(AxisRanges) :: ranges
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: jm_world
-      logical, intent(in) :: regional
+      logical, intent(in) :: is_regional
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -206,7 +206,7 @@ contains
       character(:), allocatable :: pole
       real(kind=ESMF_KIND_R4), allocatable :: t_range(:)
       
-      if (regional) then
+      if (is_regional) then
          call MAPL_GetResource(t_range, hconfig, 'lat_range', _RC)
          _ASSERT(size(t_range) == 2, 'illegal size of lon_range')
          _ASSERT(range(1) < range(2), 'illegal lat_range')

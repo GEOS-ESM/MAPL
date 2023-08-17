@@ -1,0 +1,53 @@
+module Test_LatLonAxis
+   use funit
+   use mapl3g_LatLonAxis
+   use esmf, only: ESMF_KIND_R8
+   implicit none
+
+contains
+
+   @test
+   subroutine test_is_periodic()
+      type(LatLonAxis) :: axis
+
+      integer, parameter :: N = 6
+      real(kind=ESMF_KIND_R8) :: centers(N)
+      real(kind=ESMF_KIND_R8) :: corners(N+1)
+      integer :: i
+
+      do i = 1, n
+         centers(i) = (360./n) * i
+         corners(i) = (360./n) * i - (360./(2*n))
+      end do
+      corners(n+1) = 360 + (360./(2*n))
+      axis = LatLonAxis(centers = centers, corners=corners, distribution=[1])
+
+      @assert_that(axis%is_periodic(), is(true()))
+           
+   end subroutine test_is_periodic
+   
+   @test
+   subroutine test_is_not_periodic()
+      type(LatLonAxis) :: axis
+
+      integer, parameter :: N = 6
+      real(kind=ESMF_KIND_R8) :: centers(N)
+      real(kind=ESMF_KIND_R8) :: corners(N+1)
+      integer :: i
+
+      do i = 1, n
+         centers(i) = (360./n) * i
+         corners(i) = (360./n) * i - (360./(2*n))
+      end do
+
+      corners(n+1) = 360 + (360./(2*n)) + 1
+      axis = LatLonAxis(centers = centers, corners=corners, distribution=[1])
+      @assert_that(axis%is_periodic(), is(false()))
+
+      corners(n+1) = 360 + (360./(2*n)) - 1
+      axis = LatLonAxis(centers = centers, corners=corners, distribution=[1])
+      @assert_that(axis%is_periodic(), is(false()))
+      
+   end subroutine test_is_not_periodic
+
+end module Test_LatLonAxis
