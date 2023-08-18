@@ -199,7 +199,7 @@ contains
          corners(:,j) = lon_axis%get_corners(rank=ix)
       end do
       centers = centers * MAPL_DEGREES_TO_RADIANS_R8
-      corners = centers * MAPL_DEGREES_TO_RADIANS_R8
+      corners = corners * MAPL_DEGREES_TO_RADIANS_R8
 
       ! Now latitudes
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
