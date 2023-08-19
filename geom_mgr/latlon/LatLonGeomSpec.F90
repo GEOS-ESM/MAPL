@@ -40,11 +40,6 @@ module mapl3g_LatLonGeomSpec
       procedure make_LatLonGeomSpec_from_metadata
    end interface make_LatLonGeomSpec
 
-!#   interface make_de_layout
-!#      procedure make_de_layout_vm
-!#      procedure make_de_layout_petcount
-!#   end interface make_de_layout
-!#
    interface get_coordinates
       procedure get_coordinates_try
       procedure get_coordinates_dim

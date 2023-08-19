@@ -66,6 +66,19 @@ module mapl3g_LatLonAxis
          real(kind=R8), intent(in) :: corners(:)
       end function new_LatLonAxis
 
+     ! static factory methods
+      module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
+         type(LatLonAxis) :: axis
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function make_LonAxis_from_hconfig
+
+      module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
+         type(LatLonAxis) :: axis
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function make_LatAxis_from_hconfig
+
       elemental logical module function equal_to(a, b)
          type(LatLonAxis), intent(in) :: a, b
       end function equal_to
@@ -112,19 +125,6 @@ module mapl3g_LatLonAxis
          integer, intent(in) :: jm_world
          integer, optional, intent(out) :: rc
       end function get_lat_range
-
-     ! static factory methods
-      module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
-         type(LatLonAxis) :: axis
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, optional, intent(out) :: rc
-      end function make_LonAxis_from_hconfig
-
-      module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
-         type(LatLonAxis) :: axis
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, optional, intent(out) :: rc
-      end function make_LatAxis_from_hconfig
 
 
    end interface

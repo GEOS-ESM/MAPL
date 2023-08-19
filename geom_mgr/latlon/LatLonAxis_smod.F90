@@ -16,6 +16,34 @@ contains
    end function new_LatLonAxis
 
 
+   ! static factory methods
+   module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
+      type(LatLonAxis) :: axis
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: jm_world
+      real(kind=R8), allocatable :: centers(:), corners(:)
+      type(AxisRanges) :: ranges
+
+      call MAPL_GetResource(jm_world, hconfig, 'jm_world', _RC)
+      _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
+
+      ranges = get_lat_range(hconfig, jm_world, _RC)
+      centers = MAPL_Range(ranges%center_min, ranges%center_max, jm_world, _RC)
+
+      corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world+1, _RC)
+      ! IMPORTANT: this fix must be _after the call to MAPL_Range.
+      if (corners(1) < -90.d0) corners(1) = -90.0d0
+      if (corners(jm_world+1) > 90.d0) corners(jm_world+1) = 90.0d0
+
+      axis = LatLonAxis(centers, corners)
+
+      _RETURN(_SUCCESS)
+   end function make_LatAxis_from_hconfig
+
+
    elemental logical module function equal_to(a, b)
       type(LatLonAxis), intent(in) :: a, b
 
@@ -227,33 +255,4 @@ contains
    end function get_lat_range
  
 
-   ! static factory methods
-   module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
-      type(LatLonAxis) :: axis
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: jm_world
-      real(kind=R8), allocatable :: centers(:), corners(:)
-      type(AxisRanges) :: ranges
-
-      call MAPL_GetResource(jm_world, hconfig, 'jm_world', _RC)
-      _ASSERT(jm_world > 0, 'jm_world must be greater than 1')
-
-      ranges = get_lat_range(hconfig, jm_world, _RC)
-      centers = MAPL_Range(ranges%center_min, ranges%center_max, jm_world, _RC)
-
-      corners = MAPL_Range(ranges%corner_min, ranges%corner_max, jm_world+1, _RC)
-      ! IMPORTANT: this fix must be _after the call to MAPL_Range.
-      if (corners(1) < -90.d0) corners(1) = -90.0d0
-      if (corners(jm_world+1) > 90.d0) corners(jm_world+1) = 90.0d0
-
-      axis = LatLonAxis(centers, corners)
-
-      _RETURN(_SUCCESS)
-   end function make_LatAxis_from_hconfig
-
-
 end submodule LatLonAxis_smod
-
