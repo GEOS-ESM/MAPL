@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use mapl3g_GeomSpec
+   use mapl3g_LatLonDecomposition
    use mapl3g_LatLonAxis
    use mapl3g_LatLonGeomSpec
    use mapl_MinMaxMod
@@ -124,14 +125,16 @@ contains
 
       integer :: status
       type(LatLonAxis) :: lon_axis, lat_axis
+      type(LatLonDecomposition) :: decomp
 
       lon_axis = spec%get_lon_axis()
       lat_axis = spec%get_lat_axis()
+      decomp = spec%get_decomposition()
 
       if (lon_axis%is_periodic()) then
          grid = ESMF_GridCreate1PeriDim( &
-              & countsPerDEDim1=lon_axis%get_distribution(), &
-              & countsPerDEDim2=lat_axis%get_distribution(), &
+              & countsPerDEDim1=decomp%get_lon_distribution(), &
+              & countsPerDEDim2=decomp%get_lat_distribution(), &
               & indexFlag=ESMF_INDEX_DELOCAL, &
               & gridEdgeLWidth=[0,0], &
               & gridEdgeUWidth=[0,1], &
@@ -141,8 +144,8 @@ contains
               & _RC)
        else
          grid = ESMF_GridCreateNoPeriDim( &
-              & countsPerDEDim1=lon_axis%get_distribution(), &
-              & countsPerDEDim2=lat_axis%get_distribution(), &
+              & countsPerDEDim1=decomp%get_lon_distribution(), &
+              & countsPerDEDim2=decomp%get_lat_distribution(), &
               & indexFlag=ESMF_INDEX_DELOCAL, &
               & gridEdgeLWidth=[0,0], &
               & gridEdgeUWidth=[1,1], &
@@ -173,13 +176,15 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: corners(:,:)
       integer :: i, j
       type(LatLonAxis) :: lon_axis, lat_axis
+      type(LatLonDecomposition) :: decomp
       integer :: nx, ny, ix, iy
 
       lon_axis = spec%get_lon_axis()
       lat_axis = spec%get_lat_axis()
-
-      nx = lon_axis%get_npes()
-      ny = lat_axis%get_npes()
+      decomp = spec%get_decomposition()
+      
+      nx = size(decomp%get_lon_distribution())
+      ny = size(decomp%get_lat_distribution())
 
       call get_ranks(nx, ny, ix, iy, _RC)
       
@@ -193,11 +198,12 @@ contains
 
       lon_axis = spec%get_lon_axis()
       do j = 1, size(centers,2)
-         centers(:,j) = lon_axis%get_centers(rank=ix)
+         centers(:,j) = decomp%get_lon_subset(lon_axis%get_centers(), rank=ix)
       end do
       do j = 1, size(corners,2)
-         corners(:,j) = lon_axis%get_corners(rank=ix)
+         corners(:,j) = decomp%get_lon_subset(lon_axis%get_corners(), rank=ix)
       end do
+
       centers = centers * MAPL_DEGREES_TO_RADIANS_R8
       corners = corners * MAPL_DEGREES_TO_RADIANS_R8
 
@@ -211,11 +217,13 @@ contains
 
       lat_axis = spec%get_lat_axis()
       do i = 1, size(centers,1)
-         centers(i,:) = lat_axis%get_centers(rank=iy)
+         centers(i,:) = decomp%get_lat_subset(lat_axis%get_centers(), rank=iy)
       end do
       do i = 1, size(corners,1)
-         corners(i,:) = lat_axis%get_corners(rank=iy)
+         corners(i,:) = decomp%get_lat_subset(lat_axis%get_corners(), rank=iy)
       end do
+
+
       centers = centers * MAPL_DEGREES_TO_RADIANS_R8
       corners = centers * MAPL_DEGREES_TO_RADIANS_R8
 

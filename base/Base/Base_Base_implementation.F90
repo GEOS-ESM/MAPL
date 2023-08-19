@@ -730,7 +730,7 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_SetPointer3DR4
 
-  module subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
+  pure module subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
     use MAPL_KeywordEnforcerMod
 
     integer, intent(in) :: dim_world, NDEs
@@ -747,8 +747,6 @@ contains
     integer :: iend(0:NDEs-1)
     logical :: symmetrize
     integer :: NDEs_used
-
-    _UNUSED_DUMMY(unusable)
 
     if (present(symmetric)) then
        do_symmetric=symmetric
@@ -829,12 +827,12 @@ contains
 
   contains
 
-    logical function even(n)
+    pure logical function even(n)
       integer, intent(in) :: n
       even = mod(n,2).EQ.0
     end function even
 
-    logical function odd(n)
+    pure logical function odd(n)
       integer, intent(in) :: n
       odd = mod(n,2).EQ.1
     end function odd

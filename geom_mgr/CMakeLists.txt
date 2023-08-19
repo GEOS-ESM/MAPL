@@ -13,6 +13,8 @@ set(srcs
 
   latlon/HConfigUtils.F90
 
+  latlon/LatLonDecomposition.F90
+  latlon/LatLonDecomposition_smod.F90
   latlon/LatLonAxis.F90
   latlon/LatLonAxis_smod.F90
   latlon/LatLonGeomSpec.F90

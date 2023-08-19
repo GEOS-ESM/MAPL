@@ -1,0 +1,38 @@
+module Test_LatLonDecomposition
+   use mapl3g_LatLonDecomposition
+   use funit
+   implicit none
+
+
+contains
+
+   @test
+   subroutine test_equal_to()
+
+      type(LatLonDecomposition) :: a, b
+
+      a = LatLonDecomposition([1,2],[3,4,5])
+      b = a
+      @assert_that(a == b, is(true()))
+      @assert_that(a /= b, is(false()))
+      
+      b = LatLonDecomposition([2,1],[3,4,5])
+      @assert_that(a == b, is(false()))
+      @assert_that(a /= b, is(true()))
+
+      b = LatLonDecomposition([1,2], [2,7])
+      @assert_that(a == b, is(false()))
+      @assert_that(a /= b, is(true()))
+
+   end subroutine test_equal_to
+ 
+   @test
+   subroutine test_make_decomposition_npes()
+
+      type(LatLonDecomposition) :: found, expected
+     found = LatLonDecomposition([2,2], petCount=1)
+      expected = LatLonDecomposition([2],[2])
+      @assert_that(found == expected, is(true()))
+
+   end subroutine test_make_decomposition_npes
+end module Test_LatLonDecomposition

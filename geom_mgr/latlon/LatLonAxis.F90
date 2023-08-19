@@ -1,30 +1,52 @@
 module mapl3g_LatLonAxis
+   use mapl_RangeMod
    use esmf, only: ESMF_KIND_R8
+   use esmf, only: ESMF_HConfig
    implicit none
    private
 
    public :: LatLonAxis
+   public :: make_LonAxis
+   public :: make_LatAxis
    public :: operator(==)
    public :: operator(/=)
 
+   ! Public just to enable testing
+   public :: AxisRanges
+   public :: get_lon_range
+   public :: get_lat_range
+
+   integer, parameter :: R8 = ESMF_KIND_R8
+
+   type :: AxisRanges
+      real(kind=R8) :: center_min
+      real(kind=R8) :: center_max
+      real(kind=R8) :: corner_min
+      real(kind=R8) :: corner_max
+   end type AxisRanges
+
    type :: LatLonAxis
       private
-      real(kind=ESMF_KIND_R8), allocatable :: centers(:)
-      real(kind=ESMF_KIND_R8), allocatable :: corners(:)
-      integer, allocatable :: distribution(:)
+      real(kind=R8), allocatable :: centers(:)
+      real(kind=R8), allocatable :: corners(:)
    contains
       procedure :: get_extent
       procedure :: get_centers
       procedure :: get_corners
-      procedure :: get_npes
-      procedure :: get_distribution
       procedure :: is_periodic
    end type LatLonAxis
 
    interface LatLonAxis
       procedure new_LatLonAxis
-      procedure new_LatLonAxis_serial
    end interface LatLonAxis
+
+   interface make_LonAxis
+      procedure make_LonAxis_from_hconfig
+   end interface make_LonAxis
+
+   interface make_LatAxis
+      procedure make_LatAxis_from_hconfig
+   end interface make_LatAxis
 
    interface operator(==)
       module procedure equal_to
@@ -38,24 +60,17 @@ module mapl3g_LatLonAxis
    ! Submodule
    interface
 
-      pure module function new_LatLonAxis(centers, corners, distribution) result(axis)
+      pure module function new_LatLonAxis(centers, corners) result(axis)
          type(LatLonAxis) :: axis
-         real(kind=ESMF_KIND_R8), intent(in) :: centers(:)
-         real(kind=ESMF_KIND_R8), intent(in) :: corners(:)
-         integer, intent(in) :: distribution(:)
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), intent(in) :: corners(:)
       end function new_LatLonAxis
 
-      pure module function new_LatLonAxis_serial(centers, corners) result(axis)
-         type(LatLonAxis) :: axis
-         real(kind=ESMF_KIND_R8), intent(in) :: centers(:)
-         real(kind=ESMF_KIND_R8), intent(in) :: corners(:)
-      end function new_LatLonAxis_serial
-
-      pure logical module function equal_to(a, b)
+      elemental logical module function equal_to(a, b)
          type(LatLonAxis), intent(in) :: a, b
       end function equal_to
 
-      pure logical module function not_equal_to(a, b)
+      elemental logical module function not_equal_to(a, b)
          type(LatLonAxis), intent(in) :: a, b
       end function not_equal_to
 
@@ -67,33 +82,50 @@ module mapl3g_LatLonAxis
          integer :: extent
       end function get_extent
 
-      pure module function get_centers(this, rank) result(centers)
-         use esmf, only: ESMF_KIND_R8
-         real(kind=ESMF_KIND_R8), allocatable :: centers(:)
+      pure module function get_centers(this) result(centers)
+         real(kind=R8), allocatable :: centers(:)
          class(LatLonAxis), intent(in) :: this
-         integer, intent(in), optional :: rank ! starting from 0
       end function get_centers
 
-      pure module function get_corners(this, rank) result(corners)
-         use esmf, only: ESMF_KIND_R8
-         real(kind=ESMF_KIND_R8), allocatable :: corners(:)
+      pure module function get_corners(this) result(corners)
+         real(kind=R8), allocatable :: corners(:)
          class(LatLonAxis), intent(in) :: this
-         integer, intent(in), optional :: rank ! starting from 0
       end function get_corners
-
-      pure module function get_npes(this) result(npes)
-         class(LatLonAxis), intent(in) :: this
-         integer :: npes
-      end function get_npes
-
-      pure module function get_distribution(this) result(distribution)
-         class(LatLonAxis), intent(in) :: this
-         integer, allocatable :: distribution(:)
-      end function get_distribution
 
       pure logical module function is_periodic(this)
          class(LatLonAxis), intent(in) :: this
       end function is_periodic
+
+      ! helper functions
+      module function get_lon_range(hconfig, im_world, rc) result(ranges)
+         use esmf, only: ESMF_HConfig
+         type(AxisRanges) :: ranges
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, intent(in) :: im_world
+         integer, optional, intent(out) :: rc
+      end function get_lon_range
+
+      module function get_lat_range(hconfig, jm_world, rc) result(ranges)
+         use esmf, only: ESMF_HConfig
+         type(AxisRanges) :: ranges
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, intent(in) :: jm_world
+         integer, optional, intent(out) :: rc
+      end function get_lat_range
+
+     ! static factory methods
+      module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
+         type(LatLonAxis) :: axis
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function make_LonAxis_from_hconfig
+
+      module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
+         type(LatLonAxis) :: axis
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function make_LatAxis_from_hconfig
+
 
    end interface
 

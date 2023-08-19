@@ -2,6 +2,7 @@
 
 module mapl3g_LatLonGeomSpec
    use mapl3g_GeomSpec
+   use mapl3g_LatLonDecomposition
    use mapl3g_LatLonAxis
    use esmf, only: ESMF_KIND_R8
    implicit none
@@ -10,14 +11,11 @@ module mapl3g_LatLonGeomSpec
    public :: LatLonGeomSpec
    public :: make_LatLonGeomSpec
 
-   ! Exposedfor testing
-   public :: AxisRanges
-   public :: get_lon_range
-
    type, extends(GeomSpec) :: LatLonGeomSpec
       private
       type(LatLonAxis) :: lon_axis
       type(LatLonAxis) :: lat_axis
+      type(LatLonDecomposition) :: decomposition
    contains
       ! mandatory interface
       procedure :: equal_to
@@ -30,6 +28,7 @@ module mapl3g_LatLonGeomSpec
       ! Accessors
       procedure :: get_lon_axis
       procedure :: get_lat_axis
+      procedure :: get_decomposition
    end type LatLonGeomSpec
 
    interface LatLonGeomSpec
@@ -41,39 +40,25 @@ module mapl3g_LatLonGeomSpec
       procedure make_LatLonGeomSpec_from_metadata
    end interface make_LatLonGeomSpec
 
-   interface make_LonAxis
-      procedure make_LonAxis_from_hconfig
-   end interface make_LonAxis
-
-   interface make_LatAxis
-      procedure make_LatAxis_from_hconfig
-   end interface make_LatAxis
-
-   interface make_de_layout
-      procedure make_de_layout_vm
-      procedure make_de_layout_petcount
-   end interface make_de_layout
-
+!#   interface make_de_layout
+!#      procedure make_de_layout_vm
+!#      procedure make_de_layout_petcount
+!#   end interface make_de_layout
+!#
    interface get_coordinates
       procedure get_coordinates_try
       procedure get_coordinates_dim
    end interface get_coordinates
 
-   type :: AxisRanges
-      real(kind=ESMF_KIND_R8) :: center_min
-      real(kind=ESMF_KIND_R8) :: center_max
-      real(kind=ESMF_KIND_R8) :: corner_min
-      real(kind=ESMF_KIND_R8) :: corner_max
-   end type AxisRanges
-
 interface
 
       ! Basic constructor for LatLonGeomSpec
-      module function new_LatLonGeomSpec(lon_axis, lat_axis) result(spec)
+      module function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
          use mapl3g_LatLonAxis, only: LatLonAxis
          type(LatLonGeomSpec) :: spec
          type(LatLonAxis), intent(in) :: lon_axis
          type(LatLonAxis), intent(in) :: lat_axis
+         type(Latlondecomposition), intent(in) :: decomposition
       end function new_LatLonGeomSpec
 
 
@@ -91,49 +76,17 @@ interface
          integer, optional, intent(out) :: rc
       end function make_LatLonGeomSpec_from_hconfig
 
-      module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
-         use mapl3g_LatLonAxis, only: LatLonAxis
-         use esmf, only: ESMF_HConfig
-         type(LatLonAxis) :: axis
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, optional, intent(out) :: rc
-      end function make_LonAxis_from_hconfig
 
-      module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
-         use mapl3g_LatLonAxis, only: LatLonAxis
-         use esmf, only: ESMF_HConfig
-         type(LatLonAxis) :: axis
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, optional, intent(out) :: rc
-      end function make_LatAxis_from_hconfig
-
-
-      module function get_distribution(hconfig, m_world, key_npes, key_distribution, rc) result(distribution)
-         use esmf, only: ESMF_HConfig
-        integer, allocatable :: distribution(:)
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, intent(in) :: m_world
-         character(len=*), intent(in) :: key_npes
-         character(len=*), intent(in) :: key_distribution
-         integer, optional, intent(out) :: rc
-      end function get_distribution
-
-      module function get_lon_range(hconfig, im_world, rc) result(ranges)
-         use esmf, only: ESMF_HConfig
-         type(AxisRanges) :: ranges
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, intent(in) :: im_world
-         integer, optional, intent(out) :: rc
-      end function get_lon_range
-
-      module function get_lat_range(hconfig, jm_world, rc) result(ranges)
-         use esmf, only: ESMF_HConfig
-         type(AxisRanges) :: ranges
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, intent(in) :: jm_world
-         integer, optional, intent(out) :: rc
-      end function get_lat_range
-
+!#      module function get_distribution(hconfig, m_world, key_npes, key_distribution, rc) result(distribution)
+!#         use esmf, only: ESMF_HConfig
+!#        integer, allocatable :: distribution(:)
+!#         type(ESMF_HConfig), intent(in) :: hconfig
+!#         integer, intent(in) :: m_world
+!#         character(len=*), intent(in) :: key_npes
+!#         character(len=*), intent(in) :: key_distribution
+!#         integer, optional, intent(out) :: rc
+!#      end function get_distribution
+!#
       ! File metadata section
       ! =====================
       ! Unfortunately, we cannot quite compute each axis (lat - lon) independently,
@@ -218,16 +171,19 @@ interface
 
       ! Accessors
       pure module function get_lon_axis(spec) result(axis)
-         use mapl3g_LatLonAxis, only: LatLonAxis
          class(LatLonGeomSpec), intent(in) :: spec
          type(LatLonAxis) :: axis
       end function get_lon_axis
 
       pure module function get_lat_axis(spec) result(axis)
-         use mapl3g_LatLonAxis, only: LatLonAxis
          class(LatLonGeomSpec), intent(in) :: spec
          type(LatLonAxis) :: axis
       end function get_lat_axis
+
+      pure module function get_decomposition(spec) result(decomposition)
+         type(LatLonDecomposition) :: decomposition
+         class(LatLonGeomSpec), intent(in) :: spec
+      end function get_decomposition
 
       logical module function supports_hconfig(this, hconfig, rc) result(supports)
          use esmf, only: ESMF_HConfig
