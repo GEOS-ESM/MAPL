@@ -2,6 +2,7 @@ module mapl3g_CoordinateAxis
    use mapl_RangeMod
    use esmf, only: ESMF_KIND_R8
    use esmf, only: ESMF_HConfig
+   use pfio
    implicit none
    private
 
@@ -9,7 +10,8 @@ module mapl3g_CoordinateAxis
    public :: operator(==)
    public :: operator(/=)
 
-   ! Public just to enable testing
+   public :: get_coordinates
+   public :: get_dim_name
    public :: AxisRanges
 
    integer, parameter :: R8 = ESMF_KIND_R8
@@ -36,10 +38,6 @@ module mapl3g_CoordinateAxis
       procedure new_CoordinateAxis
    end interface CoordinateAxis
 
-   interface make_LatAxis
-      procedure make_LatAxis_from_hconfig
-   end interface make_LatAxis
-
    interface operator(==)
       module procedure equal_to
    end interface operator(==)
@@ -48,6 +46,9 @@ module mapl3g_CoordinateAxis
       module procedure not_equal_to
    end interface operator(/=)
 
+   interface get_coordinates
+      procedure get_coordinates_dim
+   end interface get_coordinates
 
    ! Submodule
    interface
@@ -57,12 +58,6 @@ module mapl3g_CoordinateAxis
          real(kind=R8), intent(in) :: centers(:)
          real(kind=R8), intent(in) :: corners(:)
       end function new_CoordinateAxis
-
-      module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
-         type(CoordinateAxis) :: axis
-         type(ESMF_HConfig), intent(in) :: hconfig
-         integer, optional, intent(out) :: rc
-      end function make_LatAxis_from_hconfig
 
       elemental logical module function equal_to(a, b)
          type(CoordinateAxis), intent(in) :: a, b
@@ -93,6 +88,22 @@ module mapl3g_CoordinateAxis
       pure logical module function is_periodic(this)
          class(CoordinateAxis), intent(in) :: this
       end function is_periodic
+
+      module function get_dim_name(file_metadata, units, rc) result(dim_name)
+         character(:), allocatable :: dim_name
+         type(FileMetadata), target, intent(in) :: file_metadata
+         character(*), intent(in) :: units
+         integer, optional, intent(out) :: rc
+      end function get_dim_name
+
+      module function get_coordinates_dim(file_metadata, dim_name, rc) result(coordinates)
+         use pfio, only: FileMetadata
+         real(kind=R8), dimension(:), allocatable :: coordinates
+         type(FileMetadata), intent(in) :: file_metadata
+         character(len=*), intent(in) :: dim_name
+         integer, optional, intent(out) :: rc
+      end function get_coordinates_dim
+
 
    end interface
 

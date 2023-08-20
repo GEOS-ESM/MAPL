@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
+   use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
    use mapl3g_HConfigUtils
    use pfio
@@ -8,11 +9,8 @@ submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use MAPLBase_Mod
    use mapl_ErrorHandling
    use esmf
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    
-   integer, parameter :: R8 = ESMF_KIND_R8
-
 contains
 
 
@@ -158,13 +156,7 @@ contains
       type(LatAxis) :: lat_axis
       type(LatLonDecomposition) :: decomposition
 
-      lon_centers = get_coordinates(file_metadata, 'lon', 'longitude', _RC)
-      im_world = size(lon_centers)
-      ! Enforce convention for longitude range.
-      if (any((lon_centers(2:im_world) - lon_centers(1:im_world-1)) < 0)) then
-         where(lon_centers > 180) lon_centers = lon_centers - 360
-      end if
-      lon_corners = get_lon_corners(lon_centers)
+      lon_axis = make_LonAxis(file_metadata, _RC)
 
       lat_centers = get_coordinates(file_metadata, 'lat', 'latitude', _RC)
       jm_world = size(lat_centers)
@@ -174,7 +166,6 @@ contains
       if (lat_corners(1) < -90) lat_corners(1) = -90
       if (lat_corners(jm_world+1) > 90) lat_corners(jm_world+1) = 90
 
-      lon_axis = LonAxis(lon_centers, lon_corners)
       lat_axis = LatAxis(lat_centers, lat_corners)
       decomposition = make_LatLonDecomposition([im_world, jm_world], _RC)
 
@@ -202,51 +193,11 @@ contains
       integer :: status
       character(:), allocatable :: dim_name
 
-      dim_name = get_dim_name(file_metadata, try1, try2, _RC)
+      dim_name = get_dim_name_(file_metadata, try1, try2, _RC)
       coordinates = get_coordinates(file_metadata, dim_name, _RC)
 
       _RETURN(_SUCCESS)
    end function get_coordinates_try
-
-   module function get_coordinates_dim(file_metadata, dim_name, rc) result(coordinates)
-      real(kind=R8), dimension(:), allocatable :: coordinates
-      type(FileMetadata), intent(in) :: file_metadata
-      character(len=*), intent(in) :: dim_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      class (CoordinateVariable), pointer :: v
-      class (*), pointer :: ptr(:)
-
-      v => file_metadata%get_coordinate_variable(dim_name, _RC)
-      ptr => v%get_coordinate_data()
-      _ASSERT(associated(ptr),'coordinate data not allocated')
-
-      select type (ptr)
-      type is (real(kind=REAL64))
-         coordinates = ptr
-      type is (real(kind=REAL32))
-         coordinates = ptr
-      class default
-         _FAIL('unsuppoted kind for coordinate data -- must be REAL32 or REAL64')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function get_coordinates_dim
-
-
-   module function get_lon_corners(centers) result(corners)
-      real(kind=R8), intent(in) :: centers(:)
-      real(kind=R8), allocatable :: corners(:)
-
-      associate (im => size(centers))
-        allocate(corners(im+1))
-        corners(1) = (centers(im) + centers(1))/2 - 180
-        corners(2:im) = (centers(1:im-1) + centers(2:im))/2
-        corners(im+1) = (centers(im) + centers(1))/2 + 180
-      end associate
-   end function get_lon_corners
-
 
    module function get_lat_corners(centers) result(corners)
       real(kind=R8), intent(in) :: centers(:)
@@ -296,7 +247,7 @@ contains
 
    end subroutine fix_bad_pole
 
-   module function get_dim_name(file_metadata, try1, try2, rc) result(dim_name)
+   module function get_dim_name_(file_metadata, try1, try2, rc) result(dim_name)
       character(len=:), allocatable :: dim_name
       type(FileMetadata), intent(in) :: file_metadata
       character(len=*), intent(in) :: try1
@@ -322,7 +273,7 @@ contains
 
       ! No path to get here
       _RETURN(_FAILURE)
-   end function get_dim_name
+   end function get_dim_name_
 
 
 !#   ! ------------------------------------------------------------------------------------
@@ -439,8 +390,8 @@ contains
 
       supports = .false.
 
-      lon_name = get_dim_name(file_metadata, 'lon', 'longitude', _RC)
-      lat_name = get_dim_name(file_metadata, 'lat', 'latitude', _RC)
+      lon_name = get_dim_name_(file_metadata, 'lon', 'longitude', _RC)
+      lat_name = get_dim_name_(file_metadata, 'lat', 'latitude', _RC)
 
       flag = file_metadata%has_variable(lon_name, _RC)
       _RETURN_UNLESS(flag)

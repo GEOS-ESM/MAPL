@@ -1,5 +1,6 @@
 module mapl3g_LonAxis
    use mapl3g_CoordinateAxis
+   use pfio
    use esmf
    implicit none
    private
@@ -11,7 +12,7 @@ module mapl3g_LonAxis
 
    ! Helper procedure
    public :: get_lon_range
-   
+
 
    type, extends(CoordinateAxis) :: LonAxis
       private
@@ -23,7 +24,7 @@ module mapl3g_LonAxis
 
    interface make_LonAxis
       procedure make_LonAxis_from_hconfig
-!#      procedure make_LonAxis_from_metadata
+      procedure make_LonAxis_from_metadata
    end interface make_LonAxis
 
    interface operator(==)
@@ -45,12 +46,27 @@ module mapl3g_LonAxis
          real(kind=R8), intent(in) :: corners(:)
       end function new_LonAxis
 
+      elemental logical module function equal_to(a, b)
+         type(LonAxis), intent(in) :: a, b
+      end function equal_to
+
+      elemental logical module function not_equal_to(a, b)
+         type(LonAxis), intent(in) :: a, b
+      end function not_equal_to
+
       ! static factory methods
       module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
          type(LonAxis) :: axis
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
       end function make_LonAxis_from_hconfig
+
+
+      module function make_LonAxis_from_metadata(file_metadata, rc) result(axis)
+         type(LonAxis) :: axis
+         type(FileMetadata), intent(in) :: file_metadata
+         integer, optional, intent(out) :: rc
+      end function make_LonAxis_from_metadata
 
       ! helper functions
       module function get_lon_range(hconfig, im_world, rc) result(ranges)
@@ -61,14 +77,12 @@ module mapl3g_LonAxis
          integer, optional, intent(out) :: rc
       end function get_lon_range
 
-      elemental logical module function equal_to(a, b)
-         type(LonAxis), intent(in) :: a, b
-      end function equal_to
-      
-      elemental logical module function not_equal_to(a, b)
-         type(LonAxis), intent(in) :: a, b
-      end function not_equal_to
-   
+      module function get_lon_corners(centers) result(corners)
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), allocatable :: corners(:)
+      end function get_lon_corners
+
    end interface
-   
+
 end module mapl3g_LonAxis
+

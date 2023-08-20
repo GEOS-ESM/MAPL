@@ -45,7 +45,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: im_world
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       real(kind=R8) :: delta
       character(:), allocatable :: dateline
@@ -99,7 +99,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_lon_range
-    
+
    elemental logical module function equal_to(a, b)
       type(LonAxis), intent(in) :: a, b
       equal_to = (a%CoordinateAxis == b%CoordinateAxis)
@@ -110,4 +110,43 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to
 
+   module function make_LonAxis_from_metadata(file_metadata, rc) result(axis)
+      type(LonAxis) :: axis
+      type(FileMetadata), intent(in) :: file_metadata
+      integer, optional, intent(out) :: rc
+
+      real(kind=R8), allocatable :: centers(:)
+      real(kind=R8), allocatable :: corners(:)
+      integer :: im_world
+      integer :: status
+      character(:), allocatable :: dim_name
+
+      dim_name = get_dim_name(file_metadata, units='degrees east', _RC)
+      centers = get_coordinates(file_metadata, dim_name, _RC)
+      im_world = size(centers)
+      ! Enforce convention for longitude range.
+      if (any((centers(2:im_world) - centers(1:im_world-1)) < 0)) then
+         where(centers > 180) centers = centers - 360
+      end if
+      corners = get_lon_corners(centers)
+      axis = LonAxis(centers, corners)
+
+      _RETURN(_SUCCESS)
+   end function make_LonAxis_from_metadata
+
+   module function get_lon_corners(centers) result(corners)
+      real(kind=R8), intent(in) :: centers(:)
+      real(kind=R8), allocatable :: corners(:)
+
+      associate (im => size(centers))
+        allocate(corners(im+1))
+        corners(1) = (centers(im) + centers(1))/2 - 180
+        corners(2:im) = (centers(1:im-1) + centers(2:im))/2
+        corners(im+1) = (centers(im) + centers(1))/2 + 180
+      end associate
+   end function get_lon_corners
+
+
+
 end submodule LonAxis_smod
+

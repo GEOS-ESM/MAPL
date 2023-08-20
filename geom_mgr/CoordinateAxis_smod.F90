@@ -3,6 +3,8 @@
 submodule (mapl3g_CoordinateAxis) CoordinateAxis_smod
    use mapl3g_HConfigUtils
    use mapl_ErrorHandling
+   use gftl_StringVector
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 
 contains
    
@@ -91,5 +93,83 @@ contains
    end function is_periodic
 
  
+   module function get_dim_name(file_metadata, units, rc) result(dim_name)
+      character(:), allocatable :: dim_name
+      type(FileMetadata), target, intent(in) :: file_metadata
+      character(*), intent(in) :: units
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StringVariableMap), pointer :: vars
+      type(Variable), pointer :: var
+      type(StringVariableMapIterator) :: iter
+      type(StringVector), pointer :: dims
+      character(:), allocatable :: units_lower_case
+      character(:), allocatable :: units_found
+      logical :: has_units
+      type(Attribute), pointer :: attr
+      logical :: found
+      integer :: counter
+
+      units_lower_case = ESMF_UtilStringLowerCase(units, _RC)
+      found = .false.
+      counter = 0
+
+      vars => file_metadata%get_variables(_RC)
+      associate ( e => vars%end() )
+        iter = vars%begin()
+        do while (iter /= e)
+
+!#           var => iter%second()
+           var => iter%value()
+           has_units = var%is_attribute_present('units', _RC)
+           if (.not. has_units) cycle
+
+           attr => var%get_attribute('units', _RC)
+           units_found = attr%get_string(_RC)
+           units_found = ESMF_UtilStringLowerCase(units_found, _RC)
+           if (units_found /= units_lower_case) cycle
+           
+           dims => var%get_dimensions()
+           if (dims%size() /= 1) cycle
+
+           found = .true.
+           counter = counter + 1
+           _ASSERT(counter == 1, 'Too many variables match requested units: ' // units)
+           dim_name = dims%of(1)
+           
+           call iter%next()
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function get_dim_name
+
+   module function get_coordinates_dim(file_metadata, dim_name, rc) result(coordinates)
+      real(kind=R8), dimension(:), allocatable :: coordinates
+      type(FileMetadata), intent(in) :: file_metadata
+      character(len=*), intent(in) :: dim_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class (CoordinateVariable), pointer :: v
+      class (*), pointer :: ptr(:)
+
+      v => file_metadata%get_coordinate_variable(dim_name, _RC)
+      ptr => v%get_coordinate_data()
+      _ASSERT(associated(ptr),'coordinate data not allocated')
+
+      select type (ptr)
+      type is (real(kind=REAL64))
+         coordinates = ptr
+      type is (real(kind=REAL32))
+         coordinates = ptr
+      class default
+         _FAIL('unsuppoted kind for coordinate data -- must be REAL32 or REAL64')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_coordinates_dim
+
 
 end submodule CoordinateAxis_smod

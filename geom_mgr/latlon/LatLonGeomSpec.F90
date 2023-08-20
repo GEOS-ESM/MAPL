@@ -43,8 +43,9 @@ module mapl3g_LatLonGeomSpec
 
    interface get_coordinates
       procedure get_coordinates_try
-      procedure get_coordinates_dim
    end interface get_coordinates
+
+   integer, parameter :: R8 = ESMF_KIND_R8
 
 interface
 
@@ -102,45 +103,36 @@ interface
 
       module function get_coordinates_try(file_metadata, try1, try2, rc) result(coordinates)
          use pfio, only: FileMetadata
-         real(kind=ESMF_KIND_R8), allocatable :: coordinates(:)
+         real(kind=R8), allocatable :: coordinates(:)
          type(FileMetadata), intent(in) :: file_metadata
          character(*), intent(in) :: try1, try2
          integer, optional, intent(out) :: rc
       end function get_coordinates_try
 
-      module function get_coordinates_dim(file_metadata, dim_name, rc) result(coordinates)
-         use pfio, only: FileMetadata
-         real(kind=ESMF_KIND_R8), dimension(:), allocatable :: coordinates
-         type(FileMetadata), intent(in) :: file_metadata
-         character(len=*), intent(in) :: dim_name
-         integer, optional, intent(out) :: rc
-      end function get_coordinates_dim
-
-
       module function get_lon_corners(centers) result(corners)
-         real(kind=ESMF_KIND_R8), intent(in) :: centers(:)
-         real(kind=ESMF_KIND_R8), allocatable :: corners(:)
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), allocatable :: corners(:)
       end function get_lon_corners
 
 
       module function get_lat_corners(centers) result(corners)
-         real(kind=ESMF_KIND_R8), intent(in) :: centers(:)
-         real(kind=ESMF_KIND_R8), allocatable :: corners(:)
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), allocatable :: corners(:)
       end function get_lat_corners
 
 
       module subroutine fix_bad_pole(centers)
-         real(kind=ESMF_KIND_R8), intent(inout) :: centers(:)
+         real(kind=R8), intent(inout) :: centers(:)
       end subroutine fix_bad_pole
 
-      module function get_dim_name(file_metadata, try1, try2, rc) result(dim_name)
+      module function get_dim_name_(file_metadata, try1, try2, rc) result(dim_name)
          use pfio, only: FileMetadata
          character(len=:), allocatable :: dim_name
          type(FileMetadata), intent(in) :: file_metadata
          character(len=*), intent(in) :: try1
          character(len=*), intent(in) :: try2
          integer, optional, intent(out) :: rc
-      end function get_dim_name
+      end function get_dim_name_
 
 
       ! ------------------------------------------------------------------------------------
