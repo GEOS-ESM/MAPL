@@ -3,7 +3,8 @@
 module mapl3g_LatLonGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_LatLonDecomposition
-   use mapl3g_LatLonAxis
+   use mapl3g_LonAxis
+   use mapl3g_LatAxis
    use esmf, only: ESMF_KIND_R8
    implicit none
    private
@@ -13,8 +14,8 @@ module mapl3g_LatLonGeomSpec
 
    type, extends(GeomSpec) :: LatLonGeomSpec
       private
-      type(LatLonAxis) :: lon_axis
-      type(LatLonAxis) :: lat_axis
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
       type(LatLonDecomposition) :: decomposition
    contains
       ! mandatory interface
@@ -49,10 +50,9 @@ interface
 
       ! Basic constructor for LatLonGeomSpec
       module function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
-         use mapl3g_LatLonAxis, only: LatLonAxis
          type(LatLonGeomSpec) :: spec
-         type(LatLonAxis), intent(in) :: lon_axis
-         type(LatLonAxis), intent(in) :: lat_axis
+         type(LonAxis), intent(in) :: lon_axis
+         type(LatAxis), intent(in) :: lat_axis
          type(Latlondecomposition), intent(in) :: decomposition
       end function new_LatLonGeomSpec
 
@@ -167,12 +167,12 @@ interface
       ! Accessors
       pure module function get_lon_axis(spec) result(axis)
          class(LatLonGeomSpec), intent(in) :: spec
-         type(LatLonAxis) :: axis
+         type(LonAxis) :: axis
       end function get_lon_axis
 
       pure module function get_lat_axis(spec) result(axis)
          class(LatLonGeomSpec), intent(in) :: spec
-         type(LatLonAxis) :: axis
+         type(LatAxis) :: axis
       end function get_lat_axis
 
       pure module function get_decomposition(spec) result(decomposition)

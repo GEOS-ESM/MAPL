@@ -2,8 +2,9 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.geom_mgr/tests")
 
 set (TEST_SRCS
   Test_LatLonDecomposition.pf
-  Test_LatLonAxis.pf
-  Test_LatLonGeomSpec.pf
+  Test_CoordinateAxis.pf
+  Test_LonAxis.pf
+  Test_LatAxis.pf
   #    Test_LatLonGeomFactory.pf
   )
 

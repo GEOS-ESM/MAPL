@@ -1,6 +1,7 @@
-module Test_LatLonAxis
+module Test_LonAxis
    use funit
-   use mapl3g_LatLonAxis
+   use mapl3g_CoordinateAxis
+   use mapl3g_LonAxis
    use esmf, only: ESMF_KIND_R8
    use esmf, only: ESMF_HConfig 
    use esmf, only: ESMF_HConfigCreate
@@ -13,7 +14,7 @@ contains
 
    @test
    subroutine test_is_periodic()
-      type(LatLonAxis) :: axis
+      type(LonAxis) :: axis
 
       integer, parameter :: N = 6
       real(kind=R8) :: centers(N)
@@ -25,7 +26,7 @@ contains
          corners(i) = (360./n) * i - (360./(2*n))
       end do
       corners(n+1) = 360 + (360./(2*n))
-      axis = LatLonAxis(centers = centers, corners=corners)
+      axis = LonAxis(centers = centers, corners=corners)
 
       @assert_that(axis%is_periodic(), is(true()))
            
@@ -33,7 +34,7 @@ contains
    
    @test
    subroutine test_is_not_periodic()
-      type(LatLonAxis) :: axis
+      type(LonAxis) :: axis
 
       integer, parameter :: N = 6
       real(kind=R8) :: centers(N)
@@ -46,11 +47,11 @@ contains
       end do
 
       corners(n+1) = 360 + (360./(2*n)) + 1
-      axis = LatLonAxis(centers = centers, corners=corners)
+      axis = LonAxis(centers = centers, corners=corners)
       @assert_that(axis%is_periodic(), is(false()))
 
       corners(n+1) = 360 + (360./(2*n)) - 1
-      axis = LatLonAxis(centers = centers, corners=corners)
+      axis = LonAxis(centers = centers, corners=corners)
       @assert_that(axis%is_periodic(), is(false()))
       
    end subroutine test_is_not_periodic
@@ -162,7 +163,7 @@ contains
    subroutine test_make_lon_axis_from_hconfig()
 
       type(ESMF_HConfig) :: hconfig
-      type(LatLonAxis) :: axis
+      type(LonAxis) :: axis
       integer :: status
       real(kind=R8), allocatable :: expected_centers(:)
 
@@ -180,4 +181,4 @@ contains
       call ESMF_HConfigDestroy(hconfig)
    end subroutine test_make_lon_axis_from_hconfig
       
-end module Test_LatLonAxis
+end module Test_LonAxis

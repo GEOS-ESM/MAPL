@@ -1,0 +1,74 @@
+module mapl3g_LonAxis
+   use mapl3g_CoordinateAxis
+   use esmf
+   implicit none
+   private
+
+   ! Constructor
+   public :: LonAxis
+   public :: operator(==)
+   public :: make_LonAxis
+
+   ! Helper procedure
+   public :: get_lon_range
+   
+
+   type, extends(CoordinateAxis) :: LonAxis
+      private
+   end type LonAxis
+
+   interface LonAxis
+      procedure new_LonAxis
+   end interface LonAxis
+
+   interface make_LonAxis
+      procedure make_LonAxis_from_hconfig
+!#      procedure make_LonAxis_from_metadata
+   end interface make_LonAxis
+
+   interface operator(==)
+      module procedure equal_to
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_to
+   end interface operator(/=)
+
+   integer, parameter :: R8 = ESMF_KIND_R8
+
+   interface
+
+      ! Constructor
+      module function new_LonAxis(centers, corners) result(axis)
+         type(LonAxis) :: axis
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), intent(in) :: corners(:)
+      end function new_LonAxis
+
+      ! static factory methods
+      module function make_LonAxis_from_hconfig(hconfig, rc) result(axis)
+         type(LonAxis) :: axis
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function make_LonAxis_from_hconfig
+
+      ! helper functions
+      module function get_lon_range(hconfig, im_world, rc) result(ranges)
+         use esmf, only: ESMF_HConfig
+         type(AxisRanges) :: ranges
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, intent(in) :: im_world
+         integer, optional, intent(out) :: rc
+      end function get_lon_range
+
+      elemental logical module function equal_to(a, b)
+         type(LonAxis), intent(in) :: a, b
+      end function equal_to
+      
+      elemental logical module function not_equal_to(a, b)
+         type(LonAxis), intent(in) :: a, b
+      end function not_equal_to
+   
+   end interface
+   
+end module mapl3g_LonAxis

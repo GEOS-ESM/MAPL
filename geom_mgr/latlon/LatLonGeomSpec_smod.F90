@@ -19,8 +19,8 @@ contains
    ! Basic constructor for LatLonGeomSpec
    module function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
       type(LatLonGeomSpec) :: spec
-      type(LatLonAxis), intent(in) :: lon_axis
-      type(LatLonAxis), intent(in) :: lat_axis
+      type(LonAxis), intent(in) :: lon_axis
+      type(LatAxis), intent(in) :: lat_axis
       type(LatLonDecomposition), intent(in) :: decomposition
       
       spec%lon_axis = lon_axis
@@ -154,7 +154,8 @@ contains
       integer :: nx_ny(2)
       integer, allocatable :: lon_distribution(:)
       integer, allocatable :: lat_distribution(:)
-      type(LatLonAxis) :: lon_axis, lat_axis
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
       type(LatLonDecomposition) :: decomposition
 
       lon_centers = get_coordinates(file_metadata, 'lon', 'longitude', _RC)
@@ -173,8 +174,8 @@ contains
       if (lat_corners(1) < -90) lat_corners(1) = -90
       if (lat_corners(jm_world+1) > 90) lat_corners(jm_world+1) = 90
 
-      lon_axis = LatLonAxis(lon_centers, lon_corners)
-      lat_axis = LatLonAxis(lat_centers, lat_corners)
+      lon_axis = LonAxis(lon_centers, lon_corners)
+      lat_axis = LatAxis(lat_centers, lat_corners)
       decomposition = make_LatLonDecomposition([im_world, jm_world], _RC)
 
       spec = LatLonGeomSpec(lon_axis, lat_axis, decomposition)
@@ -381,13 +382,13 @@ contains
    ! Accessors
    pure module function get_lon_axis(spec) result(axis)
       class(LatLonGeomSpec), intent(in) :: spec
-      type(LatLonAxis) :: axis
+      type(LonAxis) :: axis
       axis = spec%lon_axis
    end function get_lon_axis
 
    pure module function get_lat_axis(spec) result(axis)
       class(LatLonGeomSpec), intent(in) :: spec
-      type(LatLonAxis) :: axis
+      type(LatAxis) :: axis
       axis = spec%lat_axis
    end function get_lat_axis
 

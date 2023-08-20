@@ -1,8 +1,9 @@
 #include "MAPL_ErrLog.h"
 submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use mapl3g_GeomSpec
+   use mapl3g_LonAxis
+   use mapl3g_LatAxis
    use mapl3g_LatLonDecomposition
-   use mapl3g_LatLonAxis
    use mapl3g_LatLonGeomSpec
    use mapl_MinMaxMod
    use mapl_KeywordEnforcerMod
@@ -124,7 +125,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(LatLonAxis) :: lon_axis, lat_axis
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
       type(LatLonDecomposition) :: decomp
 
       lon_axis = spec%get_lon_axis()
@@ -175,7 +177,8 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
       real(kind=ESMF_KIND_R8), pointer :: corners(:,:)
       integer :: i, j
-      type(LatLonAxis) :: lon_axis, lat_axis
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
       type(LatLonDecomposition) :: decomp
       integer :: nx, ny, ix, iy
 
@@ -296,7 +299,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(LatLonAxis) :: lon_axis, lat_axis
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
       type(Variable) :: v
 
       lon_axis = geom_spec%get_lon_axis()

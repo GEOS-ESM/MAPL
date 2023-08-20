@@ -11,12 +11,16 @@ set(srcs
 
   GeomFactory.F90
 
-  latlon/HConfigUtils.F90
+  CoordinateAxis.F90
+  CoordinateAxis_smod.F90
+  HConfigUtils.F90
 
+  latlon/LonAxis.F90
+  latlon/LonAxis_smod.F90
+  latlon/LatAxis.F90
+  latlon/LatAxis_smod.F90
   latlon/LatLonDecomposition.F90
   latlon/LatLonDecomposition_smod.F90
-  latlon/LatLonAxis.F90
-  latlon/LatLonAxis_smod.F90
   latlon/LatLonGeomSpec.F90
   latlon/LatLonGeomSpec_smod.F90
   latlon/LatLonGeomFactory.F90
