@@ -41,10 +41,10 @@ module mapl3g_LatLonGeomSpec
       procedure make_LatLonGeomSpec_from_metadata
    end interface make_LatLonGeomSpec
 
-   interface get_coordinates
-      procedure get_coordinates_try
-   end interface get_coordinates
-
+!#   interface get_coordinates
+!#      procedure get_coordinates_try
+!#   end interface get_coordinates
+!#
    integer, parameter :: R8 = ESMF_KIND_R8
 
 interface
@@ -72,17 +72,6 @@ interface
          integer, optional, intent(out) :: rc
       end function make_LatLonGeomSpec_from_hconfig
 
-
-!#      module function get_distribution(hconfig, m_world, key_npes, key_distribution, rc) result(distribution)
-!#         use esmf, only: ESMF_HConfig
-!#        integer, allocatable :: distribution(:)
-!#         type(ESMF_HConfig), intent(in) :: hconfig
-!#         integer, intent(in) :: m_world
-!#         character(len=*), intent(in) :: key_npes
-!#         character(len=*), intent(in) :: key_distribution
-!#         integer, optional, intent(out) :: rc
-!#      end function get_distribution
-!#
       ! File metadata section
       ! =====================
       ! Unfortunately, we cannot quite compute each axis (lat - lon) independently,
@@ -99,40 +88,6 @@ interface
          integer, allocatable :: distribution(:)
          integer, intent(in) :: im, nx
       end function make_distribution
-
-
-      module function get_coordinates_try(file_metadata, try1, try2, rc) result(coordinates)
-         use pfio, only: FileMetadata
-         real(kind=R8), allocatable :: coordinates(:)
-         type(FileMetadata), intent(in) :: file_metadata
-         character(*), intent(in) :: try1, try2
-         integer, optional, intent(out) :: rc
-      end function get_coordinates_try
-
-      module function get_lon_corners(centers) result(corners)
-         real(kind=R8), intent(in) :: centers(:)
-         real(kind=R8), allocatable :: corners(:)
-      end function get_lon_corners
-
-
-      module function get_lat_corners(centers) result(corners)
-         real(kind=R8), intent(in) :: centers(:)
-         real(kind=R8), allocatable :: corners(:)
-      end function get_lat_corners
-
-
-      module subroutine fix_bad_pole(centers)
-         real(kind=R8), intent(inout) :: centers(:)
-      end subroutine fix_bad_pole
-
-      module function get_dim_name_(file_metadata, try1, try2, rc) result(dim_name)
-         use pfio, only: FileMetadata
-         character(len=:), allocatable :: dim_name
-         type(FileMetadata), intent(in) :: file_metadata
-         character(len=*), intent(in) :: try1
-         character(len=*), intent(in) :: try2
-         integer, optional, intent(out) :: rc
-      end function get_dim_name_
 
 
       ! ------------------------------------------------------------------------------------

@@ -16,6 +16,10 @@ module mapl3g_LonAxis
 
    type, extends(CoordinateAxis) :: LonAxis
       private
+   contains
+      procedure, nopass :: supports_hconfig
+      procedure, nopass :: supports_metadata
+      generic :: supports => supports_hconfig, supports_metadata
    end type LonAxis
 
    interface LonAxis
@@ -46,7 +50,17 @@ module mapl3g_LonAxis
          real(kind=R8), intent(in) :: corners(:)
       end function new_LonAxis
 
-      elemental logical module function equal_to(a, b)
+      module logical function supports_hconfig(hconfig, rc) result(supports)
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function supports_hconfig
+
+      module logical function supports_metadata(file_metadata, rc) result(supports)
+         type(FileMetadata), intent(in) :: file_metadata
+         integer, optional, intent(out) :: rc
+      end function supports_metadata
+
+     elemental logical module function equal_to(a, b)
          type(LonAxis), intent(in) :: a, b
       end function equal_to
 
@@ -61,12 +75,18 @@ module mapl3g_LonAxis
          integer, optional, intent(out) :: rc
       end function make_LonAxis_from_hconfig
 
-
       module function make_LonAxis_from_metadata(file_metadata, rc) result(axis)
          type(LonAxis) :: axis
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function make_LonAxis_from_metadata
+
+
+      module function get_lon_corners(centers) result(corners)
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), allocatable :: corners(:)
+      end function get_lon_corners
+
 
       ! helper functions
       module function get_lon_range(hconfig, im_world, rc) result(ranges)
@@ -76,11 +96,6 @@ module mapl3g_LonAxis
          integer, intent(in) :: im_world
          integer, optional, intent(out) :: rc
       end function get_lon_range
-
-      module function get_lon_corners(centers) result(corners)
-         real(kind=R8), intent(in) :: centers(:)
-         real(kind=R8), allocatable :: corners(:)
-      end function get_lon_corners
 
    end interface
 

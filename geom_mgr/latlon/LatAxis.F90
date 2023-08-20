@@ -1,5 +1,6 @@
 module mapl3g_LatAxis
    use mapl3g_CoordinateAxis
+   use pfio
    use esmf
    implicit none
    private
@@ -15,6 +16,10 @@ module mapl3g_LatAxis
 
    type, extends(CoordinateAxis) :: LatAxis
       private
+   contains
+      procedure, nopass :: supports_hconfig
+      procedure, nopass :: supports_metadata
+      generic :: supports => supports_hconfig, supports_metadata
    end type LatAxis
 
    interface LatAxis
@@ -23,7 +28,7 @@ module mapl3g_LatAxis
 
    interface make_LatAxis
       procedure make_LatAxis_from_hconfig
-!#      procedure make_LatAxis_from_metadata
+      procedure make_LatAxis_from_metadata
    end interface make_LatAxis
    
    interface operator(==)
@@ -45,13 +50,36 @@ module mapl3g_LatAxis
          real(kind=R8), intent(in) :: corners(:)
       end function new_LatAxis
 
+      logical module function supports_hconfig(hconfig, rc) result(supports)
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function supports_hconfig
 
-     ! static factory methods
+      logical module function supports_metadata(file_metadata, rc) result(supports)
+         type(FileMetadata), intent(in) :: file_metadata
+         integer, optional, intent(out) :: rc
+      end function supports_metadata
+
+      elemental logical module function equal_to(a, b)
+         type(LatAxis), intent(in) :: a, b
+      end function equal_to
+   
+      elemental logical module function not_equal_to(a, b)
+         type(LatAxis), intent(in) :: a, b
+      end function not_equal_to
+
+    ! static factory methods
       module function make_LatAxis_from_hconfig(hconfig, rc) result(axis)
          type(LatAxis) :: axis
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
       end function make_LatAxis_from_hconfig
+
+      module function make_LatAxis_from_metadata(file_metadata, rc) result(axis)
+         type(LatAxis) :: axis
+         type(FileMetadata), intent(in) :: file_metadata
+         integer, optional, intent(out) :: rc
+      end function make_LatAxis_from_metadata
 
       ! helper functions
       module function get_lat_range(hconfig, jm_world, rc) result(ranges)
@@ -62,13 +90,15 @@ module mapl3g_LatAxis
          integer, optional, intent(out) :: rc
       end function get_lat_range
 
-      elemental logical module function equal_to(a, b)
-         type(LatAxis), intent(in) :: a, b
-      end function equal_to
-   
-      elemental logical module function not_equal_to(a, b)
-         type(LatAxis), intent(in) :: a, b
-      end function not_equal_to
+      module function get_lat_corners(centers) result(corners)
+         real(kind=R8), intent(in) :: centers(:)
+         real(kind=R8), allocatable :: corners(:)
+      end function get_lat_corners
+
+
+      module subroutine fix_bad_pole(centers)
+         real(kind=R8), intent(inout) :: centers(:)
+      end subroutine fix_bad_pole
 
    end interface
 

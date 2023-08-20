@@ -157,16 +157,8 @@ contains
       type(LatLonDecomposition) :: decomposition
 
       lon_axis = make_LonAxis(file_metadata, _RC)
+      lat_axis = make_LatAxis(file_metadata, _RC)
 
-      lat_centers = get_coordinates(file_metadata, 'lat', 'latitude', _RC)
-      jm_world = size(lat_centers)
-      call fix_bad_pole(lat_centers)
-      lat_corners = get_lat_corners(lat_centers)
-      ! fix corners
-      if (lat_corners(1) < -90) lat_corners(1) = -90
-      if (lat_corners(jm_world+1) > 90) lat_corners(jm_world+1) = 90
-
-      lat_axis = LatAxis(lat_centers, lat_corners)
       decomposition = make_LatLonDecomposition([im_world, jm_world], _RC)
 
       spec = LatLonGeomSpec(lon_axis, lat_axis, decomposition)
@@ -184,151 +176,6 @@ contains
    end function make_distribution
 
 
-   module function get_coordinates_try(file_metadata, try1, try2, rc) result(coordinates)
-      real(kind=R8), allocatable :: coordinates(:)
-      type(FileMetadata), intent(in) :: file_metadata
-      character(*), intent(in) :: try1, try2
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: dim_name
-
-      dim_name = get_dim_name_(file_metadata, try1, try2, _RC)
-      coordinates = get_coordinates(file_metadata, dim_name, _RC)
-
-      _RETURN(_SUCCESS)
-   end function get_coordinates_try
-
-   module function get_lat_corners(centers) result(corners)
-      real(kind=R8), intent(in) :: centers(:)
-      real(kind=R8), allocatable :: corners(:)
-
-      associate (jm => size(centers))
-        allocate(corners(jm+1))
-         corners(1) = centers(1) - (centers(2)-centers(1))/2
-         corners(2:jm) = (centers(1:jm-1) + centers(2:jm))/2
-         corners(jm+1) = centers(jm) + (centers(jm)-centers(jm-1))/2
-      end associate
-   end function get_lat_corners
-
-
-   ! Magic code from ancient times.
-   ! Do not touch unless you understand ...
-   module subroutine fix_bad_pole(centers)
-      real(kind=R8), intent(inout) :: centers(:)
-
-      integer :: n
-      real(kind=R8) :: d_lat, d_lat_loc, extrap_lat
-      real, parameter :: tol = 1.0e-5
-      integer :: i
-
-      if (size(centers) < 4) return ! insufficient data
-
-      ! Check: is this a "mis-specified" pole-centered grid?
-      ! Assume lbound=1 and ubound=size for now
-
-      n = size(centers)
-      d_lat = (centers(n-1) - centers(2)) / (n - 3)
-
-      ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
-      if (any(((centers(2:n-1) - centers(1:n-2)) - d_lat) < tol*d_lat)) return
-
-      ! Should the southernmost point actually be at the pole?
-      extrap_lat = centers(2) - d_lat
-      if (extrap_lat <= ((d_lat/20.0)-90.0)) then
-         centers(1) = -90.0
-      end if
-
-      ! Should the northernmost point actually be at the pole?
-      extrap_lat = centers(n-1) + d_lat
-      if (extrap_lat >= (90.0-(d_lat/20.0))) then
-         centers(n) =  90.0
-      end if
-
-   end subroutine fix_bad_pole
-
-   module function get_dim_name_(file_metadata, try1, try2, rc) result(dim_name)
-      character(len=:), allocatable :: dim_name
-      type(FileMetadata), intent(in) :: file_metadata
-      character(len=*), intent(in) :: try1
-      character(len=*), intent(in) :: try2
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      logical :: has_try1, has_try2
-
-      dim_name = '' ! unless
-      has_try1= file_metadata%has_dimension(try1, _RC)
-      has_try2= file_metadata%has_dimension(try2, _RC)
-      _ASSERT(has_try1 .neqv. has_try2, 'Exactly one of "//try1//" and "//try2//" should defined in file_metadata')
-      if (has_try1) then
-         dim_name = try1
-         _RETURN(_SUCCESS)
-      end if
-      
-      if (has_try2) then
-         dim_name = try2
-         _RETURN(_SUCCESS)
-      end if
-
-      ! No path to get here
-      _RETURN(_FAILURE)
-   end function get_dim_name_
-
-
-!#   ! ------------------------------------------------------------------------------------
-!#   ! This module function attempts to find a layout with roughly square
-!#   ! domains on each process.  Optimal value for
-!#   !     nx = (im_world * petcount) / jm_world
-!#   ! Except, it needs to be an integer
-!#   ! --------------------------------------------------------------------
-!#   module function make_de_layout_petcount(aspect_ratio, petCount) result(nx_ny)
-!#      integer :: nx_ny(2)
-!#      real, intent(in) :: aspect_ratio
-!#      integer, intent(in) :: petCount
-!#
-!#      integer :: nx, ny
-!#      integer :: start
-!#
-!#      ! NOTE: Final iteration (nx=1) is guaranteed to succeed.
-!#      start = floor(sqrt(petCount * aspect_ratio))
-!#      do nx = start, 1, -1
-!#         if (mod(petcount, nx) == 0) then ! found a decomposition
-!#            ny = petCount / nx
-!#            exit
-!#         end if
-!#      end do
-!#
-!#      nx_ny = [nx, ny]
-!#
-!#   end function make_de_layout_petcount
-!#
-!#   module function make_de_layout_vm(aspect_ratio, vm, rc) result(nx_ny)
-!#      integer :: nx_ny(2)
-!#      real, optional, intent(in) :: aspect_ratio
-!#      type(ESMF_VM), optional, intent(in) :: vm
-!#      integer, optional, intent(out) :: rc
-!#
-!#      integer :: status
-!#      real :: aspect_ratio_
-!#      type(ESMF_VM) :: vm_
-!#      integer :: petCount
-!#
-!#      aspect_ratio_ = 1.0
-!#      if (present(aspect_ratio)) aspect_ratio_ = aspect_ratio
-!#
-!#      if (present(vm)) then
-!#         vm_ = vm
-!#      else
-!#         call ESMF_VMGetCurrent(vm_, _RC)
-!#      end if
-!#      call ESMF_VMGet(vm_, petCount=petCount, _RC)
-!#
-!#      nx_ny = make_de_layout(aspect_ratio, petCount)
-!#
-!#      _RETURN(_SUCCESS)
-!#   end function make_de_layout_vm
-!#
 
    ! Accessors
    pure module function get_lon_axis(spec) result(axis)
@@ -357,24 +204,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: flag1, flag2
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
       
       supports = .false.
       
-      flag1 = ESMF_HConfigIsDefined(hconfig, keystring='im_world', _RC)
-      _RETURN_UNLESS(flag1)
-      flag1 = ESMF_HConfigIsDefined(hconfig, keystring='jm_world', _RC)
-      _RETURN_UNLESS(flag1)
+      supports = lon_axis%supports(hconfig, _RC)
+      _RETURN_UNLESS(supports)
 
-      flag1 = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
-      flag2 = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
-      _RETURN_UNLESS(flag1 .neqv. flag2)
-
-      flag1 = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
-      flag2 = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
-      _RETURN_UNLESS(flag1 .neqv. flag2)
-
-      supports = .true.
+      supports = lat_axis%supports(hconfig, _RC)
+      _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
    end function supports_hconfig
@@ -385,21 +224,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: flag
-      character(:), allocatable :: lon_name, lat_name
+      type(LonAxis) :: lon_axis
+      type(LatAxis) :: lat_axis
 
       supports = .false.
 
-      lon_name = get_dim_name_(file_metadata, 'lon', 'longitude', _RC)
-      lat_name = get_dim_name_(file_metadata, 'lat', 'latitude', _RC)
+      supports = lon_axis%supports(file_metadata, _RC)
+      _RETURN_UNLESS(supports)
 
-      flag = file_metadata%has_variable(lon_name, _RC)
-      _RETURN_UNLESS(flag)
-
-      flag = file_metadata%has_variable(lat_name, _RC)
-      _RETURN_UNLESS(flag)
-
-      supports = .true.
+      supports = lat_axis%supports(file_metadata, _RC)
+      _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
    end function supports_metadata

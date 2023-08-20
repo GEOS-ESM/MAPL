@@ -1,7 +1,13 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_LatLonGeomFactory
+   use mapl3g_GeomSpec
    use mapl3g_GeomFactory
+   use mapl3g_LatLonGeomSpec
+   use mapl_KeywordEnforcerMod
+   use gftl2_StringVector
+   use pfio
+   use esmf
    implicit none
    private
 
@@ -79,9 +85,6 @@ module mapl3g_LatLonGeomFactory
 
 
       module function create_basic_grid(spec, unusable, rc) result(grid)
-         use mapl3g_LatLonGeomSpec, only: LatLonGeomSpec
-         use esmf, only: ESMF_Grid
-         use mapl_KeywordEnforcerMod, only: KeywordEnforcer
          type(ESMF_Grid) :: grid
          type(LatLonGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -90,9 +93,6 @@ module mapl3g_LatLonGeomFactory
 
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
-         use mapl3g_LatLonGeomSpec, only: LatLonGeomSpec
-         use mapl_KeywordEnforcerMod, only: KeywordEnforcer
-         use esmf, only: ESMF_Grid
          type(LatLonGeomSpec), intent(in) :: spec
          type(ESMF_Grid), intent(inout) :: grid
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -107,8 +107,6 @@ module mapl3g_LatLonGeomFactory
       end subroutine get_ranks
 
       module function make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
-         use mapl3g_GeomSpec, only: GeomSpec
-         use gftl2_StringVector, only: StringVector
          type(StringVector) :: gridded_dims
          class(LatLonGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -117,8 +115,6 @@ module mapl3g_LatLonGeomFactory
 
 
       module function make_file_metadata(this, geom_spec, rc) result(file_metadata)
-         use mapl3g_GeomSpec, only: GeomSpec
-         use pfio, only: FileMetadata
          type(FileMetadata) :: file_metadata
          class(LatLonGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec

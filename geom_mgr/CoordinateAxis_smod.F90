@@ -111,6 +111,7 @@ contains
       logical :: found
       integer :: counter
 
+      dim_name = ''
       units_lower_case = ESMF_UtilStringLowerCase(units, _RC)
       found = .false.
       counter = 0
