@@ -16,6 +16,7 @@ module MAPL_plain_netCDF_Time
   use mapl_ErrorHandlingMod
   use MAPL_Constants
   use ESMF
+  use pfio_NetCDF_Supplement
   !   use MAPL_CommsMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -102,38 +103,62 @@ contains
     !!write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
-
-  subroutine get_attribute_from_group(filename, name, group_name, attr_name, attr)
-    use netcdf
-    implicit none
-    character(len=*), intent(in) :: name, filename, group_name, attr_name
-    character(len=*), intent(INOUT) :: attr
-    integer :: ncid, varid, ncid2
-    integer :: rc, status, iret
-    integer :: validRangeLength, titleLength ! Attribute lengths
-    character(len=1000) :: timeunits
-    integer :: number
-    
-    call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2), _RC )
-    call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid),  _RC )
-    call check_nc_status ( nf90_inq_varid (ncid,  name,  varid), _RC )
-    !!call check_nc_status ( nf90_inq_varid (ncid,  name,  varid), _RC )    
-
-    call check_nc_status ( nf90_inquire_attribute(ncid, varid, "units", len = validrangelength), _RC )
-!!    call check_nc_status ( nf90_inquire_attribute(ncid, varid, "dateTime:units", len = validrangelength), _RC )
-    print*, 'validrangelength:', validrangelength
-    
-    call check_nc_status ( nf90_get_att(ncid, varid, "units", timeunits), _RC)
-    !!call check_nc_status ( nf90_get_att(ncid, varid, "units", number), _RC)    
-    !!    call check_nc_status ( nf90_get_att(ncid, varid, "dateTime:units", timeunits), _RC)
-    print*, 'number=', number
-    print*, 'timeunits=', trim (timeunits)
-
-    _FAIL('stop -11')
-
-!    call check_nc_status ( nf90_get_att  (ncid,  varid, attr_name, attr), _RC )
-    iret = nf90_close(ncid)
-  end subroutine get_attribute_from_group
+!
+!  subroutine get_attribute_from_group(filename, name, group_name, attr_name, attr)
+!    use netcdf
+!    implicit none
+!    character(len=*), intent(in) :: name, filename, group_name, attr_name
+!    character(len=*), intent(INOUT) :: attr
+!    integer :: ncid, varid, ncid2
+!    integer :: rc, status, iret
+!    integer :: len, validRangeLength, titleLength ! Attribute lengths
+!    integer :: xtype
+!    character(len=:), allocatable :: str, timeunits
+!
+!
+!    integer :: number
+!    
+!    call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2), _RC )
+!    call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid),  _RC )
+!    call check_nc_status ( nf90_inq_varid (ncid,  name,  varid), _RC )
+!
+!    status = nf90_inquire_attribute(ncid, varid, trim(attr_name), xtype, len)
+!    print*, 'xtype, len', xtype, len
+!!
+!!    select case (xtype)
+!!    case (NF90_STRING)
+!!       ! W.Y. Note: pfio only supports global string attributes.
+!!       ! varid is not passed in. NC_GLOBAL is used inside the call
+!!       !$omp critical
+!!       status = pfio_get_att_string(ncid, trim(attr_name), str)
+!!       !$omp end critical
+!!       _VERIFY(status)
+!!       print*, 'timeunits=', trim (str)       
+!!       !call cf%add_attribute(trim(attr_name), str)
+!!       deallocate(str)
+!!!    else
+!!!       print*, 'wrong case'
+!!    end select
+!!
+!!    _FAIL('stop -11')
+!    
+!    
+!!    
+!!    call check_nc_status ( nf90_inquire_attribute(ncid, varid, "units", len = validrangelength), _RC )
+!!!!    call check_nc_status ( nf90_inquire_attribute(ncid, varid, "dateTime:units", len = validrangelength), _RC )
+!!    print*, 'validrangelength:', validrangelength
+!!    
+!!    call check_nc_status ( nf90_get_att(ncid, varid, "units", timeunits), _RC)
+!!    !!call check_nc_status ( nf90_get_att(ncid, varid, "units", number), _RC)    
+!!    !!    call check_nc_status ( nf90_get_att(ncid, varid, "dateTime:units", timeunits), _RC)
+!!    print*, 'number=', number
+!!    print*, 'timeunits=', trim (timeunits)
+!
+!
+!
+!!    call check_nc_status ( nf90_get_att  (ncid,  varid, attr_name, attr), _RC )
+!    iret = nf90_close(ncid)
+!  end subroutine get_attribute_from_group
 
 
 

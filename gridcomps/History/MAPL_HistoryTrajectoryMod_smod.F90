@@ -642,9 +642,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
 
-                  !! this code for attribute failed, needs to rework on it
-                  !!attr_name = 'units'
-                  !!call get_attribute_from_group(filename, this%var_name_time, grp_name, attr_name, attr)
+!                  !! this code for attribute failed, needs to rework on it
+!                  attr_name = 'units'
+!                  call get_attribute_from_group(filename, this%var_name_time, grp_name, attr_name, attr)
+!                  stop -11
+                  
+
                   !!this%datetime_units = trim(attr)
                   len = len + num_times
                   j=j+1
