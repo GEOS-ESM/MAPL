@@ -140,7 +140,7 @@ contains
       character(:), allocatable :: dim_name
 
       supports = .true.
-      dim_name = get_dim_name(file_metadata, units='degrees east', _RC)
+      dim_name = get_dim_name(file_metadata, units='degrees_east', _RC)
 
       supports = (dim_name /= '')
       _RETURN(_SUCCESS)
