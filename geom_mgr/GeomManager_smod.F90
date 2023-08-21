@@ -231,7 +231,7 @@ contains
 
 
    module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
-      use gftl2_StringVector
+      use gftl_StringVector
       type(MaplGeom) :: mapl_geom
       class(GeomManager), target, intent(inout) :: this
       class(GeomSpec), intent(in) :: spec

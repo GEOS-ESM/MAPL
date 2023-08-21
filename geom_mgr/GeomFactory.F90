@@ -79,7 +79,7 @@ module mapl3g_GeomFactory
 
       function I_make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
          use mapl3g_GeomSpec
-         use gFTL2_StringVector
+         use gFTL_StringVector
          import GeomFactory
          implicit none
 

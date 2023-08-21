@@ -5,7 +5,7 @@ module mapl3g_LatLonGeomFactory
    use mapl3g_GeomFactory
    use mapl3g_LatLonGeomSpec
    use mapl_KeywordEnforcerMod
-   use gftl2_StringVector
+   use gftl_StringVector
    use pfio
    use esmf
    implicit none
@@ -85,6 +85,7 @@ module mapl3g_LatLonGeomFactory
 
 
       module function create_basic_grid(spec, unusable, rc) result(grid)
+         use mapl_KeywordEnforcer
          type(ESMF_Grid) :: grid
          type(LatLonGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable

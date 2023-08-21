@@ -6,11 +6,10 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use mapl3g_LatLonDecomposition
    use mapl3g_LatLonGeomSpec
    use mapl_MinMaxMod
-   use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use mapl_Constants
    use pFIO
-   use gFTL2_StringVector
+   use gFTL_StringVector
    use esmf
 
 
@@ -119,6 +118,7 @@ contains
 
 
    module function create_basic_grid(spec, unusable, rc) result(grid)
+      use mapl_KeywordEnforcer
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -168,6 +168,7 @@ contains
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
+      use mapl_KeywordEnforcer
       type(LatLonGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable

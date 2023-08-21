@@ -51,6 +51,7 @@ module mapl3g_LatLonDecomposition
 
       ! Keyword enforced to avoid ambiguity with '_topo' interface
       pure module function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
+         use mapl_KeywordEnforcerMod
          type(LatLonDecomposition) :: decomp
          integer, intent(in) :: dims(2)
          class(KeywordEnforcer), optional, intent(in) :: unusable

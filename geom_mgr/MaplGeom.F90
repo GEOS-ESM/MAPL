@@ -5,7 +5,7 @@ module mapl3g_MaplGeom
    use mapl3g_VectorBasis
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
-   use gftl2_StringVector
+   use gftl_StringVector
    implicit none
    private
 
