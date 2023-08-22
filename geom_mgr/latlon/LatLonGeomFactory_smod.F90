@@ -229,7 +229,7 @@ contains
 
 
       centers = centers * MAPL_DEGREES_TO_RADIANS_R8
-      corners = centers * MAPL_DEGREES_TO_RADIANS_R8
+      corners = corners * MAPL_DEGREES_TO_RADIANS_R8
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
