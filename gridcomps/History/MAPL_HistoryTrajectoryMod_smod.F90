@@ -537,6 +537,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR) :: var_name_time
          character(len=ESMF_MAXSTR) :: attr_name
          character(len=ESMF_MAXSTR) :: attr
+         character(len=ESMF_MAXSTR) :: timeunits_file
 
          type(ESMF_Config) :: config_grid
          character(len=ESMF_MAXSTR) :: time_string
@@ -550,6 +551,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
          type(ESMF_Time) :: current_time
+         type(ESMF_Time) :: time0, time1, time2
+         type(ESMF_TimeInterval) :: interval
          type(ESMF_Field) :: src_fld, dst_fld
          type(ESMF_Field) :: src_fld2, dst_fld2
          type(ESMF_Grid) :: grid
@@ -566,6 +569,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: nx, nx_sum
          integer :: arr(1)
          integer :: sec
+         integer :: int_time
+         character(len=:), allocatable :: tunit
+
 
          ! TOBE removed: hard coded tunits
          this%datetime_units = "seconds since 1970-01-01 00:00:00"
@@ -641,12 +647,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+                  call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+                  !
+                  int_time=0
+                  call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
+                  call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, time2, time1=time1, tunit=tunit, _RC)
+                  interval = time2 - time1
+                  print*, 'Darian tunit=', trim(tunit)
 
-!                  !! this code for attribute failed, needs to rework on it
-!                  attr_name = 'units'
-!                  call get_attribute_from_group(filename, this%var_name_time, grp_name, attr_name, attr)
-!                  stop -11
-                  
+               stop -11
 
                   !!this%datetime_units = trim(attr)
                   len = len + num_times
