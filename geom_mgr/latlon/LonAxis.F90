@@ -44,7 +44,7 @@ module mapl3g_LonAxis
    interface
 
       ! Constructor
-      module function new_LonAxis(centers, corners) result(axis)
+      pure module function new_LonAxis(centers, corners) result(axis)
          type(LonAxis) :: axis
          real(kind=R8), intent(in) :: centers(:)
          real(kind=R8), intent(in) :: corners(:)

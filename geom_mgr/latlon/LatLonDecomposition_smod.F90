@@ -68,38 +68,77 @@ contains
    end function get_lat_distribution
 
 
-   pure module function get_lon_subset(this, coordinates, rank) result(subset)
-      real(kind=R8), allocatable :: subset(:)
+   pure module function get_lon_subset(this, axis, rank) result(local_axis)
+      type(LonAxis) :: local_axis
       class(LatLonDecomposition), intent(in) :: this
-      real(kind=R8), intent(in) :: coordinates(:)
+      type(LonAxis), intent(in) :: axis
       integer, intent(in) :: rank
 
-      subset = get_subset(this%lon_distribution, coordinates, rank)
+      real(kind=R8), allocatable :: centers(:)
+      real(kind=R8), allocatable :: corners(:)
+
+      integer :: i_0, i_1, i_n
+      integer :: nx
+
+      call get_idx_range(this%lon_distribution, rank, i_0, i_1)
+      i_n = i_1 ! unless
+
+      associate (nx => size(this%get_lon_distribution()))
+        if (.not. axis%is_periodic() .and. (1+rank == nx)) then
+           i_n = i_n + 1
+        end if
+      end associate
+      
+      centers = get_subset(axis%get_centers(), i_0, i_1)
+      corners = get_subset(axis%get_corners(), i_0, i_n)
+         
+      local_axis = LonAxis(centers, corners)
 
    end function get_lon_subset
 
-   pure module function get_lat_subset(this, coordinates, rank) result(subset)
-      real(kind=R8), allocatable :: subset(:)
+   pure module function get_lat_subset(this, axis, rank) result(local_axis)
+      type(LatAxis) :: local_axis
       class(LatLonDecomposition), intent(in) :: this
-      real(kind=R8), intent(in) :: coordinates(:)
+      type(LatAxis), intent(in) :: axis
       integer, intent(in) :: rank
 
-      subset = get_subset(this%lat_distribution, coordinates, rank)
-      associate (d => this%lon_distribution)
-        subset = coordinates(1+sum(d(:rank-1)):sum(d(:rank)))
+      real(kind=R8), allocatable :: centers(:)
+      real(kind=R8), allocatable :: corners(:)
+      
+      integer :: j_0, j_1, j_n
+
+      call get_idx_range(this%lat_distribution, rank, j_0, j_1)
+      j_n = j_1 ! unless
+
+      associate (ny => size(this%get_lat_distribution()))
+        if (1+rank == ny) then
+           j_n = j_n + 1
+        end if
       end associate
+      
+      centers = get_subset(axis%get_centers(), j_0, j_1)
+      corners = get_subset(axis%get_corners(), j_0, j_n)
+         
+      local_axis = LatAxis(centers, corners)
 
    end function get_lat_subset
 
-   pure function get_subset(distribution, coordinates, rank) result(subset)
-      real(kind=R8), allocatable :: subset(:)
+   pure subroutine get_idx_range(distribution, rank, i_0, i_1)
       integer, intent(in) :: distribution(:)
-      real(kind=R8), intent(in) :: coordinates(:)
       integer, intent(in) :: rank
-      
-      associate (d => distribution)
-        subset = coordinates(1+sum(d(:rank-1)):sum(d(:rank)))
-      end associate
+      integer, intent(out) :: i_0, i_1
+
+      i_0 = 1 + sum(distribution(:rank))
+      i_1 = i_0 + distribution(rank+1) - 1
+
+   end subroutine get_idx_range
+
+   pure function get_subset(coordinates, i_0, i_1) result(subset)
+      real(kind=R8), allocatable :: subset(:)
+      real(kind=R8), intent(in) :: coordinates(:)
+      integer, intent(in) :: i_0, i_1
+
+      subset = coordinates(i_0:i_1)
 
    end function get_subset
 

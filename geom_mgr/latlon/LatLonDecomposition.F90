@@ -1,4 +1,6 @@
 module mapl3g_LatLonDecomposition
+   use mapl3g_LonAxis
+   use mapl3g_LatAxis
    use mapl_KeywordEnforcer
    use esmf
    implicit none
@@ -77,17 +79,17 @@ module mapl3g_LatLonDecomposition
          class(LatLonDecomposition), intent(in) :: decomp
       end function get_lat_distribution
 
-      pure module function get_lon_subset(this, coordinates, rank) result(subset)
-         real(kind=R8), allocatable :: subset(:)
+      pure module function get_lon_subset(this, axis, rank) result(local_axis)
+         type(LonAxis) :: local_axis
          class(LatLonDecomposition), intent(in) :: this
-         real(kind=R8), intent(in) :: coordinates(:)
+         type(LonAxis), intent(in) :: axis
          integer, intent(in) :: rank
       end function get_lon_subset
 
-      pure module function get_lat_subset(this, coordinates, rank) result(subset)
-         real(kind=R8), allocatable :: subset(:)
+      pure module function get_lat_subset(this, axis, rank) result(local_axis)
+         type(LatAxis) :: local_axis
          class(LatLonDecomposition), intent(in) :: this
-         real(kind=R8), intent(in) :: coordinates(:)
+         type(LatAxis), intent(in) :: axis
          integer, intent(in) :: rank
       end function get_lat_subset
 

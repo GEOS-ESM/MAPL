@@ -44,7 +44,7 @@ module mapl3g_LatAxis
    interface
 
       ! Constructor
-      module function new_LatAxis(centers, corners) result(axis)
+      pure module function new_LatAxis(centers, corners) result(axis)
          type(LatAxis) :: axis
          real(kind=R8), intent(in) :: centers(:)
          real(kind=R8), intent(in) :: corners(:)

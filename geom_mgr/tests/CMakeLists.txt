@@ -5,7 +5,7 @@ set (TEST_SRCS
   Test_CoordinateAxis.pf
   Test_LonAxis.pf
   Test_LatAxis.pf
-  #    Test_LatLonGeomFactory.pf
+  Test_LatLonGeomFactory.pf
   )
 
 add_pfunit_ctest(MAPL.geom_mgr.tests

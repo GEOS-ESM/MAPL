@@ -110,7 +110,9 @@ contains
       type(ESMF_Grid) :: grid
 
       grid = create_basic_grid(spec, _RC)
+      _HERE
       call fill_coordinates(spec, grid, _RC)
+      _HERE
       geom = ESMF_GeomCreate(grid=grid, _RC)
 
       _RETURN(_SUCCESS)
@@ -180,6 +182,8 @@ contains
       integer :: i, j
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
+      type(LonAxis) :: local_lon_axis
+      type(LatAxis) :: local_lat_axis
       type(LatLonDecomposition) :: decomp
       integer :: nx, ny, ix, iy
 
@@ -189,10 +193,9 @@ contains
       
       nx = size(decomp%get_lon_distribution())
       ny = size(decomp%get_lat_distribution())
-
       call get_ranks(nx, ny, ix, iy, _RC)
-      
-      ! First we handle longitudes:
+ 
+     ! First we handle longitudes:
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, &
            farrayPtr=centers, _RC)
@@ -201,15 +204,16 @@ contains
            farrayPtr=corners, _RC)
 
       lon_axis = spec%get_lon_axis()
+      local_lon_axis = decomp%get_lon_subset(lon_axis, rank=ix)
       do j = 1, size(centers,2)
-         centers(:,j) = decomp%get_lon_subset(lon_axis%get_centers(), rank=ix)
+         centers(:,j) = local_lon_axis%get_centers()
       end do
       do j = 1, size(corners,2)
-         corners(:,j) = decomp%get_lon_subset(lon_axis%get_corners(), rank=ix)
+         corners(:,j) = local_lon_axis%get_corners()
       end do
-
       centers = centers * MAPL_DEGREES_TO_RADIANS_R8
       corners = corners * MAPL_DEGREES_TO_RADIANS_R8
+
 
       ! Now latitudes
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
@@ -219,14 +223,13 @@ contains
            staggerloc=ESMF_STAGGERLOC_CORNER, &
            farrayPtr=corners, _RC)
 
-      lat_axis = spec%get_lat_axis()
+      local_lat_axis = decomp%get_lat_subset(lat_axis, rank=iy)
       do i = 1, size(centers,1)
-         centers(i,:) = decomp%get_lat_subset(lat_axis%get_centers(), rank=iy)
+         centers(i,:) = local_lat_axis%get_centers()
       end do
       do i = 1, size(corners,1)
-         corners(i,:) = decomp%get_lat_subset(lat_axis%get_corners(), rank=iy)
+         corners(i,:) = local_lat_axis%get_corners()
       end do
-
 
       centers = centers * MAPL_DEGREES_TO_RADIANS_R8
       corners = corners * MAPL_DEGREES_TO_RADIANS_R8
