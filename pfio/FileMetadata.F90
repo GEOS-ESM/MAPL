@@ -249,7 +249,10 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      var => this%variables%at(var_name)
+      integer :: status
+      
+      var => this%variables%at(var_name, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_variable
@@ -261,9 +264,8 @@ contains
       integer, optional, intent(out) :: rc
       class (Variable), pointer :: var
 
-      has = .false.
-      var => this%variables%at(var_name)
-      if (associated(var)) has = .true.
+      has = (this%variables%count(var_name) > 0)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function has_variable
@@ -280,10 +282,9 @@ contains
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: tmp
-      
+      integer :: status
 
-      tmp => this%variables%at(var_name)
-
+      tmp => this%variables%at(var_name, _RC)
       _ASSERT(associated(tmp),'can not find '//trim(var_name))
 
       select type (tmp)
@@ -301,15 +302,15 @@ contains
    logical function is_coordinate_variable(this, var_name, unusable, rc) 
       class (FileMetadata),target, intent(in) :: this
       character(*), intent(in) :: var_name
-
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: tmp
+      integer :: status
       
-      tmp => this%variables%at(var_name)
-
+      tmp => this%variables%at(var_name, _RC)
       _ASSERT(associated(tmp), 'can not find the varaible '//trim(var_name))
+
       select type (tmp)
       class is (CoordinateVariable)
          is_coordinate_variable = .true.
@@ -456,7 +457,7 @@ contains
          call viter%next()
       enddo
       miter = this%variables%find(var_name)
-      call  this%variables%erase(miter)
+      miter = this%variables%erase(miter)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -539,8 +540,8 @@ contains
       vars => meta%get_variables()
       var_iter = vars%begin()
       do while (var_iter /= vars%end())
-        name => var_iter%key()
-        var  => var_iter%value()
+        name => var_iter%first()
+        var  => var_iter%second()
         call this%add_variable(name, var)
         call var_iter%next()
       end do      
@@ -608,24 +609,25 @@ contains
          type (StringVariableMapIterator) :: iter
          class (Variable), pointer :: var_a, var_b
          character(len=:), pointer :: var_name
+         integer :: status
 
          equal = a%variables%size() == b%variables%size()
          if (.not. equal) return
 
-         iter = a%variables%begin()
-         do while (iter /= a%variables%end())
+         iter = a%variables%ftn_begin()
+         do while (iter /= a%variables%ftn_end())
+            call iter%next()
             
-            var_name => iter%key()
-            var_b => b%variables%at(var_name)
+            var_name => iter%first()
+            var_b => b%variables%at(var_name, rc=status)
             
             equal = (associated(var_b))
             if (.not. equal) return
             
-            var_a => iter%value()
+            var_a => iter%second()
             equal = (var_a == var_b)
             if (.not. equal) return
             
-            call iter%next()
          end do
 
       end function same_variables

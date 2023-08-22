@@ -58,7 +58,7 @@ module pFIO_ClientManagerMod
       procedure :: terminate
 
       procedure :: size
-      procedure :: next
+      procedure :: next => next_
       procedure :: current
       procedure :: set_current
       procedure :: set_optimal_server
@@ -448,11 +448,11 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine terminate
 
-   subroutine next(this)
+   subroutine next_(this)
       class (ClientManager), target,intent(inout) :: this
       this%current_client = this%current_client + 1
       if (this%current_client > this%clients%size()) this%current_client = 1
-   end subroutine next
+   end subroutine next_
 
    subroutine set_current(this, ith, rc)
       class (ClientManager), intent(inout) :: this

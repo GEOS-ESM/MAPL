@@ -20,7 +20,7 @@ module MAPL_DataCollectionMod
     type (StringIntegerMap) :: file_ids
     type(ESMF_Grid), allocatable :: src_grid
   contains
-    procedure :: find
+    procedure :: find => find_
   end type MAPLDataCollection
 
   interface MAPLDataCollection
@@ -49,7 +49,7 @@ contains
 
 
 
-  function find(this, file_name, rc) result(metadata)
+  function find_(this, file_name, rc) result(metadata)
     type (FileMetadataUtils), pointer :: metadata
     class (MAPLDataCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
@@ -118,7 +118,7 @@ contains
        call this%file_ids%insert(file_name, int(this%metadatas%size()))
     end if
     _RETURN(_SUCCESS)
-  end function find
+  end function find_
 
 end module MAPL_DataCollectionMod
 
