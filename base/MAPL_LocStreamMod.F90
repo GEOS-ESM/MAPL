@@ -1008,7 +1008,9 @@ contains
        DX = 360./float(tiling%IM)
 
        I  = index(TILING%NAME,'-',.true.) !bmaa got rid
-       _ASSERT(I>0,'needs informative message')
+       if ( I <=0) then
+          _ASSERT(index(TILING%NAME,'EASE') /=0, "The new EASE grid name only contains underscore _ ")
+       endif
        I  = I+1
 
        if    (TILING%NAME(I:I+1)=='DC') then
@@ -1541,7 +1543,10 @@ contains
     JM_WORLD = DIMS(2)
    
     _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
-    _ASSERT(JM_WORLD==TILING%JM,'needs informative message')
+    if (JM_WORLD /= TILING%JM) then
+       print *,'error tiling jm/jm ',jm_world, tiling%jm
+       _RETURN(_FAILURE)
+    end if
     
 ! Find out which tiles are in local PE
 !-------------------------------------
@@ -1619,8 +1624,7 @@ contains
     call ESMF_GridSet(tilegrid,  &
          name="tile_grid_"//trim(Stream%NAME)//'@'//trim(GNAME),    &
          distgrid=distgrid, & 
-         gridMemLBound=(/1/), &
-         indexFlag=ESMF_INDEX_USER, &
+         indexFlag=ESMF_INDEX_DELOCAL, &
          distDim = (/1/), &
          localArbIndexCount=arbIndexCount, &
          localArbIndex=arbIndex, &
