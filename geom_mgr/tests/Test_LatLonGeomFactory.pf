@@ -1,0 +1,33 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_LatLonGeomFactory
+   use pfunit
+   use mapl3g_GeomSpec
+   use mapl3g_LatLonGeomFactory
+   use esmf
+   implicit none
+
+contains
+
+   @test
+   subroutine test_make_from_hconfig()
+
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      type(LatLonGeomFactory) :: factory
+      class(GeomSpec), allocatable :: geom_spec
+      type(ESMF_Geom) :: geom
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      @assert_that(status, is(0))
+
+      geom_spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(geom_spec, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_make_from_hconfig
+
+
+end module Test_LatLonGeomFactory

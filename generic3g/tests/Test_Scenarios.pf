@@ -13,7 +13,7 @@ module Test_Scenarios
    use mapl3g_MultiState
    use mapl3g_OuterMetaComponent
    use mapl3g_ChildComponent
-   use mapl3g_GenericGridComp
+   use mapl3g_GenericGridComp, generic_setservices => setservices
    use mapl3g_UserSetServices
    use mapl3g_ESMF_Utilities
    use mapl3g_VerticalGeom
@@ -158,7 +158,7 @@ contains
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
         outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), config, _RC)
-        call ESMF_GridCompSetServices(outer_gc, setServices, userRC=user_status, _RC)
+        call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
         grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
         call MAPL_GridCompSetGeom(outer_gc, grid, _RC)

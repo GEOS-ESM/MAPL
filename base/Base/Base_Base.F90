@@ -180,7 +180,7 @@ module MAPL_Base
        integer,              optional, intent(  OUT) :: rc             
      end subroutine MAPL_SetPointer3DR4
 
-     module subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
+     pure module subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
        use MAPL_KeywordEnforcerMod
 
        integer, intent(in) :: dim_world, NDEs

@@ -1,0 +1,59 @@
+module Test_CoordinateAxis
+   use funit
+   use mapl3g_CoordinateAxis
+   use esmf, only: ESMF_KIND_R8
+   use esmf, only: ESMF_HConfig 
+   use esmf, only: ESMF_HConfigCreate
+   use esmf, only: ESMF_HConfigDestroy
+   implicit none
+
+   integer, parameter :: R8 = ESMF_KIND_R8
+
+contains
+
+   @test
+   subroutine test_is_periodic()
+      type(CoordinateAxis) :: axis
+
+      integer, parameter :: N = 6
+      real(kind=R8) :: centers(N)
+      real(kind=R8) :: corners(N+1)
+      integer :: i
+
+      do i = 1, n
+         centers(i) = (360./n) * i
+         corners(i) = (360./n) * i - (360./(2*n))
+      end do
+      corners(n+1) = 360 + (360./(2*n))
+      axis = CoordinateAxis(centers = centers, corners=corners)
+
+      @assert_that(axis%is_periodic(), is(true()))
+           
+   end subroutine test_is_periodic
+   
+   @test
+   subroutine test_is_not_periodic()
+      type(CoordinateAxis) :: axis
+
+      integer, parameter :: N = 6
+      real(kind=R8) :: centers(N)
+      real(kind=R8) :: corners(N+1)
+      integer :: i
+
+      do i = 1, n
+         centers(i) = (360./n) * i
+         corners(i) = (360./n) * i - (360./(2*n))
+      end do
+
+      corners(n+1) = 360 + (360./(2*n)) + 1
+      axis = CoordinateAxis(centers = centers, corners=corners)
+      @assert_that(axis%is_periodic(), is(false()))
+
+      corners(n+1) = 360 + (360./(2*n)) - 1
+      axis = CoordinateAxis(centers = centers, corners=corners)
+      @assert_that(axis%is_periodic(), is(false()))
+      
+   end subroutine test_is_not_periodic
+
+
+end module Test_CoordinateAxis
