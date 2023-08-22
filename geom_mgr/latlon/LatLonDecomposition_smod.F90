@@ -18,6 +18,7 @@ contains
    end function new_LatLonDecomposition_basic
 
    pure module function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
+      use mapl_KeywordEnforcer
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -40,6 +41,7 @@ contains
    end function new_LatLonDecomposition_petcount
 
    pure module function new_LatLonDecomposition_topo(dims, unusable, topology) result(decomp)
+      use mapl_KeywordEnforcer
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
