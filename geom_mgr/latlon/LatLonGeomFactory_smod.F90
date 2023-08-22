@@ -88,7 +88,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Grid) :: grid
 
       select type (geom_spec)
       type is (LatLonGeomSpec)
@@ -110,9 +109,7 @@ contains
       type(ESMF_Grid) :: grid
 
       grid = create_basic_grid(spec, _RC)
-      _HERE
       call fill_coordinates(spec, grid, _RC)
-      _HERE
       geom = ESMF_GeomCreate(grid=grid, _RC)
 
       _RETURN(_SUCCESS)
@@ -169,7 +166,6 @@ contains
 
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
-      use MAPL_BaseMod, only: MAPL_grid_interior
       use mapl_KeywordEnforcer
       type(LatLonGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
@@ -263,8 +259,6 @@ contains
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       gridded_dims = StringVector()
       select type (geom_spec)
       type is (LatLonGeomSpec)
@@ -284,8 +278,6 @@ contains
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       file_metadata = FileMetadata()
 
       select type (geom_spec)
@@ -295,6 +287,7 @@ contains
          _FAIL('geom_spec is not of dynamic type LatLonGeomSpec.')
       end select
 
+      _RETURN(_SUCCESS)
    end function make_file_metadata
 
    function typesafe_make_file_metadata(geom_spec, rc) result(file_metadata)
@@ -302,7 +295,6 @@ contains
       type(LatLonGeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
       type(Variable) :: v

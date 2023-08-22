@@ -142,6 +142,7 @@ contains
            call iter%next()
         end do
       end associate
+      _ASSERT(found, "No variable found with units: " // units//".")
 
       _RETURN(_SUCCESS)
    end function get_dim_name

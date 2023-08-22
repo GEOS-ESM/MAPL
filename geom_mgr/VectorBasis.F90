@@ -5,7 +5,6 @@ module mapl3g_VectorBasis
    use mapl_FieldBLAS
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandlingMod
-   use mapl_base, only: MAPL_GridGetCorners
 
    implicit none
    private
@@ -71,8 +70,6 @@ module mapl3g_VectorBasis
       pure module function get_unit_vector( p1, p2, p3 ) result(uvect)
          real(kind=ESMF_KIND_R8), intent(in):: p1(2), p2(2), p3(2) 
          real(kind=ESMF_KIND_R8) :: uvect(3) 
-         real(kind=ESMF_KIND_R8) :: xyz1(3), xyz2(3), xyz3(3)
-         real(kind=ESMF_KIND_R8) :: ap 
       end function get_unit_vector
 
 
@@ -88,7 +85,6 @@ module mapl3g_VectorBasis
       pure module function mid_pt_sphere(p1, p2) result(pm)
          real(kind=ESMF_KIND_R8) , intent(in)  :: p1(2), p2(2)
          real(kind=ESMF_KIND_R8) :: pm(2)
-         real(kind=ESMF_KIND_R8) :: e1(3), e2(3), e3(3),dd
       end function mid_pt_sphere
 
       pure module function latlon2xyz(sph_coord,right_hand) result(xyz_coord)
@@ -98,13 +94,8 @@ module mapl3g_VectorBasis
       end function latlon2xyz
 
       pure module function xyz2latlon(xyz_coord) result(sph_coord)
-         use MAPL_Constants, only: PI => MAPL_PI_R8
          real(kind=ESMF_KIND_R8), intent(in):: xyz_coord(3)
          real(kind=ESMF_KIND_R8) :: sph_coord(2)
-         real(kind=ESMF_KIND_R8), parameter:: esl=1.e-10
-         real(kind=ESMF_KIND_R8):: p(3)
-         real(kind=ESMF_KIND_R8):: dist, lat, lon
-         integer k
       end function xyz2latlon
 
       module subroutine destroy_fields(this)
@@ -121,7 +112,6 @@ module mapl3g_VectorBasis
 
       ! GridGetCoords - specific procedures
       module subroutine grid_get_coords_1d(grid, longitudes, latitudes, rc)
-         use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
          type(ESMF_Grid), intent(in) :: grid
          real(kind=ESMF_KIND_R8), pointer :: longitudes(:)
          real(kind=ESMF_KIND_R8), pointer :: latitudes(:)

@@ -83,7 +83,9 @@ module mapl3g_MaplGeom
          character(len=*), optional, intent(in) :: mode
          integer, optional, intent(out) :: rc
       end function get_basis
+
    end interface
+
 end module mapl3g_MaplGeom
 
 

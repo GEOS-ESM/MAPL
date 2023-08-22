@@ -24,7 +24,6 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, intent(in) :: petCount
 
-      integer :: status
       integer :: nx, nx_start
 
       associate (aspect_ratio => real(dims(1))/dims(2))
@@ -80,7 +79,6 @@ contains
       real(kind=R8), allocatable :: corners(:)
 
       integer :: i_0, i_1, i_n
-      integer :: nx
 
       call get_idx_range(this%lon_distribution, rank, i_0, i_1)
       i_n = i_1 ! unless

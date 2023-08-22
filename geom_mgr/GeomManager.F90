@@ -8,7 +8,6 @@ module mapl3g_GeomManager
    use mapl3g_GeomFactoryVector
    use mapl3g_GeomSpecVector
    use mapl3g_IntegerMaplGeomMap
-   use mapl3g_GeomUtilities, only: MAPL_GeomSetId
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod
    use esmf
