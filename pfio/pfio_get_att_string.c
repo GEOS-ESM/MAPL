@@ -10,12 +10,15 @@ void pfio_check(int stat) {
   }
 }
 
-int pfio_get_att_string(int ncid, const char* name, char* value, int *attlen)
+int pfio_get_att_string(int ncid, int varid, const char* name, char* value, int *attlen)
 {
   int stat;
   size_t alen;
 
-  stat = nc_inq_attlen(ncid, NC_GLOBAL, name, &alen); pfio_check(stat);
+  /* note: C-varid starts from 0, Fortran from 1 */
+  int varid_C = varid - 1;
+
+  stat = nc_inq_attlen(ncid, varid_C, name, &alen); pfio_check(stat);
  
   if (alen > 1) {
    printf("pfio doesnot support multi-dimentional strings");
@@ -25,7 +28,7 @@ int pfio_get_att_string(int ncid, const char* name, char* value, int *attlen)
   char **string_attr = (char**)malloc( sizeof(char*));
   memset(string_attr, 0, sizeof(char*));
 
-  stat = nc_get_att_string(ncid, NC_GLOBAL, name, string_attr); pfio_check(stat);
+  stat = nc_get_att_string(ncid, varid_C, name, string_attr); pfio_check(stat);
 
   *attlen = 0;
   alen = 0;
