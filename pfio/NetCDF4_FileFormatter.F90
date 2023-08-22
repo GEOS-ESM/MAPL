@@ -987,10 +987,8 @@ contains
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            ! W.Y. Note: pfio only supports global string attributes.
-            ! varid is not passed in. NC_GLOBAL is used inside the call
             !$omp critical
-            status = pfio_get_att_string(this%ncid, trim(attr_name), str)
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
             call cf%add_attribute(trim(attr_name), str)
