@@ -19,7 +19,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_SortMod
   use MAPL_NetCDF
   use MAPL_StringTemplate
-  use MAPL_plain_netCDF_Time
+  use Plain_netCDF_Time
   use MAPL_ISO8601_DateTime_ESMF
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -571,6 +571,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: sec
          integer :: int_time
          character(len=:), allocatable :: tunit
+         integer (ESMF_KIND_I8) :: n_second
 
 
          ! TOBE removed: hard coded tunits
@@ -647,21 +648,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+
+                  print*, 'bf get_attribute_from_group'
                   call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+                  print*, 'output timeunits_file G=', trim(this%datetime_units)
+                  print*, 'output timeunits_file L=', trim(timeunits_file)
                   !
                   int_time=0
                   call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
                   call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, time2, time1=time1, tunit=tunit, _RC)
-                  interval = time2 - time1
+                  interval = time2 - time0
                   print*, 'Darian tunit=', trim(tunit)
-
-               stop -11
+                  _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
+                  call ESMF_TimeIntervalGet(interval, s_i8=n_second)
+                  print*, 'shift n_second',  n_second
+                  times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
 
                   !!this%datetime_units = trim(attr)
                   len = len + num_times
                   j=j+1
                enddo
-               print *, 'this%datetime_units from file = ', trim(this%datetime_units)
             end if
 
             

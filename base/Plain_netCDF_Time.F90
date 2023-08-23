@@ -11,11 +11,11 @@
 
 !
 !>
-!### MODULE: `MAPL_plain_netCDF_Time`
+!### MODULE: `Plain_netCDF_Time`
 !
 ! Author: GMAO SI-Team
 !
-module MAPL_plain_netCDF_Time
+module Plain_netCDF_Time
   use MAPL_KeywordEnforcerMod
   use MAPL_ExceptionHandling
   use MAPL_ShmemMod
@@ -107,20 +107,21 @@ contains
     character(len=*), intent(INOUT) :: attr
     integer :: ncid, varid, ncid2
     integer :: rc, status, iret
-    integer :: len
+    integer :: len, i, j, k
     integer :: xtype
     character(len=:), allocatable :: str
     integer :: number
     integer :: attnum, nAttributes
     character(len=NF90_MAX_NAME) :: attr_name2
     integer(kind=C_INT) :: c_ncid, c_varid
+    character(len=100) :: str2
 
-    c_ncid= ncid
-    c_varid= varid
     call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2), rc )
     call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid),  rc )
     call check_nc_status ( nf90_inq_varid (ncid,  var_name,  varid), rc )
     call check_nc_status ( nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), rc )
+    c_ncid= ncid
+    c_varid= varid
     !! print*, 'f: xtype, len=', xtype, len
     select case (xtype)
     case(NF90_STRING)
@@ -133,7 +134,17 @@ contains
        _FAIL('code works only with string attribute')
     end select
     print*, 'timeunits=', trim (str)
-    attr = trim(str)
+    i=index(str, 'since')
+    ! get rid of T in 1970-01-01T00:00:0
+    str2=str(i+6:i+24)
+    j=index(str2, 'T')
+    if (j>1) then
+       k=len_trim(str2)
+       str2=str2(1:j-1)//' '//str2(j+1:k)
+    endif
+    attr = str(1:i+5)//trim(str2)
+    ! note: we could have used  str(1:i+24) 
+    print*, 'full str=', trim(attr)
     deallocate(str)
     iret = nf90_close(ncid)
 
@@ -513,4 +524,4 @@ contains
     if (present(rc)) rc=0
   end subroutine convert_twostring_2_esmfinterval
 
-end module MAPL_Plain_NetCDF_Time
+end module Plain_NetCDF_Time
