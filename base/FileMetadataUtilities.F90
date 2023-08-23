@@ -606,9 +606,11 @@ module MAPL_FileMetadataUtilsMod
       character(len=:), pointer :: var_name
       
       vars => this%get_variables()
-      var_iter = vars%begin()
-      do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while(var_iter /=vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => this%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'height') .ne. 0) then
@@ -625,7 +627,6 @@ module MAPL_FileMetadataUtilsMod
                end if
             end if
          end if
-         call var_iter%next()
       enddo
       lev_name=''
       _RETURN(_SUCCESS)

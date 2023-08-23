@@ -4465,9 +4465,11 @@ module NCIOMod
 
          vars => cfIn%get_variables()
 
-         iter = vars%begin()
-         do while (iter /= vars%end())
-            name => iter%key()
+         iter = vars%ftn_begin()
+         do while (iter /= vars%ftn_end())
+            call iter%next()
+
+            name => iter%first()
             newExtent => newDims%at(trim(name))
             if (associated(newExtent)) then
                cvar => cfOut%get_coordinate_variable(trim(name),rc=status)
@@ -4496,7 +4498,6 @@ module NCIOMod
 
                nullify(newExtent)
             end if
-           call iter%next()
          enddo
 
          _RETURN(ESMF_SUCCESS)
@@ -4519,15 +4520,15 @@ module NCIOMod
   nvars = 0
   dims => cf%get_dimensions()
   vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) nvars=nvars+1
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4547,15 +4548,15 @@ module NCIOMod
 
   dims => cf%get_dimensions()
   vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4580,11 +4581,12 @@ module NCIOMod
   nlev = 0
   dims => cf%get_dimensions()
   vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name => iter%key()
-     var => iter%value()
+     name => iter%first()
+     var => iter%second()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) then
         vdims => var%get_dimensions()
@@ -4602,7 +4604,6 @@ module NCIOMod
      end if
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4771,9 +4772,11 @@ module NCIOMod
 
       flip = .false.
       vars => metadata%get_variables()
-      var_iter = vars%begin()
-      do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while(var_iter /=vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => metadata%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'edge') .ne. 0) then
@@ -4797,7 +4800,6 @@ module NCIOMod
                end if
             end if
          end if
-         call var_iter%next()
       enddo
       _RETURN(_SUCCESS)
    end function check_flip
