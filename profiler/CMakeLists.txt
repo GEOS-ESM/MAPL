@@ -13,6 +13,7 @@ set (srcs
   MpiTimerGauge.F90
   FortranTimerGauge.F90
   RssMemoryGauge.F90
+  MallocGauge.F90
   VmstatMemoryGauge.F90
 
   AdvancedMeter.F90
