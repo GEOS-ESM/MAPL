@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
 
 
+- Added markdown documentation for select items such as ExtData, History and a few other sources
 - Trajectory sampler with Epoch time span
 - Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
 - Allow a negative "update\_offset" keyword in the sampling section of ExtData2G's input file by prepending the ISO time duration with a negative sign. I.E -PT12H for example
