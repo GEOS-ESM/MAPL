@@ -141,7 +141,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          this%bundle=bundle
          this%items=items
-         this%epoch_index(1:2)=0
          
          if (present(vdata)) then
             this%vdata=vdata
@@ -518,6 +517,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
         module procedure create_grid
+        use pflogger, only: Logger, logging
          character(len=ESMF_MAXSTR) :: filename
          type(NetCDF4_FileFormatter) :: formatter
          type(FileMetadataUtils) :: metadata_utils
@@ -529,6 +529,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: len
          integer :: len_full         
          integer :: status
+         type(Logger), pointer :: lgr
          
          character(len=ESMF_MAXSTR) :: grp_name
          character(len=ESMF_MAXSTR) :: dim_name(10)
@@ -574,8 +575,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer (ESMF_KIND_I8) :: n_second
 
 
-         ! TOBE removed: hard coded tunits
+         ! Global fixed reference
          this%datetime_units = "seconds since 1970-01-01 00:00:00"
+         lgr => logging%get_logger('HISTORY.sampler')
 
          call ESMF_VMGetGlobal(vm,_RC)
          call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)         
@@ -633,13 +635,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)               
                   len = len + num_times
                   j=j+1
-                  write(6,*) 'input filename: ', trim(filename)
+                  call lgr%debug('%a %a', 'input filename: ', trim(filename))
                enddo            
                len_full = len
-               write(6,*) 'nobs from file:', len_full
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
-
+               call lgr%debug('%a %i12', 'nobs from input file:', len_full)
+               
                j = max (fid_s, L)
                len = 0 
                do while (j<=fid_e)
@@ -648,23 +650,23 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
-
-                  print*, 'bf get_attribute_from_group'
                   call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
-                  print*, 'output timeunits_file G=', trim(this%datetime_units)
-                  print*, 'output timeunits_file L=', trim(timeunits_file)
-                  !
+
                   int_time=0
                   call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
                   call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, time2, time1=time1, tunit=tunit, _RC)
                   interval = time2 - time0
-                  print*, 'Darian tunit=', trim(tunit)
                   _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
                   call ESMF_TimeIntervalGet(interval, s_i8=n_second)
-                  print*, 'shift n_second',  n_second
                   times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
 
-                  !!this%datetime_units = trim(attr)
+                  call lgr%debug('%a %a', 'output timeunits_file G=', trim(this%datetime_units))
+                  call lgr%debug('%a %a', 'output timeunits_file L=', trim(timeunits_file))
+                  call lgr%debug('%a %a', 'Darian tunit(sec/min/hr)=', trim(tunit))
+                  call lgr%debug('%a %i10 ', 'shift n_second',  n_second)
+                  call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
+                       times_R8_full(1), times_R8_full(200))
+
                   len = len + num_times
                   j=j+1
                enddo
@@ -684,7 +686,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                j1 = j0 + sec
                jx0 = real ( j0, kind=ESMF_KIND_R8)
                jx1 = real ( j1, kind=ESMF_KIND_R8)
-               !!call lgr%debug ('%a %i4 %i4', 'jx0, jx1', jx0, jx1)
 
                nstart=1; nend=size(times_R8_full)
                call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
@@ -692,17 +693,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                if (jt1==jt2) then
                   _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
                endif
+               call lgr%debug ('%a %i20 %i20', 'jx0, jx1', int(jx0), int(jx1))
+               call lgr%debug ('%a %i20 %i20', 'jt1, jt2', jt1, jt2)
+               
                ! (x1, x2]  design in bisect
-               if (this%epoch_index(1) == 0) then
-                  if (jt1==0) then
-                     this%epoch_index(1)= 1
-                  else
-                     this%epoch_index(1)= jt1
-                  endif
+               if (jt1==0) then
+                  this%epoch_index(1)= 1
                else
-                  this%epoch_index(1)= this%epoch_index(2)  !  previous save
-               end if
-               this%epoch_index(2)= jt2
+                  this%epoch_index(1)= jt1
+               endif
+               _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
+               if (jt2==0) then
+                  this%epoch_index(2)= 1
+               else
+                  this%epoch_index(2)= jt2
+               endif
 
                nx= this%epoch_index(2) - this%epoch_index(1) + 1
                this%nobs_epoch = nx
@@ -718,6 +723,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                enddo
                arr(1)=nx
                deallocate(lons_full, lats_full, times_R8_full)
+               call lgr%debug('%a %i12 %i12 %i12', &
+                    'epoch_index(1:2), nx', this%epoch_index(1), &
+                    this%epoch_index(2), this%nobs_epoch)
             else
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
@@ -730,8 +738,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
                  count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
             this%nobs_epoch_sum = nx_sum            
-            !! write(6,*) 'epoch_index(1:2), nx', this%epoch_index(1:2), this%nobs_epoch
-            if (mapl_am_I_root()) write(6,*) 'nobs in Epoch :', nx_sum
+            if (mapl_am_I_root()) write(6,*) 'nobs in Epoch =', nx_sum
 
             
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
@@ -752,22 +759,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
             call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
 
-            !!write(6,'(2x,a,10E20.11)') 'obstime bf destroy'
             !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)            
             
             call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
             call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
             ! defer destroy fieldB at regen_grid step
-            
-
          end if
          _RETURN(_SUCCESS)
        end procedure create_grid
-            !! debug
-            !!write(6, '(a)')  'lons_full(1:3*num_times:num_times) and  times_R8_full'
-            !!write(6, '(10f10.1)')  lons_full(1:3*num_times:num_times/2)
-            !!write(6, '(10E25.12)')  times_R8_full(1:3*num_times:num_times/2)
-            !!write(6, '(10E25.12)')  times_R8_full(1:len:20)
+       !! debug
+       !!write(6, '(a)')  'lons_full(1:3*num_times:num_times) and  times_R8_full'
+       !!write(6, '(10f10.1)')  lons_full(1:3*num_times:num_times/2)
+       !!write(6, '(10E25.12)')  times_R8_full(1:3*num_times:num_times/2)
+       !!write(6, '(10E25.12)')  times_R8_full(1:len:20)
 
 
 

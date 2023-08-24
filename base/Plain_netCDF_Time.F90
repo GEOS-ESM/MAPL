@@ -4,7 +4,6 @@
 !   It contains ad hoc codes for time conversion and time bisect,
 !-------------------------------------------------------------------
 
-
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
@@ -133,7 +132,6 @@ contains
     case default
        _FAIL('code works only with string attribute')
     end select
-    print*, 'timeunits=', trim (str)
     i=index(str, 'since')
     ! get rid of T in 1970-01-01T00:00:0
     str2=str(i+6:i+24)
@@ -143,8 +141,6 @@ contains
        str2=str2(1:j-1)//' '//str2(j+1:k)
     endif
     attr = str(1:i+5)//trim(str2)
-    ! note: we could have used  str(1:i+24) 
-    print*, 'full str=', trim(attr)
     deallocate(str)
     iret = nf90_close(ncid)
 

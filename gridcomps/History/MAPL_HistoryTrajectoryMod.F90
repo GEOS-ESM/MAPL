@@ -152,6 +152,7 @@ module HistoryTrajectoryMod
      end subroutine time_real_to_ESMF
 
      module subroutine create_grid(this, rc)
+       !!use pflogger, only: Logger, logging
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
     end subroutine create_grid
