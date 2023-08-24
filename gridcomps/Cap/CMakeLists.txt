@@ -1,5 +1,6 @@
 esma_set_this (OVERRIDE MAPL.cap)
 set (srcs
+     hooks.c
      MAPL_Cap.F90
      MAPL_CapGridComp.F90
      MAPL_NUOPCWrapperMod.F90

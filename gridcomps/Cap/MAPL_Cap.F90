@@ -265,6 +265,9 @@ contains
 
    subroutine run_model(this, comm, unusable, rc)
       use pFlogger, only: logging, Logger
+      use iso_c_binding, only: C_LONG_LONG
+      import C_LONG_LONG
+
       class (MAPL_Cap), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -276,7 +279,28 @@ contains
       class(Logger), pointer :: lgr
       logical :: file_exists
 
+      integer(kind=c_long_long) :: tm, cnt
+
+      interface
+         subroutine my_init_hook() bind(C, name="my_init_hook")
+           !      use iso_c_binding, only: c_char
+         end subroutine my_init_hook
+      end interface
+ 
+      interface
+         subroutine getMallocStat(tm, cnt) bind(C, name="getMallocStat")
+           use iso_c_binding, only: C_LONG_LONG
+           import C_LONG_LONG
+           implicit none
+           integer(kind=C_LONG_LONG) :: tm
+           integer(kind=C_LONG_LONG) :: cnt
+         end subroutine getMallocStat
+      end interface
+
       _UNUSED_DUMMY(unusable)
+
+      !ALT: attempt to do memory profiling
+      call my_init_hook
 
       call start_timer()
 
@@ -324,6 +348,10 @@ contains
       call stop_timer()
 
       call report_throughput()
+
+      call getMallocStat(tm, cnt)
+      print *, 'total memory=', tm
+      print *, 'total alloc count=', cnt
 
       _RETURN(_SUCCESS)
    contains
