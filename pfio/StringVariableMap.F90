@@ -49,7 +49,7 @@ contains
     end function StringVariableMap_get_length
 
     subroutine StringVariableMap_serialize(map, buffer, rc)
-       type (StringVariableMap) ,intent(in):: map
+       type (StringVariableMap), target, intent(in):: map
        integer, allocatable,intent(inout) :: buffer(:)
        integer, optional, intent(out) :: rc
 

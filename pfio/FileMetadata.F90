@@ -412,7 +412,7 @@ contains
    subroutine modify_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
       character(len=*), intent(in) :: var_name
-      class (Variable), intent(in) :: var
+      class (Variable), target, intent(in) :: var
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -431,12 +431,10 @@ contains
          _ASSERT( associated(dim_this), "FileMetadata:: modify_variable() - undefined dimension " // dim_name )
          call iter%next()
       end do
-
       call this%variables%set(var_name, var)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      
    end subroutine modify_variable
 
    subroutine remove_variable(this, var_name, unusable, rc)
@@ -661,6 +659,7 @@ contains
 
       length = serialize_buffer_length(length) + size(buffer)
       buffer = [serialize_intrinsic(length),buffer]
+
       _RETURN(_SUCCESS)
    end subroutine
 

@@ -186,6 +186,6 @@ endif ()
 
 
 # Unit testing
-#if (PFUNIT_FOUND)
-  #add_subdirectory(tests EXCLUDE_FROM_ALL)
-#endif ()
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()
