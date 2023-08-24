@@ -70,19 +70,17 @@ end subroutine fortran_malloc
 
 ! Find the corresponding allocation in the table to find the number of bytes
 ! being deallocated. Free the table entry and decrement the total.
-subroutine fortran_free(addr_bytes)
+subroutine fortran_free(addr)
    use, intrinsic :: iso_fortran_env, only: INT64
    use mapl_GlobalMallocTable
    integer(kind=INT64), intent(in) :: addr
 
    integer(kind=INT64) :: num_bytes
    type(IntegerInteger64MapIterator) :: iter
-
-   associate (b => active_allocations%begin(), e => active_allocations%end() )
-     iter = find(active_allocations, b, e)
-     num_bytes = active_allocations%of(addr)
-     iter = active_allocations%erase(iter)
-   end associate
+ 
+   iter = active_allocations%find(addr)
+   num_bytes = active_allocations%of(addr)
+   iter = active_allocations%erase(iter)
 
    active_allocations_total = active_allocations_total - num_bytes
    print*,active_allocations%size(), 'fortran dealloc: ', num_bytes, active_allocations_total, addr
