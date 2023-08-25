@@ -240,6 +240,7 @@ contains
     _VERIFY(status)
     call ESMF_VMGet(cap%vm, petcount = NPES, mpiCommunicator = comm, rc = status)
     _VERIFY(status)
+    call MAPL_MemReport(comm,__FILE__,__LINE__)
 
     AmIRoot_ = MAPL_Am_I_Root(cap%vm)
 
@@ -548,6 +549,7 @@ contains
 
     root_set_services => cap%root_set_services
 
+    call MAPL_MemReport(comm,__FILE__,__LINE__)
     call t_p%start('SetService')
     if (.not.allocated(cap%root_dso)) then
        cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
@@ -560,6 +562,7 @@ contains
     root_gc => maplobj%get_child_gridcomp(cap%root_id)
     call MAPL_GetObjectFromGC(root_gc, root_obj, rc=status)
     _ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run),"n_run_phases in cap_gc should not exceed n_run_phases in root")
+    call MAPL_MemReport(comm,__FILE__,__LINE__)
 
     !  Create History child
     !----------------------
@@ -647,15 +650,19 @@ contains
        !----------------------------------------
 
        call t_p%start('Initialize')
+       call MAPL_MemReport(comm,__FILE__,__LINE__)
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
 
+       call MAPL_MemReport(comm,__FILE__,__LINE__)
        call cap%initialize_history(rc=status)
        _VERIFY(status)
+       call MAPL_MemReport(comm,__FILE__,__LINE__)
 
        call cap%initialize_extdata(root_gc,rc=status)
        _VERIFY(status)
+       call MAPL_MemReport(comm,__FILE__,__LINE__)
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state
@@ -1229,6 +1236,18 @@ contains
         integer, optional, intent(out) :: rc
         integer :: status
 
+        type(ESMF_VM) :: vm
+        integer :: comm
+        character(len=ESMF_MAXSTR) :: replayMode
+        type(MAPL_CapGridComp), pointer :: cap
+
+        cap => get_CapGridComp_from_gc(this%gc)
+        
+        call ESMF_VMGetCurrent(vm,_RC)
+        call ESMF_VMGet(vm,mpiCommunicator=comm,_RC)
+        call ESMF_ConfigGetAttribute(cap%cf_root, value=ReplayMode, Label="REPLAY_MODE:", default="NoReplay", rc=status)
+        _VERIFY(STATUS)
+
         if (this%compute_throughput) then
            if (.not.this%started_loop_timer) then
               this%starts%loop_start_timer = MPI_WTime(status)
@@ -1243,10 +1262,12 @@ contains
          _VERIFY(status)
         ! Call Record for intermediate checkpoint (if desired)
         ! ------------------------------------------------------
+        if (trim(replayMode) == "Regular") call MAPL_MemReport(comm,__FILE__,__LINE__)
         call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
              exportstate = this%child_exports(this%root_id), &
              clock = this%clock_hist, userrc = status)
         _VERIFY(status)
+        if (trim(replayMode) == "Regular") call MAPL_MemReport(comm,__FILE__,__LINE__)
 
         call ESMF_GridCompWriteRestart(this%gcs(this%history_id), importstate = this%child_imports(this%history_id), &
              exportstate = this%child_exports(this%history_id), &

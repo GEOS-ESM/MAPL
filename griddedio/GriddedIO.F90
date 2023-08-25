@@ -23,6 +23,7 @@ module MAPL_GriddedIOMod
   use gFTL_StringStringMap
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
+  use MAPL_MemUtilsMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
@@ -127,6 +128,8 @@ module MAPL_GriddedIOMod
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
         integer :: status
+        type(ESMF_VM) :: vm
+        integer :: mpi_comm
 
         this%items = items
         this%input_bundle = bundle
@@ -141,8 +144,13 @@ module MAPL_GriddedIOMod
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
+       
+        call ESMF_VMGetCurrent(vm,_RC) 
+        call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
+        call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
+        call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
 
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
@@ -1049,6 +1057,8 @@ module MAPL_GriddedIOMod
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
      real(REAL32) :: missing_value
+     type(ESMF_VM) :: vm
+     integer :: mpi_comm
 
      collection => Datacollections%at(this%metadata_collection_id)
      this%current_file_metadata => collection%find(filename, _RC)
@@ -1059,8 +1069,12 @@ module MAPL_GriddedIOMod
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
      _VERIFY(status)
      if (filegrid/=output_grid) then
+        call ESMF_VMGetCurrent(vm,_RC) 
+        call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
+        call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
         this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
+        call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)

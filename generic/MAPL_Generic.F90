@@ -528,6 +528,8 @@ contains
       ! ---------------
       type (MAPL_MetaComp), pointer     :: meta
       type(ESMF_GridComp), pointer :: gridcomp
+      type(ESMF_VM) :: vm
+      integer :: mpi_comm
 
       !=============================================================================
       ! Begin...
@@ -535,6 +537,9 @@ contains
       ! Create the generic state, intializing its configuration and grid.
       !----------------------------------------------------------
       call MAPL_InternalStateRetrieve( GC, meta, _RC)
+      call ESMF_VMGetCurrent(vm)
+      call ESMF_VMGet(vm,mpiCommunicator=mpi_comm)
+      call MAPL_MemReport(mpi_comm,__FILE__,__LINE__,meta%compname)
 
       call meta%t_profiler%start('generic',_RC)
 
@@ -937,6 +942,7 @@ contains
       call ESMF_VmGetCurrent(VM, _RC)
       call ESMF_VmGet(VM, localPet=MYGRID%MYID, petCount=ndes, _RC)
       call ESMF_VmGet(VM, mpicommunicator=comm, _RC)
+      call MAPL_MemReport(comm,__FILE__,__LINE__,comp_name)
 
       ! TODO: esmfgrid should be obtained separately
       isGridValid = grid_is_valid(gc, mygrid%esmfgrid, _RC)
@@ -1133,6 +1139,7 @@ contains
       call MAPL_TimerOff(STATE,"generic", _RC)
 
 
+      call MAPL_MemReport(comm,__FILE__,__LINE__,comp_name)
       _RETURN(ESMF_SUCCESS)
 
    contains

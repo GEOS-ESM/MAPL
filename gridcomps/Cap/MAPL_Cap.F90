@@ -15,6 +15,7 @@ module MAPL_CapMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
+   use MAPL_MemUtilsMod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64, OUTPUT_UNIT
    implicit none
    private
@@ -107,10 +108,12 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
+      call MAPL_MemReport(cap%comm_world,__FILE__,__LINE__)
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
                            rc=status)
       _VERIFY(status)
+      call MAPL_MemReport(cap%comm_world,__FILE__,__LINE__)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -297,6 +300,7 @@ contains
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, _RC)
       end if
+      call MAPL_MemReport(comm,__FILE__,__LINE__)
 
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
@@ -310,10 +314,13 @@ contains
       call this%initialize_cap_gc(rc=status)
       _VERIFY(status)
 
+      call MAPL_MemReport(comm,__FILE__,__LINE__)
       call this%cap_gc%set_services(rc = status)
       _VERIFY(status)
+      call MAPL_MemReport(comm,__FILE__,__LINE__)
       call this%cap_gc%initialize(rc=status)
       _VERIFY(status)
+      call MAPL_MemReport(comm,__FILE__,__LINE__)
       call this%cap_gc%run(rc=status)
       _VERIFY(status)
       call this%cap_gc%finalize(rc=status)
@@ -450,6 +457,7 @@ contains
          call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
          _VERIFY(ierror)
          _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
+         call MAPL_MemReport(MPI_COMM_WORLD,__FILE__,__LINE__)
       end if
 
       call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
