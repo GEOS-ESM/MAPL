@@ -31,6 +31,7 @@ use MAPL_CommsMod
 use MAPL_HashMod
 use MAPL_ShmemMod
 use MAPL_ExceptionHandling
+use MAPL_MemUtilsMod
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 
 implicit none
@@ -371,6 +372,7 @@ contains
     real, allocatable :: hlons(:,:), hlats(:,:)
 #endif
     logical :: use_pfaf_
+    integer :: mpi_comm
 
 ! Begin
 !------
@@ -389,6 +391,8 @@ contains
 !-----------------------------
 
     call ESMF_VMGetCurrent(vm, rc=status)
+    call ESMF_VMGet(vm,mpiCommunicator=mpi_comm)
+    call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
 
     LocStream%Ptr => null()
     allocate(LocStream%Ptr, STAT=STATUS)
@@ -1111,6 +1115,7 @@ contains
     call MAPL_LocStreamCreateTileGrid(LocStream, GRID, RC=status)
     _VERIFY(STATUS)
        
+    call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
     _RETURN(ESMF_SUCCESS)
 
 100 _RETURN(ESMF_FAILURE)
@@ -2510,11 +2515,15 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 #if defined(ONE_SIDED_COMM)
   integer                     :: SizeOfReal
 #endif
+  integer :: mpi_comm
 
 ! Both streams must be subsets of same parent.
 ! The parent stream is usually an exchange grid.
 !-----------------------------------------------
 
+  call ESMF_VMGetCurrent(vm)
+  call ESMF_VMGet(vm,mpiCommunicator=mpi_comm)
+  call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
   _ASSERT(trim(LocStreamOut%PTR%ROOTNAME)==trim(LocStreamIn%PTR%ROOTNAME),'needs informative message')
 
   allocate(XFORM%Ptr, STAT=STATUS)
@@ -2800,6 +2809,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 !----------------------
 
   _ASSERT(all(DONE),'needs informative message')
+  call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
 
   _RETURN(ESMF_SUCCESS)
 
