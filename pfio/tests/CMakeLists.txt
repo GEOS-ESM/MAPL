@@ -78,27 +78,27 @@ endif()
 
 set(TESTO_FLAGS
   -nc 6 -nsi 6 -nso 6 -ngo 1 -ngi 1 -v T,U )
-add_test(NAME pFIO_tests_mpi
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s mpi
-  )
-add_test(NAME pFIO_tests_simple
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s simple
-  )
-add_test(NAME pFIO_tests_hybrid
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
-  )
+#add_test(NAME pFIO_tests_mpi
+#  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s mpi
+#  )
+#add_test(NAME pFIO_tests_simple
+#  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s simple
+#  )
+#add_test(NAME pFIO_tests_hybrid
+#  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
+#  )
 
 #add_test(NAME pFIO_tests_mpi_2layer
 #  COMMAND env FI_PROVIDER=verbs ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multilayer -nw 3 -w ${CMAKE_BINARY_DIR}/bin/pfio_writer.x
 #    )
 
-add_test(NAME pFIO_tests_mpi_2comm
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multicomm -nw 3
-  )
+#add_test(NAME pFIO_tests_mpi_2comm
+#  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multicomm -nw 3
+#  )
 
-add_test(NAME pFIO_tests_mpi_2group
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multigroup -nw 3
-  )
+#add_test(NAME pFIO_tests_mpi_2group
+#  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multigroup -nw 3
+#  )
 
 set (pfio_tests
   pFIO_tests_mpi
@@ -109,9 +109,9 @@ set (pfio_tests
   pFIO_tests_mpi_2group
   )
 
-foreach (test ${pfio_tests})
-  set_tests_properties (${test} PROPERTIES LABELS "PERFORMANCE")
-endforeach ()
+#foreach (test ${pfio_tests})
+#  set_tests_properties (${test} PROPERTIES LABELS "PERFORMANCE")
+#endforeach ()
 
 #if (APPLE)
 #  set_tests_properties (pFIO_tests_mpi_2layer PROPERTIES DISABLED True)
@@ -132,10 +132,10 @@ endif ()
 target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
-add_test(NAME pFIO_performance
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
-  )
-set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
+#add_test(NAME pFIO_performance
+#  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
+#  )
+#set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
 
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})

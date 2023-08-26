@@ -67,6 +67,9 @@ module pFIO_FileMetadataMod
       procedure :: get_source_file
       procedure :: set_source_file
 
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
+
    end type FileMetadata
 
    interface FileMetadata
@@ -166,6 +169,10 @@ contains
       integer, optional, intent(out) :: rc
 
       type (StringIntegerMapIterator) :: iter
+
+      _HERE
+      print*, this
+
 
       iter = this%dimensions%find(dim_name)
 
@@ -727,5 +734,92 @@ contains
       source_file=this%source_file
       _RETURN(_SUCCESS)
    end function
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(FileMetadata), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+
+      call write_dims(this%dimensions, unit, iotype, v_list, iostat, iomsg)
+      if (iostat /= 0) return
+      call write_variables(this%variables, unit, iotype, v_list, iostat, iomsg)
+      if (iostat /= 0) return
+      
+   end subroutine write_formatted
+
+   subroutine write_dims(dimensions, unit, iotype, v_list, iostat, iomsg)
+      type(StringIntegerMap), target, intent(in) :: dimensions
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      type(StringIntegerMapIterator) :: iter
+
+      iostat = 0
+      write(unit,'(a,/)')'dimensions:'
+      associate (e => dimensions%end())
+        iter = dimensions%begin()
+        do while (iter /= e)
+           write(unit, '(T8,a,1x,a,1x,i0,/)') iter%key(), "=" , iter%value()
+           call iter%next()
+        end do
+      end associate
+        
+   end subroutine write_dims
+
+   subroutine write_variables(variables, unit, iotype, v_list, iostat, iomsg)
+      type(StringVariableMap), target, intent(in) :: variables
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      type(StringVariableMapIterator) :: var_iter
+      character(:), allocatable :: type_name, dims_str
+      class(Variable), pointer :: var
+      type(StringVector), pointer :: dims
+      character(:), pointer :: var_name
+      integer :: i
+      
+      iostat = 0
+      write(unit,'(a,/)')'variables:'
+      associate (e => variables%ftn_end())
+        var_iter = variables%ftn_begin()
+        do while (var_iter /= e)
+           call var_iter%next()
+
+           var_name => var_iter%first()
+           var => var_iter%second()
+           dims => var%get_dimensions()
+
+           select case (var%get_type())
+           case (pFIO_REAL32)
+              type_name = 'float'
+           case (pFIO_REAL64)
+              type_name = 'double'
+           case default
+              type_name = '<unknown>'
+           end select
+
+           dims_str = "(" // dims%of(1)
+           do i = 2, dims%size()
+              dims_str = dims_str // ", " // dims%of(i)
+           end do
+           dims_str = dims_str // ")"
+              
+           write(unit, '(T8,a,1x,a,a,/)', iostat=iostat, iomsg=iomsg) type_name, var_name, dims_str
+           if (iostat /= 0) return
+        end do
+      end associate
+        
+   end subroutine write_variables
+
 
 end module pFIO_FileMetadataMod
