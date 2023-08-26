@@ -81,11 +81,11 @@ contains
     integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::ModifyMetadata()"
 
-    iter = var_map%begin()
-    do while (iter /= var_map%end()) 
-       call this%fmd%modify_variable(iter%first(), iter%second(), rc=status)
-       _VERIFY(status)
+    iter = var_map%ftn_begin()
+    do while (iter /= var_map%ftn_end()) 
        call iter%next()
+
+       call this%fmd%modify_variable(iter%first(), iter%second(), _RC)
     enddo
 
     _RETURN(_SUCCESS)

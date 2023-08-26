@@ -536,12 +536,13 @@ contains
 
       ! merge variables
       vars => meta%get_variables()
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+        call var_iter%next()
+
         name => var_iter%first()
         var  => var_iter%second()
         call this%add_variable(name, var)
-        call var_iter%next()
       end do      
 
       _RETURN(_SUCCESS)

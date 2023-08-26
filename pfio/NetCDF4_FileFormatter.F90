@@ -499,6 +499,7 @@ contains
       var_iter = vars%ftn_begin()
       do while (var_iter /= vars%ftn_end())
          call var_iter%next()
+
          var_name => var_iter%first()
          var => var_iter%second()
          const_value_ptr => var%get_const_value()
@@ -549,8 +550,10 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
          var_name => var_iter%first()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
          _VERIFY(status)
@@ -573,7 +576,6 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next()
 
       enddo
 
