@@ -170,10 +170,6 @@ contains
 
       type (StringIntegerMapIterator) :: iter
 
-      _HERE
-      print*, this
-
-
       iter = this%dimensions%find(dim_name)
 
       if (iter /= this%dimensions%end()) then
