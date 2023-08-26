@@ -408,6 +408,7 @@ module MAPL_GenericMod
 
       ! Move to decorator?
       type (DistributedProfiler), public :: t_profiler
+      type (DistributedProfiler), public :: m_profiler
 
       ! Couplers and connectivity
       type (ESMF_CplComp            ), pointer :: CCS(:,:)         => null()
@@ -538,12 +539,14 @@ contains
       call MAPL_InternalStateRetrieve( GC, meta, _RC)
 
       call meta%t_profiler%start('generic',_RC)
+!@ALT      call meta%m_profiler%start('generic',_RC)
 
       call register_generic_entry_points(gc, _RC)
       call MAPL_GetRootGC(GC, meta%rootGC, _RC)
       call setup_children(meta, _RC)
 
       call process_spec_dependence(meta, _RC)
+!@ALT      call meta%m_profiler%stop('generic',_RC)
       call meta%t_profiler%stop('generic',_RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -1872,6 +1875,8 @@ contains
       if (method /= ESMF_METHOD_READRESTART .and. method /= ESMF_METHOD_WRITERESTART) then
          call state%t_profiler%start(_RC)
          call state%t_profiler%start(trim(sbrtn),_RC)
+         call state%m_profiler%start(_RC)
+         call state%m_profiler%start(trim(sbrtn),_RC)
       end if
 
       if (associated(timers)) then
@@ -1920,6 +1925,8 @@ contains
       if (method /= ESMF_METHOD_FINALIZE) then
          if (method /= ESMF_METHOD_WRITERESTART .and. &
               method /= ESMF_METHOD_READRESTART) then
+            call state%m_profiler%stop(trim(sbrtn),_RC)
+            call state%m_profiler%stop(_RC)
             call state%t_profiler%stop(trim(sbrtn),_RC)
             call state%t_profiler%stop(_RC)
          end if
@@ -2445,6 +2452,8 @@ contains
       ! Write summary of profiled times
       !--------------------------------
 
+      call state%m_profiler%stop('Finalize',_RC)
+      call state%m_profiler%stop(_RC)
       call state%t_profiler%stop('Finalize',_RC)
       call state%t_profiler%stop(_RC)
 
@@ -2495,7 +2504,9 @@ contains
       subroutine report_generic_profile( rc )
          integer, optional,   intent(  out) :: RC     ! Error code:
          character(:), allocatable :: report(:)
+         character(:), allocatable :: mem_report(:)
          type (ProfileReporter) :: reporter
+         type (ProfileReporter) :: mem_reporter
          type (MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
          type (ESMF_VM) :: vm
          character(1) :: empty(0)
@@ -2510,6 +2521,7 @@ contains
          ! Requires consistent call trees for now.
 
          call state%t_profiler%reduce()
+         call state%m_profiler%reduce()
 
          if  (MAPL_AM_I_Root(vm)) then
             reporter = ProfileReporter(empty)
@@ -2550,10 +2562,26 @@ contains
 
 
             report = reporter%generate_report(state%t_profiler)
+
+
+            mem_reporter = ProfileReporter(empty)
+            call mem_reporter%add_column(NameColumn(25, separator=" "))
+            call mem_reporter%add_column(MemoryTextColumn(["Mem"],"(i8.0,a2)", 12,&
+                 ExclusiveColumn('MAX'), separator='-')) !, separator=" ")
+
+            mem_report = mem_reporter%generate_report(state%m_profiler)
+
             call lgr%info('')
             call lgr%info('Times for component <%a~>', trim(comp_name))
             do i = 1, size(report)
                call lgr%info('%a', report(i))
+            end do
+            call lgr%info('')
+
+            call lgr%info('')
+            call lgr%info('Memory for component <%a~>', trim(comp_name))
+            do i = 1, size(mem_report)
+               call lgr%info('%a', mem_report(i))
             end do
             call lgr%info('')
          end if
@@ -4875,6 +4903,7 @@ contains
          call ESMF_VMGetCurrent(vm, _RC)
          call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
          CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
+         CHILD_META%m_profiler = DistributedProfiler(trim(name), MallocGauge(), comm=comm)
 
       end select
 

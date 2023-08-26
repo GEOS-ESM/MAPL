@@ -288,6 +288,12 @@ contains
       end interface
  
       interface
+         subroutine my_restore_hook() bind(C, name="my_restore_hook")
+           !      use iso_c_binding, only: c_char
+         end subroutine my_restore_hook
+      end interface
+ 
+      interface
          subroutine getMallocStat(tm, cnt) bind(C, name="getMallocStat")
            use iso_c_binding, only: C_LONG_LONG
            import C_LONG_LONG
@@ -349,9 +355,11 @@ contains
 
       call report_throughput()
 
-      call getMallocStat(tm, cnt)
-      print *, 'total memory=', tm
-      print *, 'total alloc count=', cnt
+      call my_restore_hook
+      
+!      call getMallocStat(tm, cnt)
+!      print *, 'total memory=', tm
+!      print *, 'total alloc count=', cnt
 
       _RETURN(_SUCCESS)
    contains

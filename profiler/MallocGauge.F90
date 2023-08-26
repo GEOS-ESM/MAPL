@@ -1,21 +1,10 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module mapl_GlobalMallocTable
-   use gFTL2_Integer64Integer64Map
-   use, intrinsic :: iso_fortran_env, only: INT64
-   implicit none
-
-   type(Integer64Integer64Map), save :: active_allocations
-   integer(kind=INT64), save :: active_allocations_total = 0
-
-end module mapl_GlobalMallocTable
-
 module MAPL_MallocGauge
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   use, intrinsic :: iso_c_binding, only : C_INT
+   use, intrinsic :: iso_c_binding, only : C_INT, C_LONG_LONG
    use MAPL_AbstractGauge
-   use mapl_GlobalMallocTable
    implicit none
    private
 
@@ -32,6 +21,15 @@ module MAPL_MallocGauge
       module procedure :: new_MallocGauge
    end interface MallocGauge
 
+   interface
+      subroutine getMallocStat(tm, cnt) bind(C, name="getMallocStat")
+        use iso_c_binding, only: C_LONG_LONG
+        import C_LONG_LONG
+        implicit none
+        integer(kind=C_LONG_LONG) :: tm
+        integer(kind=C_LONG_LONG) :: cnt
+      end subroutine getMallocStat
+   end interface
 contains
 
 
@@ -47,9 +45,10 @@ contains
       class (MallocGauge), intent(inout) :: this
       real(kind=REAL64) :: mem_use
 
-      type(Mallinfo_t) :: info
+       integer(kind=C_LONG_LONG) :: tm, cnt
 
-      mem_use = active_allocations_total
+      call getMallocStat(tm, cnt)
+      mem_use = tm
 
    end function get_measurement
 
@@ -61,11 +60,16 @@ subroutine fortran_malloc(addr, num_bytes)
    use mapl_GlobalMallocTable
    integer(kind=INT64), intent(in) :: addr
    integer(kind=INT64), intent(in) :: num_bytes
+   integer, pointer :: a(:)
+   
 
+   allocate(a(10))
+   return
    call active_allocations%insert(addr, num_bytes)
    active_allocations_total = active_allocations_total + num_bytes
 
-   print*, active_allocations%size(), 'fortran malloc: ', num_bytes, active_allocations_total, addr
+!   write (*,'(i5,a,2i10, z16)') active_allocations%size(), 'fortran malloc: ', num_bytes, active_allocations_total, addr
+   
 end subroutine fortran_malloc
 
 ! Find the corresponding allocation in the table to find the number of bytes
@@ -76,14 +80,17 @@ subroutine fortran_free(addr)
    integer(kind=INT64), intent(in) :: addr
 
    integer(kind=INT64) :: num_bytes
-   type(IntegerInteger64MapIterator) :: iter
- 
+   type(Integer64Integer64MapIterator) :: iter
+
+   return
+!   write (*,'(a,z16)')'in fortran free: ', addr
+
    iter = active_allocations%find(addr)
-   num_bytes = active_allocations%of(addr)
+   num_bytes = iter%second()
    iter = active_allocations%erase(iter)
 
    active_allocations_total = active_allocations_total - num_bytes
-   print*,active_allocations%size(), 'fortran dealloc: ', num_bytes, active_allocations_total, addr
+!   print*,active_allocations%size(), 'fortran free: ', num_bytes, active_allocations_total, addr
 
 end subroutine fortran_free
 

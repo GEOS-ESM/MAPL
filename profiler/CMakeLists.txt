@@ -1,6 +1,8 @@
 esma_set_this (OVERRIDE MAPL.profiler)
 
 set (srcs
+  hooks.c
+  alloc_map.cc
   AbstractMeter.F90
   AbstractMeterNode.F90
   AbstractMeterFactory.F90

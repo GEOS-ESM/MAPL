@@ -9,6 +9,7 @@ module mapl_Profiler
    
    use mapl_AdvancedMeter
    use mapl_MpiTimerGauge
+   use mapl_MallocGauge
    use mapl_FortranTimerGauge
    use mapl_RssMemoryGauge
    use mapl_VmstatMemoryGauge
