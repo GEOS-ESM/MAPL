@@ -8,137 +8,73 @@ module Test_HConfigUtils
    logical :: hconfig_is_initialized = .FALSE.
    integer :: SUCCESS = 0 
    integer, parameter :: KEY_LENGTH = 80
-   character(len=*), parameter :: DEFAULT_MSG = 'ESMF Call Failed: '
+   integer, parameter :: SEQ_SIZE = 4
 
-   integer(kind=ESMF_KIND_I4), parameter :: expected_i4 = 2**2
-   integer(kind=ESMF_KIND_I4), parameter :: default_i4 = 2**20
+   integer(kind=ESMF_KIND_I4), parameter :: expected_i4 = 4
+   integer(kind=ESMF_KIND_I4), parameter :: default_i4 = 8
    character(len=KEY_LENGTH), parameter :: I4_key = 'k_I4'
-   integer(kind=ESMF_KIND_I4), parameter :: expected_i4seq(:) = [2**4, 2**6, 2**8, 2**16]
-   integer(kind=ESMF_KIND_I4), parameter :: default_i4_seq(:) = [2**22, 2**24, 2**26, 2**28]
+   integer(kind=ESMF_KIND_I4), parameter :: expected_i4seq(SEQ_SIZE) = [16, 32, 64, 128]
+   integer(kind=ESMF_KIND_I4), parameter :: default_i4_seq(SEQ_SIZE) = [2, 3, 5, 7]
    character(len=KEY_LENGTH), parameter :: I4seq_key = 'k_I4seq'
 
 contains
 
    @before
    subroutine setup()
-      integer :: status
       if(hconfig_is_initialized) return
-      call initialize_hconfig(hconfig, rc = status)
-      if(status /= SUCCESS) print *, 'Failed to initialize ESMF_HConfig'
-
+      call initialize_hconfig(hconfig)
    end subroutine setup
    
-   logical function check_rc(status, rc)
-      integer, intent(in) :: status
-      integer, optional, intent(in) :: rc
-
-      if(present(rc)) rc = status
-      check_rc = (status /= SUCCESS)
-
-   end function check_rc
-
-   logical function failed(status, msg)
-      integer, intent(in) :: status
-      character(len=*), optional, intent(in) :: msg
-      character(len=80) :: msg_ = 'Failed ESMF call'
-      
-      failed = check_rc(status)
-      if(failed) then
-         if(present(msg)) msg_ = trim(msg_) // ': ' trim(msg)
-         @assertTrue(failed, trim(msg))
-      end if
-
-   end function failed
-
-   logical function not_found(found, status, id)
-      logical, intent(in) :: found
-      integer, intent(in) :: status
-      character(len=*), optional, intent(in) :: id
-      character(len=80) :: msg_ = ' not found'
-      logical :: failure
-
-      if(present(id)) then
-         msg_ = id // trim(msg_) 
-      else
-         msg_ = 'key ' // trim(msg_)
-      end if
-
-      failure = failed(status, 'key not found')
-      if(failure) return
-      
-      not_found = .not. found
-      @assertFalse(not_found, trim(msg_))
-
-   end function not_found
-
-   logical function is_success(status, msg)
-      integer, intent(in) :: status
-
-      is_success = (status == SUCCESS)
-
-   end function is_success
-
-   subroutine initialize_hconfig(hconf, rc)
+   subroutine initialize_hconfig(hconf)
       type(ESMF_HConfig), intent(inout) :: hconf
-      integer, optional, intent(out) :: rc
-      integer :: status
 
       if(hconfig_is_initialized) return
-
-      hconf = HConfigCreate(rc = status)
-      if(check_rc(status, rc)) return
-         
-      call HConfigAdd(hconf, expected_i4, addKeyString = I4_key, rc = status)
-      if(check_rc(status, rc) return
-
+      hconf = ESMF_HConfigCreate()
+      call ESMF_HConfigAdd(hconf, expected_i4, addKeyString = I4_key)
       hconfig_is_initialized = .TRUE.
 
    end subroutine initialize_hconfig
 
    @test
-   subroutine get_i4()
+   subroutine test_get_i4()
       character(len=*), parameter :: good_key = trim(I4_key)
       integer(kind=ESMF_KIND_I4), parameter :: expected = expected_i4
       integer(kind=ESMF_KIND_I4), parameter :: default_ = default_i4
       character(len=*), parameter :: bad_key = 'bad_' // good_key
       type(ESMF_HConfig) :: hconfig
       integer(kind=ESMF_KIND_I4) :: actual
-      integer :: status_
-      logical :: found
       character(len=KEY_LENGTH) :: key
 
       ! First with a valid key
       key = good_key
-      call get_i4(actual, hconfig, key, rc = status)
-      @assertEqual(is_success(status), DEFAULT_MESSAGE // trim(key) // '[HConfig]')
+      call get_i4(actual, hconfig, key)
       @assertEqual(expected, actual, 'R4: actual does not match expected. [HConfig]')
       
-      key = bad_key
-      call get_i4(actual, hconfig, key, default_, rc = status)
-      @assertEqual(is_success(status), DEFAULT_MESSAGE // trim(key) // '[default]')
-      @assertEqual(default_, actual, 'R4: actual does not match expected. [default]')
+!      key = bad_key
+!      call MAPL_GetResource(actual, hconfig, key, default=default_)
+!      @assertEqual(default_, actual, 'R4: actual does not match expected. [default]')
 
-   end subroutine get_i4
-
-   @test
-   subroutine get_i8()
-   end subroutine get_i8
+   end subroutine test_get_i4
 
    @test
-   subroutine get_logical_seq()
-   end subroutine get_logical_seq
+   subroutine test_get_i8()
+   end subroutine test_get_i8
 
    @test
-   subroutine get_i8seq()
-   end subroutine get_i8seq
+   subroutine test_get_logical_seq()
+   end subroutine test_get_logical_seq
 
    @test
-   subroutine get_r8seq()
-   end subroutine get_r8seq
+   subroutine test_get_i8seq()
+   end subroutine test_get_i8seq
 
    @test
-   subroutine get_string_seq()
-   end subroutine get_string_seq
+   subroutine test_get_r8seq()
+   end subroutine test_get_r8seq
+
+   @test
+   subroutine test_get_string_seq()
+   end subroutine test_get_string_seq
 
    @after
    subroutine clean_up()
