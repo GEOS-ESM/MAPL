@@ -876,6 +876,9 @@ contains
 
       if (allocated(this%origin_file)) call cf%set_source_file(this%origin_file)
 
+      _HERE
+      print*, cf
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function read
