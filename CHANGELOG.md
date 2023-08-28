@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 ### Added
+
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
-
-
 - Added markdown documentation for select items such as ExtData, History and a few other sources
 - Trajectory sampler with Epoch time span
 - Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
+- Updated CircleCI to use v11.2.0 bcs
 
 ### Fixed
 
