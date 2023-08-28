@@ -475,7 +475,7 @@ module MAPL_MemUtilsMod
       character(len=:), allocatable :: extra_message
 
 #ifdef sysDarwin
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
 #endif
       call MPI_Barrier(comm,status)
       if (present(decorator)) then
