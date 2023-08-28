@@ -62,6 +62,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
          call hms_2_s (time_integer, second, _RC)
+
          call ESMF_TimeIntervalSet(epoch_frequency, s=second, _RC)
          traj%Epoch = time_integer
          traj%RingTime = currTime
@@ -93,7 +94,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             traj%obsfile_end_time = traj%obsfile_start_time + obs_time_span
             call ESMF_TimeGet(traj%obsfile_end_time, timestring=STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_end missing, set to begin + 14 day:', trim(STR1)
+               write(6,105) 'obs_file_end   missing, default = begin+14D:', trim(STR1)
             endif
          else
             call ESMF_TimeSet(traj%obsfile_end_time, STR1, _RC)
@@ -106,6 +107,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'obs_file_interval:', _RC)         
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
          if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+         if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
          i= index( trim(STR1), ' ' )
          if (i>0) then
@@ -124,7 +126,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          
          _RETURN(_SUCCESS)
 
-105 format (1x,a,2x,a)
+105      format (1x,a,2x,a)
+106      format (1x,a,2x,i8)         
        end procedure
 
 
@@ -352,6 +355,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             _RETURN(ESMF_SUCCESS)
          endif
 
+         !-- limit  nx < 2**32 (integer*4)
          nx=this%nobs_epoch
          is=1
          ie=nx
@@ -621,7 +625,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                return
             end if
             
-            
+
             ! __ this is all fid_e >= L case : file exist at this time
             !    read in dim
             !    read in data in full on mypet=0
@@ -683,7 +687,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                timeset(2) = current_time + this%epoch_frequency
                call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
                call hms_2_s (this%Epoch, sec, _RC)
-               j1 = j0 + sec
+               j1 = j0 + int(sec, kind=ESMF_KIND_I8)
                jx0 = real ( j0, kind=ESMF_KIND_R8)
                jx1 = real ( j1, kind=ESMF_KIND_R8)
 
@@ -693,7 +697,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                if (jt1==jt2) then
                   _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
                endif
-               call lgr%debug ('%a %i20 %i20', 'jx0, jx1', int(jx0), int(jx1))
+               call lgr%debug ('%a %f20.1 %f20.1', 'jx0, jx1', jx0, jx1)
                call lgr%debug ('%a %i20 %i20', 'jt1, jt2', jt1, jt2)
                
                ! (x1, x2]  design in bisect
@@ -738,8 +742,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
                  count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
             this%nobs_epoch_sum = nx_sum            
-            if (mapl_am_I_root()) write(6,*) 'nobs in Epoch =', nx_sum
-
+            if (mapl_am_I_root()) write(6,*) 'nobs in Epoch    :', nx_sum
             
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
@@ -963,13 +966,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
           if (.NOT. this%is_valid) then
              _RETURN(ESMF_SUCCESS)
-          endif           
+          endif
 
            ! __ s1. destroy RH, LS, acc_bundle / output_bundle
            call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
-           call this%regridder%destroy(_RC)
            call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
            call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
+           call this%regridder%destroy(_RC)
            deallocate (this%lons, this%lats, this%times_R8)
 
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
