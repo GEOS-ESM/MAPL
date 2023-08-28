@@ -28,7 +28,7 @@ The three methods are called at the level of CAP.
 
 Additional information about the `History` gridded component can be found at:
 
-[MAPL History Component](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component)
+[MAPL History Component](HistoryGridComp.md)
 
 A sample `History` configuration file is available at:
 

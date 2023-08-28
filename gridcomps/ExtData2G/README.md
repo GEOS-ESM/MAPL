@@ -36,7 +36,7 @@ The file `extdata.yaml` allows several following settings that are used by `ExtD
 (such as appropriate file selection, horizontal interpolation, time interpolation, etc.) on the fly.
 To have additional information on `ExtData`, you may want to consult:
 
-[ExtData Next Generation User Guide](https://github.com/GEOS-ESM/MAPL/wiki/ExtData-Next-Generation---User-Guide)
+[ExtData Next Generation User Guide](ExtDataGridComp.md)
 
 A sample `ExtData` configuration file is available at:
 

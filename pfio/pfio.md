@@ -439,21 +439,21 @@ with 5 Backend PEs/node
 ## 6.1 Land Information System
 The [Land Information System](https://lis.gsfc.nasa.gov/) (LIS) is a software framework for high performance terrestrial hydrology modeling and data assimilation developed with the goal of integrating satellite and ground-based observational data products and advanced modeling techniques to produce optimal fields of land surface states and fluxes.
 In LIS, model calculations are embarrassedly parallel and the I/O procedures are done by the root processor.
-As we increase the number of cores to integrate LIS, IO dominates and the overall timing performance significantly deteriorates.
+As we increase the number of cores to integrate LIS, I/O dominates and the overall timing performance significantly deteriorates.
 In addition, LIS has only one HISTORY collection mainly consisting of 2D fields.
 
-PFIO has been implemented in LIS to reduce the IO time as model resolution and the number of cores increase.
+PFIO has been implemented in LIS to reduce the I/O time as model resolution and the number of cores increase.
 To achieve it:
 
 - MAPL was compiled and used as an external library for LIS.
 - A new module was written to create necessary subroutines that include PFIO statements for the creation of the LIS HISTORY. 
-- The ability to create virtual HISTORY collections was introduced to take advantage of the capabilities of PFIO. This virtual collection feature is critical in LIS because in general calculations are completed well before the production of a collection is done.
+- The ability to create virtual HISTORY collections was introduced to take advantage of the capabilities of PFIO. This virtual collection feature is critical in LIS because in general, calculations are completed well before the production of a collection is done.
 - Preprocessing directives were introduced in the code to be able to use the PFIO option or not.
 - At compilation users could select to compile LIS without (falls back to the LIS original code) or with PFIO. This setting was important to code developers who still want to use LIS in platforms where MAPL is not available. 
 
-Here are some preliminary results:
+The results have shown that:
 
 - LIS/PFIO produces files bitwise identical to the original version of the code.
 - LIS/PFIO requires less computing resources to achieve the same wall-clock time as the original LIS.
-- Using virtual collections (set at run time) significantly improve the IO performance.
+- Using virtual collections (set at run time) significantly improve the I/O performance (4 to 10 times faster).
 

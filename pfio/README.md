@@ -29,5 +29,5 @@ There are typically two main command line configurations:
 
 To have additional information on `PFIO`, you may want to consult:
 
-[PFIO: a High Performance Client Server I/O Layer](https://github.com/GEOS-ESM/MAPL/wiki/PFIO:-a-High-Performance-Client-Server-I-O-Layer)
+[PFIO: a High Performance Client Server I/O Layer](pfio.md)
 
