@@ -1,58 +1,83 @@
 module Test_HConfigUtils
    use funit
    use ESMF
+   use mapl3g_HConfigUtils
 
    implicit none
 
-   type(ESMF_HConfig) :: hconfig
-   logical :: hconfig_is_initialized = .FALSE.
-   integer :: SUCCESS = 0 
+   integer, parameter :: SUCCESS = ESMF_SUCCESS
+   integer, parameter :: FAILURE = SUCCESS 
    integer, parameter :: KEY_LENGTH = 80
+   integer, parameter :: VALUE_LENGTH = 80
+   integer, parameter :: YAML_LENGTH = 800
    integer, parameter :: SEQ_SIZE = 4
 
-   integer(kind=ESMF_KIND_I4), parameter :: expected_i4 = 4
-   integer(kind=ESMF_KIND_I4), parameter :: default_i4 = 8
-   character(len=KEY_LENGTH), parameter :: I4_key = 'k_I4'
-   integer(kind=ESMF_KIND_I4), parameter :: expected_i4seq(SEQ_SIZE) = [16, 32, 64, 128]
-   integer(kind=ESMF_KIND_I4), parameter :: default_i4_seq(SEQ_SIZE) = [2, 3, 5, 7]
-   character(len=KEY_LENGTH), parameter :: I4seq_key = 'k_I4seq'
+   ! Global variables since multiple tests use them. Save declarations.
+
+   ! map key
+   character(len=KEY_LENGTH) :: key
+
+   ! map value for key
+   character(len=VALUE_LENGTH) :: value_
+   
+   ! YAML string to create ESMF_HConfig from
+   character(len=:), allocatable :: yaml_string
+
+   ! This ESMF_HConfig variable is reused.
+   type(ESMF_HConfig) :: hconfig
+
+   integer :: status
 
 contains
 
+   subroutine make_yaml_string(key, value_)
+      character(len=KEY_LENGTH), intent(in) :: key
+      character(len=VALUE_LENGTH), intent(in) :: value_
+
+      yaml_string = '{' // trim(key) // ': ' // trim(value_) // '}'
+
+   end subroutine make_yaml_string
+
    @before
-   subroutine setup()
-      if(hconfig_is_initialized) return
-      call initialize_hconfig(hconfig)
-   end subroutine setup
-   
-   subroutine initialize_hconfig(hconf)
-      type(ESMF_HConfig), intent(inout) :: hconf
+   subroutine set_up()
 
-      if(hconfig_is_initialized) return
-      hconf = ESMF_HConfigCreate()
-      call ESMF_HConfigAdd(hconf, expected_i4, addKeyString = I4_key)
-      hconfig_is_initialized = .TRUE.
+      status = FAILURE
+      yaml_string = ''
 
-   end subroutine initialize_hconfig
+   end subroutine set_up
 
    @test
    subroutine test_get_i4()
-      character(len=*), parameter :: good_key = trim(I4_key)
-      integer(kind=ESMF_KIND_I4), parameter :: expected = expected_i4
-      integer(kind=ESMF_KIND_I4), parameter :: default_ = default_i4
-      character(len=*), parameter :: bad_key = 'bad_' // good_key
-      type(ESMF_HConfig) :: hconfig
+      integer(kind=ESMF_KIND_I4), parameter :: default_ = 42
+      integer(kind=ESMF_KIND_I4) :: expected
       integer(kind=ESMF_KIND_I4) :: actual
-      character(len=KEY_LENGTH) :: key
 
-      ! First with a valid key
-      key = good_key
-      call get_i4(actual, hconfig, key)
-      @assertEqual(expected, actual, 'R4: actual does not match expected. [HConfig]')
+      key = 'k_I4'
+      value_ = '4'
+      actual = -1
+
+      ! Read expected from value_ string
+      read(value_, fmt='(I)', iostat = status) expected
+      @assertEqual(SUCCESS, status, 'Failed to convert value string ' // trim(value_))
+
+      ! Build YAML string and create hconfig
+      call make_yaml_string(key, value_)
+      hconfig = ESMF_HConfigCreate(content=yaml_string, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to create ESMF_HConfig from YAML string: ' // yaml_string)
+
+      ! Get resource (expected)
+      call MAPL_GetResource(actual, hconfig, key, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to get value for ' // trim(key)) 
+      @assertEqual(expected, actual, 'I4: actual does not match expected. [HConfig]')
       
-!      key = bad_key
-!      call MAPL_GetResource(actual, hconfig, key, default=default_)
-!      @assertEqual(default_, actual, 'R4: actual does not match expected. [default]')
+      
+      ! Get resource (default)
+      key = 'k_nokey'
+      actual = -1
+      expected = default_
+      call MAPL_GetResource(actual, hconfig, key, default=default_, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to get value for ' // trim(key) // ' [default]')
+      @assertEqual(expected, actual, 'I4: actual does not match expected. [default]')
 
    end subroutine test_get_i4
 
@@ -78,8 +103,9 @@ contains
 
    @after
    subroutine clean_up()
-      integer :: status
-      call ESMF_HConfigDestroy(hconfig, rc = status)
+
+      call ESMF_HConfigDestroy(hconfig)
+
    end subroutine clean_up
 
 end module Test_HConfigUtils
