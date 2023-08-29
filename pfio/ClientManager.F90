@@ -164,7 +164,7 @@ contains
       class (ClientThread), pointer :: clientPtr
       integer :: request_id, status
 
-      clientPtr =>this%current()
+      clientPtr => this%current()
       request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
@@ -324,9 +324,9 @@ contains
       class (clientThread), pointer :: clientPtr
       integer :: request_id, status
 
-      clientPtr =>this%current()
-      request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, rc=status)
-      _VERIFY(status)
+      clientPtr => this%current()
+      request_id = clientPtr%collective_stage_data(collection_id, file_name, var_name, data_reference, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine stage_nondistributed_data
@@ -410,7 +410,9 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
+      _HERE
       call clientPtr%wait_all()
+      _HERE, 'id= ', clientPtr%get_id(), clientPtr%get_num()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -424,7 +426,9 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
+      _HERE
       call clientPtr%post_wait_all()
+      _HERE
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -440,7 +444,9 @@ contains
 
       do i = 1, this%size()
          clientPtr =>this%clients%at(i)
+      _HERE, i
          call clientPtr%wait_all()
+      _HERE
          call clientPtr%terminate()
       enddo
 
@@ -470,7 +476,7 @@ contains
    function current(this) result(clientPtr)
       class (ClientManager), target, intent(in) :: this
       class (ClientThread), pointer :: clientPtr
-      clientPtr=> this%clients%at(this%current_client)
+      clientPtr => this%clients%at(this%current_client)
    end function current
 
    subroutine set_optimal_server(this,nwriting,unusable,rc)

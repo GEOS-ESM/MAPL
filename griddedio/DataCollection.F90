@@ -7,6 +7,8 @@ module MAPL_DataCollectionMod
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
   use gFTL_StringIntegerMap
+  use esmf
+  use mapl_ErrorHandlingMod
   implicit none
   private
 

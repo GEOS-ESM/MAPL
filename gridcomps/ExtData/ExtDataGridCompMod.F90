@@ -35,6 +35,8 @@
    use MAPL_BaseMod
    use MAPL_CommsMod
    use MAPL_ShmemMod
+   use pfio_VariableMod
+   use pfio_FileMetadataMod
    use ESMFL_Mod
    use MAPL_VarSpecMod
    use ESMF_CFIOFileMod

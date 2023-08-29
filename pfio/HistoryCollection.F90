@@ -74,7 +74,7 @@ contains
 
   subroutine  ModifyMetadata(this,var_map,rc)
     class (HistoryCollection), target, intent(inout) :: this
-    type (StringVariableMap), intent(in) :: var_map
+    type (StringVariableMap), target, intent(in) :: var_map
     integer, optional, intent(out) :: rc 
 
     type(StringVariableMapIterator) :: iter

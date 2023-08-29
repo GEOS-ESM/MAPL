@@ -305,7 +305,7 @@ contains
 
    function collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc) result(request_id)
-      class (ClientThread), intent(inout) :: this
+      class (ClientThread), target, intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
       character(len=*), intent(in) :: var_name
@@ -467,7 +467,9 @@ contains
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
 
+      _HERE
       call this%clear_RequestHandle()
+      _HERE
       !call this%shake_hand()
 
    end subroutine wait_all
@@ -475,7 +477,9 @@ contains
    subroutine post_wait_all(this)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
+      _HERE
       call this%wait_all()
+      _HERE
    end subroutine post_wait_all
 
    integer function get_unique_request_id(this) result(request_id)

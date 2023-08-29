@@ -137,9 +137,8 @@ contains
       type (ServerThread) :: s
       integer :: status
 
-      call s%set_connection(sckt, status)
-      _VERIFY(status)
-      if(present(server)) s%containing_server=>server
+      call s%set_connection(sckt, _RC)
+      if(present(server)) s%containing_server => server
 
       _RETURN(_SUCCESS)
    end function new_ServerThread
@@ -152,9 +151,8 @@ contains
 
       integer :: status
 
-      call this%set_connection(sckt, status)
-      _VERIFY(status)
-      this%containing_server=>server
+      call this%set_connection(sckt, _RC)
+      this%containing_server => server
 
       _RETURN(_SUCCESS)
    end subroutine init
@@ -765,18 +763,20 @@ contains
       integer, optional, intent(out) :: rc
 
       class(AbstractSocket),pointer :: connection
-      type(LocalMemReference) :: mem_data_reference
+      type(LocalMemReference), target :: mem_data_reference
       type(DummyMessage) :: handshake_msg
       integer :: status
-
-      connection=>this%get_connection()
+      class(AbstractRequestHandle), allocatable :: handle
+      
+      connection => this%get_connection()
       call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
-      mem_data_reference=LocalMemReference(message%type_kind,message%count)
+      mem_data_reference = LocalMemReference(message%type_kind,message%count)
       !iRecv
-      call this%insert_RequestHandle(message%request_id, &
-              & connection%get(message%request_id, mem_data_reference))
+      handle = connection%get(message%request_id, mem_data_reference)
+      call this%insert_RequestHandle(message%request_id, handle, _RC)
+
       _RETURN(_SUCCESS)
    end subroutine handle_CollectiveStageData
 
@@ -982,7 +982,6 @@ contains
 
       integer :: status
 
-      _HERE
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
@@ -992,8 +991,9 @@ contains
       call this%containing_server%create_remote_win(_RC)
       call this%containing_server%receive_output_data(_RC)
       call this%containing_server%put_dataToFile(_RC)
+      _HERE, 'id: ',this%get_id(), this%get_num()
       call this%containing_server%clean_up()
-      _HERE
+      _HERE, 'id: ',this%get_id(), this%get_num()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(message)
@@ -1116,8 +1116,9 @@ contains
       call this%containing_server%get_DataFromMem(multi_data_read, _RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
-
+      _HERE, 'id: ',this%get_id(), this%get_num()
       call this%containing_server%clean_up()
+      _HERE, 'id: ',this%get_id(), this%get_num()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(message)

@@ -180,12 +180,15 @@ contains
 
    subroutine add_connection(this, socket)
       class (BaseServer), target, intent(inout) :: this
-      class (AbstractSocket), intent(in) :: socket
+      class (AbstractSocket), target, intent(in) :: socket
 
       class(ServerThread), pointer :: thread_ptr
       integer :: k
+      type(ServerThread), pointer :: server_thread
 
-      allocate(thread_ptr, source=ServerThread(socket, this))
+      allocate(server_thread)
+      server_thread = ServerThread(socket, this)
+      thread_ptr => server_thread
       k = this%threads%size() + 1
       call thread_ptr%set_rank(k)
       call this%threads%push_Back(thread_ptr)
@@ -230,12 +233,15 @@ contains
       class(ServerThread), pointer :: thread_ptr
       integer :: i,n
 
+
       n = this%threads%size()
 
       do i = 1, n
-         thread_ptr=>this%threads%at(i)
+         thread_ptr => this%threads%at(i)
          call thread_ptr%clear_RequestHandle()
+         _HERE, i, n, 'id: ', thread_ptr%get_id(), thread_ptr%get_num()
       enddo
+
 
    end subroutine clear_RequestHandle
 

@@ -1,6 +1,9 @@
 module HistoryTrajectoryMod
   use ESMF
   use MAPL_FileMetadataUtilsMod
+  use pfio_FileMetadataMod
+  use pfio_NetCDF4_FileFormatterMod
+  use pfio_VariableMod
   use MAPL_GriddedIOItemVectorMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod

@@ -108,13 +108,13 @@ module MAPL_GriddedIOMod
      end function new_MAPL_GriddedIO
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
-        class (MAPL_GriddedIO), intent(inout) :: this
+        class (MAPL_GriddedIO), target, intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-        type(StringStringMap), intent(in), optional :: global_attributes
+        type(StringStringMap), target, optional, intent(in) :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -128,21 +128,20 @@ module MAPL_GriddedIOMod
         character(len=:), pointer :: attr_name, attr_val
         integer :: status
 
+        _HERE
         this%items = items
         this%input_bundle = bundle
-        this%output_bundle = ESMF_FieldBundleCreate(rc=status)
-        _VERIFY(status)
+        this%output_bundle = ESMF_FieldBundleCreate(_RC)
+        _HERE
         this%timeInfo = timeInfo
-        call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,_RC)
         if (present(ogrid)) then
            this%output_grid=ogrid
         else
-           call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
-           _VERIFY(status)
+           call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,_RC)
         end if
-        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
-        _VERIFY(status)
+        _HERE
+        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,_RC)
 
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
@@ -150,26 +149,23 @@ module MAPL_GriddedIOMod
         ! the regridder object.
         this%regrid_method = this%regrid_handle%get_regrid_method()
 
-        call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,rc=status)
-        _VERIFY(status)
-        factory => get_factory(this%output_grid,rc=status)
-        _VERIFY(status)
+        call ESMF_FieldBundleSet(this%output_bundle,grid=this%output_grid,_RC)
+        factory => get_factory(this%output_grid,_RC)
         call factory%append_metadata(this%metadata)
+        _HERE
 
         if (present(vdata)) then
            this%vdata=vdata
         else
-           this%vdata=VerticalData(rc=status)
-           _VERIFY(status)
+           this%vdata=VerticalData(_RC)
         end if
-        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
-        _VERIFY(status)
+        _HERE
+        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,_RC)
         this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
-        _VERIFY(status)
+        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,_RC)
 
-        call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
-        _VERIFY(status)
+        call this%timeInfo%add_time_to_metadata(this%metadata,_RC)
+        _HERE
 
         iter = this%items%begin()
         if (.not.allocated(this%chunking)) then
@@ -178,30 +174,29 @@ module MAPL_GriddedIOMod
         else
            call this%check_chunking(this%vdata%lm,_RC)
         end if
+        _HERE
 
-        order = this%metadata%get_order(rc=status)
-        _VERIFY(status)
+        order = this%metadata%get_order(_RC)
         metadataVarsSize = order%size()
 
+        _HERE
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
-              call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
+              call this%CreateVariable(item%xname,_RC)
            else if (item%itemType == ItemTypeVector) then
-              call this%CreateVariable(item%xname,rc=status)
-              _VERIFY(status)
-              call this%CreateVariable(item%yname,rc=status)
-              _VERIFY(status)
+              call this%CreateVariable(item%xname,_RC)
+              call this%CreateVariable(item%yname,_RC)
            end if
            call iter%next()
         enddo
+        _HERE
 
         if (this%itemOrderAlphabetical) then
-           call this%alphabatize_variables(metadataVarsSize,rc=status)
-           _VERIFY(status)
+           call this%alphabatize_variables(metadataVarsSize,_RC)
         end if
 
+        _HERE
         if (present(global_attributes)) then
            s_iter = global_attributes%begin()
            do while(s_iter /= global_attributes%end())
@@ -471,65 +466,67 @@ module MAPL_GriddedIOMod
         type(GriddedIOitem), pointer :: item
         logical :: have_time
 
+        _HERE
         have_time = this%timeInfo%am_i_initialized()
 
+        _HERE
         if (have_time) then
-           this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
-           _VERIFY(status)
+           _HERE
+           this%times = this%timeInfo%compute_time_vector(this%metadata, _RC)
+           _HERE
            associate (times => this%times)
               ref = ArrayReference(times)
            end associate
+           _HERE
            call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+           _HERE
 
+           _HERE
            tindex = size(this%times)
            if (tindex==1) then
-              call this%stage2DLatLon(filename,oClients=oClients,_RC)
+              call this%stage2DLatLon(filename,oClients=oClients, _RC)
            end if
+           _HERE
         else
            tindex = -1
         end if
-
+        _HERE
+        
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
-           _VERIFY(status)
+           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid, _RC)
         end if
 
+        _HERE
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
+           _HERE
            if (item%itemType == ItemTypeScalar) then
-              call this%RegridScalar(item%xname,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
+              _HERE
+              call this%RegridScalar(item%xname, _RC)
+              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 call this%vdata%correct_topo(outField, _RC)
               end if
-              call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
-              _VERIFY(status)
+              call this%stageData(outField,filename,tIndex, oClients=oClients, _RC)
            else if (item%itemType == ItemTypeVector) then
-              call this%RegridVector(item%xname,item%yname,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
-              _VERIFY(status)
+              _HERE
+              call this%RegridVector(item%xname,item%yname, _RC)
+              call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 call this%vdata%correct_topo(outField, _RC)
               end if
-              call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)
-              _VERIFY(status)
+              call this%stageData(outField,filename,tIndex,oClients=oClients, _RC)
+              call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField, _RC)
               if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-                 call this%vdata%correct_topo(outField,rc=status)
-                 _VERIFY(status)
+                 call this%vdata%correct_topo(outField, _RC)
               end if
-              call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
-              _VERIFY(status)
+              call this%stageData(outField,filename,tIndex,oClients=oClients, _RC)
            end if
+           _HERE
            call iter%next()
         enddo
+        _HERE
 
         _RETURN(ESMF_SUCCESS)
 

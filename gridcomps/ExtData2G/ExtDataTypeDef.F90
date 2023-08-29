@@ -8,6 +8,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_FileMetadataUtilsMod
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
+   use mapl_ErrorHandlingMod
    implicit none
 
    public PrimaryExport

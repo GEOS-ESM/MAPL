@@ -3537,7 +3537,9 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
+               _HERE
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
+               _HERE
 
             else
 

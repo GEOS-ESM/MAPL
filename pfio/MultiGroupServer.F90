@@ -272,7 +272,7 @@ contains
    end subroutine put_DataToFile
 
    subroutine clean_up(this, rc)
-      class(MultiGroupServer),target, intent(inout) :: this
+      class(MultiGroupServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
       integer :: num_clients, n
@@ -292,7 +292,9 @@ contains
          call thread_ptr%clear_hist_collections()
       enddo ! threads
 
+      _HERE
       call this%clear_RequestHandle()
+      _HERE
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
