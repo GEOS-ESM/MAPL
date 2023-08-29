@@ -4,8 +4,12 @@ ESMF supports the development of these complex applications in a number of ways.
 
 As ESMF has become available and has evolved to be a robust software framework, several groups have been involved in adopting its use in climate and weather prediction models and in data assimilation systems. Existing programs have been converted to use the superstructure of the framework at MIT, NCAR, GFDL, Goddard, NCEP and the DoD (see impacts). 
 One of the most complete attempts to use ESMF has been the development of the [GEOS Systems](https://gmao.gsfc.nasa.gov/GEOS_systems/), a model targeted by the [NASA MAP program](https://map.nasa.gov/models/GEOS-5.php). 
-The GEOS various applications have been built ‘from the ground up’ using the latest available versions of ESMF superstructure and infrastructure. Figure ?? represents a hierarchical (tree) implementation of the component-based GEOS software where each box is an ESMF component performing some specific function and the root of the tree serves as the top level control point.
+The GEOS various applications have been built ‘from the ground up’ using the latest available versions of ESMF superstructure and infrastructure. 
+Figure 1 (below) represents a hierarchical (tree) implementation of the component-based GEOS-5 software where each box is an ESMF component performing some specific function and the root of the tree serves as the top level control point.
 
+![esm_geos-5](figs/geos5_esmf.jpg)
+
+Figure 1: _Structure of the GEOS-5 atmospheric general circulation model._
 
 All of these efforts have produced much constructive feedback to the ESMF core development team, 
 and have helped refine the design and improve the implementation of the framework. 
@@ -19,6 +23,7 @@ Other observations from this early experience were that each group, within its o
 implementations, repeatedly needed functions that provided higher level functionality than that provided by 
 the basic ESMF tools, and that the core methods of ESMF components (__Run__, __Initialize__, and __Finalize__) 
 looked very similar in all their implementations.
+
 
 The MAPL package arose as a response to this early experience, particularly during the design and implementation of GEOS systems. 
 It is based on the observation that much of the work done in these initial implementations can be standardized; 

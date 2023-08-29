@@ -2,9 +2,9 @@ MAPL adopts ESMF’s natural hierarchical topology for component connectivity, f
 The leaf components (no children: at the bot- tom of the figure) contain the bulk of the computational code. 
 These are things like physical parameterizations or dynamical cores, and they are grouped in composite com- ponents (their parents). 
 In a typical application, a composite component (parent) spawns other (children) components. 
-In our Mapl example (3.9), the parent gridded component GEOS_AgcmSimpleGridComp spawns two children components 
+In our MAPL example (3.9), the parent gridded component GEOS_AgcmSimpleGridComp spawns two children components 
 FVdycore_GridCompMod and GEOS_hsGridCompMod. 
-The registration of the children with Mapl is accomplished by the following calls in the parent’s SetServices.
+The registration of the children with MAPL is accomplished by the following calls in the parent’s SetServices.
 
 ```fortran
       dyn = MAPL_AddChild( gc, name='FVDYNAMICS', ss=DYN_SetServices, rc=status)
@@ -36,13 +36,13 @@ services provided by the children. Once again, this is done in \ssv.
 ```fortran
       call MAPL_AddConnectivity                         &
            (GC,                                         &
-            SHORT_NAME  = (/ 'DUDT', 'DVDT', 'DTDT' /), &
+            SHORT_NAME  =  [  'DUDT', 'DVDT', 'DTDT' ] ,&
             SRC_ID      =  PHS,                         &
             DST_ID      =  DYN,                         &
             RC=STATUS)
 ```
 
-Here, __DUDT__, __DVDT__ and __DTDT__ are Import states of
+Here, `DUDT`, `DVDT` and `DTDT` are Import states of
 __FVdycore_GridComp__ and Export states of __GEOS_hsGridComp__.
 After all connections between the children are processed, their Import
 states may still contain some unsatisfied items (such as those that
@@ -57,7 +57,7 @@ which are terminated in the SetServices routine of GEOS_AgcmSimple:
 ```fortran
       call MAPL_TerminateImport
            (GC,
-            SHORT_NAME = (/ 'PHIS', 'DPEDT' /), &
+            SHORT_NAME = [ 'PHIS', 'DPEDT' ],   &
             CHILD = DYN,                        &
             RC=STATUS)
 ```
@@ -87,7 +87,7 @@ state. This also continues recursively up the hierarchy.
 
 #### Rules for MAPL Application
 
-- __Rule 25:__ Every Mapl application will have one and only one Root component, 
+- __Rule 25:__ Every MAPL application will have one and only one Root component, 
   which will be an ancestor of every component except the History component.
 - __Rule 26:__ The Cap component is the main program; 
   it has no parent and exactly three children: Root, ExtData, and History. 
@@ -102,16 +102,16 @@ It effectively treats the configuration as though it was a UNIX environment avai
 
 The behavior of an application is controlled through three resource (or configuration) files. 
 The MAPL_Cap (main program) opens the configuration files for itself and its three children (Root and History). 
-These have the default names CAP.rc, ROOT.rc, ExtData.rc, and HISTORY.rc. 
+These have the default names `CAP.rc`, `ROOT.rc`, `ExtData.rc`, and `HISTORY.rc`. 
 They must be present in the run directory at run time. 
-The name of MAPL_Cap’s own resource file is fixed as Cap.rc, since this is the resource from which the application ‘boots up’. 
-The other two may be renamed in Cap.rc. The table below lists the resources in the Cap.rc.
+The name of MAPL_Cap’s own resource file is fixed as `Cap.rc`, since this is the resource from which the application ‘boots up’. 
+The other two may be renamed in `Cap.rc`. The table below lists the resources in the `Cap.rc`.
 
 
 | __Name__ | __Description__ | __Units__ | __Default__ |
 | ----  |  ---- |  ---- |  ---- |
-| CF_FILE:    |  Name of ROOT's config file             |  none    |  `Root.rc' | 
-| CF_FILE:    |  Name of HISTORY's config file          |  none   | `HISTORY.rc' | 
+| CF_FILE:    |  Name of ROOT's config file             |  none    |  'Root.rc' | 
+| CF_FILE:    |  Name of HISTORY's config file          |  none   | 'HISTORY.rc' | 
 | TICK_FIRST: |  Determines when clock is advanced      |  1 or 0  |  none | 
 | BEG_YY:     |  Beginning year (integer)               |  year    |  1 | 
 | BEG_MM:     |  Beginning month (integer 1-12)         |  month   | 1 | 
@@ -132,7 +132,7 @@ The other two may be renamed in Cap.rc. The table below lists the resources in t
 | IM_WORLD:   |  Grid size in 1st dimension             |  none    |  none | 
 | JM_WORLD:   |  Grid size in 2nd dimension             |  none    |  none | 
 | LM:         |  Grid size in 3rd dimension             |  none    |  1 | 
-| GRIDNAME:   |  Optional grid name                     |  none    |  `APPGRID' | 
+| GRIDNAME:   |  Optional grid name                     |  none    |  'APPGRID' | 
 | IMS:        |  Gridpoints in each PE along 1st dimension |  none |  IMS | 
 | JMS:        |  Gridpoints in each PE along 2nd dimension |  none |  JMS | 
 | POLEEDGE:   |  1->gridedge at pole; 0->gridpoint at pole |  0 or 1 |  0 | 
@@ -158,7 +158,7 @@ An example configuration file  `CAP.rc`:
   ROOT_RC_FILE: HelloWorld.rc
 ```
 
-An example `HelloWorld.rc`` configuration file is simply:
+An example `HelloWorld.rc` configuration file is simply:
 
 ```
   RUN_DT: 1800
@@ -167,7 +167,12 @@ An example `HelloWorld.rc`` configuration file is simply:
 This would perform a one day simulation with 30 minute time steps on a
 $4^o \times  5^o$ grid, using a $2 \times 2$ decomposition element layout.
 
-For an ESMF_GridComp, the configuration may be obtained by querying using the standard ESMF interface, as shown in the run method of Example 2 (3.2.4.2). 
-It can also be queried through the Mapl object by calling MAPL_GetResource. 
-This is the preferred way. When the configuration is queried this way, Mapl first tries to match a label that has been made instance-specific by prepending the instance’s full name and an underscore to the specified label; in Example 2, Mapl would first look for `trim(COMP_NAME)//’_DT:’`. 
-If this is not found, it would then look for a type-specific label by prepending only the last name, if the instance has one. If this fails, it would look for the unqualified label, DT:; finally, if this also fails, it would set it to the default value, which in the example is the application’s time step, RUN_DT.
+For an ESMF_GridComp, the configuration may be obtained by querying using the standard ESMF interface, 
+as shown in the run method of Example 2 (3.2.4.2). 
+It can also be queried through the MAPL object by calling MAPL_GetResource. 
+This is the preferred way. When the configuration is queried this way, MAPL first tries to match a label 
+that has been made instance-specific by prepending the instance’s full name and an underscore to the specified label; 
+in Example 2, MAPL would first look for `trim(COMP_NAME)//’_DT:’`. 
+If this is not found, it would then look for a type-specific label by prepending only the last name, 
+if the instance has one. If this fails, it would look for the unqualified label, `DT:`; finally, if this also fails, 
+it would set it to the default value, which in the example is the application’s time step, `RUN_DT`.

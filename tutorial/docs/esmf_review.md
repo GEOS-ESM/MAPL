@@ -10,7 +10,8 @@ by the ESMF `sandwich' diagram below, where the
 user's computational code sits between the two ESMF layers.
 
 ![fig_esmf_sandwich](figs/esmf_sandwich.png)
-_Schematic of the ESMF `sandwich' architecture. The framework consists of two parts, an upper level superstructure layer and a lower level infrastructure layer. User code is sandwiched between these two layers_.
+
+Fugure 2: _Schematic of the ESMF 'sandwich' architecture. The framework consists of two parts, an upper level superstructure layer and a lower level infrastructure layer. User code is sandwiched between these two layers_.
 
 
 The simplest ESMF implementation consists of building a Gridded

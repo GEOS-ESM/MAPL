@@ -34,4 +34,4 @@ This package:
 
 ### 3.8 [Miscellaneous Features: MAPL_Utils](docs/mapl_other_features.md)
 
-## 4 [Running Examples](docs/mapl_running_examples.md)
+## 4 [Demos](docs/mapl_running_examples.md)

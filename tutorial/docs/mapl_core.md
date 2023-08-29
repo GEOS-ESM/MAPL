@@ -29,22 +29,22 @@ three ways of doing this.
    provided by MAPL as the component’s methods. When MAPL_GenericSetServices is invoked, 
    it registers the three Generic IRF methods. 
    If not overridden, these become the component’s actual methods.
-2. A second way of using Mapl is to simply call the generic versions of the methods from 
+2. A second way of using MAPL is to simply call the generic versions of the methods from 
    the component-specific versions, allowing them to perform the boilerplate functions.
 3. Should this really be included!?!?! A third way is to simply use the source code of the 
    generic versions as templates for the specific versions. 
    Taking this approach is dangerous and not allowed for MAPL-compliant components.
 
 
-So what do the Generic IRF methods do? This will be described in detail in subsequent sec- tions, 
+So what do the Generic __IRF__ methods do? This will be described in detail in subsequent sec- tions, 
 but simply stated, they manage the IM/EX States and a third ESMF_State ’Internal’
 that we will discuss below. We will refer to these three states as the IM/EX/IN states. 
 Note that they are all ordinary ESMF_States. 
 From the description of the three states provided in the data services, 
 MAPL is able to create, allocate, initialize, and destroy all items in these states; 
 it can also checkpoint and restart the Internal and Import states. 
-The IRF methods also implement connectivity of children components, creating the appropriate couplers, 
-registering their services, and executing their IRF methods.
+The __IRF__ methods also implement connectivity of children components, creating the appropriate couplers, 
+registering their services, and executing their __IRF__ methods.
 
 ### The new Internal (IN) State
 
@@ -62,9 +62,9 @@ ESMF provides such a mechanism - effectively a hook on which a component can han
 the current instance of its internal state.
 
 
-Accordingly, this new IN state does not appear explicitly in the argument list of IRF meth- ods, 
+Accordingly, this new IN state does not appear explicitly in the argument list of __IRF__ methods, 
 as is the case with the IM/EX states; instead it is attached to the ESMF_GridComp and, in principle, 
-is accessible only through Mapl and can be queried.
+is accessible only through MAPL and can be queried.
 
 
 All of the mechanisms for registering and manipulating data that are already available in MAPL
@@ -76,7 +76,7 @@ automatically allocated, checkpointed, and restarted by the MAPL Initialize and 
 
 ### Description of State Contents
 
-The simplest ESMF gridded component consists of the IRF methods encapsulating the user’s computational code. 
+The simplest ESMF gridded component consists of the __IRF__ methods encapsulating the user’s computational code. 
 These methods are private to the component, but are callable by the framework; 
 in fact, they can only be called by the framework. 
 This is accomplished by having in each component a public method (SetServices) that tells 
@@ -150,16 +150,16 @@ The first thing to clarify is what we mean by a MAPL-based ESMF_GridComp.
 The following general rules apply to MAPL-compliant components:
 
 - __Rule 1:__ The component must be a fully-compliant ESMF_GridComp. 
-    This implies that its only public method is SetServices and it registers IRF methods with ESMF.
+    This implies that its only public method is SetServices and it registers __IRF__ methods with ESMF.
 - __Rule 2:__ Associated with each instance of a MAPL-compliant ESMF_GridComp there is an ESMF_Grid 
-    that Mapl will use to allocate data.
+    that MAPL will use to allocate data.
 - __Rule 3:__ Every ESMF_GridComp has a configuration (that stores parameters). 
     A Mapl grid- ded component will expect it to be open (accessible!?!?!) when SetServices is called.
 - __Rule 4:__ Components can be run sequentially or concurrently; 
     however, their Run methods must return control at RUN_DT intervals.
-- __Rule 5:__ A Mapl-compliant ESMF_GridComp can be simple (called a leaf ) or composite. 
-- __Rule 6:__ The component must obey all Mapl rules pertaining to its grid, as defined below.
-- __Rule 7:__ The component must obey all Mapl access rules to the IM/EX/IN states, as defined below.
+- __Rule 5:__ A MAPL-compliant ESMF_GridComp can be simple (called a leaf ) or composite. 
+- __Rule 6:__ The component must obey all MAPL rules pertaining to its grid, as defined below.
+- __Rule 7:__ The component must obey all MAPL access rules to the IM/EX/IN states, as defined below.
 - __Rule 8:__ The MAPL_GenericSetServices, MAPL_GenericInitialize, and MAPL_GenericFinalize 
     methods must be invoked once, and only once, for each instance of the gridded component.
 - __Rule 9:__ Component instances must have unique names of the form: `‘first[:last]’`. 
@@ -169,7 +169,7 @@ The following Fortran 95 codes show simple MAPL components.
 
 #### Example 1: Using the Generic Component
 
-MaAPL has built-in ESMF_GridComps. 
+MAPL has built-in ESMF_GridComps. 
 The most fundamental of these is the MAPL_Generic component, whose SetServices and __IRF__ methods 
 we normally use in building other components. 
 It is possible, however, to instantiate MAPL_Generic itself. 
@@ -179,9 +179,9 @@ Nevertheless, it is a perfectly valid ESMF_GridComp.
 The following example is a main program that runs MAPL_Generic for a year. 
 It also illustrates the basic steps that an ESMF main program (called Cap) contains. 
 This is a fully-compliant ESMF_GridComp. 
-It has a public SetServices taken from Mapl, and this is its only public object (method?). 
+It has a public SetServices taken from MAPL, and this is its only public object (method?). 
 Of course, it does nothing; but it can be run as a null component anywhere an ESMF_GridComp can be run. 
-Since it uses the generic IRF methods, it has a single stage of each. 
+Since it uses the generic __IRF__ methods, it has a single stage of each. 
 The rules about grids and states are not too relevant, but it has a natural grid - the ESMF_Grid 
 is assumed to be given to it when the instance of the ESMF_GridComp is created. 
 It has IM/EX/IN states, which are silently created by the implicit generic methods; but all three state are empty.
@@ -270,12 +270,13 @@ It has IM/EX/IN states, which are silently created by the implicit generic metho
     call exit(RC)
 
   end Program Example1
+```
 
-  #### Example 2: HelloWorldMod
+#### Example 2: HelloWorldMod
 
-  The second example illustrates a more typical use of MAPL to help write a gridded component.
+The second example illustrates a more typical use of MAPL to help write a gridded component.
 
-  ```fortran
+```fortran
     module HelloWorldMod
 
     ! We always have this preamble
@@ -346,50 +347,50 @@ It has IM/EX/IN states, which are silently created by the implicit generic metho
     end subroutine run_hello
 
   end module HelloWorldMod
-  ```
+```
 
-  This example needs a custom Run method (run_hello). Since this method can only be registered 
-  in a SetServices that is in the module, we must also write an explicit SetServices. 
-  Notice that the registration of the Run method is with Mapl, not directly with ESMF. 
-  The component does not explicitly register Initialize and Finalize methods, 
-  so the generic ones will be used. 
-  Normally, we would also register data and connectivities at this point, but in this example, 
-  we have none. Also note that MAPL_GenericSetServices is called at the end, 
-  after all registration with Mapl is completed. We rely on MAPL_GenericSetServices to do the heavy work.
+This example needs a custom Run method (run_hello). Since this method can only be registered 
+in a SetServices that is in the module, we must also write an explicit SetServices. 
+Notice that the registration of the Run method is with MAPL, not directly with ESMF. 
+The component does not explicitly register Initialize and Finalize methods, 
+so the generic ones will be used. 
+Normally, we would also register data and connectivities at this point, but in this example, 
+we have none. Also note that MAPL_GenericSetServices is called at the end, 
+after all registration with MAPL is completed. We rely on MAPL_GenericSetServices to do the heavy work.
 
-  The Run method is simple, but it does illustrate that every instance of an ESMF_GridComp has a name, 
-  and the IRF methods can access it to know which instance they are working on.
+The Run method is simple, but it does illustrate that every instance of an ESMF_GridComp has a name, 
+and the __IRF__ methods can access it to know which instance they are working on.
 
-  Notice also that we have assumed that there is an open configuration (ESMF_Config - see section 3.3.3) 
-  in the gridded component, from which we are getting the time step. 
-  This is also typical of Mapl components and is crucial to the successful use of this and other examples is the. 
-  Mapl treats the configuration in the component object like an environment from which 
-  it can always query for predefined metadata. 
-  MAPL requires certain configuration variables to be set in order to properly execute any application.
+Notice also that we have assumed that there is an open configuration (ESMF_Config - see section 3.3.3) 
+in the gridded component, from which we are getting the time step. 
+This is also typical of MAPL components and is crucial to the successful use of this and other examples is the. 
+MAPL treats the configuration in the component object like an environment from which 
+it can always query for predefined metadata. 
+MAPL requires certain configuration variables to be set in order to properly execute any application.
 
-  The situation illustrated by this example is quite common. Most simple components will follow this template: 
-  define a custom Run method, a SetServices that registers it and calls MAPL_GenericSetServices, 
-  and default the Initialize and Finalize methods.
+The situation illustrated by this example is quite common. Most simple components will follow this template: 
+define a custom Run method, a SetServices that registers it and calls MAPL_GenericSetServices, 
+and default the Initialize and Finalize methods.
 
-  #### Additional Rules for Grids and States
+#### Additional Rules for Grids and States
 
-  Most MAPL_GridComps will receive a fully populated grid from its parent. 
-  Some, however, may need be written to receive an empty grid that they populate themselves 
-  or to replace the grid they receive with one of their own creation.
+Most MAPL_GridComps will receive a fully populated grid from its parent. 
+Some, however, may need be written to receive an empty grid that they populate themselves 
+or to replace the grid they receive with one of their own creation.
 
-In its current implementation, Mapl severely restricts the nature of ESMF_Grids reflecting 
+In its current implementation, MAPL severely restricts the nature of ESMF_Grids reflecting 
 in part the state of ESMF’s own development. We will discuss this at length later (where!?!?!).
 
 The following are some of the grid related rules:
 
 Rule 10 A component’s grid must be fully formed before MAPL_GenericInitialize is invoked.
 Rule 11 Once MAPL_GenericInitialize is invoked, the grid may not be changed and must remain as the instance’s ESMF_Grid.
-Rule 12 An instance’s grid can be either an ESMF_Grid or a MAPL_LocationStream that has an associated ESMF_Grid. Thus there is always an ESMF_Grid associated (at- tached) with each instance of a Mapl-compliant ESMF_GridComp.
+Rule 12 An instance’s grid can be either an ESMF_Grid or a MAPL_LocationStream that has an associated ESMF_Grid. Thus there is always an ESMF_Grid associated (at- tached) with each instance of a MAPL-compliant ESMF_GridComp.
 
 A component can operate on data on various grids. 
 These can be ESMF_Grids or grids defined with the user’s own conventions and ESMF Infrasructure 
 can be used to manipulate this data internally. 
-But to the outside world and to Mapl a MAPL-compliant component should ‘look’ as though it has only one grid.
+But to the outside world and to MAPL a MAPL-compliant component should ‘look’ as though it has only one grid.
 
 The following are the ESMF_State related rules:
 
@@ -398,15 +399,15 @@ The following are the ESMF_State related rules:
 - __Rule 15:__ All items the component places in the IM/EX/IN states must be defined on its grid. 
    If the grid is a MAPL_LocationStream, these items can be either at locations or on the associated ESMF_Grid. 
    Only in this sense can a component appear to expose two grids.
-- __Rule 16:__ In addition to the ESMF Internal state that Mapl places in the component, 
+- __Rule 16:__ In addition to the ESMF Internal state that MAPL places in the component, 
    a component can have any number of privately defined ‘internal’ states. 
    We will refer to these as the component’s private states.
 - __Rule 17:__ The private states, together with IN, fully define the component’s instantiatable state. 
    Private states must, therefore, be attached to the ESMF_GridComp.
 - __Rule 18:__ Private states must be ‘named’ states when attached to the ESMF_GridComp. 
    MAPL uses the unnamed internal state in the component for its own purposes.
-- __Rule 19:__ Items in the IM/EX/IN states may have Mapl and user attributes.
-- __Rule 20:__ Items in the IN state can be given a FRIENDLY_TO_Mapl attribute that consists of 
+- __Rule 19:__ Items in the IM/EX/IN states may have MAPL and user attributes.
+- __Rule 20:__ Items in the IN state can be given a FRIENDLY_TO_MAPL attribute that consists of 
    a list of other component’s names. 
    MAPL then places these items in the component’s EX state, and it is an error to add another 
    item with the same name to the Export. Why don’t we make this a regular EX state!?!?!
@@ -415,20 +416,20 @@ The following are the ESMF_State related rules:
 - __Rule 22:__ Items in the EX state can be assumed to be ‘read-only’ to other components, 
    unless a non-empty FRIENDLY_TO is present.
 - __Rule 23:__ Components can only create or modify the FRIENDLY_TO attribute of items in its Import state.
-- __Rule 24:__ Values of all Mapl attributes can be set only in SetServices.
+- __Rule 24:__ Values of all MAPL attributes can be set only in SetServices.
 
 Note that the restriction on items being on the component’s grid applies only to 
 the items explicitly placed in the states by the component; 
-Mapl itself may place other items in these states that are not ‘visible’ to the component. 
+MAPL itself may place other items in these states that are not ‘visible’ to the component. 
 It is in this sense that the component ‘looks’ as though it has a single grid, even when its children use different grids.
 
 ### The recipe for writing a MAPL_GridComp
 
-Writing an ESMF_GridComp consists of writing a SetServices and at least one phase of each of the registered IRF methods. 
-Mapl provides a recipe for each of these tasks. 
+Writing an ESMF_GridComp consists of writing a SetServices and at least one phase of each of the registered __IRF__ methods. 
+MAPL provides a recipe for each of these tasks. 
 We will focus first on the writing of a leaf component (an ESMF_GridComp that is a simple container for user code) 
 and defer the discussion of how to extend the recipe to composite components and to putting together 
-hierarchies to the Mapl_Connect section.
+hierarchies to the MAPL_Connect section.
 
 #### Writing a SetServices
 
@@ -437,11 +438,11 @@ as illustrated in Example 2 (3.2.4.2). In this section we provide a complete rec
 SetServices and explain the role of MAPL_GenericSetServices 
 (for variable declarations, please refer to the actual code).
 
-The minimum we must do in SetServices is registering the private IRF methods (Run in Example 2) 
+The minimum we must do in SetServices is registering the private __IRF__ methods (Run in Example 2) 
 and then call MAPL_GenericSetServices. Everything else is optional. 
 The following is a complete list in the order in which they would normally appear:
 
-1. Get instance name and set-up traceback handle (Mapl_Utils: only used for optional error handling)
+1. Get instance name and set-up traceback handle (MAPL_Utils: only used for optional error handling)
 
 ```fortran
     Iam = "SetServices"
@@ -506,15 +507,15 @@ Its typical use is as a set-up routine for MAPL and is one of the last things ca
 component’s own SetServices (step 5 above).
  MAPL_GenericSetServices performs the following tasks:
 
-- If the Mapl object does not exist in the component, it allocates it and places it in the component. 
+- If the MAPL object does not exist in the component, it allocates it and places it in the component. 
    Usually the object already exists at this point.
-- Sets any of ESMF_GridComp’s IRF methods that have not been registered to the generic versions.
-- Deals with the children. This is discussed further in Mapl_Connect.
+- Sets any of ESMF_GridComp’s __IRF__ methods that have not been registered to the generic versions.
+- Deals with the children. This is discussed further in MAPL_Connect.
 
 #### Data Services
 
 A crucial aspect of writing a MAPL component is describing the three states (IM/EX/IN). 
-These are all ESMF_States. The IM/EX states are those passed in the calls to the IRF methods. 
+These are all ESMF_States. The IM/EX states are those passed in the calls to the __IRF__ methods. 
 The IN state is attached to the MAPL object by MAPL. 
 In SetServices we must describe all items in all the three states. 
 This will allow MAPL to create, initialze, and otherwise manipulate these data.
@@ -578,7 +579,7 @@ Only the ESMF_GridComp object GC and the SHORT_NAME are required.
 The latter is the handle used to access the variable; 
 it is also the name used for the variable by MAPL in checkpoint files. 
 For a description of the remaining optional arguments (as well as interfaces to MAPL_AddImportSpec and MAPL_ExportSpec),
-please see the Mapl Reference Manual.
+please see the MAPL Reference Manual.
 
 #### Writing and Initialize Method
 
@@ -595,7 +596,7 @@ A composite component may have other considerations; these will be discussed in 
 
 The following is a complete recipe in the order they would normally appear. Add commands for each step!?!?!
 
-1. Get the instance name and setup traceback handle (Mapl_Utils: used for optional error handling)
+1. Get the instance name and setup traceback handle (MAPL_Utils: used for optional error handling)
 
 ```fortran
       Iam = "Initialize"
@@ -628,6 +629,7 @@ The following is a complete recipe in the order they would normally appear. Add 
 ```
 
 5. Get the component’s private Internal state from the ESMF_GridComp.
+   
    _If you are writing your own Initialize you will almost certainly be using a private internal state._
 
 ```fortran
@@ -636,6 +638,7 @@ The following is a complete recipe in the order they would normally appear. Add 
 ```
 
 6. If you are changing the grid, it has to be done before invoking MAPL_GenericInitialize.
+
     _Remember, by default the component’s natural grid will be the one it was
     given at creation. If an Internal and/or an Import state is being restarted
     (as described in the next section - where!?!?!), the grids on those restarts
@@ -644,41 +647,46 @@ The following is a complete recipe in the order they would normally appear. Add 
     restarts in MAPL_GenericInitialize. After returning from MAPL_GenericInitialize, the natural grid cannot be changed._
 
 7. Invoke MAPL_GenericInitialize. 
-   _his will do the automatic state initializations as described below. In the case of a composite component, it will also initialize the children._
+
+   _This will do the automatic state initializations as described below. In the case of a composite component, it will also initialize the children._
 
 ```fortran
       call MAPL_GenericInitialize(GC, IMPORT, EXPORT, CLOCK,  RC=STATUS)
 ```
 
 8. If you have put items that need to be explicitly initialized in the MAPL Internal state, get it from the MAPL object.
-    _tems in the Mapl Internal state that were checkpointed will be restored by MAPL_GenericInitialize; other items will be set to their DEFAULT value. We need access to Internal only if we wish to overide these in Initialize. An example of this would be setting static arrays, like map factors, Coriolis, etc._
 
-9. Query the Mapl object for information you need to do initialization. 
+    _Items in the MAPL Internal state that were checkpointed will be restored by MAPL_GenericInitialize; other items will be set to their DEFAULT value. We need access to Internal only if we wish to overide these in Initialize. An example of this would be setting static arrays, like map factors, Coriolis, etc._
+
+9. Query the MAPL object for information you need to do initialization. 
+
     _You probably need to know what the world looks like, so get LATS and LONS._
 
 10. Query the configuration for parameters you need to do initialization.
 
-11. Get pointers from the Mapl Internal and/or the private internal states.
+11. Get pointers from the MAPL Internal and/or the private internal states.
+
      _These are the quantities you need to initialize._
 
 12. Do the Initialization. 
-     _For Internal items, you are overriding Mapl’s initialization, which was either from a restart or a default; for a private state you are on your own._
+
+     _For Internal items, you are overriding MAPL’s initialization, which was either from a restart or a default; for a private state you are on your own._
 
 13. If you are profiling, turn off timer.
 
 #### What does MAPL_GenericInitialize do?
 
-MAPL_GenericInitialize does most of the instance-specific initializations of the Mapl objects. 
+__MAPL_GenericInitialize__ does most of the instance-specific initializations of the MAPL objects. 
 It also creates, and possibly allocates and initializes, items in the IM/EX/IN states. 
-MAPL_GenericInitialize also makes the final decision on what will be the natural grid. 
-And, as is the case for all generic IRF methods, it calls the children’s Initialize. 
+__MAPL_GenericInitialize__ also makes the final decision on what will be the natural grid. 
+And, as is the case for all generic __IRF__ methods, it calls the children’s Initialize. 
 The following list discusses these tasks in more detail: where is the list!?!?!
 
 #### Writing a Finalize Method
 
 Finalize parallels the Initialize. It is usually only needed if there is a private internal state.
 
-MAPL_GenericFinalize does most of the instance-specific finalizations of the Mapl objects. 
+__MAPL_GenericFinalize__ does most of the instance-specific finalizations of the MAPL objects. 
 It checkpoints the Import and Export states if a checkpoint file has been provided. 
 It also destroys, and possibly deallocates items in the IM/EX(?)/IN states. 
-MAPL_GenericFinalize also calls the children’s Finalize routines.
+__MAPL_GenericFinalize__ also calls the children’s Finalize routines.
