@@ -58,6 +58,8 @@ module LocStreamFactoryMod
          integer :: my_pet,local_count,status
          real(kind=REAL64), allocatable :: tlons(:),tlats(:)
 
+
+
          _UNUSED_DUMMY(unusable) 
          call ESMF_VMGetCurrent(vm,rc=status)
          _VERIFY(status)
@@ -87,6 +89,8 @@ module LocStreamFactoryMod
          call ESMF_LocStreamAddKey(locstream,keyName="ESMF:Lon",farray=tlons,datacopyflag=ESMF_DATACOPY_VALUE, &
                  keyUnits="Radians", keyLongName="Longitude",rc=status)
          _VERIFY(status)
+
+!!         deallocate(tlons, tlats)
 
          if (present(grid)) then
             locstream = ESMF_LocStreamCreate(locstream,background=grid,rc=status)

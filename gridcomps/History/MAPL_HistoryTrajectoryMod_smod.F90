@@ -165,9 +165,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          endif
          call this%create_grid(_RC)
          call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)         
-         this%output_bundle = this%create_new_bundle(_RC)
-         this%acc_bundle    = this%create_new_bundle(_RC)
+!-!         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)         
+!!         this%output_bundle = this%create_new_bundle(_RC)
+!!         this%acc_bundle    = this%create_new_bundle(_RC)
          this%time_info = timeInfo
 
          call this%metadata%add_dimension('time', this%nobs_epoch)
@@ -520,6 +520,263 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
 
+!        module procedure create_grid
+!        use pflogger, only: Logger, logging
+!         character(len=ESMF_MAXSTR) :: filename
+!         type(NetCDF4_FileFormatter) :: formatter
+!         type(FileMetadataUtils) :: metadata_utils
+!         type(FileMetadata) :: fmd
+!         !!integer(ESMF_KIND_I8) :: num_times
+!         integer(ESMF_KIND_I4) :: num_times         
+!         integer :: ncid, ncid0
+!         integer :: dimid(10),  dimlen(10)
+!         integer :: len
+!         integer :: len_full         
+!         integer :: status
+!         type(Logger), pointer :: lgr
+!         
+!         character(len=ESMF_MAXSTR) :: grp_name
+!         character(len=ESMF_MAXSTR) :: dim_name(10)
+!         character(len=ESMF_MAXSTR) :: var_name_lon
+!         character(len=ESMF_MAXSTR) :: var_name_lat
+!         character(len=ESMF_MAXSTR) :: var_name_time
+!         character(len=ESMF_MAXSTR) :: attr_name
+!         character(len=ESMF_MAXSTR) :: attr
+!         character(len=ESMF_MAXSTR) :: timeunits_file
+!
+!         type(ESMF_Config) :: config_grid
+!         character(len=ESMF_MAXSTR) :: time_string
+!
+!         real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
+!         real(kind=REAL64), allocatable :: times_R8_full(:)
+!         real(kind=REAL64), allocatable :: XA(:)         
+!
+!         integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
+!         real(ESMF_KIND_R8), pointer :: ptAT(:), ptBT(:)
+!         type(ESMF_routehandle) :: RH
+!         type(ESMF_Time) :: timeset(2)
+!         type(ESMF_Time) :: current_time
+!         type(ESMF_Time) :: time0, time1, time2
+!         type(ESMF_TimeInterval) :: interval
+!         type(ESMF_Field) :: src_fld, dst_fld
+!         type(ESMF_Field) :: src_fld2, dst_fld2
+!         type(ESMF_Grid) :: grid
+!         
+!         type(ESMF_VM) :: vm
+!         integer :: mypet, petcount
+!
+!         integer :: i, j, k, L
+!         integer :: fid_s, fid_e
+!         integer(kind=ESMF_KIND_I8) :: j0, j1
+!         integer(kind=ESMF_KIND_I8) :: jt1, jt2
+!         integer(kind=ESMF_KIND_I8) :: nstart, nend
+!         real(kind=ESMF_KIND_R8) :: jx0, jx1
+!         integer :: nx, nx_sum
+!         integer :: arr(1)
+!         integer :: sec
+!         integer :: int_time
+!         character(len=:), allocatable :: tunit
+!         integer (ESMF_KIND_I8) :: n_second
+!
+!
+!         ! Global fixed reference
+!         this%datetime_units = "seconds since 1970-01-01 00:00:00"
+!         lgr => logging%get_logger('HISTORY.sampler')
+!
+!         call ESMF_VMGetGlobal(vm,_RC)
+!         call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)         
+!
+!         if (this%nc_index == '') then
+!            filename=trim(this%obsFile)
+!            !!         print*, 'obs file name=', trim(filename)
+!            call formatter%open(trim(filename),pFIO_READ,_RC)
+!            fmd = formatter%read(_RC)
+!            call metadata_utils%create(fmd,trim(filename))
+!            num_times = metadata_utils%get_dimension("time",_RC)
+!            allocate(this%lons(num_times),this%lats(num_times),_STAT)
+!            if (metadata_utils%is_var_present("longitude")) then
+!               call formatter%get_var("longitude",this%lons,_RC)
+!            end if
+!            if (metadata_utils%is_var_present("latitude")) then
+!               call formatter%get_var("latitude",this%lats,_RC)
+!            end if
+!            call metadata_utils%get_time_info(timeVector=this%times,_RC)
+!         else         
+!            i=index(this%nc_longitude, '/')
+!            _ASSERT (i>0, 'group name not found')
+!            grp_name = this%nc_longitude(1:i-1)
+!            this%var_name_lat = this%nc_latitude(i+1:)
+!            this%var_name_lon = this%nc_longitude(i+1:)
+!            this%var_name_time= this%nc_time(i+1:)
+!
+!            
+!            ! __ loop obsfile_index for epoch
+!            !    get max len, allocate array, concatenate , get_var
+!            !
+!            L=0
+!            fid_s=this%obsfile_Ts_index   ! from call get_obsfile_Tbracket_from_epoch
+!            fid_e=this%obsfile_Te_index
+!            if(fid_e < L) then
+!               allocate(this%lons(0),this%lats(0),_STAT)
+!               allocate(this%times_R8(0),_STAT)
+!               this%epoch_index(1:2)=0
+!               this%nobs_epoch = 0
+!               rc=0
+!               return
+!            end if
+!            
+!
+!            ! __ this is all fid_e >= L case : file exist at this time
+!            !    read in dim
+!            !    read in data in full on mypet=0
+!            !
+!            if (mapl_am_I_root()) then
+!               j = max (fid_s, L)
+!               len = 0
+!               do while (j<=fid_e)
+!                  filename = this%get_filename_from_template_use_index(j, _RC)
+!                  !!call get_ncfile_dimension_I8(filename, tdim=num_times, key_time=this%nc_index, _RC)
+!                  call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)               
+!                  len = len + num_times
+!                  j=j+1
+!                  call lgr%debug('%a %a', 'input filename: ', trim(filename))
+!               enddo            
+!               len_full = len
+!               allocate(lons_full(len),lats_full(len),_STAT)
+!               allocate(times_R8_full(len),_STAT)
+!               call lgr%debug('%a %i12', 'nobs from input file:', len_full)
+!               
+!               j = max (fid_s, L)
+!               len = 0 
+!               do while (j<=fid_e)
+!                  filename = this%get_filename_from_template_use_index(j, _RC)
+!                  call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
+!                  call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
+!                  call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
+!                  call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+!                  call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+!
+!                  int_time=0
+!                  call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
+!                  call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, time2, time1=time1, tunit=tunit, _RC)
+!                  interval = time2 - time0
+!                  _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
+!                  call ESMF_TimeIntervalGet(interval, s_i8=n_second)
+!                  times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
+!
+!                  call lgr%debug('%a %a', 'output timeunits_file G=', trim(this%datetime_units))
+!                  call lgr%debug('%a %a', 'output timeunits_file L=', trim(timeunits_file))
+!                  call lgr%debug('%a %a', 'Darian tunit(sec/min/hr)=', trim(tunit))
+!                  call lgr%debug('%a %i10 ', 'shift n_second',  n_second)
+!                  call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
+!                       times_R8_full(1), times_R8_full(200))
+!
+!                  len = len + num_times
+!                  j=j+1
+!               enddo
+!            end if
+!
+!            
+!            !__ epoch grid on root
+!            !   
+!            !
+!            if (mapl_am_I_root()) then
+!               call sort_three_arrays_by_time(lons_full, lats_full, times_R8_full, _RC)               
+!               call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
+!               timeset(1) = current_time
+!               timeset(2) = current_time + this%epoch_frequency
+!               call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
+!               call hms_2_s (this%Epoch, sec, _RC)
+!               j1 = j0 + int(sec, kind=ESMF_KIND_I8)
+!               jx0 = real ( j0, kind=ESMF_KIND_R8)
+!               jx1 = real ( j1, kind=ESMF_KIND_R8)
+!
+!               nstart=1; nend=size(times_R8_full)
+!               call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+!               call bisect( times_R8_full, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
+!               if (jt1==jt2) then
+!                  _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+!               endif
+!               call lgr%debug ('%a %f20.1 %f20.1', 'jx0, jx1', jx0, jx1)
+!               call lgr%debug ('%a %i20 %i20', 'jt1, jt2', jt1, jt2)
+!               
+!               ! (x1, x2]  design in bisect
+!               if (jt1==0) then
+!                  this%epoch_index(1)= 1
+!               else
+!                  this%epoch_index(1)= jt1
+!               endif
+!               _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
+!               if (jt2==0) then
+!                  this%epoch_index(2)= 1
+!               else
+!                  this%epoch_index(2)= jt2
+!               endif
+!
+!               nx= this%epoch_index(2) - this%epoch_index(1) + 1
+!               this%nobs_epoch = nx
+!               allocate(this%lons(nx),this%lats(nx),_STAT)
+!               allocate(this%times_R8(nx),_STAT)
+!               
+!               j=this%epoch_index(1)
+!               do i=1, nx
+!                  this%lons(i) = lons_full(j)
+!                  this%lats(i) = lats_full(j)
+!                  this%times_R8(i) = times_R8_full(j)
+!                  j=j+1
+!               enddo
+!               arr(1)=nx
+!               deallocate(lons_full, lats_full, times_R8_full)
+!               call lgr%debug('%a %i12 %i12 %i12', &
+!                    'epoch_index(1:2), nx', this%epoch_index(1), &
+!                    this%epoch_index(2), this%nobs_epoch)
+!            else
+!               allocate(this%lons(0),this%lats(0),_STAT)
+!               allocate(this%times_R8(0),_STAT)
+!               this%epoch_index(1:2)=0
+!               this%nobs_epoch = 0
+!               nx=0
+!               arr(1)=nx               
+!            endif
+!            
+!            call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
+!                 count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
+!            this%nobs_epoch_sum = nx_sum            
+!            if (mapl_am_I_root()) write(6,*) 'nobs in Epoch    :', nx_sum
+!            
+!            this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
+!            this%LS_rt = this%locstream_factory%create_locstream(_RC)
+!            call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+!            this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)   ! use background grid
+!
+!            this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
+!            this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
+!
+!            call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptAT)
+!            call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
+!            if (mypet == 0) then
+!               ptAT(:) = this%times_R8(:)
+!            end if
+!            this%obsTime= -1.d0
+!            
+!            call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
+!            call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
+!
+!            !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)            
+!            
+!            call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+!            call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
+!            ! defer destroy fieldB at regen_grid step
+!         end if
+!         _RETURN(_SUCCESS)
+!       end procedure create_grid
+!       !! debug
+!       !!write(6, '(a)')  'lons_full(1:3*num_times:num_times) and  times_R8_full'
+!       !!write(6, '(10f10.1)')  lons_full(1:3*num_times:num_times/2)
+!       !!write(6, '(10E25.12)')  times_R8_full(1:3*num_times:num_times/2)
+!       !!write(6, '(10E25.12)')  times_R8_full(1:len:20)
+
+
         module procedure create_grid
         use pflogger, only: Logger, logging
          character(len=ESMF_MAXSTR) :: filename
@@ -588,19 +845,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          if (this%nc_index == '') then
             filename=trim(this%obsFile)
-            !!         print*, 'obs file name=', trim(filename)
-            call formatter%open(trim(filename),pFIO_READ,_RC)
-            fmd = formatter%read(_RC)
-            call metadata_utils%create(fmd,trim(filename))
-            num_times = metadata_utils%get_dimension("time",_RC)
-            allocate(this%lons(num_times),this%lats(num_times),_STAT)
-            if (metadata_utils%is_var_present("longitude")) then
-               call formatter%get_var("longitude",this%lons,_RC)
-            end if
-            if (metadata_utils%is_var_present("latitude")) then
-               call formatter%get_var("latitude",this%lats,_RC)
-            end if
-            call metadata_utils%get_time_info(timeVector=this%times,_RC)
+
          else         
             i=index(this%nc_longitude, '/')
             _ASSERT (i>0, 'group name not found')
@@ -747,35 +992,34 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
             this%LS_rt = this%locstream_factory%create_locstream(_RC)
             call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-            this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)   ! use background grid
 
-            this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
-            this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
 
-            call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptAT)
-            call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
-            if (mypet == 0) then
-               ptAT(:) = this%times_R8(:)
-            end if
-            this%obsTime= -1.d0
-            
-            call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
-            call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
+!            this%LS_ds = this%locstream_factory%create_locstream(grid=grid,_RC)   ! use background grid
+!
+!            this%fieldA = ESMF_FieldCreate (this%LS_rt, name='A_time', typekind=ESMF_TYPEKIND_R8, _RC)
+!            this%fieldB = ESMF_FieldCreate (this%LS_ds, name='B_time', typekind=ESMF_TYPEKIND_R8, _RC)
 
-            !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)            
-            
-            call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-            call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
+!            call ESMF_FieldGet( this%fieldA, localDE=0, farrayPtr=ptAT)
+!            call ESMF_FieldGet( this%fieldB, localDE=0, farrayPtr=this%obsTime)
+!            if (mypet == 0) then
+!               ptAT(:) = this%times_R8(:)
+!            end if
+!            this%obsTime= -1.d0
+!            
+!            call ESMF_FieldRedistStore (this%fieldA, this%fieldB, RH, _RC)
+!            call ESMF_FieldRedist      (this%fieldA, this%fieldB, RH, _RC)
+!
+!            !!write(6,'(2x,a,i5,2x,10E20.11)')  'pet=', mypet, this%obsTime(1:10)            
+!            
+!            call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+!            call ESMF_FieldDestroy(this%fieldA,nogarbage=.true.,_RC)
             ! defer destroy fieldB at regen_grid step
          end if
          _RETURN(_SUCCESS)
        end procedure create_grid
-       !! debug
-       !!write(6, '(a)')  'lons_full(1:3*num_times:num_times) and  times_R8_full'
-       !!write(6, '(10f10.1)')  lons_full(1:3*num_times:num_times/2)
-       !!write(6, '(10E25.12)')  times_R8_full(1:3*num_times:num_times/2)
-       !!write(6, '(10E25.12)')  times_R8_full(1:len:20)
 
+       
+       
 
 
          module procedure regrid_accumulate_on_xsubset
@@ -969,29 +1213,30 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
           endif
 
            ! __ s1. destroy RH, LS, acc_bundle / output_bundle
-           call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
+!           call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
            call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
-           call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
-           call this%regridder%destroy(_RC)
+!           call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
+!-!           call this%regridder%destroy(_RC)
            deallocate (this%lons, this%lats, this%times_R8)
 
-           call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
-           allocate(names(numVars),stat=status)
-           call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
-           do i=1,numVars
-              call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
-              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-           enddo
-           call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
+!           call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
+!           allocate(names(numVars),stat=status)
+!           call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
+!           do i=1,numVars
+!              call ESMF_FieldBundleGet(this%acc_bundle,trim(names(i)),field=field,_RC)
+!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+!           enddo
+!           call ESMF_FieldBundleDestroy(this%acc_bundle,noGarbage=.true.,_RC)
+!
+!           call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
+!           allocate(names(numVars),stat=status)
+!           call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
+!           do i=1,numVars
+!              call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
+!              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
+!           enddo
+!           call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
 
-           call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,_RC)
-           allocate(names(numVars),stat=status)
-           call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,_RC)
-           do i=1,numVars
-              call ESMF_FieldBundleGet(this%output_bundle,trim(names(i)),field=field,_RC)
-              call ESMF_FieldDestroy(field,noGarbage=.true., _RC)
-           enddo
-           call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
 
            ! __ s2. Set when traj sampling is invalid
            call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
@@ -1004,9 +1249,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
            call this%create_grid(_RC)  !  setup LS_rt, LS_ds
            call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-           this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
-           this%output_bundle = this%create_new_bundle(_RC)
-           this%acc_bundle    = this%create_new_bundle(_RC)
+!-!           this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
+!           this%output_bundle = this%create_new_bundle(_RC)
+!           this%acc_bundle    = this%create_new_bundle(_RC)
 
            ! __ s4. Epoch reset
            this%epoch_index(1:2)=0

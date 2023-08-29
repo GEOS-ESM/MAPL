@@ -3436,8 +3436,8 @@ ENDDO PARSER
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-               call list(n)%trajectory%close_file_handle(_RC)
-               call list(n)%trajectory%create_file_handle(filename(n),_RC)
+!!               call list(n)%trajectory%close_file_handle(_RC)
+!!               call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
@@ -3594,9 +3594,9 @@ ENDDO PARSER
 
       if (list(n)%timeseries_output) then
          call mpi_barrier(mpi_comm_world, status)
-         call list(n)%trajectory%regrid_accumulate(_RC)
+!!         call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-            call list(n)%trajectory%append_file(current_time,_RC)
+!!            call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       end if
