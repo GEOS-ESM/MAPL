@@ -14,7 +14,7 @@ This package:
 
 ## 1 [Introduction](docs/mapl_Introdction.md)
 
-## 2 [ESMF- A Review of Aspects relevant to MAPL](esmf_review.md)
+## 2 [ESMF- A Review of Aspects relevant to MAPL](docs/esmf_review.md)
 
 ## 3 Description of MAPL
 
