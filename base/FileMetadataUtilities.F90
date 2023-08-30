@@ -458,18 +458,17 @@ module MAPL_FileMetadataUtilsMod
 
    end subroutine get_time_info
  
-   function is_var_present(this,var_name,rc) result(isPresent)
+   function is_var_present(this,var_name, rc) result(isPresent)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       integer, optional, intent(out) :: rc
 
       logical :: isPresent
-      class(Variable), pointer :: var
+
+      isPresent = this%metadata%has_variable(var_name)
+
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(rc)
-
-      var => this%get_variable(var_name)
-      isPresent = associated(var)
-
    end function is_var_present
 
    function get_variable_attribute(this,var_name,attr_name,rc) result(units)
@@ -486,8 +485,7 @@ module MAPL_FileMetadataUtilsMod
       integer :: status
     
       fname = this%get_file_name(_RC)
-      var => this%get_variable(var_name,rc=status)
-      _VERIFY(status)
+      var => this%get_variable(var_name,_RC)
       isPresent = var%is_attribute_present(trim(attr_name))
       if (isPresent) then
          attr => var%get_attribute(trim(attr_name))

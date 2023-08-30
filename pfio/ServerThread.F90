@@ -991,9 +991,7 @@ contains
       call this%containing_server%create_remote_win(_RC)
       call this%containing_server%receive_output_data(_RC)
       call this%containing_server%put_dataToFile(_RC)
-      _HERE, 'id: ',this%get_id(), this%get_num()
       call this%containing_server%clean_up()
-      _HERE, 'id: ',this%get_id(), this%get_num()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(message)
@@ -1116,9 +1114,7 @@ contains
       call this%containing_server%get_DataFromMem(multi_data_read, _RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
-      _HERE, 'id: ',this%get_id(), this%get_num()
       call this%containing_server%clean_up()
-      _HERE, 'id: ',this%get_id(), this%get_num()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(message)

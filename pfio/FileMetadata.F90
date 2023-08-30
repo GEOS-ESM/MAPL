@@ -253,7 +253,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       var => this%variables%at(var_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -474,9 +474,9 @@ contains
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: var
+      integer :: status
 
-
-      var => this%get_variable(var_name)
+      var => this%get_variable(var_name, _RC)
       call var%add_attribute(attr_name, value)
 
       _RETURN(_SUCCESS)
@@ -489,14 +489,13 @@ contains
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       class (*), intent(in) :: values(:)
-
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       class (Variable), pointer :: var
+      integer :: status
 
-
-      var => this%get_variable(var_name)
+      var => this%get_variable(var_name, _RC)
       call var%add_attribute(attr_name, values)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

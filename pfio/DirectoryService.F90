@@ -178,7 +178,6 @@ contains
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
 
-      _UNUSED_DUMMY(unusable)
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then
             ss = SimpleSocket(client)
@@ -241,7 +240,7 @@ contains
 
       end if
 
-      ! complete handshake
+     ! complete handshake
       if (rank_in_client == 0) then
          call MPI_Comm_size(client_comm, client_npes, ierror)
          allocate(client_ranks(client_npes))
@@ -273,7 +272,8 @@ contains
       allocate(sckt, source=MpiSocket(this%comm, server_rank, this%parser))
       call client%set_connection(sckt)
       _RETURN(_SUCCESS)
-   end subroutine connect_to_server
+      _UNUSED_DUMMY(unusable)
+  end subroutine connect_to_server
 
    subroutine connect_to_client(this, port_name, server, rc)
       class (DirectoryService), target, intent(inout) :: this

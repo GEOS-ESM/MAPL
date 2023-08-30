@@ -103,6 +103,7 @@ contains
            allocate(clientPtr, source = ClientThread())
         endif
         call c_manager%clients%push_back(clientPtr)
+
         clientPtr=>null()
       enddo
 
@@ -410,9 +411,7 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      _HERE
       call clientPtr%wait_all()
-      _HERE, 'id= ', clientPtr%get_id(), clientPtr%get_num()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -426,9 +425,7 @@ contains
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      _HERE
       call clientPtr%post_wait_all()
-      _HERE
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -444,9 +441,7 @@ contains
 
       do i = 1, this%size()
          clientPtr =>this%clients%at(i)
-      _HERE, i
          call clientPtr%wait_all()
-      _HERE
          call clientPtr%terminate()
       enddo
 

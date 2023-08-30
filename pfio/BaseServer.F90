@@ -184,11 +184,8 @@ contains
 
       class(ServerThread), pointer :: thread_ptr
       integer :: k
-      type(ServerThread), pointer :: server_thread
 
-      allocate(server_thread)
-      server_thread = ServerThread(socket, this)
-      thread_ptr => server_thread
+      allocate(thread_ptr, source=ServerThread(socket, this))
       k = this%threads%size() + 1
       call thread_ptr%set_rank(k)
       call this%threads%push_Back(thread_ptr)
@@ -239,7 +236,6 @@ contains
       do i = 1, n
          thread_ptr => this%threads%at(i)
          call thread_ptr%clear_RequestHandle()
-         _HERE, i, n, 'id: ', thread_ptr%get_id(), thread_ptr%get_num()
       enddo
 
 

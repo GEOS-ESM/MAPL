@@ -99,13 +99,11 @@ contains
 
       integer :: status
 
-      _HERE
       connection => this%visitor%get_connection()
       select type (connection)
       type is (SimpleSocket)
          if (allocated(connection%msg)) deallocate(connection%msg)
          allocate(connection%msg , source = message)
-         _HERE
          call connection%msg%dispatch(this%visitor, _RC)
       class default
          _FAIL("Simple should connect Simple")

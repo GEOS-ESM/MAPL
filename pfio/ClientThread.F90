@@ -467,9 +467,7 @@ contains
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
 
-      _HERE
       call this%clear_RequestHandle()
-      _HERE
       !call this%shake_hand()
 
    end subroutine wait_all
@@ -477,9 +475,7 @@ contains
    subroutine post_wait_all(this)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
-      _HERE
       call this%wait_all()
-      _HERE
    end subroutine post_wait_all
 
    integer function get_unique_request_id(this) result(request_id)

@@ -292,9 +292,7 @@ contains
          call thread_ptr%clear_hist_collections()
       enddo ! threads
 
-      _HERE
       call this%clear_RequestHandle()
-      _HERE
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 

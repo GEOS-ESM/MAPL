@@ -231,9 +231,7 @@ contains
       ! status ==0, means the last server thread in the backlog
 
       call this%clear_DataReference()
-      _HERE
       call this%clear_RequestHandle()
-      _HERE
       call this%set_status(UNALLOCATED)
       call this%set_AllBacklogIsEmpty(.true.)
 
@@ -261,9 +259,7 @@ contains
       if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")
 
       call this%clear_DataReference()
-      _HERE
       call this%clear_RequestHandle()
-      _HERE
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
@@ -278,7 +274,6 @@ contains
          call this%stage_offset%erase(iter)
          iter = this%stage_offset%begin()
       enddo
-      _HERE
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean_up")
 
@@ -407,15 +402,12 @@ contains
       class (AbstractDataReference), pointer :: datarefPtr
       integer :: n, i
 
-      _HERE
       n = this%dataRefPtrs%size()
       do i = 1, n
          dataRefPtr => this%dataRefPtrs%at(i)
          call dataRefPtr%deallocate()
       enddo
-      _HERE
       call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())
-      _HERE
 
    end subroutine clear_DataReference
 

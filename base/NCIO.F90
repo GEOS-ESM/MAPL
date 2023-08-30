@@ -4450,6 +4450,7 @@ module NCIOMod
 
       subroutine modify_coordinate_vars(rc)
          integer, optional, intent(out) :: rc
+
          integer :: status
          type(StringVariableMap), pointer :: vars
          type(StringVariableMapIterator) :: iter
@@ -4463,7 +4464,7 @@ module NCIOMod
          class(*), pointer :: dim_var_values(:)
          class(*), allocatable :: coordinate_data(:)
 
-         vars => cfIn%get_variables()
+          vars => cfIn%get_variables(_RC)
 
          iter = vars%ftn_begin()
          do while (iter /= vars%ftn_end())
@@ -4517,9 +4518,11 @@ module NCIOMod
   integer, pointer :: dimsize => null()
   character(len=:), pointer :: name
 
+  integer :: status
+  
   nvars = 0
   dims => cf%get_dimensions()
-  vars => cf%get_variables()
+  vars => cf%get_variables(_RC)
   iter = vars%ftn_begin()
   do while(iter/=vars%ftn_end())
      call iter%next()
@@ -4546,8 +4549,9 @@ module NCIOMod
   integer, pointer :: dimsize => null()
   character(len=:), pointer :: name
 
+  integer :: status
   dims => cf%get_dimensions()
-  vars => cf%get_variables()
+  vars => cf%get_variables(_RC)
   iter = vars%ftn_begin()
   do while(iter/=vars%ftn_end())
      call iter%next()
@@ -4564,7 +4568,7 @@ module NCIOMod
   end function MAPL_IOGetNonDimVars
 
   subroutine MAPL_IOCountLevels(cf,nlev,rc)
-  type(FileMetadata), intent(inout) :: cf
+  type(FileMetadata), target, intent(inout) :: cf
   integer, intent(out) :: nlev
   integer, intent(out), optional :: rc
 
@@ -4757,9 +4761,10 @@ module NCIOMod
 
    end function get_fname_by_face
 
-   function check_flip(metadata,rc) result(flip)
-      type(FileMetadata), intent(inout) :: metadata
+   function check_flip(metadata, rc) result(flip)
+      type(FileMetadata), target, intent(inout) :: metadata
       integer, optional, intent(out) :: rc
+
       character(len=:), pointer :: positive
       type(CoordinateVariable), pointer :: var
       type (StringVariableMap), pointer :: vars
@@ -4770,8 +4775,10 @@ module NCIOMod
       type(Attribute), pointer :: attr => null()
       class(*), pointer :: vpos
 
+      integer :: status
+
       flip = .false.
-      vars => metadata%get_variables()
+      vars => metadata%get_variables(_RC)
       var_iter = vars%ftn_begin()
       do while(var_iter /=vars%ftn_end())
          call var_iter%next()

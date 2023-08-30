@@ -187,7 +187,7 @@ contains
 
    function get_time_range(this,item_name,rc) result(time_range)
       type(ESMF_Time), allocatable :: time_range(:)
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
