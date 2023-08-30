@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.40.4] - 2023-09-01
+
+### Fixed
+
+- Fixed handling of MAPL dependencies for when `find_package(MAPL)` is used
+
 ## [2.40.3] - 2023-08-03
 
 ### Changed
