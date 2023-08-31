@@ -131,7 +131,7 @@ contains
 
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
-      class (SimpleSocket), intent(inout) :: this
+      class (SimpleSocket), target, intent(inout) :: this
       class (AbstractDataReference), intent(in) :: local_reference
       integer, intent(in) :: request_id
       integer, optional, intent(out) :: rc
@@ -142,7 +142,7 @@ contains
    end function get
 
    subroutine wait(this, rc)
-      class (SimpleHandle), intent(inout) :: this
+      class (SimpleHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
