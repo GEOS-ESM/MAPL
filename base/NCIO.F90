@@ -4450,6 +4450,7 @@ module NCIOMod
 
       subroutine modify_coordinate_vars(rc)
          integer, optional, intent(out) :: rc
+
          integer :: status
          type(StringVariableMap), pointer :: vars
          type(StringVariableMapIterator) :: iter
@@ -4463,11 +4464,13 @@ module NCIOMod
          class(*), pointer :: dim_var_values(:)
          class(*), allocatable :: coordinate_data(:)
 
-         vars => cfIn%get_variables()
+          vars => cfIn%get_variables(_RC)
 
-         iter = vars%begin()
-         do while (iter /= vars%end())
-            name => iter%key()
+         iter = vars%ftn_begin()
+         do while (iter /= vars%ftn_end())
+            call iter%next()
+
+            name => iter%first()
             newExtent => newDims%at(trim(name))
             if (associated(newExtent)) then
                cvar => cfOut%get_coordinate_variable(trim(name),rc=status)
@@ -4496,7 +4499,6 @@ module NCIOMod
 
                nullify(newExtent)
             end if
-           call iter%next()
          enddo
 
          _RETURN(ESMF_SUCCESS)
@@ -4516,18 +4518,20 @@ module NCIOMod
   integer, pointer :: dimsize => null()
   character(len=:), pointer :: name
 
+  integer :: status
+  
   nvars = 0
   dims => cf%get_dimensions()
-  vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  vars => cf%get_variables(_RC)
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) nvars=nvars+1
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4545,17 +4549,18 @@ module NCIOMod
   integer, pointer :: dimsize => null()
   character(len=:), pointer :: name
 
+  integer :: status
   dims => cf%get_dimensions()
-  vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  vars => cf%get_variables(_RC)
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4563,7 +4568,7 @@ module NCIOMod
   end function MAPL_IOGetNonDimVars
 
   subroutine MAPL_IOCountLevels(cf,nlev,rc)
-  type(FileMetadata), intent(inout) :: cf
+  type(FileMetadata), target, intent(inout) :: cf
   integer, intent(out) :: nlev
   integer, intent(out), optional :: rc
 
@@ -4580,11 +4585,12 @@ module NCIOMod
   nlev = 0
   dims => cf%get_dimensions()
   vars => cf%get_variables()
-  iter = vars%begin()
-  do while(iter/=vars%end())
+  iter = vars%ftn_begin()
+  do while(iter/=vars%ftn_end())
+     call iter%next()
 
-     name => iter%key()
-     var => iter%value()
+     name => iter%first()
+     var => iter%second()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) then
         vdims => var%get_dimensions()
@@ -4602,7 +4608,6 @@ module NCIOMod
      end if
      if (associated(dimsize)) nullify(dimsize)
 
-     call iter%next()
   end do
 
   _RETURN(ESMF_SUCCESS)
@@ -4756,9 +4761,10 @@ module NCIOMod
 
    end function get_fname_by_face
 
-   function check_flip(metadata,rc) result(flip)
-      type(FileMetadata), intent(inout) :: metadata
+   function check_flip(metadata, rc) result(flip)
+      type(FileMetadata), target, intent(inout) :: metadata
       integer, optional, intent(out) :: rc
+
       character(len=:), pointer :: positive
       type(CoordinateVariable), pointer :: var
       type (StringVariableMap), pointer :: vars
@@ -4769,11 +4775,15 @@ module NCIOMod
       type(Attribute), pointer :: attr => null()
       class(*), pointer :: vpos
 
+      integer :: status
+
       flip = .false.
-      vars => metadata%get_variables()
-      var_iter = vars%begin()
-      do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+      vars => metadata%get_variables(_RC)
+      var_iter = vars%ftn_begin()
+      do while(var_iter /=vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => metadata%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'edge') .ne. 0) then
@@ -4797,7 +4807,6 @@ module NCIOMod
                end if
             end if
          end if
-         call var_iter%next()
       enddo
       _RETURN(_SUCCESS)
    end function check_flip

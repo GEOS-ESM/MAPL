@@ -28,6 +28,7 @@
 !
    USE ESMF
    use gFTL_StringVector
+   use pfio_StringVectorUtilMod
    use gFTL_IntegerVector
    use MAPL_BaseMod
    use MAPL_CommsMod
@@ -52,6 +53,7 @@
    use MAPL_DataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
    use pFIO_ClientManagerMod, only : i_Clients
+   use pFIO_VariableMod
    use MAPL_GriddedIOItemMod
    use MAPL_GriddedIOItemVectorMod
    use MAPL_ExtDataConfig
@@ -1449,7 +1451,7 @@ CONTAINS
 
   subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
      type(IOBundleNGVector), intent(inout) :: IOBundles
-     type(primaryExport), intent(inout)        :: item
+     type(primaryExport), target, intent(inout)  :: item
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc
 

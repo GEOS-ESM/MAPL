@@ -20,7 +20,7 @@ module pFIO_HistoryCollectionMod
     type (StringNetCDF4_FileFormatterMap) :: formatters
 
   contains
-    procedure :: find
+    procedure :: find => find_
     procedure :: ModifyMetadata
     procedure :: ReplaceMetadata
     procedure :: clear
@@ -41,7 +41,7 @@ contains
 
   end function new_HistoryCollection
 
-  function find(this, file_name,rc) result(formatter)
+  function find_(this, file_name,rc) result(formatter)
     class (HistoryCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer,optional,intent(out) :: rc 
@@ -70,22 +70,22 @@ contains
     end if
     formatter => iter%value()
     _RETURN(_SUCCESS)
-  end function find
+   end function find_
 
   subroutine  ModifyMetadata(this,var_map,rc)
     class (HistoryCollection), target, intent(inout) :: this
-    type (StringVariableMap), intent(in) :: var_map
+    type (StringVariableMap), target, intent(in) :: var_map
     integer, optional, intent(out) :: rc 
 
     type(StringVariableMapIterator) :: iter
     integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::ModifyMetadata()"
 
-    iter = var_map%begin()
-    do while (iter /= var_map%end()) 
-       call this%fmd%modify_variable(iter%key(), iter%value(), rc=status)
-       _VERIFY(status)
+    iter = var_map%ftn_begin()
+    do while (iter /= var_map%ftn_end()) 
        call iter%next()
+
+       call this%fmd%modify_variable(iter%first(), iter%second(), _RC)
     enddo
 
     _RETURN(_SUCCESS)

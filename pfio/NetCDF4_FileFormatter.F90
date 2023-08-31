@@ -496,10 +496,12 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
-         var => var_iter%value()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
+         var => var_iter%second()
          const_value_ptr => var%get_const_value()
          if ( .not. const_value_ptr%is_empty()) then
             shp = const_value_ptr%get_shape()
@@ -522,7 +524,6 @@ contains
                _VERIFY(status)
             end select
          end if
-         call var_iter%next()
       enddo
 
       _UNUSED_DUMMY(unusable)
@@ -549,9 +550,11 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
          _VERIFY(status)
          if (associated(var))  then ! is a coordinate variable
@@ -573,7 +576,6 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next()
 
       enddo
 

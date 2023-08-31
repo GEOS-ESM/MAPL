@@ -35,6 +35,8 @@
    use MAPL_BaseMod
    use MAPL_CommsMod
    use MAPL_ShmemMod
+   use pfio_VariableMod
+   use pfio_FileMetadataMod
    use ESMFL_Mod
    use MAPL_VarSpecMod
    use ESMF_CFIOFileMod
@@ -2119,7 +2121,7 @@ CONTAINS
 
         var => null()
         if (item%isVector) then
-           var=>metadata%get_variable(trim(item%fcomp1))
+           var => metadata%get_variable(trim(item%fcomp1))
            _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file))
            var => null()
            var=>metadata%get_variable(trim(item%fcomp2))

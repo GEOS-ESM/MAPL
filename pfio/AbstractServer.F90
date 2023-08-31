@@ -252,7 +252,7 @@ contains
    end subroutine update_status
 
    subroutine clean_up(this, rc)
-      class(AbstractServer),target, intent(inout) :: this
+      class(AbstractServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
 
@@ -398,7 +398,7 @@ contains
    end subroutine add_DataReference
 
    subroutine clear_DataReference(this)
-      class (AbstractServer), intent(inout) :: this
+      class (AbstractServer), target, intent(inout) :: this
       class (AbstractDataReference), pointer :: datarefPtr
       integer :: n, i
 

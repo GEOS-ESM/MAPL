@@ -173,7 +173,7 @@ contains
 
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
       integer, optional, intent(out) :: rc
@@ -197,7 +197,7 @@ contains
    end function get
 
    subroutine wait(this, rc)
-      class (MpiRequestHandle), intent(inout) :: this
+      class (MpiRequestHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: ierror

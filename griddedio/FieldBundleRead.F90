@@ -75,11 +75,13 @@ module MAPL_ESMFFieldBundleRead
          if (has_vertical_level) lev_size = metadata%get_dimension(trim(lev_name))
 
          variables => metadata%get_variables()
-         var_iter = variables%begin()
-         do while (var_iter /= variables%end())
+         var_iter = variables%ftn_begin()
+         do while (var_iter /= variables%ftn_end())
+            call var_iter%next()
+ 
             var_has_levels = .false.
-            var_name => var_iter%key()
-            this_variable => var_iter%value()
+            var_name => var_iter%first()
+            this_variable => var_iter%second()
 
             if (has_vertical_level) then
                dimensions => this_variable%get_dimensions()
@@ -148,7 +150,6 @@ module MAPL_ESMFFieldBundleRead
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
                _VERIFY(status)
             end if
-            call var_iter%next()
          end do
 
          _RETURN(_SUCCESS)
