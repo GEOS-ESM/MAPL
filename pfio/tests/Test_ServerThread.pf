@@ -51,7 +51,7 @@ contains
       call formatter%put_var('a', A_EXPECTED)
       call formatter%put_var('u', U_EXPECTED)
       call formatter%put_var('v', V_EXPECTED)
-      
+
       call formatter%close()
 
    end subroutine setUp
@@ -84,7 +84,7 @@ contains
       @assertEqual('receive<Terminate>', log%log)
 
    end subroutine test_return_on_terminate
-   
+
 
    ! Failure here is actually a hang.
    @test
@@ -94,7 +94,7 @@ contains
       type (MockSocketLog), target :: log
       type (MockSocket) :: client_socket
       type (MockServer), target :: mock_server
-      integer :: i       
+      integer :: i
 
       client_socket = MockSocket(log)
       call client_socket%add_message(DoneMessage())
@@ -102,12 +102,12 @@ contains
       mock_server = MockServer()
       call s%init(client_socket, mock_server)
       call s%set_rank(1)
-  
+
       do i = 1, 3 ! NOT 2. when done is issued, need one more run to receive terminate
          call s%run()
       enddo
       @assertEqual("receive<Done> :: receive<Terminate>", log%log)
-  
+
    end subroutine test_return_on_terminate_b
 
    @test
@@ -137,7 +137,7 @@ contains
       expected = expected // " :: receive<AddExtCollection('bar')>"
       expected = expected // " :: send<Id(002)>"
       expected = expected // " :: receive<Terminate>"
-      
+
       @assertEqual(expected, log%log)
 
    end subroutine test_handle_AddExtCollection
@@ -198,5 +198,5 @@ contains
       @assertEqual(V_EXPECTED, log%values_v)
    end subroutine test_handle_PrefetchData
 
-   
+
 end module Test_ServerThread
