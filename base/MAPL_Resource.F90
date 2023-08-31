@@ -153,7 +153,7 @@ module MAPL_ResourceMod
    public MAPL_GetResource_config_scalar
    public MAPL_GetResource_config_array
 
-   character(len=*), parameter :: MISMATCH_MESSAGE = "Type of 'default' does not match type of 'value'."
+!   character(len=*), parameter :: MISMATCH_MESSAGE = "Type of 'default' does not match type of 'value'."
 
    character(len=*), parameter :: FMT_INT32 = '(i0.1)'
    character(len=*), parameter :: FMT_INT64 = '(i0.1)'
@@ -360,41 +360,70 @@ contains
 
       call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
    
+#define VAL_ val
+
+#ifdef IS_ARRAY_
+#  undef IS_ARRAY_
+#endif
+
       select type(val)
 
-      SET_VALUE(integer(int32), val)
-      if (do_print) then
-         MAKE_STRINGS(integer(int32), val, TYPE_INT32, FMT_INT32)
-      end if
+      type is (integer(int32))
 
-      SET_VALUE(integer(int64), val)
-      if (do_print) then
-         MAKE_STRINGS(integer(int64), val, TYPE_INT64, FMT_INT64)
-      end if
+#define TYPE_ integer(int32) 
+#include "MAPL_Resource_SetValue.h"
+         if(do_print) then
+#include "MAPL_Resource_MakeString.h"
+         endif
 
-      SET_VALUE(real(real32), val)
-      if (do_print) then
-         MAKE_STRINGS(real(real32), val, TYPE_REAL32, FMT_REAL32)
-      end if
 
-      SET_VALUE(real(real64), val)
-      if (do_print) then
-         MAKE_STRINGS(real(real64), val, TYPE_REAL64, FMT_REAL64)
-      end if
+      type is (integer(int(64)))
 
-      SET_VALUE(logical, val)
-      if (do_print) then
-         MAKE_STRINGS(logical, val, TYPE_LOGICAL, FMT_LOGICAL)
-      end if
+#define TYPE_ integer(int64) 
+#include "MAPL_Resource_SetValue.h"
+         if(do_print) then
+#include "MAPL_Resource_MakeString.h"
+         endif
 
-      SET_VALUE(character(len=*), val)
+
+      type is (real(real32))
+#define TYPE_ real(real32)
+#include "MAPL_Resource_SetValue.h"
+         if(do_print) then
+#include "MAPL_Resource_MakeString.h"
+         endif
+
+
+      type is (real(real64))
+
+#define TYPE_ real(real64)
+#include "MAPL_Resource_SetValue.h"
+         if(do_print) then
+#include "MAPL_Resource_MakeString.h"
+         endif
+
+
+      type is (logical)
+
+#define TYPE_ logical
+#include "MAPL_Resource_SetValue.h"
+         if(do_print) then
+#include "MAPL_Resource_MakeString.h"
+         endif
+
+
+         type is (character(len=*))
+
+#define TYPE_ character(len=*)
+#include "MAPL_Resource_SetValue.h"
+
       ! character value can't use the MAKE_STRINGS macro (formatted differently)
       if (do_print) then 
          if (label_is_present) then 
             if(default_is_present) then 
-               select type(default) 
-               type is(character(len=*)) 
-                  value_is_default = (trim(val) == trim(default)) 
+               select type(TYPE_) 
+               type is(TYPE_) 
+                  value_is_default = (trim(VAL_) == trim(default)) 
                class default 
                   _FAIL(MISMATCH_MESSAGE) 
                end select 
