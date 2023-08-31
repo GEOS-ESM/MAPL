@@ -71,7 +71,7 @@ module pFIO_ServerThreadMod
       logical,public           :: terminate = .false.
       type (MessageVector),public     :: request_backlog
       logical                  :: have_done = .true.
-      class(AbstractServer),pointer :: containing_server=>null()
+      class(AbstractServer), pointer :: containing_server=>null()
       integer :: thread_rank
       type (IntegerVector) :: sub_array_types
    contains
@@ -137,9 +137,8 @@ contains
       type (ServerThread) :: s
       integer :: status
 
-      call s%set_connection(sckt, status)
-      _VERIFY(status)
-      if(present(server)) s%containing_server=>server
+      call s%set_connection(sckt, _RC)
+      if(present(server)) s%containing_server => server
 
       _RETURN(_SUCCESS)
    end function new_ServerThread
@@ -152,9 +151,8 @@ contains
 
       integer :: status
 
-      call this%set_connection(sckt, status)
-      _VERIFY(status)
-      this%containing_server=>server
+      call this%set_connection(sckt, _RC)
+      this%containing_server => server
 
       _RETURN(_SUCCESS)
    end subroutine init
@@ -172,8 +170,7 @@ contains
       message => connection%receive()
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
       if (associated(message)) then
-         call message%dispatch(this, status)
-         _VERIFY(status)
+         call message%dispatch(this, _RC)
          deallocate(message)
       end if
       _RETURN(_SUCCESS)
@@ -237,7 +234,7 @@ contains
       if ( this%have_done) then
          this%have_done = .false.
           ! Simple server will continue, but no effect for other server type
-         dMessage=>this%containing_server%get_dmessage()
+         dMessage => this%containing_server%get_dmessage()
          call dmessage%dispatch(this, _RC)
          deallocate(dmessage)
          _RETURN(_SUCCESS)
@@ -766,18 +763,20 @@ contains
       integer, optional, intent(out) :: rc
 
       class(AbstractSocket),pointer :: connection
-      type(LocalMemReference) :: mem_data_reference
+      type(LocalMemReference), target :: mem_data_reference
       type(DummyMessage) :: handshake_msg
       integer :: status
-
-      connection=>this%get_connection()
+      class(AbstractRequestHandle), allocatable :: handle
+      
+      connection => this%get_connection()
       call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
-      mem_data_reference=LocalMemReference(message%type_kind,message%count)
+      mem_data_reference = LocalMemReference(message%type_kind,message%count)
       !iRecv
-      call this%insert_RequestHandle(message%request_id, &
-              & connection%get(message%request_id, mem_data_reference))
+      handle = connection%get(message%request_id, mem_data_reference)
+      call this%insert_RequestHandle(message%request_id, handle, _RC)
+
       _RETURN(_SUCCESS)
    end subroutine handle_CollectiveStageData
 
@@ -983,27 +982,19 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(message)
-
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
       endif
-
       _ASSERT( associated(this%containing_server), "need server")
 
-      call this%containing_server%create_remote_win(rc=status)
-      _VERIFY(status)
-
-      call this%containing_server%receive_output_data(rc=status)
-      _VERIFY(status)
-
-      call this%containing_server%put_dataToFile(rc=status)
-      _VERIFY(status)
-
+      call this%containing_server%create_remote_win(_RC)
+      call this%containing_server%receive_output_data(_RC)
+      call this%containing_server%put_dataToFile(_RC)
       call this%containing_server%clean_up()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_stage
 
    recursive subroutine handle_Done_stage(this, message, rc)
@@ -1123,7 +1114,6 @@ contains
       call this%containing_server%get_DataFromMem(multi_data_read, _RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
-
       call this%containing_server%clean_up()
 
       _RETURN(_SUCCESS)
