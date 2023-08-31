@@ -1,0 +1,111 @@
+#define I_AM_MAIN
+#include "MAPL_Generic.h"
+
+
+program main
+  use ESMF
+  use MAPL
+  use MAPL_ErrorHandlingMod
+  use MAPL_LocstreamRegridderMod
+  use MAPL_LatLonGridFactoryMod
+  use traj
+
+  implicit none
+  real, parameter :: pi=3.14159265857979
+
+  integer :: NPTS
+  integer :: nx, ny
+  real, allocatable :: obsT(:)
+
+  ! Local variables
+  integer :: rc, status, finalrc, result
+
+  type(ESMF_VM)                               :: vm
+  type(ESMF_RouteHandle)                      :: routehandle
+  integer                                     :: localrc, localPet
+
+  ! app.
+  real*8, allocatable :: lat1(:), lon1(:)
+  real*8, allocatable :: lat2(:), lon2(:)  
+
+  type(LatLonGridFactory) :: factory
+  type(ESMF_Grid) :: llgrid  
+  type(LocStreamFactory) :: locstream_factory
+  type(ESMF_LocStream) :: LS_rt  !  root
+  
+  character(len=20) :: grid_name
+  integer :: N0
+  integer :: iseed
+  integer :: i, j, k
+  integer :: mypet, npet
+
+  integer :: im_world
+  integer :: jm_world
+  integer :: lm
+  real    :: mem_total, mem_commit, mem_percent
+  
+  call ESMF_Initialize(defaultlogfilename="FieldRedistEx.Log", rc=rc)
+  call ESMF_VMGetCurrent(vm, rc=rc)
+  call ESMF_VMGet(vm,localPet=mypet,petCount=nPet,rc=rc)
+  call MAPL_Initialize(rc=rc)
+  
+  grid_name="LL"
+  im_world=20
+  jm_world=10
+  lm=3
+  nx=2
+  ny=2  
+  factory = LatLonGridFactory (grid_name=grid_name, im_world=im_world, jm_world=jm_world, &
+       lm=lm, nx=nx, ny=ny, pole='PC',dateline='DC',_RC)
+  llgrid = factory%make_grid(_RC)
+
+  
+  nx=500000
+  ny=500000
+  N0 = nx*ny
+  allocate (lat2(N0), lon2(N0))       ! grid  
+  ! LS root
+  ! -------------------
+  if (mypet == 0) then
+     NPTS=6
+     allocate (obsT(NPTS))
+     allocate (lat1(NPTS), lon1(NPTS))   ! LS 
+     !
+     iseed= -1
+     call gen_rand_arrayR(NPTS, lat1, iseed)
+     call gen_rand_arrayR(NPTS, lon1, iseed)
+     write(6, 101)  'lat1', lat1
+     lon1 = 2.d0 * pi * lon1
+     lat1 = pi * lat1
+     lat1 = lat1 - pi/2.d0
+  else
+     NPTS=0
+     allocate(lat1(0), lon1(0))
+  endif
+  
+  if (mypet==0) then
+     write(6, 141) 'pet, lon1', mypet, lon1(:)  
+     write(6, 141) 'pet, lat1', mypet, lat1(:)
+  endif
+
+  do i=1, 10
+     write(6,*) 'create'
+     locstream_factory = LocStreamFactory(lon1,lat1,_RC)
+     LS_rt = locstream_factory%create_locstream(_RC)
+     
+     call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
+     if (mypet==0) write(6,1000) mem_percent
+
+     call locstream_factory%destroy_locstream(LS_rt, _RC)
+     write(6,*) 'destroy'
+  enddo
+  
+  call ESMF_FInalize()
+
+
+101 format (2x, a,10(2x,f15.8))
+141 format (2x, a, 2x, i8, 10(2x,f15.8))
+1000 format(1x,'check',2x,f7.3,'%Memory Committed')
+  
+end program main
+
