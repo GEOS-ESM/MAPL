@@ -1004,7 +1004,7 @@ contains
 ! Compute coefficients for interpolating in G2T if the grid is lat-lon
 !---------------------------------------------------------------------
 
-       DX = 360./float(tiling%IM)
+       DX = 360./real(tiling%IM)
 
        I  = index(TILING%NAME,'-',.true.) !bmaa got rid
        if ( I <=0) then
@@ -1023,10 +1023,10 @@ contains
        end if
 
        if    (TILING%NAME(1:2)=='PE') then
-          DY = 180./float(tiling%JM  )
+          DY = 180./real(tiling%JM  )
           Y0 = -90.  + DY*0.5
        elseIF(TILING%NAME(1:2)=='PC') then
-          DY = 180./float(tiling%JM-1)
+          DY = 180./real(tiling%JM-1)
           Y0 = -90.
        else
           DoCoeffs = .false.

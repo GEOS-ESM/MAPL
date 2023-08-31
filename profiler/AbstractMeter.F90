@@ -60,16 +60,17 @@ module MAPL_AbstractMeter
         class(AbstractMeter), intent(in) :: this
         integer, optional, intent(out) :: rc
         integer :: ierror
-       
+
         ierror = 0
         if (dist_initialized) then
            call MPI_type_free(type_dist_struct, ierror)
            call MPI_type_free(type_dist_real64, ierror)
            call MPI_type_free(type_dist_integer, ierror)
-           call MPI_Op_free(dist_reduce_op,ierror) 
+           call MPI_Op_free(dist_reduce_op,ierror)
            dist_initialized = .false.
         endif
         if (present(rc)) rc = ierror
+        _UNUSED_DUMMY(this)
       end subroutine
 
 end module MAPL_AbstractMeter

@@ -3861,9 +3861,9 @@ ENDDO PARSER
             call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
             IM = dims(1)
             JM = dims(2)
-            DLON   =  360._REAL64/float(IM)
+            DLON   =  360._REAL64/real(IM)
             if (JM /= 1) then
-               DLAT   =  180._REAL64/float(JM-1)
+               DLAT   =  180._REAL64/real(JM-1)
             else
                DLAT   =  1.0
             end if

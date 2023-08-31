@@ -46,7 +46,7 @@
       integer, parameter :: HDFE_GD_LL=2
       integer, parameter :: NDIMS_MAX = 4
       integer, parameter :: MAX_VAR_DIMS = 32
-      character*7, parameter :: GRID_NAME='EOSGRID'
+      character(len=7), parameter :: GRID_NAME='EOSGRID'
       integer, parameter :: MAXCHR = 256
       integer, parameter :: PACK_BITS = 32766
       integer, parameter :: PACK_FILL = 32767
@@ -459,11 +459,11 @@
 !-------------------------------------------------------------------------
 
       integer dimId, i
-      character*(MAXCHR) dimName
-      character*(MAXCHR) stdName
-      character*(MAXCHR) dimUnits
-      character*(MAXCHR) posStr
-      character*(MAXCHR) vname
+      character(len=MAXCHR) dimName
+      character(len=MAXCHR) stdName
+      character(len=MAXCHR) dimUnits
+      character(len=MAXCHR) posStr
+      character(len=MAXCHR) vname
       integer dimSize
       integer nDims
       logical surfaceOnly
@@ -486,7 +486,7 @@
 ! Check FID here.
 
 ! Check to make sure max string lengths are large enough.  NetCDF defines
-! MAXNCNAM, but it can't be used in a character*MAXNCNAM statement.
+! MAXNCNAM, but it can't be used in a character(len=MAXNCNAM) statement.
 
       if (MAXCHR .LT. MAXNCNAM) then
         print *, 'CFIO_DimInquire warning: MAXNCNAM is larger than ', &
@@ -644,7 +644,7 @@
       character(len=MAXCHR) timeUnits, dimUnits
       !character(len=MAXCHR) strTmp
 
-      character*(MAXCHR) varName, dimName, stdName
+      character(len=MAXCHR) varName, dimName, stdName
       integer type, nvDims, vdims(MAXVDIMS), nvAtts, dimSize
       integer nDims, nvars, ngatts, dimId
 
@@ -843,7 +843,7 @@
       integer year, month, day
       character(len=MAXCHR) timeUnits, dimUnits, stdName
 
-      character*(MAXCHR) varName, dimName
+      character(len=MAXCHR) varName, dimName
       integer type, nvDims, vdims(MAXVDIMS), nvAtts, dimSize
       integer nDims, nvars, ngatts, dimId
 
@@ -1049,8 +1049,8 @@
 !
 ! !INPUT PARAMETERS:
 !
-      character*(*) dimName  !! Name of the coordinate variable
-      character*(*) dimUnits !! Units of the coordinate variable
+      character(len=*) dimName  !! Name of the coordinate variable
+      character(len=*) dimUnits !! Units of the coordinate variable
 !
 !-------------------------------------------------------------------------
 
@@ -1222,7 +1222,7 @@
 ! !INPUT PARAMETERS:
 !
 
-      character*(*)   fname         !! File name
+      character(len=*)   fname         !! File name
       integer         fmode         !! File mode:
                                     !!   0 for READ-WRITE
                                     !!   non-zero for READ-ONLY
@@ -1318,7 +1318,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
       integer        count      !! Number of integers to write
       integer        buf(count) !! Buffer with integer values
       integer        prec       !! Desired precision of attribute value:
@@ -1411,7 +1411,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
       integer        count      !! Number of integers to write
       real           buf(count) !! Buffer with real values
       integer        prec       !! Desired precision of attribute value:
@@ -1505,7 +1505,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
       integer        count      !! Number of characters to write
       character(len=MLEN) :: buf !! Buffer containing string
 !
@@ -1569,7 +1569,7 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      character*(*)  aname(ngatts)  !! Array of attribute names
+      character(len=*)  aname(ngatts)  !! Array of attribute names
       integer   rc       !! Error return code:
                          !!  rc =  0  all is well
                          !!  rc = -10  ngatts is incompatible with file
@@ -1654,7 +1654,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1720,7 +1720,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -1824,7 +1824,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -1927,7 +1927,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -2165,7 +2165,7 @@
       END subroutine CALDAT
 
       integer function err ( outstring, iret, ec )
-      character *(*) outstring
+      character(len=*) outstring
       integer ec, iret
 
       if (iret .EQ. 0) then
@@ -2202,7 +2202,7 @@
 !
 ! !INPUT PARAMETERS:
 !
-      character*(MAXCHR) TimeUnits      !! Units metadata string from the Time coord var
+      character(len=MAXCHR) TimeUnits      !! Units metadata string from the Time coord var
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -2338,7 +2338,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid                 !! File handle
-      character*(*)  vname               !! Variable name
+      character(len=*)  vname               !! Variable name
       integer        yyyymmdd            !! Year-month-day, e.g., 19971003
       integer        hhmmss              !! Hour-minute-second, e.g., 120000
 
@@ -2383,7 +2383,7 @@
 !-------------------------------------------------------------------------
 
       integer timeid, timeDimId, dimSize, timeType
-      character*(MAXCHR) dimName
+      character(len=MAXCHR) dimName
       integer corner(3), edges(3)
       integer vid
       integer(INT64) seconds
@@ -2405,7 +2405,7 @@
 
 ! Variables for NF90_INQUIRE_VARIABLE
 
-      character*(MAXCHR) varName
+      character(len=MAXCHR) varName
       integer type, nvDims, vdims(MAXVDIMS), nvAtts
 
 ! Variables for packing and range checking
@@ -2425,7 +2425,7 @@
       outPRange = .FALSE.
 
 ! Check to make sure max string lengths are large enough.  NetCDF defines
-! MAXNCNAM, but it can't be used in a character*MAXNCNAM statement.
+! MAXNCNAM, but it can't be used in a character(len=MAXNCNAM) statement.
 
       if (MAXCHR .LT. MAXNCNAM) then
         print *, 'CFIO_PutVar warning: MAXNCNAM is larger than ', &
@@ -2717,7 +2717,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid              !! File handle
-      character*(*)  vname            !! Variable name
+      character(len=*)  vname            !! Variable name
       integer        yyyymmdd         !! Year-month-day, e.g., 19971003
       integer          hhmmss         !! Hour-minute-second, e.g., 120000
       integer         im              !! size of longitudinal dimension
@@ -2768,10 +2768,10 @@
 
 ! Variables for working with dimensions
 
-      character*(MAXCHR) dimName
-      character*(MAXCHR) stdName
-      character*(MAXCHR) dimUnits
-      character*(MAXCHR) varName
+      character(len=MAXCHR) dimName
+      character(len=MAXCHR) stdName
+      character(len=MAXCHR) dimUnits
+      character(len=MAXCHR) varName
       integer dimSize, dimId
       integer nDims,nvars,ngatts
       integer varType, myIndex
@@ -2799,7 +2799,7 @@
 
 
 ! Check to make sure max string lengths are large enough.  NetCDF defines
-! MAXNCNAM, but it can't be used in a character*MAXNCNAM statement.
+! MAXNCNAM, but it can't be used in a character(len=MAXNCNAM) statement.
 
       if (MAXCHR .LT. MAXNCNAM) then
         print *, 'CFIO_GetVar warning: MAXNCNAM is larger than ', &
@@ -3084,7 +3084,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid              !! File handle
-      character*(*)  vname            !! Variable name
+      character(len=*)  vname            !! Variable name
       integer        yyyymmdd         !! Year-month-day, e.g., 19971003
       integer          hhmmss         !! Hour-minute-second, e.g., 120000
       integer         im              !! size of longitudinal dimension
@@ -3136,9 +3136,9 @@
 
 ! Variables for working with dimensions
 
-      character*(MAXCHR) dimName
-      character*(MAXCHR) dimUnits
-      character*(MAXCHR) varName
+      character(len=MAXCHR) dimName
+      character(len=MAXCHR) dimUnits
+      character(len=MAXCHR) varName
       integer dimSize, dimId
       integer nDims,nvars,ngatts
       integer varType
@@ -3168,7 +3168,7 @@
       edges  = 1
 
 ! Check to make sure max string lengths are large enough.  NetCDF defines
-! MAXNCNAM, but it can't be used in a character*MAXNCNAM statement.
+! MAXNCNAM, but it can't be used in a character(len=MAXNCNAM) statement.
 
       if (MAXCHR .LT. MAXNCNAM) then
         print *, 'CFIO_GetVar warning: MAXNCNAM is larger than ',&
@@ -3491,7 +3491,7 @@
 ! !INPUT PARAMETERS:
 !
       integer        fid                 !! File handle
-      character*(*)  vname               !! Variable name
+      character(len=*)  vname            !! Variable name
       integer        yyyymmdd            !! Year-month-day, e.g., 19971003
       integer        hhmmss              !! Hour-minute-second, e.g., 120000
 
@@ -3536,7 +3536,7 @@
 !-------------------------------------------------------------------------
 
       integer timeid, timeDimId, dimSize, timeType
-      character*(MAXCHR) dimName
+      character(len=MAXCHR) dimName
       integer corner(5), edges(5)
       integer vid
       integer(INT64) seconds
@@ -3558,7 +3558,7 @@
 
 ! Variables for NF90_INQUIRE_VARIABLE
 
-      character*(MAXCHR) varName
+      character(len=MAXCHR) varName
       integer type, nvDims, vdims(MAXVDIMS), nvAtts
 
 ! Variables for packing and range checking
@@ -3576,7 +3576,7 @@
       outPRange = .FALSE.
 
 ! Check to make sure max string lengths are large enough.  NetCDF defines
-! MAXNCNAM, but it can't be used in a character*MAXNCNAM statement.
+! MAXNCNAM, but it can't be used in a character(len=MAXNCNAM) statement.
 
       if (MAXCHR .LT. MAXNCNAM) then
         print *, 'CFIO_PutVar warning: MAXNCNAM is larger than ',&
@@ -3920,7 +3920,7 @@
       integer year2,mon2,day2,hour2,min2,sec2
       integer(kind=INT64) julian1
       integer(kind=INT64) julsec, remainder
-      !character*8 dateString
+      !character(len=8) dateString
 
 ! Error checking.
 
@@ -4058,7 +4058,7 @@
 
       integer nDims, recdim, ngatts
       integer varType, nvDims, vDims(MAXVDIMS), nvAtts
-      character*(MAXCHR) vnameTemp
+      character(len=MAXCHR) vnameTemp
       integer i
       integer attType, attLen
       integer allVars            ! all variables - includes dimension vars
@@ -4688,7 +4688,7 @@ end subroutine die
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
       integer        count      !! Number of integers to write
       integer        buf(count) !! Buffer with integer values
       integer        prec       !! Desired precision of attribute value:
@@ -4805,7 +4805,7 @@ end subroutine die
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
       integer        count      !! Number of integers to write
       real           buf(count) !! Buffer with real values
       integer        prec       !! Desired precision of attribute value:
@@ -4922,7 +4922,7 @@ end subroutine die
 ! !INPUT PARAMETERS:
 !
       integer        fid        !! File handle
-      character*(*)  name       !! Name of attribute
+      character(len=*)  name       !! Name of attribute
       integer        count      !! Number of characters to write
       character(len=MLEN)      buf !! Buffer containing string
 !
@@ -5007,7 +5007,7 @@ end subroutine die
 ! !INPUT PARAMETERS:
 !
       integer        fid                 !! File handle
-      character*(*)  vname               !! Variable name
+      character(len=*)  vname               !! Variable name
       integer        yyyymmdd            !! Year-month-day, e.g., 19971003
       integer        hhmmss              !! Hour-minute-second, e.g., 120000
 
@@ -5058,9 +5058,9 @@ end subroutine die
 !-------------------------------------------------------------------------
 
       integer timeid, dimSize, dimId
-      character*(MAXCHR) dimName
-      character*(MAXCHR) attrName
-      character*(MAXCHR) dimUnits
+      character(len=MAXCHR) dimName
+      character(len=MAXCHR) attrName
+      character(len=MAXCHR) dimUnits
       integer attrType, attrCount
       integer corner(4), edges(4), stride(4)
       integer dim_chunk(4), origin(4)
@@ -5069,7 +5069,7 @@ end subroutine die
       integer minutes                       ! added as a work-around
       integer idx, i, j, k
       integer begDate, begTime, timInc
-      character*8 strBuf
+      character(len=8) strBuf
       integer hour,min,sec,incSecs
       integer rct
 
@@ -5084,7 +5084,7 @@ end subroutine die
 
 ! Variables for NF90_INQUIRE_VARIABLE
 
-      character*(MAXCHR) varName
+      character(len=MAXCHR) varName
       integer type, nvDims, dimSizes(MAX_VAR_DIMS), nvAtts
 
 ! Variables for packing and range checking
@@ -5145,7 +5145,7 @@ end subroutine die
       outPRange = .FALSE.
 
 ! Check to make sure max string lengths are large enough.  NetCDF defines
-! MAXNCNAM, but it can't be used in a character*MAXNCNAM statement.
+! MAXNCNAM, but it can't be used in a character(len=MAXNCNAM) statement.
 
       if (MAXCHR .LT. MAXNCNAM) then
         print *, 'EOS_PutVar warning: MAXNCNAM is larger than ', &
@@ -5698,7 +5698,7 @@ end subroutine die
        INTEGER FUNCTION GetSDSid (fid, varName)
        IMPLICIT NONE
        integer       fid
-       character*(*) varName
+       character(len=*) varName
 
        integer sdid, rc, idx
        integer HDFfid, sd_id

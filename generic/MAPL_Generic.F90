@@ -3022,12 +3022,12 @@ contains
       character(len=ESMF_MAXSTR)                  :: IAm
       integer                                     :: status
 
-      character*4 year
-      character*2 month
-      character*2 day
-      character*2 hour
-      character*2 minute
-      character*2 second
+      character(len=4) :: year
+      character(len=2) :: month
+      character(len=2) :: day
+      character(len=2) :: hour
+      character(len=2) :: minute
+      character(len=2) :: second
 
       equivalence ( string(01),TimeString )
       equivalence ( string(01),year       )

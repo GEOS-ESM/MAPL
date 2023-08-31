@@ -4127,7 +4127,7 @@ CONTAINS
 !
   type(MAPL_CFIO),             intent(INOUT) :: MCFIO
   integer, optional,           intent(IN   ) :: Root, Psize
-  character*(*), optional,     intent(IN   ) :: fName
+  character(len=*), optional,  intent(IN   ) :: fName
   integer, optional,           intent(IN   ) :: Krank(:)
   integer, optional,           intent(IN   ) :: IOWorker
   integer, optional,           intent(IN   ) :: globalComm

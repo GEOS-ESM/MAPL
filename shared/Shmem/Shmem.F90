@@ -29,7 +29,7 @@ module MAPL_Shmem
 
   public :: MAPL_GetNewRank
 
-  character*30 :: Iam="MAPL_ShmemMod in line "
+  character(len=30) :: Iam="MAPL_ShmemMod in line "
 
   integer(c_int), parameter :: IPC_CREAT = 512
   integer(c_int), parameter :: IPC_RMID  = 0

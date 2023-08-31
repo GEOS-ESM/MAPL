@@ -1025,7 +1025,7 @@ contains
       end if
 
       nPetPerTile = pet_count/n_tiles
-      nx = nint(sqrt(float(nPetPerTile*this%Xdim)/this%Xdim))
+      nx = nint(sqrt(real(nPetPerTile*this%Xdim)/this%Xdim))
       nx = max(nx,1)
       do while( mod(nPetPerTile,nx).NE.0)
          nx = nx - 1
