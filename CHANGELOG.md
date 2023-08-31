@@ -14,13 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trajectory sampler with Epoch time span
 - Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
 - Allow a negative "update\_offset" keyword in the sampling section of ExtData2G's input file by prepending the ISO time duration with a negative sign. I.E -PT12H for example
+- Added three new macros
+  - `_HERE`: Returns the current file and line number
+  - `_RETURN_IF(cond)`: Returns if the condition is true
+  - `_RETURN_UNLESS(cond)`: Returns if the condition is false
 
 ### Changed
 
 - Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
 - Updated CircleCI to use v11.2.0 bcs
-- Converted all uses of `mpif.h` to `use mpi`
+- Cleanup Fortran
+  - Converted all uses of `mpif.h` to `use mpi`
+  - Converted all uses of `character*` to `character(len=)`
 
 ### Fixed
 
