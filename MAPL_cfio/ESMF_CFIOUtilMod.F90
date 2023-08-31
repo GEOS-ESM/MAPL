@@ -438,23 +438,23 @@
       integer     lm     !! Number of times
       integer     nvars  !! Number of variables
       integer     ngatts !! Number of global attributes
-      integer, optional :: vdir   !! Positive vertical direction.    
-                         !! If `-1`, level 1 in the file is TOA.    
-                         !! If `1`, level 1 in the file is the surface.    
+      integer, optional :: vdir   !! Positive vertical direction.
+                         !! If `-1`, level 1 in the file is TOA.
+                         !! If `1`, level 1 in the file is the surface.
                          !! If `0`, the file has no vertical co-ordinate (default).
-      integer, optional :: rc     !! Error return code:     
-                         !!  rc = 0    all is well     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -53  error from NF90_GET_ATT     
+      integer, optional :: rc     !! Error return code:
+                         !!  rc = 0    all is well
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -53  error from NF90_GET_ATT
 !
 !-------------------------------------------------------------------------
 
@@ -634,7 +634,7 @@
       integer               :: begDate   !! Beginning date
       integer               :: begTime   !! Beginning time
       integer(Kind=INT64) :: incVec(:) !! Vector of offsets (seconds)
-      integer               :: rc        !! error return code     
+      integer               :: rc        !! error return code
 !
 !-------------------------------------------------------------------------
 
@@ -1232,9 +1232,9 @@
 !
 
       integer        fid            !! File handle
-      integer        rc             !! Error return code:          
-                                    !!   rc = 0    All is well     
-                                    !!   rc = -39  error from ncopn (file open)     
+      integer        rc             !! Error return code:
+                                    !!   rc = 0    All is well
+                                    !!   rc = -39  error from ncopn (file open)
 !
 !-------------------------------------------------------------------------
 
@@ -1278,12 +1278,12 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:          
-                         !!   rc = 0    all is well          
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -54  error from ncclos (file close)     
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -54  error from ncclos (file close)
 !
 !-------------------------------------------------------------------------
 
@@ -1327,15 +1327,15 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:     
-                         !!   rc = 0    all is well     
-                         !!   rc = -12  error determining default precision     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
-                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!   rc = -12  error determining default precision
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)
 !
 !-------------------------------------------------------------------------
 
@@ -1420,15 +1420,15 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:     
-                         !!   rc = 0    all is well     
-                         !!   rc = -12  error determining default precision     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
-                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!   rc = -12  error determining default precision
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)
 
 !
 !-------------------------------------------------------------------------
@@ -1511,14 +1511,14 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:     
-                         !!   rc = 0    all is well     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
-                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)
 !
 !-------------------------------------------------------------------------
 
@@ -1570,15 +1570,15 @@
 ! !OUTPUT PARAMETERS:
 !
       character*(*)  aname(ngatts)  !! Array of attribute names
-      integer   rc       !! Error return code:     
-                         !!  rc =  0  all is well     
-                         !!  rc = -10  ngatts is incompatible with file     
-                         !!  rc = -11  character string not long enough     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -48  error from NF90_INQUIRE     
-                         !!   rc = -57  error from NF90_INQ_ATTNAME     
+      integer   rc       !! Error return code:
+                         !!  rc =  0  all is well
+                         !!  rc = -10  ngatts is incompatible with file
+                         !!  rc = -11  character string not long enough
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -48  error from NF90_INQUIRE
+                         !!   rc = -57  error from NF90_INQ_ATTNAME
 
 !
 !-------------------------------------------------------------------------
@@ -1658,20 +1658,20 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer type       !! Code for attribute type   
-                         !!   0 = integer   
-                         !!   1 = real   
-                         !!   2 = character   
-                         !!   3 = 64-bit real   
-                         !!   4 = 64-bit integer   
-                         !!  -1 = other   
+      integer type       !! Code for attribute type
+                         !!   0 = integer
+                         !!   1 = real
+                         !!   2 = character
+                         !!   3 = 64-bit real
+                         !!   4 = 64-bit integer
+                         !!  -1 = other
       integer count      !! Number of items (length of array)
-      integer rc         !! Error return code:        
-                         !!   rc = 0    all is well     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -58  error from NF90_INQUIRE_ATTRIBUTE    
+      integer rc         !! Error return code:
+                         !!   rc = 0    all is well
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -58  error from NF90_INQUIRE_ATTRIBUTE
 
 !
 !-------------------------------------------------------------------------
@@ -1731,17 +1731,17 @@
 ! !OUTPUT PARAMETERS:
 !
       integer   buf(count) !! Buffer with integer values
-      integer   rc         !! Error return code:     
-                           !!   rc = 0    all is well     
-                           !!   rc = -1   invalid count     
-                           !!   rc = -2   type mismatch     
-                           !!   rc = -12  error determining default precision     
-                           !!     
-                           !!  NetCDF Errors     
-                           !!  -------------     
-                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                           !!   rc = -51  error from NF90_GET_ATT (global attribute)     
-     
+      integer   rc         !! Error return code:
+                           !!   rc = 0    all is well
+                           !!   rc = -1   invalid count
+                           !!   rc = -2   type mismatch
+                           !!   rc = -12  error determining default precision
+                           !!
+                           !!  NetCDF Errors
+                           !!  -------------
+                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                           !!   rc = -51  error from NF90_GET_ATT (global attribute)
+
 !
 !-------------------------------------------------------------------------
 
@@ -1835,16 +1835,16 @@
 ! !OUTPUT PARAMETERS:
 !
       real     buf(count)  !! Buffer with real values
-      integer  rc          !! Error return code:     
-                           !!   rc = 0    all is well     
-                           !!   rc = -1   invalid count     
-                           !!   rc = -2   type mismatch     
-                           !!   rc = -12  error determining default precision     
-                           !!     
-                           !!  NetCDF Errors     
-                           !!  -------------     
-                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                           !!   rc = -51  error from NF90_GET_ATT (global attribute)     
+      integer  rc          !! Error return code:
+                           !!   rc = 0    all is well
+                           !!   rc = -1   invalid count
+                           !!   rc = -2   type mismatch
+                           !!   rc = -12  error determining default precision
+                           !!
+                           !!  NetCDF Errors
+                           !!  -------------
+                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                           !!   rc = -51  error from NF90_GET_ATT (global attribute)
 !
 !-------------------------------------------------------------------------
 
@@ -1939,15 +1939,15 @@
 !
       character :: buf(count) !! Buffer with character values
 !      character(len=MLEN) :: buf !! Buffer with character values
-      integer   rc         !! Error return code:     
-                           !!   rc = 0    all is well     
-                           !!   rc = -1   invalid count     
-                           !!   rc = -2   type mismatch     
-                           !!     
-                           !!  NetCDF Errors     
-                           !!  -------------     
-                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                           !!   rc = -51  error from NF90_GET_ATT (global attribute)     
+      integer   rc         !! Error return code:
+                           !!   rc = 0    all is well
+                           !!   rc = -1   invalid count
+                           !!   rc = -2   type mismatch
+                           !!
+                           !!  NetCDF Errors
+                           !!  -------------
+                           !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                           !!   rc = -51  error from NF90_GET_ATT (global attribute)
 !
 !-------------------------------------------------------------------------
 
@@ -2212,9 +2212,9 @@
       integer        hour               !! hour
       integer        min                !! minute
       integer        sec                !! second
-      integer        rc                 !! return code     
-                                        !!  0 = no error     
-                                        !! -1 = problem parsing string     
+      integer        rc                 !! return code
+                                        !!  0 = no error
+                                        !! -1 = problem parsing string
 
 !
 !-------------------------------------------------------------------------
@@ -2316,7 +2316,7 @@
 ! minute boundaries to allow GrADS to work.  Error checking is
 ! done for dimensions that are out of bounds.
 !
-!#### History 
+!#### History
 !- 1997.10.13 da Silva/Lucchesi   Initial interface design.
 !- 1998.02.10 Lucchesi   Added support for applications running with 64-bit reals.
 !- 1998.03.30 Lucchesi   Documentation expanded.  Clean-up of code.
@@ -2352,32 +2352,32 @@
 
 ! !OUTPUT PARAMETERS:
 
-      integer        rc  !! Error return code:     
-                         !!  rc =  0  all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !! rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -15  data outside of valid range     
-                         !!  rc = -16  data outside of packing range     
-                         !!  rc = -17  data outside of pack and valid range     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -45  error from NF90_PUT_VAR     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -53  error from NF90_GET_ATT     
+      integer        rc  !! Error return code:
+                         !!  rc =  0  all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !! rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_PUT_VAR
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
 
 !
 !-------------------------------------------------------------------------
@@ -2732,29 +2732,29 @@
 ! !OUTPUT PARAMETERS:
 !
       real         grid(im,kount)  !! Gridded data read for this time
-      integer  rc        !! Error return code:     
-                         !!  rc = 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
+      integer  rc        !! Error return code:
+                         !!  rc = 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 
 !
 !-------------------------------------------------------------------------
@@ -3100,29 +3100,29 @@
 ! !OUTPUT PARAMETERS:
 !
       real         grid(im,jm,kount)  !! Gridded data read for this time
-      integer  rc        !! Error return code:     
-                         !!  rc = 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
+      integer  rc        !! Error return code:
+                         !!  rc = 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 !
 !-------------------------------------------------------------------------
 
@@ -3361,7 +3361,7 @@
           rc = NF90_GET_VAR(fid, vid, grid, corner, edges)
           if(rc /=0) then
             print*,'Error reading variable using NF90_GET_VAR',rc
-            print*, NF_STRERROR(rc)
+            print*, NF90_STRERROR(rc)
             return
           endif
         else if (type .EQ. NF90_DOUBLE) then               ! 64-bit
@@ -3506,32 +3506,32 @@
 
 ! !OUTPUT PARAMETERS:
 
-      integer        rc  !! Error return code:     
-                         !!  rc =  0  all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -15  data outside of valid range     
-                         !!  rc = -16  data outside of packing range     
-                         !!  rc = -17  data outside of pack and valid range     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -45  error from NF90_PUT_VAR     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -53  error from NF90_GET_ATT     
+      integer        rc  !! Error return code:
+                         !!  rc =  0  all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_PUT_VAR
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
 !
 !-------------------------------------------------------------------------
 
@@ -4640,12 +4640,12 @@ end subroutine die
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:       
-                         !!   rc = 0    all is well  
-                         !!  
-                         !!  NetCDF Errors  
-                         !!  -------------  
-                         !!   rc = -54  error from ncclos (file close)  
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -54  error from ncclos (file close)
 !
 !-------------------------------------------------------------------------
 
@@ -4814,15 +4814,15 @@ end subroutine die
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:     
-                         !!   rc = 0    all is well     
-                         !!   rc = -12  error determining default precision     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
-                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!   rc = -12  error determining default precision
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)
 !
 !-------------------------------------------------------------------------
 
@@ -4908,7 +4908,7 @@ end subroutine die
 ! The routine `EOS_PutCharAtt` ....
 !
 !#### History
-!- 1998.07.30  Lucchesi           Initial interface design. 
+!- 1998.07.30  Lucchesi           Initial interface design.
 !- 1998.07.30  Lucchesi           Initial coding.
 !- 1998.09.24  Lucchesi           Changed error handling.
 !- 1999.01.29  Lucchesi           Converted API to SD for HDFEOS
@@ -4928,14 +4928,14 @@ end subroutine die
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer     rc     !! Error return code:     
-                         !!   rc = 0    all is well     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)     
-                         !!   rc = -55  error from NF90_REDEF (enter define mode)     
-                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)     
+      integer     rc     !! Error return code:
+                         !!   rc = 0    all is well
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!   rc = -36  error from NF90_PUT_ATT (global attribute)
+                         !!   rc = -55  error from NF90_REDEF (enter define mode)
+                         !!   rc = -56  error from NF90_ENDDEF (exit define mode)
 !
 !-------------------------------------------------------------------------
 
@@ -5019,40 +5019,40 @@ end subroutine die
       real            grid(im,jm,kount)  !! Gridded data to write at this time
       logical         do_comp
       logical         do_chunk
-      integer         comp_num           !! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT    
-                                         !! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE    
-                                         !! 5 --COMP_CODE_SZIP    
+      integer         comp_num           !! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT
+                                         !! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE
+                                         !! 5 --COMP_CODE_SZIP
 
 
 ! !OUTPUT PARAMETERS:
 
-      integer        rc  !! Error return code:     
-                         !!  rc =  0  all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -15  data outside of valid range     
-                         !!  rc = -16  data outside of packing range     
-                         !!  rc = -17  data outside of pack and valid range     
-                         !!     
-                         !!  NetCDF Errors     
-                         !!  -------------     
-                         !!  rc = -32  error detaching from grid     
-                         !!  rc = -37  error attaching to grid (HDFEOS)     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable) NOTUSED     
-                         !!  rc = -40  variable not defined     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon) NOTUSED     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev) NOTUSED     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error reading time information     
-                         !!  rc = -45  error writing data     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED     
-                         !!  rc = -53  error getting variable attributes     
+      integer        rc  !! Error return code:
+                         !!  rc =  0  all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!
+                         !!  NetCDF Errors
+                         !!  -------------
+                         !!  rc = -32  error detaching from grid
+                         !!  rc = -37  error attaching to grid (HDFEOS)
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable) NOTUSED
+                         !!  rc = -40  variable not defined
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon) NOTUSED
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev) NOTUSED
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error reading time information
+                         !!  rc = -45  error writing data
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED
+                         !!  rc = -53  error getting variable attributes
 
 !
 !-------------------------------------------------------------------------

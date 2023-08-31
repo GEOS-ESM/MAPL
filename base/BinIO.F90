@@ -28,6 +28,7 @@ module  BinIOMod
   use MAPL_ExceptionHandling
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
+  use mpi
   implicit none
   private
 
@@ -45,8 +46,6 @@ module  BinIOMod
   public MAPL_ClimUpdate
   public MAPL_DestroyFile
   public MAPL_MemFileInquire
-
-  include "mpif.h"
 
 !#define TIME_MPIIO
 #ifdef TIME_MPIIO
@@ -1106,8 +1105,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_beg = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_beg = MPI_Wtime()
 #endif
 
     if(present(arrdes)) then
@@ -1286,8 +1284,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -1677,8 +1674,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_beg = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_beg = MPI_Wtime()
 #endif
 
     if(present(arrdes)) then
@@ -1838,8 +1834,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -2736,8 +2731,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
     call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
     _VERIFY(STATUS)
-    itime_beg = MPI_Wtime(STATUS)
-    _VERIFY(STATUS)
+    itime_beg = MPI_Wtime()
 
 #endif
 
@@ -2960,8 +2954,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_iowrite_bandwidth) peak_iowrite_bandwidth = bwidth
@@ -3384,8 +3377,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_beg = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_beg = MPI_Wtime()
 #endif
 
     if(present(arrdes)) then
@@ -3601,8 +3593,7 @@ module  BinIOMod
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
-  itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS)
+  itime_end = MPI_Wtime()
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_iowrite_bandwidth) peak_iowrite_bandwidth = bwidth

@@ -952,8 +952,6 @@ contains
       type (ESMF_VM) :: vm_global
       integer :: status
 
-      include 'mpif.h'
-
 !$$      if (local_pet == 0) then
          call this%formatter_lat_lon%create_par(this%out_file, comm=MPI_COMM_WORLD, rc=status)
          _VERIFY(status)

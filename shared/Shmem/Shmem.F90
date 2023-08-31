@@ -7,11 +7,10 @@ module MAPL_Shmem
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
   use MAPL_Constants
+  use mpi
 
   implicit none
   private
-
-  include 'mpif.h'
 
   public :: MAPL_GetNodeInfo
   public :: MAPL_CoresPerNodeGet

@@ -59,6 +59,7 @@
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use pflogger, only: Logger, logging
+  use mpi
 
   implicit none
   private
@@ -141,8 +142,6 @@
   integer, parameter :: MAPL_T2G2G = 3
 
   public HISTORY_ExchangeListWrap
-
-  include "mpif.h"
 
 contains
 
@@ -3400,7 +3399,7 @@ ENDDO PARSER
 !         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
 !         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
 
-         
+
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
@@ -3409,7 +3408,7 @@ ENDDO PARSER
 !         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
 !         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
 !         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-         
+
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
 - Updated CircleCI to use v11.2.0 bcs
+- Converted all uses of `mpif.h` to `use mpi`
 
 ### Fixed
 
