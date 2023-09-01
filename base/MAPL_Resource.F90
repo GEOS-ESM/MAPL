@@ -2,128 +2,19 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 !=============================================================================
-!FPP macros for repeated (type-dependent) code
+! FPP macros
 
-#ifdef IO_SUCCESS
-#  undef IO_SUCCESS
+#if defined(IO_SUCCESS)
+#undef IO_SUCCESS
 #endif
-
 #define IO_SUCCESS 0
 
-!=============================================================================
-
-#ifdef SET_VALUE
-#  undef SET_VALUE
+#if defined(MISMATCH_MESSAGE)
+#undef MISMATCH_MESSAGE
 #endif
-
-#define SET_VALUE(T, VAL) \
-type is(T) ;\
-   if (label_is_present) then ;\
-      call ESMF_ConfigGetAttribute(config, VAL, label = actual_label, _RC) ;\
-   else ;\
-      select type(default) ;\
-      type is(T) ;\
-         VAL = default ;\
-      class default ;\
-         _FAIL(MISMATCH_MESSAGE) ;\
-      end select ;\
-      value_is_default = .TRUE. ;\
-   end if ;\
-   call set_do_print(actual_label, do_print)
-
+#define MISMATCH_MESSAGE "Type of 'default' does not match type of 'value'."
 !=============================================================================
-
-#ifdef SET_ARRAY_VALUE
-#  undef SET_ARRAY_VALUE
-#endif
-
-#define SET_ARRAY_VALUE(T, VAL) \
-type is(T) ;\
-   if (label_is_present) then ;\
-      call ESMF_ConfigGetAttribute(config, valuelist = VAL, count = count, label = actual_label, _RC) ;\
-   else ;\
-      select type(default) ;\
-      type is(T) ;\
-         VAL = default ;\
-      class default ;\
-         _FAIL(MISMATCH_MESSAGE) ;\
-      end select ;\
-      value_is_default = .TRUE. ;\
-   end if ;\
-   call set_do_print(actual_label, do_print)
-
-!=============================================================================
-
-#ifdef MAKE_STRINGS
-#  undef MAKE_STRINGS
-#endif
-
-#define MAKE_STRINGS(T, VAL, TSTR, SFMT) \
-      if (label_is_present) then ;\
-         if(default_is_present) then ;\
-            select type(default) ;\
-            type is(T) ;\
-               value_is_default = are_equal(VAL, default) ;\
-            class default ;\
-               _FAIL(MISMATCH_MESSAGE) ;\
-            end select ;\
-         else ;\
-            value_is_default = .FALSE. ;\
-         end if ;\
-      else ;\
-         value_is_default = .TRUE. ;\
-      end if ;\
-      if (.not. (print_nondefault_only .and. value_is_default)) then ;\
-         type_string = TSTR ;\
-         type_format = SFMT ;\
-         write(formatted_value, type_format, iostat=io_stat) VAL ;\
-         _ASSERT((io_stat == IO_SUCCESS), 'Failure writing scalar formatted_value: ' // trim(actual_label)) ;\
-      else ;\
-         do_print = .FALSE. ;\
-      end if
-
-!=============================================================================
-
-#ifdef MAKE_ARRAY_STRINGS
-#  undef MAKE_ARRAY_STRINGS
-#endif
-
-#define MAKE_ARRAY_STRINGS(T, VAL, TSTR, SFMT) \
-      if (label_is_present) then ;\
-         if(default_is_present) then ;\
-            select type(default) ;\
-            type is(T) ;\
-               value_is_default = all(are_equal(VAL, default)) ;\
-            class default ;\
-               _FAIL(MISMATCH_MESSAGE) ;\
-            end select ;\
-         else ;\
-            value_is_default = .FALSE. ;\
-         end if ;\
-      else ;\
-         value_is_default = .TRUE. ;\
-      end if ;\
-      if (.not. (print_nondefault_only .and. value_is_default)) then ;\
-         type_string = TSTR ;\
-         write(array_size_string, '(i2)', iostat=io_stat) size(VAL) ;\
-         _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array size string: ' // trim(actual_label)) ;\
-         type_format = array_format(SFMT, array_size_string) ;\
-         write(formatted_value, type_format, iostat=io_stat) VAL ;\
-         _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array formatted_value: ' // trim(actual_label)) ;\
-      else ;\
-         do_print = .FALSE. ;\
-      end if
-
-!=============================================================================
-
-#ifdef ARE_EQUAL_FUNCTION
-#  undef ARE_EQUAL_FUNCTION
-#endif
-
-#define ARE_EQUAL_FUNCTION(T) (a, b) result(res) ; T, intent(in) :: a, b ; logical :: res ; res = (a == b)
-
-!=============================================================================
-!END FPP macros for repeated (type-dependent) code
+!END FPP macros
 !=============================================================================
 !>
 !### Module `MAPL_ResourceMod`
@@ -134,8 +25,6 @@ type is(T) ;\
 ! resources from ESMF_Config objects.
 !
 module MAPL_ResourceMod
-
-   ! !USES:
 
    use ESMF
    use ESMFL_Mod
@@ -152,30 +41,6 @@ module MAPL_ResourceMod
 
    public MAPL_GetResource_config_scalar
    public MAPL_GetResource_config_array
-
-!   character(len=*), parameter :: MISMATCH_MESSAGE = "Type of 'default' does not match type of 'value'."
-
-   character(len=*), parameter :: FMT_INT32 = '(i0.1)'
-   character(len=*), parameter :: FMT_INT64 = '(i0.1)'
-   character(len=*), parameter :: FMT_REAL32 = '(f0.6)'
-   character(len=*), parameter :: FMT_REAL64 = '(f0.6)'
-   character(len=*), parameter :: FMT_LOGICAL= '(l1)'
-
-   character(len=*), parameter :: TYPE_INT32 = "'Integer*4 '" 
-   character(len=*), parameter :: TYPE_INT64 = "'Integer*8 '" 
-   character(len=*), parameter :: TYPE_REAL32 = "'Real*4 '"
-   character(len=*), parameter :: TYPE_REAL64 = "'Real*8 '"
-   character(len=*), parameter :: TYPE_LOGICAL =  "'Logical '"
-   character(len=*), parameter :: TYPE_CHARACTER = "'Character '"
-
-   interface are_equal
-      module procedure :: are_equivalent
-      module procedure :: are_equal_int32
-      module procedure :: are_equal_int64
-      module procedure :: are_equal_real32
-      module procedure :: are_equal_real64
-      module procedure :: are_equal_character
-   end interface are_equal
 
 contains
 
@@ -337,6 +202,24 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+#if defined(IS_ARRAY)
+#undef IS_ARRAY
+#endif
+
+#if defined(VAL_)
+#undef VAL_
+#endif
+
+#define VAL_ val
+
+#if defined(TYPE_)
+#undef TYPE_
+#endif
+
+#if defined(TYPE_NUM)
+#undef TYPE_NUM
+#endif
+
       default_is_present = present(default)
 
       ! these need to be initialized explitictly 
@@ -360,84 +243,93 @@ contains
 
       call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
    
-#define VAL_ val
-
-#ifdef IS_ARRAY_
-#  undef IS_ARRAY_
-#endif
 
       select type(val)
 
       type is (integer(int32))
 
 #define TYPE_ integer(int32) 
+#define TYPE_NUM 1
 #include "MAPL_Resource_SetValue.h"
-         if(do_print) then
 #include "MAPL_Resource_MakeString.h"
-         endif
+#undef TYPE_
+#undef TYPE_NUM
 
 
-      type is (integer(int(64)))
+      type is (integer(int64))
 
 #define TYPE_ integer(int64) 
+#define TYPE_NUM 2
 #include "MAPL_Resource_SetValue.h"
-         if(do_print) then
 #include "MAPL_Resource_MakeString.h"
-         endif
+#undef TYPE_
+#undef TYPE_NUM
 
 
       type is (real(real32))
+
 #define TYPE_ real(real32)
+#define TYPE_NUM 3
 #include "MAPL_Resource_SetValue.h"
-         if(do_print) then
 #include "MAPL_Resource_MakeString.h"
-         endif
+#undef TYPE_
+#undef TYPE_NUM
 
 
       type is (real(real64))
 
 #define TYPE_ real(real64)
+#define TYPE_NUM 4
 #include "MAPL_Resource_SetValue.h"
-         if(do_print) then
 #include "MAPL_Resource_MakeString.h"
-         endif
+#undef TYPE_
+#undef TYPE_NUM
 
 
       type is (logical)
 
 #define TYPE_ logical
+#define TYPE_NUM 5
 #include "MAPL_Resource_SetValue.h"
-         if(do_print) then
 #include "MAPL_Resource_MakeString.h"
-         endif
+#undef TYPE_
+#undef TYPE_NUM
 
 
-         type is (character(len=*))
+      type is (character(len=*))
 
 #define TYPE_ character(len=*)
+#define TYPE_NUM 0
 #include "MAPL_Resource_SetValue.h"
-
-      ! character value can't use the MAKE_STRINGS macro (formatted differently)
-      if (do_print) then 
-         if (label_is_present) then 
-            if(default_is_present) then 
-               select type(TYPE_) 
-               type is(TYPE_) 
-                  value_is_default = (trim(VAL_) == trim(default)) 
-               class default 
-                  _FAIL(MISMATCH_MESSAGE) 
-               end select 
-            else 
-               value_is_default = .FALSE. 
-            end if 
-         end if 
-         if (.not. (print_nondefault_only .and. value_is_default)) then 
-            type_string = TYPE_CHARACTER
-            formatted_value = trim(val) 
-         else 
-            do_print = .FALSE. 
-         end if 
-      end if
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
+!      ! character value cannot use the MAKE_STRINGS macro (formatted differently)
+!      if(do_print) then 
+!         if (label_is_present) then 
+!            
+!            if(default_is_present) then 
+!               select type(default) 
+!               type is(TYPE_) 
+!                  value_is_default = (trim(VAL_) == trim(default)) 
+!               class default 
+!                  _FAIL(MISMATCH_MESSAGE) 
+!               end select 
+!            else 
+!               value_is_default = .FALSE. 
+!            end if 
+!         else
+!
+!            value_is_default = .TRUE.
+!
+!         end if 
+!         if (.not. (print_nondefault_only .and. value_is_default)) then 
+!            type_string = TYPE_CHARACTER
+!            formatted_value = trim(val) 
+!         else 
+!            do_print = .FALSE. 
+!         end if 
+!      end if
       
       class default
          _FAIL( "Unsupported type")
@@ -449,6 +341,9 @@ contains
 
       _RETURN(ESMF_SUCCESS)
 
+#undef TYPE_
+#undef TYPE_NUM
+
    end subroutine MAPL_GetResource_config_scalar
 
    !>
@@ -457,13 +352,14 @@ contains
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: vals(:)
       character(len=*), intent(in) :: label
+
       logical, intent(out) :: value_is_set
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
       character(len=*), optional, intent(in) :: component_name
       integer, optional, intent(out) :: rc
       character(len=2) :: array_size_string
-      ! We assume we'll never have more than 99 values, hence len=2
+      ! We assume we will never have more than 99 values, hence len=2
 
       character(len=:), allocatable :: actual_label
       character(len=:), allocatable :: type_format
@@ -481,6 +377,25 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+
+#if defined(IS_ARRAY)
+#undef IS_ARRAY
+#endif
+
+#if defined(VAL_)
+#undef VAL_
+#endif
+
+#define IS_ARRAY
+#define VAL_ vals
+
+#if defined(TYPE_)
+#undef TYPE_
+#endif
+
+#if defined(TYPE_NUM)
+#undef TYPE_NUM
+#endif
 
       default_is_present = present(default)
 
@@ -510,56 +425,90 @@ contains
 
       select type(vals)
 
-      SET_ARRAY_VALUE(integer(int32), vals)
-      if (do_print) then
-         MAKE_ARRAY_STRINGS(integer(int32), vals, TYPE_INT32, FMT_INT32)
-      end if
+      type is (integer(int32))
 
-      SET_ARRAY_VALUE(integer(int64), vals)
-      if (do_print) then
-         MAKE_ARRAY_STRINGS(integer(int64), vals,  TYPE_INT64, FMT_INT64)
-      end if
+#define TYPE_ integer(int32) 
+#define TYPE_NUM 1
+#include "MAPL_Resource_SetValue.h"
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
 
-      SET_ARRAY_VALUE(real(real32), vals)
-      if (do_print) then
-         MAKE_ARRAY_STRINGS(real(real32), vals,  TYPE_REAL32, FMT_REAL32)
-      end if
 
-      SET_ARRAY_VALUE(real(real64), vals)
-      if (do_print) then
-         MAKE_ARRAY_STRINGS(real(real64), vals,  TYPE_REAL64, FMT_REAL64)
-      end if
+      type is (integer(int64))
 
-      SET_ARRAY_VALUE(logical, vals)
-      if (do_print) then
-         MAKE_ARRAY_STRINGS(logical, vals,  TYPE_LOGICAL, FMT_LOGICAL)
-      end if
+#define TYPE_ integer(int64) 
+#define TYPE_NUM 2
+#include "MAPL_Resource_SetValue.h"
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
 
-      SET_ARRAY_VALUE(character(len=*), vals)
-      if (do_print) then
-         if (label_is_present) then 
-            if(default_is_present) then 
-               select type(default) 
-               type is(character(len=*)) 
-                  value_is_default = compare_all(vals, default) 
-               class default 
-                  _FAIL(MISMATCH_MESSAGE) 
-               end select 
-            else 
-               value_is_default = .FALSE. 
-            end if 
-         end if 
-         if (.not. (print_nondefault_only .and. value_is_default)) then 
-            type_string = TYPE_CHARACTER
-            write(array_size_string, '(i2)', iostat=io_stat) size(vals)
-            _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array size string: ' // trim(actual_label))
-            type_format = string_array_format(array_size_string)
-            write(formatted_value, type_format, iostat=io_stat) vals
-            _ASSERT((io_stat == IO_SUCCESS), 'Failure writing array formatted_value: ' // trim(actual_label))
-         else 
-            do_print = .FALSE. 
-         end if 
-      end if
+
+      type is (real(real32))
+
+#define TYPE_ real(real32)
+#define TYPE_NUM 3
+#include "MAPL_Resource_SetValue.h"
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
+
+
+      type is (real(real64))
+
+#define TYPE_ real(real64)
+#define TYPE_NUM 4
+#include "MAPL_Resource_SetValue.h"
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
+
+
+      type is (logical)
+
+#define TYPE_ logical
+#define TYPE_NUM 5
+#include "MAPL_Resource_SetValue.h"
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
+
+
+      type is (character(len=*))
+
+#define TYPE_ character(len=*)
+#define TYPE_NUM 0
+#include "MAPL_Resource_SetValue.h"
+#include "MAPL_Resource_MakeString.h"
+#undef TYPE_
+#undef TYPE_NUM
+!      if (do_print) then
+!         if (label_is_present) then 
+!            if(default_is_present) then 
+!               select type(default) 
+!               type is(character(len=*)) 
+!                  value_is_default = compare_all(vals, default) 
+!               class default 
+!                  _FAIL(MISMATCH_MESSAGE) 
+!               end select 
+!            else 
+!               value_is_default = .FALSE. 
+!            end if 
+!         else
+!            value_is_default = .TRUE.
+!         end if 
+!         if (.not. (print_nondefault_only .and. value_is_default)) then 
+!            type_string = TYPE_CHARACTER
+!            write(array_size_string, '(i2)', iostat=io_stat) size(vals)
+!            _ASSERT((io_stat == IO_SUCCESS), "Failure writing array size string")
+!            type_format = string_array_format(array_size_string)
+!            write(formatted_value, type_format, iostat=io_stat) vals
+!            _ASSERT((io_stat == IO_SUCCESS), "Failure writing array formatted_value")
+!         else 
+!            do_print = .FALSE. 
+!         end if 
+!      end if
 
       class default
          _FAIL( "Unsupported type")
@@ -607,8 +556,13 @@ contains
       character(len=*), intent(in) :: scalar_format
       character(len=*), intent(in) :: array_size_string
       character(len=:), allocatable :: array_format
+      character(len=:), allocatable :: one_group
+      integer :: lsf
 
-      array_format = '('//trim(adjustl(array_size_string))//scalar_format(1:len_trim(scalar_format)-1)//',1X))'
+      lsf = len_trim(scalar_format)
+      one_group = scalar_format(2:(lsf-1))
+      array_format = '('//trim(adjustl(array_size_string))// '(' // one_group//',1X))'
+!      array_format = '('//trim(adjustl(array_size_string))//scalar_format(1:len_trim(scalar_format)-1)//',1X))'
 
    end function array_format
 
@@ -642,23 +596,5 @@ contains
       end do
          
    end function compare_all
-
-   !>
-   ! Test if two logicals are equivalent
-   ! Basically a wrapper function for use in are_equal generic function
-   pure elemental function are_equivalent(a, b) result(res)
-      logical, intent(in) :: a
-      logical, intent(in) :: b
-      logical :: res
-      res = a .eqv. b
-   end function are_equivalent
-
-   ! These are specific functions for the are_equal generic function.
-   ! Basically wrapper functions for the == binary relational operator 
-   pure elemental function are_equal_int32 ARE_EQUAL_FUNCTION(integer(int32)) ; end function are_equal_int32
-   pure elemental function are_equal_int64 ARE_EQUAL_FUNCTION(integer(int64)) ; end function are_equal_int64
-   pure elemental function are_equal_real32 ARE_EQUAL_FUNCTION(real(real32)) ; end function are_equal_real32
-   pure elemental function are_equal_real64 ARE_EQUAL_FUNCTION(real(real64)) ; end function are_equal_real64
-   pure elemental function are_equal_character ARE_EQUAL_FUNCTION(character(len=*)) ; end function are_equal_character
 
 end module MAPL_ResourceMod
