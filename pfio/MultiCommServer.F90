@@ -3,9 +3,8 @@
 
 module pFIO_MultiCommServerMod
    use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
@@ -171,10 +170,8 @@ contains
 
       subroutine start_back(rc)
          integer, optional, intent(out) :: rc
-         integer :: collection_counter, collection_total
-         integer :: ierr, rank
+         integer :: ierr
          integer :: my_rank, cmd, status
-         integer(kind=INT64) :: msize_word
 
          call MPI_Comm_rank(this%server_comm, my_rank, ierr)
          allocate(this%serverthread_done_msgs(1))
@@ -252,7 +249,7 @@ contains
       integer, optional, intent(out) :: rc
       class (AbstractDataReference), pointer :: remotePtr
       integer :: rank
-      integer(KIND=INT64) :: offset, msize_word
+      integer(KIND=INT64) :: msize_word
       integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
       type (MessageVectorIterator) :: iter
       type (StringInteger64MapIterator) :: request_iter
@@ -339,7 +336,6 @@ contains
      !(2) loop to get the total size and offset of each collection and request
       allocate(offsets(collection_total), msize_words(collection_total))
       offsets = 0
-      offset = 0
       iter   = thread_ptr%request_backlog%begin()
       do while (iter /= thread_ptr%request_backlog%end())
          msg => iter%get()

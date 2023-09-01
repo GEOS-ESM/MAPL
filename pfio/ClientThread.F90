@@ -33,7 +33,6 @@ module pFIO_ClientThreadMod
    use pFIO_ReplaceMetadataMessageMod
    use pFIO_StringVariableMapMod
 
-   use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
 
@@ -139,7 +138,6 @@ contains
 
       class (AbstractMessage), pointer :: message
       class(AbstractSocket), pointer :: connection
-      integer :: status
 
       connection=>this%get_connection()
       call connection%send(AddHistCollectionMessage(fmd, mode=mode))
@@ -356,7 +354,6 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
-      integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()

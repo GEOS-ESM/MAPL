@@ -86,8 +86,8 @@ contains
      type (StringVariableMap), optional, intent(in) :: variables
      type (StringVector), optional, intent(in) :: order
 
-     _UNUSED_DUMMY(unusable)
 
+ 
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 
@@ -100,7 +100,8 @@ contains
      fmd%order = StringVector()
      if (present(order)) fmd%order = order
 
-   end function
+     _UNUSED_DUMMY(unusable)
+  end function
 
    function get_dimensions(this) result(dimensions)
       type (StringIntegerMap), pointer :: dimensions
@@ -170,6 +171,7 @@ contains
 
       type (StringIntegerMapIterator) :: iter
 
+
       iter = this%dimensions%find(dim_name)
 
       if (iter /= this%dimensions%end()) then
@@ -178,7 +180,6 @@ contains
       else
          extent = 0
          if (present(rc)) rc=pFIO_DIMENSION_NOT_FOUND
-         !_FAIL( 'FileMetadata::get_dimension() - no such dimension <'//dim_name//'>.')
       end if
 
       _UNUSED_DUMMY(unusable)
@@ -596,10 +597,6 @@ contains
          class (FileMetadata), target, intent(in) :: a
          class (FileMetadata), target, intent(in) :: b
 
-         type (StringAttributeMapIterator) :: iter
-         type (Attribute), pointer :: attr_a, attr_b
-         character(len=:), pointer :: attr_name
-
          equal = (a%global_var == b%global_var)
 
       end function same_attributes
@@ -737,7 +734,6 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-
       call write_dims(this%dimensions, unit, iotype, v_list, iostat, iomsg)
       if (iostat /= 0) return
       call write_variables(this%variables, unit, iotype, v_list, iostat, iomsg)
@@ -814,6 +810,5 @@ contains
       end associate
 
    end subroutine write_variables
-
 
 end module pFIO_FileMetadataMod

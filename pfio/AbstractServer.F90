@@ -2,16 +2,9 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
-   use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
    use MAPL_Profiler
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
-   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod

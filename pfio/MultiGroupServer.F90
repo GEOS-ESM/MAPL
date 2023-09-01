@@ -3,9 +3,8 @@
 
 module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use mapl_KeywordEnforcerMod
    use MAPL_Profiler
@@ -215,7 +214,6 @@ contains
          class (ServerThread), pointer :: thread_ptr => null()
          integer :: i,client_size, status
          logical, allocatable :: mask(:)
-         integer :: terminate = -1
 
          client_size = this%threads%size()
 
@@ -274,7 +272,6 @@ contains
    subroutine clean_up(this, rc)
       class(MultiGroupServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      type(StringInteger64MapIterator) :: iter
       integer :: num_clients, n
       class (ServerThread),pointer :: thread_ptr
 
@@ -296,17 +293,8 @@ contains
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
-      iter = this%prefetch_offset%begin()
-      do while (iter /= this%prefetch_offset%end())
-         call this%prefetch_offset%erase(iter)
-         iter = this%prefetch_offset%begin()
-      enddo
-
-      iter = this%stage_offset%begin()
-      do while (iter /= this%stage_offset%end())
-         call this%stage_offset%erase(iter)
-         iter = this%stage_offset%begin()
-      enddo
+      call this%prefetch_offset%clear()
+      call this%stage_offset%clear()
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean up")
       _RETURN(_SUCCESS)
@@ -468,13 +456,12 @@ contains
 
      subroutine start_back_captain(rc)
        integer, optional, intent(out) :: rc
-       logical :: flag
        integer :: collection_id
        integer :: nwriter_per_node
        integer, allocatable :: idleRank(:,:)   ! idle processors
        integer, allocatable :: num_idlePEs(:) ! how many idle processors in each node of backend server
-       integer :: i, no_job, local_rank, node_rank, nth_writer
-       integer :: terminate, idle_writer, ierr
+       integer :: local_rank, node_rank, nth_writer
+       integer :: terminate, ierr
        integer :: MPI_STAT(MPI_STATUS_SIZE)
        character(len=FNAME_LEN)         :: FileName
 
@@ -530,11 +517,13 @@ contains
        logical :: flag
        character(len=FNAME_LEN) :: FileDone
        type (StringSetIterator) :: iter
+       logical :: found
 
        ! 2.1)  try to retrieve idle writers
        !       keep looping (waiting) until there are idle processors
        nwriter_per_node = size(idleRank,2)
-       do while (.true.)
+       found = .false.
+       do while (.not. found)
           ! non block probe writers
           do local_rank = 1, this%nwriter-1
              flag = .false.
@@ -567,15 +556,16 @@ contains
           ! get the node with the most idle processors
           node_rank = maxloc(num_idlePEs, dim=1) - 1
           do i = 0, nwriter_per_node -1
-            if (idleRank(node_rank,i) == -1) cycle
-            idle_writer = idleRank(node_rank,i)
-            idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
-            num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
-            exit
+            if (idleRank(node_rank,i) /= -1) then
+               idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
+               num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
+               idle_writer = idleRank(node_rank,i)
+               exit
+            end if
           enddo
           _ASSERT(1<= idle_writer .and. idle_writer <= this%nwriter-1, "wrong local rank of writer")
           call FilesBeingWritten%insert(FileName)
-          exit ! exit the loop after get one idle processor and the file is done
+          found = .true. ! exit the loop after get one idle processor and the file is done
        enddo ! while,  get one idle writer
 
        ! 2.2) tell front comm which idel_worker is ready
@@ -626,7 +616,6 @@ contains
        integer :: msg_size, back_local_rank, status
 
        integer :: MPI_STAT(MPI_STATUS_SIZE), ierr
-       type (MessageVectorIterator) :: iter
        class (AbstractMessage), pointer :: msg
        class(ServerThread), pointer :: thread_ptr
        integer, allocatable :: buffer_fmd(:)
@@ -704,7 +693,7 @@ contains
             deallocate(this%buffers(i)%buffer)
             if (size(f_d_m%idata) ==0) cycle
             file_size = file_size + size(f_d_m%idata)
-            iter = f_d_m%msg_vec%begin()
+
             do j = 1, f_d_m%msg_vec%size()
                msg => f_d_m%msg_vec%at(j)
                select type (q=>msg)

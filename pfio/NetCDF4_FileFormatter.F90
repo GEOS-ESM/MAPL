@@ -718,11 +718,7 @@ contains
       class (Variable), pointer :: var
       integer :: varid
 
-      type (StringIntegerMap), pointer :: all_dims
-
-
       vars => cf%get_variables()
-      all_dims => cf%get_dimensions()
 
       order = cf%get_order()
       var_iter = order%begin()

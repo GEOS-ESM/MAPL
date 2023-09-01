@@ -3,7 +3,6 @@
 
 module pFIO_UtilitiesMod
    use, intrinsic :: iso_c_binding, only: c_sizeof 
-   use, intrinsic :: iso_c_binding, only: c_bool
    use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
    use MAPL_ExceptionHandling
@@ -193,9 +192,6 @@ contains
       integer(kind=INT32), intent(in) :: scalar
       integer, optional, intent(out) :: rc
 
-      integer(kind=INT32) :: n
-
-      n = 1
       buffer = [scalar]
 
       _RETURN(_SUCCESS)
