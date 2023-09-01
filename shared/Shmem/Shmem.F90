@@ -98,11 +98,6 @@ module MAPL_Shmem
        type (c_ptr),    value :: buf
      end function shmctl
 
-     subroutine perror(s) bind(c,name="perror")
-       use, intrinsic :: ISO_C_BINDING
-       character(c_char), intent(in) :: s(*)
-     end subroutine perror
-
   end interface
 
   interface MAPL_AllocNodeArray

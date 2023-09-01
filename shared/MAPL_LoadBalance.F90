@@ -39,8 +39,6 @@ module MAPL_LoadBalanceMod
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
   type(TBalanceStrategy), save :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
 
-  character(len=30) :: Iam="MAPL_LoadBalanceMod in line "
-
 !---------------------------------------------------------------------------
 !>
 !### EXAMPLE

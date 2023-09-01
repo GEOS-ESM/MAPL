@@ -8,6 +8,13 @@ submodule (MAPL_Shmem) Shmem_implementation
   use MAPL_Constants
   implicit none
 
+  interface
+     subroutine perror(s) bind(c,name="perror")
+       use, intrinsic :: ISO_C_BINDING
+       character(c_char), intent(in) :: s(*)
+     end subroutine perror
+  end interface
+
 contains
 
   module procedure MAPL_GetNodeInfo

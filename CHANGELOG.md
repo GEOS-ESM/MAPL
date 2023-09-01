@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Converted hinterp.F to free format (hinterp.F90)
 - Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
 - Updated CircleCI to use v11.2.0 bcs
@@ -34,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add call to initialize pFlogger layer for the unit tests.
 
 ### Removed
+
+- Deleted MAPL_HeapMod.F90.  This file was doing crazy nonstandard things and is not used anywhere else.  A new cleaner implementation based upon containers could be readily created if the functionality is ever missed.
 
 ### Deprecated
 
