@@ -261,7 +261,6 @@ c ----------------
       real    pi,d
       real    lam,lam_ip1,lam_ip0,lam_im1,lam_im2
       real    phi,phi_jp1,phi_jp0,phi_jm1,phi_jm2
-      real    dl,dp
       real    lam_cmp
       real    phi_cmp
       real    undef
@@ -271,8 +270,6 @@ c ----------------
 c Initialization
 c --------------
       pi = 4.*atan(1.)
-      dl = 2*pi/ im     ! Uniform Grid Delta Lambda
-      dp =   pi/(jm-1)  ! Uniform Grid Delta Phi
 
 c Allocate Memory for Weights and Index Locations
 c -----------------------------------------------

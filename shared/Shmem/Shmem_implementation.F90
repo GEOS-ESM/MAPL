@@ -586,7 +586,6 @@ contains
       _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-!      _ASSERT(size(Ptr)==len,'needs informative message')   ! Thomas Clune suggested that this ASSERT is unnecessary.
 
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
@@ -708,7 +707,6 @@ contains
 
 
     module procedure MAPL_AllocateShared_1DL4
-
 
       integer :: status
 
@@ -882,7 +880,6 @@ contains
     end procedure ReleaseSharedMemory
 
 
-
     module procedure GetSharedMemory
 
       integer                   :: status, pos
@@ -890,8 +887,8 @@ contains
       integer(c_size_t)         :: numBytes
       integer, parameter        :: WORD_SIZE = 4
       integer(c_int), parameter :: C_ZERO = 0
-      integer(c_int), parameter :: myflg = o'666'
-      integer(c_int), parameter :: shmflg = ior(IPC_CREAT,myflg)
+      integer(c_int), parameter :: myflg = int(o'666')
+      integer(c_int), parameter :: shmflg = int(ior(IPC_CREAT,myflg))
       integer(c_key_t), parameter :: keypre = 456000000
 
 !!! Get an empty spot in the list of allocated segments
