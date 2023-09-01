@@ -254,7 +254,7 @@ module MAPL_Shmem
      end subroutine MAPL_DeAllocNodeArray_6DR8
 
      module subroutine MAPL_AllocNodeArray_1DL4(Ptr, Shp, lbd, rc)
-       logical(kind=C_Bool), pointer,  intent(INOUT) :: Ptr(:)
+       logical, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        integer, optional, intent(  OUT) :: rc
@@ -363,7 +363,7 @@ module MAPL_Shmem
      end subroutine MAPL_AllocNodeArray_6DR8
 
      module subroutine MAPL_AllocateShared_1DL4(Ptr, Shp, lbd, TransRoot, rc)
-       logical(kind=C_BOOL), pointer,  intent(INOUT) :: Ptr(:)
+       logical, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        logical,           intent(IN   ) :: TransRoot

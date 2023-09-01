@@ -313,7 +313,7 @@ program main
    integer, parameter :: BOTH_COLOR   = 3
 
    integer :: comm
-!#   integer :: num_threads
+!$   integer :: num_threads
    type (FakeExtData), target :: extData
 
    required = MPI_THREAD_MULTIPLE
