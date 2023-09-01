@@ -272,7 +272,7 @@ contains
    end subroutine put_DataToFile
 
    subroutine clean_up(this, rc)
-      class(MultiGroupServer),target, intent(inout) :: this
+      class(MultiGroupServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
       integer :: num_clients, n

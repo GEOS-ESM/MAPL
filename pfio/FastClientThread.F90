@@ -85,7 +85,7 @@ contains
 
    function collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc) result(request_id)
-      class (FastClientThread), intent(inout) :: this
+      class (FastClientThread), target, intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
       character(len=*), intent(in) :: var_name

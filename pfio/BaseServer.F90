@@ -180,7 +180,7 @@ contains
 
    subroutine add_connection(this, socket)
       class (BaseServer), target, intent(inout) :: this
-      class (AbstractSocket), intent(in) :: socket
+      class (AbstractSocket), target, intent(in) :: socket
 
       class(ServerThread), pointer :: thread_ptr
       integer :: k
@@ -230,12 +230,14 @@ contains
       class(ServerThread), pointer :: thread_ptr
       integer :: i,n
 
+
       n = this%threads%size()
 
       do i = 1, n
-         thread_ptr=>this%threads%at(i)
+         thread_ptr => this%threads%at(i)
          call thread_ptr%clear_RequestHandle()
       enddo
+
 
    end subroutine clear_RequestHandle
 

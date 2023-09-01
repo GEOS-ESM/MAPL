@@ -71,8 +71,8 @@ module pFIO_MessageVisitorMod
 contains
 
    recursive subroutine handle(this, message, rc)
-      class (MessageVisitor), intent(inout) :: this
-      class (AbstractMessage), intent(in) :: message
+      class (MessageVisitor), target, intent(inout) :: this
+      class (AbstractMessage), target, intent(in) :: message
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -90,11 +90,9 @@ contains
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (StageDoneMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+         call this%handle_cmd(cmd,_RC)
       type is (CollectiveStageDoneMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
+          call this%handle_cmd(cmd,_RC)
       type is (AddExtCollectionMessage)
         call this%handle_AddExtCollection(cmd,rc=status)
         _VERIFY(status)
