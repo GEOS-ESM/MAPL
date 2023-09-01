@@ -151,6 +151,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function add_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &

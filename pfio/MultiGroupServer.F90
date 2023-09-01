@@ -257,6 +257,7 @@ contains
       class (MultiGroupServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine create_remote_win
 
    subroutine put_DataToFile(this, rc)

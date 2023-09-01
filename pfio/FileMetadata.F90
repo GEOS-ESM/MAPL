@@ -739,6 +739,7 @@ contains
       call write_variables(this%variables, unit, iotype, v_list, iostat, iomsg)
       if (iostat /= 0) return
 
+      _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
    subroutine write_dims(dimensions, unit, iotype, v_list, iostat, iomsg)
@@ -756,11 +757,14 @@ contains
       associate (e => dimensions%end())
         iter = dimensions%begin()
         do while (iter /= e)
-           write(unit, '(T8,a,1x,a,1x,i0,/)') iter%key(), "=" , iter%value()
+           write(unit, '(T8,a,1x,a,1x,i0,/)', iostat=iostat, iomsg=iomsg) iter%key(), "=" , iter%value()
+           if (iostat /= 0) return
            call iter%next()
         end do
       end associate
 
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_dims
 
    subroutine write_variables(variables, unit, iotype, v_list, iostat, iomsg)
@@ -809,6 +813,8 @@ contains
         end do
       end associate
 
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_variables
 
 end module pFIO_FileMetadataMod

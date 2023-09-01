@@ -309,12 +309,14 @@ contains
      integer, optional, intent(out) :: rc
 
      _FAIL(" no action of receive_output_data")
+     _UNUSED_DUMMY(this)
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
      _FAIL(" no action of server_put_DataToFile")
+     _UNUSED_DUMMY(this)
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this,multi, rc)
@@ -322,6 +324,7 @@ contains
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
      _FAIL(" no action of server_get_DataFromMem")
+     _UNUSED_DUMMY(this)
      _UNUSED_DUMMY(multi)
    end subroutine get_DataFromMem
 
@@ -347,6 +350,7 @@ contains
       rank        = mod(id, this%npes)
       node_rank   = this%Node_Ranks(rank)
 
+     _UNUSED_DUMMY(this)
    end subroutine distribute_task
 
    function get_writing_PE(this,id) result (rank)
