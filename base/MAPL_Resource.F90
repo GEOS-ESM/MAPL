@@ -206,11 +206,11 @@ contains
 #undef IS_ARRAY
 #endif
 
-#if defined(VAL_)
-#undef VAL_
+#if defined(VALUE_)
+#undef VALUE_
 #endif
 
-#define VAL_ val
+#define VALUE_ val
 
 #if defined(TYPE_)
 #undef TYPE_
@@ -304,33 +304,8 @@ contains
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
 #undef TYPE_NUM
-!      ! character value cannot use the MAKE_STRINGS macro (formatted differently)
-!      if(do_print) then 
-!         if (label_is_present) then 
-!            
-!            if(default_is_present) then 
-!               select type(default) 
-!               type is(TYPE_) 
-!                  value_is_default = (trim(VAL_) == trim(default)) 
-!               class default 
-!                  _FAIL(MISMATCH_MESSAGE) 
-!               end select 
-!            else 
-!               value_is_default = .FALSE. 
-!            end if 
-!         else
-!
-!            value_is_default = .TRUE.
-!
-!         end if 
-!         if (.not. (print_nondefault_only .and. value_is_default)) then 
-!            type_string = TYPE_CHARACTER
-!            formatted_value = trim(val) 
-!         else 
-!            do_print = .FALSE. 
-!         end if 
-!      end if
       
+
       class default
          _FAIL( "Unsupported type")
       end select
@@ -348,9 +323,9 @@ contains
 
    !>
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, vals, label, value_is_set, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_array(config, val, label, value_is_set, unusable, default, component_name, rc)
       type(ESMF_Config), intent(inout) :: config
-      class(*), intent(inout) :: vals(:)
+      class(*), intent(inout) :: val(:)
       character(len=*), intent(in) :: label
 
       logical, intent(out) :: value_is_set
@@ -378,17 +353,6 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-#if defined(IS_ARRAY)
-#undef IS_ARRAY
-#endif
-
-#if defined(VAL_)
-#undef VAL_
-#endif
-
-#define IS_ARRAY
-#define VAL_ vals
-
 #if defined(TYPE_)
 #undef TYPE_
 #endif
@@ -396,6 +360,16 @@ contains
 #if defined(TYPE_NUM)
 #undef TYPE_NUM
 #endif
+
+#if defined(IS_ARRAY)
+#undef IS_ARRAY
+#endif
+#define IS_ARRAY
+
+#if defined(VALUE_)
+#undef VALUE_
+#endif
+#define VALUE_ val
 
       default_is_present = present(default)
 
@@ -407,7 +381,7 @@ contains
       value_is_default = .FALSE.
 
       if (default_is_present) then
-         _ASSERT(same_type_as(vals, default), "Value and default must have same type")
+         _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
       call get_actual_label(config, label, label_is_present, actual_label, component_name = component_name, _RC)
@@ -421,9 +395,9 @@ contains
       ! only print if root
       call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
 
-      count = size(vals)
+      count = size(val)
 
-      select type(vals)
+      select type(val)
 
       type is (integer(int32))
 
@@ -483,32 +457,7 @@ contains
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
 #undef TYPE_NUM
-!      if (do_print) then
-!         if (label_is_present) then 
-!            if(default_is_present) then 
-!               select type(default) 
-!               type is(character(len=*)) 
-!                  value_is_default = compare_all(vals, default) 
-!               class default 
-!                  _FAIL(MISMATCH_MESSAGE) 
-!               end select 
-!            else 
-!               value_is_default = .FALSE. 
-!            end if 
-!         else
-!            value_is_default = .TRUE.
-!         end if 
-!         if (.not. (print_nondefault_only .and. value_is_default)) then 
-!            type_string = TYPE_CHARACTER
-!            write(array_size_string, '(i2)', iostat=io_stat) size(vals)
-!            _ASSERT((io_stat == IO_SUCCESS), "Failure writing array size string")
-!            type_format = string_array_format(array_size_string)
-!            write(formatted_value, type_format, iostat=io_stat) vals
-!            _ASSERT((io_stat == IO_SUCCESS), "Failure writing array formatted_value")
-!         else 
-!            do_print = .FALSE. 
-!         end if 
-!      end if
+
 
       class default
          _FAIL( "Unsupported type")
