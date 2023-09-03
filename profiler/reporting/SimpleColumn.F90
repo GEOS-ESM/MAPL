@@ -39,12 +39,10 @@ contains
       class (SimpleColumn), intent(in) :: this
       class (AbstractMeterNode), target, intent(in) :: node
 
-      integer :: n_meters
       integer :: i
       class (AbstractMeterNodeIterator), allocatable :: iter
       class (AbstractMeterNode), pointer :: subnode
       
-      n_meters = node%get_num_nodes()
 
       iter = node%begin()
       i = 0
