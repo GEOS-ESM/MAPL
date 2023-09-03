@@ -745,7 +745,7 @@ module MAPL_CommsMod
 
     type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
-    integer                       :: NumCores, Nnodes
+    integer                       :: Nnodes
     integer                       :: nn
     integer                       :: LM, L, nc, npes, mype, dims(5)
     type(ESMF_VM)                 :: VM
@@ -761,12 +761,6 @@ module MAPL_CommsMod
     call ESMF_VMGet(VM, petcount=npes, localpet=MYPE, mpiCommunicator=comm, RC=STATUS)
     _VERIFY(STATUS)
 
-    if(present(CoresPerNode)) then
-       NumCores = CoresPerNode
-    else
-       NumCores = MAPL_CoresPerNodeGet(comm,rc=status)
-       _VERIFY(STATUS)
-    end if
 
     LM     = size(LocArray,3)
 
@@ -815,7 +809,8 @@ module MAPL_CommsMod
     end do
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_CollectiveGather3D
+     _UNUSED_DUMMY(corespernode)
+ end subroutine MAPL_CollectiveGather3D
 
 
   subroutine MAPL_CollectiveScatter3D(Grid, GlobArray, LocArray, hw, rc)

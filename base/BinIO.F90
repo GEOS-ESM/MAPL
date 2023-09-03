@@ -18,7 +18,7 @@ module  BinIOMod
 
   use FileIOSharedMod, only: ArrDescr, MAPL_TileMaskGet, WRITE_PARALLEL, alloc_, dealloc_
   use FileIOSharedMod, only: STD_OUT_UNIT_NUMBER, LAST_UNIT, TAKEN, MTAKEN, mname
-  use FileIOSharedMod, only: not_allocated, r4_2, r4_1, r8_2, r8_1, i4_2, i4_1
+  use FileIOSharedMod, only: r4_2, r4_1, r8_2, r8_1, i4_1
   use FileIOSharedMod, only: MEM_UNITS, munit, REC
   use ESMF
   use MAPL_BaseMod

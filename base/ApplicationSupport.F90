@@ -198,6 +198,7 @@ module MAPL_ApplicationSupport
       end if
       call MPI_Barrier(world_comm, ierror)
 
+      _RETURN(_SUCCESS)
    end subroutine report_global_profiler
 
 end module MAPL_ApplicationSupport
