@@ -1277,11 +1277,7 @@ contains
 
 
       if (present(metadata)) then
-         if (status == _SUCCESS) then
-            face_format = .true.
-         else
-            face_format = .false.
-         end if
+         face_format = metadata%has_dimension('nf')
       else
          face_format = .true.
       end if
@@ -1353,6 +1349,7 @@ contains
       type(c_ptr) :: cptr
       real, pointer :: ptr_ref(:,:,:,:,:)
       logical :: face_format
+      integer :: status
 
       if (present(metadata)) then
          face_format = metadata%has_dimension('nf')
