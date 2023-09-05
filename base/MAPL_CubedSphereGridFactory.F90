@@ -393,7 +393,7 @@ contains
       _VERIFY(status)
 
       _UNUSED_DUMMY(unusable)
-
+      _UNUSED_DUMMY(force_file_coordinates)
    end subroutine initialize_from_file_metadata
 
 
@@ -563,8 +563,6 @@ contains
          character(len=*) :: label
          integer, optional, intent(out) :: rc
 
-         integer :: i
-         integer :: n
          integer :: status
          logical :: isPresent
 
@@ -1286,16 +1284,10 @@ contains
       integer :: global_dim(3),i1,j1,in,jn,tile
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       logical :: face_format
-      integer :: nf
-      _UNUSED_DUMMY(this)
+
 
       if (present(metadata)) then
-         nf = metadata%get_dimension('nf',rc=status)
-         if (status == _SUCCESS) then
-            face_format = .true.
-         else
-            face_format = .false.
-         end if
+         face_format = metadata%has_dimension('nf')
       else
          face_format = .true.
       end if
@@ -1314,6 +1306,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
 
    end subroutine generate_file_bounds
 
@@ -1328,7 +1321,7 @@ contains
 
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
-      integer :: face_i1, face_j1, is, js
+      integer :: face_j1, is, js
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
 
@@ -1336,7 +1329,6 @@ contains
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
       tile = 1 + (j1-1)/global_dim(1)
-      face_i1 = i1
       face_j1 = j1-(tile-1)*global_dim(1)
       is = i1
       js = face_j1
@@ -1367,16 +1359,10 @@ contains
       type(c_ptr) :: cptr
       real, pointer :: ptr_ref(:,:,:,:,:)
       logical :: face_format
-      integer :: nf,status
-      _UNUSED_DUMMY(this)
+      integer :: status
 
       if (present(metadata)) then
-         nf = metadata%get_dimension('nf',rc=status)
-         if (status == _SUCCESS) then
-            face_format = .true.
-         else
-            face_format = .false.
-         end if
+         face_format = metadata%has_dimension('nf')
       else
          face_format = .true.
       end if
@@ -1388,6 +1374,8 @@ contains
       else
          ref = ArrayReference(fpointer)
       end if
+
+      _UNUSED_DUMMY(this)
    end function generate_file_reference3D
 
 end module MAPL_CubedSphereGridFactoryMod

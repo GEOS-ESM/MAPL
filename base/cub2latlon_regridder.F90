@@ -19,7 +19,7 @@ module SupportMod
    use MAPL_StringRouteHandleMapMod
    use gFTL_StringVector
    use gFTL_StringIntegerMap
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
    implicit none
    public
@@ -462,8 +462,6 @@ contains
          character(len=*), intent(in) :: var_name
          type (StringVector), intent(in) :: requested_vars
 
-         integer :: idx
-
          if (requested_vars%size() == 0) then
             keep_var = .true.
          else
@@ -707,7 +705,7 @@ contains
       logical :: is_east_vector_component
       integer :: idx
       character(len=:), allocatable :: north_component
-      integer :: c0, c1,crate
+      integer(kind=INT64) :: c0, c1,crate
 
       associate (cs_fmtr => this%formatter_cubed_sphere, ll_fmtr => this%formatter_lat_lon)
       call cs_fmtr%open(this%in_file, mode=pFIO_READ, rc=status)
@@ -954,8 +952,6 @@ contains
       type (ESMF_VM) :: vm_global
       integer :: status
 
-      include 'mpif.h'
-
 !$$      if (local_pet == 0) then
          call this%formatter_lat_lon%create_par(this%out_file, comm=MPI_COMM_WORLD, rc=status)
          _VERIFY(status)
@@ -1029,7 +1025,7 @@ contains
       end if
 
       nPetPerTile = pet_count/n_tiles
-      nx = nint(sqrt(float(nPetPerTile*this%Xdim)/this%Xdim))
+      nx = nint(sqrt(real(nPetPerTile*this%Xdim)/this%Xdim))
       nx = max(nx,1)
       do while( mod(nPetPerTile,nx).NE.0)
          nx = nx - 1
@@ -1110,6 +1106,7 @@ contains
       integer, allocatable :: jms(:)
       integer, allocatable :: ims(:)
       integer :: np
+      integer :: npx
 
       np = floor(sqrt(real(pet_count)))
       do npx = np, 1, -1
@@ -1196,7 +1193,7 @@ program main
    use pFIO
    implicit none
 
-   integer :: c00, c0, c1, crate
+   integer(kind=INT64) :: c00, c0, c1, crate
 
    integer :: status
    type (RegridSupport) :: regridder

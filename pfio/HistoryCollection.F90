@@ -96,7 +96,6 @@ contains
     type (FileMetadata), intent(in) :: fmd
     integer, optional, intent(out) :: rc
 
-    integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::ReplaceMetadata()"
 
     this%fmd = fmd

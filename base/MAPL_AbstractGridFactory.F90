@@ -773,7 +773,6 @@ contains
    function get_basis(this,basis,unusable,rc) result(basis_vectors)
       use esmf
       use MAPL_KeywordEnforcerMod
-      use MAPL_Constants, only : PI => MAPL_PI_R8
       real(REAL64), pointer :: basis_vectors(:,:,:,:)
       character(len=*), intent(in) :: basis
       class (AbstractGridFactory), target, intent(inout) :: this

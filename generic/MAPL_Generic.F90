@@ -3049,12 +3049,12 @@ contains
       character(len=ESMF_MAXSTR)                  :: IAm
       integer                                     :: status
 
-      character*4 year
-      character*2 month
-      character*2 day
-      character*2 hour
-      character*2 minute
-      character*2 second
+      character(len=4) :: year
+      character(len=2) :: month
+      character(len=2) :: day
+      character(len=2) :: hour
+      character(len=2) :: minute
+      character(len=2) :: second
 
       equivalence ( string(01),TimeString )
       equivalence ( string(01),year       )
@@ -5066,7 +5066,7 @@ contains
 
       call child_meta%t_profiler%stop('SetService',_RC)
       call child_meta%t_profiler%stop(_RC)
-      call t_p%stop(trim(name),_RC)    
+      call t_p%stop(trim(name),_RC)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSOMeta
@@ -6035,7 +6035,7 @@ contains
 
          !call MPI_Barrier(mpl%grid%comm, status)
          !_VERIFY(status)
-         !itime_beg = MPI_Wtime(status)
+         !itime_beg = MPI_Wtime()
          !_VERIFY(status)
 
          call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=oClients, RC=status)
@@ -6043,7 +6043,7 @@ contains
 
          !call MPI_Barrier(mpl%grid%comm, status)
          !_VERIFY(status)
-         !itime_end = MPI_Wtime(status)
+         !itime_end = MPI_Wtime()
          !total_time = total_time + itime_end - itime_beg
          !_VERIFY(status)
          !call MPI_COMM_RANK(mpl%grid%comm, io_rank, status)
@@ -6414,7 +6414,7 @@ contains
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
-   
+
      contains
        function grid_is_consistent(grid_type, fname) result( consistent)
          logical :: consistent
@@ -6426,7 +6426,7 @@ contains
          class (AbstractGridFactory), allocatable :: file_factory
          character(len=:), allocatable :: fname_by_face
          logical :: fexist
-    
+
          consistent = .True.
          if (trim(grid_type) == 'Cubed-Sphere') then
             app_factory => get_factory(MPL%GRID%ESMFGRID)

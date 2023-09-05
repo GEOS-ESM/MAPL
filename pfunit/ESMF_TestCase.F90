@@ -89,6 +89,7 @@ contains
          ! only report context failure on root PE
          if (.not. this%parentContext%isRootProcess()) then
             discard = catch()
+            if (.false.) print*,shape(discard)
          end if
       end if
 

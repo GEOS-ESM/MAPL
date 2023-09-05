@@ -27,6 +27,7 @@ module NCIOMod
   use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
+  use mpi
   implicit none
   private
 
@@ -44,7 +45,6 @@ module NCIOMod
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
 
-  include "mpif.h"
   include "netcdf.inc"
 
   interface MAPL_VarReadNCPar
@@ -858,7 +858,6 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
@@ -881,14 +880,6 @@ module NCIOMod
        end if
     endif
 
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -1206,17 +1197,6 @@ module NCIOMod
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: start(4), cnt(4)
 
-    logical :: AM_WRITER
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
@@ -1522,16 +1502,6 @@ module NCIOMod
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: start(4), cnt(4)
 
-    logical :: AM_WRITER
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -2412,7 +2382,6 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
@@ -2433,16 +2402,6 @@ module NCIOMod
           _RETURN(_SUCCESS)
        endif
     endif
-
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -4519,7 +4478,7 @@ module NCIOMod
   character(len=:), pointer :: name
 
   integer :: status
-  
+
   nvars = 0
   dims => cf%get_dimensions()
   vars => cf%get_variables(_RC)
