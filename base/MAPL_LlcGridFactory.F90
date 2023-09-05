@@ -47,7 +47,7 @@ module MAPL_LlcGridFactoryMod
       procedure :: add_horz_coordinates
       procedure :: init_halo
       procedure :: halo
-      
+
 
       procedure :: initialize_from_file_metadata
       procedure :: initialize_from_config_with_prefix
@@ -72,9 +72,9 @@ module MAPL_LlcGridFactoryMod
       procedure :: decomps_are_equal
       procedure :: physical_params_are_equal
    end type LlcGridFactory
-   
+
    character(len=*), parameter :: MOD_NAME = 'MAPL_LlcGridFactory::'
-   
+
    interface LlcGridFactory
       module procedure LlcGridFactory_from_parameters
    end interface LlcGridFactory
@@ -107,7 +107,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'LlcGridFactory_from_parameters'
 
-      
+
       if (present(unusable)) print*,shape(unusable)
 
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
@@ -152,14 +152,14 @@ contains
    end function make_new_grid
 
 
-   
+
    function create_basic_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
       class (LlcGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-     
-      type (ESMF_Info) :: infoh 
+
+      type (ESMF_Info) :: infoh
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
@@ -177,19 +177,19 @@ contains
             poleKindFlag=[ESMF_POLEKIND_MONOPOLE,ESMF_POLEKIND_BIPOLE], &
             coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
       _VERIFY(status)
-      
+
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
 
       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
       _VERIFY(status)
-      
+
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
          _VERIFY(status)
       end if
-      
+
       call ESMF_InfoSet(infoh,'GridType','Llc',rc=status)
       _VERIFY(status)
 
@@ -205,7 +205,7 @@ contains
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      
+
 
 
 
@@ -224,7 +224,7 @@ contains
       type(ESMF_DistGrid) :: DISTGRID
       real(ESMF_KIND_R8), allocatable :: x(:,:), y(:,:)
       real(ESMF_KIND_R8), pointer :: gridx(:,:), gridy(:,:)
-      
+
       _UNUSED_DUMMY(unusable)
 ! get IM, JM and IM_WORLD, JM_WORLD
      call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, RC=STATUS)
@@ -238,7 +238,7 @@ contains
 ! get global index of the lower left corner
 !------------------------------------------
      call MAPL_GRID_INTERIOR(GRID,IMSTART,DUMMYI,JMSTART,DUMMYJ)
- 
+
      call ESMF_GridGetCoord(grid, localDE=0, coordDim=1, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=gridx, rc=status)
@@ -329,7 +329,7 @@ contains
       _RETURN(_SUCCESS)
 
    contains
-      
+
       subroutine get_multi_integer(values, label, rc)
          integer, allocatable, intent(out) :: values(:)
          character(len=*) :: label
@@ -340,7 +340,7 @@ contains
          integer :: tmp
          integer :: status
          logical :: isPresent
-         
+
          call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
          _VERIFY(status)
          if (.not. isPresent) then
@@ -373,7 +373,7 @@ contains
       end subroutine get_multi_integer
 
    end subroutine initialize_from_config_with_prefix
-   
+
 
 
    function to_string(this) result(string)
@@ -412,7 +412,7 @@ contains
       call verify(this%ny, this%jm_world, this%jms, rc=status)
       !this%ims = spread(this%im_world / this%nx, 1, this%nx)
       !this%jms = spread(this%jm_world / this%ny, 1, this%ny)
-      
+
       _RETURN(_SUCCESS)
 
    contains
@@ -453,7 +453,7 @@ contains
          _RETURN(_SUCCESS)
 
       end subroutine verify
-         
+
    end subroutine check_and_fill_consistency
 
 
@@ -461,27 +461,27 @@ contains
       integer, intent(out) :: to
       integer, optional, intent(in) :: from
       integer, intent(in) :: default
-      
+
       if (present(from)) then
          to = from
       else
          to = default
       end if
-      
+
    end subroutine set_with_default_integer
-   
-   
+
+
    subroutine set_with_default_character(to, from, default)
       character(len=:), allocatable, intent(out) :: to
       character(len=*), optional, intent(in) :: from
       character(len=*), intent(in) :: default
-      
+
       if (present(from)) then
          to = from
       else
          to = default
       end if
-      
+
    end subroutine set_with_default_character
 
    ! MAPL uses values in lon_array and lat_array only to determine the
@@ -551,7 +551,7 @@ contains
       end select
 
    end function physical_params_are_equal
-   
+
 
    logical function equals(a, b)
       class (LlcGridFactory), intent(in) :: a
@@ -566,15 +566,15 @@ contains
 
          equals = (a%lm == b%lm)
          if (.not. equals) return
-         
+
          equals = a%decomps_are_equal(b)
          if (.not. equals) return
 
          equals = a%physical_params_are_equal(b)
-         if (.not. equals) return 
-         
+         if (.not. equals) return
+
       end select
-         
+
    end function equals
 
 
@@ -599,7 +599,7 @@ contains
       integer, optional, intent(out) :: rc
 
       include 'netcdf.inc'
-      
+
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'read_grid_coordinates()'
 
@@ -633,10 +633,10 @@ contains
 
          xid = ncvid(ncid, 'x_T', status)
          _VERIFY(status)
-         
+
          yid = ncvid(ncid, 'y_T', status)
          _VERIFY(status)
-         
+
          call ncvgt(ncid, xid, start, counts, lons, status)
          _VERIFY(status)
          call ncvgt(ncid, yid, start, counts, lats, status)
@@ -658,7 +658,7 @@ contains
       integer, optional, intent(out) :: rc
 
       include 'netcdf.inc'
-      
+
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'read_grid_dimensions()'
 
@@ -689,10 +689,10 @@ contains
 
          xid = ncvid(ncid, 'x_T', status)
          _VERIFY(status)
-         
+
          call ncvinq (ncid, xid, name, type, n, dims, natt, status)
          _VERIFY(status)
-         
+
          associate (im => this%im_world, jm => this%jm_world)
            call ncdinq(ncid, dims(1), name, im, status)
            _VERIFY(status)
@@ -723,12 +723,12 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'init_halo'
-      
+
       _UNUSED_DUMMY(unusable)
 
       grid = this%make_grid(rc=status)
       _VERIFY(status)
-      
+
       call ESMF_GridGet(grid,   distGrid=dist_grid, dimCount=dim_count, rc=status)
       _VERIFY(status)
       call ESMF_DistGridGet(dist_grid, delayout=this%layout, rc=status)
@@ -739,7 +739,7 @@ contains
 
       call ESMF_VmGet(vm, localPet=pet, petCount=ndes, rc=status)
       _VERIFY(status)
-      
+
       this%px = mod(pet, this%nx)
       this%py = pet / this%nx
 
@@ -750,6 +750,7 @@ contains
 
    subroutine halo(this, array, unusable, halo_width, rc)
       use MAPL_CommsMod
+      use mpi
       class (LlcGridFactory), intent(inout) :: this
       real(kind=REAL32), intent(inout) :: array(:,:)
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -758,7 +759,6 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'halo'
-      include 'mpif.h'
 
       integer :: pet_north
       integer :: pet_south
@@ -808,7 +808,7 @@ contains
          else
             pet = mod(px+nx,nx) + nx*mod(py+ny,ny)
          end if
-         
+
       end function get_pet
 
 
@@ -821,9 +821,9 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
-         
+
          if(this%py==this%ny-1) then
             call MAPL_CommsSendRecv(this%layout,        &
                  array(:,2        ),  len,  pet_south,  &
@@ -849,12 +849,12 @@ contains
               end do
             end block
          end if
-         
+
          _RETURN(_SUCCESS)
 
       end subroutine fill_north
 
-     
+
       subroutine fill_south(array, rc)
          use MAPL_BaseMod, only: MAPL_UNDEF
          real(kind=REAL32), intent(inout) :: array(:,:)
@@ -865,7 +865,7 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,     &
@@ -889,10 +889,10 @@ contains
 
          integer :: status
          character(len=*), parameter :: Iam = MOD_NAME // 'fill_east'
-         
+
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,      &
@@ -909,28 +909,28 @@ contains
       subroutine fill_west(array, rc)
          real(kind=REAL32), intent(inout) :: array(:,:)
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
          character(len=*), parameter :: Iam = MOD_NAME // 'fill_west'
 
          integer :: len, last
-         
+
          last = size(array,1)-1
          len = size(array,2)
-         
+
          call MAPL_CommsSendRecv(this%layout,   &
               array(last  , : ),  len,  pet_west,  &
               array(1     , : ),  len,  pet_east,  &
               rc=status)
          _VERIFY(status)
-         
+
          _RETURN(_SUCCESS)
 
       end subroutine fill_west
 
 
    end subroutine halo
-      
+
    subroutine append_metadata(this, metadata)
       class (LlcGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata

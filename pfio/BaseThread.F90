@@ -8,7 +8,6 @@ module pFIO_BaseThreadMod
    use pFIO_IntegerRequestMapMod
    use pFIO_MessageVisitorMod
    use pfio_base
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
 
    implicit none

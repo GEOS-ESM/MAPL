@@ -40,7 +40,7 @@ module pFIO_DirectoryServiceMod
    integer, parameter :: DISCOVERY_TAG = 1 ! Exchange of _root_ rank between client and server
    integer, parameter :: NPES_TAG = 2  ! Client sends number of pes in client to server  (on roots)
    integer, parameter :: RANKS_TAG = 3 ! Client sends ranks of client processes to server (on roots)
-   integer, parameter :: CONNECT_TAG = 3 ! client and server individual processes exchange ranks 
+   integer, parameter :: CONNECT_TAG = 3 ! client and server individual processes exchange ranks
 
    type :: DirectoryEntry
       sequence
@@ -90,7 +90,7 @@ contains
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      
+
       integer :: ierror
       type (Directory) :: empty_dir
 
@@ -118,7 +118,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_DirectoryService
 
-   
+
    integer function make_directory_window(comm, addr) result(win)
       integer, intent(in) :: comm
       type (c_ptr), intent(out) :: addr
@@ -142,7 +142,7 @@ contains
       call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, ierror)
 
    end function make_directory_window
-   
+
    subroutine connect_to_server(this, port_name, client, client_comm, unusable, server_size, rc)
       use pFIO_ClientThreadMod
       class (DirectoryService), target, intent(inout) :: this
@@ -170,7 +170,7 @@ contains
       integer :: server_npes
       integer, allocatable :: client_ranks(:)
       integer, allocatable :: server_ranks(:)
-      
+
       class(ServerThread), pointer :: server_thread_ptr
       class(BaseServer), pointer :: server_ptr
       type(SimpleSocket), target :: ss
@@ -226,7 +226,7 @@ contains
             call MPI_Comm_rank(this%comm, dir_entry%partner_root_rank, ierror) ! global comm
 
             dir%entries(n) = dir_entry
-         
+
             call this%put_directory(dir, this%win_client_directory)
          end if
 
@@ -262,7 +262,7 @@ contains
       call MPI_Scatter(server_ranks, 1, MPI_INTEGER, &
         & server_rank, 1, MPI_INTEGER, &
         & 0, client_comm, ierror)
-     
+
       if (present(server_size)) call MPI_Bcast(server_size, 1, MPI_INTEGER, 0, client_comm,ierror)
 
       ! Construct the connection
@@ -273,7 +273,7 @@ contains
       call client%set_connection(sckt)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-  end subroutine connect_to_server
+   end subroutine connect_to_server
 
    subroutine connect_to_client(this, port_name, server, rc)
       class (DirectoryService), target, intent(inout) :: this
@@ -341,7 +341,7 @@ contains
          end if
 
          call this%mutex%release()
-      
+
          if (found) then
             call MPI_Send(this%rank, 1, MPI_INTEGER, client_root_rank, DISCOVERY_TAG, this%comm, ierror)
          else
@@ -418,11 +418,11 @@ contains
       type(PortInfo),target, intent(in) :: port
       class (BaseServer), intent(inout) :: server
       integer, optional, intent(out) :: rc
-      character(len=MAX_LEN_PORT_NAME) :: port_name 
+      character(len=MAX_LEN_PORT_NAME) :: port_name
       integer :: ierror
       integer :: rank_in_server
       integer :: n
-      
+
 
       type (Directory) :: dir
       type (DirectoryEntry) :: dir_entry
@@ -464,7 +464,7 @@ contains
 
          n = dir%num_entries + 1
          dir%num_entries = n
-         
+
          dir_entry%port_name = port_name
          dir_entry%partner_root_rank = this%rank
          dir%entries(n) = dir_entry
@@ -478,14 +478,14 @@ contains
 
    function sizeof_directory() result(sz)
       integer :: sz
-      
+
       integer :: sizeof_char, sizeof_integer, sizeof_DirectoryEntry
       integer :: one_integer
       character :: one_char
 
       sizeof_integer = c_sizeof(one_integer)
       sizeof_char    = c_sizeof(one_char)
-      
+
       sizeof_DirectoryEntry = MAX_LEN_PORT_NAME*sizeof_char + 1*sizeof_integer
       sz = sizeof_integer + MAX_NUM_PORTS*sizeof_DirectoryEntry
    end function sizeof_directory
@@ -524,7 +524,7 @@ contains
       return
       _UNUSED_DUMMY(this)
    end function get_directory
-      
+
 
    subroutine put_directory(this, dir, win)
       class (DirectoryService), intent(in) :: this
@@ -546,7 +546,7 @@ contains
       return
       _UNUSED_DUMMY(this)
    end subroutine put_directory
-      
+
    subroutine terminate_servers(this, client_comm, rc)
       class (DirectoryService), intent(inout) :: this
       integer ,intent(in) :: client_comm
@@ -554,13 +554,13 @@ contains
 
       type (Directory) :: dir
       integer :: ierror, rank_in_client,i
-      
+
       call MPI_Comm_rank(client_comm, rank_in_client, ierror)
 
       call MPI_BARRIER(client_comm,ierror)
 
       if (rank_in_client ==0) then
-         
+
          write(6,*)"client0 terminates servers"; flush(6)
 
          dir = this%get_directory(this%win_server_directory)

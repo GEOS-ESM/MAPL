@@ -771,7 +771,7 @@ contains
        do ndiv=0,ndivs-1
           !modified for mirror-symmetry
           !original line
-          !                 ie = is + CEILING( float(ieg-is+1)/(ndivs-ndiv) ) - 1
+          !                 ie = is + CEILING( real(ieg-is+1)/(ndivs-ndiv) ) - 1
 
           !problem of dividing nx points into n domains maintaining symmetry
           !i.e nx=18 n=4 4554 and 5445 are solutions but 4455 is not.

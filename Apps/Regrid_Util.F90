@@ -325,13 +325,12 @@
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
    use regrid_util_support_mod
+   use mpi
 
    implicit NONE
 
    type(DistributedProfiler), target :: t_prof
    type (ProfileReporter) :: reporter
-
-   include "mpif.h"
 
    call main()
 

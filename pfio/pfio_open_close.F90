@@ -9,7 +9,6 @@ program main
 
   type (FileMetadata) :: file_metadata
   type (NetCDF4_FileFormatter) :: formatter
-  type (FileMetadata) :: test_metadata
   integer :: status
 
   call formatter%open('test_in.nc4', pFIO_READ, rc=status)

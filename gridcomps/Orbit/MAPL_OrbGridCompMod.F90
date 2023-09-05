@@ -31,7 +31,7 @@
    Use MAPL_Constants
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL_ErrorHandlingMod
-  
+
    IMPLICIT NONE
    PRIVATE
 !
@@ -68,7 +68,7 @@
 CONTAINS
 !------------------------------------------------------------------------------
 !>
-! Sets IRF services for the Orb Grid Component. 
+! Sets IRF services for the Orb Grid Component.
 ! Sets Initialize, Run and Finalize services.
 !
    SUBROUTINE SetServices ( GC, RC )
@@ -85,7 +85,7 @@ CONTAINS
 
     integer :: i, nCols
                             _Iam_('SetServices')
-    integer :: status                            
+    integer :: status
     logical :: found
 !                              ------------
 
@@ -105,15 +105,15 @@ CONTAINS
     allocate ( self, stat=STATUS )
     _VERIFY(STATUS)
     wrap%ptr => self
- 
+
 !   Load private Config Attributes
 !   ------------------------------
     self%CF = ESMF_ConfigCreate(_RC)
     inquire(file="MAPL_OrbGridComp.rc", exist=found)
     if (found) then
        call ESMF_ConfigLoadFile ( self%CF,'MAPL_OrbGridComp.rc',rc=status)
-       _VERIFY(STATUS) 
-    
+       _VERIFY(STATUS)
+
        call ESMF_ConfigGetAttribute(self%CF, self%verbose, Label='verbose:', default=.false. ,  _RC )
 
 !                       ------------------------
@@ -122,7 +122,7 @@ CONTAINS
 
        call ESMF_ConfigGetDim(self%CF, self%no, nCols, LABEL='Nominal_Orbits::',_RC)
        _ASSERT(self%no>0,'needs informative message')
-       allocate(self%Instrument(self%no), self%Satellite(self%no), & 
+       allocate(self%Instrument(self%no), self%Satellite(self%no), &
           self%Swath(self%no), self%halo(self%no), __STAT__)
        if ( self%verbose .AND. MAPL_AM_I_ROOT() ) then
              write(*,*)"                                   Swath"
@@ -154,12 +154,12 @@ CONTAINS
     _VERIFY(STATUS)
     call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,       RC=STATUS)
     _VERIFY(STATUS)
-        
+
 !   Store internal state in GC
 !   --------------------------
     call ESMF_UserCompSetInternalState ( GC, 'Orb_state', wrap, STATUS )
     _VERIFY(STATUS)
-  
+
 !                         ------------------
 !                         MAPL Data Services
 !
@@ -186,7 +186,7 @@ CONTAINS
 !   Generic Set Services
 !   --------------------
     call MAPL_GenericSetServices ( GC, _RC )
- 
+
 !   All done
 !   --------
     _RETURN(ESMF_SUCCESS)
@@ -199,7 +199,7 @@ CONTAINS
 !
   subroutine Initialize_( GC, IMPORT, EXPORT, CLOCK, RC )
 
-    type(ESMF_GridComp), intent(inout) :: GC     !! Gridded component 
+    type(ESMF_GridComp), intent(inout) :: GC     !! Gridded component
     type(ESMF_State),    intent(inout) :: IMPORT !! Import state
     type(ESMF_State),    intent(inout) :: EXPORT !! Export state
     type(ESMF_Clock),    intent(inout) :: CLOCK  !! The clock
@@ -229,7 +229,7 @@ CONTAINS
     integer                       :: IM, JM, face
     real(ESMF_KIND_R8), pointer                 :: EdgeLons(:,:), EdgeLats(:,:)
     type(ESMF_Info) :: infoh
-! Begin... 
+! Begin...
 
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
@@ -251,7 +251,7 @@ CONTAINS
 
     call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,RC=STATUS)
     _VERIFY(STATUS)
-  
+
     call ESMF_GridCompGet ( GC, grid=GRID, RC=STATUS)
     _VERIFY(STATUS)
 
@@ -269,7 +269,7 @@ CONTAINS
      _VERIFY(STATUS)
     enddo
 
-    ! find out what type of grid we are on, if so 
+    ! find out what type of grid we are on, if so
     gridtype_default='Lat-Lon'
     call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
     _VERIFY(STATUS)
@@ -281,7 +281,7 @@ CONTAINS
        _VERIFY(STATUS)
        call MAPL_Get(MAPL_OBJ, im=im, jm=jm, rc=status)
        _VERIFY(STATUS)
- 
+
        allocate(EdgeLons(IM+1,JM+1),stat=status)
        _VERIFY(STATUS)
        allocate(EdgeLats(IM+1,JM+1),stat=status)
@@ -320,9 +320,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, optional ::  rc                   !! Error return code:  
-                                                 !!  0 - all is well   
-                                                 !!  1 -   
+   integer, optional ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
   ! local
   type (ESMF_VM)                      :: VM
   type (MAPL_MetaComp),     pointer   :: MAPL_OBJ
@@ -343,7 +343,7 @@ CONTAINS
 
   type(ESMF_Grid)               :: Grid        ! Grid
   type(ESMF_Time)               :: Time     ! Current time
-  type(ESMF_Config)             :: CF          ! Universal Config 
+  type(ESMF_Config)             :: CF          ! Universal Config
 
   integer                       :: k, nymd, nhms  ! date, time
 
@@ -385,7 +385,7 @@ CONTAINS
         RC=STATUS )
    _VERIFY(STATUS)
 
-!  Figure out what type of grid we are on 
+!  Figure out what type of grid we are on
 
    gridtype_default='Lat-Lon'
    call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
@@ -467,10 +467,10 @@ CONTAINS
                               ihalo, jhalo, self%face, rc=status )
     endif
     ! if HISTORY is asking for mask to write this will be allocated
-    if (associated(PTR_TMP_EX)) PTR_TMP_EX=PTR_TMP 
+    if (associated(PTR_TMP_EX)) PTR_TMP_EX=PTR_TMP
     if (associated(PTR_TMP)) nullify(PTR_TMP)
     if (associated(PTR_TMP_EX)) nullify(PTR_TMP_EX)
- 
+
    enddo
 
 !  All done
@@ -489,7 +489,7 @@ CONTAINS
 
     type(Orb_state), pointer           :: self         ! Legacy state
     type(ESMF_Grid),     intent(out)    :: GRID         ! Grid
-    type(ESMF_Config),   intent(out)    :: CF           ! Universal Config 
+    type(ESMF_Config),   intent(out)    :: CF           ! Universal Config
     type(ESMF_TIME), intent(out)        :: Time         ! Time
     type(ESMF_TimeInterval), intent(out) :: TimeInterval ! Time Intervale
     integer, intent(out)                :: nymd, nhms   ! date, time
@@ -498,7 +498,7 @@ CONTAINS
 !                                      ---
 
     character(len=ESMF_MAXSTR) :: comp_name
-    
+
                                  _Iam_('extract_')
 
     type(Orb_Wrap)               :: wrap
@@ -566,9 +566,9 @@ CONTAINS
 ! !OUTPUT PARAMETERS:
 
        real,    intent(inout) :: field(im,jm)
-       integer, intent(out), optional   :: rc    !! Error return code     
-                                       !! = 0  all is well     
-                                       !! = 3  memory allocation error      
+       integer, intent(out), optional   :: rc    !! Error return code
+                                       !! = 0  all is well
+                                       !! = 3  memory allocation error
 
 !                               ----
 
@@ -607,7 +607,7 @@ CONTAINS
 !         --------------
           mask=0
           call orb_mask_lonlat(mask,im,jm,lons,lats,tlons,tlats,size(tlons),jsegs,-180.,180.)
- 
+
           deallocate(tlons,tlats)
 
        else
@@ -668,13 +668,13 @@ CONTAINS
        integer, intent(in) :: nymd(2) !! Beginning/ending date: YYYYMMDD
        integer, intent(in) :: nhms(2) !! Beginning/ending time: HHMMSS
        integer, intent(in) :: face
- 
+
 ! !OUTPUT PARAMETERS:
 
        real,    intent(inout) :: field(im,jm)
-       integer, optional   :: rc    !! Error return code    
-                                       !! = 0  all is well    
-                                       !! = 3  memory allocation error    
+       integer, optional   :: rc    !! Error return code
+                                       !! = 0  all is well
+                                       !! = 3  memory allocation error
 
 !                               ----
 
@@ -692,7 +692,7 @@ CONTAINS
        real(dp), pointer :: slons(:,:) => null()
        real(dp), pointer :: slats(:,:) => null()
 
-!       character*(12)       :: Iam="DoMasking_CS"
+!       character(len=12)       :: Iam="DoMasking_CS"
 
        SwathWidth(1:2) = swath(1:2) ! type conversion
 
@@ -787,7 +787,7 @@ CONTAINS
        do i =1,jm_1d
         y_1d(i)=y(i,1)
        enddo
-      endif 
+      endif
       return
       end subroutine flatten_xy
 
@@ -814,11 +814,11 @@ CONTAINS
       integer, optional, intent(out) :: rc
 
       real, pointer  :: ex(:), ey(:)
-      real(dp) :: tlons(nobs), tlats(nobs) 
+      real(dp) :: tlons(nobs), tlats(nobs)
       real(dp) :: beta
       integer, intent(out) :: mask(im,jm)
       real :: x_loc, y_loc
-     
+
       integer i, j, m, n, nfail, inbox, imp1, jmp1, face_pnt
       integer im_1d, jm_1d, itmp
       logical switch
@@ -829,8 +829,8 @@ CONTAINS
       if (present(rc)) then
          rc = ESMF_SUCCESS
       end if
-      
-      
+
+
       switch = .false.
       if ( abs(x(1,1)-x(2,1)) < abs(x(1,1)-x(1,2)) ) switch = .true.
       if (.not.switch) then
@@ -912,18 +912,18 @@ CONTAINS
 
       real :: lons_1d(im), lats_1d(jm)
       real :: elons(im+1), elats(jm+1)
-      real(dp) :: tlons(nobs), tlats(nobs) 
+      real(dp) :: tlons(nobs), tlats(nobs)
       real(dp) :: beta
       integer, intent(out) :: mask(im,jm)
 
-     
+
       integer i, j, m, n, inbox, imp1, jmp1
       real :: wcorner_lat(4),wcorner_lon(4) ! corners of world for this proc
       real :: lat,lon
- 
+
 !     Build edge coords
 !     -----------------
-      call flatten_latlon(lats,lons,lats_1d,lons_1d,im,jm) 
+      call flatten_latlon(lats,lons,lats_1d,lons_1d,im,jm)
       call orb_edges_1d(elons,lons_1d,im)
       call orb_edges_1d(elats,lats_1d,jm)
 !     since we will need these
@@ -979,11 +979,11 @@ CONTAINS
       integer, intent(in) :: face
 
       real, pointer :: ex(:), ey(:)
-      real(dp) :: slons(3,nobs), slats(3,nobs) 
+      real(dp) :: slons(3,nobs), slats(3,nobs)
       real(dp) :: alpha, beta, lon1, lon2, lat1, lat2
       integer, intent(out) :: mask(im,jm)
       real :: x_loc, y_loc
-     
+
       integer :: i, j, k, m, n, imp1, jmp1, inbox, itmp
       integer :: im_1d, jm_1d
       real :: wcorner_x(4),wcorner_y(4)
@@ -1028,7 +1028,7 @@ CONTAINS
          alpha = (k - 1.0 ) / ( isegs - 1.0 )
          do n = 2, nobs
             if (abs(slons(1,n-1)-slons(3,n-1)) < 180.) then
-             lon1 = (1.0-alpha) * slons(1,n-1) + alpha * slons(3,n-1)  
+             lon1 = (1.0-alpha) * slons(1,n-1) + alpha * slons(3,n-1)
              eplonl1 = slons(1,n-1)
              eplonr1 = slons(3,n-1)
             else if (slons(1,n-1) > slons(3,n-1)) then
@@ -1036,12 +1036,12 @@ CONTAINS
              eplonl1 = slons(1,n-1)
              eplonr1 = slons(3,n-1)+360.
             else
-             lon1 = (1.0-alpha) * (slons(1,n-1)+360.) + alpha * slons(3,n-1)  
+             lon1 = (1.0-alpha) * (slons(1,n-1)+360.) + alpha * slons(3,n-1)
              eplonl1 = slons(1,n-1)+360.
              eplonr1 = slons(3,n-1)
             endif
             if (abs(slons(1,n)-slons(3,n)) < 180.) then
-             lon2 = (1.0-alpha) * slons(1,n) + alpha * slons(3,n)  
+             lon2 = (1.0-alpha) * slons(1,n) + alpha * slons(3,n)
              eplonl2 = slons(1,n)
              eplonr2 = slons(3,n)
             else if (slons(1,n) > slons(3,n)) then
@@ -1056,27 +1056,27 @@ CONTAINS
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
             associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
-             eplatl1 = slats(1,n-1) 
-             eplatr1 = slats(3,n-1) 
-             eplatl2 = slats(1,n) 
-             eplatr2 = slats(3,n) 
+             eplatl1 = slats(1,n-1)
+             eplatr1 = slats(3,n-1)
+             eplatl2 = slats(1,n)
+             eplatr2 = slats(3,n)
              sdnom1 = sin((eplonl1-eplonr1)*d2r)
-             sdnom2 = sin((eplonl2-eplonr2)*d2r)  
+             sdnom2 = sin((eplonl2-eplonr2)*d2r)
              if (abs(sdnom1) /= 0.) then
               sp1 = sin((lon1-eplonr1)*d2r)/sdnom1
               sp2 = sin((lon1-eplonl1)*d2r)/sdnom1
               lat1 = atan(tan(eplatl1*d2r)*sp1 - tan(eplatr1*d2r)*sp2)
               lat1 = lat1*r2d
              else
-              lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)  
+              lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)
              endif
              if (abs(sdnom2) /= 0.) then
               sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
               sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
               lat2 = atan(tan(eplatl2*d2r)*sp1 - tan(eplatr2*d2r)*sp2)
-              lat2 = lat2*r2d 
+              lat2 = lat2*r2d
              else
-              lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n) 
+              lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n)
              endif
 
              do m = 1, jsegs ! along track refinement
@@ -1098,12 +1098,12 @@ CONTAINS
                 eplat2=lat2
                 sdnom=sin((eplon1-eplon2)*d2r)
                 if (abs(sdnom) /= 0. ) then
-                 sp1=sin((lon-eplon2)*d2r)/sdnom 
+                 sp1=sin((lon-eplon2)*d2r)/sdnom
                  sp2=sin((lon-eplon1)*d2r)/sdnom
                  latf = atan(tan(eplat1*d2r)*sp1-tan(eplat2*d2r)*sp2)
                  latf = latf*r2d
                  lat = latf
-                else 
+                else
                  lat = (1.0-beta) * lat1 + beta * lat2
                 endif
                 if (lon < lb) lon=lon+360.
@@ -1118,7 +1118,7 @@ CONTAINS
                  if (inbox == 1) then
                   i = ijsearch(ex,im_1d,x_loc,.false.)
                   j = ijsearch(ey,jm_1d,y_loc,.false.)
-                  if (switch) then 
+                  if (switch) then
                      itmp = i
                      i = j
                      j = itmp
@@ -1149,11 +1149,11 @@ CONTAINS
 
       real :: lons_1d(im),lats_1d(jm)
       real :: elons(im+1), elats(jm+1)
-      real(dp) :: slons(3,nobs), slats(3,nobs) 
+      real(dp) :: slons(3,nobs), slats(3,nobs)
       real(dp) :: alpha, beta, lon1, lon2, lat1, lat2
       integer, intent(out) :: mask(im,jm)
 
-     
+
       integer i, j, k, m, n, nfail, imp1, jmp1, inbox
       real :: wcorner_lat(4),wcorner_lon(4)
       real :: lat,lon
@@ -1185,7 +1185,7 @@ CONTAINS
          alpha = (k - 1.0 ) / ( isegs - 1.0 )
          do n = 2, nobs
             if (abs(slons(1,n-1)-slons(3,n-1)) < 180.) then
-             lon1 = (1.0-alpha) * slons(1,n-1) + alpha * slons(3,n-1)  
+             lon1 = (1.0-alpha) * slons(1,n-1) + alpha * slons(3,n-1)
              eplonl1 = slons(1,n-1)
              eplonr1 = slons(3,n-1)
             else if (slons(1,n-1) > slons(3,n-1)) then
@@ -1193,12 +1193,12 @@ CONTAINS
              eplonl1 = slons(1,n-1)
              eplonr1 = slons(3,n-1)+360.
             else
-             lon1 = (1.0-alpha) * (slons(1,n-1)+360.) + alpha * slons(3,n-1)  
+             lon1 = (1.0-alpha) * (slons(1,n-1)+360.) + alpha * slons(3,n-1)
              eplonl1 = slons(1,n-1)+360.
              eplonr1 = slons(3,n-1)
             endif
             if (abs(slons(1,n)-slons(3,n)) < 180.) then
-             lon2 = (1.0-alpha) * slons(1,n) + alpha * slons(3,n)  
+             lon2 = (1.0-alpha) * slons(1,n) + alpha * slons(3,n)
              eplonl2 = slons(1,n)
              eplonr2 = slons(3,n)
             else if (slons(1,n) > slons(3,n)) then
@@ -1213,27 +1213,27 @@ CONTAINS
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
             associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
-             eplatl1 = slats(1,n-1) 
-             eplatr1 = slats(3,n-1) 
-             eplatl2 = slats(1,n) 
-             eplatr2 = slats(3,n) 
+             eplatl1 = slats(1,n-1)
+             eplatr1 = slats(3,n-1)
+             eplatl2 = slats(1,n)
+             eplatr2 = slats(3,n)
              sdnom1 = sin((eplonl1-eplonr1)*d2r)
-             sdnom2 = sin((eplonl2-eplonr2)*d2r)  
+             sdnom2 = sin((eplonl2-eplonr2)*d2r)
              if (abs(sdnom1) /= 0.) then
               sp1 = sin((lon1-eplonr1)*d2r)/sdnom1
               sp2 = sin((lon1-eplonl1)*d2r)/sdnom1
               lat1 = atan(tan(eplatl1*d2r)*sp1 - tan(eplatr1*d2r)*sp2)
               lat1 = lat1*r2d
              else
-              lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)  
+              lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)
              endif
              if (abs(sdnom2) /= 0.) then
               sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
               sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
               lat2 = atan(tan(eplatl2*d2r)*sp1 - tan(eplatr2*d2r)*sp2)
-              lat2 = lat2*r2d 
+              lat2 = lat2*r2d
              else
-              lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n) 
+              lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n)
              endif
 
              do m = 1, jsegs ! along track refinement
@@ -1255,12 +1255,12 @@ CONTAINS
                 eplat2=lat2
                 sdnom=sin((eplon1-eplon2)*d2r)
                 if (abs(sdnom) /= 0. ) then
-                 sp1=sin((lon-eplon2)*d2r)/sdnom 
+                 sp1=sin((lon-eplon2)*d2r)/sdnom
                  sp2=sin((lon-eplon1)*d2r)/sdnom
                  latf = atan(tan(eplat1*d2r)*sp1-tan(eplat2*d2r)*sp2)
                  latf = latf*r2d
                  lat = latf
-                else 
+                else
                  lat = (1.0-beta) * lat1 + beta * lat2
                 endif
                 if (lon < lb) lon=lon+360.
@@ -1360,7 +1360,7 @@ CONTAINS
                     i2 = i
                endif
              end do
-            else 
+            else
              do k = 1, idim  ! it should never take take long
                i = (i1 + i2) / 2
                if ( (value .lt. coords(i)) ) then
@@ -1375,7 +1375,7 @@ CONTAINS
                endif
              end do
             endif
-      end function 
+      end function
 
 
       subroutine check_face(IM,JM,LONS,LATS,face)
@@ -1398,7 +1398,7 @@ CONTAINS
         if (xyz(1) /= 0.0) then
          s(1)=rsq3/xyz(1)
          s(2)=-rsq3/xyz(1)
-        else 
+        else
          s(1)=1000.0
          s(2)=1000.0
         endif
@@ -1417,7 +1417,7 @@ CONTAINS
          s(6)=1000.0
         endif
         do k=1,6
-         if (s(k) > 0) then 
+         if (s(k) > 0) then
           if (s(k) < smin) then
            smin = s(k)
            fmin = k
@@ -1472,7 +1472,7 @@ CONTAINS
         end select
        enddo
       enddo
-      
+
       end subroutine cube_xy
 
       subroutine cube_xy_point(x,y,LAT,LON,face)
@@ -1505,7 +1505,7 @@ CONTAINS
         y = -rsq3*cos(LLON)*cos(LLAT)/sin(LLAT)
       end select
 
-      end subroutine cube_xy_point 
+      end subroutine cube_xy_point
 
       subroutine check_face_pnt(LON,LAT,face)
       real, intent(in) :: LON,LAT
@@ -1554,9 +1554,9 @@ CONTAINS
         endif
        endif
       enddo
-      if (fmin /= 7) then 
+      if (fmin /= 7) then
        face = fmin
-      endif       
+      endif
       end subroutine check_face_pnt
 
       subroutine orb_halo(im,jm,mask,ihalo,jhalo,rc)
@@ -1585,7 +1585,7 @@ CONTAINS
                   end do ! is loop
                end if ! (i,j) has mask = 1
             end do ! j loop
-         end do ! i loop 
+         end do ! i loop
 
          mask = tmask
 
