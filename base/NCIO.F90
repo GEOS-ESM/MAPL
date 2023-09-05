@@ -27,6 +27,7 @@ module NCIOMod
   use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
+  use mpi
   implicit none
   private
 
@@ -44,7 +45,6 @@ module NCIOMod
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
 
-  include "mpif.h"
   include "netcdf.inc"
 
   interface MAPL_VarReadNCPar
@@ -464,7 +464,7 @@ module NCIOMod
           _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
- 
+
                 if (arrdes%write_restart_by_oserver) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
@@ -852,7 +852,6 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
@@ -875,14 +874,6 @@ module NCIOMod
        end if
     endif
 
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -1200,17 +1191,6 @@ module NCIOMod
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: start(4), cnt(4)
 
-    logical :: AM_WRITER
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
@@ -1516,16 +1496,6 @@ module NCIOMod
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: start(4), cnt(4)
 
-    logical :: AM_WRITER
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -2406,7 +2376,6 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
@@ -2427,16 +2396,6 @@ module NCIOMod
           _RETURN(_SUCCESS)
        endif
     endif
-
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -3911,10 +3870,10 @@ module NCIOMod
        else
           isGridCapture = .false.
        end if
- 
+
        if (isGridCapture) then
           call add_fvar(cf, 'lons', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lons', _RC)
-          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC) 
+          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC)
        end if
 
        if (ungrid_dim_max_size /= 0) then
@@ -4001,7 +3960,7 @@ module NCIOMod
             _VERIFY(status)
          end if
        end if
-       
+
     enddo
 
     call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
@@ -4010,7 +3969,7 @@ module NCIOMod
     else
        isGridCapture = .false.
     end if
-    
+
     if (isGridCapture) then
        call ESMF_GridGet(arrdes%grid, name=fieldname, _RC)
        lons_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lons', _RC)
@@ -4023,7 +3982,7 @@ module NCIOMod
 
        call ESMF_FieldGet(lons_field, farrayPtr=lons_field_ptr, _RC)
        call ESMF_FieldGet(lats_field, farrayPtr=lats_field_ptr, _RC)
-       
+
        lons_field_ptr = grid_lons
        lats_field_ptr = grid_lats
 
@@ -4198,9 +4157,9 @@ module NCIOMod
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
              _VERIFY(STATUS)
              call ESMF_FieldGet(field,array=array,rc=FieldIsValid)
-             
+
              if (fieldIsValid == 0) then
-              
+
                 skipWriting = .false.
                 if (.not. forceWriteNoRestart_) then
                    call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
@@ -4213,13 +4172,13 @@ module NCIOMod
                 else
                    skipWriting = .true.
                 end if
-                
+
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
                 if (isPresent) then
                    call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
                    if (is_test_framework) skipWriting = .false.
                 end if
-                
+
                 if (skipWriting) cycle
 
                 call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
@@ -4229,7 +4188,7 @@ module NCIOMod
                    _VERIFY(STATUS)
                    skipWriting = (dna /= 0)
                 endif
-                
+
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
                 if (isPresent) then
                    call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
@@ -4262,7 +4221,7 @@ module NCIOMod
        call ESMF_AttributeGet(state, name='MAPL_GridCapture', value=isGridCapture, _RC)
        call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
- 
+
     call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
     _VERIFY(STATUS)
 

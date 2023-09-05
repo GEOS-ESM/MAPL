@@ -186,6 +186,7 @@ contains
       use pFIO_AbstractRequestHandleMod
       class (FastClientThread), target, intent(inout) :: this
       ! do nothing on purpose
+      _UNUSED_DUMMY(this)
    end subroutine post_wait_all
 
 end module pFIO_FastClientThreadMod

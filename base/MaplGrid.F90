@@ -337,15 +337,12 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
      integer, optional,   intent(out  ) :: rc
 
      integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
 
      integer :: i,tileSize,tileCount,tile,deCount
      logical :: ESMFCubeSphere
      integer, allocatable  :: elementCountPTile(:)
      integer, allocatable :: deToTileMap(:)
      integer, allocatable :: oldMinIndex(:,:),oldMaxIndex(:,:)
-
-     Iam = "MAPL_DistGridGet"
 
      ESMFCubeSphere = .false.
 

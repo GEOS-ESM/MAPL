@@ -15,10 +15,6 @@ module pFIO_SimpleSocketMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_AbstractDataReferenceMod
 
-   use, intrinsic :: iso_fortran_env, only: REAL32
-   use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_c_binding, only: c_f_pointer
    implicit none
    private
 
