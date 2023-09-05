@@ -1,5 +1,4 @@
 module MAPL_ExclusiveColumn
-   use, intrinsic :: iso_fortran_env, only: REAL64
    use MAPL_AbstractColumn
    use MAPL_SimpleColumn
    use MAPL_AbstractMeterNode

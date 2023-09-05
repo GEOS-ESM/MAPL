@@ -166,10 +166,11 @@ contains
       integer :: request_id, status
 
       clientPtr => this%current()
-      request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, rc=status)
-      _VERIFY(status)
+      request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, _RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine prefetch_data
 
    subroutine modify_metadata(this, collection_id, unusable,var_map, rc)
@@ -266,6 +267,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine collective_prefetch_data
 
    subroutine stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -287,6 +289,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine stage_data
 
    subroutine collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
@@ -311,6 +314,7 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine collective_stage_data
 
    subroutine stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, unusable, rc)
@@ -330,6 +334,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(request_id)
    end subroutine stage_nondistributed_data
 
    subroutine shake_hand(this, unusable, rc)

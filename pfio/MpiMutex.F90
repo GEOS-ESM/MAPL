@@ -3,7 +3,6 @@
 
 module pFIO_MpiMutexMod
    use mpi
-   use iso_fortran_env, only: INT64
    use iso_c_binding, only: c_ptr, c_f_pointer
    implicit none
    private

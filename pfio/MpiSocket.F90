@@ -3,7 +3,6 @@
 
 module pFIO_MpiSocketMod
    use iso_c_binding
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
    use pFIO_AbstractSocketMod
@@ -202,9 +201,7 @@ contains
 
       integer :: ierror
       integer :: status(MPI_STATUS_SIZE)
-      integer :: save_request
 
-      save_request = this%mpi_request
       call MPI_Wait(this%mpi_request, status, ierror)
       _VERIFY(ierror)
       _RETURN(_SUCCESS)
