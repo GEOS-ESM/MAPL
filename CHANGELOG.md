@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed "geom" subdir and library to "field_utils"
 - Updated CircleCI to use v11.2.0 bcs
 - Backported changes in `pfio` from `release/MAPL-v3` to enable `pfio` unit tests
+- Update `components.yaml`
+  - ESMA_cmake v3.32.0 (Support for Intel Fortran under Rosetta2)
 
 ### Fixed
 
