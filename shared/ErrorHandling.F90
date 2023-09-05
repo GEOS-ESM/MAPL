@@ -138,12 +138,7 @@ contains
 
    end function MAPL_Verify
 
-<<<<<<< HEAD:shared/ErrorHandling.F90
    subroutine MAPL_Return(status, filename, line, rc)
-=======
-
-   subroutine MAPL_Return(status, filename, line, rc)
->>>>>>> develop:shared/MAPL_ErrorHandling.F90
       integer, intent(in) :: status
       character(*), intent(in) :: filename
       integer, intent(in) :: line
