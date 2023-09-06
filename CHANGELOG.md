@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+- OSSE project: trajectory sampler (regrid to IODA locations) with file template. With ExtDataDriver.x, it can ingest G5NR (DC5760x2881-PC) then export to a single IODA output locsteam.
 ### Added
 
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.

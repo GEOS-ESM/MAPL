@@ -59,7 +59,6 @@
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use pflogger, only: Logger, logging
-  use mpi
 
   implicit none
   private
@@ -142,6 +141,8 @@
   integer, parameter :: MAPL_T2G2G = 3
 
   public HISTORY_ExchangeListWrap
+
+  include "mpif.h"
 
 contains
 
@@ -3193,6 +3194,7 @@ ENDDO PARSER
     type(HistoryCollection),   pointer  :: list(:)
     type(HISTORY_STATE),  pointer  :: IntState
     type(HISTORY_wrap)             :: wrap
+    type (ESMF_VM)                 :: vm
     integer                        :: nlist
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
@@ -3399,7 +3401,7 @@ ENDDO PARSER
 !         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
 !         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
 
-
+         
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
@@ -3408,7 +3410,7 @@ ENDDO PARSER
 !         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
 !         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
 !         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-
+         
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
@@ -3435,7 +3437,6 @@ ENDDO PARSER
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-               if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
                call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
@@ -3596,6 +3597,11 @@ ENDDO PARSER
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
+            !!bug
+            !!the barrier did not work when destroy crashes
+            call ESMF_GridCompGet(gc, vm=vm, _RC)
+            call ESMF_VMGetCurrent(vm, _RC)
+            call ESMF_VMbarrier(vm, _RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       end if
@@ -3861,9 +3867,9 @@ ENDDO PARSER
             call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
             IM = dims(1)
             JM = dims(2)
-            DLON   =  360._REAL64/real(IM)
+            DLON   =  360._REAL64/float(IM)
             if (JM /= 1) then
-               DLAT   =  180._REAL64/real(JM-1)
+               DLAT   =  180._REAL64/float(JM-1)
             else
                DLAT   =  1.0
             end if
