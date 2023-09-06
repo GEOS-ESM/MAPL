@@ -895,8 +895,6 @@ contains
       ! calls (see ESMF bug 3004440).
       ! Only coldstart is affected
       logical                          :: isPresent
-      logical                          :: isCreated
-      logical                          :: gridIsPresent
       logical :: is_associated
       character(len=ESMF_MAXSTR)       :: positive, comp_to_record
       type(ESMF_State), pointer :: child_export_state
@@ -1800,8 +1798,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads, is_test_framework, is_test_framework_driver
-      logical :: is_grid_capture, restore_export
+      logical :: use_threads
       character(len=ESMF_MAXSTR) :: comp_to_record
 
       !=============================================================================
@@ -3017,25 +3014,9 @@ contains
 
       type(ESMF_Time)                   :: currentTime
       character(len=ESMF_MAXSTR)        :: TimeString
-      character                         :: String(ESMF_MAXSTR)
 
       character(len=ESMF_MAXSTR)                  :: IAm
       integer                                     :: status
-
-      character(len=4) :: year
-      character(len=2) :: month
-      character(len=2) :: day
-      character(len=2) :: hour
-      character(len=2) :: minute
-      character(len=2) :: second
-
-      equivalence ( string(01),TimeString )
-      equivalence ( string(01),year       )
-      equivalence ( string(06),month      )
-      equivalence ( string(09),day        )
-      equivalence ( string(12),hour       )
-      equivalence ( string(15),minute     )
-      equivalence ( string(18),second     )
 
       Iam = "MAPL_DateStampGet"
 
@@ -3044,7 +3025,16 @@ contains
       call ESMF_TimeGet  (currentTime, timeString=TimeString, rc=status)
       _VERIFY(status)
 
-      DateStamp = year // month // day // '_' // hour // minute // 'z'
+      associate ( &
+         year => TimeString( 1: 4), &
+         month=> TimeString( 6: 7), &
+         day  => TimeString( 9:10), &
+         hour => TimeString(12:13), &
+         minute=>TimeString(15:16), &
+         second=>TimeString(18:19)  &
+         )
+         DateStamp = year // month // day // '_' // hour // minute // 'z'
+      end associate
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_DateStampGet

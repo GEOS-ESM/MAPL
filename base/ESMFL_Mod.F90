@@ -3500,7 +3500,7 @@ CONTAINS
    real(kind=ESMF_KIND_R8), pointer :: dst_pr83d(:,:,:)
    type(ESMF_TypeKind_Flag) :: src_tk, dst_tk
    integer                  :: src_fieldRank, dst_fieldRank
-   logical                  :: NotInState,itemNotFound
+   logical                  :: NotInState
    character(len=ESMF_MAXSTR) :: NameInBundle
    type(ESMF_StateItem_Flag) :: itemType
 

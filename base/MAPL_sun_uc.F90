@@ -64,7 +64,7 @@ module MAPL_SunMod
 ! Dont change these unless you know what you are doing.
 ! They are appropriate for the current modern epoch circa 2000.
 ! -------------------------------------------------------------
- 
+
    ! Parameters of old orbital system (tabularized intercalation cycle)
    ! ------------------------------------------------------------------
    real, parameter    :: DEFAULT_ORBIT_ECCENTRICITY     = 0.0167
@@ -103,7 +103,7 @@ module MAPL_SunMod
 
    ! March Equinox date and time
    ! (defaults to March 20, 2000 at 07:35:00 UTC)
-   integer, parameter :: DEFAULT_ORB2B_EQUINOX_YYYYMMDD = 20000320 
+   integer, parameter :: DEFAULT_ORB2B_EQUINOX_YYYYMMDD = 20000320
    integer, parameter :: DEFAULT_ORB2B_EQUINOX_HHMMSS   =  73500
 
 ! -------------------------------------------------------------
@@ -937,7 +937,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
 !==========================================================================
 !>
-! The function `MAPL_SunOrbitCreated` returns `.true.` 
+! The function `MAPL_SunOrbitCreated` returns `.true.`
 ! if the given orbit object has been initilized.
 !
        logical function  MAPL_SunOrbitCreated(ORBIT, RC)
@@ -2506,7 +2506,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real                       :: FAC
 
       character(len=ESMF_MAXPATHLEN) :: FILENAME
-      logical :: found
       logical :: amIRoot
       integer :: deId, NPES
       logical :: outOfTable
@@ -3035,7 +3034,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !
 ! NB: For accurate results, namely to receive the TRUE local solar hour
 ! angle, ensure the ORBIT has the EOT flag set true. Conversely, to get
-! only the MEAN local solar hour angle, use the optional argument 
+! only the MEAN local solar hour angle, use the optional argument
 ! FORCE_MLSHA=.TRUE.. This will turn off the Equation of Time correction
 ! (for this LSHA calculation only) even if the ORBIT includes it. For
 ! example, in the local noon detection in the EXAMPLE below, this will
