@@ -526,7 +526,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
       real(kind=REAL64)  :: YEARLEN
       integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
-      real(kind=REAL64)  :: TREL, T1, T2, T3, T4, dTRELdDAY
+      real(kind=REAL64)  :: TREL, T1, T2, T3, T4
       real(kind=REAL64)  :: SOB, COB, OMG0, OMG, PRH, PRHV
       real    :: OMECC, OPECC, OMSQECC, EAFAC
       real(kind=REAL64)  :: TA, EA, MA, TRRA, MNRA
@@ -539,11 +539,6 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       real :: ECC_EQNX, LAMBDAP_EQNX, EAFAC_EQNX
       real :: TA_EQNX, EA_EQNX, MA_EQNX
       type(ESMF_TimeInterval) :: DT
-
-      ! STATEMENT FUNC: dTREL/dDAY(TREL),
-      !   where TREL is ecliptic longitude of true Sun
-      dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
-
 
       ! record inputs needed by both orbit methods
       ORBIT%CLOCK  = CLOCK
@@ -722,10 +717,10 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
         ! Mean sun moves at constant speed around Celestial Equator
         ! ---------------------------------------------------------
         do K=2,DAYS_PER_CYCLE
-          T1 = dTRELdDAY(TREL       )
-          T2 = dTRELdDAY(TREL+T1*0.5)
-          T3 = dTRELdDAY(TREL+T2*0.5)
-          T4 = dTRELdDAY(TREL+T3    )
+          T1 = dTRELdDAY(TREL       ,OMG,ECCENTRICITY,PRH)
+          T2 = dTRELdDAY(TREL+T1*0.5,OMG,ECCENTRICITY,PRH)
+          T3 = dTRELdDAY(TREL+T2*0.5,OMG,ECCENTRICITY,PRH)
+          T4 = dTRELdDAY(TREL+T3    ,OMG,ECCENTRICITY,PRH)
           KP = mod(KP,DAYS_PER_CYCLE) + 1
           TREL = TREL + (T1 + 2.0*(T2 + T3) + T4) / 6.0
           ORBIT%ZS(KP) = sin(TREL)*SOB
@@ -760,6 +755,17 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       MAPL_SunOrbitCreate = ORBIT
 
       _RETURN(ESMF_SUCCESS)
+
+      contains
+
+         real(kind=REAL64) function dTRELdDAY(TREL,OMG,ECCENTRICITY,PRH)
+            real(kind=REAL64), intent(in) :: TREL ! ecliptic longitude of true Sun
+            real(kind=REAL64), intent(in) :: OMG
+            real,              intent(in) :: ECCENTRICITY
+            real(kind=REAL64), intent(in) :: PRH
+
+            dTRELdDAY = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
+         end function dTRELdDAY
 
     end function MAPL_SunOrbitCreate
 

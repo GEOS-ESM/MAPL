@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Converted all uses of `character*` to `character(len=)`
   - Removed many unused variables
   - Added many `_UNUSED_DUMMY()` calls
+  - Converted statement functions to internal functions
 
 ### Fixed
 
