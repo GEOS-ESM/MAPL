@@ -29,21 +29,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
      module procedure HistoryTrajectory_from_config
          character(len=ESMF_MAXSTR) :: filename
-         character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: dim_name(10)
-         character(len=ESMF_MAXSTR) :: var_name_lon
-         character(len=ESMF_MAXSTR) :: var_name_lat
-         character(len=ESMF_MAXSTR) :: var_name_time
          type(ESMF_Time)            :: currTime
          type(ESMF_TimeInterval)    :: epoch_frequency
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
-         integer                    :: ncid, grpid, ncid0
          integer                    :: len, status
-         integer                    :: itime(2), nymd, nhms
+         integer                    :: itime(2)
          character(len=ESMF_MAXSTR) :: STR1
          character(len=ESMF_MAXSTR) :: symd, shms
-         integer                    :: i, j, k         
+         integer                    :: i
 
          ! __ s1. parse variables; set alarm
          ! __ s2. retrieve obs_file; set default for obs_begin, end, is_valid
@@ -132,19 +126,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
        module procedure initialize
-         integer :: status,nobs
+         integer         :: status, nobs, i
          type(ESMF_Grid) :: grid
-         type(variable) :: v
+         type(variable)  :: v
          type(GriddedIOitemVectorIterator) :: iter
          type(GriddedIOitem), pointer :: item
-         type(ESMF_Time)            :: currTime
+         type(ESMF_Time)              :: currTime
+         character(len=100)           :: STR1
          ! __ s.1   create LS grid, RH, output/acc bundle
          ! __ s.2   metadata
          ! __ s.3   misc
 
          this%bundle=bundle
          this%items=items
-         
+                  
          if (present(vdata)) then
             this%vdata=vdata
          else
@@ -155,6 +150,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
          call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
+         ! fixed time units
+         call ESMF_TimeGet (currTime, timestring=STR1, _RC)
+         i=index(STR1, 'T')
+         if (i>0) STR1=STR1(1:i-1)//' '//trim(STR1(i+1:))
+         this%datetime_units = "seconds since "//trim(STR1)
+         if (mapl_am_I_root()) then
+            print*, 'Fixed datetime_units = ', trim(this%datetime_units)
+         endif
+
          call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
          if (this%obsfile_Te_index < 0) then
             if (mapl_am_I_root()) then
@@ -186,7 +190,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call this%metadata%add_variable(this%var_name_lon,v)
 
          v = variable(type=PFIO_REAL64,dimensions="time")
-         call v%add_attribute('units','degrees_east')
+         call v%add_attribute('units','degrees_north')
          call v%add_attribute('long_name','latitude')
          call this%metadata%add_variable(this%var_name_lat,v)
 
@@ -211,6 +215,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%recycle_track) then
             call this%reset_times_to_current_day(_RC)
          end if
+
          _RETURN(_SUCCESS)
 
       end procedure
@@ -259,7 +264,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         type(GriddedIOitem), pointer :: item
         type(ESMF_Field) :: src_field,dst_field
         integer :: rank,lb(1),ub(1)
-        real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
         integer :: status
         
         new_bundle = ESMF_FieldBundleCreate(_RC)
@@ -330,27 +334,27 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure append_file
+         use pflogger, only: Logger, logging
          type(GriddedIOitemVectorIterator) :: iter
          type(GriddedIOitem), pointer :: item
          type(ESMF_RouteHandle) :: RH
 
-         type(ESMF_Field) :: src_field, dst_field
-         type(ESMF_Field) :: acc_field         
+         type(ESMF_Field) :: src_field, dst_field, acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
-         !!real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-         !!real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-         !!real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
-         real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
-         real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
+         real(kind=REAL32), pointer :: p_acc_2d(:), p_acc_3d(:,:)
+         real(kind=REAL32), pointer :: p_acc_rt_2d(:), p_acc_rt_3d(:,:)
          real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
          real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
+         type(ESMF_VM) :: vm
          integer :: is, ie, nx
          integer :: lb(1),ub(1)
          integer :: lm
          integer :: rank
          integer :: status
+         type(Logger), pointer :: lgr
 
+         
          if (.NOT. this%is_valid) then
             _RETURN(ESMF_SUCCESS)
          endif
@@ -436,8 +440,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_3d_rt, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
-         !!print*, 'end append_file, nobs_epoch=', nx         
+         call ESMF_VMGetCurrent(vm,_RC)
+         call ESMF_VMBarrier(vm, _RC)
+         lgr => logging%get_logger('HISTORY.sampler')
          
+         !!print*, 'end append_file, nobs_epoch=', nx
+         call lgr%debug('%a %i12', 'nobs_epoch written to file =', nx)
          _RETURN(_SUCCESS)
 
        end procedure append_file
@@ -536,14 +544,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(Logger), pointer :: lgr
          
          character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: dim_name(10)
          character(len=ESMF_MAXSTR) :: var_name_lon
          character(len=ESMF_MAXSTR) :: var_name_lat
          character(len=ESMF_MAXSTR) :: var_name_time
          character(len=ESMF_MAXSTR) :: attr_name
          character(len=ESMF_MAXSTR) :: attr
          character(len=ESMF_MAXSTR) :: timeunits_file
-
+         
          type(ESMF_Config) :: config_grid
          character(len=ESMF_MAXSTR) :: time_string
 
@@ -578,14 +585,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=:), allocatable :: tunit
          integer (ESMF_KIND_I8) :: n_second
 
-
-         ! Global fixed reference
-         this%datetime_units = "seconds since 1970-01-01 00:00:00"
-         lgr => logging%get_logger('HISTORY.sampler')
-
+         
+         !!call ESMF_VMGetCurrent(vm,_RC)
          call ESMF_VMGetGlobal(vm,_RC)
          call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)         
 
+         lgr => logging%get_logger('HISTORY.sampler')
          if (this%nc_index == '') then
             filename=trim(this%obsFile)
             !!         print*, 'obs file name=', trim(filename)
@@ -608,7 +613,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%var_name_lat = this%nc_latitude(i+1:)
             this%var_name_lon = this%nc_longitude(i+1:)
             this%var_name_time= this%nc_time(i+1:)
-
             
             ! __ loop obsfile_index for epoch
             !    get max len, allocate array, concatenate , get_var
@@ -624,7 +628,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                rc=0
                return
             end if
-            
 
             ! __ this is all fid_e >= L case : file exist at this time
             !    read in dim
@@ -636,7 +639,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                do while (j<=fid_e)
                   filename = this%get_filename_from_template_use_index(j, _RC)
                   !!call get_ncfile_dimension_I8(filename, tdim=num_times, key_time=this%nc_index, _RC)
-                  call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)               
+                  call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)               
                   len = len + num_times
                   j=j+1
                   call lgr%debug('%a %a', 'input filename: ', trim(filename))
@@ -650,7 +653,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                len = 0 
                do while (j<=fid_e)
                   filename = this%get_filename_from_template_use_index(j, _RC)
-                  call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
+                  call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
                   call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                   call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
@@ -662,12 +665,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   interval = time2 - time0
                   _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
                   call ESMF_TimeIntervalGet(interval, s_i8=n_second)
-                  times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
+                  times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second, kind=ESMF_KIND_R8)
 
-                  call lgr%debug('%a %a', 'output timeunits_file G=', trim(this%datetime_units))
-                  call lgr%debug('%a %a', 'output timeunits_file L=', trim(timeunits_file))
-                  call lgr%debug('%a %a', 'Darian tunit(sec/min/hr)=', trim(tunit))
-                  call lgr%debug('%a %i10 ', 'shift n_second',  n_second)
+                  call lgr%debug('%a %a', 'output timeunits_file Glob=', trim(this%datetime_units))
+                  call lgr%debug('%a %a', 'output timeunits_file Loc =', trim(timeunits_file))
+                  call lgr%debug('%a %a', 'Darian tunit(sec/min/hr)  =', trim(tunit))
+                  call lgr%debug('%a %i20 ', 'shift n_second',  n_second)
                   call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
                        times_R8_full(1), times_R8_full(200))
 
@@ -685,11 +688,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
                timeset(1) = current_time
                timeset(2) = current_time + this%epoch_frequency
-               call time_esmf_2_nc_int (timeset(1), this%datetime_units, j0, _RC)
+               int_time=0
+               call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
+               interval = timeset(1) - time0
+               call ESMF_TimeIntervalGet(interval, s_i8=j0)
                call hms_2_s (this%Epoch, sec, _RC)
-               j1 = j0 + int(sec, kind=ESMF_KIND_I8)
-               jx0 = real ( j0, kind=ESMF_KIND_R8)
-               jx1 = real ( j1, kind=ESMF_KIND_R8)
+               j1 = j0 + int (sec, kind=ESMF_KIND_I8)
+               jx0 = real (j0, kind=ESMF_KIND_R8)
+               jx1 = real (j1, kind=ESMF_KIND_R8)
+               call lgr%debug ('%a %f20.1 %f20.1', 'jx0, jx1', jx0, jx1)
+
 
                nstart=1; nend=size(times_R8_full)
                call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
@@ -697,8 +705,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                if (jt1==jt2) then
                   _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
                endif
-               call lgr%debug ('%a %f20.1 %f20.1', 'jx0, jx1', jx0, jx1)
                call lgr%debug ('%a %i20 %i20', 'jt1, jt2', jt1, jt2)
+
                
                ! (x1, x2]  design in bisect
                if (jt1==0) then
@@ -829,13 +837,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
                     call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
 
-
                     !! print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
                     call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
                     if (is > 0 .AND. is <= ie ) then
                        p_acc_2d(is:ie) = p_dst_2d(is:ie)
                     endif
-
                     !!if (is>0) write(6,'(a)')  'regrid_accu:  p_dst_2d'
                     !!if (is>0) write(6,'(10f7.1)')  p_dst_2d
 
@@ -1067,7 +1073,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
            !! debug
            !!write(6,*) 'ck: due to epoch,  at curr_time, time bracket for files:  '
-           !!!write(6,*) 'ck: due to epoch,  integer multiple of obsfile_interval', n1, n2
+           !!write(6,*) 'ck: due to epoch,  integer multiple of obsfile_interval', n1, n2
 
            this%obsfile_Ts_index = n1
            if ( dT2_s - n2*dT0_s < 1 ) then 

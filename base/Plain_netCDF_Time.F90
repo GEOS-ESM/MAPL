@@ -234,7 +234,7 @@ contains
     implicit none
 
     type (ESMF_TIME), intent(out) :: time
-    integer, intent(in) :: n
+    integer (ESMF_KIND_I8), intent(in) :: n
     character(len=*), intent(in) :: tunit
     integer, intent (out), optional :: rc
 
@@ -371,9 +371,8 @@ contains
          calendar=gregorianCalendar, rc=rc)
     call ESMF_timeintervalSet(dt, d=0, h=0, m=0, s_i8=isec, rc=rc)
 
-    !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
-    !  if(present(rc)) rc=0
-    rc=0
+    !!call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
+
     
   end subroutine parse_timeunit_i8
   
