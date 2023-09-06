@@ -1,7 +1,7 @@
 !-------------------------------------------------------------------
-! Note:
+! Note: used for OSSE project
 !   File to be replaced by more systematic implementations.
-!   It contains ad hoc codes for time conversion and time bisect,
+!   It contains codes for time conversion and time bisect.
 !-------------------------------------------------------------------
 
 #include "MAPL_Exceptions.h"
@@ -37,7 +37,7 @@ module Plain_netCDF_Time
   interface convert_time_esmf2nc
      procedure :: time_esmf_2_nc_int
   end interface convert_time_esmf2nc
-  
+
   interface get_v2d_netcdf
      procedure ::  get_v2d_netcdf_R4
      procedure ::  get_v2d_netcdf_R8
@@ -47,7 +47,7 @@ module Plain_netCDF_Time
      procedure :: parse_timeunit_i4
      procedure :: parse_timeunit_i8
   end interface parse_timeunit
-  
+
   interface hms_2_s
      procedure :: hms_2_s
   end interface hms_2_s
@@ -68,8 +68,8 @@ contains
     integer :: ncid , dimid
     integer :: status
     character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
-    
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
+
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     if (present(key_lon)) then
        lon_name=trim(key_lon)
        !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
@@ -80,15 +80,15 @@ contains
     if (present(key_lat)) then
        lat_name=trim(key_lat)
        !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
        call check_nc_status(nf90_close(ncid), _RC)
     endif
 
     if (present(key_time)) then
-       time_name=trim(key_time)    
+       time_name=trim(key_time)
        !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
+       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
     endif
     call check_nc_status(nf90_close(ncid), _RC)
@@ -144,7 +144,7 @@ contains
     deallocate(str)
     iret = nf90_close(ncid)
 
-  end subroutine get_attribute_from_group  
+  end subroutine get_attribute_from_group
 
 
 
@@ -171,7 +171,7 @@ contains
     iret = nf90_close(ncid)
   end subroutine get_v2d_netcdf_R4
 
-  
+
   subroutine get_v2d_netcdf_R8(filename, name, array, Xdim, Ydim)
     use netcdf
     implicit none
@@ -326,7 +326,7 @@ contains
     !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     !  if(present(rc)) rc=0
     rc=0
-    
+
   end subroutine parse_timeunit_i4
 
 
@@ -374,9 +374,9 @@ contains
     !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     !  if(present(rc)) rc=0
     rc=0
-    
+
   end subroutine parse_timeunit_i8
-  
+
   subroutine ESMF_time_to_two_integer (time, itime, rc)
     type (ESMF_Time), intent(in) ::   time
     integer, intent(out) :: itime(2)
@@ -431,7 +431,7 @@ contains
 
     sec= h*3600 + m*60 + s
     if (present(rc)) rc=0
-    
+
   end subroutine hms_2_s
 
 
@@ -442,7 +442,7 @@ contains
     real(ESMF_KIND_R8), intent(in) :: x       ! pt
     integer(ESMF_KIND_I8), intent(out) :: n   !  out: bisect index
     integer(ESMF_KIND_I8), intent(in), optional :: n_LB  !  opt in : LB
-    integer(ESMF_KIND_I8), intent(in), optional :: n_UB  !  opt in : UB     
+    integer(ESMF_KIND_I8), intent(in), optional :: n_UB  !  opt in : UB
     integer, intent(out), optional :: rc
 
     integer(ESMF_KIND_I8) :: k, klo, khi, dk, LB, UB
@@ -452,7 +452,7 @@ contains
     if(present(n_LB)) LB=n_LB
     if(present(n_UB)) UB=n_UB
     klo=LB; khi=UB; dk=1
-    
+
     ! write(6,*) 'init klo, khi', klo, khi
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
@@ -465,7 +465,7 @@ contains
     !     x         x                       x
     !
     !        Y(n)  <  x  <=  Y(n+1)
-    
+
     rc=-1
     if ( x <= xa(klo) ) then
        !write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
@@ -492,20 +492,20 @@ contains
           return
        endif
     enddo
-    
+
   end subroutine bisect_find_LB_R8_I8
-    
+
 
   subroutine convert_twostring_2_esmfinterval (symd, shms, interval, rc)
     character(len=*) :: symd
     character(len=*) :: shms
     type (ESMF_TimeInterval), intent(out) :: interval
     integer, optional, intent(out) :: rc
-    integer :: status    
+    integer :: status
     character(len=20) :: s1, s2
     integer :: y, m, d, hh, mm, ss
 
-    
+
     s1=trim(symd)
     read(s1, '(3i2)') y, m, d
     s2=trim(shms)

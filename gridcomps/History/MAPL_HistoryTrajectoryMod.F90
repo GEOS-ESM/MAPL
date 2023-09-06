@@ -21,13 +21,13 @@ module HistoryTrajectoryMod
      type(ESMF_Time), allocatable :: times(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      real(kind=REAL64), allocatable :: lons(:)
-     real(kind=REAL64), allocatable :: lats(:)     
+     real(kind=REAL64), allocatable :: lats(:)
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
      type(ESMF_FieldBundle) :: acc_bundle
      type(ESMF_Field)       :: fieldA
      type(ESMF_Field)       :: fieldB
-     
+
      type(GriddedIOitemVector) :: items
      type(FileMetadata) :: metadata
      type(VerticalData) :: vdata
@@ -61,7 +61,7 @@ module HistoryTrajectoryMod
      type(ESMF_Time)                :: obsfile_end_time
      type(ESMF_TimeInterval)        :: obsfile_interval
      integer                        :: obsfile_Ts_index     ! for epoch
-     integer                        :: obsfile_Te_index     
+     integer                        :: obsfile_Te_index
      logical                        :: is_valid
 
    contains
@@ -81,7 +81,7 @@ module HistoryTrajectoryMod
      procedure :: get_x_subset
      procedure :: get_obsfile_Tbracket_from_epoch
      procedure :: get_filename_from_template_use_index
-     
+
   end type HistoryTrajectory
 
   interface HistoryTrajectory
@@ -104,7 +104,7 @@ module HistoryTrajectoryMod
        type(TimeData), intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout) :: vdata
        logical, optional, intent(inout)        :: recycle_track
-       integer, optional, intent(out)          :: rc       
+       integer, optional, intent(out)          :: rc
      end subroutine initialize
 
      module subroutine  create_metadata_variable(this,vname,rc)
@@ -143,7 +143,7 @@ module HistoryTrajectoryMod
 
      module subroutine sort_three_arrays_by_time(U,V,T,rc)
        real(ESMF_KIND_R8) :: U(:), V(:), T(:)
-       integer, optional, intent(out)          :: rc       
+       integer, optional, intent(out)          :: rc
      end subroutine sort_three_arrays_by_time
 
      module subroutine time_real_to_ESMF (this,rc)
@@ -152,7 +152,6 @@ module HistoryTrajectoryMod
      end subroutine time_real_to_ESMF
 
      module subroutine create_grid(this, rc)
-       !!use pflogger, only: Logger, logging
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
     end subroutine create_grid
@@ -180,14 +179,14 @@ module HistoryTrajectoryMod
        type(ESMF_Time), intent(in)             :: currTime
        integer, optional, intent(out)          :: rc
      end subroutine get_obsfile_Tbracket_from_epoch
-     
+
      module function get_filename_from_template (time, file_template, rc) result(filename)
        type(ESMF_Time), intent(in)             :: time
        character(len=*), intent(in)            :: file_template
-       character(len=ESMF_MAXSTR)              :: filename              
+       character(len=ESMF_MAXSTR)              :: filename
        integer, optional, intent(out)          :: rc
      end function get_filename_from_template
- 
+
      module function get_filename_from_template_use_index (this, f_index, rc) result(filename)
        class(HistoryTrajectory), intent(inout) :: this
 !       character(len=*), intent(in)            :: file_template
