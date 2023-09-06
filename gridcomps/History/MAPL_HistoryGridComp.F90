@@ -3194,6 +3194,7 @@ ENDDO PARSER
     type(HistoryCollection),   pointer  :: list(:)
     type(HISTORY_STATE),  pointer  :: IntState
     type(HISTORY_wrap)             :: wrap
+    type (ESMF_VM)                 :: vm
     integer                        :: nlist
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
@@ -3600,6 +3601,9 @@ ENDDO PARSER
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+            call ESMF_GridCompGet(gc, vm=vm, _RC)
+            call ESMF_VMGetCurrent(vm, _RC)
+            call ESMF_VMbarrier(vm, _RC)
          end if
       end if
       if (list(n)%sampler_spec == 'station') then
@@ -3614,6 +3618,9 @@ ENDDO PARSER
       end if
 
    enddo WRITELOOP
+
+
+
 
    call MAPL_TimerOff(GENSTATE,"-----IO Write")
    call MAPL_TimerOff(GENSTATE,"----IO Write")

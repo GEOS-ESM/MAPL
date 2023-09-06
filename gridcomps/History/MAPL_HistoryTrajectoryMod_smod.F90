@@ -440,11 +440,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_3d_rt, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
-         call ESMF_VMGetCurrent(vm,_RC)
-         call ESMF_VMBarrier(vm, _RC)
          lgr => logging%get_logger('HISTORY.sampler')
-         
-         !!print*, 'end append_file, nobs_epoch=', nx
          call lgr%debug('%a %i12', 'nobs_epoch written to file =', nx)
          _RETURN(_SUCCESS)
 
@@ -837,13 +833,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     call ESMF_FieldGet(dst_field,farrayptr=p_dst_2d,_RC)
                     call ESMF_FieldGet(acc_field,farrayptr=p_acc_2d,_RC)
 
-                    !! print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
+                    print*, 'size(src,dst,acc)', size(p_src_2d), size(p_dst_2d), size(p_acc_2d)
+                    print*, 'is, ie=', is, ie
                     call this%regridder%regrid(p_src_2d,p_dst_2d,_RC)
                     if (is > 0 .AND. is <= ie ) then
                        p_acc_2d(is:ie) = p_dst_2d(is:ie)
                     endif
-                    !!if (is>0) write(6,'(a)')  'regrid_accu:  p_dst_2d'
-                    !!if (is>0) write(6,'(10f7.1)')  p_dst_2d
+                    if (is>0) write(6,'(a)')  'regrid_accu:  p_dst_2d'
+                    if (is>0) write(6,'(10f7.1)')  p_dst_2d
 
 
                  else if (rank==3) then
