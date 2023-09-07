@@ -18,10 +18,11 @@ module HistoryTrajectoryMod
      type(ESMF_LocStream) :: LS_rt  !  root
      type(ESMF_LocStream) :: LS_ds  !  distribute
      type(LocStreamFactory) :: locstream_factory
-     type(ESMF_Time), allocatable :: times(:)
+     type(ESMF_Time),   allocatable :: times(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
+     integer,           allocatable :: obstype_id(:)     
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
      type(ESMF_FieldBundle) :: acc_bundle
@@ -42,8 +43,9 @@ module HistoryTrajectoryMod
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
 
-     character(len=ESMF_MAXSTR)     :: obsFile
-     character(len=ESMF_MAXSTR)     :: obsfile_template
+     integer                        :: nobs_type
+     character(len=ESMF_MAXSTR),allocatable     :: obsFile(:,:)
+     character(len=ESMF_MAXSTR),allocatable     :: obsfile_template(:)
      character(len=ESMF_MAXSTR)     :: nc_index
      character(len=ESMF_MAXSTR)     :: nc_time
      character(len=ESMF_MAXSTR)     :: nc_latitude
@@ -121,12 +123,13 @@ module HistoryTrajectoryMod
 
      module subroutine create_file_handle(this,filename,rc)
        class(HistoryTrajectory), intent(inout) :: this
-       character(len=*), intent(inout)         :: filename
+       character(len=*), intent(in)            :: filename
        integer, optional, intent(out)          :: rc
      end subroutine create_file_handle
 
      module subroutine close_file_handle(this,rc)
        class(HistoryTrajectory), intent(inout) :: this
+       character(len=*), intent(in)            :: filename       
        integer, optional, intent(out)          :: rc
      end subroutine close_file_handle
 
@@ -187,9 +190,9 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function get_filename_from_template
 
-     module function get_filename_from_template_use_index (this, f_index, rc) result(filename)
+     module function get_filename_from_template_use_index (this, f_index, file_template, rc) result(filename)
        class(HistoryTrajectory), intent(inout) :: this
-!       character(len=*), intent(in)            :: file_template
+       character(len=*), intent(in)            :: file_template
        character(len=ESMF_MAXSTR)              :: filename
        integer, intent(in)                     :: f_index
        integer, optional, intent(out)          :: rc

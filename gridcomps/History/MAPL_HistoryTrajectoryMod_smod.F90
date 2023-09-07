@@ -45,17 +45,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: i, j, k
 
-         ! __ s1. parse variables; set alarm
+         integer                    :: nline, ncol
+         logical                    :: tend
+
+         ! __ s1. set alarm; parse variables and table
          ! __ s2. retrieve obs_file; set default for obs_begin, end, is_valid
          !
-         call ESMF_ConfigGetAttribute(config, value=traj%nc_index, default="", &
-              label=trim(string) // 'nc_Index:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=traj%nc_time, default="", &
-              label=trim(string) // 'nc_Time:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=traj%nc_longitude, default="", &
-              label=trim(string) // 'nc_Longitude:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=traj%nc_latitude, default="", &
-              label=trim(string) // 'nc_Latitude:', _RC)
 
          traj%clock=clock
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
@@ -70,8 +65,31 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
               RingTime=traj%RingTime, sticky=.false., _RC )
 
-         call ESMF_ConfigGetAttribute(config, value=traj%obsfile_template, default="", &
-              label=trim(string) // 'obs_file:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_index, default="", &
+              label=trim(string) // 'nc_Index:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_time, default="", &
+              label=trim(string) // 'nc_Time:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_longitude, default="", &
+              label=trim(string) // 'nc_Longitude:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%nc_latitude, default="", &
+              label=trim(string) // 'nc_Latitude:', _RC)
+
+!         call ESMF_ConfigGetAttribute(config, value=traj%obsfile_template, default="", &
+!              label=trim(string) // 'obs_file:', _RC)
+
+         call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
+         _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
+         print*, 'nline,ncol', nline,ncol
+         traj%nobs_type = nline
+         allocate (traj%obsfile_template(nline))
+         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+         do i=1, nline
+            call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
+            call ESMF_ConfigGetAttribute( config, traj%obsfile_template(i), rc=rc)
+            write(6, *) 'obs file name string=', trim(traj%obsfile_template(i))
+         enddo
+       
+
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
          if (trim(STR1)=='') then
@@ -491,7 +509,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do i=1, len
             T(i) = X(IA(i))
          enddo
-
          _RETURN(_SUCCESS)
        end procedure sort_three_arrays_by_time
 
@@ -549,8 +566,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
+         integer,           allocatable :: obstype_id_full(:)
          real(kind=REAL64), allocatable :: XA(:)
-
+         
          integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
          real(ESMF_KIND_R8), pointer :: ptAT(:), ptBT(:)
          type(ESMF_routehandle) :: RH
@@ -580,6 +598,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
          ! Global fixed reference
+         ! Bug: need to read the first file to get time units
+         !
          this%datetime_units = "seconds since 1970-01-01 00:00:00"
          lgr => logging%get_logger('HISTORY.sampler')
 
@@ -587,6 +607,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_VMGet(vm, localPet=mypet, petCount=petCount, _RC)
 
          if (this%nc_index == '') then
+            !
+            !-- non IODA case
+            !
             filename=trim(this%obsFile)
             !!         print*, 'obs file name=', trim(filename)
             call formatter%open(trim(filename),pFIO_READ,_RC)
@@ -602,6 +625,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             call metadata_utils%get_time_info(timeVector=this%times,_RC)
          else
+            !
+            !-- IODA case
+            !            
             i=index(this%nc_longitude, '/')
             _ASSERT (i>0, 'group name not found')
             grp_name = this%nc_longitude(1:i-1)
@@ -625,7 +651,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                return
             end if
 
-
+            
             ! __ this is all fid_e >= L case : file exist at this time
             !    read in dim
             !    read in data in full on mypet=0
@@ -633,51 +659,61 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             if (mapl_am_I_root()) then
                j = max (fid_s, L)
                len = 0
-               do while (j<=fid_e)
-                  filename = this%get_filename_from_template_use_index(j, _RC)
-                  call lgr%debug('%a %a', 'input filename: ', trim(filename))
-                  !!call get_ncfile_dimension_I8(filename, tdim=num_times, key_time=this%nc_index, _RC)
-                  call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
-                  len = len + num_times
-                  j=j+1
+               do k=1, this%nobs_type
+                  do while (j<=fid_e)
+                     filename = this%get_filename_from_template_use_index(j, this%obsfile_template(k),  _RC)
+                     call lgr%debug('%a %a', 'input filename: ', trim(filename))
+                     !!call get_ncfile_dimension_I8(filename, tdim=num_times, key_time=this%nc_index, _RC)
+                     call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
+                     len = len + num_times
+                     j=j+1
+                  enddo
                enddo
                len_full = len
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
+               allocate(obstype_id_full(len),_STAT)
                call lgr%debug('%a %i12', 'nobs from input file:', len_full)
 
                j = max (fid_s, L)
                len = 0
-               do while (j<=fid_e)
-                  filename = this%get_filename_from_template_use_index(j, _RC)
-                  call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
-                  call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
-                  call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
-                  call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
-                  call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+               do k=1, this%nobs_type
+                  do while (j<=fid_e)
+                     filename = this%get_filename_from_template_use_index(j, this%obsfile_template(k), _RC)
+                     call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
+                     call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
+                     call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
+                     call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+                     call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
+                     obstype_id_full(len+1:len+num_times) = k
+                     
+                     !--  here is a potential hole:
+                     !    code below shift time units, assuming each file has a different time units
+                     !    it assume seconds in time
+                     !
+                     int_time=0
+                     call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, &
+                          time0, time1=time1, tunit=tunit, _RC)
+                     call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, &
+                          time2, time1=time1, tunit=tunit, _RC)
+                     interval = time2 - time0
+                     _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
+                     call ESMF_TimeIntervalGet(interval, s_i8=n_second)
+                     times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
+                     
+                     call lgr%debug('%a %a', 'output timeunits_file G=', trim(this%datetime_units))
+                     call lgr%debug('%a %a', 'output timeunits_file L=', trim(timeunits_file))
+                     call lgr%debug('%a %a', 'Darian tunit(sec/min/hr)=', trim(tunit))
+                     call lgr%debug('%a %i10 ', 'shift n_second',  n_second)
+                     call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
+                          times_R8_full(1), times_R8_full(200))
 
-                  int_time=0
-                  call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
-                  call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, time2, time1=time1, tunit=tunit, _RC)
-                  interval = time2 - time0
-                  _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
-                  call ESMF_TimeIntervalGet(interval, s_i8=n_second)
-                  times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
-
-                  call lgr%debug('%a %a', 'output timeunits_file G=', trim(this%datetime_units))
-                  call lgr%debug('%a %a', 'output timeunits_file L=', trim(timeunits_file))
-                  call lgr%debug('%a %a', 'Darian tunit(sec/min/hr)=', trim(tunit))
-                  call lgr%debug('%a %i10 ', 'shift n_second',  n_second)
-                  call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &
-                       times_R8_full(1), times_R8_full(200))
-
-                  len = len + num_times
-                  j=j+1
+                     len = len + num_times
+                     j=j+1
+                  enddo
                enddo
             end if
 
-            !  create global times_R8_full 
-            
 
             !__ epoch grid on root
             !
@@ -1083,16 +1119,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            end if
 
 
-           !! -- prone to error
-           !!dT3 = Tn - T1
-           !!call ESMF_TimeIntervalGet(dT3, s_r8=dT3_s, rc=status)
-           !!K   = floor (dT3_s / dT0_s)
-           !!if (n1>=0 .AND. n2<=K) then
-           !!   this%obsfile_is_available = .true.
-           !!else
-           !!   this%obsfile_is_available = .false.
-           !!end if
-
            _RETURN(ESMF_SUCCESS)
          end procedure get_obsfile_Tbracket_from_epoch
 
@@ -1133,7 +1159,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !!print*, 'two integer time,  itime(:)', itime(1:2)
             nymd = itime(1)
             nhms = itime(2)
-            call fill_grads_template ( filename, this%obsfile_template, &
+            call fill_grads_template ( filename, file_template, &
                  experiment_id='', nymd=nymd, nhms=nhms, _RC )
             !!print*, 'ck: this%obsFile_T=', trim(filename)
 
