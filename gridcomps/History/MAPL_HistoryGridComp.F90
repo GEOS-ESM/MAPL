@@ -399,6 +399,9 @@ contains
     logical :: table_end
     logical :: old_fields_style
 
+!   variables for counting table
+    integer :: nline, ncol
+
     type(HistoryCollection) :: collection
     character(len=ESMF_MAXSTR) :: cFileOrder
     type(FieldSet), pointer :: field_set
@@ -876,9 +879,23 @@ contains
             label=trim(string) // 'station_id_file:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obsFile, default="", &
-                                    label=trim(string) // 'obs_file:', _RC)
-       if (trim(list(n)%obsFile) /= '') list(n)%timeseries_output = .true.
+       call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)
+       if (rc==0) then
+          print*, 'nline,ncol', nline,ncol
+          if (nline > 0) then
+             list(n)%timeseries_output = .true.             
+             allocate (list(n)%obsFile(nline))
+             call ESMF_ConfigFindLabel( cfg, trim(string)//'obs_files:', rc=rc)
+             do i=1, nline
+                call ESMF_ConfigNextLine( cfg, tableEnd=tend, rc=rc)
+                call ESMF_ConfigGetAttribute( cfg, list(n)%obsFile(i), rc=rc)
+                write(6, *) 'obs file name string=', trim(list(n)%obsFile(i))
+             enddo
+          endif
+       else
+          print*, 'obs_files does not exist'
+          print*, 'rc=', rc          
+       endif
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
 

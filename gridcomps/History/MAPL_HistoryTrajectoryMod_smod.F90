@@ -676,6 +676,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                enddo
             end if
 
+            !  create global times_R8_full 
+            
 
             !__ epoch grid on root
             !
