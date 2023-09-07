@@ -405,10 +405,12 @@ contains
 
 
       attributes => cf%get_attributes()
-      iter = attributes%begin()
-      do while (iter /= attributes%end())
-         attr_name => iter%key()
-         p_attribute => iter%value()
+      iter = attributes%ftn_begin()
+      do while (iter /= attributes%ftn_end())
+         call iter%next()
+
+         attr_name => iter%first()
+         p_attribute => iter%second()
          shp = p_attribute%get_shape()
 
          if (size(shp) > 0) then
@@ -437,7 +439,6 @@ contains
            end select
 
            _VERIFY(status)
-           call iter%next()
 
          else
 
@@ -469,8 +470,7 @@ contains
            end select
 
            _VERIFY(status)
-           call iter%next()
-         end if
+          end if
       end do
 
       _RETURN(_SUCCESS)
@@ -602,11 +602,13 @@ contains
 
 
       attributes => var%get_attributes()
-      iter = attributes%begin()
-      do while (iter /= attributes%end())
-         attr_name => iter%key()
+      iter = attributes%ftn_begin()
+      do while (iter /= attributes%ftn_end())
+         call iter%next()
 
-         p_attribute => iter%value()
+         attr_name => iter%first()
+         p_attribute => iter%second()
+
          shp = p_attribute%get_shape()
          if (size(shp) == 0) then ! scalar
             attr_value => p_attribute%get_value()
@@ -662,7 +664,6 @@ contains
             end select
          end if
          _VERIFY(status)
-         call iter%next()
       end do
 
       _RETURN(_SUCCESS)

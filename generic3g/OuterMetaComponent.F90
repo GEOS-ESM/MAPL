@@ -945,17 +945,6 @@ contains
       gridcomp = this%self_gridcomp
    end function get_gridcomp
 
-!!$   subroutine validate_user_short_name(this, short_name, rc)
-!!$
-!!$      integer :: status
-!!$      _ASSERT(len(short_name) > 0, 'Short names must have at least one character.')
-!!$      _ASSERT(0 == verify(short_name(1:1), LOWER//UPPER), 'Short name must start with a character.')
-!!$      _ASSERT(0 == verify(short_name, ALPHANUMERIC // '_'), 'Illegal short name.')
-!!$
-!!$      _RETURN(_SUCCESS)
-!!$   end subroutine validate_user_short_name
-
-
    pure logical function is_root(this)
       class(OuterMetaComponent), intent(in) :: this
       is_root = this%is_root_

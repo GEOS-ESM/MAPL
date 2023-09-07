@@ -464,6 +464,7 @@ contains
       call this%extensions%push_back(StateExtension(action))
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(extension_pt)
    end subroutine add_state_extension
 
 
@@ -494,7 +495,6 @@ contains
       type(HierarchicalRegistry), target, intent(in) :: child_r
       integer, optional, intent(out) :: rc
 
-      type(ActualPtVector), pointer :: actual_pts_vector
       type(ActualPtVec_MapIterator) :: iter
       integer :: status
 
@@ -636,7 +636,7 @@ contains
 
          do i = 1, actual_pts%size()
             actual_pt => actual_pts%of(i)
-            write(unit,*,iostat=iostat,iomsg=iomsg)'           ',actual_pt, new_line('a')
+            write(unit,*,iostat=iostat,iomsg=iomsg)'           ', actual_pt, new_line('a')
             if (iostat /= 0) return
          end do
 

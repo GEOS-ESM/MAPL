@@ -39,6 +39,7 @@ contains
       if (present(exportState)) multi_state%exportState = exportState
       if (present(internalState)) multi_state%internalState = internalState
 
+      _UNUSED_DUMMY(unusable)
    end function newMultiState_user
 
 
@@ -99,15 +100,15 @@ contains
       integer, intent(out)        :: iostat
       character(*), intent(inout) :: iomsg
 
-      type(ESMF_State) :: state
-      integer :: status
-      character(ESMF_MAXSTR) :: name
-      integer :: itemCount
-
 #ifndef __GFORTRAN__
       write(unit,*, iostat=iostat, iomsg=iomsg) 'IMPORT:', this%importState
+      if (iostat /= 0) return
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
+      if (iostat /= 0) return
 #endif
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_multistate
 
  end module mapl3g_MultiState

@@ -220,10 +220,10 @@ contains
       integer, optional, intent(out) :: rc
       logical :: isPresent
 
-      attr => this%attributes%at(attr_name)
-      isPresent = associated(attr)
-      _RETURN(_SUCCESS)
+      
+      isPresent = (this%attributes%count(attr_name) > 0)
 
+      _RETURN(_SUCCESS)
    end function is_attribute_present
 
    function get_attribute(this, attr_name, rc) result(attr)
@@ -232,8 +232,10 @@ contains
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      attr => this%attributes%at(attr_name)
-      _ASSERT(associated(attr), "no such attribute : " // trim(attr_name))
+      integer :: status
+      
+      attr => this%attributes%at(attr_name, _RC)
+
       _RETURN(_SUCCESS)
    end function get_attribute
 
@@ -301,6 +303,7 @@ contains
       type (StringAttributeMapIterator) :: iter
       type (Attribute), pointer :: attr_a, attr_b
       character(len=:), pointer :: attr_name
+      integer :: status
 
       ! special case : both are empty
       equal = (a%const_value == b%const_value)
@@ -322,20 +325,23 @@ contains
       equal = (a%attributes%size() == b%attributes%size())
       if (.not. equal) return
 
-      iter = a%attributes%begin()
-      do while (iter /= a%attributes%end())
+      iter = a%attributes%ftn_begin()
+      do while (iter /= a%attributes%ftn_end())
+         call iter%next()
 
-         attr_name => iter%key()
-         attr_b => b%attributes%at(attr_name)
+         attr_name => iter%first()
+         equal = (b%attributes%count(attr_name) > 0)
+         if (.not. equal) return
+
+         attr_b => b%attributes%at(attr_name, rc=status) ! eat status
          equal = (associated(attr_b))
          if (.not. equal) return
 
-         attr_a => iter%value()
+         attr_a => iter%second()
 
          equal = (attr_a == attr_b)
          if (.not. equal) return
 
-         call iter%next()
       end do
 
 
@@ -410,19 +416,16 @@ contains
          call deserialize_intrinsic(buffer(n:),this%type)
          length = serialize_buffer_length(this%type)
          n = n+length
-         call StringVector_deserialize(buffer(n:), this%dimensions, status)
-         _VERIFY(status)
+         call StringVector_deserialize(buffer(n:), this%dimensions, _RC)
          call deserialize_intrinsic(buffer(n:),length)
          n = n + length
          call deserialize_intrinsic(buffer(n:),length)
-         call StringAttributeMap_deserialize(buffer(n:n+length-1),this%attributes, status)
-         _VERIFY(status)
+         call StringAttributeMap_deserialize(buffer(n:n+length-1),this%attributes, _RC)
 
          n = n + length
 
          call deserialize_intrinsic(buffer(n:),length)
-         call UnlimitedEntity_deserialize(buffer(n:(n+length-1)), this%const_value, status)
-         _VERIFY(status)
+         call UnlimitedEntity_deserialize(buffer(n:(n+length-1)), this%const_value, _RC)
 
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%deflation)

@@ -13,6 +13,8 @@ set (srcs
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90
+  StringAttributeMap.F90
+  StringAttributeMapUtil.F90
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90

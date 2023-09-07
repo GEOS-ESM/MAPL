@@ -56,8 +56,6 @@ contains
       type(StringVector), optional, intent(in) :: item_names
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       if (present(item_names)) then
          spec%item_names = item_names
       end if
@@ -141,8 +139,6 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _FAIL('ServiceService::Cannot nest bundles.')
    end subroutine add_to_bundle
 
@@ -154,8 +150,6 @@ contains
 
       integer, optional, intent(out) :: rc
 
-      integer :: fieldCount
-      type(ESMF_Field), allocatable :: fieldList(:)
       integer :: status
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')

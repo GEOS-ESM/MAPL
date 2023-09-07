@@ -47,11 +47,11 @@ contains
       type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      
       _FAIL('Attempt to use invalid spec')
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dependency_specs)
    end subroutine create
 
 
@@ -59,23 +59,21 @@ contains
       class(InvalidSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _FAIL('Attempt to use invalid spec')
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine destroy
+       _UNUSED_DUMMY(this)
+  end subroutine destroy
 
 
    subroutine allocate(this, rc)
       class(InvalidSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _FAIL('Attempt to use invalid spec')
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine allocate
 
 
@@ -87,6 +85,7 @@ contains
       dependencies = ActualPtVector()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
@@ -95,11 +94,12 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _FAIL('Attempt to use invalid spec')
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
 
@@ -109,6 +109,8 @@ contains
 
       can_connect_to = .false.
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
    end function can_connect_to
 
 
@@ -118,6 +120,8 @@ contains
 
       requires_extension = .false.
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
    end function requires_extension
 
 
@@ -130,6 +134,9 @@ contains
       _FAIL('Attempt to use invalid spec')
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(multi_state)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine add_to_state
 
    subroutine add_to_bundle(this, bundle, rc)

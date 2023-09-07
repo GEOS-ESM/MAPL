@@ -102,6 +102,7 @@ contains
       _SET_OPTIONAL(vertical_dim_spec)
       _SET_OPTIONAL(ungridded_dims)
 
+      _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
 
 
@@ -264,7 +265,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: units
 
       if (.not. valid(this)) then
          _RETURN(_FAILURE)

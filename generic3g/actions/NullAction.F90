@@ -25,6 +25,9 @@ contains
 
    function new_NullAction() result(action)
       type(NullAction) :: action
+      type(NullAction) :: tmp
+
+      action = tmp
    end function new_NullAction
 
    subroutine run(this, rc)

@@ -529,12 +529,13 @@ contains
 
       ! merge attribute
       atts => meta%get_attributes()
-      att_iter = atts%begin()
-      do while (att_iter /= atts%end())
-        name => att_iter%key()
-        att => att_iter%value()
-        call this%add_attribute(name, att)
+      att_iter = atts%ftn_begin()
+      do while (att_iter /= atts%ftn_end())
         call att_iter%next()
+
+        name => att_iter%first()
+        att => att_iter%second()
+        call this%add_attribute(name, att)
       enddo
 
       ! merge variables

@@ -117,7 +117,6 @@ contains
       lbound = 1
    end function get_lbound
 
-
    pure integer function get_ubound(this) result(ubound)
       class(UngriddedDimSpec), intent(in) :: this
       ubound = size(this%coordinates)

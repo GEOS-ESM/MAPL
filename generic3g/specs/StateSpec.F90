@@ -107,8 +107,6 @@ contains
       class(StateSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
@@ -157,8 +155,7 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_State) :: alias
-      integer :: status
+!#      type(ESMF_State) :: alias
 
       _FAIL('unimplemented')
 

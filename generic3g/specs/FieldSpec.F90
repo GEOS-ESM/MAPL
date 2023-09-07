@@ -36,6 +36,7 @@ module mapl3g_FieldSpec
       type(VerticalDimSpec) :: vertical_dim
       type(ESMF_typekind_flag) :: typekind = ESMF_TYPEKIND_R4
       type(UngriddedDimsSpec) :: ungridded_dims
+      type(StateItemSpecPtr), allocatable :: dependency_specs(:)
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -145,8 +146,10 @@ contains
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
       call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
+      this%dependency_specs = dependency_specs
 
       call this%set_created()
+
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
@@ -322,6 +325,7 @@ contains
       end select
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(actual_pt)
 
    contains
@@ -392,7 +396,6 @@ contains
 
       type(ESMF_Field) :: alias
       integer :: status
-      type(ESMF_FieldStatus_Flag) :: fstatus
       type(ESMF_State) :: state, substate
       character(:), allocatable :: short_name
 
@@ -435,8 +438,6 @@ contains
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       cost = 0
       select type (src_spec)
       type is (FieldSpec)
@@ -475,8 +476,6 @@ contains
       class(FieldSpec), intent(in) :: this
       type(FieldSpec), intent(in) :: src_spec
 
-      logical :: found
-
       extension = this
 !!$      if (update_item(extension%geom, src_spec%geom)) return
       if (update_item(extension%typekind, src_spec%typekind)) then
@@ -493,8 +492,6 @@ contains
       class(FieldSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       action = NullAction() ! default
 

@@ -710,7 +710,7 @@ contains
                      var_iter = vars_map%find(i_to_string(q%request_id))
                      call msg_map%insert(q%request_id, q)
                   endif
-                  attr_ptr => var_iter%value()
+                  attr_ptr => var_iter%second()
                   x_ptr => attr_ptr%get_values()
                   select type (ptr=>x_ptr)
                   type is (integer(INT32))
@@ -827,7 +827,7 @@ contains
             msg =>msg_iter%value()
 
             var_iter = vars_map%find(i_to_string(request_id))
-            attr_ptr =>var_iter%value()
+            attr_ptr => var_iter%second()
             x_ptr => attr_ptr%get_values()
             select type (ptr=>x_ptr)
             type is (integer(INT32))
