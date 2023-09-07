@@ -3436,7 +3436,6 @@ ENDDO PARSER
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-               call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
@@ -3596,8 +3595,7 @@ ENDDO PARSER
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
-            !!bug
-            !!the barrier did not work
+            call list(n)%trajectory%close_file_handle(_RC)
             call ESMF_GridCompGet(gc, vm=vm, _RC)
             call ESMF_VMGetCurrent(vm, _RC)
             call ESMF_VMbarrier(vm, _RC)
@@ -3866,9 +3864,9 @@ ENDDO PARSER
             call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
             IM = dims(1)
             JM = dims(2)
-            DLON   =  360._REAL64/float(IM)
+            DLON   =  360._REAL64/IM
             if (JM /= 1) then
-               DLAT   =  180._REAL64/float(JM-1)
+               DLAT   =  180._REAL64/(JM-1)
             else
                DLAT   =  1.0
             end if
