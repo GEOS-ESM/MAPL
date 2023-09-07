@@ -888,6 +888,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            !         |                |
            !   epoch_index(1)        (2)
 
+           !! BUG
+           !! datetime_units comes from default '1970-01-01'
+           !! 
+
              call time_esmf_2_nc_int (T1, this%datetime_units, i1, _RC)
              call time_esmf_2_nc_int (T2, this%datetime_units, i2, _RC)
              rT1=real(i1, kind=ESMF_KIND_R8)

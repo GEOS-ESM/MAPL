@@ -361,7 +361,7 @@ contains
     integer                                   :: useRegex
     integer                                   :: unitr, unitw
     integer                                   :: tm,resolution(2)
-    logical                                   :: match, contLine
+    logical                                   :: match, contLine, con3
     character(len=2048)                       :: line
     type(ESMF_Config)                         :: cfg
     character(len=ESMF_MAXSTR)                :: HIST_CF
@@ -664,7 +664,7 @@ contains
 
          match = .false.
          contLine = .false.
-
+            
          do while (.true.)
             read(unitr, '(A)', end=1234) line
             j = index( adjustl(line), trim(adjustl(string)) )
@@ -672,14 +672,18 @@ contains
             if (match) then
                j = index(line, trim(string)//'fields:')
                contLine = (j > 0)
+               k = index(line, trim(string)//'obs_files:')
+               con3 = (k > 0)               
             end if
-            if (match .or. contLine) then
+            if (match .or. contLine .or. con3) then
                write(unitw,'(A)') trim(line)
             end if
             if (contLine) then
                if (adjustl(line) == '::') contLine = .false.
             end if
-
+            if (con3) then
+               if (adjustl(line) == '::') con3 = .false.               
+            endif
          end do
 
 1234     continue
