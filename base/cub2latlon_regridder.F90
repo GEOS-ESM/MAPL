@@ -258,14 +258,14 @@ contains
          associate ( ll => this%cfio_lat_lon, cs => this%cfio_cubed_sphere )
 
             attributes => cs%get_attributes()
-            iter = attributes%begin()
-            do while (iter /= attributes%end())
-               name => iter%key()
-               attr => iter%value()
+            iter = attributes%ftn_begin()
+            do while (iter /= attributes%ftn_end())
+               call iter%next()
 
+               name => iter%first()
+               attr => iter%second()
                call ll%add_attribute(name, attr)
 
-               call iter%next()
             end do
 
          end associate
@@ -340,18 +340,19 @@ contains
          character(len=:), pointer :: attr_name
 
          attributes => from%get_attributes()
-         attr_iter = attributes%begin()
-         do while (attr_iter /= attributes%end())
-            attr_name => attr_iter%key()
+         attr_iter = attributes%ftn_begin()
+         do while (attr_iter /= attributes%ftn_end())
+            call attr_iter%next()
+
+            attr_name => attr_iter%first()
             select case (attr_name)
             case ('grid_mapping','coordinates') ! CS specific attributes
                ! skip
             case default
-               associate (val => attr_iter%value())
+               associate (val => attr_iter%second())
                   call to%add_attribute(attr_name, val)
                end associate
             end select
-            call attr_iter%next()
          end do
 
       end subroutine transfer_attributes
