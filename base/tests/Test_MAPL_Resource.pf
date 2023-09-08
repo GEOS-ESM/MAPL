@@ -3,7 +3,6 @@
 
 module Test_MAPL_Resource
    use MAPL_ResourceMod
-   use MAPL_GenericMod
    use ESMF
    use pfunit
    use MAPL_ExceptionHandling
@@ -11,21 +10,18 @@ module Test_MAPL_Resource
 
    implicit none
 
-   integer, parameter :: MAX_LINE_LENGTH = 80
    integer, parameter :: PRINT_ALL = 1
    integer, parameter :: PRINT_DIFFERENT = 0
    integer, parameter :: PRINT_NOTHING = -1
    character(len=*), parameter :: EMPTY_STRING = ''
-
-   enum, bind(c)
-      enumerator :: CLOSED_INTERVAL = 0
-      enumerator :: CLOSED_OPEN_INTERVAL = 1
-      enumerator :: OPEN_CLOSED_INTERVAL = 2
-      enumerator :: OPEN_INTERVAL = 3
-      enumerator :: INTERVAL = 4
-   end enum
-
-   integer, parameter :: INTERVAL_KIND = kind(INTERVAL)
+   character(len=*), parameter :: OUTPUT_BASE  = ' Resource Parameter: '
+   character(len=*), parameter :: CHAR__PREFIX = 'Character'
+   character(len=*), parameter :: INT4__PREFIX = 'Integer*4'
+   character(len=*), parameter :: INT8__PREFIX = 'Integer*8'
+   character(len=*), parameter :: REAL4_PREFIX = 'Real*4'
+   character(len=*), parameter :: REAL8_PREFIX = 'Real*8'
+   character(len=*), parameter :: LOGIC_PREFIX = 'Logical'
+   character(len=*), parameter :: DEFAU_SUFFIX = ', (default value)'
 
 contains
 
@@ -339,5 +335,28 @@ contains
          end if
       end if
    end subroutine split
+
+   function starts(substring, string) result(lval)
+      logical :: lval
+      character(len=*), intent(in) :: string, substring
+
+      lval = (index(trim(string), trim(substring)) == 1)
+
+   end function starts
+
+   function ends(substring, string) result(lval)
+      logical :: lval
+      character(len=*), intent(in) :: string, substring
+      integer :: ls, lss, start
+
+      lval = (len_trim(substring) == 0)
+      if(.not. lval) then
+         lss = len_trim(substring)
+         ls = len_trim(string)
+         start = ls - lss + 1
+         lval = (index(trim(string), trim(substring)) == start)
+      end if
+
+   end function ends
 
 end module Test_MAPL_Resource

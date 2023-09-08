@@ -14,11 +14,6 @@
 #endif
 #define MISMATCH_MESSAGE "Type of 'default' does not match type of 'value'."
 
-#if defined(MAX_LINE_LENGTH)
-#undef MAX_LINE_LENGTH
-#endif
-#define MAX_LINE_LENGTH 80
-
 !=============================================================================
 !END FPP macros
 !=============================================================================
@@ -45,8 +40,12 @@ module MAPL_ResourceMod
    implicit none
    private
 
+   character(len=*), parameter :: EMPTY_STRING = ''
+   integer, parameter :: MAX_LINE_LENGTH = 256
+
    public MAPL_GetResource_config_scalar
    public MAPL_GetResource_config_array
+   public MAX_LINE_LENGTH
 
 contains
 
@@ -138,7 +137,7 @@ contains
          labels_with_prefix(3) = trim(label)
          labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
       else
-         labels_with_prefix = ''
+         labels_with_prefix = EMPTY_STRING
          labels_with_prefix(1) = label
       end if
 
@@ -509,7 +508,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: DEFAULT_ = ", (default value)"
-      character(len=*), parameter :: NONDEFAULT_ = ''
+      character(len=*), parameter :: NONDEFAULT_ = EMPTY_STRING
       character(len=*), parameter :: TRUNCATE = '... [VALUE_TRUNCATED]'
       integer, parameter :: LENGTH_TRUNCATE = len(TRUNCATE)
       character(len=:), allocatable :: output_format
@@ -553,6 +552,7 @@ contains
       output_format = '(a)'
 
       if(present(iunit)) then
+         iunit = EMPTY_STRING
          _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before)')
          write(iunit, fmt=output_format, iostat=io_stat) final_output(1:min(len(iunit), MAX_LINE_LENGTH))
          _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
