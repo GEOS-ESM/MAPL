@@ -44,8 +44,10 @@
 #if (RANK_ > 1)
     integer                                       :: J1, JN
     integer                                       :: jbeg,jend
+    integer                                       :: jsz
 #endif
-    integer                                       :: ISZ, JSZ
+    
+    integer                                       :: ISZ
     integer                                       :: destPE, myhw
     TYPE_(kind=EKIND_), allocatable               :: var(:)
     type(ESMF_VM) :: vm
@@ -148,8 +150,6 @@
 
 #if (RANK_ == 2)
           JSZ = size(GLOBAL_ARRAY,2)
-#else
-          JSZ = 1
 #endif
 
           allocate(KK (0:nDEs-1        ), stat=status)

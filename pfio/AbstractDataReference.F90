@@ -4,7 +4,6 @@
 module pFIO_AbstractDataReferenceMod
    use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use, intrinsic :: iso_c_binding, only: c_associated
    use, intrinsic :: iso_fortran_env, only: INT32
