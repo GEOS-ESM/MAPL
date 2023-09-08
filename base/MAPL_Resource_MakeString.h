@@ -1,38 +1,44 @@
 #include "MAPL_Resource_preamble.h"
 
 if(do_print) then
-    if (label_is_present) then 
+   if (label_is_present) then 
 
-       if(default_is_present) then 
-          select type(default) 
-          type is(TYPE_) 
-             value_is_default = ARE_EQUAL(VALUE_, default) 
-          class default 
-             _FAIL(MISMATCH_MESSAGE) 
-          end select 
-       else 
-          value_is_default = .FALSE. 
-       end if 
+      if(default_is_present) then 
+         select type(default) 
+         type is(TYPE_) 
+            value_is_default = ARE_EQUAL(VALUE_, default) 
+         class default 
+            _FAIL(MISMATCH_MESSAGE) 
+         end select 
+      else 
+         value_is_default = .FALSE. 
+      end if 
 
-    else 
+   else 
 
-       value_is_default = .TRUE. 
+      value_is_default = .TRUE. 
 
-    end if 
+   end if 
 
-    if (.not. (print_nondefault_only .and. value_is_default)) then 
-       type_string = TYPE_STRING
-       type_format = FMT_
+   if (.not. (print_nondefault_only .and. value_is_default)) then 
+      type_string = TYPE_STRING
+      type_format = FMT_
 #if defined(IS_ARRAY)
-       write(array_size_string, '(i2)', iostat=io_stat) size(VALUE_) 
-       _ASSERT((io_stat == IO_SUCCESS), "Failure writing array size string") 
-       type_format = array_format(type_format, array_size_string) 
+      write(array_size_string, '(i2)', iostat=io_stat) size(VALUE_) 
+      if(io_stat == IO_SUCCESS) then
+         type_format = array_format(type_format, array_size_string) 
+      else
+         type_format = ''
+      end if
 #endif
-       write(formatted_value, type_format, iostat=io_stat) VALUE_ 
-       _ASSERT((io_stat == IO_SUCCESS), "Failure writing formatted_value") 
-    else 
-       do_print = .FALSE. 
-    end if
+      formatted_value = ''
+      if(len_trim(type_format) > 0) then
+         write(formatted_value, type_format, iostat=io_stat) VALUE_ 
+         if(io_stat /= IO_SUCCESS) formatted_value = ''
+      end if
+   else 
+      do_print = .FALSE. 
+   end if
 end if
 
 #if defined(TYPE_STRING)

@@ -1,0 +1,343 @@
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+
+module Test_MAPL_Resource
+   use MAPL_ResourceMod
+   use MAPL_GenericMod
+   use ESMF
+   use pfunit
+   use MAPL_ExceptionHandling
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
+
+   implicit none
+
+   integer, parameter :: MAX_LINE_LENGTH = 80
+   integer, parameter :: PRINT_ALL = 1
+   integer, parameter :: PRINT_DIFFERENT = 0
+   integer, parameter :: PRINT_NOTHING = -1
+   character(len=*), parameter :: EMPTY_STRING = ''
+
+   enum, bind(c)
+      enumerator :: CLOSED_INTERVAL = 0
+      enumerator :: CLOSED_OPEN_INTERVAL = 1
+      enumerator :: OPEN_CLOSED_INTERVAL = 2
+      enumerator :: OPEN_INTERVAL = 3
+      enumerator :: INTERVAL = 4
+   end enum
+
+   integer, parameter :: INTERVAL_KIND = kind(INTERVAL)
+
+contains
+
+   @Test
+   subroutine Test_MAPL_GetResource_scalar_int4()
+      type(ESMF_Config) :: config
+      integer :: status
+      integer(kind=int32) :: expected, actual
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1'
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = 1
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_scalar(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+   end subroutine Test_MAPL_GetResource_scalar_int4
+
+   @Test
+   subroutine Test_MAPL_GetResource_scalar_int8()
+      type(ESMF_Config) :: config
+      integer :: status
+      integer(kind=int64) :: expected, actual
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1'
+      logical :: value_is_set
+
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      expected = 1
+      call MAPL_GetResource_config_scalar(config, actual, label = LABEL, value_is_set = value_is_set, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+      
+   end subroutine Test_MAPL_GetResource_scalar_int8
+
+   @Test
+   subroutine Test_MAPL_GetResource_scalar_real4()
+      type(ESMF_Config) :: config
+      integer :: status
+      real(kind=real32) :: expected, actual
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1.0'
+      logical :: value_is_set
+
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      expected = 1.0
+      call MAPL_GetResource_config_scalar(config, actual, label = LABEL, value_is_set = value_is_set, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+      
+   end subroutine Test_MAPL_GetResource_scalar_real4
+
+   @Test
+   subroutine Test_MAPL_GetResource_scalar_real8()
+      type(ESMF_Config) :: config
+      integer :: status
+      real(kind=real64) :: expected, actual
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1.0'
+      logical :: value_is_set
+
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      expected = 1.0
+      call MAPL_GetResource_config_scalar(config, actual, label = LABEL, value_is_set = value_is_set, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+      
+   end subroutine Test_MAPL_GetResource_scalar_real8
+
+   @Test
+   subroutine Test_MAPL_GetResource_scalar_character()
+      type(ESMF_Config) :: config
+      integer :: status
+      character(ESMF_MAXSTR) :: expected, actual
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = 'value'
+      character(len=MAX_LINE_LENGTH) :: output_string
+      logical :: value_is_set
+
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      expected = VAL
+      call MAPL_GetResource_config_scalar(config, actual, label = LABEL, value_is_set = value_is_set, iunit = output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+      @assertTrue(len_trim(output_string) > len(VAL), 'output_string should be longer than VAL')
+      @assertTrue(len_trim(output_string) <= MAX_LINE_LENGTH, 'output_string is too long.')
+
+   end subroutine Test_MAPL_GetResource_scalar_character
+
+   @Test
+   subroutine Test_MAPL_GetResource_scalar_logical()
+      type(ESMF_Config) :: config
+      integer :: status
+      logical :: expected, actual, match
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '.T.'
+      logical :: value_is_set
+
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      expected = .TRUE.
+      call MAPL_GetResource_config_scalar(config, actual, label = LABEL, value_is_set = value_is_set, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      match = expected .eqv. actual 
+      @assertTrue(match, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_scalar_logical
+
+   @Test
+   subroutine Test_MAPL_GetResource_array_int4()
+      type(ESMF_Config) :: config
+      integer :: status
+      integer(kind=int32) :: expected(4), actual(4)
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1 2 3 4'
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = [1, 2, 3, 4]
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_array(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_array_int4
+
+   @Test
+   subroutine Test_MAPL_GetResource_array_int8()
+      type(ESMF_Config) :: config
+      integer :: status
+      integer(kind=int64) :: expected(4), actual(4)
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1 2 3 4'
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = [1, 2, 3, 4]
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_array(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_array_int8
+
+   @Test
+   subroutine Test_MAPL_GetResource_array_real4()
+      type(ESMF_Config) :: config
+      integer :: status
+      real(kind=real32) :: expected(4), actual(4)
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1.0 2.0 3.0 4.0'
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = [1.0, 2.0, 3.0, 4.0]
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_array(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_array_real4
+
+   @Test
+   subroutine Test_MAPL_GetResource_array_real8()
+      type(ESMF_Config) :: config
+      integer :: status
+      real(kind=real64) :: expected(4), actual(4)
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '1.0 2.0 3.0 4.0'
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = [1.0, 2.0, 3.0, 4.0]
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_array(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_array_real8
+
+   @Test
+   subroutine Test_MAPL_GetResource_array_character()
+      type(ESMF_Config) :: config
+      integer :: status
+      character(len=ESMF_MAXSTR) :: expected(4), actual(4)
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = 'bop fop hop mop' 
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = ['bop', 'fop', 'hop', 'mop']
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_array(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      @assertEqual(expected, actual, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_array_character
+
+   @Test
+   subroutine Test_MAPL_GetResource_array_logical()
+      type(ESMF_Config) :: config
+      integer :: status
+      logical :: expected(4), actual(4), match
+      character(len=*), parameter :: LABEL = 'label'
+      character(len=*), parameter :: VAL = '.T. .F. .F. .T.'
+      logical :: value_is_set
+      character(len=MAX_LINE_LENGTH) :: output_string
+
+      expected = [.TRUE., .FALSE., .FALSE., .TRUE.]
+      config = ESMF_ConfigCreate(rc = status)
+      @assertEqual(0, status, 'Failed to create ESMF_Config')
+      call ESMF_ConfigSetAttribute(config, PRINT_ALL, label = 'PRINTRC:', rc = status)
+      @assertEqual(0, status, 'Failed to set PRINTRC')
+      call ESMF_ConfigSetAttribute(config, VAL, label = LABEL, rc = status)
+      @assertEqual(0, status, 'Failed to set attribute')
+      call MAPL_GetResource_config_array(config, actual, label = LABEL, value_is_set = value_is_set, iunit=output_string, rc = status)
+      @assertEqual(0, status, 'Failed to get resource')
+      match = all(expected .eqv. actual)
+      @assertTrue(match, 'actual does not match expected.')
+
+   end subroutine Test_MAPL_GetResource_array_logical
+
+   @After
+   subroutine tear_down()
+
+   end subroutine tear_down
+
+   @Before
+   subroutine set_up()
+
+   end subroutine set_up
+
+   subroutine split(string, next, remainder, d, merge_delimiters)
+      character(len=*), intent(in) :: string
+      character(len=len(string)), intent(out) :: next, remainder
+      character(len=*), optional, intent(in) :: d
+      logical, optional, intent(in) :: merge_delimiters
+      character(len=:), allocatable :: d_
+      logical :: merge_delimiters_
+      integer :: len_d, len_string, i
+
+      d_ = ' '
+      next = EMPTY_STRING
+      remainder = EMPTY_STRING
+      if(present(d)) d_ = d
+      len_d = len(d_)
+      len_string = len(string)
+      if((len_d > 0) .and. (len_d <= len_string)) then
+         i = index(string, d_)
+         if(i == 0) then
+            next = string
+         else
+            if(i < (len_string - len_d + 1)) remainder = string(i + len_d:len(string))
+            next = string(1:(i-1))
+         end if
+      end if
+   end subroutine split
+
+end module Test_MAPL_Resource

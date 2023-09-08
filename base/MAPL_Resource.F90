@@ -13,6 +13,12 @@
 #undef MISMATCH_MESSAGE
 #endif
 #define MISMATCH_MESSAGE "Type of 'default' does not match type of 'value'."
+
+#if defined(MAX_LINE_LENGTH)
+#undef MAX_LINE_LENGTH
+#endif
+#define MAX_LINE_LENGTH 80
+
 !=============================================================================
 !END FPP macros
 !=============================================================================
@@ -176,7 +182,7 @@ contains
 
    !>
    ! Find value of scalar variable in config
-   subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, iunit, rc)
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: val
       character(len=*), intent(in) :: label
@@ -184,12 +190,13 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
       character(len=*), optional, intent(in) :: component_name
+      character(len=*), optional, intent(inout) :: iunit
       integer, optional, intent(out) :: rc
 
       character(len=:), allocatable :: actual_label
       character(len=:), allocatable :: type_format
       character(len=:), allocatable :: type_string
-      character(len=ESMF_MAXSTR) :: formatted_value
+      character(len=MAX_LINE_LENGTH) :: formatted_value
 
       logical :: default_is_present
       logical :: label_is_present
@@ -222,7 +229,7 @@ contains
 
       default_is_present = present(default)
 
-      ! these need to be initialized explitictly 
+      ! these need to be initialized explicitly 
       value_is_set = .FALSE.
       label_is_present = .FALSE.
       print_nondefault_only = .FALSE.
@@ -242,7 +249,6 @@ contains
       end if
 
       call get_print_settings(config, default_is_present, do_print, print_nondefault_only, _RC)
-   
 
       select type(val)
 
@@ -299,18 +305,24 @@ contains
       type is (character(len=*))
 
 #define TYPE_ character(len=*)
-#define TYPE_NUM 0
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
 #undef TYPE_NUM
-      
 
       class default
          _FAIL( "Unsupported type")
       end select
       
-      if(do_print) call print_resource(type_string, actual_label, formatted_value, value_is_default, _RC)
+      if(do_print) then
+         if(present(iunit)) then
+            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
+            call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
+            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
+         else
+            call print_resource(type_string, actual_label, formatted_value, value_is_default, _RC)
+         endif
+      end if
 
       value_is_set = .TRUE.
 
@@ -323,7 +335,7 @@ contains
 
    !>
    ! Find value of array variable in config
-   subroutine MAPL_GetResource_config_array(config, val, label, value_is_set, unusable, default, component_name, rc)
+   subroutine MAPL_GetResource_config_array(config, val, label, value_is_set, unusable, default, component_name, iunit, rc)
       type(ESMF_Config), intent(inout) :: config
       class(*), intent(inout) :: val(:)
       character(len=*), intent(in) :: label
@@ -332,6 +344,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
       character(len=*), optional, intent(in) :: component_name
+      character(len=*), optional, intent(inout) :: iunit
       integer, optional, intent(out) :: rc
       character(len=2) :: array_size_string
       ! We assume we will never have more than 99 values, hence len=2
@@ -339,7 +352,7 @@ contains
       character(len=:), allocatable :: actual_label
       character(len=:), allocatable :: type_format
       character(len=:), allocatable :: type_string
-      character(len=ESMF_MAXSTR) :: formatted_value
+      character(len=MAX_LINE_LENGTH) :: formatted_value
 
       logical :: default_is_present
       logical :: label_is_present
@@ -371,9 +384,13 @@ contains
 #endif
 #define VALUE_ val
 
+#if defined(MAX_CHAR_LEN)
+#undef MAX_CHAR_LEN
+#endif
+
       default_is_present = present(default)
 
-      ! these need to be initialized explitictly 
+      ! these need to be initialized explicitly 
       value_is_set = .FALSE.
       label_is_present = .FALSE.
       print_nondefault_only = .FALSE.
@@ -463,7 +480,15 @@ contains
          _FAIL( "Unsupported type")
       end select
 
-      if(do_print) call print_resource(type_string, actual_label, formatted_value, value_is_default, _RC)
+      if(do_print) then
+         if(present(iunit)) then
+            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
+            call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
+            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
+         else
+            call print_resource(type_string, actual_label, formatted_value, value_is_default, _RC)
+         endif
+      end if
 
       value_is_set = .TRUE.
 
@@ -474,26 +499,67 @@ contains
 
    !>
    ! Print the resource value
-   subroutine print_resource(type_string, label, formatted_value, value_is_default, rc)
+   subroutine print_resource(type_string, label, formatted_value, value_is_default, unusable, iunit, rc)
       character(len=*), intent(in) :: type_string
       character(len=*), intent(in) :: label
       character(len=*), intent(in) :: formatted_value
       logical, intent(in) :: value_is_default
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(out) :: iunit
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: DEFAULT_ = ", (default value)"
       character(len=*), parameter :: NONDEFAULT_ = ''
+      character(len=*), parameter :: TRUNCATE = '... [VALUE_TRUNCATED]'
+      integer, parameter :: LENGTH_TRUNCATE = len(TRUNCATE)
       character(len=:), allocatable :: output_format
       character(len=:), allocatable :: trailer
       character(len=:), allocatable :: value_out
+      character(len=ESMF_MAXSTR) :: output_string
+      character(len=MAX_LINE_LENGTH) :: final_output
+      integer :: io_stat, max_length_value_out
+
+      _UNUSED_DUMMY(unusable)
 
       trailer = NONDEFAULT_
       if (value_is_default) trailer = DEFAULT_
 
-      output_format = "(1x, " // type_string // ", 'Resource Parameter: '" // ", a"// ", a)"
-      value_out = trim(formatted_value) // trim(trailer)
+      ! maximum line length before adding the label and trailer
+      max_length_value_out = MAX_LINE_LENGTH - len_trim(label) - len(trailer)
 
-      print output_format, trim(label), value_out
+      ! format string to create output string
+      output_format = "(1x, " // type_string // ", 'Resource Parameter: '" // ", a"// ", a)"
+
+      value_out = trim(formatted_value)
+      if(len(value_out) == 0) then
+      ! if something went wrong, the formatted_value will be empty, so provide alternative value_out
+         value_out = "[Unable to write formatted value]"
+      else if(len(value_out) > max_length_value_out) then
+         ! if value_out is too long (such that the output string will be longer than maxium line length, truncate
+         value_out = value_out(1:(max_length_value_out - LENGTH_TRUNCATE)) // TRUNCATE
+      end if
+
+      ! Make output_string including label but without the trailer
+      write(output_string, fmt=output_format, iostat=io_stat) trim(label), value_out
+
+      ! If writing the output_string fails, provide alternative output_string
+      if(io_stat /= IO_SUCCESS) output_string = trim(label) // ' [Unable to write resource value] '
+
+      ! Add the trailer now
+      output_string = trim(output_string) // trailer
+
+      ! Output a string no longer than maximum line length
+      final_output = output_string(1:len(final_output))
+      output_format = '(a)'
+
+      if(present(iunit)) then
+         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before)')
+         write(iunit, fmt=output_format, iostat=io_stat) final_output(1:min(len(iunit), MAX_LINE_LENGTH))
+         _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
+         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after)')
+      else
+         write(*, fmt=output_format) final_output
+      end if
 
       _RETURN(_SUCCESS)
 

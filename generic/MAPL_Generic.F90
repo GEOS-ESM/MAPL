@@ -8485,25 +8485,24 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, unusable, default, value_is_set, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
-      logical :: value_is_set
+      logical :: value_set
       integer :: status
 
-      call MAPL_GetResource_config_scalar(state%cf, val, label, value_is_set, &
-         default = default, component_name = state%compname, rc = status)
+      _UNUSED_DUMMY(unusable)
 
-      if(.not. value_is_set) then
-         if (present(rc)) rc = ESMF_FAILURE
-         return
-      end if
+      call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
+         default = default, component_name = state%compname, _RC)
 
-      _VERIFY(status)
+      if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
 
@@ -8511,24 +8510,24 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, unusable, default, value_is_set, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: value_is_set
+      logical :: value_set
 
-      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
+      _UNUSED_DUMMY(unusable)
+
+      call MAPL_GetResource_config_scalar(config, val, label, value_set, &
+         default = default, _RC)
       
-      if(.not. value_is_set) then
-         if (present(rc)) rc = ESMF_FAILURE
-         return
-      end if
-
-      _VERIFY(status)
+      if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
 
@@ -8536,50 +8535,48 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, unusable, default, value_is_set, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
-      logical :: value_is_set
+      logical :: value_set
       integer :: status
       
-      call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
-         default = default, component_name = state%compname, rc = status)
+      _UNUSED_DUMMY(unusable)
+
+      call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
+         default = default, component_name = state%compname, _RC)
       
-      if(.not. value_is_set) then
-         if (present(rc)) rc = ESMF_FAILURE
-         return
-      end if
-      
-      _VERIFY(status)
+      if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_array
 
-   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, unusable, default, value_is_set, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: value_is_set
+      logical :: value_set
 
-      call MAPL_GetResource_config_array(config, vals, label, value_is_set, &
-         default = default, rc = status)
-      
-      if(.not. value_is_set) then
-         if (present(rc)) rc = ESMF_FAILURE
-         return
-      end if
-      
-      _VERIFY(status)
+      _UNUSED_DUMMY(unusable)
 
+      call MAPL_GetResource_config_array(config, vals, label, value_set, &
+         default = default, _RC)
+      
+      if(present(value_is_set)) value_is_set = value_set
+      
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_array
