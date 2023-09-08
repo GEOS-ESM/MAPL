@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reworked MAPL_FieldSplit to use the new ESMF featre array_split. This now supports SSI arrays
 - Converted hinterp.F to free format (hinterp.F90)
 - Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
