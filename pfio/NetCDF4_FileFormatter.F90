@@ -19,12 +19,12 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_StringAttributeMapMod
    use pfio_NetCDF_Supplement
    use netcdf
+   use mpi
    implicit none
    private
 
    public :: NetCDF4_FileFormatter
 
-   include 'mpif.h'
    type :: NetCDF4_FileFormatter
 !$$      private
       character(len=:), allocatable :: origin_file
@@ -678,12 +678,12 @@ contains
       integer:: status
 
       !$omp critical
-      status=nf90_redef(this%ncid) 
+      status=nf90_redef(this%ncid)
       !$omp end critical
       _VERIFY(status)
       call this%def_variables(cf, varname=varname, _RC)
       !$omp critical
-      status=nf90_enddef(this%ncid) 
+      status=nf90_enddef(this%ncid)
       !$omp end critical
       _VERIFY(status)
       _RETURN(_SUCCESS)
@@ -718,11 +718,7 @@ contains
       class (Variable), pointer :: var
       integer :: varid
 
-      type (StringIntegerMap), pointer :: all_dims
-
-
       vars => cf%get_variables()
-      all_dims => cf%get_dimensions()
 
       order = cf%get_order()
       var_iter = order%begin()

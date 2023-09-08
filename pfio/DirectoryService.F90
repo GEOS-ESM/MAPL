@@ -272,6 +272,7 @@ contains
       allocate(sckt, source=MpiSocket(this%comm, server_rank, this%parser))
       call client%set_connection(sckt)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine connect_to_server
 
    subroutine connect_to_client(this, port_name, server, rc)

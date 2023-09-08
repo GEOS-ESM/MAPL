@@ -43,10 +43,10 @@
 !                      and VarReadT() has been rolled back.
 !- Dec2006  da Silva   Added ESMF_CFIODownBit() to downgrade precision for
 !                      better gzipping.
-!- Feb2007  Baoyu Yin  This is a new wrapper module for handling SDF or GrADS 
+!- Feb2007  Baoyu Yin  This is a new wrapper module for handling SDF or GrADS
 !                      format output.
 !- Mar2008  Dan Kokron Replace some code in ESMF_CFIOVarReadT2D__ that prevent
-!                      time increment larger than 99 hours 
+!                      time increment larger than 99 hours
 !- Jun2008  Dan Kokron Replace read(str,fmt) to parse time in VarReadT3D with
 !                      call to parseIntTime
 !
@@ -72,13 +72,13 @@
 
       public :: ESMF_CFIO                ! Main CFIO object
 
-      public :: ESMF_CFIOFileCreate      ! Create a CFIO file for writing 
-      public :: ESMF_CFIOFileOpen        ! Open a CFIO file 
-      public :: ESMF_CFIOVarWrite        ! Write a variable to a file 
+      public :: ESMF_CFIOFileCreate      ! Create a CFIO file for writing
+      public :: ESMF_CFIOFileOpen        ! Open a CFIO file
+      public :: ESMF_CFIOVarWrite        ! Write a variable to a file
       public :: ESMF_CFIOVarRead         ! Read a variable from a file
       public :: ESMF_CFIOVarReadT        ! Read a variable from a file
       public :: ESMF_CFIOVarReadT2       ! Read a variable from a file
-      public :: ESMF_CFIOFileClose       ! Close an existing CFIO file. 
+      public :: ESMF_CFIOFileClose       ! Close an existing CFIO file.
 
       public :: ESMF_CFIOstrTemplate     ! replacement for the one in mpeu
 
@@ -95,13 +95,13 @@
         ESMF_CFIOVarRead3D_,   &
         ESMF_CFIOVarRead2D_,   &
         ESMF_CFIOVarRead1D_
-      end interface 
+      end interface
 
 !     AMS: These were split because *D_ and *D__ routines
 !          had the same signature!
       interface ESMF_CFIOVarReadT; module procedure   &
         ESMF_CFIOVarReadT3D_,  &
-        ESMF_CFIOVarReadT2D_ 
+        ESMF_CFIOVarReadT2D_
       end interface
 
       interface ESMF_CFIOVarReadT2; module procedure   &
@@ -138,40 +138,40 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                      !! 0   all is well     
-                      !! -1 Time increment is 0     
-                      !! -2  allocate memory error     
-                      !! -3  Num of int/char/real elements and Cnt don't match     
-                      !! -12  error determining default precision     
-                      !! -18 incorrect time increment     
-                      !! -30 can't open file     
-                      !! -31 error from NF90_DEF_DIM     
-                      !! -32 error from NF90_DEF_VAR (dimension variable)     
-                      !! -33 error from NF90_PUT_ATT (dimension attribute)     
-                      !! -34 error from NF90_DEF_VAR (variable)     
-                      !! -35  error from NF90_PUT_ATT (variable attribute)     
-                      !! -36  error from NF90_PUT_ATT (global attribute)     
-                      !! -37  error from NF90_ENDDEF     
-                      !! -38  error from NF90_PUT_VAR (dimension variable)     
-                      !! -39 Num of real var elements and Cnt differ     
-                      !! -55  error from NF90_REDEF (enter define mode)     
-                      !! -56  error from NF90_ENDDEF (exit define mode)     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                      !! 0   all is well
+                      !! -1 Time increment is 0
+                      !! -2  allocate memory error
+                      !! -3  Num of int/char/real elements and Cnt don't match
+                      !! -12  error determining default precision
+                      !! -18 incorrect time increment
+                      !! -30 can't open file
+                      !! -31 error from NF90_DEF_DIM
+                      !! -32 error from NF90_DEF_VAR (dimension variable)
+                      !! -33 error from NF90_PUT_ATT (dimension attribute)
+                      !! -34 error from NF90_DEF_VAR (variable)
+                      !! -35  error from NF90_PUT_ATT (variable attribute)
+                      !! -36  error from NF90_PUT_ATT (global attribute)
+                      !! -37  error from NF90_ENDDEF
+                      !! -38  error from NF90_PUT_VAR (dimension variable)
+                      !! -39 Num of real var elements and Cnt differ
+                      !! -55  error from NF90_REDEF (enter define mode)
+                      !! -56  error from NF90_ENDDEF (exit define mode)
 !
 !------------------------------------------------------------------------------
       integer :: rtcode
       character (len=16) :: myFormat
- 
+
       myFormat = 'SDF'
       if (present(format)) then
          if (trim(ESMF_UtilStringUpperCase(format)) .eq. 'GRADS' )  then
              call ESMF_CFIOSet(cfio, format='GRADS')
-             myFormat = 'GRADS' 
+             myFormat = 'GRADS'
          end if
 #if defined(HDFEOS)
          if (ESMF_UtilStringUpperCase(format)) .eq. 'EOS' )  then
              call ESMF_CFIOSet(cfio, format='EOS')
-             myFormat = 'EOS' 
+             myFormat = 'EOS'
          end if
 #endif
       end if
@@ -219,7 +219,7 @@
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:,:,:)             !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
                                                 !! 0   all is well
 !
 !------------------------------------------------------------------------------
@@ -315,7 +315,7 @@
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:,:)               !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
                                                 !! 0   all is well
 !
 !------------------------------------------------------------------------------
@@ -408,7 +408,7 @@
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:)                 !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
                                                 !! 0   all is well
 !
 !------------------------------------------------------------------------------
@@ -484,30 +484,30 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
                                                 !! 0   all is well
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -15  data outside of valid range     
-                         !!  rc = -16  data outside of packing range     
-                         !!  rc = -17  data outside of pack and valid range     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -45  error from NF90_PUT_VAR     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -53  error from NF90_GET_ATT     
-                         !!  rc = -54  Format is not known     
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_PUT_VAR
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
+                         !!  rc = -54  Format is not known
 
 !
 !------------------------------------------------------------------------------
@@ -560,8 +560,8 @@
       end select
 
          print *, "CFIO%FORMAT is not known"
-         if (present(rc)) rc = -54    
-         return 
+         if (present(rc)) rc = -54
+         return
       end subroutine ESMF_CFIOVarWrite3D_
 
 !------------------------------------------------------------------------------
@@ -587,30 +587,30 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -15  data outside of valid range     
-                         !!  rc = -16  data outside of packing range     
-                         !!  rc = -17  data outside of pack and valid range     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -45  error from NF90_PUT_VAR     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -53  error from NF90_GET_ATT     
-                         !!  rc = -54  Format is not known     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_PUT_VAR
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
+                         !!  rc = -54  Format is not known
 
 !
 !------------------------------------------------------------------------------
@@ -644,7 +644,7 @@
          end if
          if ( rtcode .ne. 0 ) print *, "problem in ESMF_CFIOVarWrite"
          if (present(rc)) rc = rtcode
-         return 
+         return
 #if defined(HDFEOS)
       case ('EOS')
          if (present(kbeg) .and. present(kount)) then
@@ -664,8 +664,8 @@
       end select
 
          print *, "CFIO%FORMAT is not known"
-         if (present(rc)) rc = -54    
-         return 
+         if (present(rc)) rc = -54
+         return
       end subroutine ESMF_CFIOVarWrite2D_
 !------------------------------------------------------------------------------
 !>
@@ -685,30 +685,30 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -15  data outside of valid range     
-                         !!  rc = -16  data outside of packing range     
-                         !!  rc = -17  data outside of pack and valid range     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -45  error from NF90_PUT_VAR     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -53  error from NF90_GET_ATT     
-                         !!  rc = -54  Format is not known     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -15  data outside of valid range
+                         !!  rc = -16  data outside of packing range
+                         !!  rc = -17  data outside of pack and valid range
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -45  error from NF90_PUT_VAR
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -53  error from NF90_GET_ATT
+                         !!  rc = -54  Format is not known
 
 !
 !------------------------------------------------------------------------------
@@ -729,12 +729,12 @@
                         curTime=myCurTime, rc=rtcode)
          if ( rtcode .ne. 0 ) print *, "problem in ESMF_CFIOVarWrite"
          if (present(rc)) rc = rtcode
-         return 
+         return
       end select
 
          print *, "CFIO%FORMAT is not known"
-         if (present(rc)) rc = -54    
-         return 
+         if (present(rc)) rc = -54
+         return
       end subroutine ESMF_CFIOVarWrite1D_
 !------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
@@ -752,28 +752,28 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !! -1   invalid count     
-                         !! -2   type mismatch     
-                         !! -12  error determining default precision     
-                         !! -10  ngatts is incompatible with file     
-                         !! -11  character string not long enough     
-                         !! -19  unable to identify coordinate variable     
-                         !! -36  error from NF90_PUT_ATT (global attribute)     
-                         !! -39  error from NF90_OPEN (file open)     
-                         !! -40  error from NF90_INQ_VARID     
-                         !! -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !! -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !! -43  error from NF90_INQ_VARID (time variable)     
-                         !! -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)     
-                         !! -48  error from NF90_INQUIRE     
-                         !! -51  error from NF90_GET_ATT (global attribute)     
-                         !! -52  error from NF90_INQUIRE_VARIABLE     
-                         !! -53  error from NF90_GET_ATT     
-                         !! -57  error from NF90_INQ_ATTNAME     
-                         !! -58  error from NF90_INQUIRE_ATTRIBUTE     
-     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !! -1   invalid count
+                         !! -2   type mismatch
+                         !! -12  error determining default precision
+                         !! -10  ngatts is incompatible with file
+                         !! -11  character string not long enough
+                         !! -19  unable to identify coordinate variable
+                         !! -36  error from NF90_PUT_ATT (global attribute)
+                         !! -39  error from NF90_OPEN (file open)
+                         !! -40  error from NF90_INQ_VARID
+                         !! -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !! -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !! -43  error from NF90_INQ_VARID (time variable)
+                         !! -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)
+                         !! -48  error from NF90_INQUIRE
+                         !! -51  error from NF90_GET_ATT (global attribute)
+                         !! -52  error from NF90_INQUIRE_VARIABLE
+                         !! -53  error from NF90_GET_ATT
+                         !! -57  error from NF90_INQ_ATTNAME
+                         !! -58  error from NF90_INQUIRE_ATTRIBUTE
+
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -782,10 +782,10 @@
 !------------------------------------------------------------------------------
       integer :: rtcode
       character(len=16) :: dset
-      character(len=16) :: format 
+      character(len=16) :: format
       logical :: ex
       character(len=MLEN) :: fileName
-      logical :: myCyclic 
+      logical :: myCyclic
 
 
       if (present(expid)) call ESMF_CFIOSet(cfio, expid = expid)
@@ -810,7 +810,7 @@
          call ESMF_CFIOSet(cfio, format='GRADS')
          format = 'GRADS'
       end if
- 
+
       select case (format)
       case ('SDF')
          if ( present(expid) ) then
@@ -833,9 +833,9 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-      integer, intent(out), OPTIONAL :: rc    !! Error return code:     
-                                              !! 0   all is well     
-                                              !! -54  error from ncclos (file close)     
+      integer, intent(out), OPTIONAL :: rc    !! Error return code:
+                                              !! 0   all is well
+                                              !! -54  error from ncclos (file close)
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -867,7 +867,7 @@
 
 !------------------------------------------------------------------------------
 !>
-! `ESMF_CFIODownBit` - GRIB-based compression pre-conditioner 
+! `ESMF_CFIODownBit` - GRIB-based compression pre-conditioner
 !
 !  This routine returns a lower precision version of the input array
 !  `x` which retains `nbits` of precision. See routine
@@ -884,7 +884,7 @@
 !
 ! !INPUT PARAMETERS:
 !
-     real, intent(in)    ::  x(:,:,:)       !! input array 
+     real, intent(in)    ::  x(:,:,:)       !! input array
      integer, intent(in) :: nbits           !! number of bits per word to retain
                                             !! - no action if nbits<1
      real, OPTIONAL, intent(in) :: undef    ! missing value
@@ -898,7 +898,7 @@
                                         !! if it has same kind
      integer, intent(out)  :: rc        !! error code
                                         !!  = 0 - all is well
-                                        !! /= 0 - something went wrong 
+                                        !! /= 0 - something went wrong
 !
 !------------------------------------------------------------------------------
 
@@ -914,24 +914,24 @@
 
 !------------------------------------------------------------------------------
 !>
-! `ESMF_CFIODownBit` - GRIB-based compression pre-conditioner 
+! `ESMF_CFIODownBit` - GRIB-based compression pre-conditioner
 !
 ! This routine returns a lower precision version of the input array
 ! `x` which retains `nbits` of precision. Two algorithms are
 ! implemented: 1) a fast one writen in C which downgrades precision
 ! by shifting `xbits = 24 - nbits` bits of the mantissa, and 2) a slower
-! float point based algorithm which is the same algorithm as GRIB 
-! with fixed number of bits packing. Notice that as in GRIB the scaling 
-! factor is forced to be a power of 2 rather than a generic float.  
-! Using this power of 2 binary scaling has the advantage of improving 
+! float point based algorithm which is the same algorithm as GRIB
+! with fixed number of bits packing. Notice that as in GRIB the scaling
+! factor is forced to be a power of 2 rather than a generic float.
+! Using this power of 2 binary scaling has the advantage of improving
 ! the GZIP compression rates.
 !
-! This routine returns an array of the same type and kind as the input array, 
+! This routine returns an array of the same type and kind as the input array,
 ! so no data compression has taken place. The goal here is to reduce the
-! entropy in the input array, thereby improving compression rates 
-! by the lossless algorithms implemented internally by HDF-4/5 when writing 
-! these data to a file. In fact, these GZIP'ed and pre-conditioned files 
-! have sizes comparable to the equivalent GRIB file, while being a bonafide 
+! entropy in the input array, thereby improving compression rates
+! by the lossless algorithms implemented internally by HDF-4/5 when writing
+! these data to a file. In fact, these GZIP'ed and pre-conditioned files
+! have sizes comparable to the equivalent GRIB file, while being a bonafide
 ! self-describing HDF/NetCDF file.
 !
 ! @todo:
@@ -999,7 +999,7 @@
 
 !   Slow, flops in FORTRAN (GRIB inspired)
 !   --------------------------------------
-    else 
+    else
 
        if ( nbits < 1 ) then
           xr = x
@@ -1009,13 +1009,13 @@
 
        tol = 0.0001 * undef_
        xmin = minval(x,mask=(abs(undef_-x)>tol))
-       xr = x - xmin     ! As in GRIB, force non-negative values 
+       xr = x - xmin     ! As in GRIB, force non-negative values
        xmax = maxval(xr,mask=(abs(undef_-x)>tol)) ! max of positive
 
        if ( xmax <= 0.0 ) then
             xr = x
             rc = 0
-            return  ! this means field is constant 
+            return  ! this means field is constant
        end if
 
        E = nint(log(xmax)/log(2.)) - nbits ! GRIB binary scale factor
@@ -1053,32 +1053,32 @@
       integer, intent(in), OPTIONAL :: kount      !! number of levels to read
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
       character(len=*), intent(in), OPTIONAL :: timeString !! string expression for date and time
-                                                                                                        
+
 !
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:,:,:)             !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -99  must specify date/curTime of timeString     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -99  must specify date/curTime of timeString
 !
 !------------------------------------------------------------------------------
 
@@ -1096,7 +1096,7 @@
            return
       end if
 
-      call ESMF_CFIOVarReadT3D__ ( cfio, vName, date_, curTime_, field, & 
+      call ESMF_CFIOVarReadT3D__ ( cfio, vName, date_, curTime_, field, &
                                    kbeg, kount, cfio2=cfio2, rc=rc )
 
     end subroutine ESMF_CFIOVarReadT3D_
@@ -1117,32 +1117,32 @@
       integer, intent(in), OPTIONAL :: kbeg       !! first level to read
       integer, intent(in), OPTIONAL :: kount      !! number of levels to read
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
-                                                                                                              
+
 !
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:,:,:)             !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!  rc = -20  unable to find variable     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -20  unable to find variable
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
 !
 !------------------------------------------------------------------------------
 
@@ -1153,7 +1153,7 @@
       integer im, jm, km
       integer :: hour, min, sec
       logical ialloc,foundvar
-                                                                                         
+
       real    alpha, amiss
       real, pointer ::  field2(:,:,:) => null() ! workspace for interpolation
 
@@ -1188,9 +1188,9 @@
       begTime = cfio%begTime
 
       call CFIO_parseIntTime ( cfio%timeInc, hour, min, sec )
-      incSecs = sec + 60 * ( min + 60 * hour ) 
+      incSecs = sec + 60 * ( min + 60 * hour )
       secs = DiffDate (begDate, begTime, date, curTime)
-                                                                                         
+
 !     Determine brackting times
 !     -------------------------
       if ( secs >= 0 ) then
@@ -1203,7 +1203,7 @@
       secs2 = (timeIndex2-1) * incSecs
       call GetDate ( begDate, begTime, secs1, nymd1, nhms1, rtcode )
       call GetDate ( begDate, begTime, secs2, nymd2, nhms2, rtcode )
- 
+
 !     Read grids at first time with GetVar()
 !     --------------------------------------
       call ESMF_CFIOVarRead(cfio, vName, field, date=nymd1, curtime=nhms1,  kbeg=kbeg, kount=kount, rc=rtcode)
@@ -1211,10 +1211,10 @@
          call ESMF_CFIOVarRead(cfio2, vName, field, date=nymd1, curtime=nhms1, kbeg=kbeg, kount=kount, rc=rtcode)
       end if
       if ( rtcode .ne. 0 ) goto 999
-                                                                    
+
       if ( secs1 .eq. secs ) goto 999   ! no interpolation needed
 
-      allocate(field2(size(field,1),size(field,2),size(field,3))) 
+      allocate(field2(size(field,1),size(field,2),size(field,3)))
 !     Read grids at second time with GetVar()
 !     ---------------------------------------
       call ESMF_CFIOVarRead(cfio, vName, field2, date=nymd2, curtime=nhms2, kbeg=kbeg, kount=kount, rc=rtcode)
@@ -1228,14 +1228,14 @@
             return
          endif
       end if
-                                                                                         
+
 !     Get missing value
 !     -----------------
       amiss = cfio%varObjs(1)%amiss
 
 !     Do interpolation
 !     ----------------
-      alpha = float(secs - secs1)/float(secs2 - secs1)
+      alpha = real(secs - secs1)/real(secs2 - secs1)
       do k = 1, size(field,3)!km
          do j = 1, size(field,2)!jm
             do i = 1, size(field,1)!im
@@ -1249,7 +1249,7 @@
             end do
          end do
       end do
-                                                        
+
       if ( associated(field2) ) deallocate(field2)
       if ( ialloc ) deallocate(field)
       rtcode = 0
@@ -1258,7 +1258,7 @@
 !     --------
 999   continue
       if ( present(rc) ) rc = rtcode
-                                                                         
+
       end subroutine ESMF_CFIOVarReadT3D__
 
 
@@ -1280,32 +1280,32 @@
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
       character(len=*), intent(in), OPTIONAL :: timeString
                                   !! string expression for date and time
-                                                                                                        
+
 !
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:,:)               !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-                         !!  rc = -99  must specify date/curTime of timeString     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+                         !!  rc = -99  must specify date/curTime of timeString
 !
 !------------------------------------------------------------------------------
 
@@ -1331,7 +1331,7 @@
 !------------------------------------------------------------------------------
 !>
 ! `ESMF_CFIOVarReadT2D_`  -- Read a variable from an existing file
-                                                                                                              
+
 ! !INTERFACE:
 
       subroutine ESMF_CFIOVarReadT2D__(cfio, vName, date, curTime, field, &
@@ -1346,32 +1346,32 @@
       integer, intent(in), OPTIONAL :: kbeg       !! first level to read
       integer, intent(in), OPTIONAL :: kount      !! number of levels to read
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  !! second CFIO obj
-                                                                                                              
+
 !
 ! !OUTPUT PARAMETERS:
 !
       real, pointer :: field(:,:)             !! array contains data
-      integer, intent(out), OPTIONAL :: rc      !! Error return code:     
-                                                !! 0   all is well     
-                         !!  rc = -2  time is inconsistent with increment     
-                         !!  rc = -3  number of levels is incompatible with file     
-                         !!  rc = -4  im is incompatible with file     
-                         !!  rc = -5  jm is incompatible with file     
-                         !!  rc = -6  time must fall on a minute boundary     
-                         !!  rc = -7  error in diffdate     
-                         !!  rc = -12  error determining default precision     
-                         !!  rc = -13  error determining variable type     
-                         !!  rc = -19  unable to identify coordinate variable     
-                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)     
-                         !!  rc = -40  error from NF90_INQ_VARID     
-                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     
-                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     
-                         !!  rc = -43  error from NF90_INQ_VARID (time variable)     
-                         !!  rc = -44  error from NF90_GET_ATT (time attribute)     
-                         !!  rc = -46  error from NF90_GET_VAR     
-                         !!  rc = -48  error from NF90_INQUIRE     
-                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE     
-!     
+      integer, intent(out), OPTIONAL :: rc      !! Error return code:
+                                                !! 0   all is well
+                         !!  rc = -2  time is inconsistent with increment
+                         !!  rc = -3  number of levels is incompatible with file
+                         !!  rc = -4  im is incompatible with file
+                         !!  rc = -5  jm is incompatible with file
+                         !!  rc = -6  time must fall on a minute boundary
+                         !!  rc = -7  error in diffdate
+                         !!  rc = -12  error determining default precision
+                         !!  rc = -13  error determining variable type
+                         !!  rc = -19  unable to identify coordinate variable
+                         !!  rc = -38  error from NF90_PUT_VAR (dimension variable)
+                         !!  rc = -40  error from NF90_INQ_VARID
+                         !!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+                         !!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+                         !!  rc = -43  error from NF90_INQ_VARID (time variable)
+                         !!  rc = -44  error from NF90_GET_ATT (time attribute)
+                         !!  rc = -46  error from NF90_GET_VAR
+                         !!  rc = -48  error from NF90_INQUIRE
+                         !!  rc = -52  error from NF90_INQUIRE_VARIABLE
+!
 !------------------------------------------------------------------------------
 
       integer rtcode
@@ -1380,7 +1380,7 @@
       integer i, j
       integer im, jm, km
       integer :: hour, min, sec
-                                                                                         
+
       real    alpha, amiss
       real, pointer ::  field2(:,:) => null() ! workspace for interpolation
 
@@ -1403,7 +1403,7 @@
       begTime = cfio%begTime
 
       call CFIO_parseIntTime ( cfio%timeInc, hour, min, sec )
-      incSecs = sec + 60 * ( min + 60 * hour ) 
+      incSecs = sec + 60 * ( min + 60 * hour )
       secs = DiffDate (begDate, begTime, date, curTime)
                                                                                 !     Determine brackting times
 !     -------------------------
@@ -1417,7 +1417,7 @@
       secs2 = (timeIndex2-1) * incSecs
       call GetDate ( begDate, begTime, secs1, nymd1, nhms1, rtcode )
       call GetDate ( begDate, begTime, secs2, nymd2, nhms2, rtcode )
- 
+
 !     Read grids at first time with GetVar()
 !     --------------------------------------
       call ESMF_CFIOVarRead(cfio, vName, field, date=nymd1, curtime=nhms1,  kbeg=kbeg, kount=kount, rc=rtcode)
@@ -1425,11 +1425,11 @@
          call ESMF_CFIOVarRead(cfio2, vName, field, date=nymd1, curtime=nhms1,  kbeg=kbeg, kount=kount, rc=rtcode)
       end if
       if ( rtcode .ne. 0 ) goto 999
-                                                                    
+
       if ( secs1 .eq. secs ) goto 999   ! no interpolation needed
 
       allocate(field2(im,jm))
-                                                                                     
+
 !     Read grids at second time with GetVar()
 !     ---------------------------------------
       call ESMF_CFIOVarRead(cfio, vName, field2, date=nymd2, curtime=nhms2, kbeg=kbeg, kount=kount, rc=rtcode)
@@ -1439,14 +1439,14 @@
                                   date=nymd2, curtime=nhms2, kbeg=kbeg, kount=kount, rc=rtcode)
          if ( rtcode .ne. 0 ) return
       end if
-                                                                                         
+
 !     Get missing value
 !     -----------------
       amiss = cfio%varObjs(1)%amiss
 
 !     Do interpolation
 !     ----------------
-      alpha = float(secs - secs1)/float(secs2 - secs1)
+      alpha = real(secs - secs1)/real(secs2 - secs1)
       do j = 1, jm
          do i = 1, im
             if ( abs(field(i,j)-amiss) .gt. 0.001 .and.   &
@@ -1457,7 +1457,7 @@
             end if
          end do
       end do
-                                                        
+
       rtcode = 0
 
 !     All done
@@ -1465,7 +1465,7 @@
 999   continue
       if ( associated(field2) ) deallocate(field2)
       if ( present(rc) ) rc = rtcode
-                                                                         
+
       end subroutine ESMF_CFIOVarReadT2D__
       end module ESMF_CFIOMod
 

@@ -37,14 +37,14 @@ contains
     type (FilemetaData), intent(in) :: fmd
 
     collection%fmd = fmd
-    collection%formatters = StringNetCDF4_FileFormatterMap() 
+    collection%formatters = StringNetCDF4_FileFormatterMap()
 
   end function new_HistoryCollection
 
   function find_(this, file_name,rc) result(formatter)
     class (HistoryCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
-    integer,optional,intent(out) :: rc 
+    integer,optional,intent(out) :: rc
 
     type (NetCDF4_FileFormatter), pointer :: formatter
     type (NetCDF4_FileFormatter) :: fm
@@ -57,7 +57,7 @@ contains
     iter = this%formatters%find(trim(file_name))
     if (iter == this%formatters%end()) then
        inquire(file=file_name, exist=f_exist)
-       if(.not. f_exist) then 
+       if(.not. f_exist) then
          call fm%create(trim(file_name),rc=status)
          _VERIFY(status)
          call fm%write(this%fmd, rc=status)
@@ -75,14 +75,14 @@ contains
   subroutine  ModifyMetadata(this,var_map,rc)
     class (HistoryCollection), target, intent(inout) :: this
     type (StringVariableMap), target, intent(in) :: var_map
-    integer, optional, intent(out) :: rc 
+    integer, optional, intent(out) :: rc
 
     type(StringVariableMapIterator) :: iter
     integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::ModifyMetadata()"
 
     iter = var_map%begin()
-    do while (iter /= var_map%end()) 
+    do while (iter /= var_map%end())
        call this%fmd%modify_variable(iter%key(), iter%value(), _RC)
 
        call iter%next()
@@ -94,9 +94,8 @@ contains
   subroutine  ReplaceMetadata(this, fmd,rc)
     class (HistoryCollection), intent(inout) :: this
     type (FileMetadata), intent(in) :: fmd
-    integer, optional, intent(out) :: rc 
+    integer, optional, intent(out) :: rc
 
-    integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::ReplaceMetadata()"
 
     this%fmd = fmd
@@ -106,7 +105,7 @@ contains
 
   subroutine clear(this, rc)
     class (HistoryCollection), target, intent(inout) :: this
-    integer, optional, intent(out) :: rc 
+    integer, optional, intent(out) :: rc
 
     type(NetCDF4_FileFormatter), pointer :: f_ptr
     type(StringNetCDF4_FileFormatterMapIterator) :: iter
@@ -131,15 +130,15 @@ end module pFIO_HistoryCollectionMod
 
 module pFIO_HistoryCollectionVectorMod
    use pFIO_HistoryCollectionMod
-   
+
    ! Create a map (associative array) between names and pFIO_Attributes.
-   
+
 #define _type type (HistoryCollection)
 #define _vector HistoryCollectionVector
 #define _iterator HistoryCollectionVectorIterator
 
 #include "templates/vector.inc"
-   
+
 end module pFIO_HistoryCollectionVectorMod
 
 module pFIO_HistoryCollectionVectorUtilMod
@@ -164,11 +163,11 @@ contains
 
      if (allocated(buffer)) deallocate(buffer)
      allocate(buffer(0))
-     
+
      n = histVec%size()
      do i = 1, n
         hist_ptr=>histVec%at(i)
-        call hist_ptr%fmd%serialize(tmp) 
+        call hist_ptr%fmd%serialize(tmp)
         buffer = [buffer,tmp]
      enddo
 
@@ -190,7 +189,7 @@ contains
        call FileMetadata_deserialize(buffer(n:), hist%fmd)
        call histVec%push_back(hist)
        call deserialize_intrinsic(buffer(n:),fmd_len)
-       n = n + fmd_len 
+       n = n + fmd_len
      enddo
   end subroutine
 

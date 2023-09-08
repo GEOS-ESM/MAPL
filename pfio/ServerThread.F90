@@ -3,7 +3,6 @@
 
 module pFIO_ServerThreadMod
    use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
@@ -226,7 +225,6 @@ contains
       class(AbstractMessage),pointer :: dMessage
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -249,8 +247,6 @@ contains
 
       iter = this%request_backlog%begin()
       msg => iter%get()
-      connection=>this%get_connection(status)
-      _VERIFY(status)
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
@@ -869,7 +865,7 @@ contains
 
      class (AbstractDataReference), pointer :: dataRefPtr
      type (RDMAReference), pointer :: remotePtr
-     integer(kind=MPI_ADDRESS_KIND) :: msize_word, offset
+     integer(kind=MPI_ADDRESS_KIND) :: offset
      integer :: local_size
      integer, pointer :: k_ptr(:)
      type (MessageVectorIterator) :: iter
@@ -895,7 +891,6 @@ contains
             if (local_size > 0) then
                call c_f_pointer(handle%data_reference%base_address, k_ptr, shape=[local_size])
                collection_counter = this%containing_server%stage_offset%at(i_to_string(msg%collection_id))
-               msize_word  = this%containing_server%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
 
                ndims = size(msg%start)
                offset  = this%containing_server%stage_offset%at(i_to_string(msg%request_id))
@@ -1004,7 +999,6 @@ contains
 
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
       class (AbstractRequestHandle), pointer :: handle
       integer :: status
 
@@ -1017,8 +1011,6 @@ contains
       iter = this%request_backlog%begin()
       do while ( iter /= this%request_backlog%end())
          msg => iter%get()
-         connection=>this%get_connection(status)
-         _VERIFY(status)
 
          select type (q=>msg)
          type is (StageDataMessage)
@@ -1081,6 +1073,7 @@ contains
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)
    end subroutine handle_Done_prefetch
+
 
    recursive subroutine handle_Done_collective_prefetch(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
