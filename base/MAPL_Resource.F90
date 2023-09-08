@@ -314,13 +314,9 @@ contains
       end select
       
       if(do_print) then
-         if(present(iunit)) then
-            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
-            call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
-            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
-         else
-            call print_resource(type_string, actual_label, formatted_value, value_is_default, _RC)
-         endif
+         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
+         call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
+         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
       end if
 
       value_is_set = .TRUE.
@@ -480,13 +476,9 @@ contains
       end select
 
       if(do_print) then
-         if(present(iunit)) then
-            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
-            call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
-            _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
-         else
-            call print_resource(type_string, actual_label, formatted_value, value_is_default, _RC)
-         endif
+         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
+         call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
+         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
       end if
 
       value_is_set = .TRUE.
