@@ -881,20 +881,12 @@ contains
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)
        if (rc==0) then
-          print*, 'nline,ncol', nline,ncol
           if (nline > 0) then
              list(n)%timeseries_output = .true.             
-             allocate (list(n)%obsFile(nline))
-             call ESMF_ConfigFindLabel( cfg, trim(string)//'obs_files:', rc=rc)
-             do i=1, nline
-                call ESMF_ConfigNextLine( cfg, tableEnd=tend, rc=rc)
-                call ESMF_ConfigGetAttribute( cfg, list(n)%obsFile(i), rc=rc)
-                write(6, *) 'obs file name string=', trim(list(n)%obsFile(i))
-             enddo
           endif
        else
-          print*, 'obs_files does not exist'
-          print*, 'rc=', rc          
+          print*, 'IODA obs_files does not exist'
+          print*, 'ESMF_ConfigGetDim rc=', rc          
        endif
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
@@ -3456,11 +3448,11 @@ ENDDO PARSER
 
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
-            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-               call list(n)%trajectory%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
-               list(n)%unit = -1
-            end if
+!            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+!               call list(n)%trajectory%create_file_handle(filename(n),_RC)
+!               list(n)%currentFile = filename(n)
+!               list(n)%unit = -1
+!            end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) call lgr%debug('%a %a',&
@@ -3613,15 +3605,15 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-         call list(n)%trajectory%regrid_accumulate(_RC)
-         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-            call list(n)%trajectory%append_file(current_time,_RC)
-            call list(n)%trajectory%close_file_handle(_RC)
-            call ESMF_GridCompGet(gc, vm=vm, _RC)
-            call ESMF_VMGetCurrent(vm, _RC)
-            call ESMF_VMbarrier(vm, _RC)
-            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
-         end if
+!         call list(n)%trajectory%regrid_accumulate(_RC)
+!         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+!            call list(n)%trajectory%append_file(current_time,_RC)
+!            call list(n)%trajectory%close_file_handle(_RC)
+!            call ESMF_GridCompGet(gc, vm=vm, _RC)
+!            call ESMF_VMGetCurrent(vm, _RC)
+!            call ESMF_VMbarrier(vm, _RC)
+!            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+!         end if
       end if
       if (list(n)%sampler_spec == 'station') then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)
