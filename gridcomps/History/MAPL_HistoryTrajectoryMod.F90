@@ -16,12 +16,15 @@ module HistoryTrajectoryMod
      integer :: nobs_epoch
      type(FileMetadata)          :: metadata
      type(NetCDF4_FileFormatter) :: file_handle
+     character(len=ESMF_MAXSTR)                 :: name
      character(len=ESMF_MAXSTR)                 :: obsFile_output
      character(len=ESMF_MAXSTR)                 :: input_template
      character(len=ESMF_MAXSTR),allocatable     :: input_filenames(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
+!!   contains
+!!     procedure destroy
   end type obs_unit
 
   public :: HistoryTrajectory
@@ -79,20 +82,20 @@ module HistoryTrajectoryMod
 
    contains
      procedure :: initialize
-!     procedure :: create_variable => create_metadata_variable
-!     procedure :: create_file_handle
-!     procedure :: close_file_handle
+     procedure :: create_variable => create_metadata_variable
+     procedure :: create_file_handle
+     procedure :: close_file_handle
 !     procedure :: append_file
-!
-!     procedure :: create_new_bundle
-!     procedure :: reset_times_to_current_day
-!     procedure :: time_real_to_ESMF
-!
+
+     procedure :: create_new_bundle
+     procedure :: reset_times_to_current_day
+     procedure :: time_real_to_ESMF
+
 
      procedure :: create_grid
-!     procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
+     procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
 !     procedure :: destroy_rh_regen_LS
-!     procedure :: get_x_subset
+     procedure :: get_x_subset
 
      procedure :: get_obsfile_Tbracket_from_epoch
 
@@ -129,39 +132,39 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine initialize
 
-!     module subroutine  create_metadata_variable(this,vname,rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       character(len=*), intent(in)            :: vname
-!       integer, optional, intent(out)          :: rc
-!     end subroutine create_metadata_variable
-!
-!     module function create_new_bundle(this,rc) result(new_bundle)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       type(ESMF_FieldBundle)                  :: new_bundle
-!       integer, optional, intent(out)          :: rc
-!     end function create_new_bundle
-!
-!     module subroutine create_file_handle(this,filename_suffix,rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       character(len=*), intent(in)            :: filename_suffix
-!       integer, optional, intent(out)          :: rc
-!     end subroutine create_file_handle
-!
-!     module subroutine close_file_handle(this,rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       integer, optional, intent(out)          :: rc
-!     end subroutine close_file_handle
-!
-!     module subroutine append_file(this,current_time,rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       type(ESMF_Time), intent(inout)          :: current_time
-!       integer, optional, intent(out)          :: rc
-!     end subroutine append_file
-!
-!     module subroutine reset_times_to_current_day(this,rc)
-!       class(HistoryTrajectory), intent(Inout) :: this
-!       integer, optional, intent(out)          :: rc
-!     end subroutine reset_times_to_current_day
+     module subroutine  create_metadata_variable(this,vname,rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       character(len=*), intent(in)            :: vname
+       integer, optional, intent(out)          :: rc
+     end subroutine create_metadata_variable
+
+     module function create_new_bundle(this,rc) result(new_bundle)
+       class(HistoryTrajectory), intent(inout) :: this
+       type(ESMF_FieldBundle)                  :: new_bundle
+       integer, optional, intent(out)          :: rc
+     end function create_new_bundle
+
+     module subroutine create_file_handle(this,filename_suffix,rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       character(len=*), intent(in)            :: filename_suffix
+       integer, optional, intent(out)          :: rc
+     end subroutine create_file_handle
+
+     module subroutine close_file_handle(this,rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine close_file_handle
+
+     module subroutine append_file(this,current_time,rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       type(ESMF_Time), intent(inout)          :: current_time
+       integer, optional, intent(out)          :: rc
+     end subroutine append_file
+
+     module subroutine reset_times_to_current_day(this,rc)
+       class(HistoryTrajectory), intent(Inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine reset_times_to_current_day
 
      module subroutine sort_three_arrays_by_time(U,V,T,rc)
        real(ESMF_KIND_R8) :: U(:), V(:), T(:)
@@ -174,29 +177,29 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine sort_four_arrays_by_time     
 
-!     module subroutine time_real_to_ESMF (this,rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       integer, optional, intent(out)          :: rc
-!     end subroutine time_real_to_ESMF
-!
+     module subroutine time_real_to_ESMF (this,rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine time_real_to_ESMF
+
      module subroutine create_grid(this, rc)
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine create_grid
 
-!     module subroutine regrid_accumulate_on_xsubset (this, rc)
-!       implicit none
-!       class(HistoryTrajectory), intent(inout) :: this
-!       integer, optional, intent(out)          :: rc
-!     end subroutine regrid_accumulate_on_xsubset
-!
-!     module subroutine get_x_subset(this, interval, x_subset, rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       type(ESMF_Time), intent(in)             :: interval(2)
-!       integer, intent(out)                    :: x_subset(2)
-!       integer, optional, intent(out)          :: rc
-!     end subroutine get_x_subset
-!
+     module subroutine regrid_accumulate_on_xsubset (this, rc)
+       implicit none
+       class(HistoryTrajectory), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine regrid_accumulate_on_xsubset
+
+     module subroutine get_x_subset(this, interval, x_subset, rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       type(ESMF_Time), intent(in)             :: interval(2)
+       integer, intent(out)                    :: x_subset(2)
+       integer, optional, intent(out)          :: rc
+     end subroutine get_x_subset
+
 !     module subroutine destroy_rh_regen_LS (this, rc)
 !       class(HistoryTrajectory), intent(inout) :: this
 !       integer, optional, intent(out)          :: rc

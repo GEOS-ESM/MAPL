@@ -3448,11 +3448,11 @@ ENDDO PARSER
 
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
-!            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-!               call list(n)%trajectory%create_file_handle(filename(n),_RC)
-!               list(n)%currentFile = filename(n)
-!               list(n)%unit = -1
-!            end if
+            if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+               call list(n)%trajectory%create_file_handle(filename(n),_RC)
+               list(n)%currentFile = filename(n)
+               list(n)%unit = -1
+            end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) call lgr%debug('%a %a',&
@@ -3605,7 +3605,7 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       if (list(n)%timeseries_output) then
-!         call list(n)%trajectory%regrid_accumulate(_RC)
+         call list(n)%trajectory%regrid_accumulate(_RC)
 !         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
 !            call list(n)%trajectory%append_file(current_time,_RC)
 !            call list(n)%trajectory%close_file_handle(_RC)
