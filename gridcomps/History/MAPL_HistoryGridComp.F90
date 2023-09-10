@@ -3606,14 +3606,14 @@ ENDDO PARSER
 
       if (list(n)%timeseries_output) then
          call list(n)%trajectory%regrid_accumulate(_RC)
-!         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-!            call list(n)%trajectory%append_file(current_time,_RC)
-!            call list(n)%trajectory%close_file_handle(_RC)
-!            call ESMF_GridCompGet(gc, vm=vm, _RC)
-!            call ESMF_VMGetCurrent(vm, _RC)
-!            call ESMF_VMbarrier(vm, _RC)
-!            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
-!         end if
+         if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+            call list(n)%trajectory%append_file(current_time,_RC)
+            call list(n)%trajectory%close_file_handle(_RC)
+            call ESMF_GridCompGet(gc, vm=vm, _RC)
+            call ESMF_VMGetCurrent(vm, _RC)
+            call ESMF_VMbarrier(vm, _RC)
+            call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+         end if
       end if
       if (list(n)%sampler_spec == 'station') then
          call ESMF_ClockGet(clock,currTime=current_time,_RC)

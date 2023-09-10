@@ -23,6 +23,8 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
+     real(kind=REAL32), allocatable :: p2d(:)
+     real(kind=REAL32), allocatable :: p3d(:,:)     
 !!   contains
 !!     procedure destroy
   end type obs_unit
@@ -85,7 +87,7 @@ module HistoryTrajectoryMod
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
-!     procedure :: append_file
+     procedure :: append_file
 
      procedure :: create_new_bundle
      procedure :: reset_times_to_current_day
@@ -200,11 +202,11 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine get_x_subset
 
-!     module subroutine destroy_rh_regen_LS (this, rc)
-!       class(HistoryTrajectory), intent(inout) :: this
-!       integer, optional, intent(out)          :: rc
-!     end subroutine destroy_rh_regen_LS
-!
+     module subroutine destroy_rh_regen_LS (this, rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine destroy_rh_regen_LS
+
 
      module subroutine get_obsfile_Tbracket_from_epoch(this, currTime, rc)
        class(HistoryTrajectory), intent(inout) :: this
