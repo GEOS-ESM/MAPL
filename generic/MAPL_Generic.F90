@@ -8526,7 +8526,7 @@ contains
 
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
          default = default, _RC)
-      
+
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
@@ -8546,11 +8546,11 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: value_set
-      integer :: status      
+      integer :: status
 
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
          default = default, component_name = state%compname, _RC)
-      
+
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
@@ -8572,9 +8572,9 @@ contains
 
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
          default = default, _RC)
-      
+
       if(present(value_is_set)) value_is_set = value_set
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
