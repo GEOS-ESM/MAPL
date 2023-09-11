@@ -8504,6 +8504,16 @@ contains
       call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
          default = default, component_name = state%compname, _RC)
 
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_scalar.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+      _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
@@ -8527,10 +8537,19 @@ contains
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
          default = default, _RC)
 
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_scalar.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+      _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
@@ -8551,6 +8570,16 @@ contains
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
          default = default, component_name = state%compname, _RC)
 
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_array.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+      _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
@@ -8573,6 +8602,16 @@ contains
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
          default = default, _RC)
 
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_array..
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+      _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
