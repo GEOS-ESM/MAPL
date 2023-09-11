@@ -418,6 +418,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                        start=[is], count=[nx], _RC)
                end if
             end if
+            deallocate (this%obs(k)%lons)
+            deallocate (this%obs(k)%lats)
+            deallocate (this%obs(k)%times_R8)
          enddo
          
          
@@ -1174,8 +1177,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          module procedure destroy_rh_regen_LS
            integer :: status
-
-           integer :: numVars, k
+           integer :: numVars, i, k
            character(len=ESMF_MAXSTR), allocatable :: names(:)
            type(ESMF_Field) :: field
            type(ESMF_Grid)  :: grid
@@ -1185,27 +1187,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
              _RETURN(ESMF_SUCCESS)
           endif
 
-           ! __ s1. destroy RH, LS, acc_bundle / output_bundle
+           ! __ s1. destroy RH, LS, obs(k)%member, acc_bundle / output_bundle
            call ESMF_FieldDestroy(this%fieldB,nogarbage=.true.,_RC)
            call this%locstream_factory%destroy_locstream(this%LS_rt, _RC)
            call this%locstream_factory%destroy_locstream(this%LS_ds, _RC)
            call this%regridder%destroy(_RC)
            deallocate (this%lons, this%lats, this%times_R8)
            do k=1, this%nobs_type
-              deallocate (this%obs(k)%lons)
-              deallocate (this%obs(k)%lats)
-              deallocate (this%obs(k)%times_R8)
-              if (present(this%obs(k)%p2d)) then
+              if (allocated(this%obs(k)%p2d)) then
                  deallocate (this%obs(k)%p2d)
               endif
-              if (present(this%obs(k)%p3d)) then
+              if (allocated(this%obs(k)%p3d)) then
                  deallocate (this%obs(k)%p3d)
               endif
-              
-                 
-
-
-
+           end do
 
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
            allocate(names(numVars),stat=status)
