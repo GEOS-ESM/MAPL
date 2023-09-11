@@ -9,22 +9,30 @@ This design is illustrated
 by the ESMF `sandwich' diagram below, where the
 user's computational code sits between the two ESMF layers.
 
-![fig_esmf_sandwich](figs/esmf_sandwich.png)
 
-Fugure 2: _Schematic of the ESMF 'sandwich' architecture. The framework consists of two parts, an upper level superstructure layer and a lower level infrastructure layer. User code is sandwiched between these two layers_.
+| ![fig_esmf_sandwich](figs/esmf_sandwich.png 'ESMF Sandwich') |
+| :---: |
+| Figure 2: *Schematic of the ESMF 'sandwich' architecture.* |
+| *The framework consists of two parts, an upper level superstructure layer and a lower level infrastructure layer. User code is sandwiched between these two layers.* |
 
+
+
+ESMF provides a way of structuring code components so that they can be used in many different user-written applications and contexts with minimal code modification, and so they can be coupled together in new configurations with relative ease. The idea is to create many components across a broad community, and so to encourage new collaborations and combinations.
 
 The simplest ESMF implementation consists of building a Gridded
-Component (an ESMF superstructure class) that encapsulates the user
+Component (an ESMF superstructure class) that encapsulates the user's
 code, interfacing it to the framework by defining the ESMF callable
-methods (__Initialize__, __Run__ and __Finalize__,
-hereafter, __IRF__ methods). This
-can actually be done without using any of the ESMF Infrastructure - a
-strategy that fails to capitalize on some of ESMF's greatest
-strengths. Such `encapsulation' implementations have dominated the early
-adoptions of ESMF.
+methods (hereafter, __IRF__ methods)):
 
-More sophisticated implementations put user data in ESMF
+- __Initialize__: called once to initialze all the parameters and variables (boundary conditions for instance) needed by the application. 
+- __Run__: called for time stepping integration.
+- __Finalize__: called once to clean (deallocate variables, close opened files, finalize MPI, etc.) the application.
+
+This can actually be done without using any of the ESMF Infrastructure - a
+strategy that fails to capitalize on some of ESMF's greatest strengths. 
+Such `encapsulation' implementations have dominated the early adoptions of ESMF.
+
+More sophisticated implementations put the user's data in ESMF
 infrastructure objects (primarily ESMF_Fields) which can then be
 manipulated by a wide array of ESMF methods to facilitate the coupling
 of components with different data structures (i.e., that are on
@@ -32,10 +40,8 @@ different grids) and to insulate the user
 from the architecture-specific implementation layers that are used for
 inter-process or inter-processor communication, I/O, etc.
 
-An ESMF component (represented by a box in Figure \ref{fig:geos5_esmf},
-e.g. \texttt{solar}) consists of four (\textbf{or just one --- SetServices!?!?!}) public component interface functions
-performing specific roles:
-
+An ESMF component (represented by a box in Figure 1,
+e.g. _solar_) consists of four (_or just one --- SetServices!?!?!_) public component interface functions performing specific roles:
 
 
 * __SetServices:__ A component's __SetServices__ function is called when an
@@ -50,7 +56,7 @@ performing specific roles:
     the component's instance, the arguments to this function include two
     __ESMF_States__  (one Import and one Export) and an __ESMF_Clock__. 
     The __ESMF_State__ variables are used to pass data between components. 
-    The `Clock`` is used to pass the simulation time counter to the component instance.
+    The `Clock` is used to pass the simulation time counter to the component instance.
 * __Run:__ A component's __Run__ function is called to
     carry out a cycle of the iteration that makes up the kernel of a component's
     computational algorithm. This function contains the kernel of user code
