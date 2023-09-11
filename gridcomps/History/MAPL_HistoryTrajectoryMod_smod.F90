@@ -201,22 +201,22 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%time_info = timeInfo
 
          do k=1, this%nobs_type
-            call this%obs(k)%metadata%add_dimension('time', this%obs(k)%nobs_epoch)
+            call this%obs(k)%metadata%add_dimension(this%nc_index, this%obs(k)%nobs_epoch)
             if (this%time_info%integer_time) then
-               v = Variable(type=PFIO_INT32,dimensions='time')
+               v = Variable(type=PFIO_INT32,dimensions=this%nc_index)
             else
-               v = Variable(type=PFIO_REAL32,dimensions='time')
+               v = Variable(type=PFIO_REAL32,dimensions=this%nc_index)
             end if
             call v%add_attribute('units', this%datetime_units)
-            call v%add_attribute('long_name', this%nc_time)
+            call v%add_attribute('long_name', 'dateTime')
             call this%obs(k)%metadata%add_variable(this%var_name_time,v)
 
-            v = variable(type=PFIO_REAL64,dimensions="time")
+            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
             call v%add_attribute('units','degrees_east')
             call v%add_attribute('long_name','longitude')
             call this%obs(k)%metadata%add_variable(this%var_name_lon,v)
 
-            v = variable(type=PFIO_REAL64,dimensions="time")
+            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
             call v%add_attribute('units','degrees_north')
             call v%add_attribute('long_name','latitude')
             call this%obs(k)%metadata%add_variable(this%var_name_lat,v)
@@ -271,9 +271,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            units = 'unknown'
         endif
         if (field_rank==2) then
-           vdims = "time"
+           vdims = this%nc_index
         else if (field_rank==3) then
-           vdims = "time,lev"
+           vdims = trim(this%nc_index)//",lev"
         end if
         v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
         call v%add_attribute('units',trim(units))
@@ -343,7 +343,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                if (this%obs(k)%nobs_epoch > 0) then
                   ! __ update metadata
                   call this%obs(k)%metadata%modify_dimension('time', this%obs(k)%nobs_epoch)
-                  filename=trim(this%obs(k)%name)//'.'//trim(filename_suffix)
+                  filename=trim(this%obs(k)%name)//trim(filename_suffix)
+                  !!filename=trim(this%obs(k)%name)//'.'//trim(filename_suffix)
                   call this%obs(k)%file_handle%create(trim(filename),_RC)
                   call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
                   write(6,*) "Sampling to new file : ",trim(filename)
@@ -797,12 +798,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         this%obs(k)%p2d(ix(k)) = p_acc_rt_2d(j)
                      enddo
 
-                     write(6,*) 'is, ie', is, ie
-                     do k=1, this%nobs_type                     
-                        write(6,*) 'this%obs(k)%nobs_epoch', this%obs(k)%nobs_epoch
-                        write(6,*) 'ix(k)', ix(k)
-                     end do
-
                      
                      do k=1, this%nobs_type
                         if (ix(k) /= this%obs(k)%nobs_epoch) then
@@ -932,7 +927,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               call this%vdata%setup_eta_to_pressure(_RC)
            endif
 
-           print*, 'x_subset(1:2) on each core: ', x_subset(1:2)
+           !!print*, 'x_subset(1:2) on each core: ', x_subset(1:2)
 
            ! __ s2. regrid & accumulate
            iter = this%items%begin()
