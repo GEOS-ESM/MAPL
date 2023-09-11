@@ -914,6 +914,8 @@ contains
       call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
       Iam = trim(comp_name) // trim(Iam)
 
+      FILENAME = ""
+
       ! Retrieve the pointer to the internal state.
       ! -------------------------------------------
       call MAPL_InternalStateGet ( GC, STATE, _RC)
@@ -6175,7 +6177,7 @@ contains
             call WRITE_PARALLEL('ERROR: Required restart '//trim(FNAME)//' does not exist!')
             _RETURN(ESMF_FAILURE)
          else
-            call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
+            if (len_trim(FNAME) > 0) call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
             _RETURN(ESMF_SUCCESS)
          end if
       end if
