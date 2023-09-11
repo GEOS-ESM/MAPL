@@ -62,12 +62,12 @@ contains
 
       integer, parameter :: PRINT_ALL = 1
       integer, parameter :: PRINT_DIFFERENT = 0
-      
+
       integer :: printrc
       integer :: status
 
       if (MAPL_AM_I_Root()) then
-         call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)  
+         call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
          do_print = (printrc == PRINT_ALL) .or. (printrc == PRINT_DIFFERENT)
          print_nondefault_only = (printrc == PRINT_DIFFERENT) .and. default_is_present
       else
@@ -228,13 +228,13 @@ contains
 
       default_is_present = present(default)
 
-      ! these need to be initialized explicitly 
+      ! these need to be initialized explicitly
       value_is_set = .FALSE.
       label_is_present = .FALSE.
       print_nondefault_only = .FALSE.
       do_print = .FALSE.
       value_is_default = .FALSE.
-      
+
       if (default_is_present) then
          _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
@@ -253,7 +253,7 @@ contains
 
       type is (integer(int32))
 
-#define TYPE_ integer(int32) 
+#define TYPE_ integer(int32)
 #define TYPE_NUM 1
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
@@ -263,7 +263,7 @@ contains
 
       type is (integer(int64))
 
-#define TYPE_ integer(int64) 
+#define TYPE_ integer(int64)
 #define TYPE_NUM 2
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
@@ -312,7 +312,7 @@ contains
       class default
          _FAIL( "Unsupported type")
       end select
-      
+
       if(do_print) then
          _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
          call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
@@ -385,7 +385,7 @@ contains
 
       default_is_present = present(default)
 
-      ! these need to be initialized explicitly 
+      ! these need to be initialized explicitly
       value_is_set = .FALSE.
       label_is_present = .FALSE.
       print_nondefault_only = .FALSE.
@@ -413,7 +413,7 @@ contains
 
       type is (integer(int32))
 
-#define TYPE_ integer(int32) 
+#define TYPE_ integer(int32)
 #define TYPE_NUM 1
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
@@ -423,7 +423,7 @@ contains
 
       type is (integer(int64))
 
-#define TYPE_ integer(int64) 
+#define TYPE_ integer(int64)
 #define TYPE_NUM 2
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
@@ -550,7 +550,7 @@ contains
          _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
          _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after)')
       else
-         write(*, fmt=output_format) final_output
+         write(*, fmt=output_format) trim(final_output)
       end if
 
       _RETURN(_SUCCESS)
@@ -585,7 +585,7 @@ contains
       string_array_format = '('//N//'(""a"",1X))'
 
    end function string_array_format
-   
+
    !>
    ! Compare all the strings in two string arrays
    pure function compare_all(astrings, bstrings)
@@ -601,7 +601,7 @@ contains
          if(.not. compare_all) exit
          compare_all = (trim(astrings(i)) == trim(bstrings(i)))
       end do
-         
+
    end function compare_all
 
 end module MAPL_ResourceMod

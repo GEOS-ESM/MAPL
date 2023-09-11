@@ -914,6 +914,8 @@ contains
       call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
       Iam = trim(comp_name) // trim(Iam)
 
+      FILENAME = ""
+
       ! Retrieve the pointer to the internal state.
       ! -------------------------------------------
       call MAPL_InternalStateGet ( GC, STATE, _RC)
@@ -6175,7 +6177,7 @@ contains
             call WRITE_PARALLEL('ERROR: Required restart '//trim(FNAME)//' does not exist!')
             _RETURN(ESMF_FAILURE)
          else
-            call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
+            if (len_trim(FNAME) > 0) call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
             _RETURN(ESMF_SUCCESS)
          end if
       end if
@@ -8524,7 +8526,7 @@ contains
 
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
          default = default, _RC)
-      
+
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
@@ -8544,11 +8546,11 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: value_set
-      integer :: status      
+      integer :: status
 
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
          default = default, component_name = state%compname, _RC)
-      
+
       if(present(value_is_set)) value_is_set = value_set
 
       _RETURN(_SUCCESS)
@@ -8570,9 +8572,9 @@ contains
 
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
          default = default, _RC)
-      
+
       if(present(value_is_set)) value_is_set = value_set
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
