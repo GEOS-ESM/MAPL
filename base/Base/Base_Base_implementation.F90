@@ -3618,18 +3618,37 @@ contains
     type(ESMF_Field)           :: f, fld
     type(ESMF_Grid)            :: grid
     type(ESMF_Array)           :: array, arraySlice
+    type(ESMF_TypeKind_Flag)   :: tk
+    integer, pointer           :: ungl(:), ungu(:)
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
     character(len=ESMF_MAXSTR) :: longName
 
-    call ESMF_FieldGet(field, name=name, grid=grid, _RC)
+    call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, _RC)
 
     call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
     allocate(gridToFieldMap(gridRank), _STAT)
     call ESMF_FieldGet(field, gridToFieldMap=gridToFieldMap, _RC)
 
     call ESMF_FieldGet(FIELD, dimCount=fieldRank, _RC)
+
+    if (tk == ESMF_TYPEKIND_R4) then
+       if (fieldRank == 4) then
+          !ALT: get the pointer on the first PET
+          call ESMF_FieldGet(Field,0,ptr4D,_RC)
+          allocate(ungl(1), ungu(1), _STAT)
+          ungl=lbound(ptr4d,3)
+          ungu=ubound(ptr4d,3)
+       else if (fieldRank == 3) then
+          ungl => NULL() ! to emulate 'not present' argument
+          ungu => NULL()
+       else
+          _ASSERT(.false., 'unsupported rank')
+       end if
+    else
+       _ASSERT(.false., 'unsupported typekind')
+    end if
 
     call ESMF_FieldGet(Field, array=array,&
          localMinIndex=localMinIndex, localMaxIndex=localMaxIndex, _RC)
@@ -3655,7 +3674,11 @@ contains
        f = ESMF_FieldCreate(name=splitName, grid=grid, &
             array=arraySlice, &
             datacopyFlag = ESMF_DATACOPY_REFERENCE,                &
-            gridToFieldMap=gridToFieldMap, _RC)
+            gridToFieldMap=gridToFieldMap, &
+            ungriddedLBound=ungl, ungriddedUBound=ungu, _RC)
+
+       if (associated(ungl)) deallocate(ungl)
+       if (associated(ungu)) deallocate(ungu)
 
        ! copy attributes and adjust as necessary
        fld = field ! shallow copy to get around intent(in/out)
