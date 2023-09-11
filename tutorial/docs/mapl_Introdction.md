@@ -7,9 +7,11 @@ One of the most complete attempts to use ESMF has been the development of the [G
 The GEOS various applications have been built ‘from the ground up’ using the latest available versions of ESMF superstructure and infrastructure. 
 Figure 1 (below) represents a hierarchical (tree) implementation of the component-based GEOS-5 software where each box is an ESMF component performing some specific function and the root of the tree serves as the top level control point.
 
-![esm_geos-5](figs/geos5_esmf.jpg)
 
-Figure 1: _Structure of the GEOS-5 atmospheric general circulation model._
+| ![esm_geos-5](figs/geos5_esmf.jpg 'GEOS ESM') |
+| :---: |
+| Figure 1: _Structure of the GEOS-5 atmospheric general circulation model._ |
+
 
 All of these efforts have produced much constructive feedback to the ESMF core development team, 
 and have helped refine the design and improve the implementation of the framework. 
