@@ -15,32 +15,32 @@
 #endif
 
 #if (TYPE_NUM == 1) 
-#define TYPE_STRING "'Integer*4 '"
+#define TYPE_STRING TYPE_STRING_INTEGER4
 #define FMT_ "(I0.1)"
 #define RELATION(A, B) A==B
 
 #elif (TYPE_NUM == 2) 
-#define TYPE_STRING "'Integer*8 '"
+#define TYPE_STRING TYPE_STRING_INTEGER8
 #define FMT_ "(I0.1)"
 #define RELATION(A, B) A==B
 
 #elif (TYPE_NUM == 3) 
-#define TYPE_STRING "'Real*4 '"
+#define TYPE_STRING TYPE_STRING_REAL4
 #define FMT_ "(F0.6)"
 #define RELATION(A, B) A==B
 
 #elif (TYPE_NUM == 4) 
-#define TYPE_STRING "'Real*8 '"
+#define TYPE_STRING TYPE_STRING_REAL8
 #define FMT_ "(F0.6)"
 #define RELATION(A, B) A==B
 
 #elif (TYPE_NUM == 5) 
-#define TYPE_STRING "'Logical '"
+#define TYPE_STRING TYPE_STRING_LOGICAL
 #define RELATION(A, B) A.eqv.B
 #define FMT_ "(L1)"
 
 #elif (TYPE_NUM == 0) 
-#define TYPE_STRING "'Character '"
+#define TYPE_STRING TYPE_STRING_CHARACTER
 #define RELATION(A, B) A==B
 #define FMT_ "(A)"
 #endif

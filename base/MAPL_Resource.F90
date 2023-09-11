@@ -47,6 +47,13 @@ module MAPL_ResourceMod
    public MAPL_GetResource_config_array
    public MAX_LINE_LENGTH
 
+   character(len=*), parameter :: TYPE_STRING_INTEGER4 = "'Integer*4 '"
+   character(len=*), parameter :: TYPE_STRING_INTEGER8 = "'Integer*8 '"
+   character(len=*), parameter :: TYPE_STRING_REAL4 = "'Real*4 '"
+   character(len=*), parameter :: TYPE_STRING_REAL8 = "'Real*8 '"
+   character(len=*), parameter :: TYPE_STRING_LOGICAL = "'Logical '"
+   character(len=*), parameter :: TYPE_STRING_CHARACTER = "'Character '"
+
 contains
 
    !>
@@ -550,7 +557,7 @@ contains
          _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
          _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after)')
       else
-         write(*, fmt=output_format) final_output
+         write(*, fmt=output_format) trim(final_output)
       end if
 
       _RETURN(_SUCCESS)
