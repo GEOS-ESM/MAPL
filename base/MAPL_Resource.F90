@@ -40,12 +40,22 @@ module MAPL_ResourceMod
    implicit none
    private
 
+   enum, bind(c)
+      enumerator :: MAPL_RESOURCE_VALUE_DEFAULT_MISMATCH = -1
+      enumerator :: MAPL_RESOURCE_ARRAY_SIZE_FORMAT_CODE_FAILURE = -2
+   end enum
+
    character(len=*), parameter :: EMPTY_STRING = ''
    integer, parameter :: MAX_LINE_LENGTH = 256
 
    public MAPL_GetResource_config_scalar
    public MAPL_GetResource_config_array
    public MAX_LINE_LENGTH
+
+   interface array_format
+      module procedure :: array_format_simple
+      module procedure :: array_format_string
+   end interface array_format
 
    character(len=*), parameter :: TYPE_STRING_INTEGER4 = "'Integer*4 '"
    character(len=*), parameter :: TYPE_STRING_INTEGER8 = "'Integer*8 '"
@@ -519,29 +529,36 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      trailer = NONDEFAULT_
-      if (value_is_default) trailer = DEFAULT_
+!      trailer = NONDEFAULT_
+!      if (value_is_default) trailer = DEFAULT_
+      if(value_is_default) then
+         trailer = DEFAULT_
+      else
+         trailer =  NONDEFAULT_
+      end if
 
       ! maximum line length before adding the label and trailer
       max_length_value_out = MAX_LINE_LENGTH - len_trim(label) - len(trailer)
 
       ! format string to create output string
-      output_format = "(1x, " // type_string // ", 'Resource Parameter: '" // ", a"// ", a)"
+!      output_format = "(1x, " // type_string // ", 'Resource Parameter: '" // ", a"// ", a)"
 
       value_out = trim(formatted_value)
       if(len(value_out) == 0) then
       ! if something went wrong, the formatted_value will be empty, so provide alternative value_out
-         value_out = "[Unable to write formatted value]"
+!         value_out = "[Unable to write formatted value]"
+         value_out = "[Empty formatted value]"
       else if(len(value_out) > max_length_value_out) then
          ! if value_out is too long (such that the output string will be longer than maxium line length, truncate
          value_out = value_out(1:(max_length_value_out - LENGTH_TRUNCATE)) // TRUNCATE
       end if
 
       ! Make output_string including label but without the trailer
-      write(output_string, fmt=output_format, iostat=io_stat) trim(label), value_out
+!      write(output_string, fmt=output_format, iostat=io_stat) trim(label), value_out
+      output_string = " " // type_string // ", 'Resource Parameter: '" // trim(label) // value_out
 
       ! If writing the output_string fails, provide alternative output_string
-      if(io_stat /= IO_SUCCESS) output_string = trim(label) // ' [Unable to write resource value] '
+!      if(io_stat /= IO_SUCCESS) output_string = trim(label) // ' [Unable to write resource value] '
 
       ! Add the trailer now
       output_string = trim(output_string) // trailer
@@ -553,11 +570,12 @@ contains
       if(present(iunit)) then
          iunit = EMPTY_STRING
          _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before)')
-         write(iunit, fmt=output_format, iostat=io_stat) final_output(1:min(len(iunit), MAX_LINE_LENGTH))
-         _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
+!         write(iunit, fmt=output_format, iostat=io_stat) final_output(1:min(len(iunit), MAX_LINE_LENGTH))
+         iunit = final_output(1:min(len(iunit), MAX_LINE_LENGTH))
+!         _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
          _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after)')
       else
-         write(*, fmt=output_format) trim(final_output)
+         write(*, fmt='(a)') trim(final_output)
       end if
 
       _RETURN(_SUCCESS)
@@ -566,7 +584,7 @@ contains
 
    !>
    ! Create array format string from scalar format string
-   pure function array_format(scalar_format, array_size_string)
+   pure function array_format_string(scalar_format, array_size_string) result(array_format)
       character(len=*), intent(in) :: scalar_format
       character(len=*), intent(in) :: array_size_string
       character(len=:), allocatable :: array_format
@@ -578,7 +596,18 @@ contains
       array_format = '('//trim(adjustl(array_size_string))// '(' // one_group//',1X))'
 !      array_format = '('//trim(adjustl(array_size_string))//scalar_format(1:len_trim(scalar_format)-1)//',1X))'
 
-   end function array_format
+   end function array_format_string
+
+   pure function array_format_simple(scalar_format) result(array_format)
+      character(len=*), intent(in) :: scalar_format
+      character(len=:), allocatable :: array_format
+      character(len=:), allocatable :: base_format
+      character(len=*), parameter :: UNLIMITED_FORMAT_ITEM = "*"
+
+      base_format = scalar_format(2:(len_trim(scalar_format)-1))
+      array_format = '(' // UNLIMITED_FORMAT_ITEM // '(' // base_format //', 1X))'
+
+   end function array_format_simple
 
    !>
    ! Create format string for array of strings

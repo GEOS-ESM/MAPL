@@ -24,17 +24,18 @@ if(do_print) then
       type_string = TYPE_STRING
       type_format = FMT_
 #if defined(IS_ARRAY)
-      write(array_size_string, '(i2)', iostat=io_stat) size(VALUE_) 
-      if(io_stat == IO_SUCCESS) then
-         type_format = array_format(type_format, array_size_string) 
-      else
-         type_format = ''
-      end if
+!      write(array_size_string, '(i2)', iostat=io_stat) size(VALUE_) 
+!      if(io_stat == IO_SUCCESS) then
+!         type_format = array_format(type_format, array_size_string) 
+!      else
+!         type_format = EMPTY_STRING
+!      end if
+       type_format = array_format(type_format) 
 #endif
-      formatted_value = ''
+      formatted_value = EMPTY_STRING
       if(len_trim(type_format) > 0) then
          write(formatted_value, type_format, iostat=io_stat) VALUE_ 
-         if(io_stat /= IO_SUCCESS) formatted_value = ''
+         if(io_stat /= IO_SUCCESS) formatted_value = EMPTY_STRING
       end if
    else 
       do_print = .FALSE. 

@@ -8502,7 +8502,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
-         default = default, component_name = state%compname, _RC)
+         default = default, component_name = state%compname, rc=status)
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -8513,6 +8513,8 @@ contains
       ! by an alternative action. That code needs to use the value_is_set argument
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
+
+      _VERIFY(status)
       _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
@@ -8546,6 +8548,8 @@ contains
       ! by an alternative action. That code needs to use the value_is_set argument
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
+
+      _VERIFY(status)
       _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
@@ -8568,7 +8572,7 @@ contains
       integer :: status
 
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
-         default = default, component_name = state%compname, _RC)
+         default = default, component_name = state%compname, rc=status)
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -8579,6 +8583,8 @@ contains
       ! by an alternative action. That code needs to use the value_is_set argument
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
+
+      _VERIFY(status)
       _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
@@ -8611,6 +8617,8 @@ contains
       ! by an alternative action. That code needs to use the value_is_set argument
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
+
+      _VERIFY(status)
       _ASSERT(value_set, 'Failed to set value')
       if(present(value_is_set)) value_is_set = value_set
 
