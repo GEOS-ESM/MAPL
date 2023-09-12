@@ -404,11 +404,14 @@ contains
              allocate(VAR_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), STAT=status)
              _VERIFY(STATUS)
              VAR_4D = INIT_VALUE
-             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_4D, &
+             call ESMF_FieldEmptyComplete(FIELD, farray=VAR_4D, &
+                  indexflag=ESMF_INDEX_DELOCAL, &
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
                   gridToFieldMap=gridToFieldMap,              &
                   totalLWidth=haloWidth(1:griddedDims),     &
                   totalUWidth=haloWidth(1:griddedDims),     &
+                  ungriddedLBound=[lb3,1],&
+                  ungriddedUBound=[ub3,ungrid(1)], &
                   rc = status)
           else
              NULLIFY(VR8_4D)
