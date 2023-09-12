@@ -297,11 +297,14 @@ contains
              allocate(VAR_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), STAT=STATUS)
              _VERIFY(STATUS)
              VAR_4D = INIT_VALUE
-             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_4D, &
+             call ESMF_FieldEmptyComplete(FIELD, farray=VAR_4D, &
+                  indexflag=ESMF_INDEX_DELOCAL, &
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
                   gridToFieldMap=gridToFieldMap,              &
                   totalLWidth=haloWidth(1:griddedDims),     &
                   totalUWidth=haloWidth(1:griddedDims),     &
+                  ungriddedLBound=[1,1],&
+                  ungriddedUBound=[ungrid(1),ungrid(2)], &
                   rc = status)
           case default
              _FAIL( 'only up to 4D are supported')
@@ -1393,11 +1396,13 @@ contains
        case (4)
           call ESMF_FieldGet(field, farrayPtr=var_4d, rc=status)
           _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_4D,    &
+          call ESMF_FieldEmptyComplete(F, farray=VAR_4D,    &
+               indexflag=ESMF_INDEX_DELOCAL, &
                gridToFieldMap=gridToFieldMap,                      &
                datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
+               ungriddedLBound=[lbound(var_4d,3),lbound(var_4d,4)],&
+               ungriddedUBound=[ubound(var_4d,3),ubound(var_4d,4)],&
+               _RC )
        case default
           _FAIL( 'only upto 4D are supported')
        end select
@@ -3611,7 +3616,7 @@ contains
     integer                    :: fieldRank
     integer, allocatable       :: gridToFieldMap(:)
     integer, allocatable       :: ungrd(:)
-    integer                    :: localMinIndex(4), localMaxIndex(4)
+    integer, allocatable       :: localMinIndex(:), localMaxIndex(:)
     real, pointer              :: ptr4d(:,:,:,:) => null()
     real, pointer              :: ptr3d(:,:,:) => null()
     real, pointer              :: ptr2d(:,:) => null()
@@ -3624,6 +3629,8 @@ contains
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
     character(len=ESMF_MAXSTR) :: longName
+
+    type(ESMF_Index_Flag) :: arrayIndexFlag, gridIndexFlag
 
     call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, _RC)
 
@@ -3638,11 +3645,14 @@ contains
           !ALT: get the pointer on the first PET
           call ESMF_FieldGet(Field,0,ptr4D,_RC)
           allocate(ungl(1), ungu(1), _STAT)
-          ungl=lbound(ptr4d,3)
-          ungu=ubound(ptr4d,3)
+          ungl(1)=lbound(ptr4d,3)
+          ungu(1)=ubound(ptr4d,3)
        else if (fieldRank == 3) then
           ungl => NULL() ! to emulate 'not present' argument
           ungu => NULL()
+#ifndef USE_SSI_ARRAY 
+          call ESMF_FieldGet(Field,0,ptr3D,_RC)
+#endif
        else
           _ASSERT(.false., 'unsupported rank')
        end if
@@ -3650,11 +3660,13 @@ contains
        _ASSERT(.false., 'unsupported typekind')
     end if
 
+    allocate(localMinIndex(fieldRank),localMaxIndex(fieldRank), _STAT)
     call ESMF_FieldGet(Field, array=array,&
          localMinIndex=localMinIndex, localMaxIndex=localMaxIndex, _RC)
 
     k1 = localMinIndex(fieldRank)
     k2 = localMaxIndex(fieldRank)
+    deallocate(localMinIndex,localMaxIndex) 
 
     n = k2 - k1 + 1
 
@@ -3666,19 +3678,30 @@ contains
     n = 0
     do k=k1,k2
        n = n+1
-       arraySlice = ESMF_ArrayCreate(array, &
-            datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-            trailingUndistSlice=[k], _RC)
-       ! create a new field
        splitName = splitNameArray(n)
-       f = ESMF_FieldCreate(name=splitName, grid=grid, &
-            array=arraySlice, &
-            datacopyFlag = ESMF_DATACOPY_REFERENCE,                &
-            gridToFieldMap=gridToFieldMap, &
-            ungriddedLBound=ungl, ungriddedUBound=ungu, _RC)
-
-       if (associated(ungl)) deallocate(ungl)
-       if (associated(ungu)) deallocate(ungu)
+#ifndef USE_SSI_ARRAY 
+       if (fieldRank==4) then
+#endif
+          arraySlice = ESMF_ArrayCreate(array, &
+               datacopyFlag=ESMF_DATACOPY_REFERENCE, &
+               trailingUndistSlice=[k], _RC)
+          ! create a new field
+          f = ESMF_FieldCreate(name=splitName, grid=grid, &
+               array=arraySlice, &
+               datacopyFlag = ESMF_DATACOPY_REFERENCE,                &
+               gridToFieldMap=gridToFieldMap, &
+               ungriddedLBound=ungl, ungriddedUBound=ungu, _RC)
+#ifndef USE_SSI_ARRAY 
+       else if (fieldRank==3) then 
+          f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, _RC)
+          ptr2d => ptr3D(:,:,k)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=ptr2d,    &
+               datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+               gridToFieldMap=gridToFieldMap,                      &
+               rc = status)
+          _VERIFY(STATUS)
+       end if
+#endif
 
        ! copy attributes and adjust as necessary
        fld = field ! shallow copy to get around intent(in/out)
@@ -3708,6 +3731,8 @@ contains
 
        fields(n) = f
     end do
+    if (associated(ungl)) deallocate(ungl)
+    if (associated(ungu)) deallocate(ungu)
 
     deallocate(gridToFieldMap)
     deallocate(splitNameArray)
