@@ -243,9 +243,22 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%recycle_track) then
             call this%reset_times_to_current_day(_RC)
          end if
+
+
+!                     int_time=0
+!                     call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, &
+!                          time0, time1=time1, tunit=tunit, _RC)
+!                     call convert_NetCDF_DateTime_to_ESMF(int_time, timeunits_file, interval, &
+!                          time2, time1=time1, tunit=tunit, _RC)
+!                     interval = time2 - time0
+!                     _ASSERT(trim(tunit)=='seconds', 'dateTime units /= second is not supported')
+!                     call ESMF_TimeIntervalGet(interval, s_i8=n_second)
+!                     times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + real(n_second)
+         
+
          _RETURN(_SUCCESS)
 
-       end procedure
+       end procedure initialize
 
 
       module procedure create_metadata_variable
