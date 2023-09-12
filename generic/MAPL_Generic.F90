@@ -8501,9 +8501,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
-         default = default, component_name = state%compname, rc=status)
+         default = default, component_name = state%compname, _RC)
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -8515,11 +8514,15 @@ contains
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
 
-      _VERIFY(status)
-      _ASSERT(value_set, 'Failed to set value')
-      if(present(value_is_set)) value_is_set = value_set
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
 
-      _RETURN(_SUCCESS)
+      if(present(rc) .and. .not. value_set) then
+         rc = _FAILURE
+      else
+         _RETURN(_SUCCESS)
+      end if
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
 
@@ -8537,7 +8540,6 @@ contains
       integer :: status
       logical :: value_set
 
-      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
          default = default, _RC)
 
@@ -8551,11 +8553,15 @@ contains
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
 
-      _VERIFY(status)
-      _ASSERT(value_set, 'Failed to set value')
-      if(present(value_is_set)) value_is_set = value_set
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
 
-      _RETURN(_SUCCESS)
+      if(present(rc) .and. .not. value_set) then
+         rc = _FAILURE
+      else
+         _RETURN(_SUCCESS)
+      end if
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
@@ -8573,7 +8579,6 @@ contains
       logical :: value_set
       integer :: status
 
-      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
          default = default, component_name = state%compname, rc=status)
 
@@ -8587,12 +8592,15 @@ contains
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
 
-      _VERIFY(status)
-      _ASSERT(value_set, 'Failed to set value')
-      if(present(value_is_set)) value_is_set = value_set
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      if(present(rc) .and. .not. value_set) then
+         rc = _FAILURE
+      else
+         _RETURN(_SUCCESS)
+      end if
 
    end subroutine MAPL_GetResourceFromMAPL_array
 
@@ -8608,7 +8616,6 @@ contains
       integer :: status
       logical :: value_set
 
-      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
          default = default, _RC)
 
@@ -8622,12 +8629,15 @@ contains
       ! to determine failure. Once that code is fixed, the assertion should be
       ! removed.
 
-      _VERIFY(status)
-      _ASSERT(value_set, 'Failed to set value')
-      if(present(value_is_set)) value_is_set = value_set
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      if(present(rc) .and. .not. value_set) then
+         rc = _FAILURE
+      else
+         _RETURN(_SUCCESS)
+      end if
 
    end subroutine MAPL_GetResourceFromConfig_array
 
