@@ -36,8 +36,6 @@ module MAPL_ResourceMod
    use MAPL_KeywordEnforcerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 
-   ! FIXME wdb may need to replace or eliminate macros to avoid error messages
-   ! FIXME wdb due to value_is_set condition FALSE
    ! !PUBLIC MEMBER FUNCTIONS:
    implicit none
    private
@@ -59,12 +57,12 @@ module MAPL_ResourceMod
       module procedure :: array_format_string
    end interface array_format
 
-   character(len=*), parameter :: TYPE_STRING_INTEGER4 = "'Integer*4 '"
-   character(len=*), parameter :: TYPE_STRING_INTEGER8 = "'Integer*8 '"
-   character(len=*), parameter :: TYPE_STRING_REAL4 = "'Real*4 '"
-   character(len=*), parameter :: TYPE_STRING_REAL8 = "'Real*8 '"
-   character(len=*), parameter :: TYPE_STRING_LOGICAL = "'Logical '"
-   character(len=*), parameter :: TYPE_STRING_CHARACTER = "'Character '"
+   character(len=*), parameter :: TYPE_STRING_INTEGER4 = 'Integer*4 '
+   character(len=*), parameter :: TYPE_STRING_INTEGER8 = 'Integer*8 '
+   character(len=*), parameter :: TYPE_STRING_REAL4 = 'Real*4 '
+   character(len=*), parameter :: TYPE_STRING_REAL8 = 'Real*8 '
+   character(len=*), parameter :: TYPE_STRING_LOGICAL = 'Logical '
+   character(len=*), parameter :: TYPE_STRING_CHARACTER = 'Character '
 
 contains
 
@@ -527,8 +525,6 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-!      trailer = NONDEFAULT_
-!      if (value_is_default) trailer = DEFAULT_
       if(value_is_default) then
          trailer = DEFAULT_
       else
@@ -538,13 +534,9 @@ contains
       ! maximum line length before adding the label and trailer
       max_length_value_out = MAX_LINE_LENGTH - len_trim(label) - len(trailer)
 
-      ! format string to create output string
-!      output_format = "(1x, " // type_string // ", 'Resource Parameter: '" // ", a"// ", a)"
-
       value_out = trim(formatted_value)
       if(len(value_out) == 0) then
       ! if something went wrong, the formatted_value will be empty, so provide alternative value_out
-!         value_out = "[Unable to write formatted value]"
          value_out = "[Empty formatted value]"
       else if(len(value_out) > max_length_value_out) then
          ! if value_out is too long (such that the output string will be longer than maxium line length, truncate
@@ -552,11 +544,7 @@ contains
       end if
 
       ! Make output_string including label but without the trailer
-!      write(output_string, fmt=output_format, iostat=io_stat) trim(label), value_out
-      output_string = " " // type_string // ", 'Resource Parameter: '" // trim(label) // value_out
-
-      ! If writing the output_string fails, provide alternative output_string
-!      if(io_stat /= IO_SUCCESS) output_string = trim(label) // ' [Unable to write resource value] '
+      output_string = " " // type_string // ", Resource Parameter: " // trim(label) // value_out
 
       ! Add the trailer now
       output_string = trim(output_string) // trailer

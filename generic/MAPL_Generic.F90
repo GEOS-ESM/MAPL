@@ -8502,7 +8502,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
-         default = default, component_name = state%compname, _RC)
+         default = default, component_name = state%compname, rc=status)
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -8518,8 +8518,9 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc) .and. .not. value_set) then
-         rc = _FAILURE
+      if(present(rc)) then
+         if(.not. value_set) rc = _FAILURE
+         rc = status
       else
          _RETURN(_SUCCESS)
       end if
@@ -8541,7 +8542,7 @@ contains
       logical :: value_set
 
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
-         default = default, _RC)
+         default = default, rc=status)
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -8557,8 +8558,9 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc) .and. .not. value_set) then
-         rc = _FAILURE
+      if(present(rc)) then
+         if(.not. value_set) rc = _FAILURE
+         rc = status
       else
          _RETURN(_SUCCESS)
       end if
@@ -8596,8 +8598,9 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc) .and. .not. value_set) then
-         rc = _FAILURE
+      if(present(rc)) then
+         if(.not. value_set) rc = _FAILURE
+         rc = status
       else
          _RETURN(_SUCCESS)
       end if
@@ -8617,7 +8620,7 @@ contains
       logical :: value_set
 
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
-         default = default, _RC)
+         default = default, rc=status) 
 
       ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
       ! Instead, optional argument value_is_set should to the value of value_set,
@@ -8633,8 +8636,9 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc) .and. .not. value_set) then
-         rc = _FAILURE
+      if(present(rc)) then
+         if(.not. value_set) rc = _FAILURE
+         rc = status
       else
          _RETURN(_SUCCESS)
       end if
