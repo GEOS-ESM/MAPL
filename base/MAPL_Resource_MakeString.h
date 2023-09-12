@@ -8,6 +8,7 @@ if(do_print) then
          type is(TYPE_) 
             value_is_default = ARE_EQUAL(VALUE_, default) 
          class default 
+         ! FIXME wdb perhaps different or no macro
             _FAIL(MISMATCH_MESSAGE) 
          end select 
       else 

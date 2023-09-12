@@ -36,6 +36,8 @@ module MAPL_ResourceMod
    use MAPL_KeywordEnforcerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 
+   ! FIXME wdb may need to replace or eliminate macros to avoid error messages
+   ! FIXME wdb due to value_is_set condition FALSE
    ! !PUBLIC MEMBER FUNCTIONS:
    implicit none
    private
@@ -331,9 +333,7 @@ contains
       end select
 
       if(do_print) then
-         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
          call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
-         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
       end if
 
       value_is_set = .TRUE.
@@ -493,9 +493,7 @@ contains
       end select
 
       if(do_print) then
-         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before: print_resource')
          call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
-         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after: print_resource')
       end if
 
       value_is_set = .TRUE.
@@ -569,11 +567,7 @@ contains
 
       if(present(iunit)) then
          iunit = EMPTY_STRING
-         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (before)')
-!         write(iunit, fmt=output_format, iostat=io_stat) final_output(1:min(len(iunit), MAX_LINE_LENGTH))
          iunit = final_output(1:min(len(iunit), MAX_LINE_LENGTH))
-!         _ASSERT(io_stat == IO_SUCCESS, 'Failed writing the output string')
-         _ASSERT(len(iunit) <= MAX_LINE_LENGTH, 'iunit is too long (after)')
       else
          write(*, fmt='(a)') trim(final_output)
       end if

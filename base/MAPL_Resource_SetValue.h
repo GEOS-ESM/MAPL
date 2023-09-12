@@ -11,6 +11,7 @@ else
    type is(TYPE_) 
       VALUE_ = default 
    class default 
+   ! FIXME wdb Maybe different or no macro?
       _FAIL(MISMATCH_MESSAGE) 
    end select 
    value_is_default = .TRUE. 

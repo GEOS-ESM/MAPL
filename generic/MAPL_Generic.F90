@@ -8501,6 +8501,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
          default = default, component_name = state%compname, rc=status)
 
@@ -8536,6 +8537,7 @@ contains
       integer :: status
       logical :: value_set
 
+      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
          default = default, _RC)
 
@@ -8571,6 +8573,7 @@ contains
       logical :: value_set
       integer :: status
 
+      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
          default = default, component_name = state%compname, rc=status)
 
@@ -8605,6 +8608,7 @@ contains
       integer :: status
       logical :: value_set
 
+      ! FIXME wdb Perhaps avoid macros until the top level?
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
          default = default, _RC)
 
