@@ -14,10 +14,10 @@ module HistoryTrajectoryMod
   type :: obs_unit
      !!integer :: id
      integer :: nobs_epoch
-!     type(FileMetadata)          :: metadata    !-- allocatable scalar?? gftl maps, 
-!     type(NetCDF4_FileFormatter) :: file_handle !--
-     class(FileMetadata), allocatable :: metadata
-     class(NetCDF4_FileFormatter), allocatable :: file_handle 
+     type(FileMetadata), allocatable          :: metadata    !-- allocatable scalar?? gftl maps, 
+     type(NetCDF4_FileFormatter), allocatable :: file_handle !--
+!     class(FileMetadata), allocatable :: metadata
+!     class(NetCDF4_FileFormatter), allocatable :: file_handle 
      
      character(len=ESMF_MAXSTR)                 :: name
      character(len=ESMF_MAXSTR)                 :: obsFile_output
@@ -136,6 +136,11 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine initialize
 
+     module subroutine reinitialize_metadata(this,rc)
+       class(HistoryTrajectory), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine reinitialize_metadata
+     
      module subroutine  create_metadata_variable(this,vname,rc)
        class(HistoryTrajectory), intent(inout) :: this
        character(len=*), intent(in)            :: vname

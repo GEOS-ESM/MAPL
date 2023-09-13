@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-
 submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use ESMF
   use MAPL_ErrorHandlingMod
@@ -81,6 +80,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !! print*, 'nline,ncol', nline,ncol
          traj%nobs_type = nline
          allocate (traj%obs(nline))
+         do k=1, nline
+            allocate (traj%obs(k)%metadata)
+            if (mapl_am_i_root()) then
+               allocate (traj%obs(k)%file_handle)
+            end if
+         end do
          call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
          if (mapl_am_i_root()) print*, 'nobs_type=', nline
          do i=1, nline
@@ -263,6 +268,85 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        end procedure initialize
 
 
+       module procedure reinitialize_metadata
+         integer :: status,nobs
+         type(ESMF_Grid) :: grid
+         type(variable) :: v
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
+         type(ESMF_Time)            :: currTime
+         integer :: k
+         ! __ s.1   create LS grid, RH, output/acc bundle
+         ! __ s.2   metadata
+
+         allocate (this%obs(this%nobs_type))
+         do k=1, this%nobs_type
+            allocate (this%obs(k)%metadata)
+            if (mapl_am_i_root()) then
+               allocate (this%obs(k)%file_handle)
+            end if
+         end do
+         
+         do k=1, this%nobs_type
+            call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
+         end do
+         this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
+         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
+
+         call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
+         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)   ! output 
+         if (this%obsfile_Te_index < 0) then
+            if (mapl_am_I_root()) then
+               write(6,*) "model start time is earlier than obsfile_start_time"
+               write(6,*) "solution: adjust obsfile_start_time and Epoch in rc file"
+            end if
+            _FAIL("obs file not found at init time")
+         endif
+         call this%create_grid(_RC)
+
+         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
+         this%output_bundle = this%create_new_bundle(_RC)
+         this%acc_bundle    = this%create_new_bundle(_RC)
+
+         do k=1, this%nobs_type
+            call this%obs(k)%metadata%add_dimension(this%nc_index, this%obs(k)%nobs_epoch)
+            if (this%time_info%integer_time) then
+               v = Variable(type=PFIO_INT32,dimensions=this%nc_index)
+            else
+               v = Variable(type=PFIO_REAL32,dimensions=this%nc_index)
+            end if
+            call v%add_attribute('units', this%datetime_units)
+            call v%add_attribute('long_name', 'dateTime')
+            call this%obs(k)%metadata%add_variable(this%var_name_time,v)
+
+            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
+            call v%add_attribute('units','degrees_east')
+            call v%add_attribute('long_name','longitude')
+            call this%obs(k)%metadata%add_variable(this%var_name_lon,v)
+
+            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
+            call v%add_attribute('units','degrees_north')
+            call v%add_attribute('long_name','latitude')
+            call this%obs(k)%metadata%add_variable(this%var_name_lat,v)
+         end do
+
+         iter = this%items%begin()
+         do while (iter /= this%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               call this%create_variable(item%xname,_RC)
+            else if (item%itemType == ItemTypeVector) then
+               call this%create_variable(item%xname,_RC)
+               call this%create_variable(item%yname,_RC)
+            end if
+            call iter%next()
+         enddo
+         _RETURN(_SUCCESS)
+
+       end procedure reinitialize_metadata
+       
+
       module procedure create_metadata_variable
         type(ESMF_Field) :: field
         type(variable) :: v
@@ -353,13 +437,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             _RETURN(ESMF_SUCCESS)
          endif
 
+         do k=1, this%nobs_type            
+            call this%obs(k)%metadata%modify_dimension(this%nc_index, this%obs(k)%nobs_epoch)  ! called location
+         enddo
          if (mapl_am_I_root()) then
             do k=1, this%nobs_type
                if (this%obs(k)%nobs_epoch > 0) then
                   ! __ update metadata
                   ! bug
-                  call this%obs(k)%metadata%modify_dimension(this%nc_index, this%obs(k)%nobs_epoch)  ! called location
                   filename=trim(this%obs(k)%name)//trim(filename_suffix)
+                  print*, 'filename=', trim(filename)
                   call this%obs(k)%file_handle%create(trim(filename),_RC)
                   call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
                   write(6,*) "Sampling to new file : ",trim(filename)
@@ -813,7 +900,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         this%obs(k)%p2d(ix(k)) = p_acc_rt_2d(j)
                      enddo
 
-                     
                      do k=1, this%nobs_type
                         if (ix(k) /= this%obs(k)%nobs_epoch) then
                            print*, 'obs_', k, ' : ix(k) /= this%obs(k)%nobs_epoch'
@@ -1016,32 +1102,31 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            deallocate (this%lons, this%lats, &
                 this%times_R8, this%obstype_id)
 
-           ! not necessary?!
-           if (mapl_am_i_root()) then
-              do k=1, this%nobs_type
-                 deallocate (this%obs(k)%lons)
-                 deallocate (this%obs(k)%lats)
-                 deallocate (this%obs(k)%times_R8)
-                 if (allocated(this%obs(k)%p2d)) then
-                    deallocate (this%obs(k)%p2d)
-                 endif
-                 if (allocated(this%obs(k)%p3d)) then
-                    deallocate (this%obs(k)%p3d)
-                 endif
-              end do
-           end if
+           do k=1, this%nobs_type
+              deallocate (this%obs(k)%metadata)
+              if (mapl_am_i_root()) then
+                 deallocate (this%obs(k)%file_handle)
+              end if
+           end do
 
-           ! want
-!           do k=1, this%nobs_type              
-!             deallocate( this%obs )
-!           enddo
-          ! hope to clean it up!!  metadata, file_handle
-
-
-           ! destroy variables in metadata
+           deallocate( this%obs )
            
-!!           stop -11
-           
+!           ! not necessary?!           
+!           if (mapl_am_i_root()) then
+!              do k=1, this%nobs_type
+!                 deallocate (this%obs(k)%lons)
+!                 deallocate (this%obs(k)%lats)
+!                 deallocate (this%obs(k)%times_R8)
+!                 if (allocated(this%obs(k)%p2d)) then
+!                    deallocate (this%obs(k)%p2d)
+!                 endif
+!                 if (allocated(this%obs(k)%p3d)) then
+!                    deallocate (this%obs(k)%p3d)
+!                 endif
+!              end do
+!           end if
+
+
            
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
            allocate(names(numVars),stat=status)
