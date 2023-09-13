@@ -14,19 +14,21 @@ module HistoryTrajectoryMod
   type :: obs_unit
      !!integer :: id
      integer :: nobs_epoch
-     type(FileMetadata)          :: metadata
-     type(NetCDF4_FileFormatter) :: file_handle
+!     type(FileMetadata)          :: metadata    !-- allocatable scalar?? gftl maps, 
+!     type(NetCDF4_FileFormatter) :: file_handle !--
+     class(FileMetadata), target, allocatable :: metadata
+     class(NetCDF4_FileFormatter), target, allocatable :: file_handle 
+     
      character(len=ESMF_MAXSTR)                 :: name
      character(len=ESMF_MAXSTR)                 :: obsFile_output
      character(len=ESMF_MAXSTR)                 :: input_template
-     character(len=ESMF_MAXSTR),allocatable     :: input_filenames(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)     
-!!   contains
-!!     procedure destroy
+!-!   contains
+!-!     procedure destroy
   end type obs_unit
 
   public :: HistoryTrajectory

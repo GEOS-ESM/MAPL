@@ -178,6 +178,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%vdata=VerticalData(_RC)
          end if
          do k=1, this%nobs_type
+!!            allocate (this%obs(k)%metadata,  source = FileMetadata)
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
@@ -244,7 +245,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call this%reset_times_to_current_day(_RC)
          end if
 
-
+         !--  defer working on timeunit = 'seconds since 1970-01-01'
+         !
 !                     int_time=0
 !                     call convert_NetCDF_DateTime_to_ESMF(int_time, this%datetime_units, interval, &
 !                          time0, time1=time1, tunit=tunit, _RC)
@@ -355,9 +357,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             do k=1, this%nobs_type
                if (this%obs(k)%nobs_epoch > 0) then
                   ! __ update metadata
-                  call this%obs(k)%metadata%modify_dimension('time', this%obs(k)%nobs_epoch)
+                  ! bug
+                  call this%obs(k)%metadata%modify_dimension(this%nc_index, this%obs(k)%nobs_epoch)  ! called location
                   filename=trim(this%obs(k)%name)//trim(filename_suffix)
-                  !!filename=trim(this%obs(k)%name)//'.'//trim(filename_suffix)
                   call this%obs(k)%file_handle%create(trim(filename),_RC)
                   call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
                   write(6,*) "Sampling to new file : ",trim(filename)
@@ -1014,6 +1016,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            deallocate (this%lons, this%lats, &
                 this%times_R8, this%obstype_id)
 
+           ! not necessary?!
            if (mapl_am_i_root()) then
               do k=1, this%nobs_type
                  deallocate (this%obs(k)%lons)
@@ -1028,6 +1031,18 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               end do
            end if
 
+           ! want
+!           do k=1, this%nobs_type              
+!             deallocate( this%obs )
+!           enddo
+          ! hope to clean it up!!  metadata, file_handle
+
+
+           ! destroy variables in metadata
+           
+!!           stop -11
+           
+           
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
            allocate(names(numVars),stat=status)
            call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
