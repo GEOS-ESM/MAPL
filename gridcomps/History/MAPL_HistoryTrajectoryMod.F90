@@ -16,8 +16,8 @@ module HistoryTrajectoryMod
      integer :: nobs_epoch
 !     type(FileMetadata)          :: metadata    !-- allocatable scalar?? gftl maps, 
 !     type(NetCDF4_FileFormatter) :: file_handle !--
-     class(FileMetadata), target, allocatable :: metadata
-     class(NetCDF4_FileFormatter), target, allocatable :: file_handle 
+     class(FileMetadata), allocatable :: metadata
+     class(NetCDF4_FileFormatter), allocatable :: file_handle 
      
      character(len=ESMF_MAXSTR)                 :: name
      character(len=ESMF_MAXSTR)                 :: obsFile_output
