@@ -8518,7 +8518,7 @@ contains
          value_is_set = value_set
       end if
 
-      if(.not. value_is_set) then
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8562,7 +8562,7 @@ contains
          value_is_set = value_set
       end if
 
-      if(.not. value_is_set) then
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8606,7 +8606,7 @@ contains
          value_is_set = value_set
       end if
 
-      if(.not. value_is_set) then
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8648,7 +8648,7 @@ contains
          value_is_set = value_set
       end if
 
-      if(.not. value_is_set) then
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
