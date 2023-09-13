@@ -521,7 +521,7 @@ contains
       character(len=:), allocatable :: value_out
       character(len=ESMF_MAXSTR) :: output_string
       character(len=MAX_LINE_LENGTH) :: final_output
-      integer :: io_stat, max_length_value_out
+      integer :: max_length_value_out
 
       _UNUSED_DUMMY(unusable)
 
@@ -580,6 +580,7 @@ contains
 
    end function array_format_string
 
+   !wdb fixme This should replace array_format_string, be renamed array_format, and delete interface array_format
    pure function array_format_simple(scalar_format) result(array_format)
       character(len=*), intent(in) :: scalar_format
       character(len=:), allocatable :: array_format

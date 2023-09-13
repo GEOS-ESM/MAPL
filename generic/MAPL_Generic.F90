@@ -8519,10 +8519,11 @@ contains
       end if
 
       if(present(rc)) then
-         if(.not. value_set) rc = _FAILURE
-         rc = status
-      else
-         _RETURN(_SUCCESS)
+         if(.not. value_set) then
+            rc = _FAILURE
+         else
+            rc = status
+         end if
       end if
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
@@ -8540,6 +8541,8 @@ contains
 
       integer :: status
       logical :: value_set
+
+      _UNUSED_DUMMY(unusable)
 
       call MAPL_GetResource_config_scalar(config, val, label, value_set, &
          default = default, rc=status)
@@ -8559,10 +8562,11 @@ contains
       end if
 
       if(present(rc)) then
-         if(.not. value_set) rc = _FAILURE
-         rc = status
-      else
-         _RETURN(_SUCCESS)
+         if(.not. value_set) then
+            rc = _FAILURE
+         else
+            rc = status
+         end if
       end if
 
    end subroutine MAPL_GetResourceFromConfig_scalar
@@ -8580,6 +8584,8 @@ contains
 
       logical :: value_set
       integer :: status
+
+      _UNUSED_DUMMY(unusable)
 
       call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
          default = default, component_name = state%compname, rc=status)
@@ -8599,10 +8605,11 @@ contains
       end if
 
       if(present(rc)) then
-         if(.not. value_set) rc = _FAILURE
-         rc = status
-      else
-         _RETURN(_SUCCESS)
+         if(.not. value_set) then
+            rc = _FAILURE
+         else
+            rc = status
+         end if
       end if
 
    end subroutine MAPL_GetResourceFromMAPL_array
@@ -8618,6 +8625,8 @@ contains
 
       integer :: status
       logical :: value_set
+
+      _UNUSED_DUMMY(unusable)
 
       call MAPL_GetResource_config_array(config, vals, label, value_set, &
          default = default, rc=status) 
@@ -8637,10 +8646,11 @@ contains
       end if
 
       if(present(rc)) then
-         if(.not. value_set) rc = _FAILURE
-         rc = status
-      else
-         _RETURN(_SUCCESS)
+         if(.not. value_set) then
+            rc = _FAILURE
+         else
+            rc = status
+         end if
       end if
 
    end subroutine MAPL_GetResourceFromConfig_array
