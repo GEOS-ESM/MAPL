@@ -86,6 +86,7 @@ module HistoryTrajectoryMod
 
    contains
      procedure :: initialize
+     procedure :: reinitialize     
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
@@ -136,10 +137,10 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine initialize
 
-     module subroutine reinitialize_metadata(this,rc)
+     module subroutine reinitialize(this,rc)
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
-     end subroutine reinitialize_metadata
+     end subroutine reinitialize
      
      module subroutine  create_metadata_variable(this,vname,rc)
        class(HistoryTrajectory), intent(inout) :: this

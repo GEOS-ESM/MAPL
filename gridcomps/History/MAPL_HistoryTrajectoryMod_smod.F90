@@ -183,7 +183,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%vdata=VerticalData(_RC)
          end if
          do k=1, this%nobs_type
-!!            allocate (this%obs(k)%metadata,  source = FileMetadata)
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
          this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
@@ -268,7 +267,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        end procedure initialize
 
 
-       module procedure reinitialize_metadata
+       module procedure reinitialize
          integer :: status,nobs
          type(ESMF_Grid) :: grid
          type(variable) :: v
@@ -279,7 +278,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! __ s.1   create LS grid, RH, output/acc bundle
          ! __ s.2   metadata
 
-         allocate (this%obs(this%nobs_type))
+
          do k=1, this%nobs_type
             allocate (this%obs(k)%metadata)
             if (mapl_am_i_root()) then
@@ -344,7 +343,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          enddo
          _RETURN(_SUCCESS)
 
-       end procedure reinitialize_metadata
+       end procedure reinitialize
        
 
       module procedure create_metadata_variable
@@ -443,10 +442,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (mapl_am_I_root()) then
             do k=1, this%nobs_type
                if (this%obs(k)%nobs_epoch > 0) then
-                  ! __ update metadata
-                  ! bug
                   filename=trim(this%obs(k)%name)//trim(filename_suffix)
-                  print*, 'filename=', trim(filename)
                   call this%obs(k)%file_handle%create(trim(filename),_RC)
                   call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
                   write(6,*) "Sampling to new file : ",trim(filename)
@@ -1109,22 +1105,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               end if
            end do
 
-           deallocate( this%obs )
-           
-!           ! not necessary?!           
-!           if (mapl_am_i_root()) then
-!              do k=1, this%nobs_type
-!                 deallocate (this%obs(k)%lons)
-!                 deallocate (this%obs(k)%lats)
-!                 deallocate (this%obs(k)%times_R8)
-!                 if (allocated(this%obs(k)%p2d)) then
-!                    deallocate (this%obs(k)%p2d)
-!                 endif
-!                 if (allocated(this%obs(k)%p3d)) then
-!                    deallocate (this%obs(k)%p3d)
-!                 endif
-!              end do
-!           end if
+           if (mapl_am_i_root()) then
+              do k=1, this%nobs_type
+                 deallocate (this%obs(k)%lons)
+                 deallocate (this%obs(k)%lats)
+                 deallocate (this%obs(k)%times_R8)
+                 if (allocated(this%obs(k)%p2d)) then
+                    deallocate (this%obs(k)%p2d)
+                 endif
+                 if (allocated(this%obs(k)%p3d)) then
+                    deallocate (this%obs(k)%p3d)
+                 endif
+              end do
+           end if
 
 
            
@@ -1156,15 +1149,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            ! __ s3. Epoch reset
            this%epoch_index(1:2)=0
 
-           ! __ s4. regenerate LS, RH, bundles
-           call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
-           call this%create_grid(_RC)  !  setup LS_rt, LS_ds
-           call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-           this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
-           this%output_bundle = this%create_new_bundle(_RC)
-           this%acc_bundle    = this%create_new_bundle(_RC)
-
-
+           ! __ s4. regenerate LS, RH, bundles, obs(k), metadata
+           call this%reinitialize(_RC)
 
            _RETURN(ESMF_SUCCESS)
 
