@@ -8518,13 +8518,14 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc)) then
-         if(.not. value_set) then
-            rc = _FAILURE
-         else
-            rc = status
-         end if
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
+
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_scalar
 
@@ -8561,13 +8562,14 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc)) then
-         if(.not. value_set) then
-            rc = _FAILURE
-         else
-            rc = status
-         end if
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
+
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
@@ -8604,13 +8606,14 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc)) then
-         if(.not. value_set) then
-            rc = _FAILURE
-         else
-            rc = status
-         end if
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
+
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_array
 
@@ -8645,13 +8648,14 @@ contains
          value_is_set = value_set
       end if
 
-      if(present(rc)) then
-         if(.not. value_set) then
-            rc = _FAILURE
-         else
-            rc = status
-         end if
+      if(.not. value_is_set) then
+         if (present(rc)) rc = ESMF_FAILURE
+         return
       end if
+
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_array
 
