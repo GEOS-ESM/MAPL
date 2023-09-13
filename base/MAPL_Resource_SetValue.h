@@ -17,3 +17,5 @@ else
    value_is_default = .TRUE. 
 end if 
 call set_do_print(actual_label, do_print)
+
+! vim:ft=fortran

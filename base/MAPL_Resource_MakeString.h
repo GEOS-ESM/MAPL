@@ -28,10 +28,10 @@ if(do_print) then
 #endif
       formatted_value = EMPTY_STRING
       !wdb FIXME Probably don't want this to cause failure provided value is set.
-      _ASSERT(len_trim(type_format) > 0, 'Type format is empty.')
+      _ASSERT(len_trim(type_format) > 0, 'Type format is empty: ')
       write(formatted_value, type_format, iostat=io_stat) VALUE_ 
       !wdb FIXME Probably don't want this to cause failure provided value is set.
-      _ASSERT(io_stat == 0, 'Error producing formatted value')
+      _ASSERT(io_stat == 0, 'Error producing formatted value: ' // trim(actual_label) // trim(formatted_value))
 !     if(io_stat /= IO_SUCCESS) formatted_value = EMPTY_STRING
    else 
       do_print = .FALSE. 
@@ -49,3 +49,5 @@ end if
 #if defined(ARE_EQUAL)
 #undef ARE_EQUAL
 #endif
+
+! vim:ft=fortran
