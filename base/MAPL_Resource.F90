@@ -334,8 +334,6 @@ contains
          call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
       end if
 
-      value_is_set = .TRUE.
-
       _RETURN(ESMF_SUCCESS)
 
 #undef TYPE_
@@ -493,8 +491,6 @@ contains
       if(do_print) then
          call print_resource(type_string, actual_label, formatted_value, value_is_default, iunit=iunit, _RC)
       end if
-
-      value_is_set = .TRUE.
 
       _RETURN(ESMF_SUCCESS)
 

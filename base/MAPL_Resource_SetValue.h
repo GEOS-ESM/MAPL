@@ -5,11 +5,12 @@ if (label_is_present) then
 #else
    call ESMF_ConfigGetAttribute(config, VALUE_, label = actual_label, _RC) 
 #endif
-
+   value_is_set = .TRUE.
 else 
    select type(default) 
    type is(TYPE_) 
       VALUE_ = default 
+      value_is_set = .TRUE.
    class default 
    ! FIXME wdb Maybe different or no macro?
       _FAIL(MISMATCH_MESSAGE) 
