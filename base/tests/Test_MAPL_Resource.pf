@@ -23,7 +23,65 @@ module Test_MAPL_Resource
    character(len=*), parameter :: LOGIC_PREFIX = 'Logical'
    character(len=*), parameter :: DEFAU_SUFFIX = ', (default value)'
 
+   type :: varstring
+      private
+      character(len=:), allocatable :: s
+   contains
+      procedure, public, pass(this) :: get_character
+      procedure, public, pass(this) :: length
+   end type varstring
+
+   interface varstring
+      module procedure :: construct_varstring
+   end interface varstring
+   
 contains
+
+   integer function find_longest_length(a) result(length)
+      class(varstring), intent(in) :: a(:)
+      integer :: i
+
+      length = 0
+      do i= 1, size(a)
+         length = max(length, a(i) % length()
+      end do
+
+   end function find_longest_length
+
+   function make_character_array(va) result(ca)
+      class(varstring), intent(in) :: va(:)
+      character(len=:), allocatable :: ca(:)
+      integer :: i
+
+      length = find_longest_length(va)
+      allocate(character(len=find_longest_length(va)) :: ca(size(va))
+
+      do i = 1, size(ca)
+         ca(i) = va(i) % get_character()
+      end do
+
+   end function make_character_array
+
+   function construct_varstring(s) result(r)
+      character(len=*), intent(in) :: s
+      type(varstring) :: r
+
+      r % s = s
+
+   end function construct_varstring
+
+   function get_character(this) result(s)
+      class(varstring), intent(in) :: this
+      character(len=:), allocatable :: s
+
+      s = this % s
+   end function get_character
+
+   integer function length(this)
+      class(varstring), intent(in) :: this
+
+      length = len(this % get_character())
+   end function length
 
    @Test
    subroutine Test_MAPL_GetResource_scalar_int4()
@@ -310,6 +368,11 @@ contains
 
    end subroutine set_up
 
+! split string at the first delimiter (d_) into next and remainder; return both
+! if d is present, delimiter is d, otherwise delimiter is " "
+! if delimiter is empty or delimiter length > string length, return two empty strings
+! if delimiter is not found in string, next=string and remainder is empty
+! Otherwise next is the string before the delimiter, and remainder is the string after the delimiter (if any)
    subroutine split(string, next, remainder, d, merge_delimiters)
       character(len=*), intent(in) :: string
       character(len=len(string)), intent(out) :: next, remainder
@@ -335,6 +398,34 @@ contains
          end if
       end if
    end subroutine split
+
+   function split_all(string, d, merge_delimiters)
+      character(len=*), intent(in) :: string
+      character(len=*), optional, intent(in) :: d
+      logical, optional, intent(in) :: merge_delimiters
+      character(len=:), allocatable :: d_
+      type(varstring), allocatable :: p(:)
+      character(len=len(string)) :: next, remainder
+      character(len=:), allocatable :: parts(:)
+      integer :: n
+      
+      if(present(d) then
+         d_ = d
+      else
+         d_ = ' '
+      end if
+
+      allocate(p(0))
+
+      remainder = string
+      do while(len_trim(remainder) > 0)
+         call split(string, next, remainder)
+         if(len_trim(next) > 0) p = [p, varstring(next)]
+      end do
+      
+      parts = make_character_array(p)
+      
+   end function split_all
 
    function starts(substring, string) result(lval)
       logical :: lval
