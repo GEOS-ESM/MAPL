@@ -19,13 +19,13 @@
       dlout = 2*pi/ iout
       dpout =   pi/(jout-1)
 
-c Compute Input DLAM & DPHI
-c -------------------------
+! Compute Input DLAM & DPHI
+! -------------------------
       dlam_in(:) = dlin
       dphi_in(:) = dpin
 
-c Compute Output Lons & Lats
-c --------------------------
+! Compute Output Lons & Lats
+! --------------------------
       lons(1) = -pi
       do i=2,iout
       lons(i) = lons(i-1) + dlout
@@ -52,16 +52,16 @@ c --------------------------
       enddo
       enddo
 
-      call interp_hh ( qin,iin,jin,mlev,dlam_in,dphi_in,
-     .                 qout,iout*jout,lons_out,lats_out,undef, -pi )
+      call interp_hh ( qin,iin,jin,mlev,dlam_in,dphi_in, &
+           qout,iout*jout,lons_out,lats_out,undef, -pi )
 
       return
       end
 
 !.......................................................................................................
 
-      subroutine hhinterp ( qin,iin,jin,qout,iout,jout,mlev,undef,
-     .                      lons_in,lats_in )
+      subroutine hhinterp ( qin,iin,jin,qout,iout,jout,mlev,undef, &
+                            lons_in,lats_in )
       implicit   none
       integer    iin,jin,       iout,jout, mlev
       real   qin(iin,jin,mlev), qout(iout,jout,mlev) 
@@ -114,8 +114,8 @@ c --------------------------
          return
       end if
 
-c Compute Output Lons & Lats consistent with DLAM and DPHI
-c --------------------------------------------------------
+! Compute Output Lons & Lats consistent with DLAM and DPHI
+! --------------------------------------------------------
       lons_out(1) = -pi
       do i=2,iout
       lons_out(i) = lons_out(i-1) + dlout
@@ -142,8 +142,8 @@ c --------------------------------------------------------
       enddo
       enddo
 
-      call interp_hh ( qin,iin,jin,mlev,dlam,dphi, 
-     .                 qout,iout*jout,lons,lats,undef, lon_min )
+      call interp_hh ( qin,iin,jin,mlev,dlam,dphi, &
+                       qout,iout*jout,lons,lats,undef, lon_min )
 
 !     Return input to original form
 !     -----------------------------
@@ -173,40 +173,40 @@ c --------------------------------------------------------
       end subroutine myhflip2_
       end
 
-      subroutine interp_hh ( q_cmp,im,jm,lm,dlam,dphi, 
-     .                       q_geo,irun,lon_geo,lat_geo, undef, lon_min)
-C***********************************************************************
-C
-C  PURPOSE:
-C  ========
-C    Performs a horizontal interpolation from a field on a computational grid
-C    to arbitrary locations.
-C
-C  INPUT:
-C  ======
-C    q_cmp ...... Field q_cmp(im,jm,lm) on the computational grid
-C    im ......... Longitudinal dimension of q_cmp
-C    jm ......... Latitudinal  dimension of q_cmp
-C    lm ......... Vertical     dimension of q_cmp
-C    dlam ....... Computational Grid Delta Lambda
-C    dphi ....... Computational Grid Delta Phi
-C    irun ....... Number of Output Locations
-C    lon_geo .... Longitude Location of Output
-C    lat_geo .... Latitude  Location of Output
-C
-C  OUTPUT:
-C  =======
-C    q_geo ...... Field q_geo(irun,lm) at arbitrary locations
-C
-C
-C***********************************************************************
-C*                  GODDARD LABORATORY FOR ATMOSPHERES                 *
-C***********************************************************************
+      subroutine interp_hh ( q_cmp,im,jm,lm,dlam,dphi,  &
+                             q_geo,irun,lon_geo,lat_geo, undef, lon_min)
+!***********************************************************************
+!
+!  PURPOSE:
+!  ========
+!    Performs a horizontal interpolation from a field on a computational grid
+!    to arbitrary locations.
+!
+!  INPUT:
+!  ======
+!    q_cmp ...... Field q_cmp(im,jm,lm) on the computational grid
+!    im ......... Longitudinal dimension of q_cmp
+!    jm ......... Latitudinal  dimension of q_cmp
+!    lm ......... Vertical     dimension of q_cmp
+!    dlam ....... Computational Grid Delta Lambda
+!    dphi ....... Computational Grid Delta Phi
+!    irun ....... Number of Output Locations
+!    lon_geo .... Longitude Location of Output
+!    lat_geo .... Latitude  Location of Output
+!
+!  OUTPUT:
+!  =======
+!    q_geo ...... Field q_geo(irun,lm) at arbitrary locations
+!
+!
+!***********************************************************************
+!*                  GODDARD LABORATORY FOR ATMOSPHERES                 *
+!***********************************************************************
 
       implicit none
 
-c Input Variables
-c ---------------
+! Input Variables
+! ---------------
       integer im,jm,lm,irun
 
       real      q_geo(irun,lm)
@@ -219,21 +219,21 @@ c ---------------
 
       real :: lon_min
 
-c Local Variables
-c ---------------
+! Local Variables
+! ---------------
       integer  i,j,l
       integer, allocatable       :: ip1(:), ip0(:), im1(:), im2(:)
       integer, allocatable       :: jp1(:), jp0(:), jm1(:), jm2(:)
 
-c Bi-Linear Weights
-c -----------------
+! Bi-Linear Weights
+! -----------------
       real, allocatable       ::    wl_ip0jp0 (:)
       real, allocatable       ::    wl_im1jp0 (:)
       real, allocatable       ::    wl_ip0jm1 (:)
       real, allocatable       ::    wl_im1jm1 (:)
 
-c Bi-Cubic Weights
-c ----------------
+! Bi-Cubic Weights
+! ----------------
       real, allocatable       ::    wc_ip1jp1 (:)
       real, allocatable       ::    wc_ip0jp1 (:)
       real, allocatable       ::    wc_im1jp1 (:)
@@ -261,38 +261,35 @@ c ----------------
       real    pi,d
       real    lam,lam_ip1,lam_ip0,lam_im1,lam_im2
       real    phi,phi_jp1,phi_jp0,phi_jm1,phi_jm2
-      real    dl,dp
       real    lam_cmp
       real    phi_cmp
       real    undef
       integer im1_cmp,icmp
       integer jm1_cmp,jcmp
 
-c Initialization
-c --------------
+! Initialization
+! --------------
       pi = 4.*atan(1.)
-      dl = 2*pi/ im     ! Uniform Grid Delta Lambda
-      dp =   pi/(jm-1)  ! Uniform Grid Delta Phi
 
-c Allocate Memory for Weights and Index Locations
-c -----------------------------------------------
+! Allocate Memory for Weights and Index Locations
+! -----------------------------------------------
       allocate ( wl_ip0jp0(irun) , wl_im1jp0(irun) )
       allocate ( wl_ip0jm1(irun) , wl_im1jm1(irun) )
-      allocate ( wc_ip1jp1(irun) , wc_ip0jp1(irun) , 
-     .  wc_im1jp1(irun) , wc_im2jp1(irun) )
-      allocate ( wc_ip1jp0(irun) , wc_ip0jp0(irun) ,
-     .  wc_im1jp0(irun) , wc_im2jp0(irun) )
-      allocate ( wc_ip1jm1(irun) , wc_ip0jm1(irun) ,
-     .  wc_im1jm1(irun) , wc_im2jm1(irun) )
-      allocate ( wc_ip1jm2(irun) , wc_ip0jm2(irun) ,
-     .  wc_im1jm2(irun) , wc_im2jm2(irun) )
-      allocate (       ip1(irun) ,       ip0(irun) ,
-     .        im1(irun) ,       im2(irun) )
-      allocate (       jp1(irun) ,       jp0(irun) ,
-     .        jm1(irun) ,       jm2(irun) )
+      allocate ( wc_ip1jp1(irun) , wc_ip0jp1(irun) , &
+       wc_im1jp1(irun) , wc_im2jp1(irun) )
+      allocate ( wc_ip1jp0(irun) , wc_ip0jp0(irun) , &
+       wc_im1jp0(irun) , wc_im2jp0(irun) )
+      allocate ( wc_ip1jm1(irun) , wc_ip0jm1(irun) , &
+       wc_im1jm1(irun) , wc_im2jm1(irun) )
+      allocate ( wc_ip1jm2(irun) , wc_ip0jm2(irun) , &
+       wc_im1jm2(irun) , wc_im2jm2(irun) )
+      allocate (       ip1(irun) ,       ip0(irun) , &
+             im1(irun) ,       im2(irun) )
+      allocate (       jp1(irun) ,       jp0(irun) , &
+             jm1(irun) ,       jm2(irun) )
 
-c Compute Input Computational-Grid Latitude and Longitude Locations
-c -----------------------------------------------------------------
+! Compute Input Computational-Grid Latitude and Longitude Locations
+! -----------------------------------------------------------------
       lon_cmp(1) = lon_min   ! user supplied orign
       do i=2,im
       lon_cmp(i) = lon_cmp(i-1) + dlam(i-1)
@@ -303,14 +300,14 @@ c -----------------------------------------------------------------
       enddo
       lat_cmp(jm) =  pi*0.5
 
-c Compute Weights for Computational to Geophysical Grid Interpolation
-c -------------------------------------------------------------------
+! Compute Weights for Computational to Geophysical Grid Interpolation
+! -------------------------------------------------------------------
       do i=1,irun
       lam_cmp = lon_geo(i)
       phi_cmp = lat_geo(i)
 
-c Determine Indexing Based on Computational Grid
-c ----------------------------------------------
+! Determine Indexing Based on Computational Grid
+! ----------------------------------------------
       im1_cmp = 1
       do icmp = 2,im
       if( lon_cmp(icmp).lt.lam_cmp ) im1_cmp = icmp
@@ -330,8 +327,8 @@ c ----------------------------------------------
       jp1(i) = jp0(i) + 1
       jm2(i) = jm1(i) - 1
 
-c Fix Longitude Index Boundaries
-c ------------------------------
+! Fix Longitude Index Boundaries
+! ------------------------------
       if(im1(i).eq.im) then
       ip0(i) = 1
       ip1(i) = 2
@@ -344,13 +341,13 @@ c ------------------------------
       endif
 
 
-c Compute Immediate Surrounding Coordinates
-c -----------------------------------------
+! Compute Immediate Surrounding Coordinates
+! -----------------------------------------
       lam     =  lam_cmp
       phi     =  phi_cmp
 
-c Compute and Adjust Longitude Weights
-c ------------------------------------
+! Compute and Adjust Longitude Weights
+! ------------------------------------
       lam_im2 =  lon_cmp(im2(i))
       lam_im1 =  lon_cmp(im1(i))
       lam_ip0 =  lon_cmp(ip0(i))
@@ -362,9 +359,9 @@ c ------------------------------------
       if( lam_ip0.gt.lam_ip1 ) lam_ip1 = lam_ip1 + 2*pi
 
 
-c Compute and Adjust Latitude Weights   
-c Note:  Latitude Index Boundaries are Adjusted during Interpolation
-c ------------------------------------------------------------------
+! Compute and Adjust Latitude Weights   
+! Note:  Latitude Index Boundaries are Adjusted during Interpolation
+! ------------------------------------------------------------------
           phi_jm1 =  lat_cmp(jm1(i))
 
       if( jm2(i).eq.0 ) then
@@ -386,33 +383,33 @@ c ------------------------------------------------------------------
       endif
 
 
-c Bi-Linear Weights
-c -----------------
+! Bi-Linear Weights
+! -----------------
               d    = (lam_ip0-lam_im1)*(phi_jp0-phi_jm1)
       wl_im1jm1(i) = (lam_ip0-lam    )*(phi_jp0-phi    )/d
       wl_ip0jm1(i) = (lam    -lam_im1)*(phi_jp0-phi    )/d
       wl_im1jp0(i) = (lam_ip0-lam    )*(phi    -phi_jm1)/d
       wl_ip0jp0(i) = (lam    -lam_im1)*(phi    -phi_jm1)/d
 
-c Bi-Cubic Weights
-c ----------------
-      ap1 = ( (lam    -lam_ip0)*(lam    -lam_im1)*(lam    -lam_im2) )
-     .    / ( (lam_ip1-lam_ip0)*(lam_ip1-lam_im1)*(lam_ip1-lam_im2) )
-      ap0 = ( (lam_ip1-lam    )*(lam    -lam_im1)*(lam    -lam_im2) )
-     .    / ( (lam_ip1-lam_ip0)*(lam_ip0-lam_im1)*(lam_ip0-lam_im2) )
-      am1 = ( (lam_ip1-lam    )*(lam_ip0-lam    )*(lam    -lam_im2) )
-     .    / ( (lam_ip1-lam_im1)*(lam_ip0-lam_im1)*(lam_im1-lam_im2) )
-      am2 = ( (lam_ip1-lam    )*(lam_ip0-lam    )*(lam_im1-lam    ) )
-     .    / ( (lam_ip1-lam_im2)*(lam_ip0-lam_im2)*(lam_im1-lam_im2) )
+! Bi-Cubic Weights
+! ----------------
+      ap1 = ( (lam    -lam_ip0)*(lam    -lam_im1)*(lam    -lam_im2) ) &
+          / ( (lam_ip1-lam_ip0)*(lam_ip1-lam_im1)*(lam_ip1-lam_im2) )
+      ap0 = ( (lam_ip1-lam    )*(lam    -lam_im1)*(lam    -lam_im2) ) &
+          / ( (lam_ip1-lam_ip0)*(lam_ip0-lam_im1)*(lam_ip0-lam_im2) )
+      am1 = ( (lam_ip1-lam    )*(lam_ip0-lam    )*(lam    -lam_im2) ) &
+          / ( (lam_ip1-lam_im1)*(lam_ip0-lam_im1)*(lam_im1-lam_im2) )
+      am2 = ( (lam_ip1-lam    )*(lam_ip0-lam    )*(lam_im1-lam    ) ) &
+          / ( (lam_ip1-lam_im2)*(lam_ip0-lam_im2)*(lam_im1-lam_im2) )
 
-      bp1 = ( (phi    -phi_jp0)*(phi    -phi_jm1)*(phi    -phi_jm2) )
-     .    / ( (phi_jp1-phi_jp0)*(phi_jp1-phi_jm1)*(phi_jp1-phi_jm2) )
-      bp0 = ( (phi_jp1-phi    )*(phi    -phi_jm1)*(phi    -phi_jm2) )
-     .    / ( (phi_jp1-phi_jp0)*(phi_jp0-phi_jm1)*(phi_jp0-phi_jm2) )
-      bm1 = ( (phi_jp1-phi    )*(phi_jp0-phi    )*(phi    -phi_jm2) )
-     .    / ( (phi_jp1-phi_jm1)*(phi_jp0-phi_jm1)*(phi_jm1-phi_jm2) )
-      bm2 = ( (phi_jp1-phi    )*(phi_jp0-phi    )*(phi_jm1-phi    ) )
-     .    / ( (phi_jp1-phi_jm2)*(phi_jp0-phi_jm2)*(phi_jm1-phi_jm2) )
+      bp1 = ( (phi    -phi_jp0)*(phi    -phi_jm1)*(phi    -phi_jm2) ) &
+          / ( (phi_jp1-phi_jp0)*(phi_jp1-phi_jm1)*(phi_jp1-phi_jm2) )
+      bp0 = ( (phi_jp1-phi    )*(phi    -phi_jm1)*(phi    -phi_jm2) ) &
+          / ( (phi_jp1-phi_jp0)*(phi_jp0-phi_jm1)*(phi_jp0-phi_jm2) )
+      bm1 = ( (phi_jp1-phi    )*(phi_jp0-phi    )*(phi    -phi_jm2) ) &
+          / ( (phi_jp1-phi_jm1)*(phi_jp0-phi_jm1)*(phi_jm1-phi_jm2) )
+      bm2 = ( (phi_jp1-phi    )*(phi_jp0-phi    )*(phi_jm1-phi    ) ) &
+          / ( (phi_jp1-phi_jm2)*(phi_jp0-phi_jm2)*(phi_jm1-phi_jm2) )
 
       wc_ip1jp1(i) = bp1*ap1
       wc_ip0jp1(i) = bp1*ap0
@@ -436,25 +433,25 @@ c ----------------
 
       enddo
 
-c Interpolate Computational-Grid Quantities to Geophysical Grid
-c -------------------------------------------------------------
+! Interpolate Computational-Grid Quantities to Geophysical Grid
+! -------------------------------------------------------------
       do L=1,lm
       do i=1,irun
 
-      if( lat_geo(i).le.lat_cmp(2)     .or. 
-     .    lat_geo(i).ge.lat_cmp(jm-1) ) then
+      if( lat_geo(i).le.lat_cmp(2)     .or. &
+          lat_geo(i).ge.lat_cmp(jm-1) ) then
 
-c 1st Order Interpolation at Poles
-c --------------------------------
-      if( q_cmp( im1(i),jm1(i),L ).ne.undef  .and.
-     .    q_cmp( ip0(i),jm1(i),L ).ne.undef  .and.
-     .    q_cmp( im1(i),jp0(i),L ).ne.undef  .and.
-     .    q_cmp( ip0(i),jp0(i),L ).ne.undef ) then
+! 1st Order Interpolation at Poles
+! --------------------------------
+      if( q_cmp( im1(i),jm1(i),L ).ne.undef  .and. &
+          q_cmp( ip0(i),jm1(i),L ).ne.undef  .and. &
+          q_cmp( im1(i),jp0(i),L ).ne.undef  .and. &
+          q_cmp( ip0(i),jp0(i),L ).ne.undef ) then
 
-      q_tmp(i) = wl_im1jm1(i) * q_cmp( im1(i),jm1(i),L )
-     .         + wl_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L )
-     .         + wl_im1jp0(i) * q_cmp( im1(i),jp0(i),L )
-     .         + wl_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L )
+      q_tmp(i) = wl_im1jm1(i) * q_cmp( im1(i),jm1(i),L ) &
+               + wl_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L ) &
+               + wl_im1jp0(i) * q_cmp( im1(i),jp0(i),L ) &
+               + wl_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L )
 
       else
       q_tmp(i) = undef
@@ -462,57 +459,57 @@ c --------------------------------
 
       else
 
-c Cubic Interpolation away from Poles
-c -----------------------------------
-      if( q_cmp( ip1(i),jp0(i),L ).ne.undef  .and.
-     .    q_cmp( ip0(i),jp0(i),L ).ne.undef  .and.
-     .    q_cmp( im1(i),jp0(i),L ).ne.undef  .and.
-     .    q_cmp( im2(i),jp0(i),L ).ne.undef  .and.
+! Cubic Interpolation away from Poles
+! -----------------------------------
+      if( q_cmp( ip1(i),jp0(i),L ).ne.undef  .and. &
+          q_cmp( ip0(i),jp0(i),L ).ne.undef  .and. &
+          q_cmp( im1(i),jp0(i),L ).ne.undef  .and. &
+          q_cmp( im2(i),jp0(i),L ).ne.undef  .and. &
 
-     .    q_cmp( ip1(i),jm1(i),L ).ne.undef  .and.
-     .    q_cmp( ip0(i),jm1(i),L ).ne.undef  .and.
-     .    q_cmp( im1(i),jm1(i),L ).ne.undef  .and.
-     .    q_cmp( im2(i),jm1(i),L ).ne.undef  .and.
+          q_cmp( ip1(i),jm1(i),L ).ne.undef  .and. &
+          q_cmp( ip0(i),jm1(i),L ).ne.undef  .and. &
+          q_cmp( im1(i),jm1(i),L ).ne.undef  .and. &
+          q_cmp( im2(i),jm1(i),L ).ne.undef  .and. &
 
-     .    q_cmp( ip1(i),jp1(i),L ).ne.undef  .and.
-     .    q_cmp( ip0(i),jp1(i),L ).ne.undef  .and.
-     .    q_cmp( im1(i),jp1(i),L ).ne.undef  .and.
-     .    q_cmp( im2(i),jp1(i),L ).ne.undef  .and.
+          q_cmp( ip1(i),jp1(i),L ).ne.undef  .and. &
+          q_cmp( ip0(i),jp1(i),L ).ne.undef  .and. &
+          q_cmp( im1(i),jp1(i),L ).ne.undef  .and. &
+          q_cmp( im2(i),jp1(i),L ).ne.undef  .and. &
 
-     .    q_cmp( ip1(i),jm2(i),L ).ne.undef  .and.
-     .    q_cmp( ip0(i),jm2(i),L ).ne.undef  .and.
-     .    q_cmp( im1(i),jm2(i),L ).ne.undef  .and.
-     .    q_cmp( im2(i),jm2(i),L ).ne.undef ) then
+          q_cmp( ip1(i),jm2(i),L ).ne.undef  .and. &
+          q_cmp( ip0(i),jm2(i),L ).ne.undef  .and. &
+          q_cmp( im1(i),jm2(i),L ).ne.undef  .and. &
+          q_cmp( im2(i),jm2(i),L ).ne.undef ) then
 
-      q_tmp(i) = wc_ip1jp1(i) * q_cmp( ip1(i),jp1(i),L )
-     .         + wc_ip0jp1(i) * q_cmp( ip0(i),jp1(i),L )
-     .         + wc_im1jp1(i) * q_cmp( im1(i),jp1(i),L )
-     .         + wc_im2jp1(i) * q_cmp( im2(i),jp1(i),L )
+      q_tmp(i) = wc_ip1jp1(i) * q_cmp( ip1(i),jp1(i),L ) &
+               + wc_ip0jp1(i) * q_cmp( ip0(i),jp1(i),L ) &
+               + wc_im1jp1(i) * q_cmp( im1(i),jp1(i),L ) &
+               + wc_im2jp1(i) * q_cmp( im2(i),jp1(i),L ) &
+  
+               + wc_ip1jp0(i) * q_cmp( ip1(i),jp0(i),L ) &
+               + wc_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L ) &
+               + wc_im1jp0(i) * q_cmp( im1(i),jp0(i),L ) &
+               + wc_im2jp0(i) * q_cmp( im2(i),jp0(i),L ) &
+  
+               + wc_ip1jm1(i) * q_cmp( ip1(i),jm1(i),L ) &
+               + wc_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L ) &
+               + wc_im1jm1(i) * q_cmp( im1(i),jm1(i),L ) &
+               + wc_im2jm1(i) * q_cmp( im2(i),jm1(i),L ) &
+  
+               + wc_ip1jm2(i) * q_cmp( ip1(i),jm2(i),L ) &
+               + wc_ip0jm2(i) * q_cmp( ip0(i),jm2(i),L ) &
+               + wc_im1jm2(i) * q_cmp( im1(i),jm2(i),L ) &
+               + wc_im2jm2(i) * q_cmp( im2(i),jm2(i),L )
 
-     .         + wc_ip1jp0(i) * q_cmp( ip1(i),jp0(i),L )
-     .         + wc_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L )
-     .         + wc_im1jp0(i) * q_cmp( im1(i),jp0(i),L )
-     .         + wc_im2jp0(i) * q_cmp( im2(i),jp0(i),L )
+      elseif( q_cmp( im1(i),jm1(i),L ).ne.undef  .and. &
+              q_cmp( ip0(i),jm1(i),L ).ne.undef  .and. &
+              q_cmp( im1(i),jp0(i),L ).ne.undef  .and. &
+              q_cmp( ip0(i),jp0(i),L ).ne.undef ) then
 
-     .         + wc_ip1jm1(i) * q_cmp( ip1(i),jm1(i),L )
-     .         + wc_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L )
-     .         + wc_im1jm1(i) * q_cmp( im1(i),jm1(i),L )
-     .         + wc_im2jm1(i) * q_cmp( im2(i),jm1(i),L )
-
-     .         + wc_ip1jm2(i) * q_cmp( ip1(i),jm2(i),L )
-     .         + wc_ip0jm2(i) * q_cmp( ip0(i),jm2(i),L )
-     .         + wc_im1jm2(i) * q_cmp( im1(i),jm2(i),L )
-     .         + wc_im2jm2(i) * q_cmp( im2(i),jm2(i),L )
-
-      elseif( q_cmp( im1(i),jm1(i),L ).ne.undef  .and.
-     .        q_cmp( ip0(i),jm1(i),L ).ne.undef  .and.
-     .        q_cmp( im1(i),jp0(i),L ).ne.undef  .and.
-     .        q_cmp( ip0(i),jp0(i),L ).ne.undef ) then
-
-      q_tmp(i) = wl_im1jm1(i) * q_cmp( im1(i),jm1(i),L )
-     .         + wl_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L )
-     .         + wl_im1jp0(i) * q_cmp( im1(i),jp0(i),L )
-     .         + wl_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L )
+      q_tmp(i) = wl_im1jm1(i) * q_cmp( im1(i),jm1(i),L ) &
+               + wl_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L ) &
+               + wl_im1jp0(i) * q_cmp( im1(i),jp0(i),L ) &
+               + wl_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L )
 
       else
       q_tmp(i) = undef
@@ -521,8 +518,8 @@ c -----------------------------------
       endif
       enddo
 
-c Load Temp array into Output array
-c ---------------------------------
+! Load Temp array into Output array
+! ---------------------------------
       do i=1,irun
       q_geo(i,L) = q_tmp(i)
       enddo

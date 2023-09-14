@@ -201,13 +201,12 @@ contains
 
       integer :: i_var
       !integer :: i
-      integer :: lat0, lat1, nlats
+      integer :: lat0, lat1
       integer :: collection_id
       !character(len=4) :: tmp    
  
       lat0 = 1 + (this%rank*this%nlat)/this%npes
       lat1 = (this%rank+1)*this%nlat/this%npes
-      nlats = (lat1 - lat0 + 1)
 
       ! Establish the collection
       ! In a real use case the collection name would be the ExtData template.
@@ -264,7 +263,6 @@ contains
 end module FakeExtDataMod_server
 
 program main
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
    use server_demo_CLI
@@ -281,7 +279,8 @@ program main
    integer, parameter :: SERVER_COLOR = 1
    integer, parameter :: CLIENT_COLOR = 2
 
-   integer :: comm,num_threads
+   integer :: comm
+!C$   integer :: num_threads
    type (FakeExtData), target :: extData
    class(AbstractDirectoryService), pointer :: d_s=>null()
 
@@ -301,7 +300,7 @@ program main
 
    call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm, ierror)
 
-   num_threads = 20
+!C$   num_threads = 20
    allocate(d_s, source = DirectoryService(MPI_COMM_WORLD))
 
    if (color == SERVER_COLOR) then

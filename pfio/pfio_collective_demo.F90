@@ -115,6 +115,7 @@ contains
 end module collective_demo_CLI
 
 module FakeExtDataMod_collective
+   use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
    use collective_demo_CLI
    use pFIO
@@ -203,15 +204,15 @@ contains
       type (ArrayReference) :: ref
 
       integer :: i_var,i
-      integer :: lat0, lat1, nlats
+      integer :: lat0, lat1
       integer :: collection_id
       character(len=5) :: tmp
-      integer :: c1,c2,num_request
+      integer(kind=INT64) :: c1,c2
+      integer :: num_request
       integer,allocatable :: request_ids(:,:)
 
       lat0 = 1 + (this%rank*this%nlat)/this%npes
       lat1 = (this%rank+1)*this%nlat/this%npes
-      nlats = (lat1 - lat0 + 1)
 
       ! Establish the collection
       ! In a real use case the collection name would be the ExtData template.
@@ -293,7 +294,6 @@ contains
 end module FakeExtDataMod_collective
 
 program main
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
    use MAPL_ExceptionHandling
@@ -312,7 +312,8 @@ program main
    integer, parameter :: CLIENT_COLOR = 2
    integer, parameter :: BOTH_COLOR   = 3
 
-   integer :: comm,num_threads
+   integer :: comm
+!$   integer :: num_threads
    type (FakeExtData), target :: extData
 
    required = MPI_THREAD_MULTIPLE

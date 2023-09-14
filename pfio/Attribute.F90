@@ -121,7 +121,7 @@ module pFIO_StringAttributeMapUtilMod
 contains
 
     subroutine StringAttributeMap_serialize(map,buffer, rc)
-       type (StringAttributeMap) ,intent(in):: map
+       type (StringAttributeMap), target, intent(in):: map
        integer, allocatable,intent(inout) :: buffer(:)
        integer, optional, intent(out) :: rc
 

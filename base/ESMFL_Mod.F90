@@ -40,7 +40,7 @@ module ESMFL_MOD
   private
 
 !
-!ALT These need to be changed 
+!ALT These need to be changed
 !    values here are just to compile
 !
 
@@ -1138,7 +1138,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !>
 ! Given a `srcFLD` and its associated `3dGrid` and a `dstFLD` and its associated
-! `3DGrid`, the subroutine `ESMFL_RegridStore` creates their corresponding 
+! `3DGrid`, the subroutine `ESMFL_RegridStore` creates their corresponding
 ! `2DGrids` and a 2D routehandle.
 !
 !#### History
@@ -1641,7 +1641,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
 !>
-! The subroutine `BundleRegrid1` 
+! The subroutine `BundleRegrid1`
 ! regrids members of a bundle using ESMF_FieldRegrid.
 !
 !#### History
@@ -1852,11 +1852,11 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !- 24Apr2006  Cruz  Initial code.
 !
    subroutine BundleRegrid (srcBUN, dstBUN, rc)
-!      
+!
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout)      :: srcBUN !! source bundle
    type(ESMF_FieldBundle), intent(inout)      :: dstBUN !! destination bundle
    integer, optional, intent(out)             :: rc     !! return code
@@ -2151,7 +2151,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
 !>
-! The subroutine `assign_slices_` 
+! The subroutine `assign_slices_`
 ! determines number of bundle slices per PE and "load balanced"
 ! map of slices-to-pes (slice_pe).
 !
@@ -3001,7 +3001,7 @@ CONTAINS
         character(*), intent(in) :: atype       ! Type of the variable
         character(*), intent(in) :: htype       ! Typf of the levels
         real amiss              ! missing value flag of a
-        character*(*) header    ! A header message
+        character(len=*) header    ! A header message
         integer inc             ! order of the listing
         real,optional :: a2(mx,my)        ! The array2
 !
@@ -3019,7 +3019,7 @@ CONTAINS
         real rfrcval
         parameter(rfrcval=1.e-5)
 
-        character*255 dash
+        character(len=255) dash
 
 !       ..function
 
@@ -3143,7 +3143,7 @@ CONTAINS
 !-------------------------------------------------------------------------
 !>
 ! Determine the diff of two state.
-! 
+!
 !#### History
 !- 19Apr2006  Cruz  Initial code.
 !
@@ -4351,7 +4351,7 @@ CONTAINS
      else
         _FAIL("Unsupported rank when checking for undef")
      end if
-    
+
      _RETURN(_SUCCESS)
   end function
 

@@ -16,6 +16,7 @@ module MAPL_CommsMod
   use MAPL_ShmemMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
+  use mpi
   implicit none
   private
 
@@ -233,8 +234,6 @@ module MAPL_CommsMod
      module procedure ArrayGatherRcvCnt_I4_1
      module procedure ArrayGatherRcvCnt_R4_1
   end interface
-
-  include "mpif.h"
 
   integer, parameter :: MAPL_root=0
   integer, parameter :: msg_tag=11
@@ -746,7 +745,7 @@ module MAPL_CommsMod
 
     type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
-    integer                       :: NumCores, Nnodes
+    integer                       :: Nnodes
     integer                       :: nn
     integer                       :: LM, L, nc, npes, mype, dims(5)
     type(ESMF_VM)                 :: VM
@@ -762,12 +761,6 @@ module MAPL_CommsMod
     call ESMF_VMGet(VM, petcount=npes, localpet=MYPE, mpiCommunicator=comm, RC=STATUS)
     _VERIFY(STATUS)
 
-    if(present(CoresPerNode)) then
-       NumCores = CoresPerNode
-    else
-       NumCores = MAPL_CoresPerNodeGet(comm,rc=status)
-       _VERIFY(STATUS)
-    end if
 
     LM     = size(LocArray,3)
 
@@ -816,7 +809,8 @@ module MAPL_CommsMod
     end do
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_CollectiveGather3D
+     _UNUSED_DUMMY(corespernode)
+ end subroutine MAPL_CollectiveGather3D
 
 
   subroutine MAPL_CollectiveScatter3D(Grid, GlobArray, LocArray, hw, rc)

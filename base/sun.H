@@ -44,9 +44,9 @@
       integer :: nits
 
 !     Begin
-      
+
       _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
-      
+
       ! which time mode?
       if (present(TIME)) then
          TIME_ = TIME
@@ -76,7 +76,7 @@
       ZTP = 0.
 
       ! analytic two-body currently only works with TIME_=0 currently
-      _ASSERT(.NOT.(ORBIT%ANAL2B.AND.TIME_/=0),'analytic two-body orbit currently requires TIME_=0') 
+      _ASSERT(.NOT.(ORBIT%ANAL2B.AND.TIME_/=0),'analytic two-body orbit currently requires TIME_=0')
 
       MEAN_OR_INST: if(.not.present(INTV) .or. TIME_==MAPL_SunDailyMean &
                        .or.  TIME_==MAPL_SunAnnualMean) then
@@ -108,8 +108,8 @@
             ! pmn: EOT will just displace sunlit period wrt mean noon,
             !      but the daily mean values will not change
 
-            _FAIL('pmn: MAPL_SunDailyMean probably in error!') 
-            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit') 
+            _FAIL('pmn: MAPL_SunDailyMean probably in error!')
+            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit')
 
             SLR  = sin(LATS)*ORBIT%ZS(IDAY)
             ZTH  = cos(LATS)*ORBIT%ZC(IDAY)
@@ -139,7 +139,7 @@
                ZTH = 0.0
             endwhere
 
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunDailyMean') 
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunDailyMean')
 
          case(MAPL_SunAnnualMean)
 
@@ -149,8 +149,8 @@
             !     its a mean over the whole currently fixed 4-year cycle.
 
             ! see above
-            _FAIL('pmn: MAPL_SunAnnualMean probably in error!') 
-            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit') 
+            _FAIL('pmn: MAPL_SunAnnualMean probably in error!')
+            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit')
 
             SLR  = 0.0
             ZTH  = 0.0
@@ -171,18 +171,18 @@
                ZTH = ZTH + ZTT
             end do
 
-            SLR = SLR / float(ORBIT%DAYS_PER_CYCLE)
-            ZTH = ZTH / float(ORBIT%DAYS_PER_CYCLE)
+            SLR = SLR / real(ORBIT%DAYS_PER_CYCLE)
+            ZTH = ZTH / real(ORBIT%DAYS_PER_CYCLE)
 
             if(present(DIST)) DIST = 1.0
 
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunAnnualMean') 
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunAnnualMean')
 
          case (0,                       &
-               MAPL_SunAutumnalEquinox, & 
-               MAPL_SunWinterSolstice , & 
-               MAPL_SunVernalEquinox  , & 
-               MAPL_SunSummerSolstice   ) 
+               MAPL_SunAutumnalEquinox, &
+               MAPL_SunWinterSolstice , &
+               MAPL_SunVernalEquinox  , &
+               MAPL_SunSummerSolstice   )
 
             ! Greenwich MEAN solar hour angle OFFSET by PI
             ! (since FAC is zero at mignight)
@@ -303,7 +303,7 @@
 !      at TOA, which is then divided through by again at the end of REFRESH
 !      to get the required NORMALIZED fluxes. So this is probably only a small
 !      non-linear effect. In the solar UPDATE_EXPORT() at the heartbeat the
-!      normalized fluxes are always re-multiplied by SLR, and so the SLR 
+!      normalized fluxes are always re-multiplied by SLR, and so the SLR
 !      values below will be used directly (without reference to DIST.)
 
          case(10)

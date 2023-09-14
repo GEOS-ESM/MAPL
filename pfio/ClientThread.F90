@@ -33,7 +33,6 @@ module pFIO_ClientThreadMod
    use pFIO_ReplaceMetadataMessageMod
    use pFIO_StringVariableMapMod
 
-   use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
 
@@ -139,7 +138,6 @@ contains
 
       class (AbstractMessage), pointer :: message
       class(AbstractSocket), pointer :: connection
-      integer :: status
 
       connection=>this%get_connection()
       call connection%send(AddHistCollectionMessage(fmd, mode=mode))
@@ -153,6 +151,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function add_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
@@ -305,7 +304,7 @@ contains
 
    function collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc) result(request_id)
-      class (ClientThread), intent(inout) :: this
+      class (ClientThread), target, intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
       character(len=*), intent(in) :: var_name
@@ -356,7 +355,6 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
-      integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()

@@ -78,7 +78,6 @@ module MAPL_AbstractMeterNode
 
       logical function i_has_child(this, name)
          import AbstractMeterNode
-         class(AbstractMeterNode), pointer :: children
          class(AbstractMeterNode), target, intent(in) :: this
          character(*), intent(in) :: name
       end function i_has_child

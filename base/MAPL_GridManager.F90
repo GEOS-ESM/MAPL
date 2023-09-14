@@ -17,7 +17,6 @@ module MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    implicit none
    private
 
@@ -130,7 +129,6 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type (LatLonGridFactory) :: latlon_factory
       type (CubedSphereGridFactory) :: cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
@@ -146,8 +144,6 @@ contains
       ! with a shared state variable with avoiding a shared state vartiable.
       logical, save :: initialized = .false.
 
-      _UNUSED_DUMMY(unusable)
-
       ! intialized check prevents adding same items twice
       if (.not. initialized) then
          call this%prototypes%insert('LatLon', latlon_factory)
@@ -162,6 +158,7 @@ contains
 
       _RETURN(_SUCCESS)
 
+      _UNUSED_DUMMY(unusable)
    end subroutine initialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
@@ -489,7 +486,7 @@ contains
       
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: file_formatter
-      integer :: im, jm, nf
+      integer :: im, jm
       
       character(len=*), parameter :: Iam= MOD_NAME // 'make_factory_from_file()'
       integer :: status
@@ -559,8 +556,7 @@ contains
             if (jm == 6*im .or. splitByface) then 
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
-               nf = file_metadata%get_dimension('nf',rc=status)
-               if (status == _SUCCESS) then
+               if (file_metadata%has_dimension('nf')) then
                   allocate(factory, source=this%make_clone('Cubed-Sphere'))
                end if
             end if
@@ -603,7 +599,6 @@ module MAPL_GridManagerMod
    use MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    use ESMF
    implicit none
    private

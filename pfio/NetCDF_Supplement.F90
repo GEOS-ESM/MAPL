@@ -8,12 +8,13 @@ module pfio_NetCDF_Supplement
 
    public :: pfio_get_att_string
    interface
-      function c_f_pfio_get_att_string(ncid, name, string, attlen) &
+      function c_f_pfio_get_att_string(ncid, varid, name, string, attlen) &
            & result(stat) bind(C, name='pfio_get_att_string')
          use, intrinsic :: iso_c_binding
          implicit none
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
+         integer(kind=C_INT), value, intent(in) :: varid
          character(kind=C_CHAR), intent(in) :: name(*)
          character(kind=C_CHAR), intent(inout) :: string(*)
          integer(kind=C_INT), intent(inout) :: attlen
@@ -22,12 +23,13 @@ module pfio_NetCDF_Supplement
 
 contains
 
-   function pfio_get_att_string(ncid, name, string) result(status)
+   function pfio_get_att_string(ncid, varid, name, string) result(status)
       integer :: status
       integer(kind=C_INT), intent(in) :: ncid
+      integer(kind=C_INT), intent(in) :: varid
       character(*), intent(in) :: name
       character(:), allocatable, intent(out) :: string
-      
+
       integer :: name_len
       integer(kind=C_INT),target :: attlen
       character(kind=C_CHAR, len=:), target, allocatable :: c_name
@@ -40,7 +42,7 @@ contains
       c_name(name_len+1:name_len+1) = C_NULL_CHAR
       tmp_str = ''
       ! This c-call would fill tmp_str with the global attribute
-      status = c_f_pfio_get_att_string(ncid, c_name, tmp_str, attlen)
+      status = c_f_pfio_get_att_string(ncid, varid, c_name, tmp_str, attlen)
       allocate(character(len=attlen) :: string)
       string = trim(tmp_str)
       deallocate(c_name)

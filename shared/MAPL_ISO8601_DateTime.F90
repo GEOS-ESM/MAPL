@@ -339,7 +339,7 @@ contains
       character(len=len(string)) :: undelimited
       integer :: i
       integer :: j
-      
+
       undelimited = ''
       j = 0
       do i=1,len(string)
@@ -564,7 +564,7 @@ contains
       integer, parameter :: MSTOP  = 4
       integer, parameter :: SSTART = 5
       integer, parameter :: SSTOP  = 6
-      integer, parameter :: MS_START = 7 
+      integer, parameter :: MS_START = 7
       integer, parameter :: MS_STOP  = 9
       logical :: has_millisecond
       integer :: pos
@@ -586,7 +586,7 @@ contains
          fields%is_valid_ = .FALSE.
          return
       end if
-      
+
       ! Find timezone portion
       pos = scan(timestring, '-Z+')
 
@@ -642,7 +642,7 @@ contains
 
       if(.not. fields%is_valid_) return
 
-      ! Read time fields      
+      ! Read time fields
       fields%hour_ = read_whole_number(undelimited(HSTART:HSTOP))
       fields%minute_ = read_whole_number(undelimited(MSTART:MSTOP))
       fields%second_ = read_whole_number(undelimited(SSTART:SSTOP))
@@ -665,7 +665,6 @@ contains
       integer, intent(out) :: rc
       type(ISO8601Date) :: date
       type(date_fields) :: fields
-      integer :: status
       fields = parse_date(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          date%year_ = fields%year_
@@ -681,7 +680,6 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Time) :: time
       type(time_fields) :: fields
-      integer :: status
       fields = parse_time(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          time%hour_ = fields%hour_
@@ -735,15 +733,15 @@ contains
 
       ! Check indices and first character is 'P'
       successful = ((imin > 0) .and. (imax <= len(isostring)) .and. &
-         (imin <= imax) .and. (isostring(imin:imin) == 'P')) 
+         (imin <= imax) .and. (isostring(imin:imin) == 'P'))
 
       pos = imin + 1
 
       ! This do loop reads a character at a time, digit and nondigit.
       ! A field string consists of digits forming an integer n followed by
-      ! a field character. A field character must be preceded by an integer. 
+      ! a field character. A field character must be preceded by an integer.
       ! A field character indicates that the preceding digit characters
-      ! should be processed as values for the corresponding field. 
+      ! should be processed as values for the corresponding field.
       ! The field characters are:
       !  Y(ear)
       !  M(onth)
@@ -760,12 +758,12 @@ contains
          c = isostring(pos:pos)
          if(time_found) then
             ! Once the time is found, M should be processed as M(inute).
-            select case(c) 
+            select case(c)
                case('H')
                   ! Verify the field or preceding fields have not been set.
                   ! Then process the preceding digit character as an integer.
                   ! Once processed reset the istart index to start processing
-                  ! digits. The same logic applies for each case below. 
+                  ! digits. The same logic applies for each case below.
                   if(hours >= 0 .or. minutes >= 0 .or. &
                      seconds >= 0 .or. istart < 1) cycle
                   hours = read_whole_number_indexed(isostring, istart, istop)
@@ -801,7 +799,7 @@ contains
                   if(years >= 0 .or. months >= 0 .or. &
                      days >= 0 .or. istart < 1) cycle
                   years = read_whole_number_indexed(isostring, istart, istop)
-                  if(years < 0) cycle 
+                  if(years < 0) cycle
                   istart = 0
                case('M')
                   if(months >= 0 .or. days >= 0 .or. istart < 1) cycle

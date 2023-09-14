@@ -2,16 +2,9 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
-   use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
    use MAPL_Profiler
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
-   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
@@ -252,7 +245,7 @@ contains
    end subroutine update_status
 
    subroutine clean_up(this, rc)
-      class(AbstractServer),target, intent(inout) :: this
+      class(AbstractServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
 
@@ -316,12 +309,14 @@ contains
      integer, optional, intent(out) :: rc
 
      _FAIL(" no action of receive_output_data")
+     _UNUSED_DUMMY(this)
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
      _FAIL(" no action of server_put_DataToFile")
+     _UNUSED_DUMMY(this)
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this,multi, rc)
@@ -329,6 +324,7 @@ contains
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
      _FAIL(" no action of server_get_DataFromMem")
+     _UNUSED_DUMMY(this)
      _UNUSED_DUMMY(multi)
    end subroutine get_DataFromMem
 
@@ -354,6 +350,7 @@ contains
       rank        = mod(id, this%npes)
       node_rank   = this%Node_Ranks(rank)
 
+     _UNUSED_DUMMY(this)
    end subroutine distribute_task
 
    function get_writing_PE(this,id) result (rank)
@@ -398,7 +395,7 @@ contains
    end subroutine add_DataReference
 
    subroutine clear_DataReference(this)
-      class (AbstractServer), intent(inout) :: this
+      class (AbstractServer), target, intent(inout) :: this
       class (AbstractDataReference), pointer :: datarefPtr
       integer :: n, i
 

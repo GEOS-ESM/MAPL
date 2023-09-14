@@ -25,6 +25,7 @@ module FileIOSharedMod
   use MAPL_ExceptionHandling
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
+  use mpi
   implicit none
   private
 
@@ -40,8 +41,6 @@ module FileIOSharedMod
   public dealloc_
   public ArrDescrSet
   public ArrDescrInit
-
-  include "mpif.h"
 
 ! Global vars:
 ! ------------
