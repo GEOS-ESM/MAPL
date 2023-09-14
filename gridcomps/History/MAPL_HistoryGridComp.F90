@@ -667,6 +667,7 @@ contains
 
          match = .false.
          contLine = .false.
+         con3 = .false.
             
          do while (.true.)
             read(unitr, '(A)', end=1234) line
