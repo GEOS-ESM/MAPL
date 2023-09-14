@@ -558,9 +558,9 @@ contains
           node_rank = maxloc(num_idlePEs, dim=1) - 1
           do i = 0, nwriter_per_node -1
             if (idleRank(node_rank,i) /= -1) then
+               idle_writer = idleRank(node_rank,i)
                idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
                num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
-               idle_writer = idleRank(node_rank,i)
                exit
             end if
           enddo
