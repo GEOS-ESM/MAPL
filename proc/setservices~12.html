@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">50 statements</a>
+               title=" 0.1% of total for procedures.">26 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ExtDataRoot_GridComp.F90"> Source File</a>
+              <a href="../src/MAPL_NUOPCWrapperMod.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/extdataroot_gridcomp.f90.html'>ExtDataRoot_GridComp.F90</a></li>
-              <li><a href='../module/extdatautroot_gridcompmod.html'>ExtDataUtRoot_GridCompMod</a></li>
+              <li><a href='../sourcefile/mapl_nuopcwrappermod.f90.html'>MAPL_NUOPCWrapperMod.F90</a></li>
+              <li><a href='../module/mapl_nuopcwrappermod.html'>MAPL_NUOPCWrapperMod</a></li>
           <li class="active">SetServices</li>
         </ol>
       </div>
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine SetServices(GC, RC)  
+    <h2>public  subroutine SetServices(model, rc)  
 </h2>
     
 
@@ -183,22 +183,22 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~16"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+              <span class="anchor" id="variable-model"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
             </td>
-<td>intent(inout)</td>
+<td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>GC</strong></td>
+            <td><strong>model</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~22"></span>
+              <span class="anchor" id="variable-rc~1111"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -206,7 +206,7 @@
               
             </td>
             <td>::</td>
-            <td><strong>RC</strong></td>
+            <td><strong>rc</strong></td>
             <td>
                 
             </td>
@@ -259,90 +259,62 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">SetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">SetServices</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">model</span><span class="w"></span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
-<span class="c">! !ARGUMENTS:</span>
+<span class="w">        </span><span class="c">! the NUOPC model component will register the generic methods</span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompDerive</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">model_routine_SS</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">  </span><span class="c">! gridded component</span>
-<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span><span class="c">! return code</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_GridCompSetEntryPoint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">userRoutine</span><span class="o">=</span><span class="n">initialize_p0</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="kt">integer</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="w"></span>
-<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">COMP_NAME</span><span class="w"></span>
+<span class="w">        </span><span class="c">! set entry point for methods that require specific implementation</span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSetEntryPoint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">phaseLabelList</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;IPDv05p1&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">userRoutine</span><span class="o">=</span><span class="n">advertise_fields</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">cf</span><span class="w"></span>
-<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">SyntheticFieldSupportWrapper</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">synthWrap</span><span class="w"></span>
-<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">SyntheticFieldSupport</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">synth</span><span class="w"></span>
-<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">on_tiles</span><span class="w"></span>
-<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vloc</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSetEntryPoint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">phaseLabelList</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;IPDv05p4&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">userRoutine</span><span class="o">=</span><span class="n">realize_fields</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">COMP_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">CONFIG</span><span class="o">=</span><span class="n">CF</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c">! attach specializing method(s)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_DataInitialize</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">initialize_data</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">Initialize_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">   </span><span class="n">Run_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_Advance</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">model_advance</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">synth</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="n">synthWrap</span><span class="p">%</span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">synth</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_UserCompSetInternalState</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">wrap_name</span><span class="p">,</span><span class="n">synthWrap</span><span class="p">,</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_ConfigFindLabel</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="s2">&quot;tiling_file:&quot;</span><span class="p">,</span><span class="n">isPresent</span><span class="o">=</span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">synth</span><span class="p">%</span><span class="n">on_tiles</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            </span><span class="n">vloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="w"></span>
-<span class="w">         </span><span class="k">else</span>
-<span class="k">            </span><span class="n">vloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="w"></span>
-<span class="w">         </span><span class="k">end if</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_MethodRemove</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">model_label_CheckImport</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="k">         call </span><span class="n">AddState</span><span class="p">(</span><span class="n">GC</span><span class="p">,</span><span class="n">CF</span><span class="p">,</span><span class="s2">&quot;IMPORT&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">AddState</span><span class="p">(</span><span class="n">GC</span><span class="p">,</span><span class="n">CF</span><span class="p">,</span><span class="s2">&quot;EXPORT&quot;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_CheckImport</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">CheckImport</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;na&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;lats&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;na&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;lons&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;na&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;i_index&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;na&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;j_index&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;na&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;doy&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;day_since_start_of_year&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_AddInternalSpec</span><span class="p">(</span><span class="n">GC</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;random number&#39;</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;na&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_SetClock</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">set_clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
+<span class="w">        </span><span class="c">! call NUOPC_CompSpecialize(model, specLabel=model_label_CheckImport, &amp;</span>
+<span class="w">        </span><span class="c">!      specRoutine=CheckImport, rc=rc)</span>
+<span class="w">        </span><span class="c">! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &amp;</span>
+<span class="w">        </span><span class="c">!      line=__LINE__, &amp;</span>
+<span class="w">        </span><span class="c">!      file=__FILE__)) &amp;</span>
+<span class="w">        </span><span class="c">!      return  ! bail out</span>
 
-<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">label_Finalize</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">model_finalize</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s2">&quot;Wrapper finish SetServices&quot;</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">end subroutine </span><span class="n">SetServices</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">SetServices</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -363,7 +335,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-08-03T19:21:52.267443             </p>
+ on 2023-09-15T16:27:30.328765             </p>
           </div>
         </div>
         <br>

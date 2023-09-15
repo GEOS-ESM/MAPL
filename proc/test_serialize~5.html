@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">64 statements</a>
+               title=" 0.0% of total for procedures.">12 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_UnlimitedEntity.pf"> Source File</a>
+              <a href="../src/Test_LocalMemReference.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_unlimitedentity.pf.html'>Test_UnlimitedEntity.pf</a></li>
-              <li><a href='../module/test_unlimitedentity.html'>Test_UnlimitedEntity</a></li>
+              <li><a href='../sourcefile/test_localmemreference.pf.html'>Test_LocalMemReference.pf</a></li>
+              <li><a href='../module/test_localmemreference.html'>Test_LocalMemReference</a></li>
           <li class="active">test_serialize</li>
         </ol>
       </div>
@@ -219,83 +219,22 @@
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_serialize</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">UnlimitedEntity</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">LocalMemReference</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">LocalMemReference</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
 
-<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">array</span>
-<span class="k">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="o">*</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a2d</span><span class="w"></span>
-<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a3d</span><span class="w"></span>
-<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a4d</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
-
-
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">b</span><span class="p">%</span><span class="n">is_empty</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!empty</span>
+<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalMemReference</span><span class="p">(</span><span class="n">pFIO_REAL64</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="n">i_ptr</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="n">i_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span>
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">b</span><span class="p">%</span><span class="n">is_empty</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">b</span><span class="p">%</span><span class="n">deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="mi">5</span><span class="w"></span>
-<span class="w">         </span><span class="k">array</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="mf">1.0</span><span class="w"></span>
-<span class="w">      </span><span class="k">enddo  </span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="nb">shape</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">%</span><span class="nb">shape</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="w"> </span><span class="n">a</span><span class="p">%</span><span class="n">type_kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
 
-<span class="k">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">])</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">([.</span><span class="n">true</span><span class="p">.,.</span><span class="n">false</span><span class="p">.])</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="s1">&#39;abcd&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="s1">&#39;abcdefgh&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a2d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="k">array</span><span class="p">,(</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="o">*</span><span class="mi">5</span><span class="o">/</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">a2d</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="k">array</span><span class="p">,(</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">/</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">a3d</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">      </span><span class="n">a4d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="k">array</span><span class="p">,(</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">/</span><span class="p">))</span><span class="w"></span>
-<span class="w">      </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnlimitedEntity</span><span class="p">(</span><span class="n">a4d</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">a</span><span class="p">%</span><span class="n">serialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">UnlimitedEntity_deserialize</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_serialize</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_serialize</span><span class="w"> </span>
 </pre></div>
 
     </section>
@@ -316,7 +255,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-08-03T19:21:52.267443             </p>
+ on 2023-09-15T16:27:30.328765             </p>
           </div>
         </div>
         <br>
