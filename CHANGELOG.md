@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
 - Add call to initialize pFlogger layer for the unit tests.
 - Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
   + MPT bug at NAS
@@ -46,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deleted MAPL_HeapMod.F90.  This file was doing crazy nonstandard things and is not used anywhere else.  A new cleaner implementation based upon containers could be readily created if the functionality is ever missed.
 
 ### Deprecated
+
+## [2.40.4] - 2023-09-14
+
+### Fixed
+
+- Fixed handling of MAPL dependencies for when `find_package(MAPL)` is used
 
 ## [2.40.3] - 2023-08-03
 
