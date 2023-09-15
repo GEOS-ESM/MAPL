@@ -1,0 +1,29 @@
+include(CMakeFindDependencyMacro)
+
+find_dependency(MPI COMPONENTS Fortran REQUIRED)
+find_dependency(NetCDF COMPONENTS Fortran REQUIRED)
+find_dependency(OpenMP COMPONENTS Fortran REQUIRED)
+
+set(GFTL_FOUND @GFTL_FOUND@)
+if(GFTL_FOUND)
+   find_dependency(GFTL HINTS @GFTL_DIR@)
+endif()
+
+set(GFTL_SHARED_FOUND @GFTL_SHARED_FOUND@)
+if(GFTL_SHARED_FOUND)
+   find_dependency(GFTL_SHARED HINTS @GFTL_SHARED_DIR@)
+endif()
+
+set(FARGPARSE_FOUND @FARGPARSE_FOUND@)
+if(FARGPARSE_FOUND)
+   find_dependency(FARGPARSE HINTS @FARGPARSE_DIR@)
+endif()
+
+set(PFLOGGER_FOUND @PFLOGGER_FOUND@)
+if(PFLOGGER_FOUND)
+   find_dependency(PFLOGGER HINTS @PFLOGGER_DIR@)
+endif()
+
+list (APPEND CMAKE_MODULE_PATH @MAPL_FULL_INSTALL_DATA_DIR@/cmake)
+include (mapl_create_stub_component)
+include (mapl_acg)
