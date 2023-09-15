@@ -880,14 +880,11 @@ contains
             label=trim(string) // 'station_id_file:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
-       call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)
+       call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
        if (rc==0) then
           if (nline > 0) then
              list(n)%timeseries_output = .true.             
           endif
-       else
-          print*, 'IODA obs_files does not exist'
-          print*, 'ESMF_ConfigGetDim rc=', rc          
        endif
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
@@ -3207,7 +3204,6 @@ ENDDO PARSER
     type(HistoryCollection),   pointer  :: list(:)
     type(HISTORY_STATE),  pointer  :: IntState
     type(HISTORY_wrap)             :: wrap
-    type (ESMF_VM)                 :: vm
     integer                        :: nlist
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
@@ -3610,9 +3606,6 @@ ENDDO PARSER
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
-            call ESMF_GridCompGet(gc, vm=vm, _RC)
-            call ESMF_VMGetCurrent(vm, _RC)
-            call ESMF_VMbarrier(vm, _RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       end if
@@ -3882,7 +3875,7 @@ ENDDO PARSER
             if (JM /= 1) then
                DLAT   =  180._REAL64/(JM-1)
             else
-               DLAT   =  1.0
+               DLAT   =  1._REAL64
             end if
             LONBEG = -180._REAL64
             LATBEG =  -90._REAL64

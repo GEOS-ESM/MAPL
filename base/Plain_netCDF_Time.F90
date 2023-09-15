@@ -1,7 +1,7 @@
 !-------------------------------------------------------------------
-! Note: used for OSSE project
+! Note: use for OSSE project
 !   File to be replaced by more systematic implementations.
-!   It contains codes for time conversion and time bisect.
+!   It contains codes for time conversion and bisect.
 !-------------------------------------------------------------------
 
 #include "MAPL_Exceptions.h"

@@ -12,13 +12,9 @@ module HistoryTrajectoryMod
 
   public :: obs_unit
   type :: obs_unit
-     !!integer :: id
      integer :: nobs_epoch
-     type(FileMetadata), allocatable          :: metadata    !-- allocatable scalar?? gftl maps, 
-     type(NetCDF4_FileFormatter), allocatable :: file_handle !--
-!     class(FileMetadata), allocatable :: metadata
-!     class(NetCDF4_FileFormatter), allocatable :: file_handle 
-     
+     type(FileMetadata), allocatable            :: metadata
+     type(NetCDF4_FileFormatter), allocatable   :: file_handle
      character(len=ESMF_MAXSTR)                 :: name
      character(len=ESMF_MAXSTR)                 :: obsFile_output
      character(len=ESMF_MAXSTR)                 :: input_template
@@ -26,17 +22,15 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      real(kind=REAL32), allocatable :: p2d(:)
-     real(kind=REAL32), allocatable :: p3d(:,:)     
-!-!   contains
-!-!     procedure destroy
+     real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
 
   public :: HistoryTrajectory
   
   type :: HistoryTrajectory
      private
-     type(ESMF_LocStream) :: LS_rt  !  root
-     type(ESMF_LocStream) :: LS_ds  !  distribute
+     type(ESMF_LocStream)   :: LS_rt
+     type(ESMF_LocStream)   :: LS_ds
      type(LocStreamFactory) :: locstream_factory
      type(obs_unit), allocatable    :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
@@ -83,7 +77,6 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Ts_index     ! for epoch
      integer                        :: obsfile_Te_index
      logical                        :: is_valid
-
    contains
      procedure :: initialize
      procedure :: reinitialize     
@@ -91,40 +84,33 @@ module HistoryTrajectoryMod
      procedure :: create_file_handle
      procedure :: close_file_handle
      procedure :: append_file
-
      procedure :: create_new_bundle
      procedure :: reset_times_to_current_day
      procedure :: time_real_to_ESMF
-
-
      procedure :: create_grid
      procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
-
      procedure :: get_obsfile_Tbracket_from_epoch
-
      procedure :: get_filename_from_template_use_index
-
   end type HistoryTrajectory
 
   interface HistoryTrajectory
      module procedure HistoryTrajectory_from_config
   end interface HistoryTrajectory
 
-!  interface sort_multi_array_by_time
-!     module procedure  sort_three_arrays_by_time
-!     module procedure  sort_four_arrays_by_time
-!  end interface sort_multi_array_by_time
-
+  interface sort_multi_arrays_by_time
+     module procedure  sort_three_arrays_by_time
+     module procedure  sort_four_arrays_by_time
+  end interface sort_multi_arrays_by_time
   
   interface
      module function HistoryTrajectory_from_config(config,string,clock,rc) result(traj)
        type(HistoryTrajectory) :: traj
-       type(ESMF_Config), intent(inout)       :: config
-       character(len=*),  intent(in)          :: string
-       type(ESMF_Clock),  intent(in)          :: clock
-       integer, optional, intent(out)         :: rc
+       type(ESMF_Config), intent(inout)        :: config
+       character(len=*),  intent(in)           :: string
+       type(ESMF_Clock),  intent(in)           :: clock
+       integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
      module subroutine initialize(this,items,bundle,timeInfo,vdata,recycle_track,rc)
@@ -215,7 +201,6 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine destroy_rh_regen_LS
 
-
      module subroutine get_obsfile_Tbracket_from_epoch(this, currTime, rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(ESMF_Time), intent(in)             :: currTime
@@ -229,7 +214,6 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function get_filename_from_template
 
-
      module function get_filename_from_template_use_index (this, f_index, file_template, rc) result(filename)
        class(HistoryTrajectory), intent(inout) :: this
        character(len=*), intent(in)            :: file_template
@@ -237,8 +221,6 @@ module HistoryTrajectoryMod
        integer, intent(in)                     :: f_index
        integer, optional, intent(out)          :: rc
      end function get_filename_from_template_use_index
-     !
-     
-  end interface
 
+  end interface
 end module HistoryTrajectoryMod

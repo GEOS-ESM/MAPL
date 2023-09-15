@@ -545,7 +545,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !
             !-- non IODA case
             !
-            _FAIL('not implemented')
+            _FAIL('non-IODA format is not implemented here')
 !            filename=trim(this%obsFile)
 !            !!         print*, 'obs file name=', trim(filename)
 !            call formatter%open(trim(filename),pFIO_READ,_RC)
@@ -659,7 +659,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !
             !
             if (mapl_am_I_root()) then
-               call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
+               call sort_multi_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
                call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
                timeset(1) = current_time
                timeset(2) = current_time + this%epoch_frequency
@@ -795,11 +795,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end if
          _RETURN(_SUCCESS)
        end procedure create_grid
-       !! debug
-       !!write(6, '(a)')  'lons_full(1:3*num_times:num_times) and  times_R8_full'
-       !!write(6, '(10f10.1)')  lons_full(1:3*num_times:num_times/2)
-       !!write(6, '(10E25.12)')  times_R8_full(1:3*num_times:num_times/2)
-       !!write(6, '(10E25.12)')  times_R8_full(1:len:20)
 
 
 
@@ -851,8 +846,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                end if
             end if
          enddo
-         
-         
+
          ! get RH from 2d field
          src_field = ESMF_FieldCreate(this%LS_ds,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
          dst_field = ESMF_FieldCreate(this%LS_rt,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],_RC)
@@ -865,7 +859,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          acc_field_2d_rt = ESMF_FieldCreate (this%LS_rt, name='field_2d_rt', typekind=ESMF_TYPEKIND_R4, _RC)
          acc_field_3d_rt = ESMF_FieldCreate (this%LS_rt, name='field_3d_rt', typekind=ESMF_TYPEKIND_R4, &
               gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],_RC)
-        
 
          iter = this%items%begin()
          do while (iter /= this%items%end())
@@ -913,8 +906,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         endif
                      enddo
                   end if
-
-
                else if (rank==2) then
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   call ESMF_FieldGet( acc_field_3d_rt, localDE=0, farrayPtr=p_acc_rt_3d, _RC)
@@ -975,13 +966,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_3d_rt, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
-         
-         !!print*, 'end append_file, nobs_epoch=', nx
-
-
-
          _RETURN(_SUCCESS)
-
        end procedure append_file
 
 
@@ -1118,8 +1103,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  endif
               end do
            end if
-
-
            
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
            allocate(names(numVars),stat=status)
