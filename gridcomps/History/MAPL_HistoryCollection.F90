@@ -101,7 +101,6 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: output_grid_label
      type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
-     character(len=ESMF_MAXPATHLEN)     :: obsFile
      character(len=ESMF_MAXPATHLEN)     :: stationIdFile
      logical                            :: splitField
      logical                            :: regex

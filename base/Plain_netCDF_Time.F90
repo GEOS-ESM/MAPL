@@ -1,20 +1,27 @@
+!-------------------------------------------------------------------
+! Note: use for OSSE project
+!   File to be replaced by more systematic implementations.
+!   It contains codes for time conversion and bisect.
+!-------------------------------------------------------------------
+
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 !
 !>
-!### MODULE: `MAPL_plain_netCDF_Time`
+!### MODULE: `Plain_netCDF_Time`
 !
 ! Author: GMAO SI-Team
 !
-module MAPL_plain_netCDF_Time
+module Plain_netCDF_Time
   use MAPL_KeywordEnforcerMod
   use MAPL_ExceptionHandling
   use MAPL_ShmemMod
   use mapl_ErrorHandlingMod
   use MAPL_Constants
   use ESMF
+  use pfio_NetCDF_Supplement
   !   use MAPL_CommsMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -31,17 +38,6 @@ module MAPL_plain_netCDF_Time
      procedure :: time_esmf_2_nc_int
   end interface convert_time_esmf2nc
 
-!C  interface get_ncfile_dimension
-!     procedure :: get_ncfile_dimension
-!     procedure :: get_ncfile_dimension_I8     
-!C  end interface get_ncfile_dimension
-!
-!C  interface get_v1d_netcdf
-!     procedure :: get_v1d_netcdf_R8
-!     procedure :: get_v1d_netcdf_R8_I8
-!C  end interface get_v1d_netcdf
-
-  
   interface get_v2d_netcdf
      procedure ::  get_v2d_netcdf_R4
      procedure ::  get_v2d_netcdf_R8
@@ -51,7 +47,7 @@ module MAPL_plain_netCDF_Time
      procedure :: parse_timeunit_i4
      procedure :: parse_timeunit_i8
   end interface parse_timeunit
-  
+
   interface hms_2_s
      procedure :: hms_2_s
   end interface hms_2_s
@@ -72,8 +68,8 @@ contains
     integer :: ncid , dimid
     integer :: status
     character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
-    
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
+
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     if (present(key_lon)) then
        lon_name=trim(key_lon)
        !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
@@ -84,15 +80,15 @@ contains
     if (present(key_lat)) then
        lat_name=trim(key_lat)
        !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
        call check_nc_status(nf90_close(ncid), _RC)
     endif
 
     if (present(key_time)) then
-       time_name=trim(key_time)    
+       time_name=trim(key_time)
        !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
+       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
     endif
     call check_nc_status(nf90_close(ncid), _RC)
@@ -101,46 +97,56 @@ contains
     !write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
   end subroutine get_ncfile_dimension
 
-!
-!  subroutine get_ncfile_dimension_I8(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, rc)
-!    use netcdf
-!    implicit none
-!    character(len=*), intent(in) :: filename
-!    integer*8, optional,intent(out) :: nlat, nlon, tdim
-!    character(len=*), optional, intent(in)  :: key_lon, key_lat, key_time
-!    integer, optional, intent(out) :: rc
-!    integer :: ncid , dimid
-!    integer :: status
-!    character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
-!    
-!    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
-!    if (present(key_lon)) then
-!       lon_name=trim(key_lon)
-!       !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
-!       call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), _RC)
-!       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
-!    endif
-!
-!    if (present(key_lat)) then
-!       lat_name=trim(key_lat)
-!       !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
-!       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
-!       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
-!       call check_nc_status(nf90_close(ncid), _RC)
-!    endif
-!
-!    if (present(key_time)) then
-!       time_name=trim(key_time)    
-!       !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
-!       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
-!       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
-!    endif
-!    call check_nc_status(nf90_close(ncid), _RC)
-!
-!    !- debug summary
-!    !write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
-!  end subroutine get_ncfile_dimension_I8
-!  
+
+  subroutine get_attribute_from_group(filename, group_name, var_name, attr_name, attr)
+    use netcdf
+    use pfio_NetCDF_Supplement
+    implicit none
+    character(len=*), intent(in) :: filename, group_name, var_name, attr_name
+    character(len=*), intent(INOUT) :: attr
+    integer :: ncid, varid, ncid2
+    integer :: rc, status, iret
+    integer :: len, i, j, k
+    integer :: xtype
+    character(len=:), allocatable :: str
+    integer :: number
+    integer :: attnum, nAttributes
+    character(len=NF90_MAX_NAME) :: attr_name2
+    integer(kind=C_INT) :: c_ncid, c_varid
+    character(len=100) :: str2
+
+    call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2), rc )
+    call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid),  rc )
+    call check_nc_status ( nf90_inq_varid (ncid,  var_name,  varid), rc )
+    call check_nc_status ( nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), rc )
+    c_ncid= ncid
+    c_varid= varid
+    !! print*, 'f: xtype, len=', xtype, len
+    select case (xtype)
+    case(NF90_STRING)
+       status = pfio_get_att_string(c_ncid, c_varid, attr_name, str)
+       _VERIFY(status)
+    case (NF90_CHAR)
+       allocate(character(len=len) :: str)
+       status = nf90_get_att(ncid, varid, trim(attr_name), str)
+    case default
+       _FAIL('code works only with string attribute')
+    end select
+    i=index(str, 'since')
+    ! get rid of T in 1970-01-01T00:00:0
+    str2=str(i+6:i+24)
+    j=index(str2, 'T')
+    if (j>1) then
+       k=len_trim(str2)
+       str2=str2(1:j-1)//' '//str2(j+1:k)
+    endif
+    attr = str(1:i+5)//trim(str2)
+    deallocate(str)
+    iret = nf90_close(ncid)
+
+  end subroutine get_attribute_from_group
+
+
 
   subroutine get_v2d_netcdf_R4(filename, name, array, Xdim, Ydim)
     use netcdf
@@ -165,7 +171,7 @@ contains
     iret = nf90_close(ncid)
   end subroutine get_v2d_netcdf_R4
 
-  
+
   subroutine get_v2d_netcdf_R8(filename, name, array, Xdim, Ydim)
     use netcdf
     implicit none
@@ -210,27 +216,6 @@ contains
     iret = nf90_close(ncid)
   end subroutine get_v1d_netcdf_R8
 
-
-!  subroutine get_v1d_netcdf_R8_I8(filename, name, array, Xdim, group_name)
-!    use netcdf
-!    implicit none
-!    character(len=*), intent(in) :: name, filename
-!    character(len=*), optional, intent(in) :: group_name
-!    integer*8, intent(in) :: Xdim
-!    real*8, dimension(Xdim), intent(out) :: array
-!    integer :: ncid, varid, ncid2
-!    integer :: rc, status, iret
-!
-!    call check_nc_status (  nf90_open      (trim(fileName), NF90_NOWRITE, ncid), _RC )
-!    if (present(group_name)) then
-!       ncid2= ncid
-!       call check_nc_status ( nf90_inq_ncid ( ncid2, group_name, ncid),  _RC )
-!    end if
-!    call check_nc_status (  nf90_inq_varid (ncid,  name,  varid), _RC )
-!    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
-!    iret = nf90_close(ncid)
-!  end subroutine get_v1d_netcdf_R8_I8
-  
 
   subroutine check_nc_status(status, rc)
     use netcdf
@@ -284,7 +269,7 @@ contains
     n=0
     call parse_timeunit (tunit, n, time0, dt, rc)
     dt = time - time0
-    !
+    ! -- To-be-deleted: this is a bug
     ! assume unit is second
     !
     call ESMF_TimeIntervalGet(dt, s_i8=n)
@@ -341,7 +326,7 @@ contains
     !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     !  if(present(rc)) rc=0
     rc=0
-    
+
   end subroutine parse_timeunit_i4
 
 
@@ -389,9 +374,9 @@ contains
     !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     !  if(present(rc)) rc=0
     rc=0
-    
+
   end subroutine parse_timeunit_i8
-  
+
   subroutine ESMF_time_to_two_integer (time, itime, rc)
     type (ESMF_Time), intent(in) ::   time
     integer, intent(out) :: itime(2)
@@ -446,7 +431,7 @@ contains
 
     sec= h*3600 + m*60 + s
     if (present(rc)) rc=0
-    
+
   end subroutine hms_2_s
 
 
@@ -457,7 +442,7 @@ contains
     real(ESMF_KIND_R8), intent(in) :: x       ! pt
     integer(ESMF_KIND_I8), intent(out) :: n   !  out: bisect index
     integer(ESMF_KIND_I8), intent(in), optional :: n_LB  !  opt in : LB
-    integer(ESMF_KIND_I8), intent(in), optional :: n_UB  !  opt in : UB     
+    integer(ESMF_KIND_I8), intent(in), optional :: n_UB  !  opt in : UB
     integer, intent(out), optional :: rc
 
     integer(ESMF_KIND_I8) :: k, klo, khi, dk, LB, UB
@@ -467,7 +452,7 @@ contains
     if(present(n_LB)) LB=n_LB
     if(present(n_UB)) UB=n_UB
     klo=LB; khi=UB; dk=1
-    
+
     ! write(6,*) 'init klo, khi', klo, khi
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
@@ -480,7 +465,7 @@ contains
     !     x         x                       x
     !
     !        Y(n)  <  x  <=  Y(n+1)
-    
+
     rc=-1
     if ( x <= xa(klo) ) then
        !write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
@@ -507,20 +492,20 @@ contains
           return
        endif
     enddo
-    
+
   end subroutine bisect_find_LB_R8_I8
-    
+
 
   subroutine convert_twostring_2_esmfinterval (symd, shms, interval, rc)
     character(len=*) :: symd
     character(len=*) :: shms
     type (ESMF_TimeInterval), intent(out) :: interval
     integer, optional, intent(out) :: rc
-    integer :: status    
+    integer :: status
     character(len=20) :: s1, s2
     integer :: y, m, d, hh, mm, ss
 
-    
+
     s1=trim(symd)
     read(s1, '(3i2)') y, m, d
     s2=trim(shms)
@@ -535,4 +520,4 @@ contains
     if (present(rc)) rc=0
   end subroutine convert_twostring_2_esmfinterval
 
-end module MAPL_Plain_NetCDF_Time
+end module Plain_NetCDF_Time
