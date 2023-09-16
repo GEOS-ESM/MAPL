@@ -42,7 +42,7 @@
 #  ifdef _UNUSED_DUMMY
 #    undef _UNUSED_DUMMY
 #  endif
-#  ifdef _FILE
+#  ifdef _FILE_
 #    undef _FILE_
 #  endif
 #  ifdef _RC

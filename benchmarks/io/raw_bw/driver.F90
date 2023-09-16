@@ -124,8 +124,10 @@ contains
 
       call MPI_Comm_rank(comm, rank, _IERROR)
       _RETURN_UNLESS(rank == 0)
-      
-      write(*,'(7(a15,:,","))',iostat=status) 'Write (GB)', 'Packet (GB)', '# writers', 'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
+
+      write(*,'(4(a10,","),6(a15,:,","))',iostat=status) &
+           'NX', '# levs', '# writers', '# packets', 'write (GB)', 'packet (GB)', &
+           'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
 
       _RETURN(status)
    end subroutine write_header
@@ -158,7 +160,9 @@ contains
 
       call MPI_Comm_size(comm, npes, _IERROR)
 
-      write(*,'(2(f15.4,","),i15.0,",",4(f15.4,:,","))') total_gb, packet_gb, npes, avg_time, bw, bw/npes, std_time/avg_time
+      write(*,'(4(1x,i9.0,","),6(f15.4,:,","))') &
+           spec%nx, spec%n_levs, spec%n_streams, spec%n_packets, &
+           total_gb, packet_gb, avg_time, bw, bw/npes, std_time/avg_time
 
       _RETURN(_SUCCESS)
    end subroutine report
