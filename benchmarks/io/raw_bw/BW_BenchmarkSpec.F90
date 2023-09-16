@@ -57,7 +57,7 @@ contains
       option => options%at('n_tries')
       _ASSERT(associated(option), 'n_tries not found')
       call cast(option, spec%n_tries, _RC)
-      
+
       _RETURN(_SUCCESS)
    end function make_BW_BenchmarkSpec
 
@@ -105,7 +105,7 @@ contains
       integer :: status
       integer :: rank
 
-      associate (packet_size => int(spec%nx,kind=INT64)**2 * spec%n_levs /spec%n_packets)
+      associate (packet_size => int(spec%nx,kind=INT64)**2 * spec%n_levs/spec%n_packets/spec%n_streams)
         allocate(benchmark%buffer(packet_size, spec%n_packets), _STAT)
         call random_number(benchmark%buffer)
       end associate
