@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Corrected a typo for checking if fpp macro `_FILE_` was previously defined.
 - Add call to initialize pFlogger layer for the unit tests.
 - Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
   + MPT bug at NAS

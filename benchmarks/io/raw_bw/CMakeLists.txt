@@ -10,7 +10,7 @@ target_include_directories (raw_bw.x PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(raw_bw.x OpenMP::OpenMP_Fortran)
+   target_link_libraries(raw_bw.x PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 
 set_target_properties(raw_bw.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

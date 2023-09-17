@@ -5,6 +5,7 @@ program main
    use mapl_BW_Benchmark
    use mapl_ErrorHandlingMod
    use mpi
+   use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
 
    type(BW_BenchmarkSpec) :: spec
@@ -17,8 +18,8 @@ program main
 
    call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
    call mpi_finalize(_IERROR)
-
    stop
+
 
 contains
 
@@ -75,16 +76,17 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real :: t0, t1
       integer :: rank
+      integer(kind=INT64) :: c0, c1, count_rate
 
       call MPI_Barrier(comm, _IERROR)
-      t0 = MPI_Wtime()
+
+      call system_clock(c0)
       call benchmark%run(_RC)
       call MPI_Barrier(comm, _IERROR)
-      t1 = MPI_Wtime()
+      call system_clock(c1, count_rate=count_rate)
 
-      time = t1 - t0
+      time = real(c1-c0)/count_rate
 
       _RETURN(_SUCCESS)
    end function time
@@ -122,8 +124,10 @@ contains
 
       call MPI_Comm_rank(comm, rank, _IERROR)
       _RETURN_UNLESS(rank == 0)
-      
-      write(*,'(6(a15,:,","))',iostat=status) 'Write (GB)', 'Packet (GB)', '# writers', 'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)'
+
+      write(*,'(4(a10,","),6(a15,:,","))',iostat=status) &
+           'NX', '# levs', '# writers', '# packets', 'write (GB)', 'packet (GB)', &
+           'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
 
       _RETURN(status)
    end subroutine write_header
@@ -143,20 +147,22 @@ contains
       integer :: npes
       integer :: rank
       integer, parameter :: WORD_SIZE = 4
-      integer :: packet_size
+      integer(kind=INT64) :: packet_size
 
       call MPI_Comm_size(comm, npes, _IERROR)
       call MPI_Comm_rank(comm, rank, _IERROR)
       _RETURN_UNLESS(rank == 0)
 
-      packet_size = int(spec%nx)**2 * spec%n_levs / spec%n_packets
+      packet_size = int(spec%nx,kind=INT64)**2 * spec%n_levs / spec%n_packets / spec%n_streams
       packet_gb = 1.e-9*(WORD_SIZE * packet_size)
       total_gb = packet_gb * spec%n_packets * npes
       bw = total_gb / avg_time
 
       call MPI_Comm_size(comm, npes, _IERROR)
 
-      write(*,'(2(f15.4,","),i15.0,",",3(f15.4,:,","))') total_gb, packet_gb, npes, avg_time, bw, bw/npes
+      write(*,'(4(1x,i9.0,","),6(f15.4,:,","))') &
+           spec%nx, spec%n_levs, spec%n_streams, spec%n_packets, &
+           total_gb, packet_gb, avg_time, bw, bw/npes, std_time/avg_time
 
       _RETURN(_SUCCESS)
    end subroutine report
