@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added new benchmark suite.  Initiall benchmarks are for (1) measuring raw bandwdith of a filesystem with multiple independent streams and (2) measuring the `MPI_Gatherv()` used in writing checkpoints.
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
 - Added markdown documentation for select items such as ExtData, History and a few other sources
 - Trajectory sampler with Epoch time span
