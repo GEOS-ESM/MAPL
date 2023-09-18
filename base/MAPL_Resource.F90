@@ -14,6 +14,66 @@
 #endif
 #define MISMATCH_MESSAGE "Type of 'default' does not match type of 'value'."
 
+#if defined(TYPE_CHARACTER)
+#undef TYPE_CHARACTER
+#endif
+#define TYPE_CHARACTER character(len=*)
+
+#if defined(TYPE_INTEGER4)
+#undef TYPE_INTEGER4
+#endif
+#define TYPE_INTEGER4 integer(int32)
+
+#if defined(TYPE_INTEGER8)
+#undef TYPE_INTEGER8
+#endif
+#define TYPE_INTEGER8 integer(int64)
+
+#if defined(TYPE_REAL4)
+#undef TYPE_REAL4
+#endif
+#define TYPE_REAL4 real(real32)
+
+#if defined(TYPE_REAL8)
+#undef TYPE_REAL8
+#endif
+#define TYPE_REAL8 real(real64)
+
+#if defined(TYPE_LOGICAL)
+#undef TYPE_LOGICAL
+#endif
+#define TYPE_LOGICAL logical
+
+#if defined(TYPENUM_CHARACTER)
+#undef TYPENUM_CHARACTER
+#endif
+#define TYPENUM_CHARACTER 0
+
+#if defined(TYPENUM_INTEGER4)
+#undef TYPENUM_INTEGER4
+#endif
+#define TYPENUM_INTEGER4 1
+
+#if defined(TYPENUM_INTEGER8)
+#undef TYPENUM_INTEGER8
+#endif
+#define TYPENUM_INTEGER8 2
+
+#if defined(TYPENUM_REAL4)
+#undef TYPENUM_REAL4
+#endif
+#define TYPENUM_REAL4 3
+
+#if defined(TYPENUM_REAL8)
+#undef TYPENUM_REAL8
+#endif
+#define TYPENUM_REAL8 4
+
+#if defined(TYPENUM_LOGICAL)
+#undef TYPENUM_LOGICAL
+#endif
+#define TYPENUM_LOGICAL 5
+
 !=============================================================================
 !END FPP macros
 !=============================================================================
@@ -57,13 +117,17 @@ module MAPL_ResourceMod
       module procedure :: array_format_string
    end interface array_format
 
+   character(len=*), parameter :: TYPE_STRING_CHARACTER = 'Character '
    character(len=*), parameter :: TYPE_STRING_INTEGER4 = 'Integer*4 '
    character(len=*), parameter :: TYPE_STRING_INTEGER8 = 'Integer*8 '
    character(len=*), parameter :: TYPE_STRING_REAL4 = 'Real*4 '
    character(len=*), parameter :: TYPE_STRING_REAL8 = 'Real*8 '
    character(len=*), parameter :: TYPE_STRING_LOGICAL = 'Logical '
-   character(len=*), parameter :: TYPE_STRING_CHARACTER = 'Character '
 
+   character(len=*), parameter :: CHARACTER_FMT = "(A)"
+   character(len=*), parameter :: INTEGER_FMT = "(I0.1)" 
+   character(len=*), parameter :: REAL_FMT = "(F0.6)"
+   character(len=*), parameter :: LOGICAL_FMT = "(L1)"
 contains
 
    !>
@@ -239,8 +303,8 @@ contains
 #undef TYPE_
 #endif
 
-#if defined(TYPE_NUM)
-#undef TYPE_NUM
+#if defined(TYPENUM)
+#undef TYPENUM
 #endif
 
       default_is_present = present(default)
@@ -268,63 +332,64 @@ contains
 
       select type(val)
 
-      type is (integer(int32))
+      type is (TYPE_INTEGER4)
 
-#define TYPE_ integer(int32)
-#define TYPE_NUM 1
+#define TYPE_ TYPE_INTEGER4
+#define TYPENUM TYPENUM_INTEGER4
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (integer(int64))
+      type is (TYPE_INTEGER8)
 
-#define TYPE_ integer(int64)
-#define TYPE_NUM 2
+#define TYPE_ TYPE_INTEGER8
+#define TYPENUM TYPENUM_INTEGER8 
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (real(real32))
+      type is (TYPE_REAL4)
 
-#define TYPE_ real(real32)
-#define TYPE_NUM 3
+#define TYPE_ TYPE_REAL4
+#define TYPENUM TYPENUM_REAL4
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (real(real64))
+      type is (TYPE_REAL8)
 
-#define TYPE_ real(real64)
-#define TYPE_NUM 4
+#define TYPE_ TYPE_REAL8
+#define TYPENUM TYPENUM_REAL8
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (logical)
+      type is (TYPE_LOGICAL)
 
-#define TYPE_ logical
-#define TYPE_NUM 5
+#define TYPE_ TYPE_LOGICAL
+#define TYPENUM TYPENUM_LOGICAL
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (character(len=*))
+      type is (TYPE_CHARACTER)
 
-#define TYPE_ character(len=*)
+#define TYPE_ TYPE_CHARACTER
+#define TYPENUM TYPENUM_CHARACTER
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
       class default
          _FAIL( "Unsupported type")
@@ -337,7 +402,7 @@ contains
       _RETURN(ESMF_SUCCESS)
 
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
    end subroutine MAPL_GetResource_config_scalar
 
@@ -378,8 +443,8 @@ contains
 #undef TYPE_
 #endif
 
-#if defined(TYPE_NUM)
-#undef TYPE_NUM
+#if defined(TYPENUM)
+#undef TYPENUM
 #endif
 
 #if defined(IS_ARRAY)
@@ -424,64 +489,64 @@ contains
 
       select type(val)
 
-      type is (integer(int32))
+      type is (TYPE_INTEGER4)
 
-#define TYPE_ integer(int32)
-#define TYPE_NUM 1
+#define TYPE_ TYPE_INTEGER4
+#define TYPENUM TYPENUM_INTEGER4
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (integer(int64))
+      type is (TYPE_INTEGER8)
 
-#define TYPE_ integer(int64)
-#define TYPE_NUM 2
+#define TYPE_ TYPE_INTEGER8
+#define TYPENUM TYPENUM_INTEGER8
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (real(real32))
+      type is (TYPE_REAL4)
 
-#define TYPE_ real(real32)
-#define TYPE_NUM 3
+#define TYPE_ TYPE_REAL4
+#define TYPENUM TYPENUM_REAL4
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (real(real64))
+      type is (TYPE_REAL8)
 
-#define TYPE_ real(real64)
-#define TYPE_NUM 4
+#define TYPE_ TYPE_REAL8
+#define TYPENUM TYPENUM_REAL8
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (logical)
+      type is (TYPE_LOGICAL)
 
-#define TYPE_ logical
-#define TYPE_NUM 5
+#define TYPE_ TYPE_LOGICAL
+#define TYPENUM TYPENUM_LOGICAL
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
-      type is (character(len=*))
+      type is (TYPE_CHARACTER)
 
-#define TYPE_ character(len=*)
-#define TYPE_NUM 0
+#define TYPE_ TYPE_CHARACTER
+#define TYPENUM TYPENUM_CHARACTER
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
-#undef TYPE_NUM
+#undef TYPENUM
 
 
       class default
@@ -618,5 +683,31 @@ contains
       end do
 
    end function compare_all
+
+   function make_string_character(value_, slen) result(string)
+      character(len=*), intent(in) :: value_
+      integer, intent(in) :: slen
+      character(len=slen) :: string
+
+      string = merge(value_, value_(1:slen), len(value_) <= slen)
+
+   end function make_string_character
+
+   function make_string_character_array(value_, slen) result(string)
+      character(len=*), intent(in) :: value_(:)
+      integer, intent(in) :: slen
+      character(len=slen) :: string
+      character(len=:), allocatable :: raw
+      integer :: i
+
+      string = ''
+      if(size(value_) == 0) return
+      raw = value_(1)
+      do i=2, size(value_)
+         if(len(raw) > slen) exit
+         raw = raw // ' ' // value_(i)
+      end do
+
+   end function make_string_character_array
 
 end module MAPL_ResourceMod
