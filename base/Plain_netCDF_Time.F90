@@ -177,7 +177,7 @@ contains
     implicit none
     character(len=*), intent(in) :: name, filename
     integer, intent(in) :: Xdim, Ydim
-    real*8, dimension(Xdim,Ydim), intent(out) :: array
+    real(REAL64), dimension(Xdim,Ydim), intent(out) :: array
     integer :: ncid, varid
     real    :: scale_factor, add_offset
     integer :: rc, status, iret
@@ -202,7 +202,7 @@ contains
     character(len=*), intent(in) :: name, filename
     character(len=*), optional, intent(in) :: group_name
     integer, intent(in) :: Xdim
-    real*8, dimension(Xdim), intent(out) :: array
+    real(REAL64), dimension(Xdim), intent(out) :: array
     integer :: ncid, varid, ncid2
     integer :: rc, status, iret
 
@@ -292,12 +292,11 @@ contains
     type (ESMF_TimeInterval), intent(out) :: dt
     integer, intent(out) :: rc
 
-    integer :: i, j, k, status
+    integer :: i
     character(len=ESMF_MAXSTR) :: s1, s2, s_time, s_unit
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer :: isec
-    integer :: iyy,imm,idd,ih,im,is
     type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
@@ -340,12 +339,11 @@ contains
     type (ESMF_TimeInterval), intent(out) :: dt
     integer, intent(out) :: rc
 
-    integer :: i, j, k, status
+    integer :: i
     character(len=ESMF_MAXSTR) :: s1, s2, s_time, s_unit
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer(ESMF_KIND_I8) :: isec
-    integer :: iyy,imm,idd,ih,im,is
     type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
@@ -381,7 +379,6 @@ contains
     type (ESMF_Time), intent(in) ::   time
     integer, intent(out) :: itime(2)
     integer, intent(out), optional :: rc
-    integer :: status
     integer :: i1, i2
     integer :: yy, mm, dd, h, m, s
 
@@ -399,7 +396,6 @@ contains
     type (ESMF_Time), intent(out) ::   time
     integer, intent(in) :: itime(2)
     integer, intent(out), optional :: rc
-    integer :: status
     integer :: i1, i2
     integer :: yy, mm, dd, h, m, s
 

@@ -148,7 +148,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
        module procedure initialize
-         integer :: status,nobs
+         integer :: status
          type(ESMF_Grid) :: grid
          type(variable) :: v
          type(GriddedIOitemVectorIterator) :: iter
@@ -248,7 +248,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                allocate (this%obs(k)%file_handle)
             end if
          end do
-         
+
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
@@ -307,7 +307,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          _RETURN(_SUCCESS)
 
        end procedure reinitialize
-       
+
 
       module procedure create_metadata_variable
         type(ESMF_Field) :: field
@@ -346,7 +346,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         do k = 1, this%nobs_type
            call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
         enddo
-        
+
          _RETURN(_SUCCESS)
       end procedure create_metadata_variable
 
@@ -356,7 +356,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         type(GriddedIOitem), pointer :: item
         type(ESMF_Field) :: src_field,dst_field
         integer :: rank,lb(1),ub(1)
-        real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
         integer :: status
 
         new_bundle = ESMF_FieldBundleCreate(_RC)
@@ -390,16 +389,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure create_file_handle
-         type(variable) :: v
          integer :: status
          integer :: k
          character(len=ESMF_MAXSTR) :: filename
-         
+
          if (.NOT. this%is_valid) then
             _RETURN(ESMF_SUCCESS)
          endif
 
-         do k=1, this%nobs_type            
+         do k=1, this%nobs_type
             call this%obs(k)%metadata%modify_dimension(this%nc_index, this%obs(k)%nobs_epoch)
          enddo
          if (mapl_am_I_root()) then
@@ -412,7 +410,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                end if
             enddo
          end if
-            
+
         _RETURN(_SUCCESS)
       end procedure create_file_handle
 
@@ -507,7 +505,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          else
             !
             !-- IODA case
-            !            
+            !
             i=index(this%nc_longitude, '/')
             _ASSERT (i>0, 'group name not found')
             grp_name = this%nc_longitude(1:i-1)
@@ -521,7 +519,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             if(fid_e < L) then
                allocate(this%lons(0),this%lats(0),_STAT)
                allocate(this%times_R8(0),_STAT)
-               allocate(this%obstype_id(0),_STAT)               
+               allocate(this%obstype_id(0),_STAT)
                this%epoch_index(1:2)=0
                this%nobs_epoch = 0
                rc=0
@@ -604,7 +602,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                this%nobs_epoch = nx
                allocate(this%lons(nx),this%lats(nx),_STAT)
                allocate(this%times_R8(nx),_STAT)
-               allocate(this%obstype_id(nx),_STAT)               
+               allocate(this%obstype_id(nx),_STAT)
 
                j=this%epoch_index(1)
                do i=1, nx
@@ -654,7 +652,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                do k=1, this%nobs_type
                   call lgr%debug('%a %i4 %a %i12', &
                        'obs(', k, ')%nobs_epoch', this%obs(k)%nobs_epoch )
-               enddo               
+               enddo
 
             else
                allocate(this%lons(0),this%lats(0),_STAT)
@@ -715,7 +713,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
          integer :: is, ie, nx
-         integer :: lb(1),ub(1)
          integer :: lm
          integer :: rank
          integer :: status
@@ -725,12 +722,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (.NOT. this%is_valid) then
             _RETURN(ESMF_SUCCESS)
          endif
-         
+
          if (this%nobs_epoch_sum==0) then
             rc=0
             return
          endif
-            
+
          is=1
          do k = 1, this%nobs_type
             !-- limit  nx < 2**32 (integer*4)
@@ -780,7 +777,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         allocate (this%obs(k)%p2d(nx))
                      enddo
-                     
+
                      allocate(ix(this%nobs_type))
                      ix(:)=0
                      do j=is, ie
@@ -848,7 +845,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                start=[is,1],count=[nx,size(p_acc_rt_3d,2)])                           
+                                start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                         endif
                      enddo
                      !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
@@ -999,7 +996,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  endif
               end do
            end if
-           
+
            call ESMF_FieldBundleGet(this%acc_bundle,fieldCount=numVars,_RC)
            allocate(names(numVars),stat=status)
            call ESMF_FieldBundleGet(this%acc_bundle,fieldNameList=names,_RC)
@@ -1084,10 +1081,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  x_subset(2) = jt2
               endif
            endif
-           
+
            _RETURN(_SUCCESS)
          end procedure get_x_subset
-         
+
 
          module procedure get_obsfile_Tbracket_from_epoch
            implicit none
@@ -1200,8 +1197,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          _RETURN(_SUCCESS)
        end procedure time_real_to_ESMF
-         
-         
+
+
 
 
      module procedure reset_times_to_current_day
@@ -1223,7 +1220,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure sort_three_arrays_by_time
-        integer :: status
         integer :: i, len
         integer, allocatable :: IA(:)
         integer(ESMF_KIND_I8), allocatable :: IX(:)
@@ -1262,7 +1258,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         integer, allocatable :: IA(:)
         integer(ESMF_KIND_I8), allocatable :: IX(:)
         real(ESMF_KIND_R8), allocatable :: X(:)
-        integer, allocatable :: NX(:)        
+        integer, allocatable :: NX(:)
 
         _ASSERT (size(U)==size(V), 'U,V different dimension')
         _ASSERT (size(U)==size(T), 'U,T different dimension')
@@ -1290,7 +1286,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          NX = ID
          do i=1, len
             ID(i) = NX(IA(i))
-         enddo         
+         enddo
          _RETURN(_SUCCESS)
        end procedure sort_four_arrays_by_time
 
