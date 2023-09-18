@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cleanup Fortran
   - Converted all uses of `mpif.h` to `use mpi`
   - Converted all uses of `character*` to `character(len=)`
+- Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
 
 ### Fixed
 
@@ -39,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add call to initialize pFlogger layer for the unit tests.
 - Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
   + MPT bug at NAS
+- Fix problem with macros in base/MAPL\_Resource.F90 uncovered while compiling with the NVIDIA Fortran compiler.
+  The macros in MAPL\_Resource.F90 had long lines which exceeded the line length limit of the NVIDIA compiler.
+  Change the macros into include files (.h) with macros and Fortran code.
 
 ### Removed
 
