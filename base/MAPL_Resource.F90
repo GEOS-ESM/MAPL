@@ -688,8 +688,10 @@ contains
       character(len=*), intent(in) :: value_
       integer, intent(in) :: slen
       character(len=slen) :: string
+      integer :: last
 
-      string = merge(value_, value_(1:slen), len(value_) <= slen)
+      last = min(slen, len(value_))
+      string = value_(1:last)
 
    end function make_string_character
 
@@ -698,16 +700,20 @@ contains
       integer, intent(in) :: slen
       character(len=slen) :: string
       character(len=:), allocatable :: raw
-      integer :: i
+      integer :: i, last
 
       string = ''
       if(size(value_) == 0) return
-      raw = value_(1)
-      do i=2, size(value_)
+
+      raw = EMPTY_STRING
+      do i=1, size(value_)
+         raw = raw // ' ' // trim(value_(i))
          if(len(raw) > slen) exit
-         raw = raw // ' ' // value_(i)
       end do
 
+      last = min(slen, len(raw))
+      string = raw(1:last)
+      
    end function make_string_character_array
 
 end module MAPL_ResourceMod
