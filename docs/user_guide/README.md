@@ -1,18 +1,17 @@
 # MAPL User's Guide
 
-This document describes MAPL, a software layer that
-establishes usage standards and software tools for building
-[ESMF](http://www.earthsystemmodeling.org)
-compliant components. 
-This package:
+This document describes the Modeling Analysis and Prediction Layer (MAPL), a software layer and set of conventions standardize the use of [ESMF](http://www.earthsystemmodeling.org). 
+MAPL seats on to of ESMF to simplify the creation and use of ESMF gridded components
+in a hierarchical architecture.
+It:
 
-1. Facilitates the porting of existing codes to ESMF
+1. Facilitates the porting of existing codes to ESMF.
 2. Provides tools and a straightforward recipe for building
-   new ESMF components, and
+   new ESMF components.
 3. Provides much greater interoperability between compliant components 
-   than between current ESMF compliant components (!?!?!).
+   than between current ESMF compliant components.
 
-## 1 [Introduction](docs/mapl_Introdction.md)
+## 1 [Introduction](docs/mapl_Introduction.md)
 
 ## 2 [ESMF- A Review of Aspects relevant to MAPL](docs/esmf_review.md)
 

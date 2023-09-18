@@ -1,6 +1,19 @@
-The MAPL library can be divided into the following sub-systems:
 
-- __MAPL_Core__ is a collection of routines and conventions used to
+
+MAPL has the following features:
+
+- Easy specification of import, export, and internal states
+- Easy addition of child components
+- Default implementation for checkpoint/restart.
+- Wrap user-specified ESMF entry points to
+   - Manage instantiation of fields, esp. field connections
+   - Profile (time and memory)
+   - Insert couplers (when needed)
+- Enforce conventions.
+
+The above features are implemented through a set of a framework of sub-systems:
+
+-  __MAPL_Core__ is a collection of routines and conventions used to
     build __ESMF_GridComps__ (or to wrap legacy codes as __ESMF_GridComps__). 
     In particular, it includes the means of describing a component's Import and Export states
     as well as the new Internal state.
