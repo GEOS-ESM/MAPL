@@ -146,7 +146,6 @@
   public HISTORY_ExchangeListWrap
 
   type(samplerHQ), save :: Hsampler
-  include "mpif.h"
 
 contains
 

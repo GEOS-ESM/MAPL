@@ -116,7 +116,7 @@ module MAPL_GriddedIOMod
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-        type(StringStringMap), intent(in), optional :: global_attributes
+        type(StringStringMap), target, intent(in), optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
