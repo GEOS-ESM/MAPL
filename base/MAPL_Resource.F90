@@ -125,7 +125,7 @@ module MAPL_ResourceMod
    character(len=*), parameter :: TYPE_STRING_LOGICAL = 'Logical '
 
    character(len=*), parameter :: CHARACTER_FMT = "(A)"
-   character(len=*), parameter :: INTEGER_FMT = "(I0.1)" 
+   character(len=*), parameter :: INTEGER_FMT = "(I0.1)"
    character(len=*), parameter :: REAL_FMT = "(F0.6)"
    character(len=*), parameter :: LOGICAL_FMT = "(L1)"
 contains
@@ -345,7 +345,7 @@ contains
       type is (TYPE_INTEGER8)
 
 #define TYPE_ TYPE_INTEGER8
-#define TYPENUM TYPENUM_INTEGER8 
+#define TYPENUM TYPENUM_INTEGER8
 #include "MAPL_Resource_SetValue.h"
 #include "MAPL_Resource_MakeString.h"
 #undef TYPE_
@@ -605,7 +605,7 @@ contains
       end if
 
       ! Make output_string including label but without the trailer
-      output_string = " " // type_string // ", Resource Parameter: " // trim(label) // value_out
+      output_string = " " // type_string // "Resource Parameter: " // trim(label) // value_out
 
       ! Add the trailer now
       output_string = trim(output_string) // trailer
@@ -713,7 +713,7 @@ contains
 
       last = min(slen, len(raw))
       string = raw(1:last)
-      
+
    end function make_string_character_array
 
 end module MAPL_ResourceMod
