@@ -504,21 +504,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !-- non IODA case
             !
             _FAIL('non-IODA format is not implemented here')
-            !! sorry Ben, cannot make everything work
-            !!filename=trim(this%obsFile)
-            !!!!         print*, 'obs file name=', trim(filename)
-            !!call formatter%open(trim(filename),pFIO_READ,_RC)
-            !!fmd = formatter%read(_RC)
-            !!call metadata_utils%create(fmd,trim(filename))
-            !!num_times = metadata_utils%get_dimension("time",_RC)
-            !!allocate(this%lons(num_times),this%lats(num_times),_STAT)
-            !!if (metadata_utils%is_var_present("longitude")) then
-            !!   call formatter%get_var("longitude",this%lons,_RC)
-            !!end if
-            !!if (metadata_utils%is_var_present("latitude")) then
-            !!   call formatter%get_var("latitude",this%lats,_RC)
-            !!end if
-            !!call metadata_utils%get_time_info(timeVector=this%times,_RC)
          else
             !
             !-- IODA case
