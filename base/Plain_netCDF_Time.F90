@@ -33,7 +33,7 @@ module MAPL_plain_netCDF_Time
 
 !C  interface get_ncfile_dimension
 !     procedure :: get_ncfile_dimension
-!     procedure :: get_ncfile_dimension_I8     
+!     procedure :: get_ncfile_dimension_I8
 !C  end interface get_ncfile_dimension
 !
 !C  interface get_v1d_netcdf
@@ -41,7 +41,7 @@ module MAPL_plain_netCDF_Time
 !     procedure :: get_v1d_netcdf_R8_I8
 !C  end interface get_v1d_netcdf
 
-  
+
   interface get_v2d_netcdf
      procedure ::  get_v2d_netcdf_R4
      procedure ::  get_v2d_netcdf_R8
@@ -51,7 +51,7 @@ module MAPL_plain_netCDF_Time
      procedure :: parse_timeunit_i4
      procedure :: parse_timeunit_i8
   end interface parse_timeunit
-  
+
   interface hms_2_s
      procedure :: hms_2_s
   end interface hms_2_s
@@ -72,8 +72,8 @@ contains
     integer :: ncid , dimid
     integer :: status
     character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
-    
-    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
+
+    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     if (present(key_lon)) then
        lon_name=trim(key_lon)
        !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
@@ -84,15 +84,15 @@ contains
     if (present(key_lat)) then
        lat_name=trim(key_lat)
        !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
+       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
        call check_nc_status(nf90_close(ncid), _RC)
     endif
 
     if (present(key_time)) then
-       time_name=trim(key_time)    
+       time_name=trim(key_time)
        !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
-       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
+       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
     endif
     call check_nc_status(nf90_close(ncid), _RC)
@@ -112,8 +112,8 @@ contains
 !    integer :: ncid , dimid
 !    integer :: status
 !    character(len=ESMF_MAXSTR) :: lon_name, lat_name, time_name
-!    
-!    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)    
+!
+!    call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
 !    if (present(key_lon)) then
 !       lon_name=trim(key_lon)
 !       !    call check_nc_status(nf90_inq_dimid(ncid, "lon", dimid), _RC)
@@ -124,15 +124,15 @@ contains
 !    if (present(key_lat)) then
 !       lat_name=trim(key_lat)
 !       !    call check_nc_status(nf90_inq_dimid(ncid, "lat", dimid), _RC)
-!       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)    
+!       call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
 !       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
 !       call check_nc_status(nf90_close(ncid), _RC)
 !    endif
 !
 !    if (present(key_time)) then
-!       time_name=trim(key_time)    
+!       time_name=trim(key_time)
 !       !    call check_nc_status(nf90_inq_dimid(ncid, 'time', dimid), _RC)
-!       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)    
+!       call check_nc_status(nf90_inq_dimid(ncid, trim(time_name), dimid), _RC)
 !       call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=tdim), _RC)
 !    endif
 !    call check_nc_status(nf90_close(ncid), _RC)
@@ -140,7 +140,7 @@ contains
 !    !- debug summary
 !    !write(6,*) "get_ncfile_dimension:  nlat, nlon, tdim = ", nlat, nlon, tdim
 !  end subroutine get_ncfile_dimension_I8
-!  
+!
 
   subroutine get_v2d_netcdf_R4(filename, name, array, Xdim, Ydim)
     use netcdf
@@ -165,13 +165,13 @@ contains
     iret = nf90_close(ncid)
   end subroutine get_v2d_netcdf_R4
 
-  
+
   subroutine get_v2d_netcdf_R8(filename, name, array, Xdim, Ydim)
     use netcdf
     implicit none
     character(len=*), intent(in) :: name, filename
     integer, intent(in) :: Xdim, Ydim
-    real*8, dimension(Xdim,Ydim), intent(out) :: array
+    real(REAL64), dimension(Xdim,Ydim), intent(out) :: array
     integer :: ncid, varid
     real    :: scale_factor, add_offset
     integer :: rc, status, iret
@@ -196,7 +196,7 @@ contains
     character(len=*), intent(in) :: name, filename
     character(len=*), optional, intent(in) :: group_name
     integer, intent(in) :: Xdim
-    real*8, dimension(Xdim), intent(out) :: array
+    real(REAL64), dimension(Xdim), intent(out) :: array
     integer :: ncid, varid, ncid2
     integer :: rc, status, iret
 
@@ -230,7 +230,7 @@ contains
 !    call check_nc_status (  nf90_get_var   (ncid, varid,  array), _RC )
 !    iret = nf90_close(ncid)
 !  end subroutine get_v1d_netcdf_R8_I8
-  
+
 
   subroutine check_nc_status(status, rc)
     use netcdf
@@ -307,12 +307,11 @@ contains
     type (ESMF_TimeInterval), intent(out) :: dt
     integer, intent(out) :: rc
 
-    integer :: i, j, k, status
+    integer :: i
     character(len=ESMF_MAXSTR) :: s1, s2, s_time, s_unit
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer :: isec
-    integer :: iyy,imm,idd,ih,im,is
     type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
@@ -341,7 +340,7 @@ contains
     !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     !  if(present(rc)) rc=0
     rc=0
-    
+
   end subroutine parse_timeunit_i4
 
 
@@ -355,12 +354,11 @@ contains
     type (ESMF_TimeInterval), intent(out) :: dt
     integer, intent(out) :: rc
 
-    integer :: i, j, k, status
+    integer :: i
     character(len=ESMF_MAXSTR) :: s1, s2, s_time, s_unit
     character(len=1) :: c1
     integer :: y,m,d,hour,min,sec
     integer(ESMF_KIND_I8) :: isec
-    integer :: iyy,imm,idd,ih,im,is
     type(ESMF_Calendar) :: gregorianCalendar
 
     i=index(trim(tunit), 'since')
@@ -389,14 +387,13 @@ contains
     !  call ESMF_CalendarDestroy(gregorianCalendar, rc=rc)
     !  if(present(rc)) rc=0
     rc=0
-    
+
   end subroutine parse_timeunit_i8
-  
+
   subroutine ESMF_time_to_two_integer (time, itime, rc)
     type (ESMF_Time), intent(in) ::   time
     integer, intent(out) :: itime(2)
     integer, intent(out), optional :: rc
-    integer :: status
     integer :: i1, i2
     integer :: yy, mm, dd, h, m, s
 
@@ -414,7 +411,6 @@ contains
     type (ESMF_Time), intent(out) ::   time
     integer, intent(in) :: itime(2)
     integer, intent(out), optional :: rc
-    integer :: status
     integer :: i1, i2
     integer :: yy, mm, dd, h, m, s
 
@@ -446,7 +442,7 @@ contains
 
     sec= h*3600 + m*60 + s
     if (present(rc)) rc=0
-    
+
   end subroutine hms_2_s
 
 
@@ -457,7 +453,7 @@ contains
     real(ESMF_KIND_R8), intent(in) :: x       ! pt
     integer(ESMF_KIND_I8), intent(out) :: n   !  out: bisect index
     integer(ESMF_KIND_I8), intent(in), optional :: n_LB  !  opt in : LB
-    integer(ESMF_KIND_I8), intent(in), optional :: n_UB  !  opt in : UB     
+    integer(ESMF_KIND_I8), intent(in), optional :: n_UB  !  opt in : UB
     integer, intent(out), optional :: rc
 
     integer(ESMF_KIND_I8) :: k, klo, khi, dk, LB, UB
@@ -467,7 +463,7 @@ contains
     if(present(n_LB)) LB=n_LB
     if(present(n_UB)) UB=n_UB
     klo=LB; khi=UB; dk=1
-    
+
     ! write(6,*) 'init klo, khi', klo, khi
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
@@ -480,7 +476,7 @@ contains
     !     x         x                       x
     !
     !        Y(n)  <  x  <=  Y(n+1)
-    
+
     rc=-1
     if ( x <= xa(klo) ) then
        !write(6,*) 'xa(klo), xa(khi), x', xa(klo), xa(khi), x
@@ -507,20 +503,19 @@ contains
           return
        endif
     enddo
-    
+
   end subroutine bisect_find_LB_R8_I8
-    
+
 
   subroutine convert_twostring_2_esmfinterval (symd, shms, interval, rc)
     character(len=*) :: symd
     character(len=*) :: shms
     type (ESMF_TimeInterval), intent(out) :: interval
     integer, optional, intent(out) :: rc
-    integer :: status    
     character(len=20) :: s1, s2
     integer :: y, m, d, hh, mm, ss
 
-    
+
     s1=trim(symd)
     read(s1, '(3i2)') y, m, d
     s2=trim(shms)

@@ -73,6 +73,7 @@ module MAPL_OpenMP_Support
         bounds = find_bounds(local_count(2), num_grids)
         subgrids = make_subgrids(primary_grid, bounds, _RC)
         _RETURN(ESMF_SUCCESS)
+        _UNUSED_DUMMY(unusable)
     end function make_subgrids_from_num_grids
 
     function make_subgrids_from_bounds(primary_grid, bounds, unusable, rc) result(subgrids)
@@ -183,6 +184,7 @@ module MAPL_OpenMP_Support
             deallocate(new_corner_lons, new_corner_lats)
         end do
         _RETURN(ESMF_SUCCESS)
+        _UNUSED_DUMMY(unusable)
     end function make_subgrids_from_bounds
 
 
@@ -374,6 +376,7 @@ module MAPL_OpenMP_Support
         end if
 
         _RETURN(ESMF_SUCCESS)
+        _UNUSED_DUMMY(unusable)
     end function make_subfields_from_num_grids
 
 
@@ -461,6 +464,7 @@ module MAPL_OpenMP_Support
        end do
 
        _RETURN(ESMF_SUCCESS)
+       _UNUSED_DUMMY(unusable)
     end function make_subFieldBundles_ordinary
 
     recursive function make_substates_from_num_grids(state, num_subgrids, unusable, rc) result(substates)
@@ -531,6 +535,7 @@ module MAPL_OpenMP_Support
       call copy_callbacks(state, substates, _RC)
 
       _RETURN(0)
+      _UNUSED_DUMMY(unusable)
     end function make_substates_from_num_grids
 
     function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
@@ -592,6 +597,7 @@ module MAPL_OpenMP_Support
         end do
 
         _RETURN(ESMF_SUCCESS)
+        _UNUSED_DUMMY(unusable)
 
         contains
 
