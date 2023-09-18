@@ -180,6 +180,8 @@ CONTAINS
       ! _VERIFY(status)
       subcommunicator = split_comm%get_subcommunicator()
 
+      _UNUSED_DUMMY(rc)
+
    end function create_member_subcommunicator
 !------------------------------------------------------------------------------
 !>
@@ -228,7 +230,6 @@ CONTAINS
 !
    subroutine perform_domain_deposition()
       integer, allocatable :: proc_sizes(:)
-      integer :: ierr
       !------------------------------------------------
       ! ---> Perform domain decomposition for the model
       !------------------------------------------------

@@ -28,8 +28,8 @@ module ParentNoChild_GridComp
      call MAPL_AddExportSpec(gc,short_name='output2', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzVert, &
                                  vlocation = MAPL_VLocationCenter, _RC)
- 
- 
+
+
 
      call MAPL_GenericSetServices(gc, _RC)
      _RETURN(_SUCCESS)
@@ -53,7 +53,7 @@ module ParentNoChild_GridComp
 
   end subroutine my_initialize
 
-    
+
   subroutine my_run(gc, import, export, clock, rc)
      type(ESMF_GridComp), intent(inout) :: gc
      type(ESMF_State), intent(inout) :: import
@@ -75,6 +75,9 @@ module ParentNoChild_GridComp
 
      _RETURN(_SUCCESS)
 
+     _UNUSED_DUMMY(import)
+     _UNUSED_DUMMY(clock)
+
   end subroutine my_run
 
 end module ParentNoChild_GridComp
@@ -85,4 +88,4 @@ subroutine SetServices(gc, rc)
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc
    call mySetServices(gc, rc=rc)
-end subroutine  
+end subroutine
