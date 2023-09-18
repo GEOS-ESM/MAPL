@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cleanup Fortran
   - Converted all uses of `mpif.h` to `use mpi`
   - Converted all uses of `character*` to `character(len=)`
+- Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
 
 ### Fixed
 
