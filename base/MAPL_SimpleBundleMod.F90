@@ -13,7 +13,7 @@
 !
 ! Author: GMAO SI-Team
 !
-! The module `MAPL_SimpleBundleMod` implements a wrapper class around the 
+! The module `MAPL_SimpleBundleMod` implements a wrapper class around the
 ! ESMF_FieldBundle. By construction, this is NOT an opaque object.
 !
 !#### History
@@ -80,7 +80,7 @@
       character(len=ESMF_MAXSTR)         :: LevUnits = '1'      !! Vertical Level units
       type(LcvGrid)                      :: lcv                 !! Lagrangian Control Volume
    end type SimpleGrid
- 
+
    type MAPL_SimpleBundle
       character(len=ESMF_MAXSTR) :: name
       type(ESMF_FieldBundle), pointer    :: Bundle  !! Associated ESMF bundle
@@ -116,7 +116,7 @@ CONTAINS
 !-----------------------------------------------------------------------------
 !>
 ! Given inputs, create a SimpleBundle.
- 
+
   Function MAPL_SimpleBundleCreateEmpty ( grid, rc, &
                                           Levs, LevUnits, &
                                           ptop, delp,     &
@@ -211,9 +211,9 @@ CONTAINS
 ! Given an ESMF Bundle, creates a corresponding Simple Bundle. The
 ! specification of a vertical grid is optional but useful in many
 ! cases. The 1-D `Levs` will default to the layer number, and units of "1".
-! Input parameters `(ptop,delp)` can be used to record the corresponding 
+! Input parameters `(ptop,delp)` can be used to record the corresponding
 ! Lagrangian Control Volume Grid. When `delp` is not specified, variables
-! `DELP` or `delp` are used if present inside the bundle. 
+! `DELP` or `delp` are used if present inside the bundle.
 !
   Function MAPL_SimpleBundleCreateFromBundle ( Bundle, rc,     &
                                                Levs, LevUnits, &
@@ -247,7 +247,7 @@ CONTAINS
     integer :: arrayRank, I, n, n1d, n2d, n3d, NumVars
     integer :: im, jm, km, dims(3)
     type(ESMF_FieldStatus_Flag) :: fieldStatus
-    
+
 
     logical :: strict_match
     logical :: isPresent
@@ -304,7 +304,7 @@ CONTAINS
 
        var_list = '__NONE__'
        call csv_tokens_get_(only_vars, var_list, _RC)
- 
+
        do i = 1, size(var_list)
           isPresent = .false.
 
@@ -317,7 +317,7 @@ CONTAINS
                 exit
              end if
           end do
-         
+
           if (isPresent) then
              isRequested(n) = .true.
           else
@@ -325,7 +325,7 @@ CONTAINS
                 message = 'could not find field '//trim(var_list(i))// &
                           ' in Simple Bundle <'//trim(self%name)//'>'
                 __raise__(MAPL_RC_ERROR, message)
-             end if   
+             end if
           end if
        end do
 
@@ -340,8 +340,8 @@ CONTAINS
 
     call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, _RC)
     im = dims(1);  jm = dims(2);  km = dims(3)
-    allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__) 
-    
+    allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
+
 !   Retrieve the lat/lon from Grid and convert to degrees
 !   -----------------------------------------------------
    call ESMF_GridGetCoord (self%Grid, coordDim=1, localDE=0, &
@@ -378,7 +378,7 @@ CONTAINS
 !ALT      self%coords%lcv%delp = delp
       self%coords%lcv%delp => delp
    else ! Look inside bundle for delp or DELP
-      self%coords%lcv%delp => NULL() 
+      self%coords%lcv%delp => NULL()
 
       haveDelp = .FALSE.
       call ESMF_FieldBundleGet (Bundle, fieldName='DELP', isPresent=isPresentBundle, RC=STATUS)
@@ -487,7 +487,7 @@ CONTAINS
           _VERIFY(STATUS)
        end if
 
-    end do 
+    end do
 
     self%n1d = n1d
     self%n2d = n2d
@@ -496,7 +496,7 @@ CONTAINS
     deallocate(isRequested, __STAT__)
 
     _RETURN(_SUCCESS)
-  
+
   contains
 
     function csv_tokens_count_(str, delimiter) result(n)
@@ -509,7 +509,7 @@ CONTAINS
       ! local
       character, parameter :: char_comma = ','
       character            :: c
-      integer              :: i 
+      integer              :: i
 
       if (present(delimiter)) then
          c = delimiter
@@ -521,9 +521,9 @@ CONTAINS
       do i = 1, len_trim(str)
          if (str(i:i) == c) then
             n = n + 1
-         end if   
+         end if
       end do
-    end function csv_tokens_count_ 
+    end function csv_tokens_count_
 
     subroutine csv_tokens_get_(str, list, delimiter, ignore, rc)
       implicit none
@@ -536,7 +536,7 @@ CONTAINS
 
       ! local
       character, parameter :: char_empty = ''
-      character, parameter :: char_space = ' '     
+      character, parameter :: char_space = ' '
       character, parameter :: char_comma = ','
 
       character :: c_dlm, c_ign
@@ -551,10 +551,10 @@ CONTAINS
       if (present(ignore)) then
          c_ign = ignore
       else
-         c_ign = char_space 
+         c_ign = char_space
       end if
 
-      
+
       list = char_empty
       j = 1
       n = 1
@@ -567,12 +567,12 @@ CONTAINS
             if (n > size(list)) then
                err = 99
                exit
-            end if   
-            
+            end if
+
             if (str(i:i) /= c_ign) then
                list(n)(j:j) = str(i:i)
                j = j + 1
-            end if   
+            end if
          else
             j = 1
             n = n + 1
@@ -582,7 +582,7 @@ CONTAINS
 
       if (present(rc)) then
          rc = err
-      end if   
+      end if
     end subroutine csv_tokens_get_
 
   end Function MAPL_SimpleBundleCreateFromBundle
@@ -592,9 +592,9 @@ CONTAINS
 ! Given an ESMF Staete, creates a corresponding Simple Bundle.
 ! The specificatiopn of a vertical grid is optional but useful in many
 ! cases. The 1-D `Levs` will default to the layer number, and units of "1".
-! Input parameters `(ptop,delp)` can be used to record the corresponding 
+! Input parameters `(ptop,delp)` can be used to record the corresponding
 ! Lagrangian Control Volume Grid. When `delp` is not specified, variables
-! `DELP` or `delp` are used if present inside the bundle. 
+! `DELP` or `delp` are used if present inside the bundle.
 !
 ! **IMPORTANT:** It is assumed that the ESMF State has a single grid.
 !
@@ -634,7 +634,7 @@ CONTAINS
           message = 'string "'//trim(name)//'" is too long to be used '// &
                     'as a Simple Bundle name'
           __raise__(MAPL_RC_ERROR, message)
-       end if   
+       end if
 
        bundleName = trim(name)
     else
@@ -656,7 +656,7 @@ CONTAINS
 ! Destructor for the MAPL Simple Bundle.
 ! It is assumed that the bundle has been created from an ESMF Field Bundle.
 !
-  subroutine MAPL_SimpleBundleDestroy (self, rc ) 
+  subroutine MAPL_SimpleBundleDestroy (self, rc )
 
     type(MAPL_SimpleBundle)                    :: self ! Simple Bundle
     integer, OPTIONAL,           intent(out)   :: rc
@@ -665,7 +665,7 @@ CONTAINS
 
     integer :: status
 
-    deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
+    deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__)
 !    deallocate(self%r1, self%r2, self%r3, __STAT__)
     if(associated(self%r1)) deallocate(self%r1)
     if(associated(self%r2)) deallocate(self%r2)
@@ -687,7 +687,7 @@ CONTAINS
 !>
 ! Given an ESMF Config object and a filename, reads the corresponding file into
 ! a MAPL SimpleBundle.
-! 
+!
   Function MAPL_SimpleBundleRead (filename, bundle_name, grid, time, verbose, &
                                   only_vars, expid, voting, unusable, rc ) result (self)
          use mapl_KeywordEnforcerMod
@@ -699,7 +699,7 @@ CONTAINS
     type(ESMF_Time),             intent(inout) :: Time
     type(ESMF_Grid),             intent(in)    :: Grid
     logical, OPTIONAL,           intent(in)    :: verbose
-    character(len=*), optional,  intent(IN)    :: only_vars 
+    character(len=*), optional,  intent(IN)    :: only_vars
     character(len=*), optional,  intent(IN)    :: expid
     class(KeywordEnforcer), optional, intent(in) :: unusable
     logical,          optional,  intent(in)    :: voting
@@ -722,13 +722,15 @@ CONTAINS
 
     _RETURN(_SUCCESS)
 
+    _UNUSED_DUMMY(unusable)
+
   end function MAPL_SimpleBundleRead
 
 !-----------------------------------------------------------------------------
 !>
 ! Writes a MAPL SimpleBundle to file fiven an ESMF Clock object.
 ! The file opened, written to, and closed.
- 
+
   subroutine MAPL_SimpleBundleWrite1 ( self, filename, clock, verbose, rc )
 
     type(MAPL_SimpleBundle)                 :: self
@@ -752,7 +754,7 @@ CONTAINS
 ! Writes a MAPL SimpleBundle to file fiven an ESMF Time object.
 ! The file opened, written to, and closed.
 ! A fake timestep of 30 minutes is assumed.
-! 
+!
   subroutine MAPL_SimpleBundleWrite2 ( self, filename, time, verbose, rc )
 !
     type(MAPL_SimpleBundle)                 :: self
@@ -761,7 +763,7 @@ CONTAINS
     logical, OPTIONAL,          intent(in)  :: verbose
     integer, OPTIONAL,          intent(out) :: rc
 !                                ---
-    type(ESMF_TimeInterval)    :: TimeStep 
+    type(ESMF_TimeInterval)    :: TimeStep
     type(ESMF_Clock)           :: Clock
     type(MAPL_CFIO)            :: cfio
     integer                    :: status
@@ -779,14 +781,14 @@ CONTAINS
 !............................................................................................
 !>
 ! Prints the global max/min for each variable in the Simple Bundle.
-! 
+!
   subroutine MAPL_SimpleBundlePrint ( self )
 
     type(MAPL_SimpleBundle) :: self
 !
 !-----------------------------------------------------------------------------
 
-    integer :: i 
+    integer :: i
 
     if ( MAPL_AM_I_ROOT() ) then
        print *
@@ -860,7 +862,7 @@ end subroutine MAPL_SimpleBundlePrint
 
     integer                                  :: iq    !! index of variable
     type(MAPL_SimpleBundle)                  :: self
-    character(len=*),            intent(in)  :: name  !! variable name 
+    character(len=*),            intent(in)  :: name  !! variable name
     integer,                     intent(in)  :: rank
     integer, OPTIONAL,           intent(out) :: rc
     logical, OPTIONAL,           intent(in)  :: quiet

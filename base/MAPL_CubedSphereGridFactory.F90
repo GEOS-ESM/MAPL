@@ -1349,7 +1349,6 @@ contains
       type(c_ptr) :: cptr
       real, pointer :: ptr_ref(:,:,:,:,:)
       logical :: face_format
-      integer :: status
 
       if (present(metadata)) then
          face_format = metadata%has_dimension('nf')
