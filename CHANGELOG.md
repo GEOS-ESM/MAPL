@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed many unused variables
   - Added many `_UNUSED_DUMMY()` calls
   - Converted statement functions to internal functions
+- Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
 
 ### Fixed
 
