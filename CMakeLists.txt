@@ -224,9 +224,8 @@ add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
 if (BUILD_WITH_FARGPARSE)
    add_subdirectory (tutorial)
- endif()
- add_subdirectory (benchmarks)
- 
+   add_subdirectory (benchmarks)
+endif()
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
