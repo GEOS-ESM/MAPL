@@ -38,10 +38,20 @@ contains
       real :: std_time
       type(BW_Benchmark) :: benchmark
       integer :: writer_comm
+      integer :: gather_comm
       integer :: i
       real :: t
 
-      writer_comm = split_comm(MPI_COMM_WORLD, spec%n_streams, _RC)
+      integer :: color, rank, npes
+      call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+
+      color = (rank*spec%n_writers) / npes
+      call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, _IERROR)
+      
+      call MPI_Comm_rank(gather_comm, rank, _IERROR)
+      call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, _IERROR)
+      if (rank /= 0) writer_comm = MPI_COMM_NULL
       _RETURN_IF(writer_comm == MPI_COMM_NULL)
 
       benchmark = make_BW_Benchmark(spec, writer_comm, _RC)
@@ -92,29 +102,6 @@ contains
    end function time
 
 
-   ! Spread writers apart in rank rather than clump on any given node.
-   function split_comm(comm_world, n_streams, rc) result(new_comm)
-      integer :: new_comm
-      integer, intent(in) :: comm_world
-      integer, intent(in) :: n_streams
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: color
-      integer :: team_size
-      integer :: npes, rank
-
-      call MPI_Comm_size(comm_world, npes, _IERROR)
-      call MPI_Comm_rank(comm_world, rank, _IERROR)
-      team_size = 1 + (npes-1)/n_streams
-      color = mod(rank, team_size) + (rank/(team_size*n_streams))
-      if (color /= 0) color = MPI_UNDEFINED
-
-      call MPI_Comm_split(comm_world, color, 0, new_comm, _IERROR)
-
-      _RETURN(_SUCCESS)
-   end function split_comm
-
    subroutine write_header(comm, rc)
       integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
@@ -125,8 +112,8 @@ contains
       call MPI_Comm_rank(comm, rank, _IERROR)
       _RETURN_UNLESS(rank == 0)
 
-      write(*,'(4(a10,","),6(a15,:,","))',iostat=status) &
-           'NX', '# levs', '# writers', '# packets', 'write (GB)', 'packet (GB)', &
+      write(*,'(3(a10,","),6(a15,:,","))',iostat=status) &
+           'NX', '# levs', '# writers', 'write (GB)', 'packet (GB)', &
            'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
 
       _RETURN(status)
@@ -153,15 +140,15 @@ contains
       call MPI_Comm_rank(comm, rank, _IERROR)
       _RETURN_UNLESS(rank == 0)
 
-      packet_size = int(spec%nx,kind=INT64)**2 * spec%n_levs / spec%n_packets / spec%n_streams
+      packet_size = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / spec%n_writers
       packet_gb = 1.e-9*(WORD_SIZE * packet_size)
-      total_gb = packet_gb * spec%n_packets * npes
+      total_gb = packet_gb * npes
       bw = total_gb / avg_time
 
       call MPI_Comm_size(comm, npes, _IERROR)
 
-      write(*,'(4(1x,i9.0,","),6(f15.4,:,","))') &
-           spec%nx, spec%n_levs, spec%n_streams, spec%n_packets, &
+      write(*,'(3(1x,i9.0,","),6(f15.4,:,","))') &
+           spec%nx, spec%n_levs, spec%n_writers, &
            total_gb, packet_gb, avg_time, bw, bw/npes, std_time/avg_time
 
       _RETURN(_SUCCESS)

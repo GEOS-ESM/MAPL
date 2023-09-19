@@ -16,8 +16,7 @@ module mapl_BW_BenchmarkSpec
    type :: BW_BenchmarkSpec
       integer :: nx
       integer :: n_levs
-      integer :: n_streams
-      integer :: n_packets
+      integer :: n_writers
       integer :: n_tries
    end type BW_BenchmarkSpec
 
@@ -45,14 +44,10 @@ contains
       call cast(option, spec%n_levs, _RC)
 
 
-      option => options%at('n_streams')
-      _ASSERT(associated(option), 'n_streams not found')
-      call cast(option, spec%n_streams, _RC)
+      option => options%at('n_writers')
+      _ASSERT(associated(option), 'n_writers not found')
+      call cast(option, spec%n_writers, _RC)
 
-
-      option => options%at('n_packets')
-      _ASSERT(associated(option), 'n_packets not found')
-      call cast(option, spec%n_packets, _RC)
 
       option => options%at('n_tries')
       _ASSERT(associated(option), 'n_tries not found')
@@ -74,15 +69,9 @@ contains
            type='integer',  &
            action='store')
 
-      call parser%add_argument('--n_streams', &
+      call parser%add_argument('--n_writers', &
            help='number of simultaneous, independent writes to disk', &
            type='integer',  &
-           action='store')
-
-      call parser%add_argument('--n_packets', &
-           help='number of packets to subdivide writes', &
-           type='integer',  &
-           default=1, &
            action='store')
 
       call parser%add_argument('--n_tries', &
@@ -105,8 +94,8 @@ contains
       integer :: status
       integer :: rank
 
-      associate (packet_size => int(spec%nx,kind=INT64)**2 * spec%n_levs/spec%n_packets/spec%n_streams)
-        allocate(benchmark%buffer(packet_size, spec%n_packets), _STAT)
+      associate (packet_size => int(spec%nx,kind=INT64)**2 * 6* spec%n_levs/spec%n_writers)
+        allocate(benchmark%buffer(packet_size), _STAT)
         call random_number(benchmark%buffer)
       end associate
 

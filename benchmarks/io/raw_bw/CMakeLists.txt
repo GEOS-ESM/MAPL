@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.benchmarks.raw_bw")
+#set(MODULE_DIRECTORY "${esma_include}/MAPL.benchmarks.raw_bw")
 
 ecbuild_add_executable (
   TARGET raw_bw.x
@@ -13,5 +13,5 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(raw_bw.x PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 
-set_target_properties(raw_bw.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+#set_target_properties(raw_bw.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
