@@ -9,7 +9,7 @@ module HistoryTrajectoryMod
   use MAPL_VerticalDataMod
   use LocStreamFactoryMod
   use MAPL_LocstreamRegridderMod
-  use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   private
 
