@@ -57,6 +57,7 @@ module MAPL_DateTime_Parsing
    public :: is_positive_digit
    public :: MAX_CHARACTER_LENGTH
    public :: is_time_unit
+   public :: get_time_unit
 
    public :: YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, TIME_UNIT_UNKNOWN
    public :: TIME_UNIT, NUM_TIME_UNITS 
@@ -205,16 +206,17 @@ contains
 ! NUMBER HANDLING PROCEDURES
 
    ! Return true if factor divides dividend evenly, false otherwise
-   pure logical function multipleof(factor, dividend)
-      integer, intent(in) :: factor
+   pure logical function multipleof(dividend, factor)
       integer, intent(in) :: dividend
+      integer, intent(in) :: factor
       ! mod returns the remainder of dividend/factor,
       ! and if it is 0, factor divides dividend evenly
       if(factor /= 0) then ! To avoid divide by 0
-          multipleof = mod(dividend, factor)==0
+          multipleof = mod(dividend, factor) == 0
       else
           multipleof = .FALSE.
       endif
+
    end function multipleof
 
    pure logical function is_in_closed_interval(n, clint)
@@ -1040,6 +1042,7 @@ contains
 
 ! END TYPE-BOUND METHODS
 
+   !wdb deleteme Not testing. May not be necessary.
    subroutine convert_to_ISO8601DateTime(datetime_string, iso_string, rc)
       character(len=*), intent(in) :: datetime_string
       character(len=:), allocatable, intent(out) :: iso_string
@@ -1058,13 +1061,25 @@ contains
       character(len=*), parameter :: ISO_POINT = '.'
       character(len=len(datetime_string)) :: undelimited
       character(len=:), allocatable :: intermediate
+      character(len=2) :: int_length
+      integer :: io_stat
       integer :: undelimited_length
+      character(len=80) :: msg
+      integer :: status
 
       iso_string = datetime_string
       undelimited = adjustl(undelimit_all(datetime_string))
       undelimited_length=len_trim(undelimited)
-      if(undelimited_length >= MIN_LEN) then
-         _FAIL('datetime_string is too short: ')
+      if(undelimited_length < MIN_LEN) then
+!         msg = 'datetime_string is too short'
+!         write(int_length, fmt='(I2)', iostat=io_stat) undelimited_length
+!         if(io_stat == 0) msg = trim(msg) // ': ' // trim(int_length)
+!         write(int_length, fmt = '(I2)', iostat = io_stat) MIN_LEN
+!         if(io_stat == 0) msg = trim(msg) // ' < ' // trim(int_length)
+         _RETURN(_FAILURE)
+!         _FAIL(msg) !wdb fixme and delete next 2 lines
+!         if(present(rc)) rc = -1
+!         return
       end if
 
       intermediate = undelimited(N(1,YY):N(2,YY)) // ISO_DD // &
@@ -1231,51 +1246,74 @@ contains
 
 ! TIME_UNIT ====================================================================
 
-   function get_time_unit(unit_name, check_plural) result(n)
+   function get_time_unit(unit_name, check_plural) result(unit_num)
       character(len=*), intent(in) :: unit_name
       logical, optional, intent(in) :: check_plural
+      integer(kind(TIME_UNIT)) :: unit_num
       character(len=:), allocatable  :: unit_name_
       logical :: check_plural_ = .TRUE.
       character(len=:), pointer, save :: tunits(:)
       character(len=:), allocatable :: tunit
       character, parameter :: PLURAL = 's'
-      integer :: n, i
+      integer(kind(TIME_UNIT)) :: i
+      character(len=*), parameter :: IFMT = '(A,I1)'
+      character(len=*), parameter :: LFMT = '(A,L)'
 
+      print *, 'Entering get_time_unit'
       check_plural_ = .TRUE.
       if(present(check_plural)) check_plural_ = check_plural
+      write(*, fmt=LFMT) 'check_plural_: ', check_plural_
       unit_name_ = trim(unit_name)
+      print *, 'unit_name_ = ' // unit_name_
       tunits = get_time_units()
+      do i = 1, size(tunits)
+         write(*, '(A,I1,A)') 'i = ', i, ', tunits(i) = ' // tunits(i)
+      end do
+      print *, 'Have tunits'
 
-      n = TIME_UNIT_UNKNOWN
+      unit_num = TIME_UNIT_UNKNOWN
       do i = 1, NUM_TIME_UNITS
+         write(*, fmt=IFMT) 'i = ', i
          tunit = trim(tunits(i))
+         print *, 'tunit = ' // tunit
+         write(*, fmt=LFMT) 'tunit == unit_name_: ', (tunit == unit_name_)
+         write(*, fmt=LFMT) 'check_plural_ .and. ((tunit // PLURAL) == unit_name_): ', (check_plural_ .and. ((tunit // PLURAL) == unit_name_))
          if((tunit == unit_name_) .or. (check_plural_ .and. ((tunit // PLURAL) == unit_name_))) then
-            n = i
+            print *, 'Match'
+            unit_num = i
+            write(*, fmt=IFMT) 'unit_num = ', unit_num
             exit
          end if
       end do
 
-   contains
-
-      function get_time_units() result(units)
-         character(len=:), pointer :: units(:)
-         logical, save :: initialized = .FALSE.
-
-         if(.not. initialized) then
-            time_units(YEAR) = "year"
-            time_units(MONTH) = "month"
-            time_units(DAY) = "day"
-            time_units(HOUR) = "hour"
-            time_units(MINUTE) = "minute"
-            time_units(SECOND) = "second"
-            initialized = .TRUE.
-         end if
-
-         units => time_units
-
-      end function get_time_units
-
    end function get_time_unit
+
+   function get_time_units() result(units)
+      character(len=len(time_units(1))) :: units(size(time_units))
+
+      print *, 'Entering get_time_units()'
+      call initialize_time_units()
+      units = time_units
+      print *, 'Exiting get_time_units()'
+
+   end function get_time_units
+
+   subroutine initialize_time_units()
+      logical, save :: initialized = .FALSE.
+
+      print *, 'Entering initialize_time_units()'
+      if(initialized) return
+      time_units(YEAR) = "year"
+      time_units(MONTH) = "month"
+      time_units(DAY) = "day"
+      time_units(HOUR) = "hour"
+      time_units(MINUTE) = "minute"
+      time_units(SECOND) = "second"
+
+      initialized = .TRUE.
+      print *, 'Exiting initialize_time_units()'
+
+   end subroutine initialize_time_units
 
    logical function is_time_unit(string)
       character(len=*), intent(in) :: string

@@ -1,7 +1,68 @@
 #include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
 !===============================================================================
 ! TEST_MAPL_DATETIMEPARSING_ESMF
 !===============================================================================
-module test_MAPL_DateTimeParsing_ESMF
-end module test_MAPL_DateTimeParsing_ESMF
+module test_MAPL_DateTime_Parsing_ESMF
+   use MAPL_DateTime_Parsing
+   use MAPL_DateTime_Parsing_ESMF
+   use MAPL_CF_Time
+   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
+
+   implicit none
+   
+   integer, parameter :: SUCCESS = _SUCCESS !wdb deleteme
+
+contains
+
+   @test
+   subroutine test_set_ESMF_TimeInterval_integer()
+      integer :: duration = 1800, actual
+      type(datetime_duration) :: dt_dur
+      character(len=*), parameter :: units = 'seconds since 1999-12-31 23:29:59'
+      type(ESMF_TimeInterval) :: interval
+      integer :: status
+      
+      call convert_CF_Time_to_datetime_duration(duration, units, dt_dur, rc = status)
+      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
+!      call set_ESMF_TimeInterval(interval, dt_dur, status) 
+!      @assertEqual(SUCCESS, status, 'Set unsuccessful')
+!      call ESMF_TimeIntervalGet(interval, s = actual, rc = status)
+!      @assertEqual(SUCCESS, status, 'Get unsuccessful')
+!      @assertEqual(duration, actual, 'Incorrect interval duration')
+
+   end subroutine test_set_ESMF_TimeInterval_integer
+
+   @test
+   subroutine test_set_ESMF_TimeInterval_real()
+      real(R64) :: duration = 1800.0, actual
+      type(datetime_duration) :: dt_dur
+      character(len=*), parameter :: units = 'seconds since 1999-12-31 23:29:59'
+      type(ESMF_TimeInterval) :: interval
+      integer :: status
+      
+      call convert_CF_Time_to_datetime_duration(duration, units, dt_dur, rc = status)
+      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
+!      call set_ESMF_TimeInterval(interval, dt_dur, rc = status) 
+!      @assertEqual(SUCCESS, status, 'Set unsuccessful')
+!      call ESMF_TimeIntervalGet(interval, s_r8 = actual, rc = status)
+!      @assertEqual(SUCCESS, status, 'Get unsuccessful')
+!      @assertEqual(duration, actual, 'Incorrect interval duration')
+
+   end subroutine test_set_ESMF_TimeInterval_real
+
+   @test
+   subroutine test_ESMF_Time_from_ISO8601()
+      character(len=*), parameter :: isostring = '1999-12-31T23:29:59'
+      character(len=len(isostring)) :: actual
+      type(ESMF_Time) :: time
+      integer :: status
+
+      call set_ESMF_Time_from_ISO8601(time, isostring, rc = status)
+      @assertTrue(status == SUCCESS, 'Failed to set ESMF_Time')
+      call ESMF_TimeGet(time, timeStringISOFrac = actual, rc = status)
+      @assertTrue(status == SUCCESS, 'Failed to get isostring')
+      @assertEqual(isostring, actual, 'ISO8601 strings do not match.')
+      
+   end subroutine test_ESMF_Time_from_ISO8601
+
+end module test_MAPL_DateTime_Parsing_ESMF

@@ -10,21 +10,30 @@ module MAPL_NetCDF
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    use MAPL_DateTime_Parsing, only: datetime_duration
-   use MAPL_DateTime_Parsing_ESMF, only: set_ESMF_TimeInterval, set_ESMF_Time_from_ISO8601
-   use MAPL_CF_Time, only: CF_Time, convert_CF_Time_to_datetime_duration, &
-      extract_ISO8601_from_CF_Time, extract_CF_Time_unit
-   use ESMF, only: ESMF_Time, ESMF_Time
+!   use MAPL_DateTime_Parsing_ESMF, only: set_ESMF_TimeInterval, set_ESMF_Time_from_ISO8601
+   use MAPL_DateTime_Parsing_ESMF
+!   use MAPL_CF_Time, only: CF_Time, convert_CF_Time_to_datetime_duration, &
+!      extract_ISO8601_from_CF_Time, extract_CF_Time_unit
+   use MAPL_CF_Time
+!   use ESMF, only: ESMF_Time, ESMF_Time
+   use ESMF
 
    implicit none
 
    public :: convert_NetCDF_DateTime_to_ESMF
+   public :: get_ESMF_Time_from_NetCDF_DateTime
 
    private
 
    interface convert_NetCDF_DateTime_to_ESMF
-      module procedure :: convert_NetCDF_DateTime_to_ESMF_integer
-      module procedure :: convert_NetCDF_DateTime_to_ESMF_real
+      module procedure :: get_ESMF_Time_from_NetCDF_DateTime_integer
+      module procedure :: get_ESMF_Time_from_NetCDF_DateTime_real
    end interface convert_NetCDF_DateTime_to_ESMF
+
+   interface get_ESMF_Time_from_NetCDF_DateTime
+      module procedure :: get_ESMF_Time_from_NetCDF_DateTime_integer
+      module procedure :: get_ESMF_Time_from_NetCDF_DateTime_real
+   end interface get_ESMF_Time_from_NetCDF_DateTime
 
    integer, parameter :: MAX_CHARACTER_LENGTH = 64
 
@@ -36,7 +45,7 @@ contains
    ! Convert NetCDF_DateTime {int_time, units_string} to
    ! ESMF time variables {interval, time0, time1} and time unit {tunit}
    ! time0 is the start time, and time1 is time0 + interval
-   subroutine convert_NetCDF_DateTime_to_ESMF_integer(duration, units_string, &
+   subroutine get_ESMF_Time_from_NetCDF_DateTime_integer(duration, units_string, &
       interval, time0, unusable, time1, tunit, rc)
       integer, intent(in) :: duration
       character(len=*), intent(in) :: units_string
@@ -47,8 +56,8 @@ contains
       character(len=:), allocatable, optional, intent(out) :: tunit
       integer, optional, intent(out) :: rc
 
-      class(CF_Time) :: cft
-      class(datetime_duration) :: dt_duration
+      type(CF_Time_Integer) :: cft
+      type(datetime_duration) :: dt_duration
       character(len=MAX_CHARACTER_LENGTH) :: isostring
       character(len=MAX_CHARACTER_LENGTH) :: tunit_
       integer :: status
@@ -58,9 +67,9 @@ contains
       _ASSERT(duration >= 0, 'Negative span not supported')
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
 
-      cft = CF_Time(duration, units_string)
+      cft = CF_Time_Integer(duration, units_string)
       call convert_CF_Time_to_datetime_duration(cft, dt_duration, _RC)
-      call set_ESMF_TimeInterval(interval, cft, _RC)
+      call set_ESMF_TimeInterval(interval, dt_duration, _RC)
 
       call extract_ISO8601_from_CF_Time(cft, isostring, _RC)
       call set_ESMF_Time_from_ISO8601(time0, isostring, _RC)
@@ -74,12 +83,12 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine convert_NetCDF_DateTime_to_ESMF_integer
+   end subroutine get_ESMF_Time_from_NetCDF_DateTime_integer
 
    ! Convert NetCDF_DateTime {real_time, units_string} to
    ! ESMF time variables {interval, time0, time1} and time unit {tunit}
    ! time0 is the start time, and time1 is time0 + interval
-   subroutine convert_NetCDF_DateTime_to_ESMF_real(duration, units_string, &
+   subroutine get_ESMF_Time_from_NetCDF_DateTime_real(duration, units_string, &
       interval, time0, unusable, time1, tunit, rc)
       real(kind=R64), intent(in) :: duration
       character(len=*), intent(in) :: units_string
@@ -90,8 +99,8 @@ contains
       character(len=:), allocatable, optional, intent(out) :: tunit
       integer, optional, intent(out) :: rc
 
-      class(CF_Time) :: cft
-      class(datetime_duration) :: dt_duration
+      type(CF_Time_Real) :: cft
+      type(datetime_duration) :: dt_duration
       character(len=MAX_CHARACTER_LENGTH) :: isostring
       character(len=MAX_CHARACTER_LENGTH) :: tunit_
       integer :: status
@@ -101,9 +110,9 @@ contains
       _ASSERT(duration >= 0, 'Negative span not supported')
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
 
-      cft = CF_Time(duration, units_string)
+      cft = CF_Time_Real(duration, units_string)
       call convert_CF_Time_to_datetime_duration(cft, dt_duration, _RC)
-      call set_ESMF_TimeInterval(interval, cft, _RC)
+      call set_ESMF_TimeInterval(interval, dt_duration, _RC)
 
       call extract_ISO8601_from_CF_Time(cft, isostring, _RC)
       call set_ESMF_Time_from_ISO8601(time0, isostring, _RC)
@@ -117,7 +126,7 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine convert_NetCDF_DateTime_to_ESMF_real
+   end subroutine get_ESMF_Time_from_NetCDF_DateTime_real
 
 !======================= END HIGH-LEVEL PROCEDURES =========================
 !===============================================================================

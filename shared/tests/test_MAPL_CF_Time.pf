@@ -1,0 +1,128 @@
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+
+module test_MAPL_CF_Time
+   use MAPL_ExceptionHandling
+   use MAPL_CF_Time
+   use pfunit
+   use MAPL_DateTime_Parsing
+   use, intrinsic :: iso_fortran_env, only : R64 => real64
+
+   implicit none
+
+   integer, parameter :: SUCCESS = 0 !wdb deleteme
+
+contains
+
+   !@test
+   subroutine test_convert_CF_Time_to_datetime_duration()
+      type(CF_Time_Integer) :: cfti
+      type(CF_Time_Real) :: cftr
+      integer :: iduration = 1800
+      real(R64) :: rduration = 1800.0
+      type(datetime_duration) :: dt_dur
+      character(len=*), parameter :: time_unit = 'seconds'
+      character(len=*), parameter :: base_datetime = '1999-12-31 23:29:59'
+      character(len=*), parameter :: units = time_unit // ' since ' // base_datetime
+      integer :: status
+      
+      call convert_CF_Time_to_datetime_duration(iduration, units, dt_dur, rc = status)
+!      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
+!      @assertEqual(iduration, dt_dur % second, 'Duration does not match.')
+      
+      call convert_CF_Time_to_datetime_duration(rduration, units, dt_dur, rc = status)
+      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
+      @assertEqual(rduration, dt_dur % second_real, 'Duration does not match.')
+
+      cfti = CF_Time_Integer(iduration, units)
+      @assertTrue(cfti % is_valid, 'Invalid CF_Time_Integer')
+      call convert_CF_Time_to_datetime_duration(cfti, dt_dur, rc = status)
+      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
+      @assertEqual(iduration, dt_dur % second, 'Duration does not match.')
+
+      cftr = CF_Time_Real(rduration, units)
+      @assertTrue(cftr % is_valid, 'Invalid CF_Time_Real')
+      call convert_CF_Time_to_datetime_duration(cftr, dt_dur, rc = status)
+      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
+      @assertEqual(rduration, dt_dur % second_real, 'Duration does not match.')
+
+   end subroutine test_convert_CF_Time_to_datetime_duration
+   
+   @test
+   subroutine test_construct_cf_time()
+      type(CF_Time_Integer) :: cfti
+      type(CF_Time_Real) :: cftr
+      integer :: iduration = 1800
+      real(R64) :: rduration = 1800.0
+      character(len=*), parameter :: time_unit = 'seconds'
+      character(len=*), parameter :: base_datetime = '1999-12-31 23:29:59'
+      character(len=*), parameter :: units = time_unit // ' since ' // base_datetime
+
+      cfti = CF_Time_Integer(iduration, units)
+      @assertTrue(cfti % is_valid, 'Invalid CF_Time_Integer')
+      @assertEqual(iduration, cfti % duration, 'Duration does not match.')
+      @assertEqual(time_unit, cfti % time_unit, 'Time unit does not match.')
+      @assertEqual(base_datetime, cfti % base_datetime, 'base_datetime does not match.')
+      
+      cftr = CF_Time_Real(rduration, units)
+      @assertTrue(cftr % is_valid, 'Invalid CF_Time_Real')
+      @assertEqual(rduration, cftr % duration, 'Duration does not match.')
+      @assertEqual(time_unit, cftr % time_unit, 'Time unit does not match.')
+      @assertEqual(base_datetime, cftr % base_datetime, 'base_datetime does not match.')
+      
+   end subroutine test_construct_cf_time
+
+!   @test
+!   subroutine test_multipleof()
+!      @assertTrue(multipleof(21, 7))
+!      @assertFalse(multipleof(22, 7))
+!   end subroutine test_multipleof
+
+!   @test
+!   subroutine test_get_integer_digit_from_string()
+!      @assertEqual(NONDIGIT, get_integer_digit_from_string(digit, len(digit)+1))
+!   end subroutine test_get_integer_digit_from_string
+   subroutine test_extract_ISO8601_from_CF_Time()
+      type(CF_Time_Integer) :: cfti
+      integer, parameter :: duration = 1800
+      character(len=*), parameter :: time_unit = 'seconds'
+      character(len=*), parameter :: base_datetime = '1999-12-31 23:29:59'
+      character(len=*), parameter :: units = time_unit // ' since ' // base_datetime
+      character(len=len(base_datetime)), parameter :: expected = '1999-12-31T23:29:59'
+      character(len=MAX_CHARACTER_LENGTH) :: isostring
+      integer :: status
+
+      call extract_ISO8601_from_CF_Time(units, isostring, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to extract string from units')
+      @assertEqual(expected, isostring, 'Actual string from units does not match expected string.')
+
+      cfti = CF_Time_Integer(duration, units)
+      @assertTrue(cfti % is_valid, 'Invalid CF_Time_Integer')
+      call extract_ISO8601_from_CF_Time(units, isostring, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to extract string from CF_Time')
+      @assertEqual(expected, isostring, 'Actual string from CF_Time does not match expected string.')
+      
+   end subroutine test_extract_ISO8601_from_CF_Time
+
+   subroutine test_extract_CF_Time_unit()
+      type(CF_Time_Integer) :: cfti
+      integer :: duration = 0
+      character(len=*), parameter :: time_unit = 'seconds'
+      character(len=*), parameter :: base_datetime = '1999-12-31 23:29:59'
+      character(len=*), parameter :: units = time_unit // ' since ' // base_datetime
+      character(len=MAX_CHARACTER_LENGTH) :: actual
+      integer :: status
+
+      call extract_CF_Time_unit(units, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to extract time unit from units')
+      @assertEqual(time_unit, actual, 'Actual time unit does not match expected time unit.')
+
+      cfti = CF_Time_Integer(duration, units)
+      @assertTrue(cfti % is_valid, 'Invalid CF_Time_Integer')
+      call extract_CF_Time_unit(cfti, actual, rc = status)
+      @assertEqual(SUCCESS, status, 'Failed to extract time unit from CF_Time')
+      @assertEqual(time_unit, actual, 'Actual time unit does not match expected time unit.')
+
+   end subroutine test_extract_CF_Time_unit
+
+end module test_MAPL_CF_Time

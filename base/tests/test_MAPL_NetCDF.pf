@@ -5,7 +5,6 @@
 !===============================================================================
 module test_MAPL_NetCDF
 
-   use test_MAPL_NetCDF_helpers
    use MAPL_ExceptionHandling
    use MAPL_NetCDF
    use ESMF
@@ -23,9 +22,17 @@ contains
       integer :: status
 
       call ESMF_CalendarSetDefault(CALKIND_FLAG_DEF, rc=status)
-      if(status /= SUCCESS) write(*, *) 'Failed to set ESMF_Calendar'
+      if(status /= _SUCCESS) write(*, *) 'Failed to set ESMF_Calendar'
 
    end subroutine set_up
+
+   logical function rational_equals(na, nb)
+      integer, intent(in) :: na(2)
+      integer, intent(in) :: nb(2)
+
+      rational_equals = ( na(1) * nb(2) == na(2) * nb(1) )
+
+   end function rational_equals
 
    function ESMF_Times_Equal(timeu, timev) result(tval)
       type(ESMF_Time), intent(in) :: timeu, timev
@@ -36,9 +43,9 @@ contains
 
       tval = .FALSE.
       call ESMF_TimeGet(timeu, yy=uyy, mm=umm, dd=udd, h=uh, m=um, d=us, sN=usN, sD=usD, rc = status)
-      if(status /= SUCCESS) return
+      if(status /= _SUCCESS) return
       call ESMF_TimeGet(timev, yy=vyy, mm=vmm, dd=vdd, h=vh, m=vm, d=vs, sN=vsN, sD=vsD, rc = status)
-      if(status /= SUCCESS) return
+      if(status /= _SUCCESS) return
 
       tval = ( (uyy == vyy) .and. (umm == vmm) .and. (udd == vdd) &
          .and. (uh == vh) .and. (um == vm) .and. (us == vs) &
@@ -51,7 +58,7 @@ contains
       integer :: duration
       integer :: yy, mm, dd, h, m, s, m_time
       character(len=*), parameter :: UNITS = 'seconds' 
-      character(len=:), allocatable :: tunit
+      character(len=:), allocatable :: tunit, units_string
       type(ESMF_Time) :: time, etime, btime
       type(ESMF_TimeInterval) :: time_interval
       integer :: status
@@ -67,17 +74,17 @@ contains
       units_string = UNITS // ' since 1999-12-31 23:29:59'
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
-      @assertTrue(status == SUCCESS, 'Unable to create expected base ESMF_Time')
+      @assertTrue(status == _SUCCESS, 'Unable to create expected base ESMF_Time')
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
          time1 = time, tunit = tunit, rc = status)
-      @assertTrue(status == SUCCESS, 'Conversion failed')
+      @assertTrue(status == _SUCCESS, 'Conversion failed')
 
       @assertTrue(ESMF_Times_Equal(etime, btime), 'base ESMF_Time values do not match.')
       @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match.")
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
-      @assertTrue(status == SUCCESS, 'Unable to create expected ESMF_Time')
+      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
       @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
 
    end subroutine test_convert_NetCDF_DateTime_to_ESMF_integer
@@ -87,7 +94,7 @@ contains
       real(kind=ESMF_KIND_R8) :: duration
       integer :: yy, mm, dd, h, m, s, m_time
       character(len=*), parameter :: UNITS = 'seconds' 
-      character(len=:), allocatable :: tunit
+      character(len=:), allocatable :: tunit, units_string
       type(ESMF_Time) :: time, etime, btime
       type(ESMF_TimeInterval) :: time_interval
       integer :: status
@@ -103,17 +110,17 @@ contains
       units_string = UNITS // ' since 1999-12-31 23:29:59'
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
-      @assertTrue(status == SUCCESS, 'Unable to create expected ESMF_Time')
+      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
          time1 = time, tunit = tunit, rc = status)
-      @assertTrue(status == SUCCESS, 'Conversion failed')
+      @assertTrue(status == _SUCCESS, 'Conversion failed')
 
       @assertTrue(ESMF_Times_Equal(etime, btime), 'base ESMF_Time values do not match.')
       @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match.")
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
-      @assertTrue(status == SUCCESS, 'Unable to create expected ESMF_Time')
+      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
       @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
 
    end subroutine test_convert_NetCDF_DateTime_to_ESMF_real

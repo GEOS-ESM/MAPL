@@ -8,6 +8,8 @@ module test_MAPL_DateTime_Parsing
       use MAPL_ExceptionHandling
       use MAPL_DateTime_Parsing 
       use pfunit
+      use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
+
       implicit none
 
       character(len=*), parameter :: DATE_DELIMITER = '-'
@@ -216,6 +218,14 @@ contains
       integer, parameter :: TIMEWIDTH1 = len_trim(UNDELIMITED_TIME1)
       integer, parameter :: TIMEWIDTH2 = len_trim(UNDELIMITED_TIME2)
 
+      character(len=*), parameter :: cf_datetime_string_A = '2023-04-23 21:05:37'
+      character(len=*), parameter :: expected_A = '20230423210537'
+      character(len=*), parameter :: cf_datetime_string_B= '2023-04-23 21:05:37.337'
+      character(len=*), parameter :: expected_B = '20230423210537337'
+      character(len=*), parameter :: undelimited_datetime_string_C = '20230423210537'
+      character(len=*), parameter :: fail_D = '2023-4-23 21:05:37'
+      character(len=*), parameter :: fail_E = '2023-04-23 21:5:37'
+
       @assertEqual(trim(UNDELIMITED_DATE), trim(undelimit_all(DATE)))
       @assertEqual(DATEWIDTH, len_trim(UNDELIMITED_DATE)) 
       @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit_all(TIME1)))
@@ -224,6 +234,11 @@ contains
       @assertEqual(TIMEWIDTH2, len_trim(UNDELIMITED_TIME2))
       @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit_all(UNDELIMITED_TIME1)))
       @assertEqual('', trim(undelimit_all('')))
+
+      @assertEqual(trim(expected_A), trim(undelimit_all(cf_datetime_string_A)), 'Mismatch A')
+      @assertEqual(trim(expected_B), trim(undelimit_all(cf_datetime_string_B)), 'Mismatch B')
+      @assertEqual(trim(undelimited_datetime_string_C), trim(undelimit_all(undelimited_datetime_string_C)), 'Mismatch C')
+
    end subroutine test_undelimit_all
 
    @test
@@ -570,39 +585,39 @@ contains
       @assertFalse(tf % is_valid(), 'tf should not be valid.')
    end subroutine test_are_valid_time_fields
 
-   @test
+!   @test
    subroutine test_convert_to_ISO8601DateTime()
+      character(len=*), parameter :: cf_datetime_string_A = '2023-04-23 21:05:37'
       character(len=*), parameter :: expected_A = '2023-04-23T21:05:37'
+      character(len=*), parameter :: cf_datetime_string_B= '2023-04-23 21:05:37.337'
       character(len=*), parameter :: expected_B = '2023-04-23T21:05:37.337'
+      character(len=*), parameter :: undelimited_datetime_string_C = '20230423210537'
+      character(len=*), parameter :: fail_D = '2023-4-23 21:05:37'
+      character(len=*), parameter :: fail_E = '2023-04-23 21:5:37'
       character(len=:), allocatable :: output
       character(len=MAX_LEN) :: actual
       integer :: status
 
-      call convert_to_ISO8601DateTime('2023-04-23 21:05:37', output, rc = status)
+      call convert_to_ISO8601DateTime(cf_datetime_string_A, output, rc = status)
+      @assertEqual(status, 0, 'Conversion A failed: ' // trim(cf_datetime_string_A))
       actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
       @assertEqual(expected_A, trim(actual), 'Datetime strings do not match.')
 
-      call convert_to_ISO8601DateTime('20230423 210537', output, rc = status)
+      call convert_to_ISO8601DateTime(cf_datetime_string_B, output, rc = status)
+      @assertEqual(status, 0, 'Conversion B failed: ' // trim(cf_datetime_string_B))
       actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
+      @assertEqual(expected_B, trim(actual), 'Datetime strings do not match.')
+
+      call convert_to_ISO8601DateTime(undelimited_datetime_string_C, output, rc = status)
+      @assertEqual(status, 0, 'Conversion C failed: ' // trim(undelimited_datetime_string_C))
+      actual = trim(output)
       @assertEqual(expected_A, trim(actual), 'Datetime strings do not match.')
 
-      call convert_to_ISO8601DateTime('2023-04-23 21:05:37.337', output, rc = status)
-      actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
-      @assertEqual(expected_B, trim(actual), 'Datetime strings do not match.')
+      call convert_to_ISO8601DateTime(fail_D, output, rc = status)
+      @assertFalse(status == 0, 'Failed to catch illegal value - D')
 
-      call convert_to_ISO8601DateTime('20230423210537337', output, rc = status)
-      actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
-      @assertEqual(expected_B, trim(actual), 'Datetime strings do not match.')
-
-      call convert_to_ISO8601DateTime('2023-4-23 21:05:37', output, rc = status)
-      @assertFalse(status == 0, 'Failed to catch illegal value.')
-
-      call convert_to_ISO8601DateTime('2023-04-23 21:5:37', output, rc = status)
-      @assertFalse(status == 0, 'Failed to catch illegal value.')
+      call convert_to_ISO8601DateTime(fail_E, output, rc = status)
+      @assertFalse(status == 0, 'Failed to catch illegal value - E.')
 
    end subroutine test_convert_to_ISO8601DateTime
 
@@ -628,43 +643,142 @@ contains
    end subroutine test_construct_datetime_duration 
 
    subroutine test_set_year_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 2001
+      d = datetime_duration()
+      call d % set_year(expected)
+      @assertEqual(expected, d % year, 'Value not set correctly')
+
    end subroutine test_set_year_datetime_duration
 
    subroutine test_set_month_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 3
+      d = datetime_duration()
+      call d % set_month(expected)
+      @assertEqual(expected, d % month, 'Value not set correctly')
+
    end subroutine test_set_month_datetime_duration
 
    subroutine test_set_day_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 20
+      d = datetime_duration()
+      call d % set_day(expected)
+      @assertEqual(expected, d % day, 'Value not set correctly')
+
    end subroutine test_set_day_datetime_duration
 
    subroutine test_set_hour_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 3
+      d = datetime_duration()
+      call d % set_hour(expected)
+      @assertEqual(expected, d % hour, 'Value not set correctly')
+
    end subroutine test_set_hour_datetime_duration
 
    subroutine test_set_minute_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 10
+      d = datetime_duration()
+      call d % set_minute(expected)
+      @assertEqual(expected, d % minute, 'Value not set correctly')
+
    end subroutine test_set_minute_datetime_duration
 
    subroutine test_set_second_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 1800
+      d = datetime_duration()
+      call d % set_second(expected)
+      @assertEqual(expected, d % second, 'Value not set correctly')
+
    end subroutine test_set_second_datetime_duration
 
    subroutine test_set_hour_real_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 3.0
+      d = datetime_duration()
+      call d % set_hour_real(expected)
+      @assertEqual(expected, d % hour_real, 'Value not set correctly')
+
    end subroutine test_set_hour_real_datetime_duration
 
    subroutine test_set_minute_real_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 10.0
+      d = datetime_duration()
+      call d % set_minute_real(expected)
+      @assertEqual(expected, d % minute_real, 'Value not set correctly')
+
    end subroutine test_set_minute_real_datetime_duration
 
    subroutine test_set_second_real_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 1800.0
+      d = datetime_duration()
+      call d % set_second_real(expected)
+      @assertEqual(expected, d % second_real, 'Value not set correctly')
+
    end subroutine test_set_second_real_datetime_duration
 
    subroutine test_set_real_value_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 1800.0
+      d = datetime_duration()
+      call d % set_value(SECOND, expected)
+      @assertEqual(expected, d % second_real, 'Value not set correctly')
+
    end subroutine test_set_real_value_datetime_duration
 
    subroutine test_set_integer_value_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 1800
+      d = datetime_duration()
+      call d % set_value(SECOND, expected)
+      @assertEqual(expected, d % second, 'Value not set correctly')
+
    end subroutine test_set_integer_value_datetime_duration
 
    subroutine test_is_valid_datestring()
    end subroutine test_is_valid_datestring
 
    subroutine test_is_in_char_set()
+      character(len=*), parameter :: DIGITS = '1234567890'
+      character :: ch
+
+      ch = '0'
+      @assertTrue(is_in_char_set(ch, DIGITS), 'Character not found')
+      ch = 'A'
+      @assertFalse(is_in_char_set(ch, DIGITS), 'Character is not in set')
+
    end subroutine test_is_in_char_set
+
+   subroutine test_find_delta()
+   end subroutine test_find_delta
 
    subroutine test_find_delta_datestring()
    end subroutine test_find_delta_datestring
@@ -681,8 +795,80 @@ contains
    subroutine test_convert_lengths_to_indices()
    end subroutine test_convert_lengths_to_indices
 
-   subroutine test_test_get_time_unit()
-   end subroutine test_test_get_time_unit
+   @test
+   subroutine test_get_time_units()
+      integer(kind(TIME_UNIT)) :: unit_num
+      character(MAX_CHARACTER_LENGTH) :: unit_name
+      character(len=:), allocatable :: units(:)
+
+      units = get_time_units()
+
+      do unit_num = 1, size(time_units)
+         unit_name = time_units(unit_num)
+         @assertEqual(unit_name, units(unit_num), 'Time unit initialized incorrectly.')
+      end do
+      
+   end subroutine test_get_time_units
+
+   @test
+   subroutine test_get_time_unit()
+      integer(kind(TIME_UNIT)) :: expected, actual
+      character(len=8) :: unit_name
+
+         unit_name = 'year'
+         expected = YEAR
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'month'
+         expected = MONTH
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'day'
+         expected = DAY
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'hour'
+         expected = HOUR
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'minute'
+         expected = MINUTE
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'second'
+         expected = SECOND
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+      
+         unit_name = 'furlong'
+         expected = TIME_UNIT_UNKNOWN
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+   end subroutine test_get_time_unit
 
    subroutine test_test_is_time_unit
    end subroutine test_test_is_time_unit

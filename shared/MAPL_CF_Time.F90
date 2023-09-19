@@ -19,7 +19,9 @@ module MAPL_CF_Time
    public :: convert_CF_Time_to_datetime_duration
 ! Convert ISO8601 datetime string to CF_Time_base_datetime
    public :: convert_ISO8601_to_CF_Time_base_datetime
+   public :: CF_Time, CF_Time_Integer, CF_Time_Real
 
+   public :: MAX_CHARACTER_LENGTH
 
 ! PUBLIC PROCEDURES (INTERFACES):
 
@@ -27,7 +29,7 @@ module MAPL_CF_Time
    interface extract_ISO8601_from_CF_Time
       module procedure :: extract_ISO8601_from_CF_Time_units
       module procedure :: extract_ISO8601_from_CF_Time_cf_time
-   end interface
+   end interface extract_ISO8601_from_CF_Time
 
 ! Extract the duration of a CF Time.
    interface extract_CF_Time_duration
@@ -64,8 +66,8 @@ module MAPL_CF_Time
       logical :: is_valid
       character(len=:), allocatable :: time_unit
       character(len=:), allocatable :: base_datetime
-   contains
-      procedure, public, pass(this) :: check => check_cf_time
+!   contains
+!      procedure, public, pass(this) :: check => check_cf_time
    end type CF_Time
 
    type, extends(CF_Time) :: CF_Time_Integer
@@ -76,16 +78,18 @@ module MAPL_CF_Time
       real(kind=R64) :: duration
    end type CF_Time_Real
    
-   interface CF_Time
+   interface CF_Time_Integer
       module procedure :: construct_cf_time_integer
+   end interface CF_Time_Integer
+
+   interface CF_Time_Real
       module procedure :: construct_cf_time_real
-   end interface CF_Time
+   end interface CF_Time_Real
 
 ! END CF_TIME 
 
 
 ! CONSTANTS:
-   integer, parameter :: MAX_CHARACTER_LENGTH = 64
    character, parameter :: DATE_DELIM = '-'
    character, parameter :: TIME_DELIM = ':'
    character, parameter :: ISO_DELIM = 'T'
@@ -106,7 +110,7 @@ contains
       type(CF_Time_Integer) :: cft
       integer :: status
       
-      call extract_ISO8601_from_CF_Time(CF_Time(0, units), isostring, _RC)
+      call extract_ISO8601_from_CF_Time(CF_Time_Integer(0, units), isostring, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -118,12 +122,13 @@ contains
       integer, optional, intent(out) :: rc 
       integer :: status
 
-      call cft % check(_RC)
+      if(cft % is_valid) then
+         isostring = convert_CF_Time_datetime_string_to_ISO8601(cft % base_datetime)
+         _RETURN(_SUCCESS)
+      end if
       
-      isostring = convert_CF_Time_datetime_string_to_ISO8601(cft % base_datetime)
+      _RETURN(_FAILURE)
 
-      _RETURN(_SUCCESS)
-      
    end subroutine extract_ISO8601_from_CF_Time_cf_time
    
    subroutine extract_CF_Time_duration_cf_time_real(cft, duration, rc)
@@ -132,11 +137,12 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       
-      call cft % check(_RC)
+      if(cft % is_valid) then
+         duration = cft % duration
+         _RETURN(_SUCCESS)
+      end if
 
-      duration = cft % duration
-
-      _RETURN(_SUCCESS)
+      _RETURN(_FAILURE)
 
    end subroutine extract_CF_Time_duration_cf_time_real
 
@@ -146,11 +152,12 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       
-      call cft % check(_RC)
+      if(cft % is_valid) then
+         duration = cft % duration
+         _RETURN(_SUCCESS)
+      end if
 
-      duration = cft % duration
-
-      _RETURN(_SUCCESS)
+      _RETURN(_FAILURE)
       
    end subroutine extract_CF_Time_duration_cf_time_integer
    
@@ -160,11 +167,12 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call cft % check(_RC)
+      if(cft % is_valid) then
+         time_unit = cft % time_unit
+         _RETURN(_SUCCESS)
+      end if
 
-      time_unit = cft % time_unit
-
-      _RETURN(_SUCCESS)
+      _RETURN(_FAILURE)
 
    end subroutine extract_CF_Time_unit_cf_time
 
@@ -172,8 +180,9 @@ contains
       character(len=*), intent(in) :: units
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: time_unit
       integer, optional, intent(out) :: rc
+      integer :: status
 
-      call extract_CF_Time_unit(CF_Time(0, units), time_unit, _RC)
+      call extract_CF_Time_unit(CF_Time_Integer(0, units), time_unit, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -186,15 +195,18 @@ contains
       integer :: status
       integer(kind(TIME_UNIT)) :: tu
 
-      call cft % check(_RC)
+      if(.not. cft % is_valid) then
+         _RETURN(_FAILURE)
+      end if
 
-      tu = time_unit(cft % time_units())
+      tu = get_time_unit(cft % time_unit)
       if(tu == TIME_UNIT_UNKNOWN) then
-         _FAIL('Unrecognized time unit in CF Time')
+!         _FAIL('Unrecognized time unit in CF Time')
+         _RETURN(_FAILURE)
       endif
 
       call dt_duration % set_value(tu, cft % duration)
-
+      
       _RETURN(_SUCCESS)
 
    end subroutine convert_CF_Time_to_datetime_duration_integer
@@ -206,11 +218,14 @@ contains
       integer :: status
       integer(kind(TIME_UNIT)) :: tu
 
-      call cft % check(_RC)
+      if(.not. cft % is_valid) then
+         _RETURN(_FAILURE)
+      end if
 
-      tu = get_time_unit(cft % time_units())
+      tu = get_time_unit(cft % time_unit)
       if(tu == TIME_UNIT_UNKNOWN) then
-         _FAIL('Unrecognized time unit in CF Time')
+!         _FAIL('Unrecognized time unit in CF Time')
+         _RETURN(_FAILURE)
       endif
 
       call dt_duration % set_value(tu, cft % duration)
@@ -226,7 +241,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call convert_CF_Time_to_datetime_duration(CF_Time(duration, units), dt_duration, _RC)
+      call convert_CF_Time_to_datetime_duration(CF_Time_Integer(duration, units), dt_duration, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -239,7 +254,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call convert_CF_Time_to_datetime_duration(CF_Time(duration, units), dt_duration, _RC)
+      call convert_CF_Time_to_datetime_duration(CF_Time_Real(duration, units), dt_duration, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -263,12 +278,12 @@ contains
       call split(trim(remainder), part(MINUTE), remainder, TIME_DELIM)
       part(SECOND) = trim(remainder) 
 
-      call update_datetime(datetime, part(YEAR), 4, DATE_DELIM)
-      call update_datetime(datetime, part(MONTH), 2, DATE_DELIM)
-      call update_datetime(datetime, part(DAY), 2, ISO_DELIM)
-      call update_datetime(datetime, part(HOUR), 2, TIME_DELIM)
-      call update_datetime(datetime, part(MINUTE), 2, TIME_DELIM)
-      call update_datetime(datetime, part(SECOND), 2)
+      call update_datetime(isodatetime, part(YEAR), 4, DATE_DELIM)
+      call update_datetime(isodatetime, part(MONTH), 2, DATE_DELIM)
+      call update_datetime(isodatetime, part(DAY), 2, ISO_DELIM)
+      call update_datetime(isodatetime, part(HOUR), 2, TIME_DELIM)
+      call update_datetime(isodatetime, part(MINUTE), 2, TIME_DELIM)
+      call update_datetime(isodatetime, part(SECOND), 2)
       
    contains
 
@@ -308,13 +323,13 @@ contains
       integer, intent(in) :: duration
       character(len=*), intent(in) :: units
       type(CF_Time_Integer) :: cft
-      integer :: status
       
-      if(duration < 0) return
+      cft % is_valid = (duration >= 0)
+      if(.not. cft % is_valid) return
 
       cft % duration = duration
-      call initialize_cf_time(cft, units, rc=status)
-      cft % is_valid = status
+      call initialize_cf_time(cft, units)
+      cft % is_valid = .TRUE.
 
    end function construct_cf_time_integer
 
@@ -322,49 +337,38 @@ contains
       real(kind=R64), intent(in) :: duration
       character(len=*), intent(in) :: units
       type(CF_Time_Real) :: cft
-      integer :: status
       
-      if(duration < 0) return
+      cft % is_valid = (duration >= 0.0)
+      if(.not. cft % is_valid) return
 
       cft % duration = duration
-      call initialize_cf_time(cft, units, rc=status)
-      cft % is_valid = status
+      call initialize_cf_time(cft, units)
+      cft % is_valid = .TRUE.
 
    end function construct_cf_time_real
 
-   subroutine initialize_cf_time(cft, units, rc)
+   subroutine initialize_cf_time(cft, units)
       class(CF_Time), intent(inout) :: cft
       character(len=*), intent(in) :: units
-      integer, optional, intent(out) :: rc
-      character(len=MAX_CHARACTER_LENGTH) :: token(2), remainder
+      character(len=MAX_CHARACTER_LENGTH) :: token, remainder
       integer :: i
       
-      if(present(rc)) rc = _FAILURE
-
       remainder = units
-
-      do i = 1, size(token)
-         if(len_trim(remainder) == 0) return
-         call split(trim(remainder), token(i), remainder, CF_DELIM)
-      end do
-
-      cft % time_unit = token(1)
-      cft % base_datetime = token(3)
-
-      if(present(rc)) rc = _SUCCESS
+      if(len_trim(remainder) == 0) return
+      call split(trim(remainder), token, remainder, CF_DELIM)
+      cft % time_unit = token
+      call split(trim(remainder), token, remainder, CF_DELIM)
+      cft % base_datetime = remainder
 
    end subroutine initialize_cf_time
 
-   subroutine check_cf_time(this, rc)
-      class(CF_Time), intent(in) :: this
-      integer, optional, intent(out) :: rc 
-      integer :: status
-
-      if(.not. this % is_valid) then
-         _FAIL("Invalid CF_Time")
-      end if
-
-   end subroutine check_cf_time
+!   logical function check_cf_time(this)
+!      class(CF_Time), intent(in) :: this
+!      integer :: status
+!
+!      check_cf_time = this % is_valid
+!
+!   end function check_cf_time
 
 ! END CONSTRUCTORS
 
@@ -416,7 +420,7 @@ contains
    function remove_zero_pad(isostring) result(unpadded)
       character(len=*), intent(in) :: isostring
       character(len=len(isostring)) :: unpadded
-      character(len=DT_PART_WIDTH) :: part(NUM_DT_PARTS)
+      character(len=:), allocatable :: part(:)
       character(len=len(isostring)) :: fraction_part
       integer :: i
 
