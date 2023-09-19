@@ -27,7 +27,7 @@ module MAPL_EpochSwathMod
   use MAPL_StringGridMapMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
-  use MAPL_plain_netCDF_Time
+  use Plain_netCDF_Time
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan

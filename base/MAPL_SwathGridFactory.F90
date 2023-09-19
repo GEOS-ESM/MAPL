@@ -10,7 +10,7 @@ module MAPL_SwathGridFactoryMod
    use MAPL_ShmemMod
    use mapl_ErrorHandlingMod
    use MAPL_Constants
-   use MAPL_plain_netCDF_Time
+   use Plain_netCDF_Time
    use MAPL_Base, only : MAPL_GridGetInterior
    use ESMF
    use pFIO
@@ -426,7 +426,9 @@ contains
       key_lon='cell_across_swath'
       key_lat='cell_along_swath'
       key_time='time'
-      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
+      !      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
+      CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, tdim=tdim, &
+           key_lon=key_lon, key_lat=key_lat, key_time=key_time, _RC)
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
       

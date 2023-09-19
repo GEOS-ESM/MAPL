@@ -19,7 +19,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use MAPL_SortMod
   use MAPL_NetCDF
   use MAPL_StringTemplate
-  use MAPL_plain_netCDF_Time
+  use Plain_netCDF_Time
   use MAPL_ISO8601_DateTime_ESMF
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
