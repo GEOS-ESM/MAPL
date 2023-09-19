@@ -3992,27 +3992,11 @@ ENDDO PARSER
     type(ESMF_Alarm)                  :: PERPETUAL
     character(len=ESMF_MAXSTR)        :: TimeString
     character(len=ESMF_MAXSTR)        :: clockname
-    character                         :: String(ESMF_MAXSTR)
     logical                           :: LPERP
     integer                           :: YY,MM,DD,H,M,S
     integer                           :: noffset
 
-    character(len=4) :: year
-    character(len=2) :: month
-    character(len=2) :: day
-    character(len=2) :: hour
-    character(len=2) :: minute
-    character(len=2) :: second
-
     integer                    :: STATUS
-
-    equivalence ( string(01),TimeString )
-    equivalence ( string(01),year       )
-    equivalence ( string(06),month      )
-    equivalence ( string(09),day        )
-    equivalence ( string(12),hour       )
-    equivalence ( string(15),minute     )
-    equivalence ( string(18),second     )
 
     call ESMF_ClockGet ( clock, name=clockname, currTime=currentTime, _RC)
 
@@ -4052,7 +4036,17 @@ ENDDO PARSER
     call ESMF_TimeGet (currentTime, timeString=TimeString, _RC)
 
     if(present(DateStamp)) then
-       DateStamp = year//month//day//'_'//hour//minute//second //'z'
+       associate ( &
+         year   => TimeString( 1: 4), &
+         month  => TimeString( 6: 7), &
+         day    => TimeString( 9:10), &
+         hour   => TimeString(12:13), &
+         minute => TimeString(15:16), &
+         second => TimeString(18:19)  &
+         )
+         DateStamp = year//month//day//'_'//hour//minute//second //'z'
+      end associate
+
     end if
 
     _RETURN(ESMF_SUCCESS)

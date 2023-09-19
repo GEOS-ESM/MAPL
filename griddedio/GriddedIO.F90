@@ -472,7 +472,7 @@ module MAPL_GriddedIOMod
         else
            tindex = -1
         end if
-        
+
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
            call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid, _RC)
         end if
@@ -523,7 +523,7 @@ module MAPL_GriddedIOMod
         logical :: hasDE_in, hasDE_out
 
         ptr3d => null()
-        
+
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
@@ -1027,7 +1027,6 @@ module MAPL_GriddedIOMod
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
-     real(REAL32) :: missing_value
      type(ESMF_Info) :: infoh
 
      collection => Datacollections%at(this%metadata_collection_id)

@@ -189,6 +189,9 @@ contains
 
       _RETURN(_SUCCESS)
 
+      _UNUSED_DUMMY(metadata_out)
+      _UNUSED_DUMMY(time)
+
    end subroutine detect_metadata
 
 end module MAPL_ExtDataFileStream

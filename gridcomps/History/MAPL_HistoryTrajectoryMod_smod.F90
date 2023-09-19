@@ -28,21 +28,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
    contains
 
      module procedure HistoryTrajectory_from_config
-         character(len=ESMF_MAXSTR) :: filename
-         character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: dim_name(10)
-         character(len=ESMF_MAXSTR) :: var_name_lon
-         character(len=ESMF_MAXSTR) :: var_name_lat
-         character(len=ESMF_MAXSTR) :: var_name_time
          type(ESMF_TimeInterval)    :: epoch_frequency
          type(ESMF_Time)            :: currTime
          integer                    :: time_integer, second
-         integer                    :: ncid, grpid, ncid0
-         integer                    :: len, status
-         integer                    :: itime(2), nymd, nhms
+         integer                    :: status
          character(len=ESMF_MAXSTR) :: STR1
          character(len=ESMF_MAXSTR) :: symd, shms
-         integer                    :: i, j, k
+         integer                    :: i
          ! __ parse variables, set alarm
          !
          !!call ESMF_ConfigGetAttribute(config, value=traj%obsFile, default="", &
@@ -103,7 +95,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
        module procedure initialize
-         integer :: status,nobs
+         integer :: status
          type(ESMF_Grid) :: grid
          type(variable) :: v
          type(GriddedIOitemVectorIterator) :: iter
@@ -228,7 +220,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         type(GriddedIOitem), pointer :: item
         type(ESMF_Field) :: src_field,dst_field
         integer :: rank,lb(1),ub(1)
-        real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
         integer :: status
 
         new_bundle = ESMF_FieldBundleCreate(_RC)
@@ -262,7 +253,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure create_file_handle
-         type(variable) :: v
          integer :: status
 
          this%file_name = trim(filename)
@@ -297,15 +287,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Field) :: src_field, dst_field
          type(ESMF_Field) :: acc_field
          type(ESMF_Field) :: acc_field_2d_rt, acc_field_3d_rt
-         real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
-         real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-         real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
          real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
-         real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
          integer :: is, ie, nx
-         integer :: lb(1),ub(1)
          integer :: lm
          integer :: rank
          integer :: status
@@ -404,7 +389,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure sort_three_arrays_by_time
-        integer :: status
         integer :: i, len
         integer, allocatable :: IA(:)
         integer(ESMF_KIND_I8), allocatable :: IX(:)
@@ -469,38 +453,25 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(FileMetadata) :: fmd
          !!integer(ESMF_KIND_I8) :: num_times
          integer(ESMF_KIND_I4) :: num_times
-         integer :: ncid, ncid0
-         integer :: dimid(10),  dimlen(10)
          integer :: len
          integer :: len_full
          integer :: status
 
          character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: dim_name(10)
-         character(len=ESMF_MAXSTR) :: var_name_lon
-         character(len=ESMF_MAXSTR) :: var_name_lat
-         character(len=ESMF_MAXSTR) :: var_name_time
-
-         type(ESMF_Config) :: config_grid
-         character(len=ESMF_MAXSTR) :: time_string
 
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
-         real(kind=REAL64), allocatable :: XA(:)
 
-         integer(ESMF_KIND_I4), pointer :: ptAI(:), ptBI(:)
-         real(ESMF_KIND_R8), pointer :: ptAT(:), ptBT(:)
+         real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
          type(ESMF_Time) :: current_time
-         type(ESMF_Field) :: src_fld, dst_fld
-         type(ESMF_Field) :: src_fld2, dst_fld2
          type(ESMF_Grid) :: grid
 
          type(ESMF_VM) :: vm
          integer :: mypet, petcount
 
-         integer :: i, j, k, L
+         integer :: i, j, L
          integer :: is, ie
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2
@@ -922,21 +893,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          module procedure get_obsfile_Tbracket_from_epoch
            implicit none
            integer :: status
-           integer :: numVars, i
-           character(len=ESMF_MAXSTR), allocatable :: names(:)
-           type(ESMF_Field) :: field
-           type(ESMF_Grid)  :: grid
 
            type(ESMF_Time)  :: T1, Tn
-           type(ESMF_Time)  :: cT1, cTn
+           type(ESMF_Time)  :: cT1
            type(ESMF_Time)  :: Ts, Te
-           type(ESMF_TimeInterval)  :: dT1, dT2, dT3, dTs, dTe
-           real(ESMF_KIND_R8) :: Tint_r8
-           real(ESMF_KIND_R8) :: Tint2_r8
-           real(ESMF_KIND_R8) :: dT0_s, dT1_s, dT2_s, dT3_s
+           type(ESMF_TimeInterval)  :: dT1, dT2, dTs, dTe
+           !type(ESMF_TimeInterval)  :: dT3
+           real(ESMF_KIND_R8) :: dT0_s, dT1_s, dT2_s
+           !real(ESMF_KIND_R8) :: dT3_s
            real(ESMF_KIND_R8) :: s1, s2
            integer :: n1, n2
-           integer :: K
+           !integer :: K
 
          ! get obs file index:  n1, n2
          ! get obs file content:

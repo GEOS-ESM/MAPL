@@ -71,10 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated CircleCI to use v11.2.0 bcs
 - Backported changes in `pfio` from `release/MAPL-v3` to enable `pfio` unit tests
 - Update `components.yaml`
-  - ESMA_cmake v3.32.0 (Support for Intel Fortran under Rosetta2)
+  - ESMA_cmake v3.34.0 (Support for Intel Fortran under Rosetta2, updated NAG flags)
 - Cleanup Fortran
   - Converted all uses of `mpif.h` to `use mpi`
   - Converted all uses of `character*` to `character(len=)`
+  - Removed many unused variables
+  - Added many `_UNUSED_DUMMY()` calls
+  - Converted statement functions to internal functions
 - Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
 
 ### Fixed
