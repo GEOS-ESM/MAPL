@@ -292,6 +292,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(rc)
+      _UNUSED_DUMMY(force_file_coordinates)
 
    end subroutine initialize_from_file_metadata
 
@@ -981,7 +982,6 @@ contains
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
-      _UNUSED_DUMMY(this)
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
@@ -990,6 +990,8 @@ contains
       allocate(global_start,source=[1,1])
       allocate(global_count,source=[global_dim(1),global_dim(2)])
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
@@ -1018,8 +1020,8 @@ contains
       type(ArrayReference) :: ref
       class(LlcGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+      _UNUSED_DUMMY(this)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this,fpointer,metadata) result(ref)
@@ -1028,8 +1030,9 @@ contains
       class(LlcGridFactory), intent(inout) :: this
       type(FileMetaData), intent(in), optional :: metaData
       real, pointer, intent(in) :: fpointer(:,:,:)
-      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
    end function generate_file_reference3D
 
 end module MAPL_LlcGridFactoryMod

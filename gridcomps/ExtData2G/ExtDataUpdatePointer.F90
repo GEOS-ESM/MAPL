@@ -40,8 +40,6 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Time), intent(in) :: time
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       adjusted_time = time+this%offset
 
       _RETURN(_SUCCESS)
@@ -75,7 +73,7 @@ module MAPL_ExtDataPointerUpdate
       end if
       negative_offset = .false.
       if (index(update_offset,"-") > 0) then
-         negative_offset = .true. 
+         negative_offset = .true.
          neg_index = index(update_offset,"-")
       end if
       if (negative_offset) then
@@ -85,6 +83,7 @@ module MAPL_ExtDataPointerUpdate
          this%offset=string_to_esmf_timeinterval(update_offset,_RC)
       end if
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
 
    end subroutine create_from_parameters
 
@@ -96,8 +95,6 @@ module MAPL_ExtDataPointerUpdate
       logical, intent(in) :: first_time
       integer, optional, intent(out) :: rc
       type(ESMF_Time) :: next_ring
-
-      integer :: status
 
       if (this%disabled) then
          do_update = .false.
@@ -119,7 +116,7 @@ module MAPL_ExtDataPointerUpdate
                if (current_time == next_ring) then
                   do_update = .true.
                   this%last_ring = next_ring
-                  this%first_time_updated = .false. 
+                  this%first_time_updated = .false.
                end if
             ! if clock went backwards, so we must update, set ringtime to previous ring from working time
             else if (current_time < this%last_checked) then

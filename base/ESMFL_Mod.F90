@@ -3001,6 +3001,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 CONTAINS
 
+         logical function spv(aspv, amiss)
+            real, intent(in) :: aspv
+            real, intent(in) :: amiss
+
+            real, parameter :: rfrcval = 1.0e-6
+
+            spv = abs((aspv-amiss)/amiss).le.rfrcval
+         end function spv
+
 !>
 ! Print statistics of one 3-d variable. This is from the PSAS library.
 ! with some simplifications.
@@ -3032,16 +3041,9 @@ CONTAINS
 !       ..A practical value for the magnitude of the fraction of a real
 !       number.
 
-        real rfrcval
-        parameter(rfrcval=1.e-5)
-
         character(len=255) dash
 
 !       ..function
-
-        logical spv
-        real aspv
-        spv(aspv)=abs((aspv-amiss)/amiss).le.rfrcval
 
 !       compute diff
         if (present(a2)) then
@@ -3077,7 +3079,7 @@ CONTAINS
           rms=0.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 cnt=cnt+1
                 avg=avg+a(i,j)
                 if(present(a2)) then
@@ -3098,7 +3100,7 @@ CONTAINS
           dev=0.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 d=a(i,j)-avg
                 dev=dev+d*d
               endif
@@ -3111,7 +3113,7 @@ CONTAINS
           first=.true.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 if(first) then
                   imx=i
                   imn=i
@@ -3150,6 +3152,7 @@ CONTAINS
                 amn,'(',imn,',',jmn,')'
 
            endif
+
       end  subroutine stats_
 
    end subroutine BundleDiff
@@ -3516,7 +3519,7 @@ CONTAINS
    real(kind=ESMF_KIND_R8), pointer :: dst_pr83d(:,:,:)
    type(ESMF_TypeKind_Flag) :: src_tk, dst_tk
    integer                  :: src_fieldRank, dst_fieldRank
-   logical                  :: NotInState,itemNotFound
+   logical                  :: NotInState
    character(len=ESMF_MAXSTR) :: NameInBundle
    type(ESMF_StateItem_Flag) :: itemType
 
