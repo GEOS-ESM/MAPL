@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+
 - Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
 - Corrected a typo for checking if fpp macro `_FILE_` was previously defined.
 - Add call to initialize pFlogger layer for the unit tests.

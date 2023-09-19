@@ -59,7 +59,7 @@ contains
       tot_time_sq = 0
       associate (n => spec%n_tries)
         do i = 1, n
-           t = time(kernel, MPI_COMM_WORLD, _RC)
+           t = time(kernel, writer_comm, _RC)
            tot_time = tot_time + t
            tot_time_sq = tot_time_sq + t**2
         end do
