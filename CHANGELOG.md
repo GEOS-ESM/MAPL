@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `_HERE`: Returns the current file and line number
   - `_RETURN_IF(cond)`: Returns if the condition is true
   - `_RETURN_UNLESS(cond)`: Returns if the condition is false
+- OSSE project: trajectory sampler (regrid to IODA file locations), capable of ingesting multiple files and regridding via one route-handle
 
 ### Changed
 
