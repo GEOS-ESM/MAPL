@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added new benchmark suite.  Initial benchmarks are:
-	1. measuring raw bandwdith of a filesystem with multiple independent streams 
+	1. measuring raw bandwidth of a filesystem with multiple independent streams 
 	2. measuring the `MPI_Gatherv()` used in writing checkpoints.
 	3. a combo benchmark that does both operations
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
