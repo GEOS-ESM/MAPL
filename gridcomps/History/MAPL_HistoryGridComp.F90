@@ -59,6 +59,7 @@
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use pflogger, only: Logger, logging
+  use mpi
 
   implicit none
   private
@@ -141,8 +142,6 @@
   integer, parameter :: MAPL_T2G2G = 3
 
   public HISTORY_ExchangeListWrap
-
-  include "mpif.h"
 
 contains
 
@@ -3400,7 +3399,7 @@ ENDDO PARSER
 !         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
 !         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
 
-         
+
          call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, _RC ) ! here is where we get the actual filename of file we will write
@@ -3409,7 +3408,7 @@ ENDDO PARSER
 !         write(6,'(a)') 'filename(n), fntmpl=', trim(filename(n)), trim(fntmpl)
 !         write(6,'(10a)') 'trim(INTSTATE%expid)', trim(INTSTATE%expid)
 !         write(6,'(2x,a,10i20)') 'nymd, nhms', nymd, nhms
-         
+
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'
@@ -3862,9 +3861,9 @@ ENDDO PARSER
             call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
             IM = dims(1)
             JM = dims(2)
-            DLON   =  360._REAL64/float(IM)
+            DLON   =  360._REAL64/real(IM)
             if (JM /= 1) then
-               DLAT   =  180._REAL64/float(JM-1)
+               DLAT   =  180._REAL64/real(JM-1)
             else
                DLAT   =  1.0
             end if
@@ -3988,27 +3987,11 @@ ENDDO PARSER
     type(ESMF_Alarm)                  :: PERPETUAL
     character(len=ESMF_MAXSTR)        :: TimeString
     character(len=ESMF_MAXSTR)        :: clockname
-    character                         :: String(ESMF_MAXSTR)
     logical                           :: LPERP
     integer                           :: YY,MM,DD,H,M,S
     integer                           :: noffset
 
-    character(len=4) :: year
-    character(len=2) :: month
-    character(len=2) :: day
-    character(len=2) :: hour
-    character(len=2) :: minute
-    character(len=2) :: second
-
     integer                    :: STATUS
-
-    equivalence ( string(01),TimeString )
-    equivalence ( string(01),year       )
-    equivalence ( string(06),month      )
-    equivalence ( string(09),day        )
-    equivalence ( string(12),hour       )
-    equivalence ( string(15),minute     )
-    equivalence ( string(18),second     )
 
     call ESMF_ClockGet ( clock, name=clockname, currTime=currentTime, _RC)
 
@@ -4048,7 +4031,17 @@ ENDDO PARSER
     call ESMF_TimeGet (currentTime, timeString=TimeString, _RC)
 
     if(present(DateStamp)) then
-       DateStamp = year//month//day//'_'//hour//minute//second //'z'
+       associate ( &
+         year   => TimeString( 1: 4), &
+         month  => TimeString( 6: 7), &
+         day    => TimeString( 9:10), &
+         hour   => TimeString(12:13), &
+         minute => TimeString(15:16), &
+         second => TimeString(18:19)  &
+         )
+         DateStamp = year//month//day//'_'//hour//minute//second //'z'
+      end associate
+
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -5064,27 +5057,27 @@ ENDDO PARSER
     type(ESMF_Field) :: field
     real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:)
     type(ESMF_VM) :: vm
-    integer :: mpi_comm
+    integer :: comm
 
     if (list%nbits_to_keep >=MAPL_NBITS_UPPER_LIMIT) then
        _RETURN(ESMF_SUCCESS)
     endif
 
     call ESMF_VMGetCurrent(vm,_RC)
-    call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
+    call ESMF_VMGet(vm,mpiCommunicator=comm,_RC)
 
     do m=1,list%field_set%nfields
        call ESMF_StateGet(state, trim(list%field_set%fields(3,m)),field,_RC )
        call ESMF_FieldGet(field, rank=fieldRank,_RC)
        if (fieldRank ==1) then
           call ESMF_FieldGet(field, farrayptr=ptr1d, _RC)
-          call DownBit(ptr1d,ptr1d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,_RC)
+          call DownBit(ptr1d,ptr1d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=comm,_RC)
        elseif (fieldRank ==2) then
           call ESMF_FieldGet(field, farrayptr=ptr2d, _RC)
-          call DownBit(ptr2d,ptr2d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,_RC)
+          call DownBit(ptr2d,ptr2d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=comm,_RC)
        elseif (fieldRank ==3) then
           call ESMF_FieldGet(field, farrayptr=ptr3d, _RC)
-          call DownBit(ptr3d,ptr3d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=mpi_comm,_RC)
+          call DownBit(ptr3d,ptr3d,list%nbits_to_keep,undef=MAPL_undef,mpi_comm=comm,_RC)
        else
           _FAIL('The field rank is not implmented')
        endif

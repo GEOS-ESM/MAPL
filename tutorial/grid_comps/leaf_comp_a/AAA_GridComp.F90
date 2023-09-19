@@ -25,7 +25,7 @@ module AAA_GridComp
      call MAPL_AddExportSpec(gc,short_name='field1', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
- 
+
 
      call MAPL_GenericSetServices(gc, _RC)
      _RETURN(_SUCCESS)
@@ -48,7 +48,7 @@ module AAA_GridComp
 
   end subroutine my_initialize
 
-    
+
   subroutine my_run(gc, import, export, clock, rc)
      type(ESMF_GridComp), intent(inout) :: gc
      type(ESMF_State), intent(inout) :: import
@@ -70,6 +70,9 @@ module AAA_GridComp
 
      _RETURN(_SUCCESS)
 
+     _UNUSED_DUMMY(gc)
+     _UNUSED_DUMMY(import)
+
   end subroutine my_run
 
 end module AAA_GridComp
@@ -80,4 +83,4 @@ subroutine SetServices(gc, rc)
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc
    call mySetServices(gc, rc=rc)
-end subroutine  
+end subroutine

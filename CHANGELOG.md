@@ -10,21 +10,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Saved weights and points for the vertical interpolation
+- Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
+- Added markdown documentation for select items such as ExtData, History and a few other sources
 - Trajectory sampler with Epoch time span
 - Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
 - Allow a negative "update\_offset" keyword in the sampling section of ExtData2G's input file by prepending the ISO time duration with a negative sign. I.E -PT12H for example
+- Added three new macros
+  - `_HERE`: Returns the current file and line number
+  - `_RETURN_IF(cond)`: Returns if the condition is true
+  - `_RETURN_UNLESS(cond)`: Returns if the condition is false
 
 ### Changed
 
+- Converted hinterp.F to free format (hinterp.F90)
+- Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
 - Renamed "geom" subdir and library to "field_utils"
+- Updated CircleCI to use v11.2.0 bcs
+- Backported changes in `pfio` from `release/MAPL-v3` to enable `pfio` unit tests
+- Update `components.yaml`
+  - ESMA_cmake v3.34.0 (Support for Intel Fortran under Rosetta2, updated NAG flags)
+- Cleanup Fortran
+  - Converted all uses of `mpif.h` to `use mpi`
+  - Converted all uses of `character*` to `character(len=)`
+  - Removed many unused variables
+  - Added many `_UNUSED_DUMMY()` calls
+  - Converted statement functions to internal functions
+- Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
 
 ### Fixed
 
+- Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
 - Add call to initialize pFlogger layer for the unit tests.
+- Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
+  + MPT bug at NAS
+- Fix problem with macros in base/MAPL\_Resource.F90 uncovered while compiling with the NVIDIA Fortran compiler.
+  The macros in MAPL\_Resource.F90 had long lines which exceeded the line length limit of the NVIDIA compiler.
+  Change the macros into include files (.h) with macros and Fortran code.
 
 ### Removed
 
+- Deleted MAPL_HeapMod.F90.  This file was doing crazy nonstandard things and is not used anywhere else.  A new cleaner implementation based upon containers could be readily created if the functionality is ever missed.
+
 ### Deprecated
+
+## [2.40.4] - 2023-09-14
+
+### Fixed
+
+- Fixed handling of MAPL dependencies for when `find_package(MAPL)` is used
 
 ## [2.40.3] - 2023-08-03
 

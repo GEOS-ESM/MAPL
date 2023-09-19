@@ -112,8 +112,8 @@ module MAPL_VerticalDataMod
         if (present(force_no_regrid)) then
            local_force_no_regrid = force_no_regrid
         else
-           local_force_no_regrid = .false. 
-        end if 
+           local_force_no_regrid = .false.
+        end if
 
         if (.not.present(levels)) then
            if (trim(vdata%positive)=='down') then
@@ -391,6 +391,8 @@ module MAPL_VerticalDataMod
 
         ptrout(:,:,1:km)=ptrin(:,:,km:1:-1)
         _RETURN(_SUCCESS)
+
+        _UNUSED_DUMMY(this)
 
      end subroutine flip_levels
 

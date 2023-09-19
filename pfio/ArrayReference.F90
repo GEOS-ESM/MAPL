@@ -2,16 +2,12 @@
 #include "unused_dummy.H"
 
 module pFIO_ArrayReferenceMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use, intrinsic :: iso_c_binding, only: c_associated
    use, intrinsic :: iso_fortran_env, only: INT32
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use pFIO_UtilitiesMod, only: word_size
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod
@@ -67,18 +63,23 @@ contains
       class(*), target, intent(in) :: array(:)
       integer, optional, intent(out) :: rc
 
+      logical :: has_address
+
+      has_address = (size(array) /= 0)
+      reference%base_address=C_NULL_PTR
+
       select type (array)
       type is (real(kind=REAL32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")
@@ -94,18 +95,23 @@ contains
       class(*), target, intent(in) :: array(:,:)
       integer, optional, intent(out) :: rc
 
+      logical :: has_address
+
+      has_address = (size(array) /= 0)
+      reference%base_address=C_NULL_PTR
+
       select type (array)
       type is (real(kind=REAL32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")
@@ -121,18 +127,23 @@ contains
       class(*), target, intent(in) :: array(:,:,:)
       integer, optional, intent(out) :: rc
 
+      logical :: has_address
+
+      has_address = (size(array) /= 0)
+      reference%base_address=C_NULL_PTR
+
       select type (array)
       type is (real(kind=REAL32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")
@@ -149,18 +160,23 @@ contains
       class(*), target, intent(in) :: array(:,:,:,:)
       integer, optional, intent(out) :: rc
 
+      logical :: has_address
+
+      has_address = (size(array) /= 0)
+      reference%base_address=C_NULL_PTR
+
       select type (array)
       type is (real(kind=REAL32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")
@@ -176,18 +192,23 @@ contains
       class(*), target, intent(in) :: array(:,:,:,:,:)
       integer, optional, intent(out) :: rc
 
+      logical :: has_address
+
+      has_address = (size(array) /= 0)
+      reference%base_address=C_NULL_PTR
+
       select type (array)
       type is (real(kind=REAL32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
-         reference%base_address = c_loc(array)
+         if (has_address)   reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")

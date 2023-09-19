@@ -19,3 +19,7 @@ target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
+# NOTE: ExtDataGridCompMod.F90 takes 192 seconds to compile at O3 and 12 seconds at O1
+if (CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_BUILD_TYPE MATCHES Release)
+  set_source_files_properties(ExtDataGridCompMod.F90 PROPERTIES COMPILE_OPTIONS ${FOPT1})
+endif ()
