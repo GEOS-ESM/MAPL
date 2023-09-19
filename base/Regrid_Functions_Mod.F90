@@ -689,7 +689,7 @@
 
       ! NOTE: Tile files are little-endian
       Open(File=Trim(fName),Unit=fID,IOStat=status,&
-               FORM='UNFORMATTED',STATUS='OLD',CONVERT='little_endian')
+               FORM='UNFORMATTED',STATUS='OLD')
       If (status/=0) Then
          Write(errMsg,'(a,a,a,I8)') 'Failed to open ',Trim(fName),&
             '. ID: ', status

@@ -488,7 +488,7 @@ module MAPL_GriddedIOMod
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
         logical :: have_time
-  
+
         have_time = this%timeInfo%am_i_initialized()
 
         if (have_time) then
@@ -569,7 +569,7 @@ module MAPL_GriddedIOMod
         logical :: hasDE_in, hasDE_out
 
         ptr3d => null()
-        
+
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
@@ -1074,7 +1074,6 @@ module MAPL_GriddedIOMod
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
-     real(REAL32) :: missing_value
 
      collection => Datacollections%at(this%metadata_collection_id)
      this%current_file_metadata => collection%find(filename, _RC)

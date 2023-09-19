@@ -189,8 +189,7 @@ contains
     type (extdata_wrap)                   :: wrap
 
 
-    character(len=ESMF_MAXSTR )           :: timerModeStr
-    integer                               :: timerMode
+    character(len=ESMF_MAXSTR )  :: timerModeStr
     type(ESMF_TimeInterval)      :: Frequency
     character(len=ESMF_MAXSTR)   :: ROOT_NAME
 

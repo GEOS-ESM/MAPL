@@ -29,3 +29,8 @@ target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf N
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+
+# NOTE: ExtDataGridCompNG.F90 takes 401 seconds to compile at O3 and 8 seconds at O1
+if (CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_BUILD_TYPE MATCHES Release)
+  set_source_files_properties(ExtDataGridCompNG.F90 PROPERTIES COMPILE_OPTIONS ${FOPT1})
+endif ()

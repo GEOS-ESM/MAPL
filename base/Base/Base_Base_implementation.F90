@@ -1069,41 +1069,6 @@ contains
     RETURN
   end subroutine MAPL_tick
 
-  integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
-    integer nhhmmss,nmmdd,nymd,nday,month
-    integer nsday,iday,iday2
-    integer i,nsegm,nsegd
-    PARAMETER ( NSDAY  = 86400 )
-    INTEGER YEAR, DAY, SEC
-    integer    MNDY(12,4), mnd48(48)
-    DATA MND48/0,31,60,91,121,152,182,213,244,274,305,335,366,397,34*0 /
-    !     DATA MNDY /0,31,60,91,121,152,182,213,244,274,305,335,366,397,34*0 /
-    equivalence ( mndy(1,1), mnd48(1) )
-    MAPL_nsecf2 = MAPL_nsecf( nhhmmss )
-    if( nmmdd.eq.0 ) return
-    DO I=15,48
-       !     MNDY(I,1) = MNDY(I-12,1) + 365
-       MND48(I) = MND48(I-12) + 365
-    end DO
-    nsegm =     nmmdd/100
-    nsegd = mod(nmmdd,100)
-    YEAR   = NYMD / 10000
-    MONTH  = MOD(NYMD,10000) / 100
-    DAY    = MOD(NYMD,100)
-    SEC    = MAPL_NSECF(nhhmmss)
-    IDAY   = MNDY( MONTH ,MOD(YEAR ,4)+1 )
-    month = month + nsegm
-    If( month.gt.12 ) then
-       month = month - 12
-       year = year + 1
-    endif
-    IDAY2  = MNDY( MONTH ,MOD(YEAR ,4)+1 )
-    nday = iday2-iday
-    if(nday.lt.0) nday = nday + 1461
-    nday = nday + nsegd
-    MAPL_nsecf2 = MAPL_nsecf2 + nday*nsday
-  end function MAPL_nsecf2
-
   integer module function MAPL_nhmsf (nsec)
     implicit none
     integer  nsec
@@ -3132,7 +3097,6 @@ contains
     ! MAPL_PI_R8/18, Japan Fuji mountain shift
     real(ESMF_KIND_R8), parameter :: shift= 0.174532925199433d0
 
-    real    :: tolerance
     logical :: good_grid
 
     if (npts == 0 ) then

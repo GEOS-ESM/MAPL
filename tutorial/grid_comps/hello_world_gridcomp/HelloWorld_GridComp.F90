@@ -43,7 +43,7 @@ module HelloWorld_GridComp
 
   end subroutine my_initialize
 
-    
+
   subroutine my_run(gc, import, export, clock, rc)
      type(ESMF_GridComp), intent(inout) :: gc
      type(ESMF_State), intent(inout) :: import
@@ -62,6 +62,10 @@ module HelloWorld_GridComp
 
      _RETURN(_SUCCESS)
 
+     _UNUSED_DUMMY(gc)
+     _UNUSED_DUMMY(import)
+     _UNUSED_DUMMY(export)
+
   end subroutine my_run
 
 end module HelloWorld_GridComp
@@ -72,4 +76,4 @@ subroutine SetServices(gc, rc)
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc
    call mySetServices(gc, rc=rc)
-end subroutine  
+end subroutine

@@ -64,7 +64,7 @@ module MAPL_SunMod
 ! Dont change these unless you know what you are doing.
 ! They are appropriate for the current modern epoch circa 2000.
 ! -------------------------------------------------------------
- 
+
    ! Parameters of old orbital system (tabularized intercalation cycle)
    ! ------------------------------------------------------------------
    real, parameter    :: DEFAULT_ORBIT_ECCENTRICITY     = 0.0167
@@ -103,7 +103,7 @@ module MAPL_SunMod
 
    ! March Equinox date and time
    ! (defaults to March 20, 2000 at 07:35:00 UTC)
-   integer, parameter :: DEFAULT_ORB2B_EQUINOX_YYYYMMDD = 20000320 
+   integer, parameter :: DEFAULT_ORB2B_EQUINOX_YYYYMMDD = 20000320
    integer, parameter :: DEFAULT_ORB2B_EQUINOX_HHMMSS   =  73500
 
 ! -------------------------------------------------------------
@@ -526,7 +526,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
       real(kind=REAL64)  :: YEARLEN
       integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
-      real(kind=REAL64)  :: TREL, T1, T2, T3, T4, dTRELdDAY
+      real(kind=REAL64)  :: TREL, T1, T2, T3, T4
       real(kind=REAL64)  :: SOB, COB, OMG0, OMG, PRH, PRHV
       real    :: OMECC, OPECC, OMSQECC, EAFAC
       real(kind=REAL64)  :: TA, EA, MA, TRRA, MNRA
@@ -539,11 +539,6 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       real :: ECC_EQNX, LAMBDAP_EQNX, EAFAC_EQNX
       real :: TA_EQNX, EA_EQNX, MA_EQNX
       type(ESMF_TimeInterval) :: DT
-
-      ! STATEMENT FUNC: dTREL/dDAY(TREL),
-      !   where TREL is ecliptic longitude of true Sun
-      dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
-
 
       ! record inputs needed by both orbit methods
       ORBIT%CLOCK  = CLOCK
@@ -722,10 +717,10 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
         ! Mean sun moves at constant speed around Celestial Equator
         ! ---------------------------------------------------------
         do K=2,DAYS_PER_CYCLE
-          T1 = dTRELdDAY(TREL       )
-          T2 = dTRELdDAY(TREL+T1*0.5)
-          T3 = dTRELdDAY(TREL+T2*0.5)
-          T4 = dTRELdDAY(TREL+T3    )
+          T1 = dTRELdDAY(TREL       ,OMG,ECCENTRICITY,PRH)
+          T2 = dTRELdDAY(TREL+T1*0.5,OMG,ECCENTRICITY,PRH)
+          T3 = dTRELdDAY(TREL+T2*0.5,OMG,ECCENTRICITY,PRH)
+          T4 = dTRELdDAY(TREL+T3    ,OMG,ECCENTRICITY,PRH)
           KP = mod(KP,DAYS_PER_CYCLE) + 1
           TREL = TREL + (T1 + 2.0*(T2 + T3) + T4) / 6.0
           ORBIT%ZS(KP) = sin(TREL)*SOB
@@ -760,6 +755,17 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       MAPL_SunOrbitCreate = ORBIT
 
       _RETURN(ESMF_SUCCESS)
+
+      contains
+
+         real(kind=REAL64) function dTRELdDAY(TREL,OMG,ECCENTRICITY,PRH)
+            real(kind=REAL64), intent(in) :: TREL ! ecliptic longitude of true Sun
+            real(kind=REAL64), intent(in) :: OMG
+            real,              intent(in) :: ECCENTRICITY
+            real(kind=REAL64), intent(in) :: PRH
+
+            dTRELdDAY = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
+         end function dTRELdDAY
 
     end function MAPL_SunOrbitCreate
 
@@ -937,7 +943,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 
 !==========================================================================
 !>
-! The function `MAPL_SunOrbitCreated` returns `.true.` 
+! The function `MAPL_SunOrbitCreated` returns `.true.`
 ! if the given orbit object has been initilized.
 !
        logical function  MAPL_SunOrbitCreated(ORBIT, RC)
@@ -2506,7 +2512,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real                       :: FAC
 
       character(len=ESMF_MAXPATHLEN) :: FILENAME
-      logical :: found
       logical :: amIRoot
       integer :: deId, NPES
       logical :: outOfTable
@@ -3035,7 +3040,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !
 ! NB: For accurate results, namely to receive the TRUE local solar hour
 ! angle, ensure the ORBIT has the EOT flag set true. Conversely, to get
-! only the MEAN local solar hour angle, use the optional argument 
+! only the MEAN local solar hour angle, use the optional argument
 ! FORCE_MLSHA=.TRUE.. This will turn off the Equation of Time correction
 ! (for this LSHA calculation only) even if the ORBIT includes it. For
 ! example, in the local noon detection in the EXAMPLE below, this will

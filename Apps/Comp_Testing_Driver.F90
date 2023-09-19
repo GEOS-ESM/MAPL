@@ -17,11 +17,11 @@ program comp_testing_driver
   call main()
 
   contains
-    
+
     subroutine main()
       integer :: status, rc, local_PET, n_PET
       type(ESMF_VM) :: vm
-      character(len=ESMF_MAXSTR) :: filename, comp_name
+      character(len=ESMF_MAXSTR) :: filename
       type(ESMF_Config) :: config
       class(BaseProfiler), pointer :: t_p
 
@@ -48,8 +48,8 @@ program comp_testing_driver
   subroutine run_component_driver(filename, rc)
     character(len=*), intent(in) :: filename
     integer, intent(out) :: rc
-    integer :: status, root_id, user_RC, RUN_DT, i, j, nc_id, var_id
-    integer :: NX, NY, item_count, field_count, phase
+    integer :: status, root_id, user_RC, RUN_DT
+    integer :: NX, NY, phase
     character(len=ESMF_MAXSTR) :: comp_name, shared_obj, restart_file
     type(ESMF_Clock) :: clock
     type(ESMF_TimeInterval) :: time_interval
@@ -58,24 +58,19 @@ program comp_testing_driver
     type(ESMF_Config) :: config
     type(ESMF_Time), allocatable :: start_time(:)
     type(ESMF_Grid) :: grid
-    type(ESMF_Field) :: field
     type(MAPL_MetaComp), pointer :: mapl_obj
     real(kind=ESMF_KIND_R8), pointer :: lons_field_ptr(:,:), lats_field_ptr(:,:)
     type(NetCDF4_fileFormatter) :: formatter
     type(FileMetadata) :: basic_metadata
     type(FileMetadataUtils) :: metadata
     logical :: subset
-    character(len=ESMF_MAXSTR), allocatable :: item_name_list(:), field_name_list(:)
-    type(ESMF_StateItem_Flag):: item_type
-    type(ESMF_FieldBundle) :: field_bundle
-    type(ESMF_Field), allocatable :: field_list(:)
 
     ! get attributes from config file
     config = ESMF_ConfigCreate(_RC)
     call ESMF_ConfigLoadFile(config, filename, _RC)
     call get_config_attributes(config, comp_name, RUN_DT, restart_file, shared_obj, phase, subset, NX, NY, _RC)
 
-    ! create a clock, set current time to required time consistent with checkpoints used 
+    ! create a clock, set current time to required time consistent with checkpoints used
     call formatter%open(restart_file, pFIO_Read, _RC)
     call ESMF_TimeIntervalSet(time_interval, s=RUN_DT, _RC)
     basic_metadata=formatter%read(_RC)
@@ -93,8 +88,8 @@ program comp_testing_driver
     call MAPL_InternalStateRetrieve(temp_GC, mapl_obj, _RC)
     call MAPL_Set(mapl_obj, CF=config, _RC)
 
-    root_id = MAPL_AddChild(mapl_obj, grid=grid, name=comp_name, userRoutine="setservices_", sharedObj=shared_obj, _RC) 
-    
+    root_id = MAPL_AddChild(mapl_obj, grid=grid, name=comp_name, userRoutine="setservices_", sharedObj=shared_obj, _RC)
+
     GC = mapl_obj%get_child_gridcomp(root_id)
     import = mapl_obj%get_child_import_state(root_id)
     export = mapl_obj%get_child_export_state(root_id)
@@ -111,13 +106,13 @@ program comp_testing_driver
     else
        call ESMF_GridCompSet(GC, grid=grid, _RC)
     end if
- 
 
-    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC) 
+
+    call ESMF_GridCompInitialize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC)
 
     call ESMF_GridCompRun(GC, importState=import, exportState=export, clock=clock, phase=phase, userRC=user_RC, _RC)
 
-    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC) 
+    call ESMF_GridCompFinalize(GC, importState=import, exportState=export, clock=clock, userRC=user_RC, _RC)
 
     _RETURN(_SUCCESS)
   end subroutine run_component_driver
