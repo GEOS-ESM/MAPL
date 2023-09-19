@@ -2,11 +2,10 @@ esma_set_this (OVERRIDE MAPL.shared)
 
 set (srcs
     hash.c
-    hinterp.F
+    hinterp.F90
     MAPL_DirPath.F90
     MAPL_ErrorHandling.F90
     MAPL_Hash.F90
-    MAPL_HeapMod.F90
     MAPL_KeywordEnforcer.F90
     MAPL_LoadBalance.F90
     MAPL_MinMax.F90
