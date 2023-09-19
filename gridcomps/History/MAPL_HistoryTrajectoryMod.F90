@@ -24,8 +24,6 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
-     real(kind=REAL32), allocatable :: p2d(:)
-     real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
 
   public :: HistoryTrajectory
