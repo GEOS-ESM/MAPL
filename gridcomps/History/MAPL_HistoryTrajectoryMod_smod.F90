@@ -28,18 +28,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
      module procedure HistoryTrajectory_from_config
          use pflogger, only         :  Logger, logging
-         character(len=ESMF_MAXSTR) :: filename
-         character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: dim_name(10)
-         character(len=ESMF_MAXSTR) :: var_name_lon
-         character(len=ESMF_MAXSTR) :: var_name_lat
-         character(len=ESMF_MAXSTR) :: var_name_time
          type(ESMF_Time)            :: currTime
          type(ESMF_TimeInterval)    :: epoch_frequency
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
-         integer                    :: len, status
-         integer                    :: itime(2), nymd, nhms
+         integer                    :: status
          character(len=ESMF_MAXSTR) :: STR1
          character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: nline, ncol
@@ -234,7 +227,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
        module procedure reinitialize
-         integer :: status,nobs
+         integer :: status
          type(ESMF_Grid) :: grid
          type(variable) :: v
          type(GriddedIOitemVectorIterator) :: iter
@@ -439,39 +432,23 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         module procedure create_grid
         use pflogger, only: Logger, logging
          character(len=ESMF_MAXSTR) :: filename
-         type(NetCDF4_FileFormatter) :: formatter
-         type(FileMetadataUtils) :: metadata_utils
-         type(FileMetadata) :: fmd
          integer(ESMF_KIND_I4) :: num_times
-         integer :: dimid(10),  dimlen(10)
          integer :: len
          integer :: len_full
          integer :: status
          type(Logger), pointer :: lgr
 
          character(len=ESMF_MAXSTR) :: grp_name
-         character(len=ESMF_MAXSTR) :: dim_name(10)
-         character(len=ESMF_MAXSTR) :: var_name_lon
-         character(len=ESMF_MAXSTR) :: var_name_lat
-         character(len=ESMF_MAXSTR) :: var_name_time
-         character(len=ESMF_MAXSTR) :: attr_name
-         character(len=ESMF_MAXSTR) :: attr
          character(len=ESMF_MAXSTR) :: timeunits_file
-
-         type(ESMF_Config) :: config_grid
-         character(len=ESMF_MAXSTR) :: time_string
 
          real(kind=REAL64), allocatable :: lons_full(:), lats_full(:)
          real(kind=REAL64), allocatable :: times_R8_full(:)
          integer,           allocatable :: obstype_id_full(:)
-         real(kind=REAL64), allocatable :: XA(:)
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
          type(ESMF_Time) :: timeset(2)
          type(ESMF_Time) :: current_time
-         type(ESMF_Time) :: time0, time1, time2
-         type(ESMF_TimeInterval) :: interval
          type(ESMF_Grid) :: grid
 
          type(ESMF_VM) :: vm
@@ -486,9 +463,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: nx, nx_sum
          integer :: arr(1)
          integer :: sec
-         integer :: int_time
-         character(len=:), allocatable :: tunit
-         integer (ESMF_KIND_I8) :: n_second
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
          integer :: nx2
 
@@ -712,7 +686,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
          real(kind=REAL32), pointer :: p_acc_rt_3d(:,:),p_acc_rt_2d(:)
          real(kind=REAL32), pointer :: p_src(:,:),p_dst(:,:)
-         real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
          integer :: is, ie, nx
          integer :: lm
@@ -886,10 +859,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            real(kind=REAL32), pointer :: p_acc_3d(:,:),p_acc_2d(:)
            integer :: is, ie
            integer :: status
-           integer :: ic
-
-           type (ESMF_VM) :: vm
-           integer :: mypet, petcount
 
            if (.NOT. this%is_valid) then
               _RETURN(ESMF_SUCCESS)
@@ -964,7 +933,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            integer :: numVars, i, k
            character(len=ESMF_MAXSTR), allocatable :: names(:)
            type(ESMF_Field) :: field
-           type(ESMF_Grid)  :: grid
            type(ESMF_Time)  :: currTime
 
           if (.NOT. this%is_valid) then
@@ -1091,21 +1059,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          module procedure get_obsfile_Tbracket_from_epoch
            implicit none
            integer :: status
-           integer :: numVars, i
-           character(len=ESMF_MAXSTR), allocatable :: names(:)
-           type(ESMF_Field) :: field
-           type(ESMF_Grid)  :: grid
 
            type(ESMF_Time)  :: T1, Tn
-           type(ESMF_Time)  :: cT1, cTn
+           type(ESMF_Time)  :: cT1
            type(ESMF_Time)  :: Ts, Te
-           type(ESMF_TimeInterval)  :: dT1, dT2, dT3, dTs, dTe
-           real(ESMF_KIND_R8) :: Tint_r8
-           real(ESMF_KIND_R8) :: Tint2_r8
-           real(ESMF_KIND_R8) :: dT0_s, dT1_s, dT2_s, dT3_s
+           type(ESMF_TimeInterval)  :: dT1, dT2, dTs, dTe
+           real(ESMF_KIND_R8) :: dT0_s, dT1_s, dT2_s
            real(ESMF_KIND_R8) :: s1, s2
            integer :: n1, n2
-           integer :: K
 
            T1 = this%obsfile_start_time
            Tn = this%obsfile_end_time
@@ -1255,7 +1216,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
       module procedure sort_four_arrays_by_time
-        integer :: status
         integer :: i, len
         integer, allocatable :: IA(:)
         integer(ESMF_KIND_I8), allocatable :: IX(:)
