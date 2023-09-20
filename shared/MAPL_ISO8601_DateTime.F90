@@ -229,11 +229,6 @@ module MAPL_ISO8601_DateTime
       procedure, public :: get_repetitions
    end type ISO8601Interval
 
-! Currently, not implemented.
-!   interface ISO8601Interval
-!      module procedure :: construct_ISO8601Interval
-!   end interface ISO8601Interval
-
 contains
 
 ! NUMBER HANDLING PROCEDURES
@@ -844,15 +839,6 @@ contains
          _FAIL('Invalid ISO 8601 datetime duration string')
       end if
    end function construct_ISO8601Duration
-
-! Not implemented completely
-!   function construct_ISO8601Interval(isostring, rc) result(interval)
-!      character(len=*), intent(in) :: isostring
-!      integer, intent(inout) :: rc
-!      type(ISO8601Interval) :: interval
-!      integer :: status
-!       _FAIL('Not implemented')
-!   end function construct_ISO8601Interval
 
 ! END HIGH-LEVEL CONSTRUCTORS
 

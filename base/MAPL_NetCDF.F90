@@ -4,22 +4,14 @@
 ! NetCDF datetime is: {integer, character(len=*)}
 ! {1800, 'seconds since 2010-01-23 18:30:37'}
 ! {TIME_SPAN, 'TIME_UNIT since YYYY-MM-DD hh:mm:ss'}
-!wdb fixme deleteme Switch kind to ESMF_KIND_R8
-!wdb fixme deleteme alias real kind to ESMF_KIND_R8
 !wdb fixme deleteme Need to delete extra prints
 module MAPL_NetCDF
 
-   use, intrinsic :: iso_fortran_env, only: R64 => real64
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    use MAPL_DateTime_Parsing, only: datetime_duration
-!   use MAPL_DateTime_Parsing_ESMF, only: set_ESMF_TimeInterval, set_ESMF_Time_from_ISO8601
    use MAPL_DateTime_Parsing_ESMF
-!   use MAPL_CF_Time, only: CF_Time, convert_CF_Time_to_datetime_duration, &
-!      extract_ISO8601_from_CF_Time, extract_CF_Time_unit
    use MAPL_CF_Time
-!   use ESMF, only: ESMF_Time, ESMF_Time
-   use ESMF
 
    implicit none
 
@@ -93,7 +85,7 @@ contains
    ! time0 is the start time, and time1 is time0 + interval
    subroutine get_ESMF_Time_from_NetCDF_DateTime_real(duration, units_string, &
       interval, time0, unusable, time1, tunit, rc)
-      real(kind=R64), intent(in) :: duration
+      real(kind=ESMF_KIND_R8), intent(in) :: duration
       character(len=*), intent(in) :: units_string
       type(ESMF_TimeInterval), intent(inout) :: interval
       type(ESMF_Time), intent(inout) :: time0

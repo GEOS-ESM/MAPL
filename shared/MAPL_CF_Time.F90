@@ -1,6 +1,5 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-!wdb fixme deleteme Need to delete extra prints
 module MAPL_CF_Time
 
    use, intrinsic :: iso_fortran_env, only : R64 => real64
@@ -67,8 +66,6 @@ module MAPL_CF_Time
       logical :: is_valid
       character(len=:), allocatable :: time_unit
       character(len=:), allocatable :: base_datetime
-!   contains
-!      procedure, public, pass(this) :: check => check_cf_time
    end type CF_Time
 
    type, extends(CF_Time) :: CF_Time_Integer
@@ -202,7 +199,6 @@ contains
 
       tu = get_time_unit(cft % time_unit)
       if(tu == TIME_UNIT_UNKNOWN) then
-!         _FAIL('Unrecognized time unit in CF Time')
          _RETURN(_FAILURE)
       endif
 
@@ -225,7 +221,6 @@ contains
 
       tu = get_time_unit(cft % time_unit)
       if(tu == TIME_UNIT_UNKNOWN) then
-!         _FAIL('Unrecognized time unit in CF Time')
          _RETURN(_FAILURE)
       endif
 
@@ -265,7 +260,6 @@ contains
       character(len=*), intent(in) :: datetime_string
       character(len=MAX_CHARACTER_LENGTH) :: isodatetime
       character(len=MAX_CHARACTER_LENGTH) :: remainder
-      ! parts [year, month, day, hour, minute, second)
       character(len=MAX_CHARACTER_LENGTH) :: part(NUM_TIME_UNITS)
       character(len=MAX_CHARACTER_LENGTH) :: delimiters(NUM_TIME_UNITS)
 
@@ -362,14 +356,6 @@ contains
       cft % base_datetime = remainder
 
    end subroutine initialize_cf_time
-
-!   logical function check_cf_time(this)
-!      class(CF_Time), intent(in) :: this
-!      integer :: status
-!
-!      check_cf_time = this % is_valid
-!
-!   end function check_cf_time
 
 ! END CONSTRUCTORS
 

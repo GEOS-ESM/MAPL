@@ -34,8 +34,6 @@
 !
 ! Fully-formed time with time zone. Local time not-supported
 !      <time>Z
-
-!wdb fixme need to enforce private (see commented out private statements and add to other type/variables
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 module MAPL_DateTime_Parsing
@@ -62,6 +60,7 @@ module MAPL_DateTime_Parsing
    public :: YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, TIME_UNIT_UNKNOWN
    public :: TIME_UNIT, NUM_TIME_UNITS 
 
+! Comment out the following line for testing.
 !   private
 
    interface operator(.multipleof.)
@@ -219,7 +218,6 @@ module MAPL_DateTime_Parsing
    ! parameters for processing date, time, and datetime strings
    character(len=10), parameter :: DIGIT_CHARACTERS = '0123456789'
 
-   ! Timezone offset for Timezone Z !wdb keep for now
    integer, parameter :: Z = 0
 
 
@@ -343,10 +341,9 @@ contains
 ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
    ! Strip delimiter from string
-   !wdb todo should this be more than 1 character
    pure function undelimit(string, delimiter) result(undelimited)
       character(len=*), intent(in) :: string
-      character,  intent(in) :: delimiter
+      character, intent(in) :: delimiter
       character(len=len(string)) :: undelimited
       integer :: i
       integer :: j
@@ -1084,22 +1081,13 @@ contains
       character(len=2) :: int_length
       integer :: io_stat
       integer :: undelimited_length
-      character(len=80) :: msg
       integer :: status
 
       iso_string = datetime_string
       undelimited = adjustl(undelimit_all(datetime_string))
       undelimited_length=len_trim(undelimited)
       if(undelimited_length < MIN_LEN) then
-!         msg = 'datetime_string is too short'
-!         write(int_length, fmt='(I2)', iostat=io_stat) undelimited_length
-!         if(io_stat == 0) msg = trim(msg) // ': ' // trim(int_length)
-!         write(int_length, fmt = '(I2)', iostat = io_stat) MIN_LEN
-!         if(io_stat == 0) msg = trim(msg) // ' < ' // trim(int_length)
          _RETURN(_FAILURE)
-!         _FAIL(msg) !wdb fixme and delete next 2 lines
-!         if(present(rc)) rc = -1
-!         return
       end if
 
       intermediate = undelimited(N(1,YY):N(2,YY)) // ISO_DD // &
@@ -1349,7 +1337,6 @@ contains
    end function get_time_unit
 
    function get_time_units() result(units)
-!      character(len=len(time_units(1))), pointer :: units(size(time_units)) !wdb fixme deleteme 
       character(len=:), pointer :: units(:)
 
       print *, 'Entering get_time_units()'
