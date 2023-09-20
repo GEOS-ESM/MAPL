@@ -4,6 +4,9 @@
 ! NetCDF datetime is: {integer, character(len=*)}
 ! {1800, 'seconds since 2010-01-23 18:30:37'}
 ! {TIME_SPAN, 'TIME_UNIT since YYYY-MM-DD hh:mm:ss'}
+!wdb fixme deleteme Switch kind to ESMF_KIND_R8
+!wdb fixme deleteme alias real kind to ESMF_KIND_R8
+!wdb fixme deleteme Need to delete extra prints
 module MAPL_NetCDF
 
    use, intrinsic :: iso_fortran_env, only: R64 => real64

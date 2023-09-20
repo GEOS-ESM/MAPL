@@ -8,7 +8,7 @@ module test_MAPL_DateTime_Parsing
       use MAPL_ExceptionHandling
       use MAPL_DateTime_Parsing 
       use pfunit
-      use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
+      use, intrinsic :: iso_fortran_env, only: R64 => real64
 
       implicit none
 
@@ -623,23 +623,29 @@ contains
 
    @test
    subroutine test_construct_datetime_duration()
-      integer, parameter :: IEX = 0
-      real, parameter :: REX = 0.0
+      integer, parameter :: IEX = -1
+      real(kind=R64), parameter :: REX = real(IEX, kind=R64)
       logical, parameter :: LEX = .FALSE.
       type(datetime_duration) :: d
       d = datetime_duration()
-      @assertEqual(IEX, d % year, 'year should be 0')
-      @assertEqual(IEX, d % month, 'month should be 0')
-      @assertEqual(IEX, d % day, 'day should be 0')
-      @assertEqual(IEX, d % hour, 'hour should be 0')
-      @assertEqual(IEX, d % minute, 'minute should be 0')
-      @assertEqual(IEX, d % second, 'second should be 0')
-      @assertEqual(REX, d % hour_real, 'hour_real should be 0.0')
-      @assertEqual(REX, d % minute_real, 'minute_real should be 0.0')
-      @assertEqual(REX, d % second_real, 'second_real should be 0.0')
-      @assertFalse(d % hour_is_set, 'hour_is_set should be .FALSE.')
-      @assertFalse(d % minute_is_set, 'minute_is_set should be .FALSE.')
-      @assertFalse(d % second_is_set, 'hour_is_set should be .FALSE.')
+      @assertEqual(IEX, d % year, 'year should be unset')
+      @assertEqual(IEX, d % month, 'month should be unset')
+      @assertEqual(IEX, d % day, 'day should be unset')
+      @assertEqual(IEX, d % hour, 'hour should be unset')
+      @assertEqual(IEX, d % minute, 'minute should be unset')
+      @assertEqual(IEX, d % second, 'second should be unset')
+      @assertEqual(REX, d % hour_real, 'hour_real should be unset')
+      @assertEqual(REX, d % minute_real, 'minute_real should be unset')
+      @assertEqual(REX, d % second_real, 'second_real should be unset')
+      @assertFalse(d % year_is_set(), 'year_is_set should be .FALSE.')
+      @assertFalse(d % month_is_set(), 'month_is_set should be .FALSE.')
+      @assertFalse(d % day_is_set(), 'hour_is_set should be .FALSE.')
+      @assertFalse(d % hour_is_set(), 'hour_is_set should be .FALSE.')
+      @assertFalse(d % minute_is_set(), 'minute_is_set should be .FALSE.')
+      @assertFalse(d % second_is_set(), 'hour_is_set should be .FALSE.')
+      @assertFalse(d % hour_is_real(), 'hour_is_real should be .FALSE.')
+      @assertFalse(d % minute_is_real(), 'minute_is_real should be .FALSE.')
+      @assertFalse(d % second_is_real(), 'hour_is_real should be .FALSE.')
    end subroutine test_construct_datetime_duration 
 
    subroutine test_set_year_datetime_duration()

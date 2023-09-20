@@ -58,9 +58,15 @@ contains
       integer :: duration
       integer :: yy, mm, dd, h, m, s, m_time
       character(len=*), parameter :: UNITS = 'seconds' 
+      character(len=*), parameter :: NOT_EQUAL = ' /= '
       character(len=:), allocatable :: tunit, units_string
-      type(ESMF_Time) :: time, etime, btime
+      type(ESMF_Time) :: time, etime, btime, ebtime
       type(ESMF_TimeInterval) :: time_interval
+      character(len=ESMF_MAXSTR) :: expected_base_datetime_string
+      character(len=ESMF_MAXSTR) :: expected_datetime_string
+      character(len=ESMF_MAXSTR) :: actual_base_datetime_string
+      character(len=ESMF_MAXSTR) :: actual_datetime_string
+      character(len=:), allocatable :: msg_time, msg_base_time, msg_tunit
       integer :: status
 
       yy = 1999
@@ -74,18 +80,25 @@ contains
       units_string = UNITS // ' since 1999-12-31 23:29:59'
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
+      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
+      call ESMF_TimeGet(etime, timeString = expected_datetime_string, rc=status)
+
+      call ESMF_TimeSet(ebtime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
       @assertTrue(status == _SUCCESS, 'Unable to create expected base ESMF_Time')
+      call ESMF_TimeGet(ebtime, timeString = expected_base_datetime_string, rc=status)
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
          time1 = time, tunit = tunit, rc = status)
       @assertTrue(status == _SUCCESS, 'Conversion failed')
+      call ESMF_TimeGet(btime, timeString = actual_base_datetime_string, rc=status)
+      call ESMF_TimeGet(time, timeString = actual_datetime_string, rc=status)
+      msg_time = trim(actual_datetime_string) // NOT_EQUAL // trim(expected_datetime_string)
+      msg_base_time = trim(actual_base_datetime_string) // NOT_EQUAL // trim(expected_base_datetime_string)
+      msg_tunit = trim(tunit) // NOT_EQUAL // trim(UNITS)
 
-      @assertTrue(ESMF_Times_Equal(etime, btime), 'base ESMF_Time values do not match.')
-      @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match.")
-
-      call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
-      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
-      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
+      @assertTrue(ESMF_Times_Equal(ebtime, btime), 'base ESMF_Time values do not match: ' // msg_base_time)
+      @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match: " // msg_tunit)
+      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match: ' // msg_time)
 
    end subroutine test_convert_NetCDF_DateTime_to_ESMF_integer
 
@@ -94,9 +107,15 @@ contains
       real(kind=ESMF_KIND_R8) :: duration
       integer :: yy, mm, dd, h, m, s, m_time
       character(len=*), parameter :: UNITS = 'seconds' 
+      character(len=*), parameter :: NOT_EQUAL = ' /= '
       character(len=:), allocatable :: tunit, units_string
-      type(ESMF_Time) :: time, etime, btime
+      type(ESMF_Time) :: time, etime, btime, ebtime
       type(ESMF_TimeInterval) :: time_interval
+      character(len=ESMF_MAXSTR) :: expected_base_datetime_string
+      character(len=ESMF_MAXSTR) :: expected_datetime_string
+      character(len=ESMF_MAXSTR) :: actual_base_datetime_string
+      character(len=ESMF_MAXSTR) :: actual_datetime_string
+      character(len=:), allocatable :: msg_time, msg_base_time, msg_tunit
       integer :: status
 
       yy = 1999
@@ -111,17 +130,59 @@ contains
 
       call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
       @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
+      call ESMF_TimeGet(etime, timeString = expected_datetime_string, rc=status)
+
+      call ESMF_TimeSet(ebtime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
+      @assertTrue(status == _SUCCESS, 'Unable to create expected base ESMF_Time')
+      call ESMF_TimeGet(ebtime, timeString = expected_base_datetime_string, rc=status)
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
          time1 = time, tunit = tunit, rc = status)
       @assertTrue(status == _SUCCESS, 'Conversion failed')
+      call ESMF_TimeGet(btime, timeString = actual_base_datetime_string, rc=status)
+      call ESMF_TimeGet(time, timeString = actual_datetime_string, rc=status)
+      msg_time = trim(actual_datetime_string) // NOT_EQUAL // trim(expected_datetime_string)
+      msg_base_time = trim(actual_base_datetime_string) // NOT_EQUAL // trim(expected_base_datetime_string)
+      msg_tunit = trim(tunit) // NOT_EQUAL // trim(UNITS)
 
-      @assertTrue(ESMF_Times_Equal(etime, btime), 'base ESMF_Time values do not match.')
-      @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match.")
-
-      call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
-      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
-      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
+      @assertTrue(ESMF_Times_Equal(ebtime, btime), 'base ESMF_Time values do not match: ' // msg_base_time)
+      @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match: " // msg_tunit)
+      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match: ' // msg_time)
+!      integer :: yy, mm, dd, h, m, s, m_time
+!      character(len=*), parameter :: UNITS = 'seconds' 
+!      character(len=:), allocatable :: tunit, units_string
+!      type(ESMF_Time) :: time, etime, btime, ebtime
+!      type(ESMF_TimeInterval) :: time_interval
+!      character(len=ESMF_MAXSTR) :: expected_base_datetime_string
+!      character(len=ESMF_MAXSTR) :: expected_datetime_string
+!      character(len=ESMF_MAXSTR) :: actual_base_datetime_string
+!      character(len=ESMF_MAXSTR) :: actual_datetime_string
+!      character(len=:), allocatable :: msg_time, msg_base_time
+!      integer :: status
+!
+!      yy = 1999
+!      mm = 12
+!      dd = 31
+!      h = 23
+!      m = 29
+!      m_time = 59
+!      s = 59
+!      duration = ( m_time - m ) * SECONDS_PER_MINUTE
+!      units_string = UNITS // ' since 1999-12-31 23:29:59'
+!
+!      call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m_time, s=s, rc=status)
+!      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
+!
+!      call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
+!         time1 = time, tunit = tunit, rc = status)
+!      @assertTrue(status == _SUCCESS, 'Conversion failed')
+!
+!      @assertTrue(ESMF_Times_Equal(etime, btime), 'base ESMF_Time values do not match.')
+!      @assertTrue(trim(tunit) == trim(UNITS), "Time units don't match.")
+!
+!      call ESMF_TimeSet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
+!      @assertTrue(status == _SUCCESS, 'Unable to create expected ESMF_Time')
+!      @assertTrue(ESMF_Times_Equal(etime, time), 'ESMF_Time values do not match.')
 
    end subroutine test_convert_NetCDF_DateTime_to_ESMF_real
 

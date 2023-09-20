@@ -25,25 +25,25 @@ contains
       ! Get duration(s) from datetime_duration
 
       ! Set ESMF_TimeInterval
-      if(duration % year_is_set) call ESMF_TimeIntervalSet(interval, yy = duration % year, _RC)
-      if(duration % month_is_set) call ESMF_TimeIntervalSet(interval, yy = duration % month, _RC)
-      if(duration % day_is_set) call ESMF_TimeIntervalSet(interval, yy = duration % day, _RC)
+      if(duration % year_is_set()) call ESMF_TimeIntervalSet(interval, yy = duration % year, _RC)
+      if(duration % month_is_set()) call ESMF_TimeIntervalSet(interval, yy = duration % month, _RC)
+      if(duration % day_is_set()) call ESMF_TimeIntervalSet(interval, yy = duration % day, _RC)
 
-      if(duration % hour_is_real) then
+      if(duration % hour_is_real()) then
          call ESMF_TimeIntervalSet(interval, h_r8 = duration % hour_real, _RC)
-      else if(duration % hour_is_set) then
+      else if(duration % hour_is_set()) then
          call ESMF_TimeIntervalSet(interval, h = duration % hour, _RC)
       end if
          
-      if(duration % minute_is_real) then
+      if(duration % minute_is_real()) then
          call ESMF_TimeIntervalSet(interval, m_r8 = duration % minute_real, _RC)
-      else if(duration % minute_is_set) then
+      else if(duration % minute_is_set()) then
          call ESMF_TimeIntervalSet(interval, m = duration % minute, _RC)
       end if
 
-      if(duration % second_is_real) then
+      if(duration % second_is_real()) then
          call ESMF_TimeIntervalSet(interval, s_r8 = duration % second_real, _RC)
-      else if(duration % second_is_set) then
+      else if(duration % second_is_set()) then
          call ESMF_TimeIntervalSet(interval, s = duration % second, _RC)
       end if
 

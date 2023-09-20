@@ -144,28 +144,48 @@ module MAPL_DateTime_Parsing
    type :: datetime_duration
       integer :: year, month, day, hour, minute, second
       real(kind=R64) :: hour_real, minute_real, second_real
-      logical :: hour_is_set, minute_is_set, second_is_set
-      logical :: year_is_set, month_is_set, day_is_set
-      logical :: hour_is_real, minute_is_real, second_is_real
    contains
-      procedure, pass(this) ::  set_year => set_year_datetime_duration
-      procedure, pass(this) ::  set_month => set_month_datetime_duration
-      procedure, pass(this) ::  set_day => set_day_datetime_duration
-      procedure, pass(this) ::  set_hour => set_hour_datetime_duration
-      procedure, pass(this) ::  set_minute => set_minute_datetime_duration
-      procedure, pass(this) ::  set_second => set_second_datetime_duration
-      procedure, pass(this) ::  set_hour_real => set_hour_real_datetime_duration
-      procedure, pass(this) ::  set_minute_real => set_minute_real_datetime_duration
-      procedure, pass(this) ::  set_second_real => set_second_real_datetime_duration
-      procedure, pass(this) ::  set_real_value_datetime_duration
-      procedure, pass(this) ::  set_integer_value_datetime_duration
-      generic :: set_value => set_integer_value_datetime_duration, set_real_value_datetime_duration
+      procedure, pass(this) :: year_is_set
+      procedure, pass(this) :: month_is_set
+      procedure, pass(this) :: day_is_set
+      procedure, pass(this) :: hour_is_set
+      procedure, pass(this) :: minute_is_set
+      procedure, pass(this) :: second_is_set
+      procedure, pass(this) :: hour_is_real
+      procedure, pass(this) :: minute_is_real
+      procedure, pass(this) :: second_is_real
+      procedure, pass(this) :: set_year => set_year_datetime_duration
+      procedure, pass(this) :: set_month => set_month_datetime_duration
+      procedure, pass(this) :: set_day => set_day_datetime_duration
+      procedure, pass(this) :: set_hour => set_hour_datetime_duration
+      procedure, pass(this) :: set_minute => set_minute_datetime_duration
+      procedure, pass(this) :: set_second => set_second_datetime_duration
+      procedure, pass(this) :: set_hour_real => set_hour_real_datetime_duration
+      procedure, pass(this) :: set_minute_real => set_minute_real_datetime_duration
+      procedure, pass(this) :: set_second_real => set_second_real_datetime_duration
+      procedure, pass(this) :: set_real_value_datetime_duration
+      procedure, pass(this) :: set_integer_value_datetime_duration
+      generic ::  set_value => set_integer_value_datetime_duration, set_real_value_datetime_duration
    end type datetime_duration
 
    interface datetime_duration
       module procedure :: construct_datetime_duration
    end interface datetime_duration
 
+   interface unset
+      module procedure :: unset_integer
+      module procedure :: unset_real
+   end interface unset
+
+   interface set_field_value
+      module procedure :: set_field_value_integer
+      module procedure :: set_field_value_real
+   end interface set_field_value
+
+   interface is_set
+      module procedure :: is_set_integer
+      module procedure :: is_set_real
+   end interface is_set
    ! END DATETIME_DURATION
 
 
@@ -190,6 +210,8 @@ module MAPL_DateTime_Parsing
 
    ! END TIME_UNIT
 
+   ! UNSET FIELD
+   integer, parameter :: UNSET_FIELD = -1
 
    ! Error handling
    integer, parameter :: INVALID = -1
@@ -447,7 +469,7 @@ contains
 
    ! Verify that millisecond is a valid millisecond values
    pure logical function is_valid_millisecond(millisecond)
-      integer, intent(in) :: millisecond
+         integer, intent(in) :: millisecond
       is_valid_millisecond = millisecond .in. [0, 999]
    end function is_valid_millisecond
 
@@ -756,27 +778,16 @@ contains
    function construct_datetime_duration() result(that)
       type(datetime_duration) :: that
 
-      that % year = 0
-      that % month = 0
-      that % day = 0
-      that % hour = 0
-      that % minute = 0
-      that % second = 0
+      call unset(that % year)
+      call unset(that % month)
+      call unset(that % day)
+      call unset(that % hour)
+      call unset(that % minute)
+      call unset(that % second)
 
-      that % hour_real = 0.0
-      that % minute_real = 0.0
-      that % second_real = 0.0
-
-      that % year_is_set = .FALSE.
-      that % month_is_set = .FALSE.
-      that % day_is_set = .FALSE.
-      that % hour_is_set = .FALSE.
-      that % minute_is_set = .FALSE.
-      that % second_is_set = .FALSE.
-
-      that % hour_is_real = .FALSE.
-      that % minute_is_real = .FALSE.
-      that % second_is_real = .FALSE.
+      call unset(that % hour_real)
+      call unset(that % minute_real)
+      call unset(that % second_real)
 
    end function construct_datetime_duration
 
@@ -843,6 +854,51 @@ contains
 
    ! DATETIME_DURATION:
 
+   logical function year_is_set(this)
+      class(datetime_duration), intent(in) :: this
+      year_is_set = is_set(this % year)
+   end function year_is_set
+
+   logical function month_is_set(this)
+      class(datetime_duration), intent(in) :: this
+      month_is_set = is_set(this % month)
+   end function month_is_set
+
+   logical function day_is_set(this)
+      class(datetime_duration), intent(in) :: this
+      day_is_set = is_set(this % day)
+   end function day_is_set
+
+   logical function hour_is_set(this)
+      class(datetime_duration), intent(in) :: this
+      hour_is_set = is_set(this % hour) .or. is_set(this % hour_real)
+   end function hour_is_set
+
+   logical function minute_is_set(this)
+      class(datetime_duration), intent(in) :: this
+      minute_is_set = is_set(this % minute) .or. is_set(this % minute_real)
+   end function minute_is_set
+
+   logical function second_is_set(this)
+      class(datetime_duration), intent(in) :: this
+      second_is_set = is_set(this % second) .or. is_set(this % second_real)
+   end function second_is_set
+
+   logical function hour_is_real(this)
+      class(datetime_duration), intent(in) :: this
+      hour_is_real = this % hour_is_set() .and. is_set(this % hour_real) 
+   end function hour_is_real
+
+   logical function minute_is_real(this)
+      class(datetime_duration), intent(in) :: this
+      minute_is_real = this % minute_is_set() .and. is_set(this % minute_real) 
+   end function minute_is_real
+
+   logical function second_is_real(this)
+      class(datetime_duration), intent(in) :: this
+      second_is_real = this % second_is_set() .and. is_set(this % second_real) 
+   end function second_is_real
+
    subroutine set_year_datetime_duration(this, val, rc)
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
@@ -850,7 +906,6 @@ contains
       integer :: status
 
       this % year = val
-      this % year_is_set = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -863,7 +918,6 @@ contains
       integer :: status
 
       this % month = val
-      this % month_is_set = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -876,7 +930,6 @@ contains
       integer :: status
 
       this % day = val
-      this % day_is_set = .TRUE.
 
       _RETURN(_SUCCESS)
 
@@ -888,12 +941,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(.not. this % hour_is_set) then
-         _FAIL('Hour has already been set to a real value.')
-      end if
-
-      this % hour = val
-      this % hour_is_set = .TRUE.
+      call set_field_value(val, this % hour, this % hour_real)
 
       _RETURN(_SUCCESS)
 
@@ -905,13 +953,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(.not. this % hour_is_set) then
-         _FAIL('Hour has already been set to an integer value.')
-      end if
-
-      this % hour_real = val
-      this % hour_is_set = .TRUE.
-      this % hour_is_real = .TRUE.
+      call set_field_value(val, this % hour_real, this % hour)
 
       _RETURN(_SUCCESS)
 
@@ -923,12 +965,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(.not. this % minute_is_set) then
-         _FAIL('Minute has already been set to a real value')
-      end if
-
-      this % minute = val
-      this % minute_is_set = .TRUE.
+      call set_field_value(val, this % minute, this % minute_real)
 
       _RETURN(_SUCCESS)
 
@@ -940,13 +977,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(.not. this % minute_is_set) then
-         _FAIL('Minute has already been set to an integer value.')
-      end if
-
-      this % minute_real = val
-      this % minute_is_set = .TRUE.
-      this % minute_is_real = .TRUE.
+      call set_field_value(val, this % minute_real, this % minute)
 
       _RETURN(_SUCCESS)
 
@@ -958,12 +989,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(.not. this % second_is_set) then
-         _FAIL('Minute has already been set to a real value')
-      end if
-
-      this % second = val
-      this % second_is_set = .TRUE.
+      call set_field_value(val, this % second, this % second_real)
 
       _RETURN(_SUCCESS)
 
@@ -975,13 +1001,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if(.not. this % second_is_set) then
-         _FAIL('Second has already been set to an integer value.')
-      end if
-
-      this % second_real = val
-      this % second_is_set = .TRUE.
-      this % second_is_real = .TRUE.
+      call set_field_value(val, this % second_real, this % second)
 
       _RETURN(_SUCCESS)
 
@@ -1244,6 +1264,46 @@ contains
 
    end function convert_lengths_to_indices
 
+   subroutine unset_integer(n)
+      integer, intent(out) :: n
+      n = UNSET_FIELD
+   end subroutine unset_integer
+
+   subroutine unset_real(t)
+      real(kind=R64), intent(out) :: t
+      t = real(UNSET_FIELD, kind=R64)
+   end subroutine unset_real
+
+   logical function is_set_integer(n) 
+      integer, intent(in) :: n
+      is_set_integer = (n /= UNSET_FIELD)
+   end function is_set_integer
+
+   logical function is_set_real(t)
+      real(kind=R64), intent(in) :: t
+      is_set_real = (t /= real(UNSET_FIELD, kind=R64))
+   end function is_set_real
+
+   subroutine set_field_value_integer(new_value, integer_value, real_value)
+      integer, intent(in) :: new_value
+      integer, intent(out) :: integer_value
+      real(kind=R64), intent(out) :: real_value
+
+      integer_value = new_value
+      call unset(real_value)
+      
+   end subroutine set_field_value_integer
+
+   subroutine set_field_value_real(new_value, real_value, integer_value)
+      real(kind=R64), intent(in) :: new_value
+      real(kind=R64), intent(out) :: real_value
+      integer, intent(out) :: integer_value
+
+      real_value = new_value
+      call unset(integer_value)
+      
+   end subroutine set_field_value_real
+
 ! TIME_UNIT ====================================================================
 
    function get_time_unit(unit_name, check_plural) result(unit_num)
@@ -1265,7 +1325,7 @@ contains
       write(*, fmt=LFMT) 'check_plural_: ', check_plural_
       unit_name_ = trim(unit_name)
       print *, 'unit_name_ = ' // unit_name_
-      tunits = get_time_units()
+      tunits => get_time_units()
       do i = 1, size(tunits)
          write(*, '(A,I1,A)') 'i = ', i, ', tunits(i) = ' // tunits(i)
       end do
@@ -1289,11 +1349,12 @@ contains
    end function get_time_unit
 
    function get_time_units() result(units)
-      character(len=len(time_units(1))) :: units(size(time_units))
+!      character(len=len(time_units(1))), pointer :: units(size(time_units)) !wdb fixme deleteme 
+      character(len=:), pointer :: units(:)
 
       print *, 'Entering get_time_units()'
       call initialize_time_units()
-      units = time_units
+      units => time_units
       print *, 'Exiting get_time_units()'
 
    end function get_time_units

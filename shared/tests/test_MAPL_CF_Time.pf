@@ -1,6 +1,7 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 
+!wdb fixme deleteme Need to delete extra prints
 module test_MAPL_CF_Time
    use MAPL_ExceptionHandling
    use MAPL_CF_Time
@@ -14,7 +15,7 @@ module test_MAPL_CF_Time
 
 contains
 
-   !@test
+   @test
    subroutine test_convert_CF_Time_to_datetime_duration()
       type(CF_Time_Integer) :: cfti
       type(CF_Time_Real) :: cftr
@@ -27,9 +28,6 @@ contains
       integer :: status
       
       call convert_CF_Time_to_datetime_duration(iduration, units, dt_dur, rc = status)
-!      @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
-!      @assertEqual(iduration, dt_dur % second, 'Duration does not match.')
-      
       call convert_CF_Time_to_datetime_duration(rduration, units, dt_dur, rc = status)
       @assertEqual(SUCCESS, status, 'Conversion unsuccessful')
       @assertEqual(rduration, dt_dur % second_real, 'Duration does not match.')
@@ -72,16 +70,6 @@ contains
       
    end subroutine test_construct_cf_time
 
-!   @test
-!   subroutine test_multipleof()
-!      @assertTrue(multipleof(21, 7))
-!      @assertFalse(multipleof(22, 7))
-!   end subroutine test_multipleof
-
-!   @test
-!   subroutine test_get_integer_digit_from_string()
-!      @assertEqual(NONDIGIT, get_integer_digit_from_string(digit, len(digit)+1))
-!   end subroutine test_get_integer_digit_from_string
    subroutine test_extract_ISO8601_from_CF_Time()
       type(CF_Time_Integer) :: cfti
       integer, parameter :: duration = 1800
