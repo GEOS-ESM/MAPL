@@ -109,9 +109,6 @@ contains
     integer :: len, i, j, k
     integer :: xtype
     character(len=:), allocatable :: str
-    integer :: number
-    integer :: attnum, nAttributes
-    character(len=NF90_MAX_NAME) :: attr_name2
     integer(kind=C_INT) :: c_ncid, c_varid
     character(len=100) :: str2
 
@@ -497,7 +494,6 @@ contains
     character(len=*) :: shms
     type (ESMF_TimeInterval), intent(out) :: interval
     integer, optional, intent(out) :: rc
-    integer :: status
     character(len=20) :: s1, s2
     integer :: y, m, d, hh, mm, ss
 

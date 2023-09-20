@@ -6,7 +6,7 @@ module HistoryTrajectoryMod
   use MAPL_VerticalDataMod
   use LocStreamFactoryMod
   use MAPL_LocstreamRegridderMod
-  use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   private
 
@@ -26,7 +26,7 @@ module HistoryTrajectoryMod
   end type obs_unit
 
   public :: HistoryTrajectory
-  
+
   type :: HistoryTrajectory
      private
      type(ESMF_LocStream)   :: LS_rt
@@ -37,7 +37,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
-     integer,           allocatable :: obstype_id(:)     
+     integer,           allocatable :: obstype_id(:)
 
      type(ESMF_FieldBundle) :: bundle
      type(ESMF_FieldBundle) :: output_bundle
@@ -79,7 +79,7 @@ module HistoryTrajectoryMod
      logical                        :: is_valid
    contains
      procedure :: initialize
-     procedure :: reinitialize     
+     procedure :: reinitialize
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
@@ -103,7 +103,7 @@ module HistoryTrajectoryMod
      module procedure  sort_three_arrays_by_time
      module procedure  sort_four_arrays_by_time
   end interface sort_multi_arrays_by_time
-  
+
   interface
      module function HistoryTrajectory_from_config(config,string,clock,rc) result(traj)
        type(HistoryTrajectory) :: traj
@@ -127,7 +127,7 @@ module HistoryTrajectoryMod
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine reinitialize
-     
+
      module subroutine  create_metadata_variable(this,vname,rc)
        class(HistoryTrajectory), intent(inout) :: this
        character(len=*), intent(in)            :: vname
@@ -171,7 +171,7 @@ module HistoryTrajectoryMod
        real(ESMF_KIND_R8) :: U(:), V(:), T(:)
        integer :: ID(:)
        integer, optional, intent(out)          :: rc
-     end subroutine sort_four_arrays_by_time     
+     end subroutine sort_four_arrays_by_time
 
      module subroutine time_real_to_ESMF (this,rc)
        class(HistoryTrajectory), intent(inout) :: this
