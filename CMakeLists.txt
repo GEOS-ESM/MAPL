@@ -224,7 +224,7 @@ add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
 if (BUILD_WITH_FARGPARSE)
-   add_subdirectory (tutorial)
+   add_subdirectory (docs)
 endif()
 
 add_subdirectory (geom_mgr)

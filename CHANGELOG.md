@@ -62,6 +62,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `_HERE`: Returns the current file and line number
   - `_RETURN_IF(cond)`: Returns if the condition is true
   - `_RETURN_UNLESS(cond)`: Returns if the condition is false
+- Created a new `docs` directory that has the following subdirectories
+  - `tutorial`: what used to be a top directory (with the same content)
+  - `user_guide`: a new directory that will serve as MAPL User's Guide.
 - OSSE project: trajectory sampler (regrid to IODA file locations), capable of ingesting multiple files and regridding via one route-handle
 
 ### Changed
