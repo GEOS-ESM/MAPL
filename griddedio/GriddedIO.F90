@@ -31,7 +31,6 @@ module MAPL_GriddedIOMod
   private
 
   type, public :: MAPL_GriddedIO
-     !     type(FileMetaData) :: metadata
      type(FileMetaData), allocatable :: metadata     
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id

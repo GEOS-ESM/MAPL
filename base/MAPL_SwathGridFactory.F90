@@ -269,9 +269,9 @@ contains
 
       lgr => logging%get_logger('HISTORY.sampler')
       call lgr%debug('%a', 'test')
-      call lgr%debug('%a %i4 %i4',  'Xdim, Ydim', Xdim, Ydim)
-      call lgr%debug('%a %i4 %i4', 'Xdim_full, Ydim_full', Xdim_full, Ydim_full)
-      call lgr%debug('%a %i4 %i4 %i4 %i4', 'epoch_index(1:4)', &
+      call lgr%debug('%a %i8 %i8',  'Xdim, Ydim', Xdim, Ydim)
+      call lgr%debug('%a %i8 %i8', 'Xdim_full, Ydim_full', Xdim_full, Ydim_full)
+      call lgr%debug('%a %i8 %i8 %i8 %i8', 'epoch_index(1:4)', &
            this%epoch_index(1), this%epoch_index(2), &
            this%epoch_index(3), this%epoch_index(4))
        
@@ -412,6 +412,7 @@ contains
       call ESMF_ConfigGetAttribute(config, filename, label=prefix//'GRIDSPEC:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
+      print*, 'ck: Epoch_init:', trim(tmp)
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(time0, timeString=tmp, _RC)
       else
@@ -433,12 +434,12 @@ contains
       allocate(this%t_alongtrack(nlat))
       
       lgr => logging%get_logger('HISTORY.sampler')
-!      call lgr%debug('%2x %a 2x %a', &
-!           'swath Epoch init time:', trim(tmp) )
-!      call lgr%debug('%2x %a 2x %a', &
-!           'swath obs filename:', trim(filename) )
-!      call lgr%debug('%2x %a 2x %i8 %i8 %i8', &
-!           'swath obs nlon,nlat,tdim:', nlon,nlat,tdim )
+      call lgr%debug('%a  %a', &
+           'swath Epoch init time:', trim(tmp) )
+      call lgr%debug('%a  %a', &
+           'swath obs filename:   ', trim(filename) )
+      call lgr%debug('%a  %i8  %i8  %i8', &
+           'swath obs nlon,nlat,tdim:', nlon,nlat,tdim )
 
       call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
       do j=1, nlat
@@ -490,7 +491,7 @@ contains
 !!      write(6,*) 'obs filename', trim(filename)
 !!      write(6,*) 'this%grid_file_name', trim(this%grid_file_name)
 !!      write(6,*) 'Xdim, Ydim, ntime:', Xdim, Ydim, ntime
-!!
+
       
       ! determine im_world from Epoch
       ! -----------------------------
@@ -498,6 +499,10 @@ contains
       ! convert time0 to j0
       ! use Epoch to find j1
       ! search j0, j1 in t_a
+
+
+      ! this is a bug
+      !
       tunit='seconds since 1993-01-01 00:00:00'
       this%tunit = tunit
       call time_esmf_2_nc_int (time0, tunit, j0, _RC)
@@ -506,12 +511,14 @@ contains
       jx0= j0
       jx1= j1
       !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
-      call lgr%debug ('%a %i4 %i4', 'j0,  j1 ', j0,  j1)
+      call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
+
       
       this%epoch_index(1)= 1
       this%epoch_index(2)= this%cell_across_swath
       call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+
 
       if (jt1==jt2) then
          _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
@@ -521,6 +528,7 @@ contains
       this%epoch_index(4)= jt2
       Xdim = this%cell_across_swath
       Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
+
 
       call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
       call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
@@ -1168,25 +1176,48 @@ contains
       integer(ESMF_KIND_I8) :: i1, i2
       real(ESMF_KIND_R8) :: iT1, iT2
       integer(ESMF_KIND_I8) :: index1, index2
-      integer :: jlo, jhi
-      
+      integer :: jlo, jhi, je
+
+      ! xtrack
+      xy_subset(1:2,1)=this%epoch_index(1:2)
+
+      ! atrack      
       T1= interval(1)
       T2= interval(2)
       
       ! this%t_alongtrack
       !
-      !
       call time_esmf_2_nc_int (T1, this%tunit, i1, _RC)
       call time_esmf_2_nc_int (T2, this%tunit, i2, _RC)
-      iT1=i1; iT2=i2   ! int to real*8
-      jlo = this%epoch_index(3)-2 ; jhi=this%epoch_index(4) + 1
+      iT1 = i1   ! int to real*8
+      iT2 = i2
+      jlo = this%epoch_index(3) - 2
+      jhi = this%epoch_index(4) + 1
       call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
-      xy_subset(1:2,1)=this%epoch_index(1:2)    ! xtrack
+
+!! complex version      
+!!      ! (x1, x2]  design in bisect
+!!      if (index1==jlo-1) then
+!!         je = index1 + 1
+!!      else
+!!         je = index1
+!!      end if
+!!      xy_subset(1, 2) = je 
+!!      if (index2==jlo-1) then
+!!         je = index2 + 1
+!!      else
+!!         je = index2
+!!      end if      
+!!      xy_subset(2, 2) = je
+
+      ! simple version      
       xy_subset(1,  2)=index1+1                 ! atrack
-      xy_subset(2,  2)=index2
+      xy_subset(2,  2)=index2      
+      
       !
       !- relative
+      !
       xy_subset(1,2)= xy_subset(1,2) - this%epoch_index(3) + 1
       xy_subset(2,2)= xy_subset(2,2) - this%epoch_index(3) + 1      
 
