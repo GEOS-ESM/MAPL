@@ -41,7 +41,7 @@
 #  ifdef _UNUSED_DUMMY
 #    undef _UNUSED_DUMMY
 #  endif
-#  ifdef _FILE
+#  ifdef _FILE_
 #    undef _FILE_
 #  endif
 #  ifdef _RC
@@ -52,6 +52,9 @@
 #  endif
 #  ifdef _IOSTAT
 #    undef _IOSTAT
+#  endif
+#  ifdef _IERROR
+#    undef _IERROR
 #  endif
 #  ifdef __return
 #    undef __return
@@ -107,6 +110,7 @@
 #    define _RC _RC_(rc,status)
 
 #    define _STAT _RC_(stat,status)
+#    define _IERROR _RC_(ierror,status)
 #    define _IOSTAT _RC_(iostat,status)
 
 #    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return

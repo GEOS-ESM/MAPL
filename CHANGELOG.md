@@ -53,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added new benchmark suite.  Initial benchmarks are:
+	1. measuring raw bandwidth of a filesystem with multiple independent streams 
+	2. measuring the `MPI_Gatherv()` used in writing checkpoints.
+	3. a combo benchmark that does both operations
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
 - Added markdown documentation for select items such as ExtData, History and a few other sources
 - Trajectory sampler with Epoch time span
@@ -86,7 +90,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+
 - Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
+- Corrected a typo for checking if fpp macro `_FILE_` was previously defined.
 - Add call to initialize pFlogger layer for the unit tests.
 - Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
   + MPT bug at NAS

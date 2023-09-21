@@ -225,6 +225,7 @@ add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
 if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
+   add_subdirectory (benchmarks)
 endif()
 
 add_subdirectory (geom_mgr)
