@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Saved weights and points for the vertical interpolation
 - Added new benchmark suite.  Initial benchmarks are:
 	1. measuring raw bandwidth of a filesystem with multiple independent streams 
 	2. measuring the `MPI_Gatherv()` used in writing checkpoints.
