@@ -901,7 +901,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       this % year = val
 
@@ -913,7 +913,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       this % month = val
 
@@ -925,7 +925,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       this % day = val
 
@@ -937,7 +937,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % hour, this % hour_real)
 
@@ -949,7 +949,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % hour_real, this % hour)
 
@@ -961,7 +961,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % minute, this % minute_real)
 
@@ -973,7 +973,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % minute_real, this % minute)
 
@@ -985,7 +985,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % second, this % second_real)
 
@@ -997,7 +997,7 @@ contains
       class(datetime_duration), intent(inout) :: this
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % second_real, this % second)
 
@@ -1010,7 +1010,7 @@ contains
       integer(kind(TIME_UNIT)), intent(in) :: tunit
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       select case(tunit)
       case (YEAR_TIME_UNIT)
@@ -1038,7 +1038,7 @@ contains
       integer(kind(TIME_UNIT)), intent(in) :: tunit
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       select case(tunit)
       case (HOUR_TIME_UNIT)
@@ -1079,10 +1079,10 @@ contains
       character(len=*), parameter :: ISO_POINT = '.'
       character(len=len(datetime_string)) :: undelimited
       character(len=:), allocatable :: intermediate
-      character(len=2) :: int_length
-      integer :: io_stat
+      character(len=2) :: int_length !wdb fixme deleteme 
+      integer :: io_stat !wdb fixme deleteme 
       integer :: undelimited_length
-      integer :: status
+      integer :: status !wdb fixme deleteme 
 
       iso_string = datetime_string
       undelimited = adjustl(undelimit_all(datetime_string))
@@ -1226,7 +1226,7 @@ contains
       class(StringVector), intent(inout) :: parts
       integer, optional, intent(out) :: rc
       integer, allocatable :: indices(:, :)
-      integer :: status
+      integer :: status !wdb fixme deleteme 
       integer :: i
       integer :: n(2)
 
@@ -1307,7 +1307,7 @@ contains
       integer(kind(TIME_UNIT)) :: i
       character(len=*), parameter :: IFMT = '(A,I1)'
       character(len=*), parameter :: LFMT = '(A,L)'
-      integer :: j
+      integer :: j !wdb fixme deleteme 
 
       check_plural_ = .TRUE.
 
