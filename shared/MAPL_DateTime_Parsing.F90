@@ -40,7 +40,7 @@ module MAPL_DateTime_Parsing
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use gFTL_StringVector
-   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
+   use, intrinsic :: iso_fortran_env, only: R64 => real64
 
    implicit none
 
@@ -57,8 +57,9 @@ module MAPL_DateTime_Parsing
    public :: is_time_unit
    public :: get_time_unit
 
-   public :: YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, TIME_UNIT_UNKNOWN
-   public :: TIME_UNIT, NUM_TIME_UNITS 
+   public :: YEAR_TIME_UNIT, MONTH_TIME_UNIT, DAY_TIME_UNIT
+   public :: HOUR_TIME_UNIT, MINUTE_TIME_UNIT, SECOND_TIME_UNIT
+   public :: TIME_UNIT, NUM_TIME_UNITS, UNKNOWN_TIME_UNIT 
 
 ! Comment out the following line for testing.
 !   private
@@ -192,21 +193,21 @@ module MAPL_DateTime_Parsing
 
    enum, bind(c)
       enumerator :: TIME_UNIT = 0
-      enumerator :: YEAR
-      enumerator :: MONTH
-      enumerator :: DAY
-      enumerator :: HOUR
-      enumerator :: MINUTE
-      enumerator :: SECOND
-      enumerator :: LAST_TIME_UNIT
-      enumerator :: TIME_UNIT_UNKNOWN = -1
+      enumerator :: YEAR_TIME_UNIT = 1
+      enumerator :: MONTH_TIME_UNIT = 2
+      enumerator :: DAY_TIME_UNIT = 3
+      enumerator :: HOUR_TIME_UNIT = 4
+      enumerator :: MINUTE_TIME_UNIT = 5
+      enumerator :: SECOND_TIME_UNIT = 6
+      enumerator :: LAST_TIME_UNIT = SECOND_TIME_UNIT
+      enumerator :: UNKNOWN_TIME_UNIT = -1
    end enum
 
-   integer(kind(TIME_UNIT)), parameter :: NUM_TIME_UNITS = LAST_TIME_UNIT - 1
+   integer(kind(TIME_UNIT)), parameter :: NUM_TIME_UNITS = LAST_TIME_UNIT
 
    integer, parameter :: MAX_CHARACTER_LENGTH = 64
-   character(len=MAX_CHARACTER_LENGTH), target :: time_units(NUM_TIME_UNITS)
-
+   character(len=MAX_CHARACTER_LENGTH), target :: time_units(NUM_TIME_UNITS) = &
+      [character(len=MAX_CHARACTER_LENGTH) :: "year", "month", "day", "hour", "minute", "second"]
    ! END TIME_UNIT
 
    ! UNSET FIELD
@@ -1012,17 +1013,17 @@ contains
       integer :: status
 
       select case(tunit)
-      case (YEAR)
+      case (YEAR_TIME_UNIT)
          call this % set_year(val)
-      case (MONTH)
+      case (MONTH_TIME_UNIT)
          call this % set_month(val)
-      case (DAY)
+      case (DAY_TIME_UNIT)
          call this % set_day(val)
-      case (HOUR)
+      case (HOUR_TIME_UNIT)
          call this % set_hour(val)
-      case (MINUTE)
+      case (MINUTE_TIME_UNIT)
          call this % set_minute(val)
-      case (SECOND)
+      case (SECOND_TIME_UNIT)
          call this % set_second(val)
       case default
          _FAIL('Invalid Time Unit')
@@ -1040,11 +1041,11 @@ contains
       integer :: status
 
       select case(tunit)
-      case (HOUR)
+      case (HOUR_TIME_UNIT)
          call this % set_hour_real(val)
-      case (MINUTE)
+      case (MINUTE_TIME_UNIT)
          call this % set_minute_real(val)
-      case (SECOND)
+      case (SECOND_TIME_UNIT)
          call this % set_second_real(val)
       case default
          _FAIL('Invalid Time Unit')
@@ -1306,66 +1307,31 @@ contains
       integer(kind(TIME_UNIT)) :: i
       character(len=*), parameter :: IFMT = '(A,I1)'
       character(len=*), parameter :: LFMT = '(A,L)'
+      integer :: j
 
-      print *, 'Entering get_time_unit'
       check_plural_ = .TRUE.
-      if(present(check_plural)) check_plural_ = check_plural
-      write(*, fmt=LFMT) 'check_plural_: ', check_plural_
-      unit_name_ = trim(unit_name)
-      print *, 'unit_name_ = ' // unit_name_
-      tunits => get_time_units()
-      do i = 1, size(tunits)
-         write(*, '(A,I1,A)') 'i = ', i, ', tunits(i) = ' // tunits(i)
-      end do
-      print *, 'Have tunits'
 
-      unit_num = TIME_UNIT_UNKNOWN
+      if(present(check_plural)) check_plural_ = check_plural
+
+      unit_name_ = trim(unit_name)
+      write(*, fmt='(A)') 'unit_name_: ' // unit_name_
+      tunits => time_units
+
+      unit_num = UNKNOWN_TIME_UNIT
       do i = 1, NUM_TIME_UNITS
-         write(*, fmt=IFMT) 'i = ', i
          tunit = trim(tunits(i))
-         print *, 'tunit = ' // tunit
-         write(*, fmt=LFMT) 'tunit == unit_name_: ', (tunit == unit_name_)
-         write(*, fmt=LFMT) 'check_plural_ .and. ((tunit // PLURAL) == unit_name_): ', (check_plural_ .and. ((tunit // PLURAL) == unit_name_))
          if((tunit == unit_name_) .or. (check_plural_ .and. ((tunit // PLURAL) == unit_name_))) then
-            print *, 'Match'
             unit_num = i
-            write(*, fmt=IFMT) 'unit_num = ', unit_num
+            write(*, fmt='(A,I2)') 'unit_num = ', i
             exit
          end if
       end do
 
    end function get_time_unit
 
-   function get_time_units() result(units)
-      character(len=:), pointer :: units(:)
-
-      print *, 'Entering get_time_units()'
-      call initialize_time_units()
-      units => time_units
-      print *, 'Exiting get_time_units()'
-
-   end function get_time_units
-
-   subroutine initialize_time_units()
-      logical, save :: initialized = .FALSE.
-
-      print *, 'Entering initialize_time_units()'
-      if(initialized) return
-      time_units(YEAR) = "year"
-      time_units(MONTH) = "month"
-      time_units(DAY) = "day"
-      time_units(HOUR) = "hour"
-      time_units(MINUTE) = "minute"
-      time_units(SECOND) = "second"
-
-      initialized = .TRUE.
-      print *, 'Exiting initialize_time_units()'
-
-   end subroutine initialize_time_units
-
    logical function is_time_unit(string)
       character(len=*), intent(in) :: string
-      is_time_unit = (get_time_unit(string) /= TIME_UNIT_UNKNOWN)
+      is_time_unit = (get_time_unit(string) /= UNKNOWN_TIME_UNIT)
    end function is_time_unit
 
 end module MAPL_DateTime_Parsing

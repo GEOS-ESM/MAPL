@@ -753,7 +753,7 @@ contains
 
       expected = 1800.0
       d = datetime_duration()
-      call d % set_value(SECOND, expected)
+      call d % set_value(SECOND_TIME_UNIT, expected)
       @assertEqual(expected, d % second_real, 'Value not set correctly')
 
    end subroutine test_set_real_value_datetime_duration
@@ -764,7 +764,7 @@ contains
 
       expected = 1800
       d = datetime_duration()
-      call d % set_value(SECOND, expected)
+      call d % set_value(SECOND_TIME_UNIT, expected)
       @assertEqual(expected, d % second, 'Value not set correctly')
 
    end subroutine test_set_integer_value_datetime_duration
@@ -802,27 +802,12 @@ contains
    end subroutine test_convert_lengths_to_indices
 
    @test
-   subroutine test_get_time_units()
-      integer(kind(TIME_UNIT)) :: unit_num
-      character(MAX_CHARACTER_LENGTH) :: unit_name
-      character(len=:), allocatable :: units(:)
-
-      units = get_time_units()
-
-      do unit_num = 1, size(time_units)
-         unit_name = time_units(unit_num)
-         @assertEqual(unit_name, units(unit_num), 'Time unit initialized incorrectly.')
-      end do
-      
-   end subroutine test_get_time_units
-
-   @test
    subroutine test_get_time_unit()
       integer(kind(TIME_UNIT)) :: expected, actual
       character(len=8) :: unit_name
 
          unit_name = 'year'
-         expected = YEAR
+         expected = YEAR_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
          unit_name = unit_name // 's'
@@ -830,7 +815,7 @@ contains
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
 
          unit_name = 'month'
-         expected = MONTH
+         expected = MONTH_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
          unit_name = unit_name // 's'
@@ -838,7 +823,7 @@ contains
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
 
          unit_name = 'day'
-         expected = DAY
+         expected = DAY_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
          unit_name = unit_name // 's'
@@ -846,7 +831,7 @@ contains
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
 
          unit_name = 'hour'
-         expected = HOUR
+         expected = HOUR_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
          unit_name = unit_name // 's'
@@ -854,7 +839,7 @@ contains
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
 
          unit_name = 'minute'
-         expected = MINUTE
+         expected = MINUTE_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
          unit_name = unit_name // 's'
@@ -862,7 +847,7 @@ contains
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
 
          unit_name = 'second'
-         expected = SECOND
+         expected = SECOND_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
          unit_name = unit_name // 's'
@@ -870,7 +855,7 @@ contains
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
       
          unit_name = 'furlong'
-         expected = TIME_UNIT_UNKNOWN
+         expected = UNKNOWN_TIME_UNIT
          actual = get_time_unit(unit_name)
          @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
 

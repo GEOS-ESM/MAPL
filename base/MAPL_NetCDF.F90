@@ -30,7 +30,7 @@ module MAPL_NetCDF
       module procedure :: get_ESMF_Time_from_NetCDF_DateTime_real
    end interface get_ESMF_Time_from_NetCDF_DateTime
 
-   integer, parameter :: MAX_CHARACTER_LENGTH = 64
+!   integer, parameter :: MAX_CHARACTER_LENGTH = 64
 
 contains
 

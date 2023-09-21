@@ -94,7 +94,7 @@ module MAPL_CF_Time
    character(len=2), parameter :: CF_DELIM = ' ' // ISO_DELIM
    character(len=*), parameter :: EMPTY_STRING = ''
    character, parameter :: DECIMAL_POINT = '.'
-   character(len=*), parameter :: DIGIT_CHARACTERS = '1234567890'
+   !character(len=*), parameter :: DIGIT_CHARACTERS = '1234567890'
 
 contains
 
@@ -198,9 +198,7 @@ contains
       end if
 
       tu = get_time_unit(cft % time_unit)
-      if(tu == TIME_UNIT_UNKNOWN) then
-         _RETURN(_FAILURE)
-      endif
+      _ASSERT(tu /= UNKNOWN_TIME_UNIT, 'Unable to find TIME_UNIT ' // cft % time_unit) 
 
       call dt_duration % set_value(tu, cft % duration)
       
@@ -220,9 +218,7 @@ contains
       end if
 
       tu = get_time_unit(cft % time_unit)
-      if(tu == TIME_UNIT_UNKNOWN) then
-         _RETURN(_FAILURE)
-      endif
+      _ASSERT(tu /= UNKNOWN_TIME_UNIT, 'Unable to find TIME_UNIT ' // cft % time_unit) 
 
       call dt_duration % set_value(tu, cft % duration)
 
@@ -266,19 +262,19 @@ contains
       isodatetime = EMPTY_STRING
       remainder = datetime_string
 
-      call split(trim(remainder), part(YEAR), remainder, DATE_DELIM)
-      call split(trim(remainder), part(MONTH), remainder, DATE_DELIM)
-      call split(trim(remainder), part(DAY), remainder, CF_DELIM)
-      call split(trim(remainder), part(HOUR), remainder, TIME_DELIM)
-      call split(trim(remainder), part(MINUTE), remainder, TIME_DELIM)
-      part(SECOND) = trim(remainder) 
+      call split(trim(remainder), part(YEAR_TIME_UNIT), remainder, DATE_DELIM)
+      call split(trim(remainder), part(MONTH_TIME_UNIT), remainder, DATE_DELIM)
+      call split(trim(remainder), part(DAY_TIME_UNIT), remainder, CF_DELIM)
+      call split(trim(remainder), part(HOUR_TIME_UNIT), remainder, TIME_DELIM)
+      call split(trim(remainder), part(MINUTE_TIME_UNIT), remainder, TIME_DELIM)
+      part(SECOND_TIME_UNIT) = trim(remainder) 
 
-      call update_datetime(isodatetime, part(YEAR), 4, DATE_DELIM)
-      call update_datetime(isodatetime, part(MONTH), 2, DATE_DELIM)
-      call update_datetime(isodatetime, part(DAY), 2, ISO_DELIM)
-      call update_datetime(isodatetime, part(HOUR), 2, TIME_DELIM)
-      call update_datetime(isodatetime, part(MINUTE), 2, TIME_DELIM)
-      call update_datetime(isodatetime, part(SECOND), 2)
+      call update_datetime(isodatetime, part(YEAR_TIME_UNIT), 4, DATE_DELIM)
+      call update_datetime(isodatetime, part(MONTH_TIME_UNIT), 2, DATE_DELIM)
+      call update_datetime(isodatetime, part(DAY_TIME_UNIT), 2, ISO_DELIM)
+      call update_datetime(isodatetime, part(HOUR_TIME_UNIT), 2, TIME_DELIM)
+      call update_datetime(isodatetime, part(MINUTE_TIME_UNIT), 2, TIME_DELIM)
+      call update_datetime(isodatetime, part(SECOND_TIME_UNIT), 2)
       
    contains
 
