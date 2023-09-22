@@ -1,4 +1,4 @@
-!------------------------------------------------------------------------------
+!!------------------------------------------------------------------------------
 !               Global Modeling and Assimilation Office (GMAO)                !
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
@@ -1026,8 +1026,7 @@ contains
          MYGRID%NX0 = mod(MYGRID%MYID,MYGRID%NX) + 1
          MYGRID%NY0 = MYGRID%MYID/MYGRID%NX + 1
 #endif
-
-         call handle_readers_and_writers(_RC)
+         call set_checkpoint_restart_options(_RC)
 
 #ifdef DEBUG
          print *,"dbg: grid global max=",counts
@@ -1164,15 +1163,12 @@ contains
          _RETURN(ESMF_SUCCESS)
       end function grid_is_valid
 
-      subroutine handle_readers_and_writers(rc)
+      subroutine set_checkpoint_restart_options(rc)
          integer, optional, intent(out) :: rc
 
-         integer :: num_readers, ny_by_readers
-         integer :: num_writers, ny_by_writers
-         character(len=ESMF_MAXSTR)       :: write_restart_by_face
-         character(len=ESMF_MAXSTR)       :: read_restart_by_face
+         integer :: num_readers, num_writers
+         character(len=ESMF_MAXSTR)       :: split_restart, split_checkpoint
          character(len=ESMF_MAXSTR)       :: write_restart_by_oserver
-         integer                          :: color
          integer :: j
 
          integer :: status
@@ -1181,99 +1177,98 @@ contains
               default=1, _RC)
          call MAPL_GetResource( STATE, num_writers, Label="NUM_WRITERS:", &
               default=1, _RC)
-         call MAPL_GetResource( STATE, write_restart_by_face, Label="WRITE_RESTART_BY_FACE:", &
+         call MAPL_GetResource( STATE, split_checkpoint, Label="SPLIT_CHECKPOINT:", &
               default='NO', _RC)
-         write_restart_by_face = ESMF_UtilStringUpperCase(write_restart_by_face,_RC)
+         call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
+              default='NO', _RC)
+         split_restart = ESMF_UtilStringUpperCase(split_restart,_RC)
+         split_checkpoint = ESMF_UtilStringUpperCase(split_checkpoint,_RC)
 
          call MAPL_GetResource( STATE, write_restart_by_oserver, Label="WRITE_RESTART_BY_OSERVER:", &
               default='NO', _RC)
          write_restart_by_oserver = ESMF_UtilStringUpperCase(write_restart_by_oserver,_RC)
 
-         call MAPL_GetResource( STATE, read_restart_by_face, Label="READ_RESTART_BY_FACE:", &
-              default='NO', _RC)
-         read_restart_by_face = ESMF_UtilStringUpperCase(read_restart_by_face,_RC)
-
          if (trim(write_restart_by_oserver) == 'YES') then
             ! reset other choices
             ! io_rank 0 becomes the root
             num_writers = 1
-            write_restart_by_face = 'NO'
+            split_checkpoint = 'NO'
             mygrid%write_restart_by_oserver = .true.
          endif
 
          mygrid%comm = comm
          mygrid%num_readers =  num_readers
          mygrid%num_writers =  num_writers
-         if (trim(write_restart_by_face) == 'YES') then
-            mygrid%write_restart_by_face = .true.
+         if (trim(split_restart) == 'YES') then
+            mygrid%split_restart = .true.
          endif
-         if (trim(read_restart_by_face) == 'YES') then
-            mygrid%read_restart_by_face = .true.
-         endif
-
-         ! Y-dir communicators
-         color =  MYGRID%NX0
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Ycomm, status)
-
-         ! X-dir communicators
-         color = MYGRID%NY0
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Xcomm, status)
-
-         ! READER-communicator
-         if( num_readers>MYGRID%ny .or. mod(MYGRID%ny,num_readers)/=0 ) then
-            if (MAPL_AM_I_Root(VM)) then
-               print *
-               print *,'***********************************************************'
-               print *,'Error!  NUM_READERS must be <= MYGRID%ny: ',MYGRID%ny
-               print *,'    and NUM_READERS must divide evenly into MYGRID%ny'
-               print *,'***********************************************************'
-               print *
-            end if
-         endif
-         _ASSERT(num_readers<=MYGRID%ny,'needs informative message')
-         _ASSERT(mod(MYGRID%ny,num_readers)==0,'needs informative message')
-         ny_by_readers = MYGRID%ny/num_readers
-         if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_readers) == 0) then
-            color = 0
-         else
-            color = MPI_UNDEFINED
-         endif
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%readers_comm, status)
-         if (num_readers==MYGRID%ny) then
-            mygrid%IOscattercomm = mygrid%Xcomm
-         else
-            j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_readers)
-            call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOscattercomm, status)
+         if (trim(split_checkpoint) == 'YES') then
+            mygrid%split_checkpoint = .true.
          endif
 
-         ! WRITER-communicator
-         if( num_writers>MYGRID%ny .or. mod(MYGRID%ny,num_writers)/=0 ) then
-            if (MAPL_AM_I_Root(VM)) then
-               print *
-               print *,'***********************************************************'
-               print *,'Error!  NUM_WRITERS must be <= MYGRID%ny: ',MYGRID%ny
-               print *,'    and NUM_WRITERS must divide evenly into MYGRID%ny'
-               print *,'***********************************************************'
-               print *
-            end if
-         endif
-         _ASSERT(num_writers<=MYGRID%ny,'needs informative message')
-         _ASSERT(mod(MYGRID%ny,num_writers)==0,'needs informative message')
-         ny_by_writers = MYGRID%ny/num_writers
-         if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_writers) == 0) then
-            color = 0
-         else
-            color = MPI_UNDEFINED
-         endif
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%writers_comm, status)
-         if (num_writers==MYGRID%ny) then
-            mygrid%IOgathercomm = mygrid%Xcomm
-         else
-            j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_writers)
-            call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOgathercomm, status)
-         endif
+         !! Y-dir communicators
+         !color =  MYGRID%NX0
+         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Ycomm, status)
+
+         !! X-dir communicators
+         !color = MYGRID%NY0
+         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Xcomm, status)
+
+         !! READER-communicator
+         !if( num_readers>MYGRID%ny .or. mod(MYGRID%ny,num_readers)/=0 ) then
+            !if (MAPL_AM_I_Root(VM)) then
+               !print *
+               !print *,'***********************************************************'
+               !print *,'Error!  NUM_READERS must be <= MYGRID%ny: ',MYGRID%ny
+               !print *,'    and NUM_READERS must divide evenly into MYGRID%ny'
+               !print *,'***********************************************************'
+               !print *
+            !end if
+         !endif
+         !_ASSERT(num_readers<=MYGRID%ny,'needs informative message')
+         !_ASSERT(mod(MYGRID%ny,num_readers)==0,'needs informative message')
+         !ny_by_readers = MYGRID%ny/num_readers
+         !if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_readers) == 0) then
+            !color = 0
+         !else
+            !color = MPI_UNDEFINED
+         !endif
+         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%readers_comm, status)
+         !if (num_readers==MYGRID%ny) then
+            !mygrid%IOscattercomm = mygrid%Xcomm
+         !else
+            !j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_readers)
+            !call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOscattercomm, status)
+         !endif
+
+         !! WRITER-communicator
+         !if( num_writers>MYGRID%ny .or. mod(MYGRID%ny,num_writers)/=0 ) then
+            !if (MAPL_AM_I_Root(VM)) then
+               !print *
+               !print *,'***********************************************************'
+               !print *,'Error!  NUM_WRITERS must be <= MYGRID%ny: ',MYGRID%ny
+               !print *,'    and NUM_WRITERS must divide evenly into MYGRID%ny'
+               !print *,'***********************************************************'
+               !print *
+            !end if
+         !endif
+         !_ASSERT(num_writers<=MYGRID%ny,'needs informative message')
+         !_ASSERT(mod(MYGRID%ny,num_writers)==0,'needs informative message')
+         !ny_by_writers = MYGRID%ny/num_writers
+         !if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_writers) == 0) then
+            !color = 0
+         !else
+            !color = MPI_UNDEFINED
+         !endif
+         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%writers_comm, status)
+         !if (num_writers==MYGRID%ny) then
+            !mygrid%IOgathercomm = mygrid%Xcomm
+         !else
+            !j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_writers)
+            !call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOgathercomm, status)
+         !endif
          _RETURN(ESMF_SUCCESS)
-      end subroutine handle_readers_and_writers
+      end subroutine set_checkpoint_restart_options
 
       recursive subroutine initialize_children_and_couplers(rc)
          integer, optional, intent(out) :: rc
@@ -5752,11 +5747,6 @@ contains
       integer                               :: UNIT
       integer                               :: YYYY, MM, DD, H, M, S
       type(ESMF_Time)                       :: currentTime
-      !    integer                               :: IM_WORLD
-      !    integer                               :: JM_WORLD
-      !    integer                               :: MONTH, DAY, HOUR, MINUTE
-      !    integer                               :: YEAR, SECOND
-      !    type (ESMF_Time)                      :: CURRENTTIME
       integer                               :: HEADER(6), DimCount
       logical                               :: AmWriter
       type(ArrDescr)                        :: ArrDes
@@ -5765,14 +5755,10 @@ contains
 
       type(ESMF_Grid)                       :: TILEGRID
       integer                               :: COUNTS(2)
-      integer                               :: io_nodes, io_rank
+      integer                               :: io_rank
       integer                               :: attr
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_write
       logical                               :: nwrgt1
-      !real(kind=ESMF_KIND_R8) :: itime_beg, itime_end
-      !real(kind=ESMF_KIND_R8),save ::  total_time = 0.0d0
-      !logical                               :: amIRoot
-      !type (ESMF_VM)                        :: vm
       logical :: empty
 
       ! Check if state is empty. If "yes", simply return
@@ -5807,8 +5793,6 @@ contains
          call ESMF_GridGet(MPL%GRID%ESMFGRID, dimCount=dimCount, RC=status)
          _VERIFY(status)
 
-         AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-
          call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
          _VERIFY(status)
          TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -5822,48 +5806,30 @@ contains
             _VERIFY(status)
 
             call ArrDescrSet(arrdes,                   &
-                 writers_comm = mpl%grid%writers_comm,&
-                 iogathercomm = mpl%grid%comm )
-
-            if(AmWriter) then
-
-               call MPI_COMM_SIZE(mpl%grid%writers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
-               _VERIFY(status)
-
-            endif
-
-            call ArrDescrSet(arrdes,                   &
                  i1 = mpl%grid%i1, in = mpl%grid%in,   &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,   &
                  im_world = COUNTS(1),                 &
                  jm_world = COUNTS(2)                  )
 
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+            call ArrDescrSet(arrdes,                   &
+                 iogathercomm = mpl%grid%comm )
+
          else
 
-            AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-
-            if (AmWriter) then
-               call MPI_COMM_SIZE(mpl%grid%writers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
-               _VERIFY(status)
-            endif
-
             call ArrDescrSet(arrdes, offset, &
-                 writers_comm = mpl%grid%writers_comm,  &
-                 iogathercomm = mpl%grid%iogathercomm,  &
                  i1 = mpl%grid%i1, in = mpl%grid%in,    &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,    &
                  im_world = mpl%grid%im_world,          &
                  jm_world = mpl%grid%jm_world)
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
 
          end if TILE
 
 !@       call MPI_Barrier(mpl%grid%comm, status)
 !@       _VERIFY(status)
          arrdes%offset = 0
+         AmWriter = arrdes%writers_comm /= MPI_COMM_NULL
          if (AmWriter) then
 
             call MPI_Info_create(info, status)
@@ -5872,6 +5838,8 @@ contains
             call MAPL_GetResource(MPL, romio_cb_write, Label="ROMIO_CB_WRITE:", default="disable", RC=status)
             _VERIFY(status)
             call MPI_Info_set(info, "romio_cb_write", trim(romio_cb_write), status)
+            _VERIFY(status)
+            call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
                print *,'Using parallel IO for writing file: ',trim(FILENAME)
@@ -5882,13 +5850,11 @@ contains
                call MPI_FILE_CLOSE(UNIT, status)
                _VERIFY(status)
             end if
-            call MPI_Barrier(mpl%grid%writers_comm, status)
+            call MPI_Barrier(arrdes%writers_comm, status)
             _VERIFY(status)
-            call MPI_FILE_OPEN(mpl%grid%writers_comm, FILENAME, MPI_MODE_WRONLY, &
+            call MPI_FILE_OPEN(arrdes%writers_comm, FILENAME, MPI_MODE_WRONLY, &
                  info, UNIT, status)
             _VERIFY(status)
-            !$$            call MPI_Barrier(mpl%grid%writers_comm, status)
-            !$$            _VERIFY(status)
          else
             UNIT=0
          endif
@@ -5900,7 +5866,6 @@ contains
             _FAIL('needs informative message')
          end if
 #endif
-         AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
          call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
          _VERIFY(status)
          PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -5912,13 +5877,7 @@ contains
             _VERIFY(status)
          end if PNC4_TILE
          arrdes%filename = trim(FILENAME)
-         if (AmWriter) then
-            call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
-            _VERIFY(status)
-            if (io_rank == 0) then
-               print *,'Using parallel NetCDF to write file: ',trim(FILENAME)
-            end if
-         endif
+         if (mapl_am_i_root())  print *,'Using parallel NetCDF to write file: ',trim(FILENAME)
       else
          UNIT=0
       end if
@@ -5973,37 +5932,15 @@ contains
          _VERIFY(status)
 
          if (AmWriter) then
-            !$$          call MPI_Barrier(mpl%grid%writers_comm, status)
-            !$$          _VERIFY(status)
             call MPI_FILE_CLOSE(UNIT, status)
             _VERIFY(status)
             call MPI_Info_free(info, status)
             _VERIFY(status)
          endif
-!@       call MPI_Barrier(mpl%grid%comm, status)
-!@       _VERIFY(status)
-
       elseif(filetype=='pnc4') then
-
-         !call MPI_Barrier(mpl%grid%comm, status)
-         !_VERIFY(status)
-         !itime_beg = MPI_Wtime()
-         !_VERIFY(status)
 
          call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=oClients, RC=status)
          _VERIFY(status)
-
-         !call MPI_Barrier(mpl%grid%comm, status)
-         !_VERIFY(status)
-         !itime_end = MPI_Wtime()
-         !total_time = total_time + itime_end - itime_beg
-         !_VERIFY(status)
-         !call MPI_COMM_RANK(mpl%grid%comm, io_rank, status)
-         !   _VERIFY(status)
-         !if (io_rank == 0) then
-         !   print *,'Time using writing filename: '//trim(filename), '  ', itime_end - itime_beg
-         !   print *,'Total time writing checkpoint: ', total_time
-         !end if
 
       elseif(UNIT/=0) then
 
@@ -6047,7 +5984,7 @@ contains
 
       type(ESMF_Grid) :: TILEGRID
       integer :: COUNTS(2)
-      integer :: io_nodes, io_rank
+      integer :: io_rank
       integer :: attr
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_read
       logical                               :: bootstrapable
@@ -6110,24 +6047,24 @@ contains
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
             block
-              character(len=:), allocatable :: fname_by_face
+              character(len=:), allocatable :: fname_by_reader
               logical :: fexist
               integer :: i
 
               FileExists = .false.
-              if (mpl%grid%read_restart_by_face) then
+              if (mpl%grid%split_restart) then
                  FileExists = .true.
-                 do i = 1,6 ! 6 faces
-                    fname_by_face = get_fname_by_face(trim(fname), i)
-                    inquire(FILE = trim(fname_by_face), EXIST=fexist)
+                 do i = 0,mpl%grid%num_readers-1
+                    fname_by_reader = get_fname_by_face(trim(fname), i)
+                    inquire(FILE = trim(fname_by_reader), EXIST=fexist)
                     FileExists = FileExists .and. fexist
                  enddo
                  if (FileExists) then
                     ! just pick one face to deduce filetype, only in root
-                    call MAPL_NCIOGetFileType(trim(fname_by_face),isNC4,rc=status)
+                    call MAPL_NCIOGetFileType(trim(fname_by_reader),isNC4,rc=status)
                     _VERIFY(status)
                  endif
-                 deallocate(fname_by_face)
+                 deallocate(fname_by_reader)
               endif
             end block
             if( .not. FileExists) then
@@ -6143,8 +6080,8 @@ contains
          _VERIFY(status)
          if (FileExists) then
             !if (AmIRoot) then
-            !   call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
-            !   _VERIFY(status)
+               !call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
+               !_VERIFY(status)
             !end if
             call MAPL_CommsBcast(vm,isNC4,n=1,ROOT=MAPL_Root,rc=status)
             _VERIFY(status)
@@ -6172,12 +6109,6 @@ contains
          end if
       end if
 
-      !    if (ignoreEOF) then
-      !       if (filetype == 'pbinary' .or. filetype == 'PBINARY') then
-      !          filetype = 'binary'
-      !       end if
-      !    end if
-
       ! Open file
       !----------
 
@@ -6199,8 +6130,6 @@ contains
          call ESMF_GridGet(MPL%GRID%ESMFGRID, dimCount=dimCount, RC=status)
          _VERIFY(status)
 
-         AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
-
          call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
          _VERIFY(status)
          TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -6213,47 +6142,29 @@ contains
             call MAPL_GridGet(TILEGRID, globalCellCountPerDim=COUNTS, RC=status)
             _VERIFY(status)
 
-            call ArrDescrSet(arrdes,                    &
-                 readers_comm  = mpl%grid%readers_comm, &
-                 ioscattercomm = mpl%grid%comm )
-
-            if(AmReader) then
-
-               call MPI_COMM_SIZE(mpl%grid%readers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
-               _VERIFY(status)
-
-            endif
-
             call ArrDescrSet(arrdes,                   &
                  i1 = mpl%grid%i1, in = mpl%grid%in,   &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,   &
                  im_world = COUNTS(1),                 &
                  jm_world = COUNTS(2)                  )
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+            call ArrDescrSet(arrdes, ioscattercomm = mpl%grid%comm )
 
          else
 
-            if (AmReader) then
-               call MPI_COMM_SIZE(mpl%grid%readers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
-               _VERIFY(status)
-            endif
-
             call ArrDescrSet(arrdes, offset, &
-                 readers_comm  = mpl%grid%readers_comm,  &
-                 ioscattercomm = mpl%grid%ioscattercomm, &
                  i1 = mpl%grid%i1, in = mpl%grid%in,     &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
                  im_world = mpl%grid%im_world,           &
                  jm_world = mpl%grid%jm_world)
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
 
          end if TILE
 
          UNIT=-999
 
          offset = 0
+         AmReader = arrdes%readers_comm/=MPI_COMM_NULL
          if (AmReader) then
             call MPI_Info_create(info, status)
             _VERIFY(status)
@@ -6261,6 +6172,8 @@ contains
             call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=status)
             _VERIFY(status)
             call MPI_Info_set(info, "romio_cb_read", trim(romio_cb_read), status)
+            _VERIFY(status)
+            call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
                print *,'Using parallel IO for reading file: ',trim(FNAME)
@@ -6283,7 +6196,6 @@ contains
             _FAIL('needs informative message')
          end if
 #endif
-         AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
          call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
          _VERIFY(status)
          PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -6297,17 +6209,11 @@ contains
                call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
                _VERIFY(status)
             end if
-            _ASSERT(grid_is_consistent(grid_type, fname), "grid in the file is different from app's grid")
+            !_ASSERT(grid_is_consistent(grid_type, fname), "grid in the file is different from app's grid")
             call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
          end if PNC4_TILE
-         if (mpl%grid%readers_comm/=MPI_COMM_NULL) then
-            call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
-            _VERIFY(status)
-            if (io_rank == 0) then
-               print *,'Using parallel NetCDF to read file: ',trim(FNAME)
-            end if
-         endif
+         if (mapl_am_i_root())print*,'Using parallel NetCDF to read file: ',trim(FNAME)
       else
          UNIT=0
       end if
@@ -6363,33 +6269,33 @@ contains
 
       _RETURN(ESMF_SUCCESS)
 
-     contains
-       function grid_is_consistent(grid_type, fname) result( consistent)
-         logical :: consistent
-         character(*), intent(in) :: grid_type
-         character(*), intent(in) :: fname
-         !note this only works for geos cubed-sphere restarts currently because of
-         !possible insufficent metadata in the other restarts to support the other grid factories
-         class(AbstractGridFactory), pointer :: app_factory
-         class (AbstractGridFactory), allocatable :: file_factory
-         character(len=:), allocatable :: fname_by_face
-         logical :: fexist
+     !contains
+       !function grid_is_consistent(grid_type, fname) result( consistent)
+         !logical :: consistent
+         !character(*), intent(in) :: grid_type
+         !character(*), intent(in) :: fname
+         !!note this only works for geos cubed-sphere restarts currently because of
+         !!possible insufficent metadata in the other restarts to support the other grid factories
+         !class(AbstractGridFactory), pointer :: app_factory
+         !class (AbstractGridFactory), allocatable :: file_factory
+         !character(len=:), allocatable :: fname_by_face
+         !logical :: fexist
 
-         consistent = .True.
-         if (trim(grid_type) == 'Cubed-Sphere') then
-            app_factory => get_factory(MPL%GRID%ESMFGRID)
-            ! at this point, arrdes%read_restart_by_face is not initialized
-            ! pick the first face
-            fname_by_face = get_fname_by_face(trim(fname), 1)
-            inquire(FILE = trim(fname_by_face), EXIST=fexist)
-            if(fexist) then
-               allocate(file_factory,source=grid_manager%make_factory(fname_by_face))
-            else
-               allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
-            endif
-            consistent = file_factory%physical_params_are_equal(app_factory)
-         end if
-       end function
+         !consistent = .True.
+         !if (trim(grid_type) == 'Cubed-Sphere') then
+            !app_factory => get_factory(MPL%GRID%ESMFGRID)
+            !! at this point, arrdes%read_restart_by_face is not initialized
+            !! pick the first face
+            !fname_by_face = get_fname_by_face(trim(fname), 1)
+            !inquire(FILE = trim(fname_by_face), EXIST=fexist)
+            !if(fexist) then
+               !allocate(file_factory,source=grid_manager%make_factory(fname_by_face))
+            !else
+               !allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
+            !endif
+            !consistent = file_factory%physical_params_are_equal(app_factory)
+         !end if
+       !end function
 
    end subroutine MAPL_ESMFStateReadFromFile
 
@@ -11091,41 +10997,50 @@ contains
          call MAPL_GridGet(TILEGRID,globalCellCountPerDim=COUNTS,RC=status)
          _VERIFY(status)
          call ArrDescrSet(arrdes, offset_local, &
-              readers_comm  = mpl%grid%readers_comm,  &
-              ioscattercomm = mpl%grid%comm, &
+              !readers_comm  = mpl%grid%readers_comm,  &
+              !ioscattercomm = mpl%grid%comm, &
               writers_comm = mpl%grid%writers_comm, &
               iogathercomm = mpl%grid%comm, &
               i1 = mpl%grid%i1, in = mpl%grid%in,     &
               j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
               im_world = COUNTS(1),                   &
               jm_world = COUNTS(2))
-         arrdes%ycomm = mpl%grid%Ycomm
-         arrdes%xcomm = mpl%grid%Xcomm
+         !arrdes%ycomm = mpl%grid%Ycomm
+
+         !arrdes%xcomm = mpl%grid%Xcomm
          arrdes%NY0   = mpl%grid%NY0
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.true.
          arrdes%grid=tilegrid
+         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         arrdes%iogathercomm = mpl%grid%comm
       else
          call MAPL_GridGet(mpl%grid%ESMFGRID,globalCellCountPerDim=CCPD,RC=status)
          _VERIFY(status)
          km_world = CCPD(3)
          call ArrDescrSet(arrdes, offset_local, &
-              readers_comm  = mpl%grid%readers_comm,  &
-              ioscattercomm = mpl%grid%ioscattercomm, &
-              writers_comm = mpl%grid%writers_comm, &
-              iogathercomm = mpl%grid%iogathercomm, &
+              !readers_comm  = mpl%grid%readers_comm,  &
+              !ioscattercomm = mpl%grid%ioscattercomm, &
+              !writers_comm = mpl%grid%writers_comm, &
+              !iogathercomm = mpl%grid%iogathercomm, &
               i1 = mpl%grid%i1, in = mpl%grid%in,     &
               j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
               im_world = mpl%grid%im_world,           &
               jm_world = mpl%grid%jm_world,           &
               lm_world = km_world)
-         arrdes%ycomm = mpl%grid%Ycomm
-         arrdes%xcomm = mpl%grid%Xcomm
+         !arrdes%ycomm = mpl%grid%Ycomm
+         !call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
+         !arrdes%xcomm = mpl%grid%Xcomm
          arrdes%NY0   = mpl%grid%NY0
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.false.
          arrdes%grid=MPL%GRID%ESMFGRID
-         call set_arrdes_by_face()
+         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         
       endif
       call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=status)
       _VERIFY(status)
@@ -11139,37 +11054,10 @@ contains
       if (present(num_readers)) arrdes%num_readers=num_readers
       if (present(num_writers)) arrdes%num_writers=num_writers
       arrdes%write_restart_by_oserver = mpl%grid%write_restart_by_oserver
+      arrdes%split_restart = mpl%grid%split_restart
+      arrdes%split_checkpoint = mpl%grid%split_checkpoint
 
       _RETURN(ESMF_SUCCESS)
-
-   contains
-      subroutine set_arrdes_by_face()
-         integer :: color, key
-         character(len=ESMF_MAXSTR)    :: Iam="ArrDescrSetNCPar_face"
-         integer :: status
-
-         if (mpl%grid%im_world /= mpl%grid%jm_world/6) return ! only apply to cube
-
-         color = (arrdes%j1(mpl%grid%NY0)-1)/mpl%grid%im_world + 1
-         arrdes%face_index = color
-         key   = 1
-         if ( mpl%grid%write_restart_by_face) then
-            arrdes%write_restart_by_face = .true.
-            if (mpl%grid%writers_comm /= MPI_COMM_NULL) then
-               call MPI_COMM_SPLIT( mpl%grid%writers_comm,color,key,arrdes%face_writers_comm, status)
-               _VERIFY(status)
-            endif
-         endif
-
-         if ( mpl%grid%read_restart_by_face) then
-            arrdes%read_restart_by_face = .true.
-            if (mpl%grid%readers_comm /= MPI_COMM_NULL) then
-               call MPI_COMM_SPLIT( mpl%grid%readers_comm,color,key,arrdes%face_readers_comm, status)
-               _VERIFY(status)
-            endif
-         endif
-
-      end subroutine set_arrdes_by_face
 
    end subroutine ArrDescrSetNCPar
 

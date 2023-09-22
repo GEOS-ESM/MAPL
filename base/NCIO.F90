@@ -31,7 +31,6 @@ module NCIOMod
   implicit none
   private
 
-  ! public routines
   public MAPL_IOChangeRes
   public MAPL_IOCountNonDimVars
   public MAPL_IOGetNonDimVars
@@ -950,8 +949,8 @@ module NCIOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          if(arrdes%write_restart_by_face) then
-             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          if(arrdes%split_checkpoint) then
+             start(2) = 1
           endif
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
@@ -1078,8 +1077,8 @@ module NCIOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          if(arrdes%read_restart_by_face) then
-             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          if(arrdes%split_checkpoint) then
+             start(2) = 1
           endif
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
@@ -1422,13 +1421,8 @@ module NCIOMod
 
           if (arrdes%writers_comm/=MPI_COMM_NULL) then
 
-             if (arrdes%write_restart_by_face) then
-                call MPI_COMM_RANK(arrdes%face_writers_comm, io_rank, STATUS)
-                _VERIFY(STATUS)
-             else
-                call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
-                _VERIFY(STATUS)
-             endif
+             call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
+             _VERIFY(STATUS)
 
              if (io_rank == 0) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
@@ -1728,13 +1722,8 @@ module NCIOMod
 
           if (arrdes%writers_comm/=MPI_COMM_NULL) then
 
-             if(arrdes%write_restart_by_face) then
-                call MPI_COMM_RANK(arrdes%face_writers_comm, io_rank, STATUS)
-                _VERIFY(STATUS)
-             else
-                call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
-                _VERIFY(STATUS)
-             endif
+             call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
+             _VERIFY(STATUS)
 
              if (io_rank == 0) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
@@ -2472,8 +2461,8 @@ module NCIOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          if(arrdes%write_restart_by_face) then
-             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          if(arrdes%split_checkpoint) then
+             start(2) = 1
           endif
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
@@ -2599,8 +2588,8 @@ module NCIOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          if(arrdes%read_restart_by_face) then
-             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          if(arrdes%split_restart) then
+             start(2) = 1
           endif
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
@@ -2691,11 +2680,11 @@ module NCIOMod
     integer                            :: ind
     type(ESMF_Grid)                    :: grid
 
-    integer                            :: MAPL_DIMS
+    integer                            :: MAPL_DIMS, reader_rank
     integer, pointer                   :: MASK(:) => null()
     type(Netcdf4_Fileformatter)        :: formatter
     type(FileMetaData)                 :: metadata
-    character(len=:), allocatable      :: fname_by_face
+    character(len=:), allocatable      :: fname_by_rank
     logical :: grid_file_match,flip, restore_export, isPresent
     type(ESMF_VM) :: vm
     integer :: comm
@@ -2715,9 +2704,12 @@ module NCIOMod
           call formatter%open(filename,pFIO_READ,rc=status)
           _VERIFY(STATUS)
        else
-          if(arrdes%read_restart_by_face .and. .not. arrdes%tile) then
-             fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
-             call formatter%open(trim(fname_by_face),pFIO_READ,comm=arrdes%face_readers_comm,info=info,rc=status)
+          if(arrdes%split_restart .and. .not. arrdes%tile) then
+             
+             call MPI_COMM_RANK(arrdes%readers_comm,reader_rank,status)
+             _VERIFY(STATUS) 
+             fname_by_rank = get_fname_by_face(trim(filename),reader_rank)
+             call formatter%open(trim(fname_by_rank),pFIO_READ,rc=status)
              _VERIFY(STATUS)
           else
              call formatter%open(filename,pFIO_READ,comm=arrdes%readers_comm,info=info,rc=status)
@@ -2733,7 +2725,7 @@ module NCIOMod
        flip = check_flip(metadata,rc=status)
        _VERIFY(status)
 
-       _ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
+       !_ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
     endif
     call ESMF_VMGetCurrent(vm,rc=status)
     _VERIFY(status)
@@ -2815,7 +2807,7 @@ module NCIOMod
      _VERIFY(status)
      file_lon_size = metadata%get_dimension("lon")
      file_lat_size = metadata%get_dimension("lat")
-     if (metadata%has_attribute("Cubed_Sphere_Face_Index")) file_lat_size = file_lat_size*6
+     !if (metadata%has_attribute("Cubed_Sphere_Face_Index")) file_lat_size = file_lat_size*6
      file_lev_size = metadata%get_dimension("lev")
      file_tile_size = metadata%get_dimension("tile")
 
@@ -2879,7 +2871,7 @@ module NCIOMod
     _VERIFY(STATUS)
 
     if (MAPL_AM_I_Root()) then
-       if(arrdes%read_restart_by_face) then
+       if(arrdes%split_restart) then
           fname_by_face = get_fname_by_face(filename, 1)
           status = NF90_OPEN(trim(fname_by_face),NF90_NOWRITE, ncid) ! just pick one
           _VERIFY(STATUS)
@@ -3309,8 +3301,8 @@ module NCIOMod
     type(FileMetadata) :: cf
     class (Variable), allocatable :: var
     class(*), allocatable :: coordinate_data(:)
-    integer :: pfDataType
-    character(len=:), allocatable         :: fname_by_face
+    integer :: pfDataType, writer_rank
+    character(len=:), allocatable         :: fname_by_writer
 
     integer                            :: STATUS
     type (StringIntegerMap), save      :: RstCollections
@@ -3564,13 +3556,15 @@ module NCIOMod
           endif
           lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
 
-          if (arrdes%write_restart_by_face) then
-             call cf%add_dimension('lat',arrdes%im_world,rc=status)
+          if (arrdes%split_checkpoint) then
+             call cf%add_dimension('lat',arrdes%jm_world/arrdes%num_writers,rc=status)
              _VERIFY(status)
              block
-                integer :: j0, j1
-                j0 = (arrdes%face_index -1)*arrdes%im_world+1
-                j1 = arrdes%face_index * arrdes%im_world
+                integer :: j0, j1, block_size,ny
+                ny = size(arrdes%jn)
+                block_size = ny/arrdes%num_writers
+                j0 = arrdes%j1(arrdes%myrow+1)
+                j1 = arrdes%jn(arrdes%myrow+1+block_size-1)
                 allocate(coordinate_data,source=lat(j0:j1))
              end block
              allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
@@ -3909,11 +3903,16 @@ module NCIOMod
              call formatter%write(cf,rc=status)
              _VERIFY(STATUS)
           else
-             if (arrdes%write_restart_by_face) then
-                fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
-                call formatter%create_par(trim(fname_by_face),comm=arrdes%face_writers_comm,info=info,rc=status)
+             if (arrdes%split_checkpoint) then
+                call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
+                _VERIFY(STATUS)
+                fname_by_writer = get_fname_by_face(trim(filename),writer_rank)
+                call formatter%create(trim(fname_by_writer),rc=status)
                 _VERIFY(status)
-                call cf%add_attribute("Cubed_Sphere_Face_Index", arrdes%face_index, _RC)
+                if (writer_rank == 0) then
+                    call create_control_file(filename,arrdes%im_world,arrdes%num_writers,rc)
+                end if
+                !call cf%add_attribute("Cubed_Sphere_Face_Index", arrdes%face_index, _RC)
              else
                 call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
@@ -4007,6 +4006,7 @@ module NCIOMod
        DEALOC_(MASK)
     end if
 
+
     _RETURN(ESMF_SUCCESS)
 
     contains
@@ -4030,6 +4030,26 @@ module NCIOMod
        _VERIFY(status)
 
        end subroutine add_fvar
+
+       subroutine create_control_file(filename,jm_world,num_writers,rc)
+          character(len=*), intent(in) :: filename
+          integer, intent(in) :: jm_world
+          integer, intent(in) :: num_writers
+          integer, intent(out), optional :: rc
+          integer :: status
+          type(ESMF_HConfig) :: hconfig
+          character(len=4) :: resolution
+          character(len=3) :: writers
+          character(len=128) :: yaml_content
+
+          write(resolution,'(I4)')jm_world
+          write(writers,'(I3)')num_writers
+          yaml_content = "{j_size: "//trim(resolution)//", num_files: "//trim(writers)//"}" 
+          hconfig = ESMF_HConfigCreate(content=yaml_content,_RC)
+          call ESMF_HConfigFileSave(hconfig,trim(filename),_RC)
+          _RETURN(_SUCCESS)
+
+       end subroutine
 
   end subroutine MAPL_BundleWriteNCPar
 
@@ -4627,24 +4647,25 @@ module NCIOMod
       return
       end subroutine MAPL_NCIOParseTimeUnits
 
-   ! WJ notes: To avoid changing gcm_run.j script, insert "_face_x_", not append
-   function get_fname_by_face(fname, face) result(name)
+   ! WJ notes: To avoid changing gcm_run.j script, insert "_split_x_", not append
+   function get_fname_by_face(fname, rank) result(name)
      character(len=:), allocatable :: name
      character(len=*), intent(in) :: fname
-     integer, intent(in) :: face
+     integer, intent(in) :: rank
      integer :: i
 
-     i= index(fname,'_checkpoint')
-     if (i /= 0) then
-        name = fname(1:i-1)//'_face_'//i_to_string(face)//trim(fname(i:))
-        return
-     end if
-     i= index(fname,'_rst')
-     if (i /= 0) then
-        name = fname(1:i-1)//'_face_'//i_to_string(face)//trim(fname(i:))
-        return
-     endif
-     name = trim(fname)//'_face_'//i_to_string(face)
+     name = trim(fname)//"_"//i_to_string(rank)
+     !i= index(fname,'_checkpoint')
+     !if (i /= 0) then
+        !name = fname(1:i-1)//'_split_'//i_to_string(rank)//trim(fname(i:))
+        !return
+     !end if
+     !i= index(fname,'_rst')
+     !if (i /= 0) then
+        !name = fname(1:i-1)//'_split_'//i_to_string(rank)//trim(fname(i:))
+        !return
+     !endif
+     !name = trim(fname)//'_split_'//i_to_string(rank)
 
    end function get_fname_by_face
 

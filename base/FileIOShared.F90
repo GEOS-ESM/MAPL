@@ -41,6 +41,8 @@ module FileIOSharedMod
   public dealloc_
   public ArrDescrSet
   public ArrDescrInit
+  public ArrDescrCreateReaderComm
+  public ArrDescrCreateWriterComm
 
 ! Global vars:
 ! ------------
@@ -89,11 +91,9 @@ module FileIOSharedMod
      integer :: Xcomm, Ycomm, NX0, NY0
      integer :: readers_comm, IOscattercomm
      integer :: writers_comm, IOgathercomm
-     integer :: face_writers_comm
-     integer :: face_readers_comm
-     integer :: face_index
-     logical :: write_restart_by_face = .false.
-     logical :: read_restart_by_face = .false.
+     integer :: myrow
+     logical :: split_restart = .false.
+     logical :: split_checkpoint = .false.
      integer, pointer :: i1(:), in(:), j1(:), jn(:)
      integer :: im_world, jm_world, lm_world
      type (ESMF_Grid) :: grid
@@ -556,6 +556,8 @@ module FileIOSharedMod
          ArrDes%iogathercomm  = iogathercomm
          ArrDes%xcomm = xcomm
          ArrDes%ycomm = ycomm
+         call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
 
          allocate(arrdes%i1(size(i1)),stat=status)
          _VERIFY(STATUS)
@@ -578,10 +580,6 @@ module FileIOSharedMod
          ArrDes%romio_cb_read  = "automatic"
          ArrDes%cb_buffer_size = "16777216"
          ArrDes%romio_cb_write = "enable"
-
-         ArrDes%face_readers_comm = MPI_COMM_NULL
-         ArrDes%face_writers_comm = MPI_COMM_NULL
-         ArrDes%face_index        = 0
 
          ArrDes%tile = .false.
 
@@ -618,5 +616,79 @@ module FileIOSharedMod
       if(present(lm_world)) ArrDes%lm_world = lm_world
 
     end subroutine ArrDescrSet
+
+    subroutine ArrDescrCreateWriterComm(arrdes, full_comm, num_writers, rc)
+       type(ArrDescr), intent(inout) :: arrdes
+       integer, intent(in) :: full_comm
+       integer, intent(in) :: num_writers
+       integer, optional, intent(out) :: rc
+
+       integer :: status, nx, ny, color, ny_by_writers, myid, j
+
+       nx = size(arrdes%i1)
+       ny = size(arrdes%j1)
+       _ASSERT(num_writers < ny,'num writers must be less than NY')
+       _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
+       call mpi_comm_rank(full_comm,myid, status)
+       _VERIFY(status)
+       color =  arrdes%NX0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       color = arrdes%NY0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status) 
+       ny_by_writers = ny/num_writers
+       if (mod(myid,nx*ny/num_writers) == 0) then
+          color = 0
+       else
+          color = MPI_UNDEFINED
+       endif
+       call MPI_COMM_SPLIT(full_comm, color, myid, arrdes%writers_comm, status)
+       if (num_writers==ny) then
+          arrdes%IOgathercomm = arrdes%Xcomm
+       else
+            j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
+          call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, status)
+       endif
+
+
+       _RETURN(_SUCCESS)
+
+    end subroutine ArrDescrCreateWriterComm
+
+    subroutine ArrDescrCreateReaderComm(arrdes, full_comm, num_readers, rc)
+       type(ArrDescr), intent(inout) :: arrdes
+       integer, intent(in) :: full_comm
+       integer, intent(in) :: num_readers
+       integer, optional, intent(out) :: rc
+
+       integer :: status, nx, ny, color, ny_by_readers, myid, j
+
+       nx = size(arrdes%i1)
+       ny = size(arrdes%j1)
+       _ASSERT(num_readers < ny,'num readers must be less than NY')
+       _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
+    
+       call mpi_comm_rank(full_comm,myid, status)
+       _VERIFY(status)
+       color =  arrdes%NX0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       color = arrdes%NY0
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status) 
+       ny_by_readers = ny/num_readers
+       if (mod(myid,nx*ny/num_readers) == 0) then
+          color = 0
+       else
+          color = MPI_UNDEFINED
+       endif
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, status)
+       if (num_readers==ny) then
+          arrdes%IOscattercomm = arrdes%Xcomm
+       else
+          j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_readers)
+          call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, status)
+       endif      
+       
+       _RETURN(_SUCCESS)
+
+    end subroutine ArrDescrCreateReaderComm
 
 end module FileIOSharedMod
