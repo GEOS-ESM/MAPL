@@ -56,10 +56,8 @@ contains
     character(len=*), intent(in)   :: filename
     integer, optional, intent(out) :: rc
 
-    character(len=40) :: str, sdmy, shms
     integer :: unit, ios, nstation, status
-    integer :: i, j, id, ncount
-    real    :: x, y, z
+    integer :: i, ncount
     logical :: con1, con2
     character (len=1)     :: CH1
     character (len=5)     :: seq
@@ -160,10 +158,8 @@ contains
 
     type(variable)   :: v
     type(ESMF_Grid)  :: grid
-    type(ESMF_Clock) :: clock
     type(ESMF_Field) :: field
     integer          :: fieldCount
-    integer          :: fieldCount_max = 1000
     integer          :: field_rank
     integer          :: nstation
     logical          :: is_present
@@ -265,14 +261,13 @@ contains
     integer :: fieldCount
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
-    real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
     real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
     real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
     real(kind=REAL32), allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
-    integer :: i, id, iobs, ix, rank
+    integer :: i, rank
     integer :: nx, nz
 
     this%obs_written=this%obs_written+1
@@ -380,7 +375,7 @@ contains
     type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     real(ESMF_KIND_R8), allocatable :: rtimes(:)
-    integer :: i,status
+    integer :: status
     type(ESMF_TimeInterval) :: tint
     type(ESMF_Time) :: file_start_time
     character(len=ESMF_MAXSTR) :: tunit
@@ -507,7 +502,7 @@ contains
     character (len=*), intent(in) :: str
     character (len=*), intent(in) :: t
     integer, intent(out) :: ncount
-    integer :: i, j, k, lt
+    integer :: i, k, lt
     ncount=0
     k=1
     lt = len(t) - 1

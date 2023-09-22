@@ -21,8 +21,17 @@
 #  endif
 
 ! new
+#  ifdef _HERE
+#     undef _HERE
+#  endif
 #  ifdef _RETURN
 #    undef _RETURN
+#  endif
+#  ifdef _RETURN_IF
+#    undef _RETURN_IF
+#  endif
+#  ifdef _RETURN_UNLESS
+#    undef _RETURN_UNLESS
 #  endif
 #  ifdef _VERIFY
 #    undef _VERIFY
@@ -33,7 +42,7 @@
 #  ifdef _UNUSED_DUMMY
 #    undef _UNUSED_DUMMY
 #  endif
-#  ifdef _FILE
+#  ifdef _FILE_
 #    undef _FILE_
 #  endif
 #  ifdef _RC
@@ -45,12 +54,16 @@
 #  ifdef _IOSTAT
 #    undef _IOSTAT
 #  endif
+#  ifdef _IERROR
+#    undef _IERROR
+#  endif
 #  ifdef __return
 #    undef __return
 #  endif
 #  ifdef __rc
 #    undef __rc
 #  endif
+
 
 #  define IGNORE_(a) continue
 
@@ -61,6 +74,8 @@
 #    define __return return
 #    define __rc(rc) ,rc
 #  endif
+
+#    define _HERE print*,__FILE__,__LINE__
 
 #  ifdef ANSI_CPP
 
@@ -88,13 +103,15 @@
 #       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
 #    else
 #       define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
-#       define _RETURN_IF(cond) if (cond) then; _RETURN(_SUCCESS); endif
+#       define _RETURN_IF(cond)     if(cond)then;_RETURN(_SUCCESS);endif
+#       define _RETURN_UNLESS(cond)     if(.not.(cond))then;_RETURN(_SUCCESS);endif
 #       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
 #    endif
 #    define _RC_(rc,status) rc=status);_VERIFY(status
 #    define _RC _RC_(rc,status)
 
 #    define _STAT _RC_(stat,status)
+#    define _IERROR _RC_(ierror,status)
 #    define _IOSTAT _RC_(iostat,status)
 
 #    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return

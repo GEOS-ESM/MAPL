@@ -52,7 +52,8 @@ module MockSocketMod
    end type MockSocket
 
    type, extends(AbstractRequestHandle) :: MockHandle
-      type (MockSocket), pointer :: owner => null()
+      class(AbstractSocket), pointer :: owner => null()
+!#      type (MockSocket), pointer :: owner => null()
    contains
       procedure :: wait
    end type MockHandle
@@ -83,13 +84,16 @@ contains
    end function new_MockSocket
 
    subroutine prefix(this, string)
-      class (MockSocket), intent(inout) :: this
+      class (MockSocket), target, intent(inout) :: this
       character(len=*), intent(in) :: string
+      type(MockSocketLog), pointer :: p
 
-      if (allocated(this%log%log)) then
-         this%log%log = this%log%log // ' :: ' // string
+      p => this%log
+
+      if (allocated(p%log)) then
+         p%log = p%log // ' :: ' // string
       else
-         this%log%log = string
+         p%log = string
       end if
 
    end subroutine prefix
@@ -135,7 +139,7 @@ contains
 
 
    subroutine send(this, message, rc)
-      class (MockSocket), intent(inout) :: this
+      class (MockSocket), target, intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -193,7 +197,7 @@ contains
       
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
-      class (MockSocket), intent(inout) :: this
+      class (MockSocket), target, intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
       integer, optional, intent(out) :: rc
@@ -201,12 +205,11 @@ contains
       real(kind=REAL32), pointer :: values_0d
       real(kind=REAL32), pointer :: values_1d(:)
       !real(kind=REAL32), pointer :: values_2d(:,:)
-
-
+      
       call this%prefix('get()')
       allocate(handle, source=MockHandle(this))
       this%log%counter = this%log%counter + 1
-
+      
       select case (this%log%counter)
       case (1)
          call c_f_pointer(local_reference%base_address, values_0d)
@@ -215,15 +218,19 @@ contains
          call c_f_pointer(local_reference%base_address, values_1d, shape=local_reference%shape)
          values_1d = this%q2
       end select
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(request_id)
-
    end function get
 
    subroutine wait(this, rc)
-      class (MockHandle), intent(inout) :: this
+      class (MockHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      call this%owner%prefix('wait()')
+
+      select type(q => this%owner)
+      type is (MockSocket)
+         call q%prefix('wait()')
+      end select
       _RETURN(_SUCCESS)
    end subroutine wait
 

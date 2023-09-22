@@ -11,7 +11,7 @@ real :: ain(IMin,jmin), aout(IMout,JMout)
 
 do j=1,jmin
 do i=1,IMin
-ain(i,j) = sin(2*2.*3.1415926*(i-10)/float(IMin))*sin(-0.5*3.1415926 + 3.1415926*(j-1)/float(JMin))
+ain(i,j) = sin(2*2.*3.1415926*(i-10)/real(IMin))*sin(-0.5*3.1415926 + 3.1415926*(j-1)/real(JMin))
 end do
 end do
 
@@ -23,7 +23,7 @@ print *, rc
 stop __LINE__
 endif
 call system_clock(ic1,icr)
-print *, 'Create transform: ',float(ic1-ic0)/float(icr)
+print *, 'Create transform: ',real(ic1-ic0)/real(icr)
 
 call system_clock(ic0)
 do l=1,72
@@ -34,7 +34,7 @@ stop __LINE__
 endif
  enddo
 call system_clock(ic1,icr)
-print *, 'Do 72 fields',float(ic1-ic0)/float(icr)
+print *, 'Do 72 fields',real(ic1-ic0)/real(icr)
 print *, rc
 
 open(10,file='ain',form='unformatted',status='unknown')
@@ -65,7 +65,7 @@ stop __LINE__
 endif
 enddo
 call system_clock(ic1,icr)
-print *, 'Do 72 fields',float(ic1-ic0)/float(icr)
+print *, 'Do 72 fields',real(ic1-ic0)/real(icr)
 print *, rc
 
 write(10) ain
@@ -82,7 +82,7 @@ stop __LINE__
 endif
 enddo
 call system_clock(ic1,icr)
-print *, 'Do 72 fields',float(ic1-ic0)/float(icr)
+print *, 'Do 72 fields',real(ic1-ic0)/real(icr)
 print *, rc
 
 

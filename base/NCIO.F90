@@ -20,13 +20,14 @@ module NCIOMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
-  !use netcdf
+  use netcdf
   use pFIO
   !use pFIO_ClientManagerMod
   use gFTL_StringIntegerMap
   use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
+  use mpi
   implicit none
   private
 
@@ -43,9 +44,6 @@ module NCIOMod
   public MAPL_NCIOGetFileType
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
-
-  include "mpif.h"
-  include "netcdf.inc"
 
   interface MAPL_VarReadNCPar
      module procedure MAPL_StateVarReadNCPar
@@ -464,7 +462,7 @@ module NCIOMod
           _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
- 
+
                 if (arrdes%write_restart_by_oserver) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
@@ -852,7 +850,6 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
@@ -875,14 +872,6 @@ module NCIOMod
        end if
     endif
 
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -966,9 +955,9 @@ module NCIOMod
           endif
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
@@ -995,9 +984,9 @@ module NCIOMod
           cnt(4) = 1
 
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1094,9 +1083,9 @@ module NCIOMod
           endif
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1148,9 +1137,9 @@ module NCIOMod
        cnt(4) = 1
 
        call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-       if(status /= nf_noerr) then
+       if(status /= NF90_NOERR) then
           print*,'Error reading variable ',status
-          print*, NF_STRERROR(status)
+          print*, NF90_STRERROR(status)
           _VERIFY(STATUS)
        endif
 
@@ -1199,17 +1188,6 @@ module NCIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: start(4), cnt(4)
-
-    logical :: AM_WRITER
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -1407,9 +1385,9 @@ module NCIOMod
 !          print*,'count values are ',cnt
 
           call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ', status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        endif
@@ -1454,9 +1432,9 @@ module NCIOMod
 
              if (io_rank == 0) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-                if(status /= nf_noerr) then
+                if(status /= NF90_NOERR) then
                    print*,trim(IAm),'Error writing variable ',status
-                   print*, NF_STRERROR(status)
+                   print*, NF90_STRERROR(status)
                    _VERIFY(STATUS)
                 endif
              endif ! io_rank = 0
@@ -1464,9 +1442,9 @@ module NCIOMod
        else ! not present(arrdes)
           ! WY notes : it doesnot seem to get this branch
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),' :Error writing variable: '// trim(name)
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1516,16 +1494,6 @@ module NCIOMod
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: start(4), cnt(4)
 
-    logical :: AM_WRITER
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -1723,9 +1691,9 @@ module NCIOMod
 !          print*,'count values are ',cnt
 
           call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ', status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        endif
@@ -1770,9 +1738,9 @@ module NCIOMod
 
              if (io_rank == 0) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-                if(status /= nf_noerr) then
+                if(status /= NF90_NOERR) then
                    print*,trim(IAm),'Error writing variable ',status
-                   print*, NF_STRERROR(status)
+                   print*, NF90_STRERROR(status)
                    _VERIFY(STATUS)
                 endif
              endif ! io_rank
@@ -1781,9 +1749,9 @@ module NCIOMod
        else
           !WJ notes : not here
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1896,9 +1864,9 @@ module NCIOMod
 !          print*,'count values are ',count
 
           call formatter%get_var(trim(name),var,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -2067,9 +2035,9 @@ module NCIOMod
        if (present(layout) ) then
           if (MAPL_am_i_root(layout)) then
              call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-             if(status /= nf_noerr) then
+             if(status /= NF90_NOERR) then
                 print*,trim(IAm),'Error reading variable ',status
-                print*, NF_STRERROR(status)
+                print*, NF90_STRERROR(status)
                 _VERIFY(STATUS)
              endif
           endif
@@ -2077,9 +2045,9 @@ module NCIOMod
           _VERIFY(STATUS)
        else
           call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        end if
@@ -2189,9 +2157,9 @@ module NCIOMod
 !          print*,'count values are ',count
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -2359,9 +2327,9 @@ module NCIOMod
        if (present(layout) ) then
           if (MAPL_am_i_root(layout)) then
              call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-             if(status /= nf_noerr) then
+             if(status /= NF90_NOERR) then
                 print*,trim(IAm),'Error reading variable ',status
-                print*, NF_STRERROR(status)
+                print*, NF90_STRERROR(status)
                 _VERIFY(STATUS)
              endif
           endif
@@ -2369,9 +2337,9 @@ module NCIOMod
           _VERIFY(STATUS)
        else
           call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        end if
@@ -2406,7 +2374,6 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    logical :: AM_WRITER
     type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
 
@@ -2427,16 +2394,6 @@ module NCIOMod
           _RETURN(_SUCCESS)
        endif
     endif
-
-
-    AM_WRITER = .false.
-    if (present(arrdes)) then
-       if (arrdes%writers_comm/=MPI_COMM_NULL) then
-          AM_WRITER = .true.
-       end if
-    else
-       AM_WRITER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -2520,9 +2477,9 @@ module NCIOMod
           endif
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
@@ -2548,9 +2505,9 @@ module NCIOMod
        cnt(4) = 1
 
        call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-       if(status /= nf_noerr) then
+       if(status /= NF90_NOERR) then
           print*,'Error writing variable ',status
-          print*, NF_STRERROR(status)
+          print*, NF90_STRERROR(status)
           _VERIFY(STATUS)
        endif
 
@@ -2647,9 +2604,9 @@ module NCIOMod
           endif
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
                   print*,'Error reading variable ',status
-                  print*, NF_STRERROR(status)
+                  print*, NF90_STRERROR(status)
                   _VERIFY(STATUS)
           endif
 
@@ -2701,9 +2658,9 @@ module NCIOMod
        cnt(4) = 1
 
        call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-       if(status /= nf_noerr) then
+       if(status /= NF90_NOERR) then
                print*,'Error reading variable ',status
-               print*, NF_STRERROR(status)
+               print*, NF90_STRERROR(status)
                _VERIFY(STATUS)
        endif
 
@@ -2924,13 +2881,13 @@ module NCIOMod
     if (MAPL_AM_I_Root()) then
        if(arrdes%read_restart_by_face) then
           fname_by_face = get_fname_by_face(filename, 1)
-          status = nf_open(trim(fname_by_face),NF_NOWRITE, ncid) ! just pick one
+          status = NF90_OPEN(trim(fname_by_face),NF90_NOWRITE, ncid) ! just pick one
           _VERIFY(STATUS)
        else
-          status = nf_open(trim(filename),NF_NOWRITE, ncid)
+          status = NF90_OPEN(trim(filename),NF90_NOWRITE, ncid)
           _VERIFY(STATUS)
        endif
-       status = nf_inq_nvars(ncid, nVarFile)
+       status = NF90_INQUIRE(ncid, nVariables=nVarFile)
        _VERIFY(STATUS)
     end if
 
@@ -2941,10 +2898,10 @@ module NCIOMod
 
     if (MAPL_AM_I_Root()) then
        do i=1,nVarFile
-          status = nf_inq_varname(ncid, i, VarNamesFile(i))
+          status = NF90_INQUIRE_VARIABLE(ncid, i, VarNamesFile(i))
           _VERIFY(STATUS)
        end do
-       status = nf_close(ncid)
+       status = NF90_CLOSE(ncid)
        _VERIFY(STATUS)
     end if
 
@@ -3753,11 +3710,11 @@ module NCIOMod
           ! Extract some info from the array and define variables accordingly
           call ESMF_ArrayGet    (array, typekind=tk, rank=arrayRank,  RC=STATUS)
           _VERIFY(STATUS)
-   !ALT                if (tk .eq. ESMF_TYPEKIND_I1) DataType = NF_BYTE
-   !ALT                if (tk .eq. ESMF_TYPEKIND_I2) DataType = NF_SHORT
-          if (tk .eq. ESMF_TYPEKIND_I4) DataType = NF_INT
-          if (tk .eq. ESMF_TYPEKIND_R4) DataType = NF_FLOAT
-          if (tk .eq. ESMF_TYPEKIND_R8) DataType = NF_DOUBLE
+   !ALT                if (tk .eq. ESMF_TYPEKIND_I1) DataType = NF90_BYTE
+   !ALT                if (tk .eq. ESMF_TYPEKIND_I2) DataType = NF90_SHORT
+          if (tk .eq. ESMF_TYPEKIND_I4) DataType = NF90_INT
+          if (tk .eq. ESMF_TYPEKIND_R4) DataType = NF90_FLOAT
+          if (tk .eq. ESMF_TYPEKIND_R8) DataType = NF90_DOUBLE
           if (tk .eq. ESMF_TYPEKIND_I4) pfDataType = pFIO_INT32
           if (tk .eq. ESMF_TYPEKIND_R4) pfDataType = pFIO_REAL32
           if (tk .eq. ESMF_TYPEKIND_R8) pfDataType = pFIO_REAL64
@@ -3911,10 +3868,10 @@ module NCIOMod
        else
           isGridCapture = .false.
        end if
- 
+
        if (isGridCapture) then
           call add_fvar(cf, 'lons', pFIO_REAL64, 'lon,lat,', 'degrees east', 'lons', _RC)
-          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC) 
+          call add_fvar(cf, 'lats', pFIO_REAL64, 'lon,lat,', 'degrees north', 'lats', _RC)
        end if
 
        if (ungrid_dim_max_size /= 0) then
@@ -4001,7 +3958,7 @@ module NCIOMod
             _VERIFY(status)
          end if
        end if
-       
+
     enddo
 
     call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
@@ -4010,7 +3967,7 @@ module NCIOMod
     else
        isGridCapture = .false.
     end if
-    
+
     if (isGridCapture) then
        call ESMF_GridGet(arrdes%grid, name=fieldname, _RC)
        lons_field = ESMF_FieldCreate(grid=arrdes%grid, typekind=ESMF_TYPEKIND_R8, name='lons', _RC)
@@ -4023,7 +3980,7 @@ module NCIOMod
 
        call ESMF_FieldGet(lons_field, farrayPtr=lons_field_ptr, _RC)
        call ESMF_FieldGet(lats_field, farrayPtr=lats_field_ptr, _RC)
-       
+
        lons_field_ptr = grid_lons
        lats_field_ptr = grid_lats
 
@@ -4198,9 +4155,9 @@ module NCIOMod
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
              _VERIFY(STATUS)
              call ESMF_FieldGet(field,array=array,rc=FieldIsValid)
-             
+
              if (fieldIsValid == 0) then
-              
+
                 skipWriting = .false.
                 if (.not. forceWriteNoRestart_) then
                    call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
@@ -4213,13 +4170,13 @@ module NCIOMod
                 else
                    skipWriting = .true.
                 end if
-                
+
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
                 if (isPresent) then
                    call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
                    if (is_test_framework) skipWriting = .false.
                 end if
-                
+
                 if (skipWriting) cycle
 
                 call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
@@ -4229,7 +4186,7 @@ module NCIOMod
                    _VERIFY(STATUS)
                    skipWriting = (dna /= 0)
                 endif
-                
+
                 call ESMF_AttributeGet(state, name='MAPL_TestFramework', isPresent=isPresent, _RC)
                 if (isPresent) then
                    call ESMF_AttributeGet(state, name='MAPL_TestFramework', value=is_test_framework, _RC)
@@ -4262,7 +4219,7 @@ module NCIOMod
        call ESMF_AttributeGet(state, name='MAPL_GridCapture', value=isGridCapture, _RC)
        call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
- 
+
     call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
     _VERIFY(STATUS)
 
