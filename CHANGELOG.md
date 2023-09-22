@@ -9,8 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.41.0] - 2023-09-22
+
+### Added
+
+- Saved weights and points for the vertical interpolation
 - Added new benchmark suite.  Initial benchmarks are:
-	1. measuring raw bandwidth of a filesystem with multiple independent streams 
+	1. measuring raw bandwidth of a filesystem with multiple independent streams
 	2. measuring the `MPI_Gatherv()` used in writing checkpoints.
 	3. a combo benchmark that does both operations
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
@@ -46,7 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-
 - Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
 - Corrected a typo for checking if fpp macro `_FILE_` was previously defined.
 - Add call to initialize pFlogger layer for the unit tests.
@@ -59,8 +71,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Deleted MAPL_HeapMod.F90.  This file was doing crazy nonstandard things and is not used anywhere else.  A new cleaner implementation based upon containers could be readily created if the functionality is ever missed.
-
-### Deprecated
 
 ## [2.40.4] - 2023-09-14
 

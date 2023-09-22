@@ -1,4 +1,3 @@
-
 ecbuild_add_executable (
   TARGET raw_bw.x
   SOURCES BW_Benchmark.F90 BW_BenchmarkSpec.F90 driver.F90
@@ -11,4 +10,3 @@ target_include_directories (raw_bw.x PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(raw_bw.x PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
-
