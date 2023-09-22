@@ -38,17 +38,17 @@ contains
 !========================= HIGH-LEVEL PROCEDURES ===========================
 
    ! Convert NetCDF_DateTime {int_time, units_string} to
-   ! ESMF time variables {interval, time0, time1} and time unit {tunit}
-   ! time0 is the start time, and time1 is time0 + interval
+   ! ESMF time variables {interval, basetime, time} and time unit {time_unit}
+   ! basetime is the start time, and time is basetime + interval
    subroutine get_ESMF_Time_from_NetCDF_DateTime_integer(duration, units_string, &
-      interval, time0, unusable, time1, tunit, rc)
+      interval, basetime, unusable, time, time_unit, rc)
       integer, intent(in) :: duration
       character(len=*), intent(in) :: units_string
       type(ESMF_TimeInterval), intent(inout) :: interval
-      type(ESMF_Time), intent(inout) :: time0
+      type(ESMF_Time), intent(inout) :: basetime
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Time), optional, intent(inout) :: time1
-      character(len=:), allocatable, optional, intent(out) :: tunit
+      type(ESMF_Time), optional, intent(inout) :: time
+      character(len=:), allocatable, optional, intent(out) :: time_unit
       integer, optional, intent(out) :: rc
 
       type(CF_Time_Integer) :: cft
@@ -67,13 +67,13 @@ contains
       call set_ESMF_TimeInterval(interval, dt_duration, _RC)
 
       call extract_ISO8601_from_CF_Time(cft, isostring, _RC)
-      call set_ESMF_Time_from_ISO8601(time0, isostring, _RC)
+      call set_ESMF_Time_from_ISO8601(basetime, isostring, _RC)
 
-      if(present(time1)) time1 = time0 + interval
+      if(present(time)) time = basetime + interval
 
-      if(present(tunit)) then
+      if(present(time_unit)) then
          call extract_CF_Time_unit(cft, tunit_, _RC)
-         tunit = trim(tunit_)
+         time_unit = trim(tunit_)
       end if
 
       _RETURN(_SUCCESS)
@@ -81,17 +81,17 @@ contains
    end subroutine get_ESMF_Time_from_NetCDF_DateTime_integer
 
    ! Convert NetCDF_DateTime {real_time, units_string} to
-   ! ESMF time variables {interval, time0, time1} and time unit {tunit}
-   ! time0 is the start time, and time1 is time0 + interval
+   ! ESMF time variables {interval, basetime, time} and time unit {time_unit}
+   ! basetime is the start time, and time is basetime + interval
    subroutine get_ESMF_Time_from_NetCDF_DateTime_real(duration, units_string, &
-      interval, time0, unusable, time1, tunit, rc)
+      interval, basetime, unusable, time, time_unit, rc)
       real(kind=ESMF_KIND_R8), intent(in) :: duration
       character(len=*), intent(in) :: units_string
       type(ESMF_TimeInterval), intent(inout) :: interval
-      type(ESMF_Time), intent(inout) :: time0
+      type(ESMF_Time), intent(inout) :: basetime
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Time), optional, intent(inout) :: time1
-      character(len=:), allocatable, optional, intent(out) :: tunit
+      type(ESMF_Time), optional, intent(inout) :: time
+      character(len=:), allocatable, optional, intent(out) :: time_unit
       integer, optional, intent(out) :: rc
 
       type(CF_Time_Real) :: cft
@@ -110,13 +110,13 @@ contains
       call set_ESMF_TimeInterval(interval, dt_duration, _RC)
 
       call extract_ISO8601_from_CF_Time(cft, isostring, _RC)
-      call set_ESMF_Time_from_ISO8601(time0, isostring, _RC)
+      call set_ESMF_Time_from_ISO8601(basetime, isostring, _RC)
 
-      if(present(time1)) time1 = time0 + interval
+      if(present(time)) time = basetime + interval
 
-      if(present(tunit)) then
+      if(present(time_unit)) then
          call extract_CF_Time_unit(cft, tunit_, _RC)
-         tunit = trim(tunit_)
+         time_unit = trim(tunit_)
       end if
 
       _RETURN(_SUCCESS)

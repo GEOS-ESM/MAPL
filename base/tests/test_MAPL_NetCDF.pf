@@ -88,7 +88,7 @@ contains
       call ESMF_TimeGet(ebtime, timeString = expected_base_datetime_string, rc=status)
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
-         time1 = time, tunit = tunit, rc = status)
+         time = time, time_unit = tunit, rc = status)
       @assertTrue(status == _SUCCESS, 'Conversion failed')
       call ESMF_TimeGet(btime, timeString = actual_base_datetime_string, rc=status)
       call ESMF_TimeGet(time, timeString = actual_datetime_string, rc=status)
@@ -137,7 +137,7 @@ contains
       call ESMF_TimeGet(ebtime, timeString = expected_base_datetime_string, rc=status)
 
       call get_ESMF_Time_from_NetCDF_DateTime(duration, units_string, time_interval, btime, &
-         time1 = time, tunit = tunit, rc = status)
+         time = time, time_unit = tunit, rc = status)
       @assertTrue(status == _SUCCESS, 'Conversion failed')
       call ESMF_TimeGet(btime, timeString = actual_base_datetime_string, rc=status)
       call ESMF_TimeGet(time, timeString = actual_datetime_string, rc=status)
