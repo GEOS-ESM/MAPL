@@ -1,0 +1,452 @@
+#include "MAPL_Generic.h"
+
+module Test_FieldBLAS
+
+   use mapl_FieldBLAS
+   use field_utils_setup
+   use MAPL_FieldPointerUtilities
+   use ESMF
+   use funit
+   use MAPL_ExceptionHandling
+
+   implicit none
+
+contains
+
+   @Before
+   subroutine set_up_data()
+      implicit none
+
+      integer :: status, rc
+
+      real(kind=ESMF_KIND_R4), parameter :: ADD_R4 = 100.0
+      real(kind=ESMF_KIND_R8), parameter :: ADD_R8 = 100.0
+      real(kind=ESMF_KIND_R4), allocatable :: y4array(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: y8array(:,:)
+
+      allocate(y4array, source=R4_ARRAY_DEFAULT)
+      allocate(y8array, source=R8_ARRAY_DEFAULT)
+      y4array = y4array + ADD_R4
+      y8array = y8array + ADD_R8
+      XR4 = mk_field(R4_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4', _RC)
+      YR4 = mk_field(y4array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4', _RC)
+      XR8 = mk_field(R8_ARRAY_DEFAULT, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR8', _RC)
+      YR8 = mk_field(y8array, regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR8', _RC)
+      XR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'XR4_3D', ungriddedLBound=[1],ungriddedUBound=[3],_RC)
+      YR4_3D = mk_field_r4_ungrid(regDecomp=REG_DECOMP_DEFAULT, minIndex=MIN_INDEX_DEFAULT, maxIndex=MAX_INDEX_DEFAULT, &
+         indexflag=INDEX_FLAG_DEFAULT, name = 'YR4_3D',ungriddedLBound=[1],ungriddedUBound=[3], _RC)
+
+   end subroutine set_up_data
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL32)
+   subroutine test_FieldCOPY_R4()
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      x = XR4
+      y = YR4
+      call FieldCOPY(x, y, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      @assertEqual(x_ptr, y_ptr)
+
+   end subroutine test_FieldCOPY_R4
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL64)
+   subroutine test_FieldCOPY_R8()
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      x = XR8
+      y = YR8
+      call FieldCOPY(x, y, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      @assertEqual(x_ptr, y_ptr)
+
+   end subroutine test_FieldCOPY_R8
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL32 -> REAL64)
+   subroutine test_FieldCOPY_R4R8()
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      x = XR4
+      y = YR8
+      call FieldCOPY(x, y, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      @assertEqual(x_ptr, y_ptr)
+
+   end subroutine test_FieldCOPY_R4R8
+
+   @Test
+   ! Basic test of FieldCOPY subroutine (REAL64 -> REAL32)
+   subroutine test_FieldCOPY_R8R4()
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      x = XR8
+      y = YR4
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_ptr = 4.d0
+      call FieldCOPY(x, y, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      @assertTrue(all(are_almost_equal(x_ptr, y_ptr)), 'Values differ above threshold.')
+
+   end subroutine test_FieldCOPY_R8R4
+
+   @Test
+   ! Basic test of FieldSCAL subroutine (REAL32)
+   subroutine test_FieldSCAL_R4()
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      integer :: status, rc
+
+      x = XR4
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_array = x_ptr
+      call FieldSCAL(a, x, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      @assertEqual(x_ptr, a*x_array)
+
+   end subroutine test_FieldSCAL_R4
+
+   @Test
+   ! Basic test of FieldSCAL subroutine (REAL64)
+   subroutine test_FieldSCAL_R8()
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      integer :: status, rc
+
+      x = XR8
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_array = x_ptr
+      call FieldSCAL(a, x, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      @assertEqual(x_ptr, a*x_array)
+
+   end subroutine test_FieldSCAL_R8
+
+   @Test
+   !
+   subroutine test_FieldAXPY_R4()
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: y_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      x = XR4
+      y = YR4
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_array = x_ptr
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      y_array = y_ptr
+      call FieldAXPY(a, x, y, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      @assertEqual(y_ptr, a*x_array+y_array)
+
+   end subroutine test_FieldAXPY_R4
+
+   @Test
+   !
+   subroutine test_FieldAXPY_R8()
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      type(ESMF_Field) :: y
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: y_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+      integer :: status, rc
+
+      x = XR8
+      y = YR8
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      x_array = x_ptr
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+      y_array = y_ptr
+      call FieldAXPY(a, x, y, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+!      @assertEqual(y_ptr, a*x_array+y_array) !wdb fixme Temporarily disabled
+
+   end subroutine test_FieldAXPY_R8
+
+   @Test
+   subroutine test_FieldGetLocalElementCount()
+      type(ESMF_Field) :: x
+      integer :: rank
+      integer, allocatable :: expected_count(:)
+      integer, allocatable :: actual_count(:)
+      integer :: status, rc
+
+      x = XR4
+      call ESMF_FieldGet(x, rank=rank, _RC)
+      allocate(expected_count(rank))
+      call ESMF_FieldGet(x, localElementCount=expected_count, _RC)
+      actual_count = FieldGetLocalElementCount(x, _RC)
+      @assertEqual(actual_count, expected_count)
+      if(allocated(expected_count)) deallocate(expected_count)
+
+   end subroutine test_FieldGetLocalElementCount
+
+   @Test
+    !
+   subroutine test_FieldGetLocalSize()
+      type(ESMF_Field) :: x
+      integer :: status, rc
+      integer :: rank
+      integer :: expected_size
+      integer :: actual_size
+      integer, allocatable :: element_count(:)
+
+      x = XR4
+      call ESMF_FieldGet(x, rank=rank, _RC)
+      allocate(element_count(rank))
+      call ESMF_FieldGet(x, localElementCount=element_count, _RC)
+      expected_size = sum(element_count)
+      actual_size=FieldGetLocalSize(x, _RC)
+      @assertEqual(actual_size, expected_size)
+      if(allocated(element_count)) deallocate(element_count)
+
+   end subroutine test_FieldGetLocalSize
+
+   @Test
+   ! Test getting the c_ptr for a field
+   !wdb fixme  Should test more extensively for different ranks
+   !wdb fixme  Should test for ESMF_KIND_I4 and ESMF_KIND_I8
+   !wdb fixme  Should check c_cptr from tested method against independent test
+
+   subroutine test_FieldGetCptr()
+      type(ESMF_Field) :: x
+      type(c_ptr) :: cptr
+      integer :: status, rc
+
+      x = XR4
+      call FieldGetCptr(x, cptr, _RC)
+      x = XR8
+      call FieldGetCptr(x, cptr, _RC)
+
+   end subroutine test_FieldGetCptr
+
+   @Test
+   !wdb fixme  Probably should test for non-conformable fields
+   subroutine test_FieldsAreConformableR4()
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+      logical :: are_conformable
+
+      x = XR4
+      y = YR4
+      are_conformable = .FALSE.
+      are_conformable = FieldsAreConformable(x, y, _RC)
+      @assertTrue(are_conformable)
+
+   end subroutine test_FieldsAreConformableR4
+
+   !wdb fixme  Probably should test for non-conformable fields
+   @Test
+   subroutine test_FieldsAreConformableR8()
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+      logical :: are_conformable
+
+      x = XR8
+      y = YR8
+      are_conformable = .FALSE.
+      are_conformable = FieldsAreConformable(x, y, _RC)
+      @assertTrue(are_conformable)
+
+   end subroutine test_FieldsAreConformableR8
+
+   @Test
+   !
+   subroutine test_FieldsAreSameTypeKind()
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+      logical :: are_same_typekind
+
+      x = XR4
+      y = YR4
+      are_same_typekind = .FALSE.
+      are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
+      @assertTrue(are_same_typekind)
+      x = XR8
+      y = YR8
+      are_same_typekind = .FALSE.
+      are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
+      @assertTrue(are_same_typekind)
+      y = YR4
+      are_same_typekind = .TRUE.
+      are_same_typekind = FieldsAreSameTypeKind(x, y, _RC)
+      @assertFalse(are_same_typekind)
+      are_same_typekind = .TRUE.
+      are_same_typekind = FieldsAreSameTypeKind(y, x, _RC)
+      @assertFalse(are_same_typekind)
+
+   end subroutine test_FieldsAreSameTypeKind
+
+!wdb fixme Enable assertEqual
+   @Test
+   subroutine test_FieldConvertPrec_R4R8()
+      integer, parameter :: NROWS = 4
+      integer, parameter :: NCOLS = NROWS
+      type(ESMF_Field) :: r4_field, r8_field
+      real(kind=ESMF_KIND_R4) :: r4_data(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8) :: r8_data(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8) :: r8_converted(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8), pointer :: r8_pointer(:,:)
+      integer :: rc, status
+
+      call initialize_array(r4_data, 0.0, 1.0)
+      r8_data = 0.0
+      r8_converted = r4_data
+      r4_field = mk_field(r4_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
+         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
+         name = 'XR4', _RC)
+      r8_field = mk_field(r8_data, regDecomp = REG_DECOMP_DEFAULT, minIndex = [1, 1], &
+         maxIndex = [NROWS, NCOLS], indexflag = INDEX_FLAG_DEFAULT, &
+         name = 'YR8', _RC)
+      call FieldConvertPrec(r4_field, r8_field, _RC)
+      call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
+!      @assertEqual(r8_converted, r8_pointer) !wdb fixme temporarily disabled
+
+   end subroutine test_FieldConvertPrec_R4R8
+
+   @Test
+   subroutine test_FieldClone3D()
+      type(ESMF_Field) :: x, y
+      integer :: status, rc
+
+      type(ESMF_TypeKind_Flag) :: tk_x,tk_y
+      type(ESMF_Grid) :: grid
+      integer, allocatable :: ungriddedLBound_x(:),ungriddedLBound_y(:)
+      integer, allocatable :: ungriddedUBound_x(:),ungriddedUBound_y(:)
+      integer :: grid_rank_x, grid_rank_y
+      integer :: field_rank_x, field_rank_y
+      integer :: ungrid_x,ungrid_y
+
+      x = XR4_3D
+
+      call ESMF_FieldGet(x,rank=field_rank_x,grid=grid,typekind=tk_x,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank_x)
+      ungrid_x = field_rank_x - grid_rank_x
+      allocate(ungriddedLBound_x(ungrid_x),ungriddedUBound_x(ungrid_x))
+      call ESMF_FieldGet(x,ungriddedLBound=UngriddedLBound_x,ungriddedUBound=UngriddedUBound_x,_RC)
+
+      call FieldClone(x, y, _RC)
+
+      call ESMF_FieldGet(y,rank=field_rank_y,grid=grid,typekind=tk_y,_RC)
+      call ESMF_GridGet(grid,dimCount=grid_rank_y)
+      ungrid_y = field_rank_y - grid_rank_y
+      allocate(ungriddedLBound_y(ungrid_y),ungriddedUBound_y(ungrid_y))
+      call ESMF_FieldGet(y,ungriddedLBound=UngriddedLBound_y,ungriddedUBound=UngriddedUBound_y,_RC)
+      @assertEqual(field_rank_x,field_rank_y)
+      @assertEqual(ungrid_x,ungrid_y)
+      @assertTrue(tk_x==tk_y,"kinds not equal")
+      @assertEqual(ungriddedLBound_x,ungriddedLBound_y)
+      @assertEqual(ungriddedUBound_x,ungriddedUBound_y)
+
+   end subroutine test_FieldClone3D
+
+   @Test
+   subroutine test_almost_equal_scalar()
+      character(len=*), parameter :: MSG = 'Difference exceeds threshold'
+      real(kind=ESMF_KIND_R8), parameter :: X = 1.0 / 3.0
+      real(kind=ESMF_KIND_R4) :: y
+
+      y = X
+      @assertTrue(are_almost_equal(X, y), trim(MSG))
+
+   end subroutine test_almost_equal_scalar
+
+   @Test
+   subroutine test_almost_equal_array()
+      integer, parameter :: N = 3
+      character(len=*), parameter :: MSG = 'Difference exceeds threshold'
+      real(kind=ESMF_KIND_R8), parameter :: DENOMS(N) = [3.0, 5.0, 7.0]
+      real(kind=ESMF_KIND_R8), parameter :: X(N) = 1.0 / DENOMS
+      real(kind=ESMF_KIND_R4) :: y(N)
+
+      y = X
+
+      @assertTrue(all(are_almost_equal(x, y)), trim(MSG))
+
+   end subroutine test_almost_equal_array
+
+end module Test_FieldBLAS
+!   @Test
+!   !
+!   subroutine test_FieldGEMV_R4()
+!      real(kind=ESMF_KIND_R4), parameter :: alpha = 3.0
+!      real(kind=ESMF_KIND_R4), parameter :: A(*,*,*)
+!      type(ESMF_Field) :: x
+!      real(kind=ESMF_KIND_R4), parameter :: beta = 2.0
+!      type(ESMF_Field) :: y
+!      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+!      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+!      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: y_array
+!      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: y_ptr
+!      integer :: status, rc
+
+!      allocate(x_array, source = R4_ARRAY_DEFAULT)
+!      allocate(y_array, source = R4_ARRAY_DEFAULT)
+!      y_array = y_array + 100
+
+!      do while(.TRUE.)
+!         x = mk_field(x_array, _RC)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         y = mk_field(y_array, _RC)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         call FieldAXPY(a, x, y, _RC)
+!         if(status /= ESMF_SUCCESS) exit
+!
+!         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+!         if(status /= ESMF_SUCCESS) exit
+
+!         @assertEqual(y_ptr, a*x_array+y_array)
+!         exit
+!      end do
+!
+!   end subroutine test_FieldGEMV_R4
+
+!   @Test
+!   !
+!   subroutine test_FieldSpread()
+!   end subroutine test_FieldSpread
