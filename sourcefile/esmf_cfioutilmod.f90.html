@@ -269,7 +269,7 @@
 <a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">HDFE_GD_LL</span><span class="o">=</span><span class="mi">2</span><span class="w"></span>
 <a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NDIMS_MAX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w"></span>
 <a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAX_VAR_DIMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="w"></span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID_NAME</span><span class="o">=</span><span class="s1">&#39;EOSGRID&#39;</span><span class="w"></span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID_NAME</span><span class="o">=</span><span class="s1">&#39;EOSGRID&#39;</span><span class="w"></span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAXCHR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="w"></span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PACK_BITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32766</span><span class="w"></span>
 <a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PACK_FILL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32767</span><span class="w"></span>
@@ -661,32 +661,32 @@
 <a id="ln-438" name="ln-438" href="#ln-438"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">lm</span><span class="w">     </span><span class="c">!! Number of times</span>
 <a id="ln-439" name="ln-439" href="#ln-439"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">nvars</span><span class="w">  </span><span class="c">!! Number of variables</span>
 <a id="ln-440" name="ln-440" href="#ln-440"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">ngatts</span><span class="w"> </span><span class="c">!! Number of global attributes</span>
-<a id="ln-441" name="ln-441" href="#ln-441"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vdir</span><span class="w">   </span><span class="c">!! Positive vertical direction.    </span>
-<a id="ln-442" name="ln-442" href="#ln-442"></a><span class="w">                         </span><span class="c">!! If `-1`, level 1 in the file is TOA.    </span>
-<a id="ln-443" name="ln-443" href="#ln-443"></a><span class="w">                         </span><span class="c">!! If `1`, level 1 in the file is the surface.    </span>
+<a id="ln-441" name="ln-441" href="#ln-441"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vdir</span><span class="w">   </span><span class="c">!! Positive vertical direction.</span>
+<a id="ln-442" name="ln-442" href="#ln-442"></a><span class="w">                         </span><span class="c">!! If `-1`, level 1 in the file is TOA.</span>
+<a id="ln-443" name="ln-443" href="#ln-443"></a><span class="w">                         </span><span class="c">!! If `1`, level 1 in the file is the surface.</span>
 <a id="ln-444" name="ln-444" href="#ln-444"></a><span class="w">                         </span><span class="c">!! If `0`, the file has no vertical co-ordinate (default).</span>
-<a id="ln-445" name="ln-445" href="#ln-445"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
-<a id="ln-446" name="ln-446" href="#ln-446"></a><span class="w">                         </span><span class="c">!!  rc = 0    all is well     </span>
-<a id="ln-447" name="ln-447" href="#ln-447"></a><span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable     </span>
-<a id="ln-448" name="ln-448" href="#ln-448"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-449" name="ln-449" href="#ln-449"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-450" name="ln-450" href="#ln-450"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-451" name="ln-451" href="#ln-451"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
-<a id="ln-452" name="ln-452" href="#ln-452"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
-<a id="ln-453" name="ln-453" href="#ln-453"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
-<a id="ln-454" name="ln-454" href="#ln-454"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<a id="ln-455" name="ln-455" href="#ln-455"></a><span class="w">                         </span><span class="c">!!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)     </span>
-<a id="ln-456" name="ln-456" href="#ln-456"></a><span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE     </span>
-<a id="ln-457" name="ln-457" href="#ln-457"></a><span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT     </span>
+<a id="ln-445" name="ln-445" href="#ln-445"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-446" name="ln-446" href="#ln-446"></a><span class="w">                         </span><span class="c">!!  rc = 0    all is well</span>
+<a id="ln-447" name="ln-447" href="#ln-447"></a><span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable</span>
+<a id="ln-448" name="ln-448" href="#ln-448"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-449" name="ln-449" href="#ln-449"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-450" name="ln-450" href="#ln-450"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-451" name="ln-451" href="#ln-451"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<a id="ln-452" name="ln-452" href="#ln-452"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
+<a id="ln-453" name="ln-453" href="#ln-453"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
+<a id="ln-454" name="ln-454" href="#ln-454"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<a id="ln-455" name="ln-455" href="#ln-455"></a><span class="w">                         </span><span class="c">!!  rc = -47  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (time)</span>
+<a id="ln-456" name="ln-456" href="#ln-456"></a><span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE</span>
+<a id="ln-457" name="ln-457" href="#ln-457"></a><span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT</span>
 <a id="ln-458" name="ln-458" href="#ln-458"></a><span class="c">!</span>
 <a id="ln-459" name="ln-459" href="#ln-459"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-460" name="ln-460" href="#ln-460"></a>
 <a id="ln-461" name="ln-461" href="#ln-461"></a><span class="w">      </span><span class="kt">integer </span><span class="n">dimId</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
-<a id="ln-462" name="ln-462" href="#ln-462"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
-<a id="ln-463" name="ln-463" href="#ln-463"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
-<a id="ln-464" name="ln-464" href="#ln-464"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
-<a id="ln-465" name="ln-465" href="#ln-465"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">posStr</span><span class="w"></span>
-<a id="ln-466" name="ln-466" href="#ln-466"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">vname</span><span class="w"></span>
+<a id="ln-462" name="ln-462" href="#ln-462"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-463" name="ln-463" href="#ln-463"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
+<a id="ln-464" name="ln-464" href="#ln-464"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
+<a id="ln-465" name="ln-465" href="#ln-465"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">posStr</span><span class="w"></span>
+<a id="ln-466" name="ln-466" href="#ln-466"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">vname</span><span class="w"></span>
 <a id="ln-467" name="ln-467" href="#ln-467"></a><span class="w">      </span><span class="kt">integer </span><span class="n">dimSize</span><span class="w"></span>
 <a id="ln-468" name="ln-468" href="#ln-468"></a><span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="w"></span>
 <a id="ln-469" name="ln-469" href="#ln-469"></a><span class="w">      </span><span class="kt">logical </span><span class="n">surfaceOnly</span><span class="w"></span>
@@ -709,7 +709,7 @@
 <a id="ln-486" name="ln-486" href="#ln-486"></a><span class="c">! Check FID here.</span>
 <a id="ln-487" name="ln-487" href="#ln-487"></a>
 <a id="ln-488" name="ln-488" href="#ln-488"></a><span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<a id="ln-489" name="ln-489" href="#ln-489"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<a id="ln-489" name="ln-489" href="#ln-489"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 <a id="ln-490" name="ln-490" href="#ln-490"></a>
 <a id="ln-491" name="ln-491" href="#ln-491"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-492" name="ln-492" href="#ln-492"></a><span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_DimInquire warning: MAXNCNAM is larger than &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -857,7 +857,7 @@
 <a id="ln-634" name="ln-634" href="#ln-634"></a><span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">begDate</span><span class="w">   </span><span class="c">!! Beginning date</span>
 <a id="ln-635" name="ln-635" href="#ln-635"></a><span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">begTime</span><span class="w">   </span><span class="c">!! Beginning time</span>
 <a id="ln-636" name="ln-636" href="#ln-636"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">Kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">incVec</span><span class="p">(:)</span><span class="w"> </span><span class="c">!! Vector of offsets (seconds)</span>
-<a id="ln-637" name="ln-637" href="#ln-637"></a><span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">        </span><span class="c">!! error return code     </span>
+<a id="ln-637" name="ln-637" href="#ln-637"></a><span class="w">      </span><span class="kt">integer</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">        </span><span class="c">!! error return code</span>
 <a id="ln-638" name="ln-638" href="#ln-638"></a><span class="c">!</span>
 <a id="ln-639" name="ln-639" href="#ln-639"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-640" name="ln-640" href="#ln-640"></a>
@@ -867,7 +867,7 @@
 <a id="ln-644" name="ln-644" href="#ln-644"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">,</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
 <a id="ln-645" name="ln-645" href="#ln-645"></a><span class="w">      </span><span class="c">!character(len=MAXCHR) strTmp</span>
 <a id="ln-646" name="ln-646" href="#ln-646"></a>
-<a id="ln-647" name="ln-647" href="#ln-647"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
+<a id="ln-647" name="ln-647" href="#ln-647"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="p">,</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
 <a id="ln-648" name="ln-648" href="#ln-648"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vdims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="w"></span>
 <a id="ln-649" name="ln-649" href="#ln-649"></a><span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="w"> </span><span class="n">nvars</span><span class="p">,</span><span class="w"> </span><span class="n">ngatts</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="w"></span>
 <a id="ln-650" name="ln-650" href="#ln-650"></a>
@@ -1066,7 +1066,7 @@
 <a id="ln-843" name="ln-843" href="#ln-843"></a><span class="w">      </span><span class="kt">integer </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="w"></span>
 <a id="ln-844" name="ln-844" href="#ln-844"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">timeUnits</span><span class="p">,</span><span class="w"> </span><span class="n">dimUnits</span><span class="p">,</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
 <a id="ln-845" name="ln-845" href="#ln-845"></a>
-<a id="ln-846" name="ln-846" href="#ln-846"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-846" name="ln-846" href="#ln-846"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
 <a id="ln-847" name="ln-847" href="#ln-847"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vdims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="w"></span>
 <a id="ln-848" name="ln-848" href="#ln-848"></a><span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="w"> </span><span class="n">nvars</span><span class="p">,</span><span class="w"> </span><span class="n">ngatts</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="w"></span>
 <a id="ln-849" name="ln-849" href="#ln-849"></a>
@@ -1272,8 +1272,8 @@
 <a id="ln-1049" name="ln-1049" href="#ln-1049"></a><span class="c">!</span>
 <a id="ln-1050" name="ln-1050" href="#ln-1050"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1051" name="ln-1051" href="#ln-1051"></a><span class="c">!</span>
-<a id="ln-1052" name="ln-1052" href="#ln-1052"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w">  </span><span class="c">!! Name of the coordinate variable</span>
-<a id="ln-1053" name="ln-1053" href="#ln-1053"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"> </span><span class="c">!! Units of the coordinate variable</span>
+<a id="ln-1052" name="ln-1052" href="#ln-1052"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w">  </span><span class="c">!! Name of the coordinate variable</span>
+<a id="ln-1053" name="ln-1053" href="#ln-1053"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"> </span><span class="c">!! Units of the coordinate variable</span>
 <a id="ln-1054" name="ln-1054" href="#ln-1054"></a><span class="c">!</span>
 <a id="ln-1055" name="ln-1055" href="#ln-1055"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1056" name="ln-1056" href="#ln-1056"></a>
@@ -1445,7 +1445,7 @@
 <a id="ln-1222" name="ln-1222" href="#ln-1222"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1223" name="ln-1223" href="#ln-1223"></a><span class="c">!</span>
 <a id="ln-1224" name="ln-1224" href="#ln-1224"></a>
-<a id="ln-1225" name="ln-1225" href="#ln-1225"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">   </span><span class="n">fname</span><span class="w">         </span><span class="c">!! File name</span>
+<a id="ln-1225" name="ln-1225" href="#ln-1225"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">   </span><span class="n">fname</span><span class="w">         </span><span class="c">!! File name</span>
 <a id="ln-1226" name="ln-1226" href="#ln-1226"></a><span class="w">      </span><span class="kt">integer         </span><span class="n">fmode</span><span class="w">         </span><span class="c">!! File mode:</span>
 <a id="ln-1227" name="ln-1227" href="#ln-1227"></a><span class="w">                                    </span><span class="c">!!   0 for READ-WRITE</span>
 <a id="ln-1228" name="ln-1228" href="#ln-1228"></a><span class="w">                                    </span><span class="c">!!   non-zero for READ-ONLY</span>
@@ -1455,9 +1455,9 @@
 <a id="ln-1232" name="ln-1232" href="#ln-1232"></a><span class="c">!</span>
 <a id="ln-1233" name="ln-1233" href="#ln-1233"></a>
 <a id="ln-1234" name="ln-1234" href="#ln-1234"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">            </span><span class="c">!! File handle</span>
-<a id="ln-1235" name="ln-1235" href="#ln-1235"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">             </span><span class="c">!! Error return code:          </span>
-<a id="ln-1236" name="ln-1236" href="#ln-1236"></a><span class="w">                                    </span><span class="c">!!   rc = 0    All is well     </span>
-<a id="ln-1237" name="ln-1237" href="#ln-1237"></a><span class="w">                                    </span><span class="c">!!   rc = -39  error from ncopn (file open)     </span>
+<a id="ln-1235" name="ln-1235" href="#ln-1235"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">             </span><span class="c">!! Error return code:</span>
+<a id="ln-1236" name="ln-1236" href="#ln-1236"></a><span class="w">                                    </span><span class="c">!!   rc = 0    All is well</span>
+<a id="ln-1237" name="ln-1237" href="#ln-1237"></a><span class="w">                                    </span><span class="c">!!   rc = -39  error from ncopn (file open)</span>
 <a id="ln-1238" name="ln-1238" href="#ln-1238"></a><span class="c">!</span>
 <a id="ln-1239" name="ln-1239" href="#ln-1239"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1240" name="ln-1240" href="#ln-1240"></a>
@@ -1501,12 +1501,12 @@
 <a id="ln-1278" name="ln-1278" href="#ln-1278"></a><span class="c">!</span>
 <a id="ln-1279" name="ln-1279" href="#ln-1279"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1280" name="ln-1280" href="#ln-1280"></a><span class="c">!</span>
-<a id="ln-1281" name="ln-1281" href="#ln-1281"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:          </span>
-<a id="ln-1282" name="ln-1282" href="#ln-1282"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well          </span>
-<a id="ln-1283" name="ln-1283" href="#ln-1283"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-1284" name="ln-1284" href="#ln-1284"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1285" name="ln-1285" href="#ln-1285"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-1286" name="ln-1286" href="#ln-1286"></a><span class="w">                         </span><span class="c">!!   rc = -54  error from ncclos (file close)     </span>
+<a id="ln-1281" name="ln-1281" href="#ln-1281"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-1282" name="ln-1282" href="#ln-1282"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1283" name="ln-1283" href="#ln-1283"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-1284" name="ln-1284" href="#ln-1284"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1285" name="ln-1285" href="#ln-1285"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-1286" name="ln-1286" href="#ln-1286"></a><span class="w">                         </span><span class="c">!!   rc = -54  error from ncclos (file close)</span>
 <a id="ln-1287" name="ln-1287" href="#ln-1287"></a><span class="c">!</span>
 <a id="ln-1288" name="ln-1288" href="#ln-1288"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1289" name="ln-1289" href="#ln-1289"></a>
@@ -1541,7 +1541,7 @@
 <a id="ln-1318" name="ln-1318" href="#ln-1318"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1319" name="ln-1319" href="#ln-1319"></a><span class="c">!</span>
 <a id="ln-1320" name="ln-1320" href="#ln-1320"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1321" name="ln-1321" href="#ln-1321"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1321" name="ln-1321" href="#ln-1321"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1322" name="ln-1322" href="#ln-1322"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of integers to write</span>
 <a id="ln-1323" name="ln-1323" href="#ln-1323"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with integer values</span>
 <a id="ln-1324" name="ln-1324" href="#ln-1324"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">prec</span><span class="w">       </span><span class="c">!! Desired precision of attribute value:</span>
@@ -1550,15 +1550,15 @@
 <a id="ln-1327" name="ln-1327" href="#ln-1327"></a><span class="c">!</span>
 <a id="ln-1328" name="ln-1328" href="#ln-1328"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1329" name="ln-1329" href="#ln-1329"></a><span class="c">!</span>
-<a id="ln-1330" name="ln-1330" href="#ln-1330"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
-<a id="ln-1331" name="ln-1331" href="#ln-1331"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1332" name="ln-1332" href="#ln-1332"></a><span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision     </span>
-<a id="ln-1333" name="ln-1333" href="#ln-1333"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-1334" name="ln-1334" href="#ln-1334"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1335" name="ln-1335" href="#ln-1335"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-1336" name="ln-1336" href="#ln-1336"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-1337" name="ln-1337" href="#ln-1337"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)     </span>
-<a id="ln-1338" name="ln-1338" href="#ln-1338"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)     </span>
+<a id="ln-1330" name="ln-1330" href="#ln-1330"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-1331" name="ln-1331" href="#ln-1331"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1332" name="ln-1332" href="#ln-1332"></a><span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision</span>
+<a id="ln-1333" name="ln-1333" href="#ln-1333"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-1334" name="ln-1334" href="#ln-1334"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1335" name="ln-1335" href="#ln-1335"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-1336" name="ln-1336" href="#ln-1336"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-1337" name="ln-1337" href="#ln-1337"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)</span>
+<a id="ln-1338" name="ln-1338" href="#ln-1338"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)</span>
 <a id="ln-1339" name="ln-1339" href="#ln-1339"></a><span class="c">!</span>
 <a id="ln-1340" name="ln-1340" href="#ln-1340"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1341" name="ln-1341" href="#ln-1341"></a>
@@ -1634,7 +1634,7 @@
 <a id="ln-1411" name="ln-1411" href="#ln-1411"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1412" name="ln-1412" href="#ln-1412"></a><span class="c">!</span>
 <a id="ln-1413" name="ln-1413" href="#ln-1413"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1414" name="ln-1414" href="#ln-1414"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1414" name="ln-1414" href="#ln-1414"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1415" name="ln-1415" href="#ln-1415"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of integers to write</span>
 <a id="ln-1416" name="ln-1416" href="#ln-1416"></a><span class="w">      </span><span class="kt">real           </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with real values</span>
 <a id="ln-1417" name="ln-1417" href="#ln-1417"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">prec</span><span class="w">       </span><span class="c">!! Desired precision of attribute value:</span>
@@ -1643,15 +1643,15 @@
 <a id="ln-1420" name="ln-1420" href="#ln-1420"></a><span class="c">!</span>
 <a id="ln-1421" name="ln-1421" href="#ln-1421"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1422" name="ln-1422" href="#ln-1422"></a><span class="c">!</span>
-<a id="ln-1423" name="ln-1423" href="#ln-1423"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
-<a id="ln-1424" name="ln-1424" href="#ln-1424"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1425" name="ln-1425" href="#ln-1425"></a><span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision     </span>
-<a id="ln-1426" name="ln-1426" href="#ln-1426"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-1427" name="ln-1427" href="#ln-1427"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1428" name="ln-1428" href="#ln-1428"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-1429" name="ln-1429" href="#ln-1429"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-1430" name="ln-1430" href="#ln-1430"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)     </span>
-<a id="ln-1431" name="ln-1431" href="#ln-1431"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)     </span>
+<a id="ln-1423" name="ln-1423" href="#ln-1423"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-1424" name="ln-1424" href="#ln-1424"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1425" name="ln-1425" href="#ln-1425"></a><span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision</span>
+<a id="ln-1426" name="ln-1426" href="#ln-1426"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-1427" name="ln-1427" href="#ln-1427"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1428" name="ln-1428" href="#ln-1428"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-1429" name="ln-1429" href="#ln-1429"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-1430" name="ln-1430" href="#ln-1430"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)</span>
+<a id="ln-1431" name="ln-1431" href="#ln-1431"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)</span>
 <a id="ln-1432" name="ln-1432" href="#ln-1432"></a>
 <a id="ln-1433" name="ln-1433" href="#ln-1433"></a><span class="c">!</span>
 <a id="ln-1434" name="ln-1434" href="#ln-1434"></a><span class="c">!-------------------------------------------------------------------------</span>
@@ -1728,20 +1728,20 @@
 <a id="ln-1505" name="ln-1505" href="#ln-1505"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1506" name="ln-1506" href="#ln-1506"></a><span class="c">!</span>
 <a id="ln-1507" name="ln-1507" href="#ln-1507"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1508" name="ln-1508" href="#ln-1508"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1508" name="ln-1508" href="#ln-1508"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1509" name="ln-1509" href="#ln-1509"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of characters to write</span>
 <a id="ln-1510" name="ln-1510" href="#ln-1510"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="c">!! Buffer containing string</span>
 <a id="ln-1511" name="ln-1511" href="#ln-1511"></a><span class="c">!</span>
 <a id="ln-1512" name="ln-1512" href="#ln-1512"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1513" name="ln-1513" href="#ln-1513"></a><span class="c">!</span>
-<a id="ln-1514" name="ln-1514" href="#ln-1514"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
-<a id="ln-1515" name="ln-1515" href="#ln-1515"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1516" name="ln-1516" href="#ln-1516"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-1517" name="ln-1517" href="#ln-1517"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1518" name="ln-1518" href="#ln-1518"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-1519" name="ln-1519" href="#ln-1519"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-1520" name="ln-1520" href="#ln-1520"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)     </span>
-<a id="ln-1521" name="ln-1521" href="#ln-1521"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)     </span>
+<a id="ln-1514" name="ln-1514" href="#ln-1514"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-1515" name="ln-1515" href="#ln-1515"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1516" name="ln-1516" href="#ln-1516"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-1517" name="ln-1517" href="#ln-1517"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1518" name="ln-1518" href="#ln-1518"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-1519" name="ln-1519" href="#ln-1519"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-1520" name="ln-1520" href="#ln-1520"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)</span>
+<a id="ln-1521" name="ln-1521" href="#ln-1521"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)</span>
 <a id="ln-1522" name="ln-1522" href="#ln-1522"></a><span class="c">!</span>
 <a id="ln-1523" name="ln-1523" href="#ln-1523"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1524" name="ln-1524" href="#ln-1524"></a>
@@ -1792,16 +1792,16 @@
 <a id="ln-1569" name="ln-1569" href="#ln-1569"></a><span class="c">!</span>
 <a id="ln-1570" name="ln-1570" href="#ln-1570"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1571" name="ln-1571" href="#ln-1571"></a><span class="c">!</span>
-<a id="ln-1572" name="ln-1572" href="#ln-1572"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">aname</span><span class="p">(</span><span class="n">ngatts</span><span class="p">)</span><span class="w">  </span><span class="c">!! Array of attribute names</span>
-<a id="ln-1573" name="ln-1573" href="#ln-1573"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">       </span><span class="c">!! Error return code:     </span>
-<a id="ln-1574" name="ln-1574" href="#ln-1574"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
-<a id="ln-1575" name="ln-1575" href="#ln-1575"></a><span class="w">                         </span><span class="c">!!  rc = -10  ngatts is incompatible with file     </span>
-<a id="ln-1576" name="ln-1576" href="#ln-1576"></a><span class="w">                         </span><span class="c">!!  rc = -11  character string not long enough     </span>
-<a id="ln-1577" name="ln-1577" href="#ln-1577"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-1578" name="ln-1578" href="#ln-1578"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1579" name="ln-1579" href="#ln-1579"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-1580" name="ln-1580" href="#ln-1580"></a><span class="w">                         </span><span class="c">!!   rc = -48  error from NF90_INQUIRE     </span>
-<a id="ln-1581" name="ln-1581" href="#ln-1581"></a><span class="w">                         </span><span class="c">!!   rc = -57  error from NF90_INQ_ATTNAME     </span>
+<a id="ln-1572" name="ln-1572" href="#ln-1572"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">aname</span><span class="p">(</span><span class="n">ngatts</span><span class="p">)</span><span class="w">  </span><span class="c">!! Array of attribute names</span>
+<a id="ln-1573" name="ln-1573" href="#ln-1573"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">       </span><span class="c">!! Error return code:</span>
+<a id="ln-1574" name="ln-1574" href="#ln-1574"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well</span>
+<a id="ln-1575" name="ln-1575" href="#ln-1575"></a><span class="w">                         </span><span class="c">!!  rc = -10  ngatts is incompatible with file</span>
+<a id="ln-1576" name="ln-1576" href="#ln-1576"></a><span class="w">                         </span><span class="c">!!  rc = -11  character string not long enough</span>
+<a id="ln-1577" name="ln-1577" href="#ln-1577"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-1578" name="ln-1578" href="#ln-1578"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1579" name="ln-1579" href="#ln-1579"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-1580" name="ln-1580" href="#ln-1580"></a><span class="w">                         </span><span class="c">!!   rc = -48  error from NF90_INQUIRE</span>
+<a id="ln-1581" name="ln-1581" href="#ln-1581"></a><span class="w">                         </span><span class="c">!!   rc = -57  error from NF90_INQ_ATTNAME</span>
 <a id="ln-1582" name="ln-1582" href="#ln-1582"></a>
 <a id="ln-1583" name="ln-1583" href="#ln-1583"></a><span class="c">!</span>
 <a id="ln-1584" name="ln-1584" href="#ln-1584"></a><span class="c">!-------------------------------------------------------------------------</span>
@@ -1877,24 +1877,24 @@
 <a id="ln-1654" name="ln-1654" href="#ln-1654"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1655" name="ln-1655" href="#ln-1655"></a><span class="c">!</span>
 <a id="ln-1656" name="ln-1656" href="#ln-1656"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1657" name="ln-1657" href="#ln-1657"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1657" name="ln-1657" href="#ln-1657"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1658" name="ln-1658" href="#ln-1658"></a><span class="c">!</span>
 <a id="ln-1659" name="ln-1659" href="#ln-1659"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1660" name="ln-1660" href="#ln-1660"></a><span class="c">!</span>
-<a id="ln-1661" name="ln-1661" href="#ln-1661"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="w">       </span><span class="c">!! Code for attribute type   </span>
-<a id="ln-1662" name="ln-1662" href="#ln-1662"></a><span class="w">                         </span><span class="c">!!   0 = integer   </span>
-<a id="ln-1663" name="ln-1663" href="#ln-1663"></a><span class="w">                         </span><span class="c">!!   1 = real   </span>
-<a id="ln-1664" name="ln-1664" href="#ln-1664"></a><span class="w">                         </span><span class="c">!!   2 = character   </span>
-<a id="ln-1665" name="ln-1665" href="#ln-1665"></a><span class="w">                         </span><span class="c">!!   3 = 64-bit real   </span>
-<a id="ln-1666" name="ln-1666" href="#ln-1666"></a><span class="w">                         </span><span class="c">!!   4 = 64-bit integer   </span>
-<a id="ln-1667" name="ln-1667" href="#ln-1667"></a><span class="w">                         </span><span class="c">!!  -1 = other   </span>
+<a id="ln-1661" name="ln-1661" href="#ln-1661"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="w">       </span><span class="c">!! Code for attribute type</span>
+<a id="ln-1662" name="ln-1662" href="#ln-1662"></a><span class="w">                         </span><span class="c">!!   0 = integer</span>
+<a id="ln-1663" name="ln-1663" href="#ln-1663"></a><span class="w">                         </span><span class="c">!!   1 = real</span>
+<a id="ln-1664" name="ln-1664" href="#ln-1664"></a><span class="w">                         </span><span class="c">!!   2 = character</span>
+<a id="ln-1665" name="ln-1665" href="#ln-1665"></a><span class="w">                         </span><span class="c">!!   3 = 64-bit real</span>
+<a id="ln-1666" name="ln-1666" href="#ln-1666"></a><span class="w">                         </span><span class="c">!!   4 = 64-bit integer</span>
+<a id="ln-1667" name="ln-1667" href="#ln-1667"></a><span class="w">                         </span><span class="c">!!  -1 = other</span>
 <a id="ln-1668" name="ln-1668" href="#ln-1668"></a><span class="w">      </span><span class="kt">integer </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of items (length of array)</span>
-<a id="ln-1669" name="ln-1669" href="#ln-1669"></a><span class="w">      </span><span class="kt">integer </span><span class="n">rc</span><span class="w">         </span><span class="c">!! Error return code:        </span>
-<a id="ln-1670" name="ln-1670" href="#ln-1670"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1671" name="ln-1671" href="#ln-1671"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-1672" name="ln-1672" href="#ln-1672"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1673" name="ln-1673" href="#ln-1673"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-1674" name="ln-1674" href="#ln-1674"></a><span class="w">                         </span><span class="c">!!   rc = -58  error from NF90_INQUIRE_ATTRIBUTE    </span>
+<a id="ln-1669" name="ln-1669" href="#ln-1669"></a><span class="w">      </span><span class="kt">integer </span><span class="n">rc</span><span class="w">         </span><span class="c">!! Error return code:</span>
+<a id="ln-1670" name="ln-1670" href="#ln-1670"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1671" name="ln-1671" href="#ln-1671"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-1672" name="ln-1672" href="#ln-1672"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1673" name="ln-1673" href="#ln-1673"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-1674" name="ln-1674" href="#ln-1674"></a><span class="w">                         </span><span class="c">!!   rc = -58  error from NF90_INQUIRE_ATTRIBUTE</span>
 <a id="ln-1675" name="ln-1675" href="#ln-1675"></a>
 <a id="ln-1676" name="ln-1676" href="#ln-1676"></a><span class="c">!</span>
 <a id="ln-1677" name="ln-1677" href="#ln-1677"></a><span class="c">!-------------------------------------------------------------------------</span>
@@ -1943,7 +1943,7 @@
 <a id="ln-1720" name="ln-1720" href="#ln-1720"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1721" name="ln-1721" href="#ln-1721"></a><span class="c">!</span>
 <a id="ln-1722" name="ln-1722" href="#ln-1722"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1723" name="ln-1723" href="#ln-1723"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1723" name="ln-1723" href="#ln-1723"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1724" name="ln-1724" href="#ln-1724"></a><span class="c">!</span>
 <a id="ln-1725" name="ln-1725" href="#ln-1725"></a><span class="c">! !INPUT/OUTPUT PARAMETERS:</span>
 <a id="ln-1726" name="ln-1726" href="#ln-1726"></a><span class="c">!</span>
@@ -1954,17 +1954,17 @@
 <a id="ln-1731" name="ln-1731" href="#ln-1731"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1732" name="ln-1732" href="#ln-1732"></a><span class="c">!</span>
 <a id="ln-1733" name="ln-1733" href="#ln-1733"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with integer values</span>
-<a id="ln-1734" name="ln-1734" href="#ln-1734"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">         </span><span class="c">!! Error return code:     </span>
-<a id="ln-1735" name="ln-1735" href="#ln-1735"></a><span class="w">                           </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1736" name="ln-1736" href="#ln-1736"></a><span class="w">                           </span><span class="c">!!   rc = -1   invalid count     </span>
-<a id="ln-1737" name="ln-1737" href="#ln-1737"></a><span class="w">                           </span><span class="c">!!   rc = -2   type mismatch     </span>
-<a id="ln-1738" name="ln-1738" href="#ln-1738"></a><span class="w">                           </span><span class="c">!!   rc = -12  error determining default precision     </span>
-<a id="ln-1739" name="ln-1739" href="#ln-1739"></a><span class="w">                           </span><span class="c">!!     </span>
-<a id="ln-1740" name="ln-1740" href="#ln-1740"></a><span class="w">                           </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1741" name="ln-1741" href="#ln-1741"></a><span class="w">                           </span><span class="c">!!  -------------     </span>
-<a id="ln-1742" name="ln-1742" href="#ln-1742"></a><span class="w">                           </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-1743" name="ln-1743" href="#ln-1743"></a><span class="w">                           </span><span class="c">!!   rc = -51  error from NF90_GET_ATT (global attribute)     </span>
-<a id="ln-1744" name="ln-1744" href="#ln-1744"></a><span class="w">     </span>
+<a id="ln-1734" name="ln-1734" href="#ln-1734"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">         </span><span class="c">!! Error return code:</span>
+<a id="ln-1735" name="ln-1735" href="#ln-1735"></a><span class="w">                           </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1736" name="ln-1736" href="#ln-1736"></a><span class="w">                           </span><span class="c">!!   rc = -1   invalid count</span>
+<a id="ln-1737" name="ln-1737" href="#ln-1737"></a><span class="w">                           </span><span class="c">!!   rc = -2   type mismatch</span>
+<a id="ln-1738" name="ln-1738" href="#ln-1738"></a><span class="w">                           </span><span class="c">!!   rc = -12  error determining default precision</span>
+<a id="ln-1739" name="ln-1739" href="#ln-1739"></a><span class="w">                           </span><span class="c">!!</span>
+<a id="ln-1740" name="ln-1740" href="#ln-1740"></a><span class="w">                           </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1741" name="ln-1741" href="#ln-1741"></a><span class="w">                           </span><span class="c">!!  -------------</span>
+<a id="ln-1742" name="ln-1742" href="#ln-1742"></a><span class="w">                           </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-1743" name="ln-1743" href="#ln-1743"></a><span class="w">                           </span><span class="c">!!   rc = -51  error from NF90_GET_ATT (global attribute)</span>
+<a id="ln-1744" name="ln-1744" href="#ln-1744"></a>
 <a id="ln-1745" name="ln-1745" href="#ln-1745"></a><span class="c">!</span>
 <a id="ln-1746" name="ln-1746" href="#ln-1746"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1747" name="ln-1747" href="#ln-1747"></a>
@@ -2047,7 +2047,7 @@
 <a id="ln-1824" name="ln-1824" href="#ln-1824"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1825" name="ln-1825" href="#ln-1825"></a><span class="c">!</span>
 <a id="ln-1826" name="ln-1826" href="#ln-1826"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1827" name="ln-1827" href="#ln-1827"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1827" name="ln-1827" href="#ln-1827"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1828" name="ln-1828" href="#ln-1828"></a><span class="c">!</span>
 <a id="ln-1829" name="ln-1829" href="#ln-1829"></a><span class="c">! !INPUT/OUTPUT PARAMETERS:</span>
 <a id="ln-1830" name="ln-1830" href="#ln-1830"></a><span class="c">!</span>
@@ -2058,16 +2058,16 @@
 <a id="ln-1835" name="ln-1835" href="#ln-1835"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-1836" name="ln-1836" href="#ln-1836"></a><span class="c">!</span>
 <a id="ln-1837" name="ln-1837" href="#ln-1837"></a><span class="w">      </span><span class="kt">real     </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w">  </span><span class="c">!! Buffer with real values</span>
-<a id="ln-1838" name="ln-1838" href="#ln-1838"></a><span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">          </span><span class="c">!! Error return code:     </span>
-<a id="ln-1839" name="ln-1839" href="#ln-1839"></a><span class="w">                           </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1840" name="ln-1840" href="#ln-1840"></a><span class="w">                           </span><span class="c">!!   rc = -1   invalid count     </span>
-<a id="ln-1841" name="ln-1841" href="#ln-1841"></a><span class="w">                           </span><span class="c">!!   rc = -2   type mismatch     </span>
-<a id="ln-1842" name="ln-1842" href="#ln-1842"></a><span class="w">                           </span><span class="c">!!   rc = -12  error determining default precision     </span>
-<a id="ln-1843" name="ln-1843" href="#ln-1843"></a><span class="w">                           </span><span class="c">!!     </span>
-<a id="ln-1844" name="ln-1844" href="#ln-1844"></a><span class="w">                           </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1845" name="ln-1845" href="#ln-1845"></a><span class="w">                           </span><span class="c">!!  -------------     </span>
-<a id="ln-1846" name="ln-1846" href="#ln-1846"></a><span class="w">                           </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-1847" name="ln-1847" href="#ln-1847"></a><span class="w">                           </span><span class="c">!!   rc = -51  error from NF90_GET_ATT (global attribute)     </span>
+<a id="ln-1838" name="ln-1838" href="#ln-1838"></a><span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">          </span><span class="c">!! Error return code:</span>
+<a id="ln-1839" name="ln-1839" href="#ln-1839"></a><span class="w">                           </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1840" name="ln-1840" href="#ln-1840"></a><span class="w">                           </span><span class="c">!!   rc = -1   invalid count</span>
+<a id="ln-1841" name="ln-1841" href="#ln-1841"></a><span class="w">                           </span><span class="c">!!   rc = -2   type mismatch</span>
+<a id="ln-1842" name="ln-1842" href="#ln-1842"></a><span class="w">                           </span><span class="c">!!   rc = -12  error determining default precision</span>
+<a id="ln-1843" name="ln-1843" href="#ln-1843"></a><span class="w">                           </span><span class="c">!!</span>
+<a id="ln-1844" name="ln-1844" href="#ln-1844"></a><span class="w">                           </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1845" name="ln-1845" href="#ln-1845"></a><span class="w">                           </span><span class="c">!!  -------------</span>
+<a id="ln-1846" name="ln-1846" href="#ln-1846"></a><span class="w">                           </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-1847" name="ln-1847" href="#ln-1847"></a><span class="w">                           </span><span class="c">!!   rc = -51  error from NF90_GET_ATT (global attribute)</span>
 <a id="ln-1848" name="ln-1848" href="#ln-1848"></a><span class="c">!</span>
 <a id="ln-1849" name="ln-1849" href="#ln-1849"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1850" name="ln-1850" href="#ln-1850"></a>
@@ -2150,7 +2150,7 @@
 <a id="ln-1927" name="ln-1927" href="#ln-1927"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-1928" name="ln-1928" href="#ln-1928"></a><span class="c">!</span>
 <a id="ln-1929" name="ln-1929" href="#ln-1929"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-1930" name="ln-1930" href="#ln-1930"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-1930" name="ln-1930" href="#ln-1930"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-1931" name="ln-1931" href="#ln-1931"></a><span class="c">!</span>
 <a id="ln-1932" name="ln-1932" href="#ln-1932"></a><span class="c">! !INPUT/OUTPUT PARAMETERS:</span>
 <a id="ln-1933" name="ln-1933" href="#ln-1933"></a><span class="c">!</span>
@@ -2162,15 +2162,15 @@
 <a id="ln-1939" name="ln-1939" href="#ln-1939"></a><span class="c">!</span>
 <a id="ln-1940" name="ln-1940" href="#ln-1940"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with character values</span>
 <a id="ln-1941" name="ln-1941" href="#ln-1941"></a><span class="c">!      character(len=MLEN) :: buf !! Buffer with character values</span>
-<a id="ln-1942" name="ln-1942" href="#ln-1942"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">         </span><span class="c">!! Error return code:     </span>
-<a id="ln-1943" name="ln-1943" href="#ln-1943"></a><span class="w">                           </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-1944" name="ln-1944" href="#ln-1944"></a><span class="w">                           </span><span class="c">!!   rc = -1   invalid count     </span>
-<a id="ln-1945" name="ln-1945" href="#ln-1945"></a><span class="w">                           </span><span class="c">!!   rc = -2   type mismatch     </span>
-<a id="ln-1946" name="ln-1946" href="#ln-1946"></a><span class="w">                           </span><span class="c">!!     </span>
-<a id="ln-1947" name="ln-1947" href="#ln-1947"></a><span class="w">                           </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-1948" name="ln-1948" href="#ln-1948"></a><span class="w">                           </span><span class="c">!!  -------------     </span>
-<a id="ln-1949" name="ln-1949" href="#ln-1949"></a><span class="w">                           </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-1950" name="ln-1950" href="#ln-1950"></a><span class="w">                           </span><span class="c">!!   rc = -51  error from NF90_GET_ATT (global attribute)     </span>
+<a id="ln-1942" name="ln-1942" href="#ln-1942"></a><span class="w">      </span><span class="kt">integer   </span><span class="n">rc</span><span class="w">         </span><span class="c">!! Error return code:</span>
+<a id="ln-1943" name="ln-1943" href="#ln-1943"></a><span class="w">                           </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-1944" name="ln-1944" href="#ln-1944"></a><span class="w">                           </span><span class="c">!!   rc = -1   invalid count</span>
+<a id="ln-1945" name="ln-1945" href="#ln-1945"></a><span class="w">                           </span><span class="c">!!   rc = -2   type mismatch</span>
+<a id="ln-1946" name="ln-1946" href="#ln-1946"></a><span class="w">                           </span><span class="c">!!</span>
+<a id="ln-1947" name="ln-1947" href="#ln-1947"></a><span class="w">                           </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-1948" name="ln-1948" href="#ln-1948"></a><span class="w">                           </span><span class="c">!!  -------------</span>
+<a id="ln-1949" name="ln-1949" href="#ln-1949"></a><span class="w">                           </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-1950" name="ln-1950" href="#ln-1950"></a><span class="w">                           </span><span class="c">!!   rc = -51  error from NF90_GET_ATT (global attribute)</span>
 <a id="ln-1951" name="ln-1951" href="#ln-1951"></a><span class="c">!</span>
 <a id="ln-1952" name="ln-1952" href="#ln-1952"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-1953" name="ln-1953" href="#ln-1953"></a>
@@ -2388,7 +2388,7 @@
 <a id="ln-2165" name="ln-2165" href="#ln-2165"></a><span class="k">      END subroutine </span><span class="n">CALDAT</span><span class="w"></span>
 <a id="ln-2166" name="ln-2166" href="#ln-2166"></a>
 <a id="ln-2167" name="ln-2167" href="#ln-2167"></a><span class="w">      </span><span class="kt">integer </span><span class="k">function </span><span class="n">err</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">outstring</span><span class="p">,</span><span class="w"> </span><span class="n">iret</span><span class="p">,</span><span class="w"> </span><span class="n">ec</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="ln-2168" name="ln-2168" href="#ln-2168"></a><span class="w">      </span><span class="kt">character</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">outstring</span><span class="w"></span>
+<a id="ln-2168" name="ln-2168" href="#ln-2168"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="n">outstring</span><span class="w"></span>
 <a id="ln-2169" name="ln-2169" href="#ln-2169"></a><span class="w">      </span><span class="kt">integer </span><span class="n">ec</span><span class="p">,</span><span class="w"> </span><span class="n">iret</span><span class="w"></span>
 <a id="ln-2170" name="ln-2170" href="#ln-2170"></a>
 <a id="ln-2171" name="ln-2171" href="#ln-2171"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iret</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -2425,7 +2425,7 @@
 <a id="ln-2202" name="ln-2202" href="#ln-2202"></a><span class="c">!</span>
 <a id="ln-2203" name="ln-2203" href="#ln-2203"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-2204" name="ln-2204" href="#ln-2204"></a><span class="c">!</span>
-<a id="ln-2205" name="ln-2205" href="#ln-2205"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">TimeUnits</span><span class="w">      </span><span class="c">!! Units metadata string from the Time coord var</span>
+<a id="ln-2205" name="ln-2205" href="#ln-2205"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">TimeUnits</span><span class="w">      </span><span class="c">!! Units metadata string from the Time coord var</span>
 <a id="ln-2206" name="ln-2206" href="#ln-2206"></a><span class="c">!</span>
 <a id="ln-2207" name="ln-2207" href="#ln-2207"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-2208" name="ln-2208" href="#ln-2208"></a><span class="c">!</span>
@@ -2435,9 +2435,9 @@
 <a id="ln-2212" name="ln-2212" href="#ln-2212"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">hour</span><span class="w">               </span><span class="c">!! hour</span>
 <a id="ln-2213" name="ln-2213" href="#ln-2213"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">min</span><span class="w">                </span><span class="c">!! minute</span>
 <a id="ln-2214" name="ln-2214" href="#ln-2214"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">sec</span><span class="w">                </span><span class="c">!! second</span>
-<a id="ln-2215" name="ln-2215" href="#ln-2215"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">                 </span><span class="c">!! return code     </span>
-<a id="ln-2216" name="ln-2216" href="#ln-2216"></a><span class="w">                                        </span><span class="c">!!  0 = no error     </span>
-<a id="ln-2217" name="ln-2217" href="#ln-2217"></a><span class="w">                                        </span><span class="c">!! -1 = problem parsing string     </span>
+<a id="ln-2215" name="ln-2215" href="#ln-2215"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">                 </span><span class="c">!! return code</span>
+<a id="ln-2216" name="ln-2216" href="#ln-2216"></a><span class="w">                                        </span><span class="c">!!  0 = no error</span>
+<a id="ln-2217" name="ln-2217" href="#ln-2217"></a><span class="w">                                        </span><span class="c">!! -1 = problem parsing string</span>
 <a id="ln-2218" name="ln-2218" href="#ln-2218"></a>
 <a id="ln-2219" name="ln-2219" href="#ln-2219"></a><span class="c">!</span>
 <a id="ln-2220" name="ln-2220" href="#ln-2220"></a><span class="c">!-------------------------------------------------------------------------</span>
@@ -2539,7 +2539,7 @@
 <a id="ln-2316" name="ln-2316" href="#ln-2316"></a><span class="c">! minute boundaries to allow GrADS to work.  Error checking is</span>
 <a id="ln-2317" name="ln-2317" href="#ln-2317"></a><span class="c">! done for dimensions that are out of bounds.</span>
 <a id="ln-2318" name="ln-2318" href="#ln-2318"></a><span class="c">!</span>
-<a id="ln-2319" name="ln-2319" href="#ln-2319"></a><span class="c">!#### History </span>
+<a id="ln-2319" name="ln-2319" href="#ln-2319"></a><span class="c">!#### History</span>
 <a id="ln-2320" name="ln-2320" href="#ln-2320"></a><span class="c">!- 1997.10.13 da Silva/Lucchesi   Initial interface design.</span>
 <a id="ln-2321" name="ln-2321" href="#ln-2321"></a><span class="c">!- 1998.02.10 Lucchesi   Added support for applications running with 64-bit reals.</span>
 <a id="ln-2322" name="ln-2322" href="#ln-2322"></a><span class="c">!- 1998.03.30 Lucchesi   Documentation expanded.  Clean-up of code.</span>
@@ -2561,7 +2561,7 @@
 <a id="ln-2338" name="ln-2338" href="#ln-2338"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-2339" name="ln-2339" href="#ln-2339"></a><span class="c">!</span>
 <a id="ln-2340" name="ln-2340" href="#ln-2340"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">                 </span><span class="c">!! File handle</span>
-<a id="ln-2341" name="ln-2341" href="#ln-2341"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
+<a id="ln-2341" name="ln-2341" href="#ln-2341"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
 <a id="ln-2342" name="ln-2342" href="#ln-2342"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">            </span><span class="c">!! Year-month-day, e.g., 19971003</span>
 <a id="ln-2343" name="ln-2343" href="#ln-2343"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">hhmmss</span><span class="w">              </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 <a id="ln-2344" name="ln-2344" href="#ln-2344"></a>
@@ -2575,38 +2575,38 @@
 <a id="ln-2352" name="ln-2352" href="#ln-2352"></a>
 <a id="ln-2353" name="ln-2353" href="#ln-2353"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-2354" name="ln-2354" href="#ln-2354"></a>
-<a id="ln-2355" name="ln-2355" href="#ln-2355"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:     </span>
-<a id="ln-2356" name="ln-2356" href="#ln-2356"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
-<a id="ln-2357" name="ln-2357" href="#ln-2357"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
-<a id="ln-2358" name="ln-2358" href="#ln-2358"></a><span class="w">                         </span><span class="c">!! rc = -3  number of levels is incompatible with file     </span>
-<a id="ln-2359" name="ln-2359" href="#ln-2359"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
-<a id="ln-2360" name="ln-2360" href="#ln-2360"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
-<a id="ln-2361" name="ln-2361" href="#ln-2361"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
-<a id="ln-2362" name="ln-2362" href="#ln-2362"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
-<a id="ln-2363" name="ln-2363" href="#ln-2363"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
-<a id="ln-2364" name="ln-2364" href="#ln-2364"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
-<a id="ln-2365" name="ln-2365" href="#ln-2365"></a><span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range     </span>
-<a id="ln-2366" name="ln-2366" href="#ln-2366"></a><span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range     </span>
-<a id="ln-2367" name="ln-2367" href="#ln-2367"></a><span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range     </span>
-<a id="ln-2368" name="ln-2368" href="#ln-2368"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-2369" name="ln-2369" href="#ln-2369"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-2370" name="ln-2370" href="#ln-2370"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-2371" name="ln-2371" href="#ln-2371"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
-<a id="ln-2372" name="ln-2372" href="#ln-2372"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
-<a id="ln-2373" name="ln-2373" href="#ln-2373"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
-<a id="ln-2374" name="ln-2374" href="#ln-2374"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
-<a id="ln-2375" name="ln-2375" href="#ln-2375"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<a id="ln-2376" name="ln-2376" href="#ln-2376"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
-<a id="ln-2377" name="ln-2377" href="#ln-2377"></a><span class="w">                         </span><span class="c">!!  rc = -45  error from NF90_PUT_VAR     </span>
-<a id="ln-2378" name="ln-2378" href="#ln-2378"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
-<a id="ln-2379" name="ln-2379" href="#ln-2379"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
-<a id="ln-2380" name="ln-2380" href="#ln-2380"></a><span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT     </span>
+<a id="ln-2355" name="ln-2355" href="#ln-2355"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:</span>
+<a id="ln-2356" name="ln-2356" href="#ln-2356"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well</span>
+<a id="ln-2357" name="ln-2357" href="#ln-2357"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<a id="ln-2358" name="ln-2358" href="#ln-2358"></a><span class="w">                         </span><span class="c">!! rc = -3  number of levels is incompatible with file</span>
+<a id="ln-2359" name="ln-2359" href="#ln-2359"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<a id="ln-2360" name="ln-2360" href="#ln-2360"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<a id="ln-2361" name="ln-2361" href="#ln-2361"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<a id="ln-2362" name="ln-2362" href="#ln-2362"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<a id="ln-2363" name="ln-2363" href="#ln-2363"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<a id="ln-2364" name="ln-2364" href="#ln-2364"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<a id="ln-2365" name="ln-2365" href="#ln-2365"></a><span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range</span>
+<a id="ln-2366" name="ln-2366" href="#ln-2366"></a><span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range</span>
+<a id="ln-2367" name="ln-2367" href="#ln-2367"></a><span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range</span>
+<a id="ln-2368" name="ln-2368" href="#ln-2368"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-2369" name="ln-2369" href="#ln-2369"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-2370" name="ln-2370" href="#ln-2370"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-2371" name="ln-2371" href="#ln-2371"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
+<a id="ln-2372" name="ln-2372" href="#ln-2372"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<a id="ln-2373" name="ln-2373" href="#ln-2373"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
+<a id="ln-2374" name="ln-2374" href="#ln-2374"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
+<a id="ln-2375" name="ln-2375" href="#ln-2375"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<a id="ln-2376" name="ln-2376" href="#ln-2376"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
+<a id="ln-2377" name="ln-2377" href="#ln-2377"></a><span class="w">                         </span><span class="c">!!  rc = -45  error from NF90_PUT_VAR</span>
+<a id="ln-2378" name="ln-2378" href="#ln-2378"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR</span>
+<a id="ln-2379" name="ln-2379" href="#ln-2379"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
+<a id="ln-2380" name="ln-2380" href="#ln-2380"></a><span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT</span>
 <a id="ln-2381" name="ln-2381" href="#ln-2381"></a>
 <a id="ln-2382" name="ln-2382" href="#ln-2382"></a><span class="c">!</span>
 <a id="ln-2383" name="ln-2383" href="#ln-2383"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-2384" name="ln-2384" href="#ln-2384"></a>
 <a id="ln-2385" name="ln-2385" href="#ln-2385"></a><span class="w">      </span><span class="kt">integer </span><span class="n">timeid</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">timeType</span><span class="w"></span>
-<a id="ln-2386" name="ln-2386" href="#ln-2386"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-2386" name="ln-2386" href="#ln-2386"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
 <a id="ln-2387" name="ln-2387" href="#ln-2387"></a><span class="w">      </span><span class="kt">integer </span><span class="n">corner</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">edges</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2388" name="ln-2388" href="#ln-2388"></a><span class="w">      </span><span class="kt">integer </span><span class="n">vid</span><span class="w"></span>
 <a id="ln-2389" name="ln-2389" href="#ln-2389"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="n">seconds</span><span class="w"></span>
@@ -2628,7 +2628,7 @@
 <a id="ln-2405" name="ln-2405" href="#ln-2405"></a>
 <a id="ln-2406" name="ln-2406" href="#ln-2406"></a><span class="c">! Variables for NF90_INQUIRE_VARIABLE</span>
 <a id="ln-2407" name="ln-2407" href="#ln-2407"></a>
-<a id="ln-2408" name="ln-2408" href="#ln-2408"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<a id="ln-2408" name="ln-2408" href="#ln-2408"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <a id="ln-2409" name="ln-2409" href="#ln-2409"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vdims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="w"></span>
 <a id="ln-2410" name="ln-2410" href="#ln-2410"></a>
 <a id="ln-2411" name="ln-2411" href="#ln-2411"></a><span class="c">! Variables for packing and range checking</span>
@@ -2648,7 +2648,7 @@
 <a id="ln-2425" name="ln-2425" href="#ln-2425"></a><span class="w">      </span><span class="n">outPRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <a id="ln-2426" name="ln-2426" href="#ln-2426"></a>
 <a id="ln-2427" name="ln-2427" href="#ln-2427"></a><span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<a id="ln-2428" name="ln-2428" href="#ln-2428"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<a id="ln-2428" name="ln-2428" href="#ln-2428"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 <a id="ln-2429" name="ln-2429" href="#ln-2429"></a>
 <a id="ln-2430" name="ln-2430" href="#ln-2430"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-2431" name="ln-2431" href="#ln-2431"></a><span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_PutVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -2940,7 +2940,7 @@
 <a id="ln-2717" name="ln-2717" href="#ln-2717"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-2718" name="ln-2718" href="#ln-2718"></a><span class="c">!</span>
 <a id="ln-2719" name="ln-2719" href="#ln-2719"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">              </span><span class="c">!! File handle</span>
-<a id="ln-2720" name="ln-2720" href="#ln-2720"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
+<a id="ln-2720" name="ln-2720" href="#ln-2720"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
 <a id="ln-2721" name="ln-2721" href="#ln-2721"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">         </span><span class="c">!! Year-month-day, e.g., 19971003</span>
 <a id="ln-2722" name="ln-2722" href="#ln-2722"></a><span class="w">      </span><span class="kt">integer          </span><span class="n">hhmmss</span><span class="w">         </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 <a id="ln-2723" name="ln-2723" href="#ln-2723"></a><span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">              </span><span class="c">!! size of longitudinal dimension</span>
@@ -2955,29 +2955,29 @@
 <a id="ln-2732" name="ln-2732" href="#ln-2732"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-2733" name="ln-2733" href="#ln-2733"></a><span class="c">!</span>
 <a id="ln-2734" name="ln-2734" href="#ln-2734"></a><span class="w">      </span><span class="kt">real         </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data read for this time</span>
-<a id="ln-2735" name="ln-2735" href="#ln-2735"></a><span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:     </span>
-<a id="ln-2736" name="ln-2736" href="#ln-2736"></a><span class="w">                         </span><span class="c">!!  rc = 0   all is well     </span>
-<a id="ln-2737" name="ln-2737" href="#ln-2737"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
-<a id="ln-2738" name="ln-2738" href="#ln-2738"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
-<a id="ln-2739" name="ln-2739" href="#ln-2739"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
-<a id="ln-2740" name="ln-2740" href="#ln-2740"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
-<a id="ln-2741" name="ln-2741" href="#ln-2741"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
-<a id="ln-2742" name="ln-2742" href="#ln-2742"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
-<a id="ln-2743" name="ln-2743" href="#ln-2743"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
-<a id="ln-2744" name="ln-2744" href="#ln-2744"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
-<a id="ln-2745" name="ln-2745" href="#ln-2745"></a><span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable     </span>
-<a id="ln-2746" name="ln-2746" href="#ln-2746"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-2747" name="ln-2747" href="#ln-2747"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-2748" name="ln-2748" href="#ln-2748"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-2749" name="ln-2749" href="#ln-2749"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
-<a id="ln-2750" name="ln-2750" href="#ln-2750"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
-<a id="ln-2751" name="ln-2751" href="#ln-2751"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
-<a id="ln-2752" name="ln-2752" href="#ln-2752"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
-<a id="ln-2753" name="ln-2753" href="#ln-2753"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<a id="ln-2754" name="ln-2754" href="#ln-2754"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
-<a id="ln-2755" name="ln-2755" href="#ln-2755"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
-<a id="ln-2756" name="ln-2756" href="#ln-2756"></a><span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE     </span>
-<a id="ln-2757" name="ln-2757" href="#ln-2757"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
+<a id="ln-2735" name="ln-2735" href="#ln-2735"></a><span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:</span>
+<a id="ln-2736" name="ln-2736" href="#ln-2736"></a><span class="w">                         </span><span class="c">!!  rc = 0   all is well</span>
+<a id="ln-2737" name="ln-2737" href="#ln-2737"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<a id="ln-2738" name="ln-2738" href="#ln-2738"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file</span>
+<a id="ln-2739" name="ln-2739" href="#ln-2739"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<a id="ln-2740" name="ln-2740" href="#ln-2740"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<a id="ln-2741" name="ln-2741" href="#ln-2741"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<a id="ln-2742" name="ln-2742" href="#ln-2742"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<a id="ln-2743" name="ln-2743" href="#ln-2743"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<a id="ln-2744" name="ln-2744" href="#ln-2744"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<a id="ln-2745" name="ln-2745" href="#ln-2745"></a><span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable</span>
+<a id="ln-2746" name="ln-2746" href="#ln-2746"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-2747" name="ln-2747" href="#ln-2747"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-2748" name="ln-2748" href="#ln-2748"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-2749" name="ln-2749" href="#ln-2749"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
+<a id="ln-2750" name="ln-2750" href="#ln-2750"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<a id="ln-2751" name="ln-2751" href="#ln-2751"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
+<a id="ln-2752" name="ln-2752" href="#ln-2752"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
+<a id="ln-2753" name="ln-2753" href="#ln-2753"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<a id="ln-2754" name="ln-2754" href="#ln-2754"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
+<a id="ln-2755" name="ln-2755" href="#ln-2755"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR</span>
+<a id="ln-2756" name="ln-2756" href="#ln-2756"></a><span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE</span>
+<a id="ln-2757" name="ln-2757" href="#ln-2757"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
 <a id="ln-2758" name="ln-2758" href="#ln-2758"></a>
 <a id="ln-2759" name="ln-2759" href="#ln-2759"></a><span class="c">!</span>
 <a id="ln-2760" name="ln-2760" href="#ln-2760"></a><span class="c">!-------------------------------------------------------------------------</span>
@@ -2991,10 +2991,10 @@
 <a id="ln-2768" name="ln-2768" href="#ln-2768"></a>
 <a id="ln-2769" name="ln-2769" href="#ln-2769"></a><span class="c">! Variables for working with dimensions</span>
 <a id="ln-2770" name="ln-2770" href="#ln-2770"></a>
-<a id="ln-2771" name="ln-2771" href="#ln-2771"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
-<a id="ln-2772" name="ln-2772" href="#ln-2772"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
-<a id="ln-2773" name="ln-2773" href="#ln-2773"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
-<a id="ln-2774" name="ln-2774" href="#ln-2774"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<a id="ln-2771" name="ln-2771" href="#ln-2771"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-2772" name="ln-2772" href="#ln-2772"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
+<a id="ln-2773" name="ln-2773" href="#ln-2773"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
+<a id="ln-2774" name="ln-2774" href="#ln-2774"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <a id="ln-2775" name="ln-2775" href="#ln-2775"></a><span class="w">      </span><span class="kt">integer </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="w"></span>
 <a id="ln-2776" name="ln-2776" href="#ln-2776"></a><span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="n">nvars</span><span class="p">,</span><span class="n">ngatts</span><span class="w"></span>
 <a id="ln-2777" name="ln-2777" href="#ln-2777"></a><span class="w">      </span><span class="kt">integer </span><span class="n">varType</span><span class="p">,</span><span class="w"> </span><span class="n">myIndex</span><span class="w"></span>
@@ -3022,7 +3022,7 @@
 <a id="ln-2799" name="ln-2799" href="#ln-2799"></a>
 <a id="ln-2800" name="ln-2800" href="#ln-2800"></a>
 <a id="ln-2801" name="ln-2801" href="#ln-2801"></a><span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<a id="ln-2802" name="ln-2802" href="#ln-2802"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<a id="ln-2802" name="ln-2802" href="#ln-2802"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 <a id="ln-2803" name="ln-2803" href="#ln-2803"></a>
 <a id="ln-2804" name="ln-2804" href="#ln-2804"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-2805" name="ln-2805" href="#ln-2805"></a><span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_GetVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -3307,7 +3307,7 @@
 <a id="ln-3084" name="ln-3084" href="#ln-3084"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-3085" name="ln-3085" href="#ln-3085"></a><span class="c">!</span>
 <a id="ln-3086" name="ln-3086" href="#ln-3086"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">              </span><span class="c">!! File handle</span>
-<a id="ln-3087" name="ln-3087" href="#ln-3087"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
+<a id="ln-3087" name="ln-3087" href="#ln-3087"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
 <a id="ln-3088" name="ln-3088" href="#ln-3088"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">         </span><span class="c">!! Year-month-day, e.g., 19971003</span>
 <a id="ln-3089" name="ln-3089" href="#ln-3089"></a><span class="w">      </span><span class="kt">integer          </span><span class="n">hhmmss</span><span class="w">         </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 <a id="ln-3090" name="ln-3090" href="#ln-3090"></a><span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">              </span><span class="c">!! size of longitudinal dimension</span>
@@ -3323,29 +3323,29 @@
 <a id="ln-3100" name="ln-3100" href="#ln-3100"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-3101" name="ln-3101" href="#ln-3101"></a><span class="c">!</span>
 <a id="ln-3102" name="ln-3102" href="#ln-3102"></a><span class="w">      </span><span class="kt">real         </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data read for this time</span>
-<a id="ln-3103" name="ln-3103" href="#ln-3103"></a><span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:     </span>
-<a id="ln-3104" name="ln-3104" href="#ln-3104"></a><span class="w">                         </span><span class="c">!!  rc = 0   all is well     </span>
-<a id="ln-3105" name="ln-3105" href="#ln-3105"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
-<a id="ln-3106" name="ln-3106" href="#ln-3106"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
-<a id="ln-3107" name="ln-3107" href="#ln-3107"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
-<a id="ln-3108" name="ln-3108" href="#ln-3108"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
-<a id="ln-3109" name="ln-3109" href="#ln-3109"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
-<a id="ln-3110" name="ln-3110" href="#ln-3110"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
-<a id="ln-3111" name="ln-3111" href="#ln-3111"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
-<a id="ln-3112" name="ln-3112" href="#ln-3112"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
-<a id="ln-3113" name="ln-3113" href="#ln-3113"></a><span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable     </span>
-<a id="ln-3114" name="ln-3114" href="#ln-3114"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-3115" name="ln-3115" href="#ln-3115"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-3116" name="ln-3116" href="#ln-3116"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-3117" name="ln-3117" href="#ln-3117"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
-<a id="ln-3118" name="ln-3118" href="#ln-3118"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
-<a id="ln-3119" name="ln-3119" href="#ln-3119"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
-<a id="ln-3120" name="ln-3120" href="#ln-3120"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
-<a id="ln-3121" name="ln-3121" href="#ln-3121"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<a id="ln-3122" name="ln-3122" href="#ln-3122"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
-<a id="ln-3123" name="ln-3123" href="#ln-3123"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
-<a id="ln-3124" name="ln-3124" href="#ln-3124"></a><span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE     </span>
-<a id="ln-3125" name="ln-3125" href="#ln-3125"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
+<a id="ln-3103" name="ln-3103" href="#ln-3103"></a><span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:</span>
+<a id="ln-3104" name="ln-3104" href="#ln-3104"></a><span class="w">                         </span><span class="c">!!  rc = 0   all is well</span>
+<a id="ln-3105" name="ln-3105" href="#ln-3105"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<a id="ln-3106" name="ln-3106" href="#ln-3106"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file</span>
+<a id="ln-3107" name="ln-3107" href="#ln-3107"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<a id="ln-3108" name="ln-3108" href="#ln-3108"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<a id="ln-3109" name="ln-3109" href="#ln-3109"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<a id="ln-3110" name="ln-3110" href="#ln-3110"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<a id="ln-3111" name="ln-3111" href="#ln-3111"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<a id="ln-3112" name="ln-3112" href="#ln-3112"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<a id="ln-3113" name="ln-3113" href="#ln-3113"></a><span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable</span>
+<a id="ln-3114" name="ln-3114" href="#ln-3114"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-3115" name="ln-3115" href="#ln-3115"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-3116" name="ln-3116" href="#ln-3116"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-3117" name="ln-3117" href="#ln-3117"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
+<a id="ln-3118" name="ln-3118" href="#ln-3118"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<a id="ln-3119" name="ln-3119" href="#ln-3119"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
+<a id="ln-3120" name="ln-3120" href="#ln-3120"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
+<a id="ln-3121" name="ln-3121" href="#ln-3121"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<a id="ln-3122" name="ln-3122" href="#ln-3122"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
+<a id="ln-3123" name="ln-3123" href="#ln-3123"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR</span>
+<a id="ln-3124" name="ln-3124" href="#ln-3124"></a><span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE</span>
+<a id="ln-3125" name="ln-3125" href="#ln-3125"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
 <a id="ln-3126" name="ln-3126" href="#ln-3126"></a><span class="c">!</span>
 <a id="ln-3127" name="ln-3127" href="#ln-3127"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-3128" name="ln-3128" href="#ln-3128"></a>
@@ -3359,9 +3359,9 @@
 <a id="ln-3136" name="ln-3136" href="#ln-3136"></a>
 <a id="ln-3137" name="ln-3137" href="#ln-3137"></a><span class="c">! Variables for working with dimensions</span>
 <a id="ln-3138" name="ln-3138" href="#ln-3138"></a>
-<a id="ln-3139" name="ln-3139" href="#ln-3139"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
-<a id="ln-3140" name="ln-3140" href="#ln-3140"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
-<a id="ln-3141" name="ln-3141" href="#ln-3141"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<a id="ln-3139" name="ln-3139" href="#ln-3139"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-3140" name="ln-3140" href="#ln-3140"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
+<a id="ln-3141" name="ln-3141" href="#ln-3141"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <a id="ln-3142" name="ln-3142" href="#ln-3142"></a><span class="w">      </span><span class="kt">integer </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="w"></span>
 <a id="ln-3143" name="ln-3143" href="#ln-3143"></a><span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="n">nvars</span><span class="p">,</span><span class="n">ngatts</span><span class="w"></span>
 <a id="ln-3144" name="ln-3144" href="#ln-3144"></a><span class="w">      </span><span class="kt">integer </span><span class="n">varType</span><span class="w"></span>
@@ -3391,7 +3391,7 @@
 <a id="ln-3168" name="ln-3168" href="#ln-3168"></a><span class="w">      </span><span class="n">edges</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-3169" name="ln-3169" href="#ln-3169"></a>
 <a id="ln-3170" name="ln-3170" href="#ln-3170"></a><span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<a id="ln-3171" name="ln-3171" href="#ln-3171"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<a id="ln-3171" name="ln-3171" href="#ln-3171"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 <a id="ln-3172" name="ln-3172" href="#ln-3172"></a>
 <a id="ln-3173" name="ln-3173" href="#ln-3173"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-3174" name="ln-3174" href="#ln-3174"></a><span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_GetVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,&amp;</span><span class="w"></span>
@@ -3584,7 +3584,7 @@
 <a id="ln-3361" name="ln-3361" href="#ln-3361"></a><span class="w">          </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_VAR</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">vid</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">corner</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3362" name="ln-3362" href="#ln-3362"></a><span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-3363" name="ln-3363" href="#ln-3363"></a><span class="k">            print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;Error reading variable using NF90_GET_VAR&#39;</span><span class="p">,</span><span class="n">rc</span><span class="w"></span>
-<a id="ln-3364" name="ln-3364" href="#ln-3364"></a><span class="w">            </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">NF_STRERROR</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<a id="ln-3364" name="ln-3364" href="#ln-3364"></a><span class="w">            </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">NF90_STRERROR</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3365" name="ln-3365" href="#ln-3365"></a><span class="w">            </span><span class="k">return</span>
 <a id="ln-3366" name="ln-3366" href="#ln-3366"></a><span class="k">          endif</span>
 <a id="ln-3367" name="ln-3367" href="#ln-3367"></a><span class="k">        else if</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">NF90_DOUBLE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">               </span><span class="c">! 64-bit</span>
@@ -3714,7 +3714,7 @@
 <a id="ln-3491" name="ln-3491" href="#ln-3491"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-3492" name="ln-3492" href="#ln-3492"></a><span class="c">!</span>
 <a id="ln-3493" name="ln-3493" href="#ln-3493"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">                 </span><span class="c">!! File handle</span>
-<a id="ln-3494" name="ln-3494" href="#ln-3494"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
+<a id="ln-3494" name="ln-3494" href="#ln-3494"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
 <a id="ln-3495" name="ln-3495" href="#ln-3495"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">            </span><span class="c">!! Year-month-day, e.g., 19971003</span>
 <a id="ln-3496" name="ln-3496" href="#ln-3496"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">hhmmss</span><span class="w">              </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 <a id="ln-3497" name="ln-3497" href="#ln-3497"></a>
@@ -3729,37 +3729,37 @@
 <a id="ln-3506" name="ln-3506" href="#ln-3506"></a>
 <a id="ln-3507" name="ln-3507" href="#ln-3507"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-3508" name="ln-3508" href="#ln-3508"></a>
-<a id="ln-3509" name="ln-3509" href="#ln-3509"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:     </span>
-<a id="ln-3510" name="ln-3510" href="#ln-3510"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
-<a id="ln-3511" name="ln-3511" href="#ln-3511"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
-<a id="ln-3512" name="ln-3512" href="#ln-3512"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
-<a id="ln-3513" name="ln-3513" href="#ln-3513"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
-<a id="ln-3514" name="ln-3514" href="#ln-3514"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
-<a id="ln-3515" name="ln-3515" href="#ln-3515"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
-<a id="ln-3516" name="ln-3516" href="#ln-3516"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
-<a id="ln-3517" name="ln-3517" href="#ln-3517"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
-<a id="ln-3518" name="ln-3518" href="#ln-3518"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
-<a id="ln-3519" name="ln-3519" href="#ln-3519"></a><span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range     </span>
-<a id="ln-3520" name="ln-3520" href="#ln-3520"></a><span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range     </span>
-<a id="ln-3521" name="ln-3521" href="#ln-3521"></a><span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range     </span>
-<a id="ln-3522" name="ln-3522" href="#ln-3522"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-3523" name="ln-3523" href="#ln-3523"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-3524" name="ln-3524" href="#ln-3524"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-3525" name="ln-3525" href="#ln-3525"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
-<a id="ln-3526" name="ln-3526" href="#ln-3526"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
-<a id="ln-3527" name="ln-3527" href="#ln-3527"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
-<a id="ln-3528" name="ln-3528" href="#ln-3528"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
-<a id="ln-3529" name="ln-3529" href="#ln-3529"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<a id="ln-3530" name="ln-3530" href="#ln-3530"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
-<a id="ln-3531" name="ln-3531" href="#ln-3531"></a><span class="w">                         </span><span class="c">!!  rc = -45  error from NF90_PUT_VAR     </span>
-<a id="ln-3532" name="ln-3532" href="#ln-3532"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
-<a id="ln-3533" name="ln-3533" href="#ln-3533"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
-<a id="ln-3534" name="ln-3534" href="#ln-3534"></a><span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT     </span>
+<a id="ln-3509" name="ln-3509" href="#ln-3509"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:</span>
+<a id="ln-3510" name="ln-3510" href="#ln-3510"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well</span>
+<a id="ln-3511" name="ln-3511" href="#ln-3511"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<a id="ln-3512" name="ln-3512" href="#ln-3512"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file</span>
+<a id="ln-3513" name="ln-3513" href="#ln-3513"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<a id="ln-3514" name="ln-3514" href="#ln-3514"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<a id="ln-3515" name="ln-3515" href="#ln-3515"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<a id="ln-3516" name="ln-3516" href="#ln-3516"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<a id="ln-3517" name="ln-3517" href="#ln-3517"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<a id="ln-3518" name="ln-3518" href="#ln-3518"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<a id="ln-3519" name="ln-3519" href="#ln-3519"></a><span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range</span>
+<a id="ln-3520" name="ln-3520" href="#ln-3520"></a><span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range</span>
+<a id="ln-3521" name="ln-3521" href="#ln-3521"></a><span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range</span>
+<a id="ln-3522" name="ln-3522" href="#ln-3522"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-3523" name="ln-3523" href="#ln-3523"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-3524" name="ln-3524" href="#ln-3524"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-3525" name="ln-3525" href="#ln-3525"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
+<a id="ln-3526" name="ln-3526" href="#ln-3526"></a><span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<a id="ln-3527" name="ln-3527" href="#ln-3527"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
+<a id="ln-3528" name="ln-3528" href="#ln-3528"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
+<a id="ln-3529" name="ln-3529" href="#ln-3529"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<a id="ln-3530" name="ln-3530" href="#ln-3530"></a><span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
+<a id="ln-3531" name="ln-3531" href="#ln-3531"></a><span class="w">                         </span><span class="c">!!  rc = -45  error from NF90_PUT_VAR</span>
+<a id="ln-3532" name="ln-3532" href="#ln-3532"></a><span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR</span>
+<a id="ln-3533" name="ln-3533" href="#ln-3533"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
+<a id="ln-3534" name="ln-3534" href="#ln-3534"></a><span class="w">                         </span><span class="c">!!  rc = -53  error from NF90_GET_ATT</span>
 <a id="ln-3535" name="ln-3535" href="#ln-3535"></a><span class="c">!</span>
 <a id="ln-3536" name="ln-3536" href="#ln-3536"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-3537" name="ln-3537" href="#ln-3537"></a>
 <a id="ln-3538" name="ln-3538" href="#ln-3538"></a><span class="w">      </span><span class="kt">integer </span><span class="n">timeid</span><span class="p">,</span><span class="w"> </span><span class="n">timeDimId</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">timeType</span><span class="w"></span>
-<a id="ln-3539" name="ln-3539" href="#ln-3539"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-3539" name="ln-3539" href="#ln-3539"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
 <a id="ln-3540" name="ln-3540" href="#ln-3540"></a><span class="w">      </span><span class="kt">integer </span><span class="n">corner</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">edges</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3541" name="ln-3541" href="#ln-3541"></a><span class="w">      </span><span class="kt">integer </span><span class="n">vid</span><span class="w"></span>
 <a id="ln-3542" name="ln-3542" href="#ln-3542"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="n">seconds</span><span class="w"></span>
@@ -3781,7 +3781,7 @@
 <a id="ln-3558" name="ln-3558" href="#ln-3558"></a>
 <a id="ln-3559" name="ln-3559" href="#ln-3559"></a><span class="c">! Variables for NF90_INQUIRE_VARIABLE</span>
 <a id="ln-3560" name="ln-3560" href="#ln-3560"></a>
-<a id="ln-3561" name="ln-3561" href="#ln-3561"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<a id="ln-3561" name="ln-3561" href="#ln-3561"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <a id="ln-3562" name="ln-3562" href="#ln-3562"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vdims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="w"></span>
 <a id="ln-3563" name="ln-3563" href="#ln-3563"></a>
 <a id="ln-3564" name="ln-3564" href="#ln-3564"></a><span class="c">! Variables for packing and range checking</span>
@@ -3799,7 +3799,7 @@
 <a id="ln-3576" name="ln-3576" href="#ln-3576"></a><span class="w">      </span><span class="n">outPRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <a id="ln-3577" name="ln-3577" href="#ln-3577"></a>
 <a id="ln-3578" name="ln-3578" href="#ln-3578"></a><span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<a id="ln-3579" name="ln-3579" href="#ln-3579"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<a id="ln-3579" name="ln-3579" href="#ln-3579"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 <a id="ln-3580" name="ln-3580" href="#ln-3580"></a>
 <a id="ln-3581" name="ln-3581" href="#ln-3581"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-3582" name="ln-3582" href="#ln-3582"></a><span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_PutVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,&amp;</span><span class="w"></span>
@@ -4143,7 +4143,7 @@
 <a id="ln-3920" name="ln-3920" href="#ln-3920"></a><span class="w">      </span><span class="kt">integer </span><span class="n">year2</span><span class="p">,</span><span class="n">mon2</span><span class="p">,</span><span class="n">day2</span><span class="p">,</span><span class="n">hour2</span><span class="p">,</span><span class="n">min2</span><span class="p">,</span><span class="n">sec2</span><span class="w"></span>
 <a id="ln-3921" name="ln-3921" href="#ln-3921"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="n">julian1</span><span class="w"></span>
 <a id="ln-3922" name="ln-3922" href="#ln-3922"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="n">julsec</span><span class="p">,</span><span class="w"> </span><span class="n">remainder</span><span class="w"></span>
-<a id="ln-3923" name="ln-3923" href="#ln-3923"></a><span class="w">      </span><span class="c">!character*8 dateString</span>
+<a id="ln-3923" name="ln-3923" href="#ln-3923"></a><span class="w">      </span><span class="c">!character(len=8) dateString</span>
 <a id="ln-3924" name="ln-3924" href="#ln-3924"></a>
 <a id="ln-3925" name="ln-3925" href="#ln-3925"></a><span class="c">! Error checking.</span>
 <a id="ln-3926" name="ln-3926" href="#ln-3926"></a>
@@ -4281,7 +4281,7 @@
 <a id="ln-4058" name="ln-4058" href="#ln-4058"></a>
 <a id="ln-4059" name="ln-4059" href="#ln-4059"></a><span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="w"> </span><span class="n">recdim</span><span class="p">,</span><span class="w"> </span><span class="n">ngatts</span><span class="w"></span>
 <a id="ln-4060" name="ln-4060" href="#ln-4060"></a><span class="w">      </span><span class="kt">integer </span><span class="n">varType</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">vDims</span><span class="p">(</span><span class="n">MAXVDIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="w"></span>
-<a id="ln-4061" name="ln-4061" href="#ln-4061"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">vnameTemp</span><span class="w"></span>
+<a id="ln-4061" name="ln-4061" href="#ln-4061"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">vnameTemp</span><span class="w"></span>
 <a id="ln-4062" name="ln-4062" href="#ln-4062"></a><span class="w">      </span><span class="kt">integer </span><span class="n">i</span><span class="w"></span>
 <a id="ln-4063" name="ln-4063" href="#ln-4063"></a><span class="w">      </span><span class="kt">integer </span><span class="n">attType</span><span class="p">,</span><span class="w"> </span><span class="n">attLen</span><span class="w"></span>
 <a id="ln-4064" name="ln-4064" href="#ln-4064"></a><span class="w">      </span><span class="kt">integer </span><span class="n">allVars</span><span class="w">            </span><span class="c">! all variables - includes dimension vars</span>
@@ -4863,12 +4863,12 @@
 <a id="ln-4640" name="ln-4640" href="#ln-4640"></a><span class="c">!</span>
 <a id="ln-4641" name="ln-4641" href="#ln-4641"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-4642" name="ln-4642" href="#ln-4642"></a><span class="c">!</span>
-<a id="ln-4643" name="ln-4643" href="#ln-4643"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:       </span>
-<a id="ln-4644" name="ln-4644" href="#ln-4644"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well  </span>
-<a id="ln-4645" name="ln-4645" href="#ln-4645"></a><span class="w">                         </span><span class="c">!!  </span>
-<a id="ln-4646" name="ln-4646" href="#ln-4646"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors  </span>
-<a id="ln-4647" name="ln-4647" href="#ln-4647"></a><span class="w">                         </span><span class="c">!!  -------------  </span>
-<a id="ln-4648" name="ln-4648" href="#ln-4648"></a><span class="w">                         </span><span class="c">!!   rc = -54  error from ncclos (file close)  </span>
+<a id="ln-4643" name="ln-4643" href="#ln-4643"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-4644" name="ln-4644" href="#ln-4644"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-4645" name="ln-4645" href="#ln-4645"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-4646" name="ln-4646" href="#ln-4646"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-4647" name="ln-4647" href="#ln-4647"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-4648" name="ln-4648" href="#ln-4648"></a><span class="w">                         </span><span class="c">!!   rc = -54  error from ncclos (file close)</span>
 <a id="ln-4649" name="ln-4649" href="#ln-4649"></a><span class="c">!</span>
 <a id="ln-4650" name="ln-4650" href="#ln-4650"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-4651" name="ln-4651" href="#ln-4651"></a>
@@ -4911,7 +4911,7 @@
 <a id="ln-4688" name="ln-4688" href="#ln-4688"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-4689" name="ln-4689" href="#ln-4689"></a><span class="c">!</span>
 <a id="ln-4690" name="ln-4690" href="#ln-4690"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-4691" name="ln-4691" href="#ln-4691"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-4691" name="ln-4691" href="#ln-4691"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-4692" name="ln-4692" href="#ln-4692"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of integers to write</span>
 <a id="ln-4693" name="ln-4693" href="#ln-4693"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with integer values</span>
 <a id="ln-4694" name="ln-4694" href="#ln-4694"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">prec</span><span class="w">       </span><span class="c">!! Desired precision of attribute value:</span>
@@ -5028,7 +5028,7 @@
 <a id="ln-4805" name="ln-4805" href="#ln-4805"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-4806" name="ln-4806" href="#ln-4806"></a><span class="c">!</span>
 <a id="ln-4807" name="ln-4807" href="#ln-4807"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-4808" name="ln-4808" href="#ln-4808"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-4808" name="ln-4808" href="#ln-4808"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-4809" name="ln-4809" href="#ln-4809"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of integers to write</span>
 <a id="ln-4810" name="ln-4810" href="#ln-4810"></a><span class="w">      </span><span class="kt">real           </span><span class="n">buf</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="w"> </span><span class="c">!! Buffer with real values</span>
 <a id="ln-4811" name="ln-4811" href="#ln-4811"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">prec</span><span class="w">       </span><span class="c">!! Desired precision of attribute value:</span>
@@ -5037,15 +5037,15 @@
 <a id="ln-4814" name="ln-4814" href="#ln-4814"></a><span class="c">!</span>
 <a id="ln-4815" name="ln-4815" href="#ln-4815"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-4816" name="ln-4816" href="#ln-4816"></a><span class="c">!</span>
-<a id="ln-4817" name="ln-4817" href="#ln-4817"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
-<a id="ln-4818" name="ln-4818" href="#ln-4818"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-4819" name="ln-4819" href="#ln-4819"></a><span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision     </span>
-<a id="ln-4820" name="ln-4820" href="#ln-4820"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-4821" name="ln-4821" href="#ln-4821"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-4822" name="ln-4822" href="#ln-4822"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-4823" name="ln-4823" href="#ln-4823"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-4824" name="ln-4824" href="#ln-4824"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)     </span>
-<a id="ln-4825" name="ln-4825" href="#ln-4825"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)     </span>
+<a id="ln-4817" name="ln-4817" href="#ln-4817"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-4818" name="ln-4818" href="#ln-4818"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-4819" name="ln-4819" href="#ln-4819"></a><span class="w">                         </span><span class="c">!!   rc = -12  error determining default precision</span>
+<a id="ln-4820" name="ln-4820" href="#ln-4820"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-4821" name="ln-4821" href="#ln-4821"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-4822" name="ln-4822" href="#ln-4822"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-4823" name="ln-4823" href="#ln-4823"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-4824" name="ln-4824" href="#ln-4824"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)</span>
+<a id="ln-4825" name="ln-4825" href="#ln-4825"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)</span>
 <a id="ln-4826" name="ln-4826" href="#ln-4826"></a><span class="c">!</span>
 <a id="ln-4827" name="ln-4827" href="#ln-4827"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-4828" name="ln-4828" href="#ln-4828"></a>
@@ -5131,7 +5131,7 @@
 <a id="ln-4908" name="ln-4908" href="#ln-4908"></a><span class="c">! The routine `EOS_PutCharAtt` ....</span>
 <a id="ln-4909" name="ln-4909" href="#ln-4909"></a><span class="c">!</span>
 <a id="ln-4910" name="ln-4910" href="#ln-4910"></a><span class="c">!#### History</span>
-<a id="ln-4911" name="ln-4911" href="#ln-4911"></a><span class="c">!- 1998.07.30  Lucchesi           Initial interface design. </span>
+<a id="ln-4911" name="ln-4911" href="#ln-4911"></a><span class="c">!- 1998.07.30  Lucchesi           Initial interface design.</span>
 <a id="ln-4912" name="ln-4912" href="#ln-4912"></a><span class="c">!- 1998.07.30  Lucchesi           Initial coding.</span>
 <a id="ln-4913" name="ln-4913" href="#ln-4913"></a><span class="c">!- 1998.09.24  Lucchesi           Changed error handling.</span>
 <a id="ln-4914" name="ln-4914" href="#ln-4914"></a><span class="c">!- 1999.01.29  Lucchesi           Converted API to SD for HDFEOS</span>
@@ -5145,20 +5145,20 @@
 <a id="ln-4922" name="ln-4922" href="#ln-4922"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-4923" name="ln-4923" href="#ln-4923"></a><span class="c">!</span>
 <a id="ln-4924" name="ln-4924" href="#ln-4924"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">        </span><span class="c">!! File handle</span>
-<a id="ln-4925" name="ln-4925" href="#ln-4925"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
+<a id="ln-4925" name="ln-4925" href="#ln-4925"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">name</span><span class="w">       </span><span class="c">!! Name of attribute</span>
 <a id="ln-4926" name="ln-4926" href="#ln-4926"></a><span class="w">      </span><span class="kt">integer        </span><span class="nb">count</span><span class="w">      </span><span class="c">!! Number of characters to write</span>
 <a id="ln-4927" name="ln-4927" href="#ln-4927"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w">      </span><span class="n">buf</span><span class="w"> </span><span class="c">!! Buffer containing string</span>
 <a id="ln-4928" name="ln-4928" href="#ln-4928"></a><span class="c">!</span>
 <a id="ln-4929" name="ln-4929" href="#ln-4929"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-4930" name="ln-4930" href="#ln-4930"></a><span class="c">!</span>
-<a id="ln-4931" name="ln-4931" href="#ln-4931"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:     </span>
-<a id="ln-4932" name="ln-4932" href="#ln-4932"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well     </span>
-<a id="ln-4933" name="ln-4933" href="#ln-4933"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-4934" name="ln-4934" href="#ln-4934"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-4935" name="ln-4935" href="#ln-4935"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-4936" name="ln-4936" href="#ln-4936"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)     </span>
-<a id="ln-4937" name="ln-4937" href="#ln-4937"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)     </span>
-<a id="ln-4938" name="ln-4938" href="#ln-4938"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)     </span>
+<a id="ln-4931" name="ln-4931" href="#ln-4931"></a><span class="w">      </span><span class="kt">integer     </span><span class="n">rc</span><span class="w">     </span><span class="c">!! Error return code:</span>
+<a id="ln-4932" name="ln-4932" href="#ln-4932"></a><span class="w">                         </span><span class="c">!!   rc = 0    all is well</span>
+<a id="ln-4933" name="ln-4933" href="#ln-4933"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-4934" name="ln-4934" href="#ln-4934"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-4935" name="ln-4935" href="#ln-4935"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-4936" name="ln-4936" href="#ln-4936"></a><span class="w">                         </span><span class="c">!!   rc = -36  error from NF90_PUT_ATT (global attribute)</span>
+<a id="ln-4937" name="ln-4937" href="#ln-4937"></a><span class="w">                         </span><span class="c">!!   rc = -55  error from NF90_REDEF (enter define mode)</span>
+<a id="ln-4938" name="ln-4938" href="#ln-4938"></a><span class="w">                         </span><span class="c">!!   rc = -56  error from NF90_ENDDEF (exit define mode)</span>
 <a id="ln-4939" name="ln-4939" href="#ln-4939"></a><span class="c">!</span>
 <a id="ln-4940" name="ln-4940" href="#ln-4940"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-4941" name="ln-4941" href="#ln-4941"></a>
@@ -5230,7 +5230,7 @@
 <a id="ln-5007" name="ln-5007" href="#ln-5007"></a><span class="c">! !INPUT PARAMETERS:</span>
 <a id="ln-5008" name="ln-5008" href="#ln-5008"></a><span class="c">!</span>
 <a id="ln-5009" name="ln-5009" href="#ln-5009"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">                 </span><span class="c">!! File handle</span>
-<a id="ln-5010" name="ln-5010" href="#ln-5010"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
+<a id="ln-5010" name="ln-5010" href="#ln-5010"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">               </span><span class="c">!! Variable name</span>
 <a id="ln-5011" name="ln-5011" href="#ln-5011"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">            </span><span class="c">!! Year-month-day, e.g., 19971003</span>
 <a id="ln-5012" name="ln-5012" href="#ln-5012"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">hhmmss</span><span class="w">              </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 <a id="ln-5013" name="ln-5013" href="#ln-5013"></a>
@@ -5242,48 +5242,48 @@
 <a id="ln-5019" name="ln-5019" href="#ln-5019"></a><span class="w">      </span><span class="kt">real            </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data to write at this time</span>
 <a id="ln-5020" name="ln-5020" href="#ln-5020"></a><span class="w">      </span><span class="kt">logical         </span><span class="n">do_comp</span><span class="w"></span>
 <a id="ln-5021" name="ln-5021" href="#ln-5021"></a><span class="w">      </span><span class="kt">logical         </span><span class="n">do_chunk</span><span class="w"></span>
-<a id="ln-5022" name="ln-5022" href="#ln-5022"></a><span class="w">      </span><span class="kt">integer         </span><span class="n">comp_num</span><span class="w">           </span><span class="c">!! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT    </span>
-<a id="ln-5023" name="ln-5023" href="#ln-5023"></a><span class="w">                                         </span><span class="c">!! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE    </span>
-<a id="ln-5024" name="ln-5024" href="#ln-5024"></a><span class="w">                                         </span><span class="c">!! 5 --COMP_CODE_SZIP    </span>
+<a id="ln-5022" name="ln-5022" href="#ln-5022"></a><span class="w">      </span><span class="kt">integer         </span><span class="n">comp_num</span><span class="w">           </span><span class="c">!! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT</span>
+<a id="ln-5023" name="ln-5023" href="#ln-5023"></a><span class="w">                                         </span><span class="c">!! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE</span>
+<a id="ln-5024" name="ln-5024" href="#ln-5024"></a><span class="w">                                         </span><span class="c">!! 5 --COMP_CODE_SZIP</span>
 <a id="ln-5025" name="ln-5025" href="#ln-5025"></a>
 <a id="ln-5026" name="ln-5026" href="#ln-5026"></a>
 <a id="ln-5027" name="ln-5027" href="#ln-5027"></a><span class="c">! !OUTPUT PARAMETERS:</span>
 <a id="ln-5028" name="ln-5028" href="#ln-5028"></a>
-<a id="ln-5029" name="ln-5029" href="#ln-5029"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:     </span>
-<a id="ln-5030" name="ln-5030" href="#ln-5030"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well     </span>
-<a id="ln-5031" name="ln-5031" href="#ln-5031"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
-<a id="ln-5032" name="ln-5032" href="#ln-5032"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
-<a id="ln-5033" name="ln-5033" href="#ln-5033"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
-<a id="ln-5034" name="ln-5034" href="#ln-5034"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
-<a id="ln-5035" name="ln-5035" href="#ln-5035"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
-<a id="ln-5036" name="ln-5036" href="#ln-5036"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
-<a id="ln-5037" name="ln-5037" href="#ln-5037"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
-<a id="ln-5038" name="ln-5038" href="#ln-5038"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
-<a id="ln-5039" name="ln-5039" href="#ln-5039"></a><span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range     </span>
-<a id="ln-5040" name="ln-5040" href="#ln-5040"></a><span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range     </span>
-<a id="ln-5041" name="ln-5041" href="#ln-5041"></a><span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range     </span>
-<a id="ln-5042" name="ln-5042" href="#ln-5042"></a><span class="w">                         </span><span class="c">!!     </span>
-<a id="ln-5043" name="ln-5043" href="#ln-5043"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<a id="ln-5044" name="ln-5044" href="#ln-5044"></a><span class="w">                         </span><span class="c">!!  -------------     </span>
-<a id="ln-5045" name="ln-5045" href="#ln-5045"></a><span class="w">                         </span><span class="c">!!  rc = -32  error detaching from grid     </span>
-<a id="ln-5046" name="ln-5046" href="#ln-5046"></a><span class="w">                         </span><span class="c">!!  rc = -37  error attaching to grid (HDFEOS)     </span>
-<a id="ln-5047" name="ln-5047" href="#ln-5047"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable) NOTUSED     </span>
-<a id="ln-5048" name="ln-5048" href="#ln-5048"></a><span class="w">                         </span><span class="c">!!  rc = -40  variable not defined     </span>
-<a id="ln-5049" name="ln-5049" href="#ln-5049"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon) NOTUSED     </span>
-<a id="ln-5050" name="ln-5050" href="#ln-5050"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev) NOTUSED     </span>
-<a id="ln-5051" name="ln-5051" href="#ln-5051"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<a id="ln-5052" name="ln-5052" href="#ln-5052"></a><span class="w">                         </span><span class="c">!!  rc = -44  error reading time information     </span>
-<a id="ln-5053" name="ln-5053" href="#ln-5053"></a><span class="w">                         </span><span class="c">!!  rc = -45  error writing data     </span>
-<a id="ln-5054" name="ln-5054" href="#ln-5054"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED     </span>
-<a id="ln-5055" name="ln-5055" href="#ln-5055"></a><span class="w">                         </span><span class="c">!!  rc = -53  error getting variable attributes     </span>
+<a id="ln-5029" name="ln-5029" href="#ln-5029"></a><span class="w">      </span><span class="kt">integer        </span><span class="n">rc</span><span class="w">  </span><span class="c">!! Error return code:</span>
+<a id="ln-5030" name="ln-5030" href="#ln-5030"></a><span class="w">                         </span><span class="c">!!  rc =  0  all is well</span>
+<a id="ln-5031" name="ln-5031" href="#ln-5031"></a><span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<a id="ln-5032" name="ln-5032" href="#ln-5032"></a><span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file</span>
+<a id="ln-5033" name="ln-5033" href="#ln-5033"></a><span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<a id="ln-5034" name="ln-5034" href="#ln-5034"></a><span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<a id="ln-5035" name="ln-5035" href="#ln-5035"></a><span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<a id="ln-5036" name="ln-5036" href="#ln-5036"></a><span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<a id="ln-5037" name="ln-5037" href="#ln-5037"></a><span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<a id="ln-5038" name="ln-5038" href="#ln-5038"></a><span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<a id="ln-5039" name="ln-5039" href="#ln-5039"></a><span class="w">                         </span><span class="c">!!  rc = -15  data outside of valid range</span>
+<a id="ln-5040" name="ln-5040" href="#ln-5040"></a><span class="w">                         </span><span class="c">!!  rc = -16  data outside of packing range</span>
+<a id="ln-5041" name="ln-5041" href="#ln-5041"></a><span class="w">                         </span><span class="c">!!  rc = -17  data outside of pack and valid range</span>
+<a id="ln-5042" name="ln-5042" href="#ln-5042"></a><span class="w">                         </span><span class="c">!!</span>
+<a id="ln-5043" name="ln-5043" href="#ln-5043"></a><span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<a id="ln-5044" name="ln-5044" href="#ln-5044"></a><span class="w">                         </span><span class="c">!!  -------------</span>
+<a id="ln-5045" name="ln-5045" href="#ln-5045"></a><span class="w">                         </span><span class="c">!!  rc = -32  error detaching from grid</span>
+<a id="ln-5046" name="ln-5046" href="#ln-5046"></a><span class="w">                         </span><span class="c">!!  rc = -37  error attaching to grid (HDFEOS)</span>
+<a id="ln-5047" name="ln-5047" href="#ln-5047"></a><span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable) NOTUSED</span>
+<a id="ln-5048" name="ln-5048" href="#ln-5048"></a><span class="w">                         </span><span class="c">!!  rc = -40  variable not defined</span>
+<a id="ln-5049" name="ln-5049" href="#ln-5049"></a><span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon) NOTUSED</span>
+<a id="ln-5050" name="ln-5050" href="#ln-5050"></a><span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev) NOTUSED</span>
+<a id="ln-5051" name="ln-5051" href="#ln-5051"></a><span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<a id="ln-5052" name="ln-5052" href="#ln-5052"></a><span class="w">                         </span><span class="c">!!  rc = -44  error reading time information</span>
+<a id="ln-5053" name="ln-5053" href="#ln-5053"></a><span class="w">                         </span><span class="c">!!  rc = -45  error writing data</span>
+<a id="ln-5054" name="ln-5054" href="#ln-5054"></a><span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED</span>
+<a id="ln-5055" name="ln-5055" href="#ln-5055"></a><span class="w">                         </span><span class="c">!!  rc = -53  error getting variable attributes</span>
 <a id="ln-5056" name="ln-5056" href="#ln-5056"></a>
 <a id="ln-5057" name="ln-5057" href="#ln-5057"></a><span class="c">!</span>
 <a id="ln-5058" name="ln-5058" href="#ln-5058"></a><span class="c">!-------------------------------------------------------------------------</span>
 <a id="ln-5059" name="ln-5059" href="#ln-5059"></a>
 <a id="ln-5060" name="ln-5060" href="#ln-5060"></a><span class="w">      </span><span class="kt">integer </span><span class="n">timeid</span><span class="p">,</span><span class="w"> </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="w"></span>
-<a id="ln-5061" name="ln-5061" href="#ln-5061"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
-<a id="ln-5062" name="ln-5062" href="#ln-5062"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">attrName</span><span class="w"></span>
-<a id="ln-5063" name="ln-5063" href="#ln-5063"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
+<a id="ln-5061" name="ln-5061" href="#ln-5061"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<a id="ln-5062" name="ln-5062" href="#ln-5062"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">attrName</span><span class="w"></span>
+<a id="ln-5063" name="ln-5063" href="#ln-5063"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
 <a id="ln-5064" name="ln-5064" href="#ln-5064"></a><span class="w">      </span><span class="kt">integer </span><span class="n">attrType</span><span class="p">,</span><span class="w"> </span><span class="n">attrCount</span><span class="w"></span>
 <a id="ln-5065" name="ln-5065" href="#ln-5065"></a><span class="w">      </span><span class="kt">integer </span><span class="n">corner</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">edges</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">stride</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
 <a id="ln-5066" name="ln-5066" href="#ln-5066"></a><span class="w">      </span><span class="kt">integer </span><span class="n">dim_chunk</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">origin</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
@@ -5292,7 +5292,7 @@
 <a id="ln-5069" name="ln-5069" href="#ln-5069"></a><span class="w">      </span><span class="kt">integer </span><span class="n">minutes</span><span class="w">                       </span><span class="c">! added as a work-around</span>
 <a id="ln-5070" name="ln-5070" href="#ln-5070"></a><span class="w">      </span><span class="kt">integer </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
 <a id="ln-5071" name="ln-5071" href="#ln-5071"></a><span class="w">      </span><span class="kt">integer </span><span class="n">begDate</span><span class="p">,</span><span class="w"> </span><span class="n">begTime</span><span class="p">,</span><span class="w"> </span><span class="n">timInc</span><span class="w"></span>
-<a id="ln-5072" name="ln-5072" href="#ln-5072"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="mi">8</span><span class="w"> </span><span class="n">strBuf</span><span class="w"></span>
+<a id="ln-5072" name="ln-5072" href="#ln-5072"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="n">strBuf</span><span class="w"></span>
 <a id="ln-5073" name="ln-5073" href="#ln-5073"></a><span class="w">      </span><span class="kt">integer </span><span class="n">hour</span><span class="p">,</span><span class="nb">min</span><span class="p">,</span><span class="n">sec</span><span class="p">,</span><span class="n">incSecs</span><span class="w"></span>
 <a id="ln-5074" name="ln-5074" href="#ln-5074"></a><span class="w">      </span><span class="kt">integer </span><span class="n">rct</span><span class="w"></span>
 <a id="ln-5075" name="ln-5075" href="#ln-5075"></a>
@@ -5307,7 +5307,7 @@
 <a id="ln-5084" name="ln-5084" href="#ln-5084"></a>
 <a id="ln-5085" name="ln-5085" href="#ln-5085"></a><span class="c">! Variables for NF90_INQUIRE_VARIABLE</span>
 <a id="ln-5086" name="ln-5086" href="#ln-5086"></a>
-<a id="ln-5087" name="ln-5087" href="#ln-5087"></a><span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<a id="ln-5087" name="ln-5087" href="#ln-5087"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <a id="ln-5088" name="ln-5088" href="#ln-5088"></a><span class="w">      </span><span class="kt">integer </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="n">nvDims</span><span class="p">,</span><span class="w"> </span><span class="n">dimSizes</span><span class="p">(</span><span class="n">MAX_VAR_DIMS</span><span class="p">),</span><span class="w"> </span><span class="n">nvAtts</span><span class="w"></span>
 <a id="ln-5089" name="ln-5089" href="#ln-5089"></a>
 <a id="ln-5090" name="ln-5090" href="#ln-5090"></a><span class="c">! Variables for packing and range checking</span>
@@ -5368,7 +5368,7 @@
 <a id="ln-5145" name="ln-5145" href="#ln-5145"></a><span class="w">      </span><span class="n">outPRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <a id="ln-5146" name="ln-5146" href="#ln-5146"></a>
 <a id="ln-5147" name="ln-5147" href="#ln-5147"></a><span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<a id="ln-5148" name="ln-5148" href="#ln-5148"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<a id="ln-5148" name="ln-5148" href="#ln-5148"></a><span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 <a id="ln-5149" name="ln-5149" href="#ln-5149"></a>
 <a id="ln-5150" name="ln-5150" href="#ln-5150"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-5151" name="ln-5151" href="#ln-5151"></a><span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;EOS_PutVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -5921,7 +5921,7 @@
 <a id="ln-5698" name="ln-5698" href="#ln-5698"></a><span class="w">       </span><span class="kt">INTEGER </span><span class="k">FUNCTION </span><span class="n">GetSDSid</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">varName</span><span class="p">)</span><span class="w"></span>
 <a id="ln-5699" name="ln-5699" href="#ln-5699"></a><span class="w">       </span><span class="k">IMPLICIT NONE</span>
 <a id="ln-5700" name="ln-5700" href="#ln-5700"></a><span class="k">       </span><span class="kt">integer       </span><span class="n">fid</span><span class="w"></span>
-<a id="ln-5701" name="ln-5701" href="#ln-5701"></a><span class="w">       </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<a id="ln-5701" name="ln-5701" href="#ln-5701"></a><span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <a id="ln-5702" name="ln-5702" href="#ln-5702"></a>
 <a id="ln-5703" name="ln-5703" href="#ln-5703"></a><span class="w">       </span><span class="kt">integer </span><span class="n">sdid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="w"></span>
 <a id="ln-5704" name="ln-5704" href="#ln-5704"></a><span class="w">       </span><span class="kt">integer </span><span class="n">HDFfid</span><span class="p">,</span><span class="w"> </span><span class="n">sd_id</span><span class="w"></span>
@@ -5959,7 +5959,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

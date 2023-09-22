@@ -34,6 +34,7 @@ module MAPL_CapGridCompMod
 #ifdef BUILD_WITH_PFLOGGER
   use mapl_SimulationTime, only: set_reference_clock
 #endif
+  use mpi
 
   use iso_fortran_env
 
@@ -103,8 +104,6 @@ module MAPL_CapGridCompMod
   type :: MAPL_CapGridComp_Wrapper
      type(MAPL_CapGridComp), pointer :: ptr => null()
   end type MAPL_CapGridComp_Wrapper
-
-  include "mpif.h"
 
   character(len=*), parameter :: Iam = __FILE__
 
@@ -190,8 +189,7 @@ contains
     type (extdata_wrap)                   :: wrap
 
 
-    character(len=ESMF_MAXSTR )           :: timerModeStr
-    integer                               :: timerMode
+    character(len=ESMF_MAXSTR )  :: timerModeStr
     type(ESMF_TimeInterval)      :: Frequency
     character(len=ESMF_MAXSTR)   :: ROOT_NAME
 
@@ -1143,7 +1141,7 @@ contains
        if (cap%compute_throughput) then
           call ESMF_VMBarrier(cap%vm,rc=status)
           _VERIFY(status)
-          cap%starts%loop_start_timer = MPI_WTime(status)
+          cap%starts%loop_start_timer = MPI_WTime()
           cap%started_loop_timer = .true.
        end if
 
@@ -1172,7 +1170,7 @@ contains
           if (n == 1 .and. cap%compute_throughput) then
              call ESMF_VMBarrier(cap%vm,rc=status)
              _VERIFY(status)
-             cap%starts%loop_start_timer = MPI_WTime(status)
+             cap%starts%loop_start_timer = MPI_WTime()
           endif
 
        enddo TIME_LOOP ! end of time loop
@@ -1231,10 +1229,10 @@ contains
 
         if (this%compute_throughput) then
            if (.not.this%started_loop_timer) then
-              this%starts%loop_start_timer = MPI_WTime(status)
+              this%starts%loop_start_timer = MPI_WTime()
               this%started_loop_timer=.true.
            end if
-           this%starts%start_timer = MPI_Wtime(status)
+           this%starts%start_timer = MPI_Wtime()
         end if
 
         call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
@@ -1256,7 +1254,7 @@ contains
         if (this%compute_throughput) then
            call ESMF_VMBarrier(this%vm,rc=status)
            _VERIFY(status)
-           this%starts%start_run_timer = MPI_WTime(status)
+           this%starts%start_run_timer = MPI_WTime()
         end if
 
         _RETURN(_SUCCESS)
@@ -1270,7 +1268,7 @@ contains
         if (this%compute_throughput) then
            call ESMF_VMBarrier(this%vm,rc=status)
            _VERIFY(status)
-           end_run_timer = MPI_WTime(status)
+           end_run_timer = MPI_WTime()
         end if
 
         call ESMF_ClockAdvance(this%clock, rc = status)
@@ -1329,7 +1327,7 @@ contains
         ! Call system clock to estimate throughput simulated Days/Day
         call ESMF_VMBarrier( this%vm, RC=STATUS )
         _VERIFY(STATUS)
-        END_TIMER = MPI_Wtime(status)
+        END_TIMER = MPI_Wtime()
         n=this%get_step_counter()
         !GridCompRun Timer [Inst]
         RUN_THROUGHPUT  = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-this%starts%start_run_timer)

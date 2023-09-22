@@ -3,7 +3,6 @@
 module ESMF_CFIOCollectionMod
   use ESMF
   use ESMF_CFIOMod
-  use MAPL_BaseMod, only : MAPL_GridGet
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
   use ESMF_CFIOPtrVectorMod

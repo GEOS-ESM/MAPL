@@ -373,28 +373,28 @@
             <td>::</td>
             <td><strong>rc</strong></td>
             <td>
-                <p>Error return code:   <br>
- rc = 0   all is well   <br>
- rc = -2  time is inconsistent with increment   <br>
- rc = -3  number of levels is incompatible with file   <br>
- rc = -4  im is incompatible with file   <br>
- rc = -5  jm is incompatible with file   <br>
- rc = -6  time must fall on a minute boundary   <br>
- rc = -7  error in diffdate   <br>
- rc = -12  error determining default precision   <br>
- rc = -13  error determining variable type   <br>
- rc = -19  unable to identify coordinate variable     </p>
-<p>NetCDF Errors     </p>
+                <p>Error return code:
+ rc = 0   all is well
+ rc = -2  time is inconsistent with increment
+ rc = -3  number of levels is incompatible with file
+ rc = -4  im is incompatible with file
+ rc = -5  jm is incompatible with file
+ rc = -6  time must fall on a minute boundary
+ rc = -7  error in diffdate
+ rc = -12  error determining default precision
+ rc = -13  error determining variable type
+ rc = -19  unable to identify coordinate variable</p>
+<p>NetCDF Errors</p>
 <hr>
-<p>rc = -38  error from NF90_PUT_VAR (dimension variable)   <br>
- rc = -40  error from NF90_INQ_VARID   <br>
- rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)   <br>
- rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)   <br>
- rc = -43  error from NF90_INQ_VARID (time variable)   <br>
- rc = -44  error from NF90_GET_ATT (time attribute)   <br>
- rc = -46  error from NF90_GET_VAR   <br>
- rc = -48  error from NF90_INQUIRE   <br>
- rc = -52  error from NF90_INQUIRE_VARIABLE     </p>
+<p>rc = -38  error from NF90_PUT_VAR (dimension variable)
+ rc = -40  error from NF90_INQ_VARID
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+ rc = -43  error from NF90_INQ_VARID (time variable)
+ rc = -44  error from NF90_GET_ATT (time attribute)
+ rc = -46  error from NF90_GET_VAR
+ rc = -48  error from NF90_INQUIRE
+ rc = -52  error from NF90_INQUIRE_VARIABLE</p>
             </td>
         </tr>
     </tbody>
@@ -455,7 +455,7 @@
 <span class="c">! !INPUT PARAMETERS:</span>
 <span class="c">!</span>
 <span class="w">      </span><span class="kt">integer        </span><span class="n">fid</span><span class="w">              </span><span class="c">!! File handle</span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">  </span><span class="n">vname</span><span class="w">            </span><span class="c">!! Variable name</span>
 <span class="w">      </span><span class="kt">integer        </span><span class="n">yyyymmdd</span><span class="w">         </span><span class="c">!! Year-month-day, e.g., 19971003</span>
 <span class="w">      </span><span class="kt">integer          </span><span class="n">hhmmss</span><span class="w">         </span><span class="c">!! Hour-minute-second, e.g., 120000</span>
 <span class="w">      </span><span class="kt">integer         </span><span class="n">im</span><span class="w">              </span><span class="c">!! size of longitudinal dimension</span>
@@ -470,29 +470,29 @@
 <span class="c">! !OUTPUT PARAMETERS:</span>
 <span class="c">!</span>
 <span class="w">      </span><span class="kt">real         </span><span class="n">grid</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">kount</span><span class="p">)</span><span class="w">  </span><span class="c">!! Gridded data read for this time</span>
-<span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:     </span>
-<span class="w">                         </span><span class="c">!!  rc = 0   all is well     </span>
-<span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment     </span>
-<span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file     </span>
-<span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file     </span>
-<span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file     </span>
-<span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary     </span>
-<span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate     </span>
-<span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision     </span>
-<span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type     </span>
-<span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable     </span>
-<span class="w">                         </span><span class="c">!!     </span>
-<span class="w">                         </span><span class="c">!!  NetCDF Errors     </span>
-<span class="w">                         </span><span class="c">!!  -------------     </span>
-<span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)     </span>
-<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID     </span>
-<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)     </span>
-<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)     </span>
-<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)     </span>
-<span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)     </span>
-<span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR     </span>
-<span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE     </span>
-<span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE     </span>
+<span class="w">      </span><span class="kt">integer  </span><span class="n">rc</span><span class="w">        </span><span class="c">!! Error return code:</span>
+<span class="w">                         </span><span class="c">!!  rc = 0   all is well</span>
+<span class="w">                         </span><span class="c">!!  rc = -2  time is inconsistent with increment</span>
+<span class="w">                         </span><span class="c">!!  rc = -3  number of levels is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -4  im is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -5  jm is incompatible with file</span>
+<span class="w">                         </span><span class="c">!!  rc = -6  time must fall on a minute boundary</span>
+<span class="w">                         </span><span class="c">!!  rc = -7  error in diffdate</span>
+<span class="w">                         </span><span class="c">!!  rc = -12  error determining default precision</span>
+<span class="w">                         </span><span class="c">!!  rc = -13  error determining variable type</span>
+<span class="w">                         </span><span class="c">!!  rc = -19  unable to identify coordinate variable</span>
+<span class="w">                         </span><span class="c">!!</span>
+<span class="w">                         </span><span class="c">!!  NetCDF Errors</span>
+<span class="w">                         </span><span class="c">!!  -------------</span>
+<span class="w">                         </span><span class="c">!!  rc = -38  error from NF90_PUT_VAR (dimension variable)</span>
+<span class="w">                         </span><span class="c">!!  rc = -40  error from NF90_INQ_VARID</span>
+<span class="w">                         </span><span class="c">!!  rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)</span>
+<span class="w">                         </span><span class="c">!!  rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)</span>
+<span class="w">                         </span><span class="c">!!  rc = -43  error from NF90_INQ_VARID (time variable)</span>
+<span class="w">                         </span><span class="c">!!  rc = -44  error from NF90_GET_ATT (time attribute)</span>
+<span class="w">                         </span><span class="c">!!  rc = -46  error from NF90_GET_VAR</span>
+<span class="w">                         </span><span class="c">!!  rc = -48  error from NF90_INQUIRE</span>
+<span class="w">                         </span><span class="c">!!  rc = -52  error from NF90_INQUIRE_VARIABLE</span>
 
 <span class="c">!</span>
 <span class="c">!-------------------------------------------------------------------------</span>
@@ -506,10 +506,10 @@
 
 <span class="c">! Variables for working with dimensions</span>
 
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="o">*</span><span class="p">(</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimName</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">stdName</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">dimUnits</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAXCHR</span><span class="p">)</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer </span><span class="n">dimSize</span><span class="p">,</span><span class="w"> </span><span class="n">dimId</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer </span><span class="n">nDims</span><span class="p">,</span><span class="n">nvars</span><span class="p">,</span><span class="n">ngatts</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer </span><span class="n">varType</span><span class="p">,</span><span class="w"> </span><span class="n">myIndex</span><span class="w"></span>
@@ -537,7 +537,7 @@
 
 
 <span class="c">! Check to make sure max string lengths are large enough.  NetCDF defines</span>
-<span class="c">! MAXNCNAM, but it can&#39;t be used in a character*MAXNCNAM statement.</span>
+<span class="c">! MAXNCNAM, but it can&#39;t be used in a character(len=MAXNCNAM) statement.</span>
 
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAXCHR</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">MAXNCNAM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">        print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CFIO_GetVar warning: MAXNCNAM is larger than &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -810,7 +810,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

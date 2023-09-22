@@ -40,7 +40,7 @@ module ESMFL_MOD
   private
 
 !
-!ALT These need to be changed 
+!ALT These need to be changed
 !    values here are just to compile
 !
 
@@ -1138,7 +1138,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
 !>
 ! Given a `srcFLD` and its associated `3dGrid` and a `dstFLD` and its associated
-! `3DGrid`, the subroutine `ESMFL_RegridStore` creates their corresponding 
+! `3DGrid`, the subroutine `ESMFL_RegridStore` creates their corresponding
 ! `2DGrids` and a 2D routehandle.
 !
 !#### History
@@ -1641,7 +1641,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
 !>
-! The subroutine `BundleRegrid1` 
+! The subroutine `BundleRegrid1`
 ! regrids members of a bundle using ESMF_FieldRegrid.
 !
 !#### History
@@ -1852,11 +1852,11 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !- 24Apr2006  Cruz  Initial code.
 !
    subroutine BundleRegrid (srcBUN, dstBUN, rc)
-!      
+!
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout)      :: srcBUN !! source bundle
    type(ESMF_FieldBundle), intent(inout)      :: dstBUN !! destination bundle
    integer, optional, intent(out)             :: rc     !! return code
@@ -2151,7 +2151,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------
 !>
-! The subroutine `assign_slices_` 
+! The subroutine `assign_slices_`
 ! determines number of bundle slices per PE and "load balanced"
 ! map of slices-to-pes (slice_pe).
 !
@@ -2985,6 +2985,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 CONTAINS
 
+         logical function spv(aspv, amiss)
+            real, intent(in) :: aspv
+            real, intent(in) :: amiss
+
+            real, parameter :: rfrcval = 1.0e-6
+
+            spv = abs((aspv-amiss)/amiss).le.rfrcval
+         end function spv
+
 !>
 ! Print statistics of one 3-d variable. This is from the PSAS library.
 ! with some simplifications.
@@ -3001,7 +3010,7 @@ CONTAINS
         character(*), intent(in) :: atype       ! Type of the variable
         character(*), intent(in) :: htype       ! Typf of the levels
         real amiss              ! missing value flag of a
-        character*(*) header    ! A header message
+        character(len=*) header    ! A header message
         integer inc             ! order of the listing
         real,optional :: a2(mx,my)        ! The array2
 !
@@ -3016,16 +3025,9 @@ CONTAINS
 !       ..A practical value for the magnitude of the fraction of a real
 !       number.
 
-        real rfrcval
-        parameter(rfrcval=1.e-5)
-
-        character*255 dash
+        character(len=255) dash
 
 !       ..function
-
-        logical spv
-        real aspv
-        spv(aspv)=abs((aspv-amiss)/amiss).le.rfrcval
 
 !       compute diff
         if (present(a2)) then
@@ -3061,7 +3063,7 @@ CONTAINS
           rms=0.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 cnt=cnt+1
                 avg=avg+a(i,j)
                 if(present(a2)) then
@@ -3082,7 +3084,7 @@ CONTAINS
           dev=0.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 d=a(i,j)-avg
                 dev=dev+d*d
               endif
@@ -3095,7 +3097,7 @@ CONTAINS
           first=.true.
           do j=1,my
             do i=1,mx
-              if(.not.spv(a(i,j))) then
+              if(.not.spv(a(i,j),amiss)) then
                 if(first) then
                   imx=i
                   imn=i
@@ -3134,6 +3136,7 @@ CONTAINS
                 amn,'(',imn,',',jmn,')'
 
            endif
+
       end  subroutine stats_
 
    end subroutine BundleDiff
@@ -3143,7 +3146,7 @@ CONTAINS
 !-------------------------------------------------------------------------
 !>
 ! Determine the diff of two state.
-! 
+!
 !#### History
 !- 19Apr2006  Cruz  Initial code.
 !
@@ -3500,7 +3503,7 @@ CONTAINS
    real(kind=ESMF_KIND_R8), pointer :: dst_pr83d(:,:,:)
    type(ESMF_TypeKind_Flag) :: src_tk, dst_tk
    integer                  :: src_fieldRank, dst_fieldRank
-   logical                  :: NotInState,itemNotFound
+   logical                  :: NotInState
    character(len=ESMF_MAXSTR) :: NameInBundle
    type(ESMF_StateItem_Flag) :: itemType
 
@@ -4351,7 +4354,7 @@ CONTAINS
      else
         _FAIL("Unsupported rank when checking for undef")
      end if
-    
+
      _RETURN(_SUCCESS)
   end function
 

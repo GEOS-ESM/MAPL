@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for source files.">51 statements</a>
+               title=" 0.0% of total for source files.">53 statements</a>
           </li>
 
             <li id="source-file">
@@ -258,36 +258,38 @@
 <a id="ln-35" name="ln-35" href="#ln-35"></a>
 <a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span>
 <a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">ClientThread</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MockClientThread</span><span class="w"></span>
-<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">contains</span>
-<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wait</span><span class="w"></span>
-<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">end type </span><span class="n">MockClientThread</span><span class="w"></span>
-<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wait</span><span class="w"></span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">end type </span><span class="n">MockClientThread</span><span class="w"></span>
 <a id="ln-42" name="ln-42" href="#ln-42"></a>
-<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">interface </span><span class="n">MockClientThread</span><span class="w"></span>
-<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_MockClientThread</span><span class="w"></span>
-<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MockClientThread</span><span class="w"></span>
-<a id="ln-46" name="ln-46" href="#ln-46"></a>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="k">contains</span>
-<a id="ln-48" name="ln-48" href="#ln-48"></a>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="k">   function </span><span class="n">new_MockClientThread</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"></span>
-<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClientThread</span><span class="p">),</span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c</span><span class="w"></span>
-<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="k">optional</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sckt</span><span class="w"></span>
-<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">sckt</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">c</span><span class="p">%</span><span class="n">set_connection</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"></span>
-<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_MockClientThread</span><span class="w"></span>
-<a id="ln-54" name="ln-54" href="#ln-54"></a>
-<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">wait</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
-<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">use </span><span class="n">pFIO_AbstractRequestHandleMod</span><span class="w"></span>
-<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MockClientThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
-<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_id</span><span class="w"></span>
-<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractRequestHandle</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handle</span><span class="w"></span>
-<a id="ln-60" name="ln-60" href="#ln-60"></a>
-<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="n">handle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_RequestHandle</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
-<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">call </span><span class="n">handle</span><span class="p">%</span><span class="n">wait</span><span class="p">()</span><span class="w"></span>
-<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">erase_RequestHandle</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
-<a id="ln-64" name="ln-64" href="#ln-64"></a>
-<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">wait</span><span class="w"></span>
-<a id="ln-66" name="ln-66" href="#ln-66"></a>
-<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="k">end module </span><span class="n">pFIO_MockClientThreadMod</span><span class="w"></span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">interface </span><span class="n">MockClientThread</span><span class="w"></span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_MockClientThread</span><span class="w"></span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MockClientThread</span><span class="w"></span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="k">contains</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="k">   function </span><span class="n">new_MockClientThread</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"></span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockClientThread</span><span class="p">),</span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">c</span><span class="w"></span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="k">optional</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sckt</span><span class="w"></span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">sckt</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">c</span><span class="p">%</span><span class="n">set_connection</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"></span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_MockClientThread</span><span class="w"></span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">wait</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">use </span><span class="n">pFIO_AbstractRequestHandleMod</span><span class="w"></span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MockClientThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_id</span><span class="w"></span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractRequestHandle</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">handle</span><span class="w"></span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">counter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="n">handle</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_RequestHandle</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">call </span><span class="n">handle</span><span class="p">%</span><span class="n">wait</span><span class="p">()</span><span class="w"></span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">erase_RequestHandle</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w"> </span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">wait</span><span class="w"></span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="k">end module </span><span class="n">pFIO_MockClientThreadMod</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -306,7 +308,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

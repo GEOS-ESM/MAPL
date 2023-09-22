@@ -50,8 +50,8 @@ contains
 
       allow_missing_file = .not.fail_on_missing_file
 
-      call bracket%get_node('L',was_set=left_was_set) 
-      call bracket%get_node('R',was_set=right_was_set) 
+      call bracket%get_node('L',was_set=left_was_set)
+      call bracket%get_node('R',was_set=right_was_set)
 
       call bracket%set_parameters(intermittent_disable=.false.)
       if (this%persist_closest) then
@@ -77,7 +77,7 @@ contains
          end if
       end if
 
-      call ESMF_TimeIntervalSet(zero,_RC)      
+      call ESMF_TimeIntervalSet(zero,_RC)
       if (this%frequency == zero) then
          current_file = this%file_template
          if (get_left) then
@@ -145,7 +145,9 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   
+
+      _UNUSED_DUMMY(source_time)
+
    end subroutine get_file_bracket
 
    subroutine get_file(this,filename,input_time,shift,allow_missing_file,ghost_time,rc)
@@ -172,14 +174,14 @@ contains
          enddo
          ftime=ftime -this%frequency + shift*this%frequency
       else
-         n = (input_time-this%reff_time)/this%frequency 
+         n = (input_time-this%reff_time)/this%frequency
          ftime = this%reff_time+(n+shift)*this%frequency
       end if
       call fill_grads_template(filename,this%file_template,time=ftime,_RC)
       inquire(file=trim(filename),exist=file_found)
       if (.not.file_found) then
          if (allow_Missing_file) then
-            filename = file_not_found 
+            filename = file_not_found
             if (present(ghost_time)) ghost_time = ftime
          else
             _FAIL("get_file did not file a file using: "//trim(this%file_template))

@@ -69,7 +69,6 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_Config)          :: cf
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth
-         logical :: on_tiles
          integer :: vloc
 
          call ESMF_GridCompGet( GC, NAME=COMP_NAME, CONFIG=CF, _RC )

@@ -57,10 +57,6 @@ contains
       logical, optional, intent(in) :: persist_closest
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
-      _UNUSED_DUMMY(unusable)
-
       this%file_template = file_series%file_template
       this%frequency = file_series%frequency
       this%reff_time = file_series%reff_time
@@ -73,6 +69,9 @@ contains
       else
          this%persist_closest = .false.
       end if
+
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(rc)
 
    end subroutine initialize
 

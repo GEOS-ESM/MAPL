@@ -10,7 +10,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod
-   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridGet, MAPL_GridHasDE
+   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridHasDE
    use MAPL_RegridderSpecRouteHandleMap
    implicit none
    private
@@ -441,8 +441,6 @@ contains
       type (ESMF_Field) :: src_field, dst_field
 
       integer :: km,kin,kout
-      integer :: im_src, jm_src
-      integer :: im_dst, jm_dst
       logical :: hasDE
       type(ESMF_VM) :: vm
 
@@ -452,12 +450,6 @@ contains
 
       km = size(q_in,3)
       _ASSERT(km == size(q_out,3),'inconsistent array shape')
-
-      im_src = size(q_in,1)
-      jm_src = size(q_in,2)
-
-      im_dst = size(q_out,1)
-      jm_dst = size(q_out,2)
 
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
@@ -1367,7 +1359,6 @@ contains
    subroutine initialize_subclass(this, unusable, rc)
      use MAPL_KeywordEnforcerMod
      use MAPL_RegridderSpec
-     use MAPL_BaseMod, only: MAPL_grid_interior
      class (EsmfRegridder), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc

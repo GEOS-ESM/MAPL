@@ -3,9 +3,8 @@
 
 module pFIO_BaseServerMod
    use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, INT32, INT64, REAL64
+   use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod, only: word_size, i_to_string
@@ -180,7 +179,7 @@ contains
 
    subroutine add_connection(this, socket)
       class (BaseServer), target, intent(inout) :: this
-      class (AbstractSocket), intent(in) :: socket
+      class (AbstractSocket), target, intent(in) :: socket
 
       class(ServerThread), pointer :: thread_ptr
       integer :: k
@@ -230,12 +229,14 @@ contains
       class(ServerThread), pointer :: thread_ptr
       integer :: i,n
 
+
       n = this%threads%size()
 
       do i = 1, n
-         thread_ptr=>this%threads%at(i)
+         thread_ptr => this%threads%at(i)
          call thread_ptr%clear_RequestHandle()
       enddo
+
 
    end subroutine clear_RequestHandle
 
@@ -260,7 +261,7 @@ contains
       integer, optional, intent(out) :: rc
       class (AbstractDataReference), pointer :: remotePtr
       integer :: rank
-      integer(KIND=INT64) :: offset, msize_word
+      integer(KIND=INT64) :: msize_word
       integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
       type (MessageVectorIterator) :: iter
       type (StringInteger64MapIterator) :: request_iter
@@ -297,7 +298,6 @@ contains
       !(2) loop to get the total size and offset of each collection and request
       allocate(offsets(collection_total), msize_words(collection_total))
       offsets = 0
-      offset = 0
       iter   = thread_ptr%request_backlog%begin()
       do while (iter /= thread_ptr%request_backlog%end())
          msg => iter%get()

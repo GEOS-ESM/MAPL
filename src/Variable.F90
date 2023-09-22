@@ -12,8 +12,6 @@ module pFIO_VariableMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
-   use, intrinsic :: iso_fortran_env, only: INT32, INT64
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
 
@@ -398,7 +396,6 @@ contains
          integer,intent(in) :: buffer(:)
          integer, optional, intent(out) :: rc
          integer :: n,length, v_type
-         type (UnlimitedEntity) :: const
          integer :: status
 
          n = 1
@@ -422,11 +419,11 @@ contains
          _VERIFY(status)
 
          n = n + length
-         !allocate(const)
+
          call deserialize_intrinsic(buffer(n:),length)
          call UnlimitedEntity_deserialize(buffer(n:(n+length-1)), this%const_value, status)
          _VERIFY(status)
-         !this%const_value = const
+
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%deflation)
          length = serialize_buffer_length(this%deflation)

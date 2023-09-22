@@ -230,9 +230,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
    type(ESMF_State), intent(inout)    :: IMPORT  !! Import State
    type(ESMF_State), intent(inout)    :: EXPORT  !! Export State
-   integer, intent(out)               :: rc      !! Error return code:   
-                                                 !!  0 - all is well      
-                                                 !!  1 -   
+   integer, intent(out)               :: rc      !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 
 !-------------------------------------------------------------------------
 
@@ -481,9 +481,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:   
-                                                 !!  0 - all is well   
-                                                 !!  1 -   
+   integer, intent(out) ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 
 !-------------------------------------------------------------------------
 
@@ -721,9 +721,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:   
-                                                 !!  0 - all is well   
-                                                 !!  1 -   
+   integer, intent(out) ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 
 !-------------------------------------------------------------------------
 
@@ -1742,7 +1742,6 @@ CONTAINS
      character(len=*),intent(in) :: base_name
      integer, optional, intent(out) :: rc
 
-     integer :: status
      character(len=:), pointer :: cname
      integer :: i
      integer, pointer :: num_rules,i_start

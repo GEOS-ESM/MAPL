@@ -201,7 +201,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-fields~6"></span>
+          <span class="anchor" id="variable-fields~9"></span>
           type(<a href='../type/time_fields~2.html'>time_fields</a>)
         </small>
       </h3>
@@ -267,7 +267,7 @@
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MSTOP</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SSTART</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SSTOP</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="w"></span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MS_START</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MS_START</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MS_STOP</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="w"></span>
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">has_millisecond</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pos</span><span class="w"></span>
@@ -289,7 +289,7 @@
 <span class="k">         </span><span class="n">fields</span><span class="p">%</span><span class="n">is_valid_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <span class="w">         </span><span class="k">return</span>
 <span class="k">      end if</span><span class="w"></span>
-<span class="w">      </span>
+
 <span class="w">      </span><span class="c">! Find timezone portion</span>
 <span class="w">      </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">scan</span><span class="p">(</span><span class="n">timestring</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-Z+&#39;</span><span class="p">)</span><span class="w"></span>
 
@@ -345,7 +345,7 @@
 
 <span class="k">      if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">fields</span><span class="p">%</span><span class="n">is_valid_</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
 
-<span class="w">      </span><span class="c">! Read time fields      </span>
+<span class="w">      </span><span class="c">! Read time fields</span>
 <span class="w">      </span><span class="n">fields</span><span class="p">%</span><span class="n">hour_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_whole_number</span><span class="p">(</span><span class="n">undelimited</span><span class="p">(</span><span class="n">HSTART</span><span class="p">:</span><span class="n">HSTOP</span><span class="p">))</span><span class="w"></span>
 <span class="w">      </span><span class="n">fields</span><span class="p">%</span><span class="n">minute_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_whole_number</span><span class="p">(</span><span class="n">undelimited</span><span class="p">(</span><span class="n">MSTART</span><span class="p">:</span><span class="n">MSTOP</span><span class="p">))</span><span class="w"></span>
 <span class="w">      </span><span class="n">fields</span><span class="p">%</span><span class="n">second_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_whole_number</span><span class="p">(</span><span class="n">undelimited</span><span class="p">(</span><span class="n">SSTART</span><span class="p">:</span><span class="n">SSTOP</span><span class="p">))</span><span class="w"></span>
@@ -378,7 +378,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

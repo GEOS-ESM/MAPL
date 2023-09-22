@@ -312,11 +312,11 @@
 <a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">   </span><span class="c">! Failure here is actually a hang.</span>
 <a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="w"></span>
 <a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_return_on_terminate_b</span><span class="p">()</span><span class="w"></span>
-<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span><span class="w"></span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span><span class="w"></span>
 <a id="ln-93" name="ln-93" href="#ln-93"></a>
 <a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockSocketLog</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">log</span>
 <a id="ln-95" name="ln-95" href="#ln-95"></a><span class="nb">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockSocket</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_socket</span><span class="w"></span>
-<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span><span class="w"></span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MockServer</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mock_server</span><span class="w"></span>
 <a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w">       </span>
 <a id="ln-98" name="ln-98" href="#ln-98"></a>
 <a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">client_socket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockSocket</span><span class="p">(</span><span class="nb">log</span><span class="p">)</span><span class="w"></span>
@@ -326,11 +326,11 @@
 <a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">call </span><span class="n">s</span><span class="p">%</span><span class="n">init</span><span class="p">(</span><span class="n">client_socket</span><span class="p">,</span><span class="w"> </span><span class="n">mock_server</span><span class="p">)</span><span class="w"></span>
 <a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="k">call </span><span class="n">s</span><span class="p">%</span><span class="n">set_rank</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
 <a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w"> </span>
-<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="w"> </span><span class="c">! NOT 2. when done is issued, need one more run to receive terminate</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="c">! NOT 2. when done is issued, need one more run to receive terminate</span>
 <a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">         </span><span class="k">call </span><span class="n">s</span><span class="p">%</span><span class="n">run</span><span class="p">()</span><span class="w"></span>
 <a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">enddo</span><span class="w"></span>
 <a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;receive&lt;Done&gt; :: receive&lt;Terminate&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">log</span><span class="p">%</span><span class="nb">log</span><span class="p">)</span><span class="w"></span>
-<a id="ln-110" name="ln-110" href="#ln-110"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">  </span>
 <a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_return_on_terminate_b</span><span class="w"></span>
 <a id="ln-112" name="ln-112" href="#ln-112"></a>
 <a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="w"></span>
@@ -441,7 +441,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

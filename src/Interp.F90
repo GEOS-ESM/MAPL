@@ -1,6 +1,5 @@
 module MAPL_InterpMod
 
-  use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
 
   implicit none

@@ -175,7 +175,7 @@ written is recorded in it during creation.</p>
 <p><em>CLOCK, BUNDLE</em> can be used to override the choice
 made at creation, but this is of dubious value, particularly
 for <em>BUNDLE</em> since it must be excatly conformant with the
-creation <em>BUNDLE</em>. <em>NBITS</em> if the number of bits of 
+creation <em>BUNDLE</em>. <em>NBITS</em> if the number of bits of
 the mantissa to retain. This is used to write files with degraded
 precision, which can then be compressed with standard utilities.
 The default is no degradation of precision.</p>
@@ -191,8 +191,8 @@ classical CF compression by means of <em>scale_factor</em> and
 requires no special handling by the users of the data. In fact,
 they do not even need to know that the data is compressed! At this
 point, <code>MAPL_CFIO</code> does not activate this GZIP compression
-feature in the files being written, but the resulting precision 
-degredaded files can be compressed offline with the HDF-4 
+feature in the files being written, but the resulting precision
+degredaded files can be compressed offline with the HDF-4
 <em>hrepack</em> utility.</p>
 
 
@@ -239,7 +239,7 @@ degredaded files can be compressed offline with the HDF-4
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~151"></span>
+              <span class="anchor" id="variable-rc~169"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -318,7 +318,7 @@ degredaded files can be compressed offline with the HDF-4
 <span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w">             </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">layer</span><span class="p">(:,:),</span><span class="n">ps0</span><span class="p">(:,:)</span><span class="w"></span>
 <span class="w">    </span><span class="kt">logical</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">PrePost_</span><span class="w"></span>
 <span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">globalcount</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span><span class="w"> </span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span><span class="w"></span>
 <span class="c">!                              ---</span>
 <span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">CREATED</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MCFIO%CREATED is false&#39;</span><span class="p">)</span><span class="w"></span>
 
@@ -376,7 +376,7 @@ degredaded files can be compressed offline with the HDF-4
 <span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">regridder</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
 <span class="k">             </span><span class="n">mcfio</span><span class="p">%</span><span class="n">ascending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">ptr3</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;</span><span class="n">ptr3</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
 <span class="w">             </span><span class="k">call </span><span class="n">ArrayGather</span><span class="p">(</span><span class="n">ptr3</span><span class="p">(:,:,</span><span class="nb">ubound</span><span class="p">(</span><span class="n">ptr3</span><span class="p">,</span><span class="mi">3</span><span class="p">)),</span><span class="n">ps0</span><span class="p">,</span><span class="n">mcfio</span><span class="p">%</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"> </span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">end if</span>
 
 <span class="k">       else</span><span class="w"></span>
@@ -408,8 +408,8 @@ degredaded files can be compressed offline with the HDF-4
 <span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">%</span><span class="n">regridder</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
 <span class="k">             </span><span class="n">mcfio</span><span class="p">%</span><span class="n">ascending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">ptrx</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;</span><span class="n">ptrx</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
 <span class="w">             </span><span class="k">call </span><span class="n">ArrayGather</span><span class="p">(</span><span class="n">ptrx</span><span class="p">(:,:,</span><span class="nb">ubound</span><span class="p">(</span><span class="n">ptrx</span><span class="p">,</span><span class="mi">3</span><span class="p">)),</span><span class="n">ps0</span><span class="p">,</span><span class="n">mcfio</span><span class="p">%</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"> </span>
-<span class="w">             </span>
+<span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+
 <span class="w">          </span><span class="k">end if</span>
 <span class="k">          deallocate</span><span class="p">(</span><span class="n">Ptrx</span><span class="p">)</span><span class="w"></span>
 <span class="w">       </span><span class="k">end if</span>
@@ -421,8 +421,8 @@ degredaded files can be compressed offline with the HDF-4
 <span class="k">             call </span><span class="n">mCFIO</span><span class="p">%</span><span class="n">regridder</span><span class="p">%</span><span class="n">regrid</span><span class="p">(</span><span class="n">ps0</span><span class="p">,</span><span class="n">mcfio</span><span class="p">%</span><span class="n">surfaceLayer</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">end if</span>
-<span class="k">         </span>
-<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_ShmInitialized</span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
+
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_ShmInitialized</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">             call </span><span class="n">MAPL_DeAllocNodeArray</span><span class="p">(</span><span class="n">ps0</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">             </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">          </span><span class="k">else</span>
@@ -432,7 +432,7 @@ degredaded files can be compressed offline with the HDF-4
 
 <span class="k">    end if</span>
 
-<span class="k">    call </span><span class="n">MAPL_CFIOSetVectorPairs</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span>
+<span class="k">    call </span><span class="n">MAPL_CFIOSetVectorPairs</span><span class="p">(</span><span class="n">mCFIO</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
 
 <span class="c">! Cycle through all variables posting receives.</span>
@@ -467,7 +467,7 @@ degredaded files can be compressed offline with the HDF-4
 <span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">MCFIO</span><span class="p">%</span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="n">MCFIO</span><span class="p">%</span><span class="n">VARNAME</span><span class="p">(</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="n">FIELD</span><span class="o">=</span><span class="n">FIELD</span><span class="p">,</span><span class="w">                  </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">! We treat only fields with rank 2 (horizontal 2D) and </span>
+<span class="c">! We treat only fields with rank 2 (horizontal 2D) and</span>
 <span class="c">!  rank 3 (first 2 dimension are horz, third is vert).</span>
 <span class="c">!--------------------------------------------------------</span>
 
@@ -551,7 +551,7 @@ degredaded files can be compressed offline with the HDF-4
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

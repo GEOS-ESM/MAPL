@@ -104,7 +104,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.6% of total for procedures.">272 statements</a>
+               title=" 0.6% of total for procedures.">299 statements</a>
           </li>
 
             <li id="source-file">
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, rc)  
+    <h2>public  subroutine MAPL_GetResource_config_scalar(config, val, label, value_is_set, unusable, default, component_name, iunit, rc)  
 </h2>
     
 
@@ -184,7 +184,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-config~21"></span>
+              <span class="anchor" id="variable-config~20"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_config.html'>ESMF_Config</a>),
             </td>
 <td>intent(inout)</td>
@@ -199,7 +199,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-val~5"></span>
+              <span class="anchor" id="variable-val~6"></span>
               class(*),
             </td>
 <td>intent(inout)</td>
@@ -229,7 +229,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-value_is_set~2"></span>
+              <span class="anchor" id="variable-value_is_set~6"></span>
               logical,
             </td>
 <td>intent(out)</td>
@@ -244,7 +244,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-unusable~360"></span>
+              <span class="anchor" id="variable-unusable~362"></span>
               class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
             </td>
 <td>intent(in),</td>
@@ -289,7 +289,22 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1269"></span>
+              <span class="anchor" id="variable-iunit~2"></span>
+              character(len=*),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iunit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1349"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -350,7 +365,7 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_GetResource_config_scalar</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_set</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_GetResource_config_scalar</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_set</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">,</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="n">iunit</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span><span class="w"></span>
 <span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">val</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span><span class="w"></span>
@@ -358,12 +373,13 @@
 <span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
 <span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component_name</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iunit</span><span class="w"></span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">actual_label</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_format</span><span class="w"></span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">type_string</span><span class="w"></span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatted_value</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MAX_LINE_LENGTH</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatted_value</span><span class="w"></span>
 
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">default_is_present</span><span class="w"></span>
 <span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label_is_present</span><span class="w"></span>
@@ -376,15 +392,33 @@
 
 <span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span><span class="w"></span>
 
+<span class="cp">#if defined(IS_ARRAY)</span>
+<span class="cp">#undef IS_ARRAY</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if defined(VALUE_)</span>
+<span class="cp">#undef VALUE_</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#define VALUE_ val</span>
+
+<span class="cp">#if defined(TYPE_)</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#if defined(TYPENUM)</span>
+<span class="cp">#undef TYPENUM</span>
+<span class="cp">#endif</span>
+
 <span class="w">      </span><span class="n">default_is_present</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">default</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="c">! these need to be initialized explitictly </span>
+<span class="w">      </span><span class="c">! these need to be initialized explicitly</span>
 <span class="w">      </span><span class="n">value_is_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <span class="w">      </span><span class="n">label_is_present</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <span class="w">      </span><span class="n">print_nondefault_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <span class="w">      </span><span class="n">do_print</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
 <span class="w">      </span><span class="n">value_is_default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"></span>
-<span class="w">      </span>
+
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">default_is_present</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">same_type_as</span><span class="p">(</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Value and default must have same type&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">end if</span>
@@ -398,66 +432,80 @@
 <span class="k">      end if</span>
 
 <span class="k">      call </span><span class="n">get_print_settings</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">default_is_present</span><span class="p">,</span><span class="w"> </span><span class="n">do_print</span><span class="p">,</span><span class="w"> </span><span class="n">print_nondefault_only</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">   </span>
+
 <span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">SET_VALUE</span><span class="p">(</span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">MAKE_STRINGS</span><span class="p">(</span><span class="kt">integer</span><span class="p">(</span><span class="n">int32</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">TYPE_INT32</span><span class="p">,</span><span class="w"> </span><span class="n">FMT_INT32</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_INTEGER4</span><span class="p">)</span><span class="w"></span>
 
-<span class="k">      </span><span class="n">SET_VALUE</span><span class="p">(</span><span class="kt">integer</span><span class="p">(</span><span class="n">int64</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">MAKE_STRINGS</span><span class="p">(</span><span class="kt">integer</span><span class="p">(</span><span class="n">int64</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">TYPE_INT64</span><span class="p">,</span><span class="w"> </span><span class="n">FMT_INT64</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
+<span class="cp">#define TYPE_ TYPE_INTEGER4</span>
+<span class="cp">#define TYPENUM TYPENUM_INTEGER4</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
 
-<span class="k">      </span><span class="n">SET_VALUE</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">real32</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">MAKE_STRINGS</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">real32</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">TYPE_REAL32</span><span class="p">,</span><span class="w"> </span><span class="n">FMT_REAL32</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
 
-<span class="k">      </span><span class="n">SET_VALUE</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">MAKE_STRINGS</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">TYPE_REAL64</span><span class="p">,</span><span class="w"> </span><span class="n">FMT_REAL64</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_INTEGER8</span><span class="p">)</span><span class="w"></span>
 
-<span class="k">      </span><span class="n">SET_VALUE</span><span class="p">(</span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">MAKE_STRINGS</span><span class="p">(</span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">TYPE_LOGICAL</span><span class="p">,</span><span class="w"> </span><span class="n">FMT_LOGICAL</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">end if</span>
+<span class="cp">#define TYPE_ TYPE_INTEGER8</span>
+<span class="cp">#define TYPENUM TYPENUM_INTEGER8</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
 
-<span class="k">      </span><span class="n">SET_VALUE</span><span class="p">(</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="c">! character value can&#39;t use the MAKE_STRINGS macro (formatted differently)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
-<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">label_is_present</span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
-<span class="k">            if</span><span class="p">(</span><span class="n">default_is_present</span><span class="p">)</span><span class="w"> </span><span class="k">then </span>
-<span class="k">               select type</span><span class="p">(</span><span class="n">default</span><span class="p">)</span><span class="w"> </span>
-<span class="w">               </span><span class="k">type is</span><span class="p">(</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">))</span><span class="w"> </span>
-<span class="w">                  </span><span class="n">value_is_default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">default</span><span class="p">))</span><span class="w"> </span>
-<span class="w">               </span><span class="k">class </span><span class="n">default</span><span class="w"> </span>
-<span class="w">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="n">MISMATCH_MESSAGE</span><span class="p">)</span><span class="w"> </span>
-<span class="w">               </span><span class="k">end select </span>
-<span class="k">            else </span>
-<span class="k">               </span><span class="n">value_is_default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"> </span>
-<span class="w">            </span><span class="k">end if </span>
-<span class="k">         end if </span>
-<span class="k">         if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">print_nondefault_only</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">value_is_default</span><span class="p">))</span><span class="w"> </span><span class="k">then </span>
-<span class="k">            </span><span class="n">type_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TYPE_CHARACTER</span><span class="w"></span>
-<span class="w">            </span><span class="n">formatted_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span>
-<span class="w">         </span><span class="k">else </span>
-<span class="k">            </span><span class="n">do_print</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span><span class="w"> </span>
-<span class="w">         </span><span class="k">end if </span>
-<span class="k">      end if</span>
-<span class="k">      </span>
-<span class="k">      class </span><span class="n">default</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_REAL4</span><span class="p">)</span><span class="w"></span>
+
+<span class="cp">#define TYPE_ TYPE_REAL4</span>
+<span class="cp">#define TYPENUM TYPENUM_REAL4</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_REAL8</span><span class="p">)</span><span class="w"></span>
+
+<span class="cp">#define TYPE_ TYPE_REAL8</span>
+<span class="cp">#define TYPENUM TYPENUM_REAL8</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_LOGICAL</span><span class="p">)</span><span class="w"></span>
+
+<span class="cp">#define TYPE_ TYPE_LOGICAL</span>
+<span class="cp">#define TYPENUM TYPENUM_LOGICAL</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">TYPE_CHARACTER</span><span class="p">)</span><span class="w"></span>
+
+<span class="cp">#define TYPE_ TYPE_CHARACTER</span>
+<span class="cp">#define TYPENUM TYPENUM_CHARACTER</span>
+<span class="cp">#include &quot;MAPL_Resource_SetValue.h&quot;</span>
+<span class="cp">#include &quot;MAPL_Resource_MakeString.h&quot;</span>
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
+
+<span class="w">      </span><span class="k">class </span><span class="n">default</span><span class="w"></span>
 <span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;Unsupported type&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">end select</span>
-<span class="k">      </span>
-<span class="k">      if</span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">print_resource</span><span class="p">(</span><span class="n">type_string</span><span class="p">,</span><span class="w"> </span><span class="n">actual_label</span><span class="p">,</span><span class="w"> </span><span class="n">formatted_value</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_default</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">value_is_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span><span class="w"></span>
+<span class="k">      if</span><span class="p">(</span><span class="n">do_print</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">print_resource</span><span class="p">(</span><span class="n">type_string</span><span class="p">,</span><span class="w"> </span><span class="n">actual_label</span><span class="p">,</span><span class="w"> </span><span class="n">formatted_value</span><span class="p">,</span><span class="w"> </span><span class="n">value_is_default</span><span class="p">,</span><span class="w"> </span><span class="n">iunit</span><span class="o">=</span><span class="n">iunit</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
 
-<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="cp">#undef TYPE_</span>
+<span class="cp">#undef TYPENUM</span>
 
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GetResource_config_scalar</span><span class="w"></span>
 </pre></div>
@@ -480,7 +528,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

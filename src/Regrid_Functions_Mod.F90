@@ -177,7 +177,7 @@
             Call Assert(-1,'Set_fID','fIDIn already set')
          End If
       End If
- 
+
       If (Present(fIDOut)) Then
          If (fIDOutLocal.lt.0) Then
             fIDOutLocal = fIDOut
@@ -224,7 +224,7 @@
          RC = NF90_CLOSE(ncid=fIDInLocal)
          Write(6,'(a,I0.3)') 'Closed input file.  Result: ', RC
       End If
- 
+
       If (fIDOutLocal.gt.-1) Then
          RC = NF90_CLOSE(ncid=fIDOutLocal)
          Write(6,'(a,I0.3)') 'Closed output file. Result: ', RC
@@ -237,7 +237,7 @@
       If (Allocated(JJ_Out))   Deallocate(JJ_Out)
       If (Allocated(W))        Deallocate(W)
       If (Allocated(outSum))   Deallocate(outSum)
- 
+
       End Subroutine Cleanup
 !EOC
 !-----------------------------------------------------------------------
@@ -301,7 +301,7 @@
 
       call readTileFileNC_file(fName, rc=status)
       if (present(rc)) rc = status
-      
+
       end subroutine readTileFileNC
 
       subroutine  readTileFileNC_file(fName, RC)
@@ -356,7 +356,7 @@
       If (nDimIn == 1) Then
          ! Cubed-sphere grid
          I = resInFile(1)
-         resInFile(1) = Int(sqrt(float(I/6)))
+         resInFile(1) = Int(sqrt(real(I/6)))
          resInFile(2) = resInFile(1) * 6
       End If
 
@@ -370,7 +370,7 @@
       If (nDimOut == 1) Then
          ! Cubed-sphere grid
          I = resOutFile(1)
-         resOutFile(1) = Int(sqrt(float(I/6)))
+         resOutFile(1) = Int(sqrt(real(I/6)))
          resOutFile(2) = resOutFile(1) * 6
       End If
 
@@ -454,7 +454,7 @@
       RC = NF90_GET_VAR(ncid=fID, varid=I, values=RTemp)
       W = RTemp
 
-      ! Close the tile file 
+      ! Close the tile file
       RC = NF90_CLOSE(ncid=fID)
 
       ! Remap the cube faces
@@ -689,7 +689,7 @@
 
       ! NOTE: Tile files are little-endian
       Open(File=Trim(fName),Unit=fID,IOStat=status,&
-               FORM='UNFORMATTED',STATUS='OLD',CONVERT='little_endian')
+               FORM='UNFORMATTED',STATUS='OLD')
       If (status/=0) Then
          Write(errMsg,'(a,a,a,I8)') 'Failed to open ',Trim(fName),&
             '. ID: ', status
@@ -715,13 +715,13 @@
          Close(Unit=fID)
          Call Assert(-1,'readTileFile','Bad grid count')
       End If
-      
+
       Do I=1,nGrids
          Read(fID) STemp
          Read(fID) nX(I)
          Read(fID) nY(I)
          gridNameTF(I) = Trim(STemp)
-      End Do 
+      End Do
 
       Found = .False.
       Do I=1,nGrids
@@ -819,7 +819,7 @@
       !Read(fID) RTemp
       !W = RTemp
 
-      ! Close the tile file 
+      ! Close the tile file
       Close(Unit=fID)
 
       ! Allocate the counting variable
@@ -927,8 +927,8 @@
          pole='6C'
          write(gridname,'(a,i4.4,a,a)') dateline,nX,'x',pole
       end if
- 
-      ! Assign outputs 
+
+      ! Assign outputs
       If (present(isCS)) isCS = isCS_
       If (present(isDE)) isDE = isDE_
       If (present(isPC)) isPC = isPC_
@@ -1074,8 +1074,8 @@
              End If
           End If
       End If
-     
-      ! Assign outputs 
+
+      ! Assign outputs
       If (present(isCS)) isCS = isCS_
       If (present(isDE)) isDE = isDE_
       If (present(isPC)) isPC = isPC_
@@ -1133,41 +1133,41 @@
          Else
             ! Simple system
             Do I = 1, nX
-               xVec(I) = Float(I)
+               xVec(I) = real(I)
             End Do
             Do I = 1, nY
-               yVec(I) = Float(I)
+               yVec(I) = real(I)
             End Do
          End If
       Else
-         ! Longitude first 
-         fStride = 360.0/Float(nX)
+         ! Longitude first
+         fStride = 360.0/real(nX)
          If (isDE) Then
             fMin = (-180.0) - (fStride/2.0)
          Else
             fMin = (-180.0) - fStride
          End If
          Do I = 1, nX
-            xVec(I) = fMin + (fStride * Float(I))
+            xVec(I) = fMin + (fStride * real(I))
          End Do
          ! Now latitude
          If (isPC) Then
-            fStride = (180.0 / Float(nY - 1))
+            fStride = (180.0 / real(nY - 1))
             fMin = (-90.0) - fStride
          Else
-            fStride = (180.0 / Float(nY))
+            fStride = (180.0 / real(nY))
             fMin = (-90.0) - (fStride/2.0)
          End If
          Do I = 1, nY
-            yVec(I) = fMin + (fStride * Float(I))
+            yVec(I) = fMin + (fStride * real(I))
          End Do
          If (isPC) Then
             yVec(1)  = (-90.0) + (fStride/4.0)
             yVec(nY) = ( 90.0) - (fStride/4.0)
-         End If 
+         End If
       End If
       If (Present(RC)) RC = RC_
- 
+
       End Subroutine nXYToVec
 !EOC
 !-----------------------------------------------------------------------
@@ -1221,7 +1221,7 @@
       End Do
       If (isOpen) RC_ = -1
       If (Present(RC)) RC = RC_
- 
+
       End Subroutine GetLUN
 !EOC
 !-----------------------------------------------------------------------
@@ -1288,11 +1288,11 @@
             wVal = outSum(iX,iY)
             out2D(iX,iY) = out2D(iX,iY)/wVal
          End If
-      End Do 
+      End Do
       End Do
       If (Present(RC)) RC = 0
- 
-      End Subroutine regridData 
+
+      End Subroutine regridData
 !EOC
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
@@ -1329,7 +1329,7 @@
 !
       Integer            :: fIDGCHP, RC_, I
       Integer            :: resTemp(2)
-      Character(Len=255) :: currLine, strRead 
+      Character(Len=255) :: currLine, strRead
       Logical            :: Found, logRead
 
       !=================================================================
@@ -1381,18 +1381,18 @@
             RC_ = -10
          End If
          resOut = resTemp
- 
+
          ! Input file name
          Read(fIDGCHP,'(a)',IOStat=RC_) currLine
          I = SCAN(currLine,':')
          Read(currLine((I+1):),*,IOStat=RC_) strRead
          fNameIn = Trim(AdjustL(strRead))
- 
+
          ! Output file name
          Read(fIDGCHP,'(a)',IOStat=RC_) currLine
          I = SCAN(currLine,':')
          Read(currLine((I+1):),*,IOStat=RC_) strRead
- 
+
          fNameOut = Trim(AdjustL(strRead))
 
          ! Reverse vertical grid?
@@ -1400,14 +1400,14 @@
          I = SCAN(currLine,':')
          Read(currLine((I+1):),*,IOStat=RC_) logRead
          reverseLev = logRead
-      Else 
+      Else
          ! Report failure
          RC_ = -1
       End If
       Close(Unit=fIDGCHP)
 
       If (Present(RC)) RC = RC_
- 
+
       End Subroutine ReadInput
 !EOC
       End Module Regrid_Functions_Mod

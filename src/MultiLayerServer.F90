@@ -2,10 +2,6 @@
 #include "unused_dummy.H"
 
 module pFIO_MultiLayerServerMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
@@ -145,7 +141,6 @@ contains
      type (MessageVectorIterator) :: iter
      type (StringInteger64MapIterator) :: request_iter
      integer,pointer :: i_ptr(:)
-     type(c_ptr) :: offset_address
      integer :: collection_counter
      class (AbstractDataReference), pointer :: dataRefPtr
      class (RDMAReference), pointer :: remotePtr
@@ -187,7 +182,6 @@ contains
                  if (request_iter == this%stage_offset%end() .and. this%rank == remotePtr%mem_rank ) then ! not read yet
                    ! (1) get address where data should put
                     offset     = this%stage_offset%at(i_to_string(q%request_id))
-                    offset_address   = c_loc(i_ptr(offset+1))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                    !2) forward data to writer
                     forMSG = ForwardDataMessage(q%request_id, q%collection_id, q%file_name, q%var_name, &
@@ -240,11 +234,9 @@ contains
          type (StringAttributeMap), intent(in) :: forwardData
          integer, optional, intent(out) :: rc
 
-         integer :: writer_rank, bsize, ksize, k, rank
+         integer :: writer_rank, bsize
          integer :: command, ierr, MPI_STAT(MPI_STATUS_SIZE)
          integer, allocatable :: buffer(:)
-         integer :: status
-         type (MessageVectorIterator) :: iter
 
 
          command = 1

@@ -3,6 +3,7 @@
 module MAPL_VerticalDataMod
   use ESMF
   use MAPL_BaseMod
+  use MAPL_Profiler
   use pFIO
   use MAPL_AbstractRegridderMod
   use MAPL_ExceptionHandling
@@ -43,6 +44,11 @@ module MAPL_VerticalDataMod
      integer :: regrid_type
      type(ESMF_Field) :: interp_var
      logical :: ascending
+     integer              :: nedge       ! number of edge
+     integer, allocatable :: ks(:,:,:)
+     integer, allocatable :: ks_e(:,:,:) ! edge
+     real,    allocatable :: weight(:,:,:)
+     real,    allocatable :: weight_e(:,:,:) !edge
      contains
         procedure :: append_vertical_metadata
         procedure :: get_interpolating_variable
@@ -106,8 +112,8 @@ module MAPL_VerticalDataMod
         if (present(force_no_regrid)) then
            local_force_no_regrid = force_no_regrid
         else
-           local_force_no_regrid = .false. 
-        end if 
+           local_force_no_regrid = .false.
+        end if
 
         if (.not.present(levels)) then
            if (trim(vdata%positive)=='down') then
@@ -248,24 +254,126 @@ module MAPL_VerticalDataMod
           _VERIFY(status)
        end if
        deallocate(orig_surface_level)
+
+       call init_indices(_RC)
+
        _RETURN(_SUCCESS)
+
+       contains
+          ! initialize for pl3d ( not ple3d)
+          subroutine init_indices(rc)
+            integer, optional, intent(inout) :: rc
+            integer :: status
+            integer :: k, lev, km, D1, D2, levo, km_e
+            integer :: flip_sign, i,j
+            real, allocatable :: pb(:,:), pt(:,:), ple3d(:,:,:)
+            real :: pp
+
+            D1   = size(this%pl3d,1)
+            D2   = size(this%pl3d,2)
+            km   = size(this%pl3d,3)
+            levo = size(this%interp_levels)
+            flip_sign = 1
+            if( .not. this%ascending ) flip_sign = -1
+
+            ! for cell values
+            if(allocated(this%ks))  deallocate(this%ks)
+            if(allocated(this%weight)) deallocate(this%weight)
+            allocate(this%ks(D1,D2,levo),source  = -1)
+            allocate(this%weight(D1,D2,levo),source = 0.0)
+
+            do lev =1, levo
+               pp = flip_sign*this%interp_levels(lev)
+               pb = flip_sign*this%pl3d(:,:,km)
+               do k = km-1, 1,-1 ! levels of input
+                 if(all(pb<pp)) exit
+                 pt = flip_sign*this%pl3d(:,:,k)
+                 where (pp>pt .and. pp<=pb)
+                    this%ks(:,:,lev) = k
+                    this%weight(:,:,lev) = (pb-pp)/(pb-pt)
+                 end where
+                 pb = pt
+               enddo
+            enddo
+            deallocate(this%pl3d) ! not needed any more. release the memory
+
+            ! for edge values
+            if(allocated(this%ks_e))  deallocate(this%ks_e)
+            if(allocated(this%weight_e)) deallocate(this%weight_e)
+            allocate(this%ks_e(D1,D2,levo),source  = -1)
+            allocate(this%weight_e(D1,D2,levo),source = 0.0)
+            km_e = size(this%ple3d,3)
+            this%nedge = km_e
+            allocate(ple3d(D1,D2,km_e))
+            ple3d = this%ple3d 
+            do lev =1, levo
+               pp = flip_sign*this%interp_levels(lev)
+               pb = flip_sign*ple3d(:,:,km_e)
+               do k = km_e-1, 1,-1 ! levels of input
+                 if(all(pb<pp)) exit
+                 pt = flip_sign*ple3d(:,:,k)
+                 where (pp>pt .and. pp<=pb)
+                    this%ks_e(:,:,lev) = k
+                    this%weight_e(:,:,lev) = (pb-pp)/(pb-pt)
+                 end where
+                 pb = pt
+               enddo
+            enddo
+            deallocate(this%ple3d) ! not needed any more. release the memory
+
+            _RETURN(_SUCCESS)
+          end subroutine
 
      end subroutine setup_eta_to_pressure
 
      subroutine regrid_eta_to_pressure(this,ptrin,ptrout,rc)
-        class(verticaldata), intent(inout) :: this
+        class(verticaldata), target, intent(inout) :: this
         real, intent(inout) :: ptrin(:,:,:)
         real, intent(inout) :: ptrout(:,:,:)
         integer, optional, intent(out) :: rc
+        real :: weight
 
         integer :: status
-        integer :: k
+        integer :: i,j,k,lev,levo, D1,D2, km
+        integer, pointer :: ks_(:,:,:)
+        real, pointer    :: weights_(:,:,:)
 
-       do k=1,size(ptrout,3)
-          call vertinterp(ptrout(:,:,k),ptrin,this%interp_levels(k),this%ple3d,this%pl3d,rc=status)
-          _VERIFY(status)
-       end do
-       _RETURN(_SUCCESS)
+        km = size(ptrin,3)
+        if (km == this%nedge -1) then
+           ks_ => this%ks
+           weights_ => this%weight
+        else
+           ks_ => this%ks_e
+           weights_ => this%weight_e
+        endif
+
+        D1   = size(ks_,1)
+        D2   = size(ks_,2)
+        levo = size(ptrout,3)
+        ptrout = MAPL_UNDEF
+        do lev = 1, levo
+          do j = 1, D2
+            do i = 1, D1
+               k = ks_(i,j,lev)
+               if (k == -1) cycle
+               !if (k == km) then
+               !   ptrout(i,j,lev) = ptrin(i,j,k)
+               !   cycle
+               !endif
+               weight = weights_(i,j,lev)
+               if (ptrin(i,j,k)   == MAPL_UNDEF) then
+                  ptrout(i,j,lev) = ptrin(i,j,k+1)
+                  cycle
+               endif
+               if (ptrin(i,j,k+1) == MAPL_UNDEF) then
+                  ptrout(i,j,lev) = ptrin(i,j,k)
+                  cycle
+               endif
+               ptrout(i,j,lev) = ptrin(i,j,k)*weight + ptrin(i,j,k+1)*(1.0-weight)
+            enddo
+          enddo
+        enddo
+        _RETURN(_SUCCESS)
 
      end subroutine regrid_eta_to_pressure
 
@@ -283,6 +391,8 @@ module MAPL_VerticalDataMod
 
         ptrout(:,:,1:km)=ptrin(:,:,km:1:-1)
         _RETURN(_SUCCESS)
+
+        _UNUSED_DUMMY(this)
 
      end subroutine flip_levels
 
@@ -555,81 +665,5 @@ module MAPL_VerticalDataMod
         _RETURN(_SUCCESS)
 
      end subroutine append_vertical_metadata
-
-  subroutine VertInterp(v2,v3,pp,ple_,pl_,rc)
-
-    real,              intent(OUT) :: v2(:,:)
-    real,              intent(IN ) :: v3(:,:,:)
-    real,              intent(IN ) :: pp
-    real,     target,  intent(IN ) :: ple_(:,:,:)
-    real,     target,  intent(IN ) :: pl_(:,:,:)
-    integer, optional, intent(OUT) :: rc
-
-    real, dimension(size(v2,1),size(v2,2)) :: al,PT,PB
-    integer km, K, msn
-    logical flip
-    real    ppx
-    real, pointer   :: plx(:,:,:),pl(:,:,:),ps(:,:)
-
-    integer        :: status
-
-    if(size(v3,3)==size(ple_,3)) then
-       pl => ple_
-       ps => ple_(:,:,ubound(ple_,3))
-    else
-       pl => pl_
-       ps => null()
-    endif
-
-    km   = size(pl,3)
-
-    flip = pl(1,1,2) < pl(1,1,1)
-
-    if(flip) then
-       allocate(plx(size(pl,1),size(pl,2),size(pl,3)),stat=status)
-       _VERIFY(STATUS)
-       plx = -pl
-       ppx = -pp
-       msn = -1
-    else
-       plx => pl
-       ppx = pp
-       msn = 1
-    end if
-
-
-    v2   = MAPL_UNDEF
-
-       pb   = plx(:,:,km)
-       do k=km-1,1,-1
-          pt = plx(:,:,k)
-          if(all(pb<ppx)) exit
-          where(ppx>pt .and. ppx<=pb)
-             al = (pb-ppx)/(pb-pt)
-             where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1)
-             where (v3(:,:,k+1) .eq. MAPL_UNDEF ) v2 = v3(:,:,k)
-             where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  )
-                    v2 = v3(:,:,k)*al + v3(:,:,k+1)*(1.0-al)
-             end where
-          end where
-          pb = pt
-       end do
-
-! Extend Lowest Level Value to the Surface
-! ----------------------------------------
-    if( associated(ps) ) then
-        where( (ppx>plx(:,:,km).and.ppx<=ps*msn) )
-                v2 = v3(:,:,km)
-        end where
-    end if
-
-    if(flip) then
-       deallocate(plx,stat=status)
-       _VERIFY(STATUS)
-    end if
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine VertInterp
-
 
 end module MAPL_VerticalDataMod

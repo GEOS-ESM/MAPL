@@ -8,7 +8,7 @@ module MAPL_ExtDataBracket
    use MAPL_ExtDataNode
    use MAPL_ExtDataConstants
    use MAPL_CommsMod
-   use MAPL_Geom
+   use MAPL_FieldUtils
    implicit none
    private
 

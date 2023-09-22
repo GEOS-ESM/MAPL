@@ -234,7 +234,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~138"></span>
+              <span class="anchor" id="variable-rc~156"></span>
               integer,
             </td>
 <td></td>
@@ -355,7 +355,7 @@
 
 <span class="w">      </span><span class="c">! NOTE: Tile files are little-endian</span>
 <span class="w">      </span><span class="k">Open</span><span class="p">(</span><span class="k">File</span><span class="o">=</span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">),</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">,</span><span class="n">IOStat</span><span class="o">=</span><span class="n">status</span><span class="p">,&amp;</span><span class="w"></span>
-<span class="w">               </span><span class="n">FORM</span><span class="o">=</span><span class="s1">&#39;UNFORMATTED&#39;</span><span class="p">,</span><span class="n">STATUS</span><span class="o">=</span><span class="s1">&#39;OLD&#39;</span><span class="p">,</span><span class="n">CONVERT</span><span class="o">=</span><span class="s1">&#39;little_endian&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">               </span><span class="n">FORM</span><span class="o">=</span><span class="s1">&#39;UNFORMATTED&#39;</span><span class="p">,</span><span class="n">STATUS</span><span class="o">=</span><span class="s1">&#39;OLD&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
 <span class="k">         Write</span><span class="p">(</span><span class="n">errMsg</span><span class="p">,</span><span class="s1">&#39;(a,a,a,I8)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Failed to open &#39;</span><span class="p">,</span><span class="nb">Trim</span><span class="p">(</span><span class="n">fName</span><span class="p">),&amp;</span><span class="w"></span>
 <span class="w">            </span><span class="s1">&#39;. ID: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
@@ -381,13 +381,13 @@
 <span class="k">         Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">Call </span><span class="n">Assert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;readTileFile&#39;</span><span class="p">,</span><span class="s1">&#39;Bad grid count&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">End If</span>
-<span class="k">      </span>
+
 <span class="k">      Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nGrids</span><span class="w"></span>
 <span class="w">         </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">STemp</span><span class="w"></span>
 <span class="w">         </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">nX</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">Read</span><span class="p">(</span><span class="n">fID</span><span class="p">)</span><span class="w"> </span><span class="n">nY</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="n">gridNameTF</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Trim</span><span class="p">(</span><span class="n">STemp</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">End Do </span>
+<span class="w">      </span><span class="k">End Do</span>
 
 <span class="k">      </span><span class="n">Found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">False</span><span class="p">.</span><span class="w"></span>
 <span class="w">      </span><span class="k">Do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nGrids</span><span class="w"></span>
@@ -485,7 +485,7 @@
 <span class="w">      </span><span class="c">!Read(fID) RTemp</span>
 <span class="w">      </span><span class="c">!W = RTemp</span>
 
-<span class="w">      </span><span class="c">! Close the tile file </span>
+<span class="w">      </span><span class="c">! Close the tile file</span>
 <span class="w">      </span><span class="k">Close</span><span class="p">(</span><span class="n">Unit</span><span class="o">=</span><span class="n">fID</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="c">! Allocate the counting variable</span>
@@ -517,7 +517,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

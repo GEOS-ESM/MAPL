@@ -53,17 +53,17 @@ module MAPL_ErrorHandlingMod
       module procedure MAPL_VRFY
       module procedure MAPL_VRFYt
    end interface MAPL_VRFY
-   
+
    interface MAPL_ASRT
       module procedure MAPL_ASRT
       module procedure MAPL_ASRTt
    end interface MAPL_ASRT
-   
+
    interface MAPL_RTRN
       module procedure MAPL_RTRN
       module procedure MAPL_RTRNt
    end interface MAPL_RTRN
-   
+
 contains
 
 
@@ -94,7 +94,7 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc ! Not present in MAIN
       character(:), allocatable :: message
-      
+
       fail = .not. condition
 
       if (fail) then
@@ -129,11 +129,11 @@ contains
          !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
-      
+
    end function MAPL_Verify
 
 
-   subroutine MAPL_Return(status, filename, line, rc) 
+   subroutine MAPL_Return(status, filename, line, rc)
       integer, intent(in) :: status
       character(*), intent(in) :: filename
       integer, intent(in) :: line
@@ -152,13 +152,13 @@ contains
          !$omp end critical (MAPL_ErrorHandling4)
       end if
       ! Regardless of error:
-      if (present(rc)) rc = status 
-      
+      if (present(rc)) rc = status
+
    end subroutine MAPL_Return
 
    logical function MAPL_RTRN(A,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
 
@@ -171,7 +171,7 @@ contains
 
    logical function MAPL_VRFY(A,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFY = A/=0
@@ -187,7 +187,7 @@ contains
 
    logical function MAPL_ASRT(A,iam,line,rc)
       logical,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam
+      character(len=*),  intent(IN ) :: iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRT = .not.A
@@ -199,11 +199,11 @@ contains
             RC=1
           endif
         endif
-   end function MAPL_ASRT   
+   end function MAPL_ASRT
 
    logical function MAPL_ASRTt(A,text,iam,line,rc)
       logical,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam,text
+      character(len=*),  intent(IN ) :: iam,text
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
@@ -214,7 +214,7 @@ contains
 
    logical function MAPL_RTRNt(A,text,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: text,iam
+      character(len=*),  intent(IN ) :: text,iam
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
 
@@ -231,7 +231,7 @@ contains
 
    logical function MAPL_VRFYt(A,text,iam,line,rc)
       integer,           intent(IN ) :: A
-      character*(*),     intent(IN ) :: iam,text
+      character(len=*),  intent(IN ) :: iam,text
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)

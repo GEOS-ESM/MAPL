@@ -228,7 +228,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~689"></span>
+              <span class="anchor" id="variable-rc~692"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -317,15 +317,15 @@
 
 <span class="w">      </span><span class="c">! Check indices and first character is &#39;P&#39;</span>
 <span class="w">      </span><span class="n">successful</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">imin</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">imax</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">isostring</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">         </span><span class="p">(</span><span class="n">imin</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">imax</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">isostring</span><span class="p">(</span><span class="n">imin</span><span class="p">:</span><span class="n">imin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;P&#39;</span><span class="p">))</span><span class="w"> </span>
+<span class="w">         </span><span class="p">(</span><span class="n">imin</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">imax</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">isostring</span><span class="p">(</span><span class="n">imin</span><span class="p">:</span><span class="n">imin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;P&#39;</span><span class="p">))</span><span class="w"></span>
 
 <span class="w">      </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imin</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 
 <span class="w">      </span><span class="c">! This do loop reads a character at a time, digit and nondigit.</span>
 <span class="w">      </span><span class="c">! A field string consists of digits forming an integer n followed by</span>
-<span class="w">      </span><span class="c">! a field character. A field character must be preceded by an integer. </span>
+<span class="w">      </span><span class="c">! a field character. A field character must be preceded by an integer.</span>
 <span class="w">      </span><span class="c">! A field character indicates that the preceding digit characters</span>
-<span class="w">      </span><span class="c">! should be processed as values for the corresponding field. </span>
+<span class="w">      </span><span class="c">! should be processed as values for the corresponding field.</span>
 <span class="w">      </span><span class="c">! The field characters are:</span>
 <span class="w">      </span><span class="c">!  Y(ear)</span>
 <span class="w">      </span><span class="c">!  M(onth)</span>
@@ -342,12 +342,12 @@
 <span class="w">         </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">isostring</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">time_found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
 <span class="w">            </span><span class="c">! Once the time is found, M should be processed as M(inute).</span>
-<span class="w">            </span><span class="k">select case</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span>
+<span class="w">            </span><span class="k">select case</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"></span>
 <span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">                  </span><span class="c">! Verify the field or preceding fields have not been set.</span>
 <span class="w">                  </span><span class="c">! Then process the preceding digit character as an integer.</span>
 <span class="w">                  </span><span class="c">! Once processed reset the istart index to start processing</span>
-<span class="w">                  </span><span class="c">! digits. The same logic applies for each case below. </span>
+<span class="w">                  </span><span class="c">! digits. The same logic applies for each case below.</span>
 <span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">hours</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                     </span><span class="n">seconds</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">istart</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
 <span class="k">                  </span><span class="n">hours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_whole_number_indexed</span><span class="p">(</span><span class="n">isostring</span><span class="p">,</span><span class="w"> </span><span class="n">istart</span><span class="p">,</span><span class="w"> </span><span class="n">istop</span><span class="p">)</span><span class="w"></span>
@@ -383,7 +383,7 @@
 <span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">years</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">months</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <span class="w">                     </span><span class="n">days</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">istart</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
 <span class="k">                  </span><span class="n">years</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_whole_number_indexed</span><span class="p">(</span><span class="n">isostring</span><span class="p">,</span><span class="w"> </span><span class="n">istart</span><span class="p">,</span><span class="w"> </span><span class="n">istop</span><span class="p">)</span><span class="w"></span>
-<span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">years</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle </span>
+<span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">years</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
 <span class="k">                  </span><span class="n">istart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="w">               </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">months</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">istart</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
@@ -442,7 +442,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-15T17:09:09.246279             </p>
+ on 2023-09-22T15:31:39.981637             </p>
           </div>
         </div>
         <br>

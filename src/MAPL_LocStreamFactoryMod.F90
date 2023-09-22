@@ -19,7 +19,8 @@ module LocStreamFactoryMod
       real(kind=REAL64), allocatable :: lons(:)
       real(kind=REAL64), allocatable :: lats(:)
       contains
-         procedure :: create_locstream
+        procedure :: create_locstream
+        procedure :: destroy_locstream        
    end type
 
    interface LocStreamFactory
@@ -94,4 +95,19 @@ module LocStreamFactoryMod
          _RETURN(_SUCCESS)
       end function create_locstream
 
+
+      subroutine destroy_locstream(this,locstream,rc)
+        class (LocStreamFactory) :: this
+        type(ESMF_LocStream) :: locstream
+        integer, optional, intent(out) :: rc
+        integer :: status
+        
+        if (allocated(this%lons)) deallocate (this%lons)
+        if (allocated(this%lats)) deallocate (this%lats)
+        call ESMF_LocStreamDestroy (locstream,noGarbage=.true.,_RC)
+        
+        _RETURN(_SUCCESS)         
+      end subroutine destroy_locstream
+
+      
 end module LocStreamFactoryMod

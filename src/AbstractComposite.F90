@@ -30,7 +30,7 @@ module mapl_AbstractComposite
          import AbstractComposite
          class(AbstractComposite), pointer :: child
          class(AbstractComposite), target, intent(in) :: this
-	 integer, intent(in) :: i
+         integer, intent(in) :: i
       end function i_GetChildByIndex
 
       function i_AddChild(this, name, composite) result(child)

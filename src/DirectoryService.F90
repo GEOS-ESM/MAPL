@@ -173,19 +173,20 @@ contains
       
       class(ServerThread), pointer :: server_thread_ptr
       class(BaseServer), pointer :: server_ptr
-
+      type(SimpleSocket), target :: ss
       ! First, check ports to see if server is local, in which case
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
 
-      _UNUSED_DUMMY(unusable)
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then
-            allocate(sckt, source=SimpleSocket(client))
+            ss = SimpleSocket(client)
+            allocate(sckt, source=ss)
             server_ptr => this%local_ports(n)%server_ptr
             call server_ptr%add_connection(sckt)
             server_thread_ptr => server_ptr%threads%at(1) ! should be "last"
-            allocate(sckt, source=SimpleSocket(server_thread_ptr))
+            ss = SimpleSocket(server_thread_ptr)
+            allocate(sckt, source=ss)
             call client%set_connection(sckt)
             nullify(sckt)
             if (present(server_size)) server_size = server_ptr%npes
@@ -271,6 +272,7 @@ contains
       allocate(sckt, source=MpiSocket(this%comm, server_rank, this%parser))
       call client%set_connection(sckt)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine connect_to_server
 
    subroutine connect_to_client(this, port_name, server, rc)

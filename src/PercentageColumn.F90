@@ -89,10 +89,11 @@ contains
       class (PercentageColumn), intent(in) :: this
       class (AbstractMeterNode), target, intent(in) :: node
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(row)
+      row = 0
       allocate(row,source=0) ! to eliminate compiler warning.
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(node)
    end function get_row
    
 end module MAPL_PercentageColumn
