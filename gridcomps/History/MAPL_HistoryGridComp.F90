@@ -2377,6 +2377,9 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
              call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
           endif
+          !
+          ! why I still need griddedio for sampler case?
+          !
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
           call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
@@ -3418,19 +3421,22 @@ ENDDO PARSER
             create_mode = PFIO_NOCLOBBER ! defaut no overwrite
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
 
-             ! add time to items
-             if (.NOT. list(n)%xsampler%have_initalized) then
-                list(n)%xsampler%have_initalized = .true.
-                global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-             endif
-             item%itemType = ItemTypeScalar
-             item%xname = 'time'
-             call list(n)%items%push_back(item)
-             call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
-             call list(n)%mGriddedIO%destroy(_RC)
-             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
-             call list(n)%items%pop_back()
-
+            ! add time to items
+            ! true metadata comes here from mGriddedIO%metadata
+            ! the mGriddedIO below only touches metadata, collection_id etc., it is safe.
+            !
+            if (.NOT. list(n)%xsampler%have_initalized) then
+               list(n)%xsampler%have_initalized = .true.
+               global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
+            endif
+            item%itemType = ItemTypeScalar
+            item%xname = 'time'
+            call list(n)%items%push_back(item)
+            call Hsampler%fill_time_in_bundle ('time', list(n)%xsampler%acc_bundle, _RC)
+            call list(n)%mGriddedIO%destroy(_RC)
+            call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            call list(n)%items%pop_back()
+            
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
          endif

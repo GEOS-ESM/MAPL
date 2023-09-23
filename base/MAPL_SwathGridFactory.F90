@@ -223,6 +223,11 @@ contains
       Ydim_full=this%cell_along_swath
       
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)      
+
+      print*, 'i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
+      print*, 'Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
+
+
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
@@ -237,6 +242,9 @@ contains
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
+          print*, 'centers loin'
+          print*, centers(1:100:10,1)          
+
        end if
        call MAPL_SyncSharedMemory(_RC)       
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
@@ -412,7 +420,7 @@ contains
       call ESMF_ConfigGetAttribute(config, filename, label=prefix//'GRIDSPEC:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
-      print*, 'ck: Epoch_init:', trim(tmp)
+      !! print*, 'ck: Epoch_init:', trim(tmp)
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(time0, timeString=tmp, _RC)
       else

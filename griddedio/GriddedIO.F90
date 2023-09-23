@@ -502,7 +502,6 @@ module MAPL_GriddedIOMod
            end if
         else
            tindex = -1
-           ! ygyu add
            call this%stage2DLatLon(filename,oClients=oClients,_RC)
         end if
 

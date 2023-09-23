@@ -57,7 +57,7 @@ module MAPL_EpochSwathMod
   end interface samplerHQ
 
   type, public :: sampler
-     type(FileMetaData) :: metadata
+     type(FileMetaData), allocatable :: metadata
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -529,7 +529,13 @@ contains
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
 
-
+        ! __ please note, metadata in this section is not used in put_var to netCDF
+        !    the design used mGriddedIO%metadata in MAPL_HistoryGridComp.F90
+        ! 
+        if (allocated(this%metadata)) then
+           deallocate (this%metadata)
+        end if
+        allocate(this%metadata)
         call factory%append_metadata(this%metadata)
         if (present(vdata)) then
            this%vdata=vdata
@@ -544,7 +550,7 @@ contains
         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
         _VERIFY(status)
 
-        iter = this%items%begin()        
+        iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
@@ -562,11 +568,6 @@ contains
         enddo
 
 
-!        input_bundle/lat-lon AGCM1
-!        output_bundle /    for       regrid at 2 min each:  field
-!        acc_bundle  for   save field --> 
-
-
         ! __ add acc_bundle and output_bundle
         !
         this%acc_bundle = ESMF_FieldBundleCreate(_RC)
@@ -581,12 +582,16 @@ contains
            call iter%next()
         enddo
 
+
+        ! __ add time to acc_bundle
+        !
         new_field = ESMF_FieldCreate(this%output_grid ,name='time', &
                typekind=ESMF_TYPEKIND_R4,_RC)
         call MAPL_FieldBundleAdd( this%acc_bundle, new_field, _RC )
+
         
-        _RETURN(_SUCCESS)        
-      end subroutine Create_bundle_RH
+        _RETURN(_SUCCESS)
+      end subroutine Create_Bundle_RH
 
            
      subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
