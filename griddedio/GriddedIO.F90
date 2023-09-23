@@ -860,6 +860,10 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+        write(6,*) 'ck stage2dlatlon: lons'
+        write(6,'(6f12.2)')  this%lons(::10,1:2)
+        write(6,'(6f12.2)')  this%lons(1:2,::10)
+
         ref = ArrayReference(this%lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
@@ -904,6 +908,7 @@ module MAPL_GriddedIOMod
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
+
      _RETURN(_SUCCESS)
 
   end subroutine stage2DLatLon
