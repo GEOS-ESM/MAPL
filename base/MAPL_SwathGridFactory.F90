@@ -40,7 +40,15 @@ module MAPL_SwathGridFactoryMod
       integer(ESMF_KIND_I8) :: epoch_index(4)  ! is,ie,js,je
       character(len=ESMF_MAXSTR) :: tunit
       real(ESMF_KIND_R8), allocatable :: t_alongtrack(:)
-      
+      character(len=ESMF_MAXSTR)     :: nc_index
+      character(len=ESMF_MAXSTR)     :: nc_time
+      character(len=ESMF_MAXSTR)     :: nc_latitude
+      character(len=ESMF_MAXSTR)     :: nc_longitude
+      character(len=ESMF_MAXSTR)     :: var_name_time
+      character(len=ESMF_MAXSTR)     :: var_name_lat
+      character(len=ESMF_MAXSTR)     :: var_name_lon
+      logical                        :: found_group
+
       ! Domain decomposition:
       integer :: nx = MAPL_UNDEFINED_INTEGER
       integer :: ny = MAPL_UNDEFINED_INTEGER
@@ -388,7 +396,7 @@ contains
       integer :: nlon, nlat, tdim
       integer :: Xdim, Ydim, ntime
       character(len=ESMF_MAXSTR) :: key_lon, key_lat, key_time
-      character(len=ESMF_MAXSTR) :: filename, tunit, tmp
+      character(len=ESMF_MAXSTR) :: filename, tunit, tmp, grp_name
       real, allocatable :: scanTime(:,:)
       integer :: yy, mm, dd, h, m, s, sec
       integer :: i, j
@@ -420,13 +428,33 @@ contains
          call ESMF_Timeset(time0, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
       endif
       this%grid_file_name = trim(filename)
+
+      call ESMF_ConfigGetAttribute(config, value=this%nc_index, default="", &
+           label=prefix // 'nc_Index:', _RC)
+      call ESMF_ConfigGetAttribute(config, value=this%nc_time, default="", &
+           label=prefix // 'nc_Time:', _RC)
+      call ESMF_ConfigGetAttribute(config, value=this%nc_longitude, default="", &
+           label=prefix // 'nc_Longitude:', _RC)
+      call ESMF_ConfigGetAttribute(config, value=this%nc_latitude, default="", &
+           label=prefix // 'nc_Latitude:', _RC)
+      i=index(this%nc_longitude, '/')
+      if (i>0) then
+         this%found_group = .true.
+         grp_name = this%nc_longitude(1:i-1)
+      else
+         this%found_group = .false.
+         grp_name = ''
+      endif
+      this%var_name_lat = this%nc_latitude(i+1:)
+      this%var_name_lon = this%nc_longitude(i+1:)
+      this%var_name_time= this%nc_time(i+1:)
       
-      
+
       ! read global dim from nc file
       ! ----------------------------
-      key_lon='cell_across_swath'
-      key_lat='cell_along_swath'
-      key_time='time'
+      key_lon=this%var_name_lon
+      key_lat=this%var_name_lat
+      key_time=this%var_name_time
       !      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
       CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, tdim=tdim, &
            key_lon=key_lon, key_lat=key_lat, key_time=key_time, _RC)
@@ -477,21 +505,8 @@ contains
       this%cell_across_swath = nlon
       this%cell_along_swath = nlat
 
-!!  -- TOBE deleted:      
-!!      ! read granule dim from nc
-!!      ! ------------------------
-!!      key_lon='nlon'
-!!      key_lat='nlat'
-!!      key_time='time'
-!!      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
-!!      ntime=tdim     !        
-!!      xdim=nlon
-!!      ydim=nlat
-!!
-!!      write(6,*) 'obs filename', trim(filename)
-!!      write(6,*) 'this%grid_file_name', trim(this%grid_file_name)
-!!      write(6,*) 'Xdim, Ydim, ntime:', Xdim, Ydim, ntime
 
+!!      stop -11
       
       ! determine im_world from Epoch
       ! -----------------------------

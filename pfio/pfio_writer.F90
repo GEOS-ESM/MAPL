@@ -205,7 +205,8 @@ contains
       class(*), pointer :: i_ptr(:)
       type (c_ptr) :: address
 
-
+      print*, __FILE__, __LINE__
+      
       count = message%count
       start = count
       start = 1
@@ -246,6 +247,7 @@ contains
               call c_f_pointer(address, values_real32_1d, [product(count)])
               call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count)
           case (pFIO_REAL64)
+      print*, __FILE__, __LINE__
               call c_f_pointer(address, values_real64_1d, [product(count)])
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count)
           case default

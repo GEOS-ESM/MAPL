@@ -861,12 +861,18 @@ module MAPL_GriddedIOMod
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         write(6,*) 'ck stage2dlatlon: lons'
-        write(6,'(6f12.2)')  this%lons(::10,1:2)
-        write(6,'(6f12.2)')  this%lons(1:2,::10)
+        write(6,'(6f12.2)')  minval(this%lons), maxval(this%lons)
+!        write(6,'(6f12.2)')  this%lons(::100,::100)
+!!        write(6,'(6f12.2)')  this%lons(1:2,::10)
 
         ref = ArrayReference(this%lons)
+
+        ! print ref ?
+        
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+
+
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)

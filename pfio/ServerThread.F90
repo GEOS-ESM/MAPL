@@ -797,7 +797,8 @@ contains
 
       integer, allocatable :: start(:),count(:)
       integer :: status
-
+      print*, __FILE__, __LINE__
+      
       if (this%hist_collections%size() == 1) then
          hist_collection=>this%hist_collections%at(1)
       else
@@ -838,18 +839,39 @@ contains
               _FAIL( "not supported type")
           end select
       case (1:)
+
           select case (message%type_kind)
           case (pFIO_INT32)
+
               call c_f_pointer(address, values_int32_1d, [product(int(count, INT64))])
+             print*, __FILE__, __LINE__, &
+                  'message%var_name: ', trim(message%var_name), &
+                  ' minval(values_int32', &
+                  minval(values_int32_1d), maxval(values_int32_1d)             
+
               call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
-          case (pFIO_INT64)
+           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_1d, [product(int(count, INT64))])
+              print*, __FILE__, __LINE__, 'message%var_name: ', trim(message%var_name), ' minval(values_int64', &
+                   minval(values_int64_1d), maxval(values_int64_1d) 
+
               call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d,[product(int(count, INT64))])
+             print*, __FILE__, __LINE__, &
+                  'message%var_name: ', trim(message%var_name), &
+                  ' minval(values_real32', &
+                  minval(values_real32_1d), maxval(values_real32_1d)             
+
               call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
-              call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])
+
+             call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])
+             print*, __FILE__, __LINE__, &
+              'message%var_name: ', trim(message%var_name), &
+              ' minval(values_real64_1d)', &
+               minval(values_real64_1d), maxval(values_real64_1d)             
+
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
               _FAIL( "not supported type")
