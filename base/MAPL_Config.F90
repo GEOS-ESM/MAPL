@@ -48,11 +48,11 @@ module MAPL_ConfigMod
 
    character, parameter :: BLK = achar(32)   ! blank (space)
    character, parameter :: TAB = achar(09)   ! TAB
-#if defined(ESMF_HAS_ACHAR_BUG)
-       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
-#else
+!#if defined(ESMF_HAS_ACHAR_BUG)
+!       character, parameter :: EOL = achar(12)   ! end of line mark (cr)
+!#else
        character, parameter :: EOL = achar(10)   ! end of line mark (newline)
-#endif
+!#endif
        character, parameter :: EOB = achar(00)   ! end of buffer mark (null)
        character, parameter :: NUL = achar(00)   ! what it says
 
@@ -65,12 +65,27 @@ contains
       integer, optional, intent(out) :: rc
 
       character, parameter :: EOB = achar(00)   !! end of buffer mark (null)
-#if defined(__NAG_COMPILER_BUILD) && defined(__DARWIN)
-      character, parameter :: EOL = achar(12)   !! end of line mark (cr)
-#else
+!!#if defined(__NAG_COMPILER_BUILD) && defined(__DARWIN)
+!#if defined(__NAG_COMPILER_BUILD) 
+!      character, parameter :: EOL = achar(12)   !! end of line mark (cr)
+!#else
       character, parameter :: EOL = achar(10)   !! end of line mark (newline)
-#endif
+!#endif
       character, parameter :: NUL = achar(00)   !! what it says
+
+!!YGYU test
+!#if defined(__NAG_COMPILER_BUILD)
+!      print*, 'defined __NAG_COMPILER_BUILD'
+!#endif
+!
+!#if defined(ESMF_HAS_ACHAR_BUG)
+!      print*, 'defined ESMF_HAS_ACHAR_BUG'
+!#endif
+!#if defined(__DARWIN)
+!      print*, 'defined__DARWIN'
+!#endif
+!      print*, 'achar(10)=', achar(10)
+!      print*, 'achar(12)=', achar(12)      
 
       _UNUSED_DUMMY(unusable)
       config = ESMF_ConfigCreate(rc=rc)

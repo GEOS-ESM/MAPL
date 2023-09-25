@@ -1,4 +1,6 @@
 #include "MAPL_Generic.h"
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 
 module ExtDataDriverMod
 
