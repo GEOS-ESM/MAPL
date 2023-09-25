@@ -44,8 +44,8 @@ module MAPL_GriddedIOMod
      type(ESMF_Time) :: startTime
      integer :: regrid_method = REGRID_METHOD_BILINEAR
      integer :: nbits_to_keep = MAPL_NBITS_NOT_SET
-     real, allocatable :: lons(:,:),lats(:,:)
-     real, allocatable :: corner_lons(:,:),corner_lats(:,:)
+     real(REAL64), allocatable :: lons(:,:),lats(:,:)
+     real(REAL64), allocatable :: corner_lons(:,:),corner_lats(:,:)
      real, allocatable :: times(:)
      type(TimeData) :: timeInfo
      type(VerticalData) :: vdata
@@ -860,8 +860,8 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        write(6,*) 'ck stage2dlatlon: lons'
-        write(6,'(6f12.2)')  minval(this%lons), maxval(this%lons)
+        write(6,*) __FILE__, __LINE__, ' stage2dlatlon: lons :  min, max = ', minval(this%lons), maxval(this%lons)
+
 !        write(6,'(6f12.2)')  this%lons(::100,::100)
 !!        write(6,'(6f12.2)')  this%lons(1:2,::10)
 
