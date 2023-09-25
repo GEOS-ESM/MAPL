@@ -840,6 +840,8 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+        write(6,*) __FILE__, __LINE__, ' stage2dlatlon: lons :  min, max = ', minval(this%lons), maxval(this%lons)
+        
         ref = ArrayReference(this%lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)

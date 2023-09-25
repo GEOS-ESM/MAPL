@@ -847,9 +847,19 @@ contains
               call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d,[product(int(count, INT64))])
+              print*, __FILE__, __LINE__, &
+                   'message%var_name: ', trim(message%var_name), &
+                   ' minval(values_real32', &
+                   minval(values_real32_1d), maxval(values_real32_1d)
+
               call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])
+              print*, __FILE__, __LINE__, &
+                   'message%var_name: ', trim(message%var_name), &
+                   ' minval(values_real64', &
+                   minval(values_real64_1d), maxval(values_real64_1d)
+
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
               _FAIL( "not supported type")
