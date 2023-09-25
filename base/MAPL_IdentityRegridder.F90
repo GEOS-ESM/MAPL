@@ -10,7 +10,6 @@ module MAPL_IdentityRegridderMod
    use ESMF
 
    use, intrinsic :: iso_fortran_env, only: REAL32
-   use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
    private
 
@@ -165,7 +164,6 @@ contains
    subroutine initialize_subclass(this, unusable, rc)
       use MAPL_KeywordEnforcerMod
       use MAPL_RegridderSpec
-      use MAPL_BaseMod, only: MAPL_GridGet
       class (IdentityRegridder), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
