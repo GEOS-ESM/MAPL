@@ -18,7 +18,7 @@ module Plain_netCDF_Time
   use MAPL_KeywordEnforcerMod
   use MAPL_ExceptionHandling
   use MAPL_ShmemMod
-  use mapl_ErrorHandlingMod
+  use MAPL_ErrorHandlingMod
   use MAPL_Constants
   use ESMF
   use pfio_NetCDF_Supplement
@@ -55,8 +55,15 @@ module Plain_netCDF_Time
   interface bisect
      procedure :: bisect_find_LB_R8_I8
   end interface bisect
+
 contains
 
+  logical function is_success(c)
+     integer, intent(in) :: c
+
+     is_success = (c == _SUCCESS)
+
+  end function is_success
 
   subroutine get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, rc)
     use netcdf
@@ -101,7 +108,7 @@ contains
     implicit none
     character(len=*), intent(in) :: filename, group_name, var_name, attr_name
     character(len=*), intent(INOUT) :: attr
-    integer, optional, intent(in) :: rc
+    integer, optional, intent(out) :: rc
     integer :: ncid, varid, ncid2
     integer :: status
     integer :: len, i, j, k
@@ -118,7 +125,7 @@ contains
     c_varid= varid
     select case (xtype)
     case(NF90_STRING)
-       _ASSERT(pfio_get_att_string(c_ncid, c_varid, attr_name, str), 'Error return from pfio_get_att_string')
+       _ASSERT(is_success(pfio_get_att_string(c_ncid, c_varid, attr_name, str)), 'Error return from pfio_get_att_string')
     case(NF90_CHAR)
        allocate(character(len=len) :: str)
        call check_nc_status(nf90_get_att(ncid, varid, trim(attr_name), str), _RC)
@@ -135,7 +142,7 @@ contains
     endif
     attr = str(1:i+5)//trim(str2)
     deallocate(str)
-    call check_rc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid), _RC)
 
     _RETURN(_SUCCESS)
 
