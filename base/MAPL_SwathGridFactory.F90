@@ -407,11 +407,13 @@ contains
       real(ESMF_KIND_R8) :: x0, x1
       integer :: khi, klo, k, nstart, max_iter
       type(Logger), pointer :: lgr
-      
+      logical :: ispresent
+
       _UNUSED_DUMMY(unusable)
 
       call ESMF_VmGetCurrent(VM, _RC)
 
+      
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
       call ESMF_ConfigGetAttribute(config, this%nx,  label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
@@ -420,7 +422,12 @@ contains
       call ESMF_ConfigGetAttribute(config, filename, label=prefix//'GRIDSPEC:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
-      !! print*, 'ck: Epoch_init:', trim(tmp)
+
+      write(6,'(2x,a,/,4i8,/,5(2x,a))') 'nx,ny,lm,epoch -- filename,tmp', &
+           this%nx,this%ny,this%lm,this%epoch,&
+           trim(filename),trim(tmp)
+
+      print*, 'ck: Epoch_init:', trim(tmp)
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(time0, timeString=tmp, _RC)
       else
@@ -428,18 +435,35 @@ contains
          call ESMF_Timeset(time0, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
       endif
       this%grid_file_name = trim(filename)
-
+      
       call ESMF_ConfigGetAttribute(config, value=this%nc_index, default="", &
-           label=prefix // 'nc_Index:', _RC)
-      call ESMF_ConfigGetAttribute(config, value=this%nc_time, default="", &
-           label=prefix // 'nc_Time:', _RC)
-      call ESMF_ConfigGetAttribute(config, value=this%nc_longitude, default="", &
-           label=prefix // 'nc_Longitude:', _RC)
-      call ESMF_ConfigGetAttribute(config, value=this%nc_latitude, default="", &
-           label=prefix // 'nc_Latitude:', _RC)
+                 label=prefix // 'nc_Index:', rc=rc)  ! donot check?
+
+      call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
+      print*, 'SwathGrid.nc_Time: ispresent=', ispresent
+      call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
+      print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
+      call ESMF_ConfigFindLabel(config, 'modis_swath.fields:', isPresent=ispresent, rc=status)
+      print*, 'modis_swath.fields: ispresent=', ispresent
+      call ESMF_ConfigFindLabel(config, 'modis_swath.observation_spec:', isPresent=ispresent, rc=status)
+      print*, 'modis_swath.observation_spec: ispresent=', ispresent
+
+      
+      call ESMF_ConfigGetAttribute(config, this%nc_time, label=prefix//'nc_Time:',  _RC)
+      call ESMF_ConfigGetAttribute(config, this%nc_longitude, &
+           label=prefix // 'nc_Longitude:', default="", _RC)
+      call ESMF_ConfigGetAttribute(config, this%nc_latitude, &
+           label=prefix // 'nc_Latitude:', default="", _RC)
+
+
+
+      write(6,'((2x,a),10(2x,a15))') 'nc_time =', trim(this%nc_time)
+      write(6,'((2x,a),10(2x,a15))') 'nc_lon  =',            trim(this%nc_longitude)
+      write(6,'((2x,a),10(2x,a15))') 'nc_lat  =',            trim(this%nc_latitude)     
+
+      _FAIL('ygyu test stop')
+      
       i=index(this%nc_longitude, '/')
-
-
       if (i>0) then
          this%found_group = .true.
          grp_name = this%nc_longitude(1:i-1)
@@ -452,7 +476,6 @@ contains
       this%var_name_time= this%nc_time(i+1:)
 
       print*, 'i=', i
-      print*, 'nc_time ', trim(this%nc_time)
       write(6,'(10(2x,a))') 'name lat, lon, time',  &
            trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
 

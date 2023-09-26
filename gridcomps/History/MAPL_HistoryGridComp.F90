@@ -489,6 +489,13 @@ contains
 ! -------------------------------------------------
     call ESMF_GridCompGet( gc, config=config, _RC )
 
+    print*, __FILE__, __LINE__
+    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
+    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
+
+
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expsrc, &
                                    label ='EXPSRC:', default='', _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expid, &
@@ -616,9 +623,19 @@ contains
                 end if
                 call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
                 call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
-             end if             
+             end if
+
+    print*, __FILE__, __LINE__
+    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
+    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
+             
+
              if (trim(grid_type)/='Swath') then
+                print*, 'ch: bf inside swath ..'
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+                print*, 'ch: af inside swath ..'
              else
                 Hsampler = samplerHQ(clock, config, key, _RC)
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
@@ -660,16 +677,17 @@ contains
 ! ----------------------------------------------------------------------------
 
     if( MAPL_AM_I_ROOT(vm) ) then
-
+       print*, __FILE__, __LINE__
        call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
             label="HIST_CF:", default="HIST.rc", _RC )
        unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
-
+       print*, __FILE__, __LINE__
 !       for each collection
        do n = 1, nlist
          rewind(unitr)
          string = trim( list(n)%collection ) // '.'
          unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+       print*, __FILE__, __LINE__
 
          match = .false.
          contLine = .false.

@@ -126,8 +126,25 @@ contains
     integer :: n1
     type(ESMF_Config) :: cf
 
+    logical :: ispresent
+    
     hq%clock= clock
+
+    print*, __FILE__, __LINE__
+    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
+    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
+    
     hq%config_grid_save= config
+
+    print*, __FILE__, __LINE__
+    call ESMF_ConfigFindLabel(hq%config_grid_save, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
+    call ESMF_ConfigFindLabel(hq%config_grid_save, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
+    
+
     hq%arr(1:2) = -2.d0
     call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
     call ESMF_ClockGet ( clock, timestep=timestep, _RC )
@@ -163,10 +180,24 @@ contains
     type(ESMF_Config) :: config_grid
     character(len=ESMF_MAXSTR) :: time_string
 
+    logical :: ispresent
+
     if (present(grid_type)) this%grid_type = trim(grid_type)
     config_grid = this%config_grid_save
     call ESMF_TimeGet(currTime, timeString=time_string, _RC)
-    call ESMF_ConfigSetAttribute( config_grid, time_string, label=trim(key)//'.Epoch_init:', _RC)
+    ! 
+    ! -- the `ESMF_ConfigSetAttribute` shows a risk
+    !    to overwrite the nextline in config
+    !
+    call ESMF_ConfigSetAttribute( config_grid, trim(time_string), label=trim(key)//'.Epoch_init:', _RC)
+
+    print*, __FILE__, __LINE__
+    call ESMF_ConfigFindLabel(config_grid, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
+    call ESMF_ConfigFindLabel(config_grid, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
+    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
+
+
     ogrid = grid_manager%make_grid(config_grid, prefix=trim(key)//'.', _RC )
     this%ogrid = ogrid
     _RETURN(_SUCCESS)
