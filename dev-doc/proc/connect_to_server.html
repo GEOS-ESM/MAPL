@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>connect_to_server &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>connect_to_server
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">101 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/DirectoryService.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/directoryservice.f90.html'>DirectoryService.F90</a></li>
+              <li><a href='../module/pfio_directoryservicemod.html'>pFIO_DirectoryServiceMod</a></li>
+          <li class="active">connect_to_server</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/connect_to_server.html#src">connect_to_server</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine connect_to_server(this, port_name, client, client_comm, unusable, server_size, rc)  
+</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/pfio_clientthreadmod.html'>pFIO_ClientThreadMod</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~connect_to_server~~UsesGraph Pages: 1 -->
+<svg id="procconnect_to_serverUsesGraph" width="641pt" height="963pt"
+ viewBox="0.00 0.00 641.00 963.09" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~connect_to_server~~UsesGraph" class="graph" transform="scale(1.25 1.25) rotate(0) translate(4 1204)">
+<title>proc~~connect_to_server~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1204 800,-1204 800,4 -4,4"/>
+<!-- proc~connect_to_server -->
+<g id="proc~~connect_to_server~~UsesGraph_node1" class="node">
+<title>proc~connect_to_server</title>
+<polygon fill="none" stroke="black" points="796,-612 440,-612 440,-588 796,-588 796,-612"/>
+<text text-anchor="middle" x="618" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_DirectoryServiceMod::DirectoryService%connect_to_server</text>
+</g>
+<!-- module~pfio_clientthreadmod -->
+<g id="proc~~connect_to_server~~UsesGraph_node2" class="node">
+<title>module~pfio_clientthreadmod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node2"><a xlink:href=".././module/pfio_clientthreadmod.html" xlink:title="pFIO_ClientThreadMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="404,-612 271,-612 271,-588 404,-588 404,-612"/>
+<text text-anchor="middle" x="337.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ClientThreadMod</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_server&#45;&gt;module~pfio_clientthreadmod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge1" class="edge">
+<title>proc~connect_to_server&#45;&gt;module~pfio_clientthreadmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M439.83,-600C431.08,-600 422.55,-600 414.38,-600"/>
+<polygon fill="#255000" stroke="#255000" points="414.25,-596.5 404.25,-600 414.25,-603.5 414.25,-596.5"/>
+</g>
+<!-- module~mapl_exceptionhandling -->
+<g id="proc~~connect_to_server~~UsesGraph_node3" class="node">
+<title>module~mapl_exceptionhandling</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node3"><a xlink:href=".././module/mapl_exceptionhandling.html" xlink:title="MAPL_ExceptionHandling">
+<polygon fill="#337ab7" stroke="#337ab7" points="191,-1200 44,-1200 44,-1176 191,-1176 191,-1200"/>
+<text text-anchor="middle" x="117.5" y="-1185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~mapl_exceptionhandling -->
+<g id="proc~~connect_to_server~~UsesGraph_edge2" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~mapl_exceptionhandling</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M336.14,-612.34C333.66,-687.66 316.8,-1085.1 235,-1167 225.68,-1176.33 213.72,-1182.3 201.02,-1186.01"/>
+<polygon fill="#255000" stroke="#255000" points="200.08,-1182.64 191.2,-1188.43 201.75,-1189.44 200.08,-1182.64"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="proc~~connect_to_server~~UsesGraph_node4" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node4"><a xlink:href=".././module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="197,-1158 38,-1158 38,-1134 197,-1134 197,-1158"/>
+<text text-anchor="middle" x="117.5" y="-1143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge3" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.95,-612.35C332.45,-684.4 311.13,-1049.83 235,-1125 227.11,-1132.79 217.36,-1138.24 206.9,-1141.97"/>
+<polygon fill="#255000" stroke="#255000" points="205.67,-1138.68 197.12,-1144.94 207.71,-1145.38 205.67,-1138.68"/>
+</g>
+<!-- module~pfio_abstractdatareferencemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node5" class="node">
+<title>module~pfio_abstractdatareferencemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node5"><a xlink:href=".././module/pfio_abstractdatareferencemod.html" xlink:title="pFIO_AbstractDataReferenceMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="211.5,-1116 23.5,-1116 23.5,-1092 211.5,-1092 211.5,-1116"/>
+<text text-anchor="middle" x="117.5" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractDataReferenceMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractdatareferencemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge4" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractdatareferencemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.73,-612.25C331.17,-680.64 305.52,-1014.48 235,-1083 230.7,-1087.17 225.88,-1090.67 220.69,-1093.59"/>
+<polygon fill="#255000" stroke="#255000" points="219.13,-1090.46 211.66,-1097.97 222.19,-1096.75 219.13,-1090.46"/>
+</g>
+<!-- module~pfio_abstractmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node6" class="node">
+<title>module~pfio_abstractmessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node6"><a xlink:href=".././module/pfio_abstractmessagemod.html" xlink:title="pFIO_AbstractMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="195,-1074 40,-1074 40,-1050 195,-1050 195,-1074"/>
+<text text-anchor="middle" x="117.5" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge5" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractmessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.49,-612.03C329.82,-676.35 299.97,-979.07 235,-1041 226.54,-1049.06 216.1,-1054.58 204.96,-1058.28"/>
+<polygon fill="#255000" stroke="#255000" points="203.7,-1055 195.03,-1061.09 205.61,-1061.74 203.7,-1055"/>
+</g>
+<!-- module~pfio_abstractrequesthandlemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node7" class="node">
+<title>module~pfio_abstractrequesthandlemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node7"><a xlink:href=".././module/pfio_abstractrequesthandlemod.html" xlink:title="pFIO_AbstractRequestHandleMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="212.5,-1032 22.5,-1032 22.5,-1008 212.5,-1008 212.5,-1032"/>
+<text text-anchor="middle" x="117.5" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractRequestHandleMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractrequesthandlemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge6" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractrequesthandlemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.17,-612.07C328.25,-672.75 294.36,-943.7 235,-999 230.91,-1002.81 226.38,-1006.05 221.54,-1008.79"/>
+<polygon fill="#255000" stroke="#255000" points="219.97,-1005.66 212.53,-1013.21 223.05,-1011.95 219.97,-1005.66"/>
+</g>
+<!-- module~pfio_abstractsocketmod -->
+<g id="proc~~connect_to_server~~UsesGraph_node8" class="node">
+<title>module~pfio_abstractsocketmod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node8"><a xlink:href=".././module/pfio_abstractsocketmod.html" xlink:title="pFIO_AbstractSocketMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="190,-990 45,-990 45,-966 190,-966 190,-990"/>
+<text text-anchor="middle" x="117.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractSocketMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractsocketmod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge7" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_abstractsocketmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M334.76,-612.3C326.42,-669.44 288.72,-908.33 235,-957 225.17,-965.91 212.89,-971.66 200.02,-975.28"/>
+<polygon fill="#255000" stroke="#255000" points="199.01,-971.92 190.1,-977.64 200.63,-978.73 199.01,-971.92"/>
+</g>
+<!-- module~pfio_addextcollectionmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node9" class="node">
+<title>module~pfio_addextcollectionmessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node9"><a xlink:href=".././module/pfio_addextcollectionmessagemod.html" xlink:title="pFIO_AddExtCollectionMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="218,-948 17,-948 17,-924 218,-924 218,-948"/>
+<text text-anchor="middle" x="117.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AddExtCollectionMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_addextcollectionmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge8" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_addextcollectionmessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M336.69,-612.32C336.69,-659.74 329.92,-831.96 235,-915 232.45,-917.23 229.74,-919.26 226.91,-921.11"/>
+<polygon fill="#255000" stroke="#255000" points="225.05,-918.15 218.07,-926.12 228.5,-924.24 225.05,-918.15"/>
+</g>
+<!-- module~pfio_addhistcollectionmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node10" class="node">
+<title>module~pfio_addhistcollectionmessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node10"><a xlink:href=".././module/pfio_addhistcollectionmessagemod.html" xlink:title="pFIO_AddHistCollectionMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="220,-906 15,-906 15,-882 220,-882 220,-906"/>
+<text text-anchor="middle" x="117.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AddHistCollectionMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_addhistcollectionmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge9" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_addhistcollectionmessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M336.01,-612.18C333.57,-655.39 319.16,-802.6 235,-873 233,-874.67 230.91,-876.23 228.75,-877.68"/>
+<polygon fill="#255000" stroke="#255000" points="226.93,-874.69 220.07,-882.77 230.47,-880.73 226.93,-874.69"/>
+</g>
+<!-- module~pfio_basethreadmod -->
+<g id="proc~~connect_to_server~~UsesGraph_node11" class="node">
+<title>module~pfio_basethreadmod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node11"><a xlink:href=".././module/pfio_basethreadmod.html" xlink:title="pFIO_BaseThreadMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="181.5,-864 53.5,-864 53.5,-840 181.5,-840 181.5,-864"/>
+<text text-anchor="middle" x="117.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_BaseThreadMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_basethreadmod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge10" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_basethreadmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.11,-612.2C329.98,-651.11 308.45,-773.1 235,-831 222.69,-840.71 207.37,-846.49 191.93,-849.83"/>
+<polygon fill="#255000" stroke="#255000" points="191,-846.45 181.79,-851.69 192.26,-853.33 191,-846.45"/>
+</g>
+<!-- module~pfio_collectiveprefetchdatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node12" class="node">
+<title>module~pfio_collectiveprefetchdatamessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node12"><a xlink:href=".././module/pfio_collectiveprefetchdatamessagemod.html" xlink:title="pFIO_CollectivePrefetchDataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="233.5,-822 1.5,-822 1.5,-798 233.5,-798 233.5,-822"/>
+<text text-anchor="middle" x="117.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectivePrefetchDataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_collectiveprefetchdatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge11" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_collectiveprefetchdatamessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M333.86,-612.15C325.78,-646.23 297.98,-743.26 235,-789 233.07,-790.4 231.09,-791.71 229.04,-792.95"/>
+<polygon fill="#255000" stroke="#255000" points="226.95,-790.1 219.76,-797.88 230.24,-796.28 226.95,-790.1"/>
+</g>
+<!-- module~pfio_collectiveprefetchdonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node13" class="node">
+<title>module~pfio_collectiveprefetchdonemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node13"><a xlink:href=".././module/pfio_collectiveprefetchdonemessagemod.html" xlink:title="pFIO_CollectivePrefetchDoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="235,-780 0,-780 0,-756 235,-756 235,-780"/>
+<text text-anchor="middle" x="117.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectivePrefetchDoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_collectiveprefetchdonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge12" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_collectiveprefetchdonemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M331.89,-612.33C320.41,-641.16 287.66,-713.07 235,-747 232.36,-748.7 229.63,-750.27 226.81,-751.72"/>
+<polygon fill="#255000" stroke="#255000" points="225.21,-748.61 217.59,-755.97 228.14,-754.97 225.21,-748.61"/>
+</g>
+<!-- module~pfio_collectivestagedatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node14" class="node">
+<title>module~pfio_collectivestagedatamessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node14"><a xlink:href=".././module/pfio_collectivestagedatamessagemod.html" xlink:title="pFIO_CollectiveStageDataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="227.5,-738 7.5,-738 7.5,-714 227.5,-714 227.5,-738"/>
+<text text-anchor="middle" x="117.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectiveStageDataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_collectivestagedatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge13" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_collectivestagedatamessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M328.69,-612.11C313.57,-634.48 277.94,-682.08 235,-705 231.28,-706.99 227.4,-708.79 223.42,-710.43"/>
+<polygon fill="#255000" stroke="#255000" points="222.12,-707.18 213.98,-713.95 224.57,-713.74 222.12,-707.18"/>
+</g>
+<!-- module~pfio_collectivestagedonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node15" class="node">
+<title>module~pfio_collectivestagedonemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node15"><a xlink:href=".././module/pfio_collectivestagedonemessagemod.html" xlink:title="pFIO_CollectiveStageDoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="229,-696 6,-696 6,-672 229,-672 229,-696"/>
+<text text-anchor="middle" x="117.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_CollectiveStageDoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_collectivestagedonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge14" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_collectivestagedonemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M321.31,-612.02C302.27,-626.44 268.1,-650.28 235,-663 228.81,-665.38 222.34,-667.49 215.74,-669.36"/>
+<polygon fill="#255000" stroke="#255000" points="214.78,-666 206.01,-671.95 216.58,-672.76 214.78,-666"/>
+</g>
+<!-- module~pfio_donemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node16" class="node">
+<title>module~pfio_donemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node16"><a xlink:href=".././module/pfio_donemessagemod.html" xlink:title="pFIO_DoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="187,-654 48,-654 48,-630 187,-630 187,-654"/>
+<text text-anchor="middle" x="117.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_DoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_donemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge15" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_donemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M279.65,-612.03C265.11,-615.03 249.49,-618.2 235,-621 222.74,-623.37 209.74,-625.8 197.04,-628.13"/>
+<polygon fill="#255000" stroke="#255000" points="196.14,-624.73 186.93,-629.97 197.4,-631.62 196.14,-624.73"/>
+</g>
+<!-- module~pfio_dummymessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node17" class="node">
+<title>module~pfio_dummymessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node17"><a xlink:href=".././module/pfio_dummymessagemod.html" xlink:title="pFIO_DummyMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="194,-612 41,-612 41,-588 194,-588 194,-612"/>
+<text text-anchor="middle" x="117.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_DummyMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_dummymessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge16" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_dummymessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M270.8,-600C249.81,-600 226.28,-600 204.09,-600"/>
+<polygon fill="#255000" stroke="#255000" points="204.01,-596.5 194.01,-600 204.01,-603.5 204.01,-596.5"/>
+</g>
+<!-- module~pfio_filemetadatamod -->
+<g id="proc~~connect_to_server~~UsesGraph_node18" class="node">
+<title>module~pfio_filemetadatamod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node18"><a xlink:href=".././module/pfio_filemetadatamod.html" xlink:title="pFIO_FileMetadataMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="184,-570 51,-570 51,-546 184,-546 184,-570"/>
+<text text-anchor="middle" x="117.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_FileMetadataMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_filemetadatamod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge17" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_filemetadatamod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M279.65,-587.97C265.11,-584.97 249.49,-581.8 235,-579 221.77,-576.44 207.67,-573.81 194.02,-571.32"/>
+<polygon fill="#255000" stroke="#255000" points="194.64,-567.88 184.17,-569.53 193.39,-574.76 194.64,-567.88"/>
+</g>
+<!-- module~pfio_handshakemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node19" class="node">
+<title>module~pfio_handshakemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node19"><a xlink:href=".././module/pfio_handshakemessagemod.html" xlink:title="pFIO_HandShakeMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="203.5,-528 31.5,-528 31.5,-504 203.5,-504 203.5,-528"/>
+<text text-anchor="middle" x="117.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_HandShakeMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_handshakemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge18" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_handshakemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M321.31,-587.98C302.27,-573.56 268.1,-549.72 235,-537 228.06,-534.33 220.76,-532 213.34,-529.96"/>
+<polygon fill="#255000" stroke="#255000" points="214.08,-526.54 203.53,-527.45 212.35,-533.32 214.08,-526.54"/>
+</g>
+<!-- module~pfio_idmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node20" class="node">
+<title>module~pfio_idmessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node20"><a xlink:href=".././module/pfio_idmessagemod.html" xlink:title="pFIO_IDMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="178.5,-486 56.5,-486 56.5,-462 178.5,-462 178.5,-486"/>
+<text text-anchor="middle" x="117.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IDMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_idmessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge19" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_idmessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M328.69,-587.89C313.57,-565.52 277.94,-517.92 235,-495 220.95,-487.5 204.72,-482.61 188.93,-479.45"/>
+<polygon fill="#255000" stroke="#255000" points="189.1,-475.92 178.64,-477.61 187.87,-482.81 189.1,-475.92"/>
+</g>
+<!-- module~pfio_integerrequestmapmod -->
+<g id="proc~~connect_to_server~~UsesGraph_node21" class="node">
+<title>module~pfio_integerrequestmapmod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node21"><a xlink:href=".././module/pfio_integerrequestmapmod.html" xlink:title="pFIO_IntegerRequestMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="201.5,-444 33.5,-444 33.5,-420 201.5,-420 201.5,-444"/>
+<text text-anchor="middle" x="117.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerRequestMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_integerrequestmapmod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge20" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_integerrequestmapmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M331.89,-587.67C320.41,-558.84 287.66,-486.93 235,-453 227.8,-448.36 219.85,-444.67 211.6,-441.75"/>
+<polygon fill="#255000" stroke="#255000" points="212.38,-438.33 201.79,-438.67 210.28,-445.01 212.38,-438.33"/>
+</g>
+<!-- module~pfio_messagevisitormod -->
+<g id="proc~~connect_to_server~~UsesGraph_node22" class="node">
+<title>module~pfio_messagevisitormod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node22"><a xlink:href=".././module/pfio_messagevisitormod.html" xlink:title="pFIO_MessageVisitorMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="189.5,-402 45.5,-402 45.5,-378 189.5,-378 189.5,-402"/>
+<text text-anchor="middle" x="117.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_MessageVisitorMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_messagevisitormod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge21" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_messagevisitormod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M333.86,-587.85C325.78,-553.77 297.98,-456.74 235,-411 224.53,-403.4 212.17,-398.26 199.47,-394.84"/>
+<polygon fill="#255000" stroke="#255000" points="200.26,-391.43 189.72,-392.55 198.66,-398.25 200.26,-391.43"/>
+</g>
+<!-- module~pfio_modifymetadatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node23" class="node">
+<title>module~pfio_modifymetadatamessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node23"><a xlink:href=".././module/pfio_modifymetadatamessagemod.html" xlink:title="pFIO_ModifyMetadataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="215.5,-360 19.5,-360 19.5,-336 215.5,-336 215.5,-360"/>
+<text text-anchor="middle" x="117.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ModifyMetadataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_modifymetadatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge22" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_modifymetadatamessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.11,-587.8C329.98,-548.89 308.45,-426.9 235,-369 231.78,-366.46 228.35,-364.19 224.77,-362.16"/>
+<polygon fill="#255000" stroke="#255000" points="226.09,-358.91 215.58,-357.6 222.98,-365.18 226.09,-358.91"/>
+</g>
+<!-- module~pfio_prefetchdatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node24" class="node">
+<title>module~pfio_prefetchdatamessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node24"><a xlink:href=".././module/pfio_prefetchdatamessagemod.html" xlink:title="pFIO_PrefetchDataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="207.5,-318 27.5,-318 27.5,-294 207.5,-294 207.5,-318"/>
+<text text-anchor="middle" x="117.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_PrefetchDataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_prefetchdatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge23" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_prefetchdatamessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M336.01,-587.82C333.57,-544.61 319.16,-397.4 235,-327 229.6,-322.48 223.56,-318.8 217.14,-315.8"/>
+<polygon fill="#255000" stroke="#255000" points="218.09,-312.41 207.51,-311.89 215.46,-318.9 218.09,-312.41"/>
+</g>
+<!-- module~pfio_prefetchdonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node25" class="node">
+<title>module~pfio_prefetchdonemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node25"><a xlink:href=".././module/pfio_prefetchdonemessagemod.html" xlink:title="pFIO_PrefetchDoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="209,-276 26,-276 26,-252 209,-252 209,-276"/>
+<text text-anchor="middle" x="117.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_PrefetchDoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_prefetchdonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge24" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_prefetchdonemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M336.69,-587.68C336.69,-540.26 329.92,-368.04 235,-285 230.08,-280.69 224.58,-277.13 218.72,-274.2"/>
+<polygon fill="#255000" stroke="#255000" points="219.82,-270.86 209.25,-270.09 217.03,-277.28 219.82,-270.86"/>
+</g>
+<!-- module~pfio_replacemetadatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node26" class="node">
+<title>module~pfio_replacemetadatamessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node26"><a xlink:href=".././module/pfio_replacemetadatamessagemod.html" xlink:title="pFIO_ReplaceMetadataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="219.5,-234 15.5,-234 15.5,-210 219.5,-210 219.5,-234"/>
+<text text-anchor="middle" x="117.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ReplaceMetadataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_replacemetadatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge25" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_replacemetadatamessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M334.76,-587.7C326.42,-530.56 288.72,-291.67 235,-243 232.97,-241.16 230.83,-239.45 228.61,-237.87"/>
+<polygon fill="#255000" stroke="#255000" points="229.98,-234.61 219.62,-232.38 226.33,-240.58 229.98,-234.61"/>
+</g>
+<!-- module~pfio_simplesocketmod -->
+<g id="proc~~connect_to_server~~UsesGraph_node27" class="node">
+<title>module~pfio_simplesocketmod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node27"><a xlink:href=".././module/pfio_simplesocketmod.html" xlink:title="pFIO_SimpleSocketMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="186,-192 49,-192 49,-168 186,-168 186,-192"/>
+<text text-anchor="middle" x="117.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_SimpleSocketMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_simplesocketmod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge26" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_simplesocketmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.17,-587.93C328.25,-527.25 294.36,-256.3 235,-201 224.25,-190.98 210.41,-184.92 196.06,-181.39"/>
+<polygon fill="#255000" stroke="#255000" points="196.57,-177.92 186.07,-179.33 195.16,-184.78 196.57,-177.92"/>
+</g>
+<!-- module~pfio_stagedatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node28" class="node">
+<title>module~pfio_stagedatamessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node28"><a xlink:href=".././module/pfio_stagedatamessagemod.html" xlink:title="pFIO_StageDataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="201,-150 34,-150 34,-126 201,-126 201,-150"/>
+<text text-anchor="middle" x="117.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StageDataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_stagedatamessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge27" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_stagedatamessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.49,-587.97C329.82,-523.65 299.97,-220.93 235,-159 227.99,-152.32 219.61,-147.38 210.61,-143.78"/>
+<polygon fill="#255000" stroke="#255000" points="211.62,-140.43 201.03,-140.49 209.35,-147.05 211.62,-140.43"/>
+</g>
+<!-- module~pfio_stagedonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node29" class="node">
+<title>module~pfio_stagedonemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node29"><a xlink:href=".././module/pfio_stagedonemessagemod.html" xlink:title="pFIO_StageDoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="202.5,-108 32.5,-108 32.5,-84 202.5,-84 202.5,-108"/>
+<text text-anchor="middle" x="117.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StageDoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_stagedonemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge28" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_stagedonemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.73,-587.75C331.17,-519.36 305.52,-185.52 235,-117 228.4,-110.58 220.54,-105.77 212.06,-102.2"/>
+<polygon fill="#255000" stroke="#255000" points="213.25,-98.9 202.66,-98.78 210.87,-105.48 213.25,-98.9"/>
+</g>
+<!-- module~pfio_stringvariablemapmod -->
+<g id="proc~~connect_to_server~~UsesGraph_node30" class="node">
+<title>module~pfio_stringvariablemapmod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node30"><a xlink:href=".././module/pfio_stringvariablemapmod.html" xlink:title="pFIO_StringVariableMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="198.5,-66 36.5,-66 36.5,-42 198.5,-42 198.5,-66"/>
+<text text-anchor="middle" x="117.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_StringVariableMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_stringvariablemapmod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge29" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_stringvariablemapmod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M335.95,-587.65C332.45,-515.6 311.13,-150.17 235,-75 227.46,-67.56 218.24,-62.26 208.32,-58.55"/>
+<polygon fill="#255000" stroke="#255000" points="209.21,-55.16 198.62,-55.46 207.08,-61.83 209.21,-55.16"/>
+</g>
+<!-- module~pfio_terminatemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_node31" class="node">
+<title>module~pfio_terminatemessagemod</title>
+<g id="a_proc~~connect_to_server~~UsesGraph_node31"><a xlink:href=".././module/pfio_terminatemessagemod.html" xlink:title="pFIO_TerminateMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="199.5,-24 35.5,-24 35.5,0 199.5,0 199.5,-24"/>
+<text text-anchor="middle" x="117.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_TerminateMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~pfio_clientthreadmod&#45;&gt;module~pfio_terminatemessagemod -->
+<g id="proc~~connect_to_server~~UsesGraph_edge30" class="edge">
+<title>module~pfio_clientthreadmod&#45;&gt;module~pfio_terminatemessagemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M336.14,-587.66C333.66,-512.34 316.8,-114.9 235,-33 227.76,-25.75 218.91,-20.52 209.37,-16.81"/>
+<polygon fill="#255000" stroke="#255000" points="210.22,-13.41 199.62,-13.59 208.02,-20.05 210.22,-13.41"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocconnect_to_serverUsesGraph = svgPanZoom('#procconnect_to_serverUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </li>
+      </ul>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/directoryservice.html'>DirectoryService</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5294"></span>
+              class(<a href='../type/directoryservice.html'>DirectoryService</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-port_name~11"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>port_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-client"></span>
+              class(<a href='../type/clientthread.html'>ClientThread</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>client</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-client_comm~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>client_comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~324"></span>
+              class(<a href='../type/keywordenforcer~55.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-server_size~2"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>server_size</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1264"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~connect_to_server~~CallsGraph Pages: 1 -->
+<svg id="procconnect_to_serverCallsGraph" width="641pt" height="276pt"
+ viewBox="0.00 0.00 641.00 276.03" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~connect_to_server~~CallsGraph" class="graph" transform="scale(2.38 2.38) rotate(0) translate(4 654)">
+<title>proc~~connect_to_server~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-654 1524,-654 1524,4 -4,4"/>
+<!-- proc~connect_to_server -->
+<g id="proc~~connect_to_server~~CallsGraph_node1" class="node">
+<title>proc~connect_to_server</title>
+<polygon fill="none" stroke="black" points="356,-339 0,-339 0,-315 356,-315 356,-339"/>
+<text text-anchor="middle" x="178" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_DirectoryServiceMod::DirectoryService%connect_to_server</text>
+</g>
+<!-- add_connection -->
+<g id="proc~~connect_to_server~~CallsGraph_node2" class="node">
+<title>add_connection</title>
+<polygon fill="#777777" stroke="#777777" points="604.5,-650 507.5,-650 507.5,-626 604.5,-626 604.5,-650"/>
+<text text-anchor="middle" x="556" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_connection</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;add_connection -->
+<g id="proc~~connect_to_server~~CallsGraph_edge1" class="edge">
+<title>proc~connect_to_server&#45;&gt;add_connection</title>
+<path fill="none" stroke="#255000" d="M183.68,-339.07C202.06,-384.69 274.15,-547.52 392,-617 423.38,-635.5 464.01,-640.77 496.85,-641.41"/>
+<polygon fill="#255000" stroke="#255000" points="497.2,-644.91 507.22,-641.46 497.24,-637.91 497.2,-644.91"/>
+</g>
+<!-- entries -->
+<g id="proc~~connect_to_server~~CallsGraph_node3" class="node">
+<title>entries</title>
+<polygon fill="#777777" stroke="#777777" points="583,-608 529,-608 529,-584 583,-584 583,-608"/>
+<text text-anchor="middle" x="556" y="-593.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">entries</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;entries -->
+<g id="proc~~connect_to_server~~CallsGraph_edge2" class="edge">
+<title>proc~connect_to_server&#45;&gt;entries</title>
+<path fill="none" stroke="#255000" d="M185.07,-339.01C206.64,-380.26 284.1,-516.8 392,-575 431.6,-596.36 484.26,-599.37 518.87,-598.54"/>
+<polygon fill="#255000" stroke="#255000" points="519.13,-602.03 528.99,-598.17 518.87,-595.04 519.13,-602.03"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~connect_to_server~~CallsGraph_node4" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node4"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="664.5,-566 447.5,-566 447.5,-542 664.5,-542 664.5,-566"/>
+<text text-anchor="middle" x="556" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_server&#45;&gt;interface~mapl_assert -->
+<g id="proc~~connect_to_server~~CallsGraph_edge3" class="edge">
+<title>proc~connect_to_server&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M187.51,-339.06C213.46,-374.8 295.74,-480.63 392,-528 406.16,-534.97 421.77,-540.14 437.55,-543.97"/>
+<polygon fill="#255000" stroke="#255000" points="436.87,-547.4 447.39,-546.18 438.4,-540.57 436.87,-547.4"/>
+</g>
+<!-- local_ports -->
+<g id="proc~~connect_to_server~~CallsGraph_node5" class="node">
+<title>local_ports</title>
+<polygon fill="#777777" stroke="#777777" points="591,-486 521,-486 521,-462 591,-462 591,-486"/>
+<text text-anchor="middle" x="556" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">local_ports</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;local_ports -->
+<g id="proc~~connect_to_server~~CallsGraph_edge4" class="edge">
+<title>proc~connect_to_server&#45;&gt;local_ports</title>
+<path fill="none" stroke="#255000" d="M194.2,-339.02C227.71,-364.79 311.35,-425.27 392,-453 430.59,-466.27 476.94,-471.27 510.33,-473.09"/>
+<polygon fill="#255000" stroke="#255000" points="510.54,-476.61 520.69,-473.58 510.86,-469.61 510.54,-476.61"/>
+</g>
+<!-- mpi_bcast -->
+<g id="proc~~connect_to_server~~CallsGraph_node6" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="589.5,-444 522.5,-444 522.5,-420 589.5,-420 589.5,-444"/>
+<text text-anchor="middle" x="556" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_bcast -->
+<g id="proc~~connect_to_server~~CallsGraph_edge5" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#255000" d="M203.58,-339.02C242.55,-357.54 321.36,-392.82 392,-411 432.02,-421.3 478.93,-426.67 512.12,-429.39"/>
+<polygon fill="#255000" stroke="#255000" points="512.15,-432.9 522.39,-430.18 512.69,-425.92 512.15,-432.9"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~connect_to_server~~CallsGraph_node7" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="606.5,-402 505.5,-402 505.5,-378 606.5,-378 606.5,-402"/>
+<text text-anchor="middle" x="556" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_comm_rank -->
+<g id="proc~~connect_to_server~~CallsGraph_edge6" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#255000" d="M234.87,-339.07C277.73,-348.08 338.43,-360.28 392,-369 426.03,-374.54 464.25,-379.53 495.13,-383.25"/>
+<polygon fill="#255000" stroke="#255000" points="494.95,-386.76 505.3,-384.47 495.78,-379.81 494.95,-386.76"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~connect_to_server~~CallsGraph_node8" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="604.5,-360 507.5,-360 507.5,-336 604.5,-336 604.5,-360"/>
+<text text-anchor="middle" x="556" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_comm_size -->
+<g id="proc~~connect_to_server~~CallsGraph_edge7" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#255000" d="M356.26,-336.9C407.06,-339.74 458.9,-342.63 496.9,-344.75"/>
+<polygon fill="#255000" stroke="#255000" points="497.06,-348.27 507.23,-345.33 497.45,-341.28 497.06,-348.27"/>
+</g>
+<!-- mpi_gather -->
+<g id="proc~~connect_to_server~~CallsGraph_node9" class="node">
+<title>mpi_gather</title>
+<polygon fill="#777777" stroke="#777777" points="592.5,-318 519.5,-318 519.5,-294 592.5,-294 592.5,-318"/>
+<text text-anchor="middle" x="556" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_gather</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_gather -->
+<g id="proc~~connect_to_server~~CallsGraph_edge8" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_gather</title>
+<path fill="none" stroke="#255000" d="M356.26,-317.1C412.63,-313.95 470.28,-310.73 508.87,-308.58"/>
+<polygon fill="#255000" stroke="#255000" points="509.44,-312.05 519.23,-308 509.05,-305.06 509.44,-312.05"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~connect_to_server~~CallsGraph_node10" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="586.5,-276 525.5,-276 525.5,-252 586.5,-252 586.5,-276"/>
+<text text-anchor="middle" x="556" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_recv -->
+<g id="proc~~connect_to_server~~CallsGraph_edge9" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#255000" d="M234.87,-314.93C277.73,-305.92 338.43,-293.72 392,-285 433.93,-278.17 482.22,-272.18 515.29,-268.37"/>
+<polygon fill="#255000" stroke="#255000" points="515.93,-271.82 525.47,-267.21 515.14,-264.86 515.93,-271.82"/>
+</g>
+<!-- mpi_scatter -->
+<g id="proc~~connect_to_server~~CallsGraph_node11" class="node">
+<title>mpi_scatter</title>
+<polygon fill="#777777" stroke="#777777" points="593.5,-234 518.5,-234 518.5,-210 593.5,-210 593.5,-234"/>
+<text text-anchor="middle" x="556" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_scatter</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_scatter -->
+<g id="proc~~connect_to_server~~CallsGraph_edge10" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_scatter</title>
+<path fill="none" stroke="#255000" d="M203.58,-314.98C242.55,-296.46 321.36,-261.18 392,-243 430.4,-233.12 475.14,-227.78 508.02,-224.96"/>
+<polygon fill="#255000" stroke="#255000" points="508.57,-228.43 518.26,-224.13 508.01,-221.45 508.57,-228.43"/>
+</g>
+<!-- mpi_send -->
+<g id="proc~~connect_to_server~~CallsGraph_node12" class="node">
+<title>mpi_send</title>
+<polygon fill="#777777" stroke="#777777" points="588,-192 524,-192 524,-168 588,-168 588,-192"/>
+<text text-anchor="middle" x="556" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_send</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;mpi_send -->
+<g id="proc~~connect_to_server~~CallsGraph_edge11" class="edge">
+<title>proc~connect_to_server&#45;&gt;mpi_send</title>
+<path fill="none" stroke="#255000" d="M194.2,-314.98C227.71,-289.21 311.35,-228.73 392,-201 431.81,-187.31 479.87,-182.43 513.45,-180.74"/>
+<polygon fill="#255000" stroke="#255000" points="513.97,-184.23 523.82,-180.3 513.68,-177.23 513.97,-184.23"/>
+</g>
+<!-- proc~get_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_node13" class="node">
+<title>proc~get_directory</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node13"><a xlink:href=".././proc/get_directory.html" xlink:title="pFIO_DirectoryServiceMod::DirectoryService%get_directory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="720,-150 392,-150 392,-126 720,-126 720,-150"/>
+<text text-anchor="middle" x="556" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_DirectoryServiceMod::DirectoryService%get_directory</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_server&#45;&gt;proc~get_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_edge12" class="edge">
+<title>proc~connect_to_server&#45;&gt;proc~get_directory</title>
+<path fill="none" stroke="#255000" d="M189.97,-314.58C219.14,-282.47 302.56,-196.6 392,-159 397.18,-156.82 402.52,-154.86 407.98,-153.08"/>
+<polygon fill="#255000" stroke="#255000" points="409.35,-156.33 417.91,-150.09 407.33,-149.62 409.35,-156.33"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~connect_to_server~~CallsGraph_node14" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node14"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1009,-524 789,-524 789,-500 1009,-500 1009,-524"/>
+<text text-anchor="middle" x="899" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_server&#45;&gt;proc~mapl_return -->
+<g id="proc~~connect_to_server~~CallsGraph_edge13" class="edge">
+<title>proc~connect_to_server&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M189.36,-339.43C217.69,-372.34 300.44,-461.51 392,-495 460.31,-519.99 651.81,-519.77 778.65,-516.5"/>
+<polygon fill="#255000" stroke="#255000" points="778.91,-519.99 788.81,-516.22 778.72,-512.99 778.91,-519.99"/>
+</g>
+<!-- proc~put_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_node15" class="node">
+<title>proc~put_directory</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node15"><a xlink:href=".././proc/put_directory.html" xlink:title="pFIO_DirectoryServiceMod::DirectoryService%put_directory">
+<polygon fill="#d9534f" stroke="#d9534f" points="720,-108 392,-108 392,-84 720,-84 720,-108"/>
+<text text-anchor="middle" x="556" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_DirectoryServiceMod::DirectoryService%put_directory</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_server&#45;&gt;proc~put_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_edge14" class="edge">
+<title>proc~connect_to_server&#45;&gt;proc~put_directory</title>
+<path fill="none" stroke="#255000" d="M186.94,-314.79C211.9,-277.59 293.02,-165.2 392,-117 396.08,-115.01 400.28,-113.19 404.57,-111.53"/>
+<polygon fill="#255000" stroke="#255000" points="405.86,-114.78 414.1,-108.11 403.5,-108.19 405.86,-114.78"/>
+</g>
+<!-- serverthread_done_msgs -->
+<g id="proc~~connect_to_server~~CallsGraph_node16" class="node">
+<title>serverthread_done_msgs</title>
+<polygon fill="#777777" stroke="#777777" points="629,-66 483,-66 483,-42 629,-42 629,-66"/>
+<text text-anchor="middle" x="556" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serverthread_done_msgs</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;serverthread_done_msgs -->
+<g id="proc~~connect_to_server~~CallsGraph_edge15" class="edge">
+<title>proc~connect_to_server&#45;&gt;serverthread_done_msgs</title>
+<path fill="none" stroke="#255000" d="M185.02,-314.8C206.4,-272.89 283.33,-134.17 392,-75 416.33,-61.75 445.65,-55.53 472.68,-52.92"/>
+<polygon fill="#255000" stroke="#255000" points="473.23,-56.38 482.91,-52.08 472.66,-49.41 473.23,-56.38"/>
+</g>
+<!-- set_connection -->
+<g id="proc~~connect_to_server~~CallsGraph_node17" class="node">
+<title>set_connection</title>
+<polygon fill="#777777" stroke="#777777" points="602.5,-24 509.5,-24 509.5,0 602.5,0 602.5,-24"/>
+<text text-anchor="middle" x="556" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_connection</text>
+</g>
+<!-- proc~connect_to_server&#45;&gt;set_connection -->
+<g id="proc~~connect_to_server~~CallsGraph_edge16" class="edge">
+<title>proc~connect_to_server&#45;&gt;set_connection</title>
+<path fill="none" stroke="#255000" d="M183.62,-314.77C201.82,-268.53 273.32,-103.49 392,-33 424.12,-13.92 466.04,-8.86 499.31,-8.48"/>
+<polygon fill="#255000" stroke="#255000" points="499.34,-11.98 509.35,-8.5 499.35,-4.98 499.34,-11.98"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~connect_to_server~~CallsGraph_node23" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node23"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1035,-608 763,-608 763,-584 1035,-584 1035,-608"/>
+<text text-anchor="middle" x="899" y="-593.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~connect_to_server~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M654.72,-566.04C697.17,-571.26 747.03,-577.41 790.52,-582.76"/>
+<polygon fill="transparent" stroke="transparent" points="790.21,-586.25 800.56,-584 791.07,-579.3 790.21,-586.25"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~connect_to_server~~CallsGraph_node24" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node24"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1042,-566 756,-566 756,-542 1042,-542 1042,-566"/>
+<text text-anchor="middle" x="899" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~connect_to_server~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M664.89,-554C690.61,-554 718.54,-554 745.83,-554"/>
+<polygon fill="transparent" stroke="transparent" points="745.85,-557.5 755.85,-554 745.85,-550.5 745.85,-557.5"/>
+</g>
+<!-- mpi_get -->
+<g id="proc~~connect_to_server~~CallsGraph_node18" class="node">
+<title>mpi_get</title>
+<polygon fill="#777777" stroke="#777777" points="926.5,-213 871.5,-213 871.5,-189 926.5,-189 926.5,-213"/>
+<text text-anchor="middle" x="899" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_get</text>
+</g>
+<!-- proc~get_directory&#45;&gt;mpi_get -->
+<g id="proc~~connect_to_server~~CallsGraph_edge19" class="edge">
+<title>proc~get_directory&#45;&gt;mpi_get</title>
+<path fill="none" stroke="#310255" d="M687.53,-150.05C698.64,-152.51 709.6,-155.46 720,-159 737.54,-164.97 738.52,-173.87 756,-180 790.45,-192.09 831.98,-197.22 861.2,-199.4"/>
+<polygon fill="#310255" stroke="#310255" points="861.16,-202.9 871.37,-200.07 861.63,-195.92 861.16,-202.9"/>
+</g>
+<!-- mpi_win_lock -->
+<g id="proc~~connect_to_server~~CallsGraph_node20" class="node">
+<title>mpi_win_lock</title>
+<polygon fill="#777777" stroke="#777777" points="940.5,-171 857.5,-171 857.5,-147 940.5,-147 940.5,-171"/>
+<text text-anchor="middle" x="899" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_lock</text>
+</g>
+<!-- proc~get_directory&#45;&gt;mpi_win_lock -->
+<g id="proc~~connect_to_server~~CallsGraph_edge20" class="edge">
+<title>proc~get_directory&#45;&gt;mpi_win_lock</title>
+<path fill="none" stroke="#310255" d="M720.01,-148.04C766.25,-150.89 813.23,-153.78 847.31,-155.88"/>
+<polygon fill="#310255" stroke="#310255" points="847.26,-159.38 857.45,-156.5 847.69,-152.39 847.26,-159.38"/>
+</g>
+<!-- mpi_win_unlock -->
+<g id="proc~~connect_to_server~~CallsGraph_node21" class="node">
+<title>mpi_win_unlock</title>
+<polygon fill="#777777" stroke="#777777" points="947.5,-129 850.5,-129 850.5,-105 947.5,-105 947.5,-129"/>
+<text text-anchor="middle" x="899" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_unlock</text>
+</g>
+<!-- proc~get_directory&#45;&gt;mpi_win_unlock -->
+<g id="proc~~connect_to_server~~CallsGraph_edge21" class="edge">
+<title>proc~get_directory&#45;&gt;mpi_win_unlock</title>
+<path fill="none" stroke="#310255" d="M720.01,-127.96C763.15,-125.3 806.93,-122.61 840.28,-120.55"/>
+<polygon fill="#310255" stroke="#310255" points="840.51,-124.05 850.28,-119.94 840.08,-117.06 840.51,-124.05"/>
+</g>
+<!-- proc~sizeof_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_node26" class="node">
+<title>proc~sizeof_directory</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node26"><a xlink:href=".././proc/sizeof_directory.html" xlink:title="pFIO_DirectoryServiceMod::sizeof_directory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1021,-87 777,-87 777,-63 1021,-63 1021,-87"/>
+<text text-anchor="middle" x="899" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_DirectoryServiceMod::sizeof_directory</text>
+</a>
+</g>
+</g>
+<!-- proc~get_directory&#45;&gt;proc~sizeof_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_edge22" class="edge">
+<title>proc~get_directory&#45;&gt;proc~sizeof_directory</title>
+<path fill="none" stroke="#310255" d="M687.53,-125.95C698.64,-123.49 709.6,-120.54 720,-117 737.54,-111.03 738.52,-102.13 756,-96 763.03,-93.53 770.36,-91.36 777.81,-89.43"/>
+<polygon fill="#310255" stroke="#310255" points="778.77,-92.8 787.67,-87.05 777.13,-86 778.77,-92.8"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~connect_to_server~~CallsGraph_node22" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node22"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1331,-524 1078,-524 1078,-500 1331,-500 1331,-524"/>
+<text text-anchor="middle" x="1204.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~connect_to_server~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1009.14,-512C1028.1,-512 1048.02,-512 1067.59,-512"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1067.78,-515.5 1077.78,-512 1067.78,-508.5 1067.78,-515.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~connect_to_server~~CallsGraph_node25" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node25"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1319,-566 1090,-566 1090,-542 1319,-542 1319,-566"/>
+<text text-anchor="middle" x="1204.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~connect_to_server~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M986.97,-524.04C1024.36,-529.21 1068.2,-535.28 1106.62,-540.59"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1106.39,-544.1 1116.78,-542 1107.35,-537.16 1106.39,-544.1"/>
+</g>
+<!-- mpi_put -->
+<g id="proc~~connect_to_server~~CallsGraph_node19" class="node">
+<title>mpi_put</title>
+<polygon fill="#777777" stroke="#777777" points="926.5,-45 871.5,-45 871.5,-21 926.5,-21 926.5,-45"/>
+<text text-anchor="middle" x="899" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_put</text>
+</g>
+<!-- proc~put_directory&#45;&gt;mpi_put -->
+<g id="proc~~connect_to_server~~CallsGraph_edge25" class="edge">
+<title>proc~put_directory&#45;&gt;mpi_put</title>
+<path fill="none" stroke="#223025" stroke-opacity="0.019608" d="M687.53,-83.95C698.64,-81.49 709.6,-78.54 720,-75 737.54,-69.03 738.52,-60.13 756,-54 790.45,-41.91 831.98,-36.78 861.2,-34.6"/>
+<polygon fill="#223025" fill-opacity="0.019608" stroke="#223025" stroke-opacity="0.019608" points="861.63,-38.08 871.37,-33.93 861.16,-31.1 861.63,-38.08"/>
+</g>
+<!-- proc~put_directory&#45;&gt;mpi_win_lock -->
+<g id="proc~~connect_to_server~~CallsGraph_edge26" class="edge">
+<title>proc~put_directory&#45;&gt;mpi_win_lock</title>
+<path fill="none" stroke="#223025" stroke-opacity="0.019608" d="M687.53,-108.05C698.64,-110.51 709.6,-113.46 720,-117 737.54,-122.97 738.52,-131.87 756,-138 785.19,-148.24 819.46,-153.49 847.02,-156.18"/>
+<polygon fill="#223025" fill-opacity="0.019608" stroke="#223025" stroke-opacity="0.019608" points="846.96,-159.69 857.23,-157.09 847.58,-152.71 846.96,-159.69"/>
+</g>
+<!-- proc~put_directory&#45;&gt;mpi_win_unlock -->
+<g id="proc~~connect_to_server~~CallsGraph_edge27" class="edge">
+<title>proc~put_directory&#45;&gt;mpi_win_unlock</title>
+<path fill="none" stroke="#223025" stroke-opacity="0.019608" d="M720.01,-106.04C763.15,-108.7 806.93,-111.39 840.28,-113.45"/>
+<polygon fill="#223025" fill-opacity="0.019608" stroke="#223025" stroke-opacity="0.019608" points="840.08,-116.94 850.28,-114.06 840.51,-109.95 840.08,-116.94"/>
+</g>
+<!-- proc~put_directory&#45;&gt;proc~sizeof_directory -->
+<g id="proc~~connect_to_server~~CallsGraph_edge28" class="edge">
+<title>proc~put_directory&#45;&gt;proc~sizeof_directory</title>
+<path fill="none" stroke="#223025" stroke-opacity="0.019608" d="M720.01,-85.96C735.74,-84.99 751.56,-84.02 766.92,-83.07"/>
+<polygon fill="#223025" fill-opacity="0.019608" stroke="#223025" stroke-opacity="0.019608" points="767.19,-86.56 776.95,-82.45 766.75,-79.58 767.19,-86.56"/>
+</g>
+<!-- at -->
+<g id="proc~~connect_to_server~~CallsGraph_node27" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1470.5,-524 1416.5,-524 1416.5,-500 1470.5,-500 1470.5,-524"/>
+<text text-anchor="middle" x="1443.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~connect_to_server~~CallsGraph_edge29" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025516" stroke-opacity="0.035294" d="M1331.29,-512C1358.83,-512 1385.86,-512 1406.36,-512"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="1406.46,-515.5 1416.46,-512 1406.46,-508.5 1406.46,-515.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~connect_to_server~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#016925" stroke-opacity="0.019608" d="M986.97,-583.96C1024.36,-578.79 1068.2,-572.72 1106.62,-567.41"/>
+<polygon fill="#016925" fill-opacity="0.019608" stroke="#016925" stroke-opacity="0.019608" points="1107.35,-570.84 1116.78,-566 1106.39,-563.9 1107.35,-570.84"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~connect_to_server~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#002505" d="M986.97,-541.96C1024.36,-536.79 1068.2,-530.72 1106.62,-525.41"/>
+<polygon fill="#002505" stroke="#002505" points="1107.35,-528.84 1116.78,-524 1106.39,-521.9 1107.35,-528.84"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~connect_to_server~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M1042.42,-554C1054.81,-554 1067.29,-554 1079.52,-554"/>
+<polygon fill="#002505" stroke="#002505" points="1079.72,-557.5 1089.72,-554 1079.72,-550.5 1079.72,-557.5"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~connect_to_server~~CallsGraph_node28" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~connect_to_server~~CallsGraph_node28"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1520,-566 1367,-566 1367,-542 1520,-542 1520,-566"/>
+<text text-anchor="middle" x="1443.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~connect_to_server~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#170025" stroke-opacity="0.019608" d="M1319.14,-554C1331.76,-554 1344.46,-554 1356.65,-554"/>
+<polygon fill="#170025" fill-opacity="0.019608" stroke="#170025" stroke-opacity="0.019608" points="1356.77,-557.5 1366.77,-554 1356.77,-550.5 1356.77,-557.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocconnect_to_serverCallsGraph = svgPanZoom('#procconnect_to_serverCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/connect_to_server.html#src">connect_to_server</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_to_server</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">client</span><span class="p">,</span><span class="w"> </span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">server_size</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">use </span><span class="n">pFIO_ClientThreadMod</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ClientThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_comm</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_size</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sckt</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank_in_client</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">(</span><span class="n">MPI_STATUS_SIZE</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dir</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryEntry</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dir_entry</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_rank</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_rank</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_root_rank</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_npes</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_npes</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_ranks</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_ranks</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_thread_ptr</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_ptr</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">SimpleSocket</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ss</span><span class="w"></span>
+<span class="w">      </span><span class="c">! First, check ports to see if server is local, in which case</span>
+<span class="w">      </span><span class="c">! a SimpleSocket is used for the connection.</span>
+<span class="w">      </span><span class="c">! Note: In this scenario, the server _must_ always publish prior to this.</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">n_local_ports</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">local_ports</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">port_name</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">port_name</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">ss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SimpleSocket</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">sckt</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">ss</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">server_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">local_ports</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">server_ptr</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">server_ptr</span><span class="p">%</span><span class="n">add_connection</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">server_thread_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">server_ptr</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="c">! should be &quot;last&quot;</span>
+<span class="w">            </span><span class="n">ss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SimpleSocket</span><span class="p">(</span><span class="n">server_thread_ptr</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">sckt</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">ss</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">client</span><span class="p">%</span><span class="n">set_connection</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">nullify</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">server_size</span><span class="p">))</span><span class="w"> </span><span class="n">server_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">server_ptr</span><span class="p">%</span><span class="n">npes</span><span class="w"></span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">server_ptr</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
+<span class="w">            </span><span class="n">server_ptr</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end do</span>
+
+<span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank_in_client</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank_in_client</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">mutex</span><span class="p">%</span><span class="n">acquire</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">         </span><span class="n">dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_directory</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">win_server_directory</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">         </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"></span>
+<span class="w">         </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">port_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">port_name</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">partner_root_rank</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">                  </span><span class="n">server_root_rank</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">partner_root_rank</span><span class="w"></span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">               exit</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! advertise self</span>
+
+<span class="w">            </span><span class="n">dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_directory</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">win_client_directory</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">dir_entry</span><span class="p">%</span><span class="n">port_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">port_name</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">dir_entry</span><span class="p">%</span><span class="n">partner_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"> </span><span class="c">! global comm</span>
+
+<span class="w">            </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dir_entry</span><span class="w"></span>
+<span class="w">         </span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">put_directory</span><span class="p">(</span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">win_client_directory</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">mutex</span><span class="p">%</span><span class="n">release</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">server_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">DISCOVERY_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">server_root_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ANY_SOURCE</span><span class="p">,</span><span class="w"> </span><span class="n">DISCOVERY_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">      end if</span><span class="w"></span>
+
+<span class="w">      </span><span class="c">! complete handshake</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank_in_client</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">(</span><span class="n">client_npes</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">server_ranks</span><span class="p">(</span><span class="n">client_npes</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="c">! MPI does not like 0-sized arrays, even when they are unused</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">server_ranks</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="c">! MPI does not like 0-sized arrays, even when they are unused</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">MPI_Gather</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_ranks</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank_in_client</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">server_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">NPES_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">server_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">RANKS_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">server_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">server_root_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">server_npes</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">server_root_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">server_size</span><span class="p">))</span><span class="w"> </span><span class="n">server_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">server_npes</span><span class="w"></span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">MPI_Scatter</span><span class="p">(</span><span class="n">server_ranks</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">server_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">client_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">server_size</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">MPI_Bcast</span><span class="p">(</span><span class="n">server_size</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">client_comm</span><span class="p">,</span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="c">! Construct the connection</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">tmp_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">server_rank</span><span class="p">,</span><span class="w"> </span><span class="n">CONNECT_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">tmp_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">server_rank</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;shake the wrong hand&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">sckt</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">MpiSocket</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">server_rank</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">parser</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">client</span><span class="p">%</span><span class="n">set_connection</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to_server</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-09-26T17:05:17.412868             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

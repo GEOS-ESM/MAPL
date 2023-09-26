@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_accumulate_nested &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_accumulate_nested
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">30 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/test_TimeProfiler.pf"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/test_timeprofiler.pf.html'>test_TimeProfiler.pf</a></li>
+              <li><a href='../module/test_timeprofiler.html'>test_TimeProfiler</a></li>
+          <li class="active">test_accumulate_nested</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_accumulate_nested.html#src">test_accumulate_nested</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_accumulate_nested()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_accumulate_nested~~CallsGraph Pages: 1 -->
+<svg id="proctest_accumulate_nestedCallsGraph" width="641pt" height="246pt"
+ viewBox="0.00 0.00 641.00 245.95" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_accumulate_nested~~CallsGraph" class="graph" transform="scale(1.84 1.84) rotate(0) translate(4 448)">
+<title>proc~~test_accumulate_nested~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-448 1174,-448 1174,4 -4,4"/>
+<!-- proc~test_accumulate_nested -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node1" class="node">
+<title>proc~test_accumulate_nested</title>
+<polygon fill="none" stroke="black" points="238,-234 0,-234 0,-210 238,-210 238,-234"/>
+<text text-anchor="middle" x="119" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_TimeProfiler::test_accumulate_nested</text>
+</g>
+<!-- accumulate -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node2" class="node">
+<title>accumulate</title>
+<polygon fill="#777777" stroke="#777777" points="448,-444 372,-444 372,-420 448,-420 448,-444"/>
+<text text-anchor="middle" x="410" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">accumulate</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;accumulate -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge1" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;accumulate</title>
+<path fill="none" stroke="#255000" d="M125.91,-234.32C143.18,-268.87 197.26,-366.99 274,-411 300.55,-426.22 334.62,-431.44 361.9,-432.86"/>
+<polygon fill="#255000" stroke="#255000" points="361.87,-436.36 371.99,-433.24 362.13,-429.37 361.87,-436.36"/>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node3" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="447.5,-402 372.5,-402 372.5,-378 447.5,-378 447.5,-402"/>
+<text text-anchor="middle" x="410" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;assertequal -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge2" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;assertequal</title>
+<path fill="none" stroke="#255000" d="M128.42,-234.03C149.3,-262.82 206.71,-335.81 274,-369 301.23,-382.43 334.98,-387.68 361.93,-389.57"/>
+<polygon fill="#255000" stroke="#255000" points="362.08,-393.09 372.27,-390.16 362.48,-386.1 362.08,-393.09"/>
+</g>
+<!-- asserttrue -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node4" class="node">
+<title>asserttrue</title>
+<polygon fill="#777777" stroke="#777777" points="443.5,-360 376.5,-360 376.5,-336 443.5,-336 443.5,-360"/>
+<text text-anchor="middle" x="410" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">asserttrue</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;asserttrue -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge3" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;asserttrue</title>
+<path fill="none" stroke="#255000" d="M133.23,-234.12C158.48,-256.52 216.22,-304.16 274,-327 303.54,-338.67 339.11,-343.88 366.32,-346.19"/>
+<polygon fill="#255000" stroke="#255000" points="366.07,-349.68 376.31,-346.94 366.6,-342.7 366.07,-349.68"/>
+</g>
+<!-- get_child -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node5" class="node">
+<title>get_child</title>
+<polygon fill="#777777" stroke="#777777" points="440.5,-318 379.5,-318 379.5,-294 440.5,-294 440.5,-318"/>
+<text text-anchor="middle" x="410" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_child</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;get_child -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge4" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;get_child</title>
+<path fill="none" stroke="#255000" d="M144.44,-234.1C174.3,-248.38 226.69,-271.84 274,-285 305.37,-293.73 341.92,-299.13 369.07,-302.27"/>
+<polygon fill="#255000" stroke="#255000" points="369.02,-305.79 379.35,-303.4 369.79,-298.83 369.02,-305.79"/>
+</g>
+<!-- get_meter -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node6" class="node">
+<title>get_meter</title>
+<polygon fill="#777777" stroke="#777777" points="443.5,-276 376.5,-276 376.5,-252 443.5,-252 443.5,-276"/>
+<text text-anchor="middle" x="410" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_meter</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;get_meter -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge5" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;get_meter</title>
+<path fill="none" stroke="#255000" d="M202.82,-234.04C256.13,-241.78 323.24,-251.54 366.14,-257.77"/>
+<polygon fill="#255000" stroke="#255000" points="365.83,-261.26 376.23,-259.24 366.84,-254.34 365.83,-261.26"/>
+</g>
+<!-- get_num_cycles -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node7" class="node">
+<title>get_num_cycles</title>
+<polygon fill="#777777" stroke="#777777" points="458.5,-234 361.5,-234 361.5,-210 458.5,-210 458.5,-234"/>
+<text text-anchor="middle" x="410" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_cycles</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;get_num_cycles -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge6" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;get_num_cycles</title>
+<path fill="none" stroke="#255000" d="M238.38,-222C277.34,-222 318.93,-222 351.29,-222"/>
+<polygon fill="#255000" stroke="#255000" points="351.45,-225.5 361.45,-222 351.45,-218.5 351.45,-225.5"/>
+</g>
+<!-- get_num_meters -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node8" class="node">
+<title>get_num_meters</title>
+<polygon fill="#777777" stroke="#777777" points="461,-192 359,-192 359,-168 461,-168 461,-192"/>
+<text text-anchor="middle" x="410" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_meters</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;get_num_meters -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge7" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;get_num_meters</title>
+<path fill="none" stroke="#255000" d="M202.82,-209.96C249.35,-203.2 306.39,-194.91 348.67,-188.77"/>
+<polygon fill="#255000" stroke="#255000" points="349.42,-192.19 358.82,-187.29 348.42,-185.27 349.42,-192.19"/>
+</g>
+<!-- get_root_node -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node9" class="node">
+<title>get_root_node</title>
+<polygon fill="#777777" stroke="#777777" points="454,-150 366,-150 366,-126 454,-126 454,-150"/>
+<text text-anchor="middle" x="410" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_root_node</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;get_root_node -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge8" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;get_root_node</title>
+<path fill="none" stroke="#255000" d="M144.44,-209.9C174.3,-195.62 226.69,-172.16 274,-159 300.51,-151.63 330.72,-146.62 355.83,-143.35"/>
+<polygon fill="#255000" stroke="#255000" points="356.4,-146.81 365.89,-142.1 355.54,-139.86 356.4,-146.81"/>
+</g>
+<!-- has_child -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node10" class="node">
+<title>has_child</title>
+<polygon fill="#777777" stroke="#777777" points="441,-108 379,-108 379,-84 441,-84 441,-108"/>
+<text text-anchor="middle" x="410" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">has_child</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;has_child -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge9" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;has_child</title>
+<path fill="none" stroke="#255000" d="M133.23,-209.88C158.48,-187.48 216.22,-139.84 274,-117 304.42,-104.98 341.23,-99.82 368.73,-97.61"/>
+<polygon fill="#255000" stroke="#255000" points="369.05,-101.1 378.78,-96.9 368.56,-94.11 369.05,-101.1"/>
+</g>
+<!-- proc~finalize~2 -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node11" class="node">
+<title>proc~finalize~2</title>
+<g id="a_proc~~test_accumulate_nested~~CallsGraph_node11"><a xlink:href=".././proc/finalize~2.html" xlink:title="mapl_Profiler::ExtData_DriverGridComp%finalize">
+<polygon fill="#d9534f" stroke="#d9534f" points="546,-66 274,-66 274,-42 546,-42 546,-66"/>
+<text text-anchor="middle" x="410" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler::ExtData_DriverGridComp%finalize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;proc~finalize~2 -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge10" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;proc~finalize~2</title>
+<path fill="none" stroke="#255000" d="M128.42,-209.97C149.3,-181.18 206.71,-108.19 274,-75 278.12,-72.97 282.39,-71.12 286.76,-69.45"/>
+<polygon fill="#255000" stroke="#255000" points="288.2,-72.65 296.48,-66.05 285.89,-66.05 288.2,-72.65"/>
+</g>
+<!-- start -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node12" class="node">
+<title>start</title>
+<polygon fill="#777777" stroke="#777777" points="437,-24 383,-24 383,0 437,0 437,-24"/>
+<text text-anchor="middle" x="410" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">start</text>
+</g>
+<!-- proc~test_accumulate_nested&#45;&gt;start -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge11" class="edge">
+<title>proc~test_accumulate_nested&#45;&gt;start</title>
+<path fill="none" stroke="#255000" d="M125.91,-209.68C143.18,-175.13 197.26,-77.01 274,-33 304.1,-15.74 343.89,-11.35 372.46,-10.75"/>
+<polygon fill="#255000" stroke="#255000" points="372.84,-14.25 382.82,-10.69 372.8,-7.25 372.84,-14.25"/>
+</g>
+<!-- proc~finalize_global_time_profiler -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node13" class="node">
+<title>proc~finalize_global_time_profiler</title>
+<g id="a_proc~~test_accumulate_nested~~CallsGraph_node13"><a xlink:href=".././proc/finalize_global_time_profiler.html" xlink:title="mapl_TimeProfiler::finalize_global_time_profiler">
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-66 582,-66 582,-42 847,-42 847,-66"/>
+<text text-anchor="middle" x="714.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_TimeProfiler::finalize_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize~2&#45;&gt;proc~finalize_global_time_profiler -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge12" class="edge">
+<title>proc~finalize~2&#45;&gt;proc~finalize_global_time_profiler</title>
+<path fill="none" stroke="#231025" stroke-opacity="0.019608" d="M546.32,-54C554.71,-54 563.17,-54 571.58,-54"/>
+<polygon fill="#231025" fill-opacity="0.019608" stroke="#231025" stroke-opacity="0.019608" points="571.82,-57.5 581.82,-54 571.82,-50.5 571.82,-57.5"/>
+</g>
+<!-- finalize -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node14" class="node">
+<title>finalize</title>
+<polygon fill="#777777" stroke="#777777" points="1053.5,-87 999.5,-87 999.5,-63 1053.5,-63 1053.5,-87"/>
+<text text-anchor="middle" x="1026.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finalize</text>
+</g>
+<!-- proc~finalize_global_time_profiler&#45;&gt;finalize -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge13" class="edge">
+<title>proc~finalize_global_time_profiler&#45;&gt;finalize</title>
+<path fill="none" stroke="#255000" d="M847.42,-62.94C899.09,-66.44 954.26,-70.17 989.27,-72.55"/>
+<polygon fill="#255000" stroke="#255000" points="989.25,-76.05 999.46,-73.24 989.72,-69.07 989.25,-76.05"/>
+</g>
+<!-- proc~get_global_time_profiler -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_node15" class="node">
+<title>proc~get_global_time_profiler</title>
+<g id="a_proc~~test_accumulate_nested~~CallsGraph_node15"><a xlink:href=".././proc/get_global_time_profiler.html" xlink:title="mapl_TimeProfiler_private::get_global_time_profiler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1170,-45 883,-45 883,-21 1170,-21 1170,-45"/>
+<text text-anchor="middle" x="1026.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_TimeProfiler_private::get_global_time_profiler</text>
+</a>
+</g>
+</g>
+<!-- proc~finalize_global_time_profiler&#45;&gt;proc~get_global_time_profiler -->
+<g id="proc~~test_accumulate_nested~~CallsGraph_edge14" class="edge">
+<title>proc~finalize_global_time_profiler&#45;&gt;proc~get_global_time_profiler</title>
+<path fill="none" stroke="#255000" d="M847.42,-45.06C855.74,-44.5 864.14,-43.93 872.55,-43.36"/>
+<polygon fill="#255000" stroke="#255000" points="873.04,-46.84 882.78,-42.67 872.57,-39.85 873.04,-46.84"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_accumulate_nestedCallsGraph = svgPanZoom('#proctest_accumulate_nestedCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_accumulate_nested.html#src">test_accumulate_nested</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_accumulate_nested</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">main</span><span class="p">,</span><span class="w"> </span><span class="n">lap</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">main_node</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeProfiler</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">main</span><span class="p">%</span><span class="n">start</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">lap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeProfiler</span><span class="p">(</span><span class="s1">&#39;lap&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lap</span><span class="p">%</span><span class="n">start</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lap</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lap</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">lap</span><span class="p">%</span><span class="n">finalize</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">main</span><span class="p">%</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lap</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="c">! should now have &#39;lap&#39; as a subtimer of &#39;main&#39;</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">main</span><span class="p">%</span><span class="n">get_num_meters</span><span class="p">())</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">main_node</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">main</span><span class="p">%</span><span class="n">get_root_node</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">main_node</span><span class="p">%</span><span class="n">has_child</span><span class="p">(</span><span class="s1">&#39;lap&#39;</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">main_node</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;lap&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">AdvancedMeter</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">%</span><span class="n">get_num_cycles</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span><span class="w"></span>
+
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">child</span><span class="p">%</span><span class="n">has_child</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="n">child</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child</span><span class="p">%</span><span class="n">get_child</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">child</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">AdvancedMeter</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">%</span><span class="n">get_num_cycles</span><span class="p">())</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">   end subroutine </span><span class="n">test_accumulate_nested</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-09-26T17:05:17.412868             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

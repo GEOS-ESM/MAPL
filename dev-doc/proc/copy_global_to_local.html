@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>copy_global_to_local &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>copy_global_to_local
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">37 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_TilingRegridder.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_tilingregridder.f90.html'>MAPL_TilingRegridder.F90</a></li>
+              <li><a href='../module/mapl_tilingregriddermod.html'>MAPL_TilingRegridderMod</a></li>
+          <li class="active">copy_global_to_local</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/copy_global_to_local.html#src">copy_global_to_local</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine copy_global_to_local(this)  
+</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
+                <li><a href='../module/pfio.html'>pFIO</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~copy_global_to_local~~UsesGraph Pages: 1 -->
+<svg id="proccopy_global_to_localUsesGraph" width="497pt" height="74pt"
+ viewBox="0.00 0.00 497.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~copy_global_to_local~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~copy_global_to_local~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 493,-70 493,4 -4,4"/>
+<!-- proc~copy_global_to_local -->
+<g id="proc~~copy_global_to_local~~UsesGraph_node1" class="node">
+<title>proc~copy_global_to_local</title>
+<polygon fill="none" stroke="black" points="489,-45 131,-45 131,-21 489,-21 489,-45"/>
+<text text-anchor="middle" x="310" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TilingRegridderMod::TilingRegridder%copy_global_to_local</text>
+</g>
+<!-- module~mapl_basemod -->
+<g id="proc~~copy_global_to_local~~UsesGraph_node2" class="node">
+<title>module~mapl_basemod</title>
+<g id="a_proc~~copy_global_to_local~~UsesGraph_node2"><a xlink:href=".././module/mapl_basemod.html" xlink:title="MAPL_BaseMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="95,-66 0,-66 0,-42 95,-42 95,-66"/>
+<text text-anchor="middle" x="47.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_BaseMod</text>
+</a>
+</g>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;module~mapl_basemod -->
+<g id="proc~~copy_global_to_local~~UsesGraph_edge1" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;module~mapl_basemod</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M160.11,-45C140.57,-46.58 121.61,-48.11 105.02,-49.44"/>
+<polygon fill="#255000" stroke="#255000" points="104.7,-45.96 95.02,-50.25 105.26,-52.94 104.7,-45.96"/>
+</g>
+<!-- module~pfio -->
+<g id="proc~~copy_global_to_local~~UsesGraph_node3" class="node">
+<title>module~pfio</title>
+<g id="a_proc~~copy_global_to_local~~UsesGraph_node3"><a xlink:href=".././module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="74.5,-24 20.5,-24 20.5,0 74.5,0 74.5,-24"/>
+<text text-anchor="middle" x="47.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;module~pfio -->
+<g id="proc~~copy_global_to_local~~UsesGraph_edge2" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M160.11,-21C131.96,-18.73 105,-16.56 84.63,-14.91"/>
+<polygon fill="#255000" stroke="#255000" points="84.86,-11.42 74.61,-14.1 84.3,-18.4 84.86,-11.42"/>
+</g>
+</g>
+</svg>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </li>
+      </ul>
+    </div>
+
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/tilingregridder.html'>TilingRegridder</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1953"></span>
+              class(<a href='../type/tilingregridder.html'>TilingRegridder</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~copy_global_to_local~~CallsGraph Pages: 1 -->
+<svg id="proccopy_global_to_localCallsGraph" width="641pt" height="172pt"
+ viewBox="0.00 0.00 641.00 172.31" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~copy_global_to_local~~CallsGraph" class="graph" transform="scale(2.14 2.14) rotate(0) translate(4 364)">
+<title>proc~~copy_global_to_local~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-364 1365,-364 1365,4 -4,4"/>
+<!-- proc~copy_global_to_local -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node1" class="node">
+<title>proc~copy_global_to_local</title>
+<polygon fill="none" stroke="black" points="358,-192 0,-192 0,-168 358,-168 358,-192"/>
+<text text-anchor="middle" x="179" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TilingRegridderMod::TilingRegridder%copy_global_to_local</text>
+</g>
+<!-- begin -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node2" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="519,-360 465,-360 465,-336 519,-336 519,-360"/>
+<text text-anchor="middle" x="492" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;begin -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge1" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;begin</title>
+<path fill="none" stroke="#255000" d="M193.39,-192.05C225.49,-220.25 310.41,-290.91 394,-327 413.22,-335.3 436.05,-340.45 454.73,-343.57"/>
+<polygon fill="#255000" stroke="#255000" points="454.21,-347.03 464.63,-345.11 455.28,-340.12 454.21,-347.03"/>
+</g>
+<!-- get -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node3" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="519,-318 465,-318 465,-294 519,-294 519,-318"/>
+<text text-anchor="middle" x="492" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;get -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge2" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;get</title>
+<path fill="none" stroke="#255000" d="M200.24,-192.02C237.39,-213.61 319.54,-259.11 394,-285 413.55,-291.8 436.1,-296.84 454.54,-300.28"/>
+<polygon fill="#255000" stroke="#255000" points="454.13,-303.76 464.59,-302.07 455.36,-296.87 454.13,-303.76"/>
+</g>
+<!-- get_spec -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node4" class="node">
+<title>get_spec</title>
+<polygon fill="#777777" stroke="#777777" points="522,-276 462,-276 462,-252 522,-252 522,-276"/>
+<text text-anchor="middle" x="492" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_spec</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;get_spec -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge3" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;get_spec</title>
+<path fill="none" stroke="#255000" d="M218.04,-192.11C260.65,-205.47 331.89,-227.16 394,-243 412.84,-247.81 433.92,-252.46 451.6,-256.15"/>
+<polygon fill="#255000" stroke="#255000" points="451.08,-259.62 461.58,-258.21 452.5,-252.76 451.08,-259.62"/>
+</g>
+<!-- global_x_tiles -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node5" class="node">
+<title>global_x_tiles</title>
+<polygon fill="#777777" stroke="#777777" points="534,-234 450,-234 450,-210 534,-210 534,-234"/>
+<text text-anchor="middle" x="492" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">global_x_tiles</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;global_x_tiles -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge4" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;global_x_tiles</title>
+<path fill="none" stroke="#255000" d="M269.12,-192.04C324.35,-199.49 393.34,-208.81 439.6,-215.06"/>
+<polygon fill="#255000" stroke="#255000" points="439.31,-218.55 449.69,-216.42 440.25,-211.61 439.31,-218.55"/>
+</g>
+<!-- interface~mapl_grid_interior -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node6" class="node">
+<title>interface~mapl_grid_interior</title>
+<g id="a_proc~~copy_global_to_local~~CallsGraph_node6"><a xlink:href=".././interface/mapl_grid_interior.html" xlink:title="MAPL_Base::MAPL_GRID_INTERIOR">
+<polygon fill="#a7506f" stroke="#a7506f" points="590,-192 394,-192 394,-168 590,-168 590,-192"/>
+<text text-anchor="middle" x="492" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;interface~mapl_grid_interior -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge5" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;interface~mapl_grid_interior</title>
+<path fill="none" stroke="#255000" d="M358.21,-180C366.89,-180 375.48,-180 383.86,-180"/>
+<polygon fill="#255000" stroke="#255000" points="383.97,-183.5 393.97,-180 383.97,-176.5 383.97,-183.5"/>
+</g>
+<!-- local_x_tiles -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node7" class="node">
+<title>local_x_tiles</title>
+<polygon fill="#777777" stroke="#777777" points="530,-150 454,-150 454,-126 530,-126 530,-150"/>
+<text text-anchor="middle" x="492" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">local_x_tiles</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;local_x_tiles -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge6" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;local_x_tiles</title>
+<path fill="none" stroke="#255000" d="M269.12,-167.96C326.02,-160.28 397.53,-150.62 443.73,-144.38"/>
+<polygon fill="#255000" stroke="#255000" points="444.32,-147.84 453.76,-143.03 443.39,-140.9 444.32,-147.84"/>
+</g>
+<!-- next -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node8" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="519,-108 465,-108 465,-84 519,-84 519,-108"/>
+<text text-anchor="middle" x="492" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;next -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge7" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;next</title>
+<path fill="none" stroke="#255000" d="M218.04,-167.89C260.65,-154.53 331.89,-132.84 394,-117 414.05,-111.89 436.64,-106.95 454.97,-103.15"/>
+<polygon fill="#255000" stroke="#255000" points="455.85,-106.54 464.94,-101.1 454.44,-99.68 455.85,-106.54"/>
+</g>
+<!-- push_back -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node9" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="526.5,-66 457.5,-66 457.5,-42 526.5,-42 526.5,-66"/>
+<text text-anchor="middle" x="492" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;push_back -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge8" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;push_back</title>
+<path fill="none" stroke="#255000" d="M200.24,-167.98C237.39,-146.39 319.54,-100.89 394,-75 410.98,-69.09 430.23,-64.51 447.09,-61.16"/>
+<polygon fill="#255000" stroke="#255000" points="448.06,-64.54 457.23,-59.23 446.75,-57.66 448.06,-64.54"/>
+</g>
+<!-- tiles -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node10" class="node">
+<title>tiles</title>
+<polygon fill="#777777" stroke="#777777" points="519,-24 465,-24 465,0 519,0 519,-24"/>
+<text text-anchor="middle" x="492" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tiles</text>
+</g>
+<!-- proc~copy_global_to_local&#45;&gt;tiles -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge9" class="edge">
+<title>proc~copy_global_to_local&#45;&gt;tiles</title>
+<path fill="none" stroke="#255000" d="M193.39,-167.95C225.49,-139.75 310.41,-69.09 394,-33 413.22,-24.7 436.05,-19.55 454.73,-16.43"/>
+<polygon fill="#255000" stroke="#255000" points="455.28,-19.88 464.63,-14.89 454.21,-12.97 455.28,-19.88"/>
+</g>
+<!-- proc~mapl_grid_interior -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node11" class="node">
+<title>proc~mapl_grid_interior</title>
+<g id="a_proc~~copy_global_to_local~~CallsGraph_node11"><a xlink:href=".././proc/mapl_grid_interior.html" xlink:title="Base_Implementation::MAPL_GRID_INTERIOR">
+<polygon fill="#d9534f" stroke="#d9534f" points="879,-192 626,-192 626,-168 879,-168 879,-192"/>
+<text text-anchor="middle" x="752.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior</title>
+<path fill="none" stroke="#025516" stroke-dasharray="5,2" stroke-opacity="0.035294" d="M590.36,-180C598.69,-180 607.21,-180 615.77,-180"/>
+<polygon fill="#025516" fill-opacity="0.035294" stroke="#025516" stroke-opacity="0.035294" points="615.83,-183.5 625.83,-180 615.83,-176.5 615.83,-183.5"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node12" class="node">
+<title>ESMF_DELayoutGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="1088.5,-252 937.5,-252 937.5,-228 1088.5,-228 1088.5,-252"/>
+<text text-anchor="middle" x="1013" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DELayoutGet</text>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#255000" d="M805.5,-192.07C847.31,-201.77 906.14,-215.43 950.32,-225.68"/>
+<polygon fill="#255000" stroke="#255000" points="949.55,-229.1 960.08,-227.95 951.13,-222.28 949.55,-229.1"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node13" class="node">
+<title>ESMF_DistGridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1325.5,-192 1182.5,-192 1182.5,-168 1325.5,-168 1325.5,-192"/>
+<text text-anchor="middle" x="1254" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_DistGridGet</text>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#255000" d="M879.14,-180.85C891.26,-180.91 903.36,-180.96 915,-181 1002.11,-181.27 1023.89,-181.31 1111,-181 1130.82,-180.93 1152.21,-180.81 1172.21,-180.67"/>
+<polygon fill="#255000" stroke="#255000" points="1172.24,-184.17 1182.22,-180.6 1172.19,-177.17 1172.24,-184.17"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node14" class="node">
+<title>ESMF_GridGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1074.5,-172 951.5,-172 951.5,-148 1074.5,-148 1074.5,-172"/>
+<text text-anchor="middle" x="1013" y="-157.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridGet</text>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_GridGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#255000" d="M879.34,-170.26C900.57,-168.62 921.91,-166.97 941.09,-165.49"/>
+<polygon fill="#255000" stroke="#255000" points="941.51,-168.96 951.21,-164.7 940.97,-161.99 941.51,-168.96"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node15" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~copy_global_to_local~~CallsGraph_node15"><a xlink:href=".././proc/mapl_distgridget.html" xlink:title="mapl_MaplGrid::MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="1111,-130 915,-130 915,-106 1111,-106 1111,-130"/>
+<text text-anchor="middle" x="1013" y="-115.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_MaplGrid::MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#255000" d="M798.99,-167.99C831.29,-159.58 875.72,-148.24 915,-139 924.62,-136.74 934.81,-134.43 944.81,-132.22"/>
+<polygon fill="#255000" stroke="#255000" points="945.72,-135.61 954.73,-130.05 944.22,-128.77 945.72,-135.61"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1072.62,-130.02C1085.32,-132.81 1098.64,-135.88 1111,-139 1142.24,-146.88 1177,-156.9 1204.31,-165.06"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1203.43,-168.45 1214.02,-167.97 1205.45,-161.74 1203.43,-168.45"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~copy_global_to_local~~CallsGraph_node16" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~copy_global_to_local~~CallsGraph_node16"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1361,-130 1147,-130 1147,-106 1361,-106 1361,-130"/>
+<text text-anchor="middle" x="1254" y="-115.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~copy_global_to_local~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1111.21,-118C1119.66,-118 1128.27,-118 1136.85,-118"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1136.91,-121.5 1146.91,-118 1136.91,-114.5 1136.91,-121.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccopy_global_to_localCallsGraph = svgPanZoom('#proccopy_global_to_localCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~copy_global_to_local~~CalledByGraph Pages: 1 -->
+<svg id="proccopy_global_to_localCalledByGraph" width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~copy_global_to_local~~CalledByGraph" class="graph" transform="scale(1.16 1.16) rotate(0) translate(4 28)">
+<title>proc~~copy_global_to_local~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741,-28 741,4 -4,4"/>
+<!-- proc~copy_global_to_local -->
+<g id="proc~~copy_global_to_local~~CalledByGraph_node1" class="node">
+<title>proc~copy_global_to_local</title>
+<polygon fill="none" stroke="black" points="737,-24 379,-24 379,0 737,0 737,-24"/>
+<text text-anchor="middle" x="558" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_TilingRegridderMod::TilingRegridder%copy_global_to_local</text>
+</g>
+<!-- proc~initialize_subclass~3 -->
+<g id="proc~~copy_global_to_local~~CalledByGraph_node2" class="node">
+<title>proc~initialize_subclass~3</title>
+<g id="a_proc~~copy_global_to_local~~CalledByGraph_node2"><a xlink:href=".././proc/initialize_subclass~3.html" xlink:title="MAPL_TilingRegridderMod::TilingRegridder%initialize_subclass">
+<polygon fill="#d9534f" stroke="#d9534f" points="343,-24 0,-24 0,0 343,0 343,-24"/>
+<text text-anchor="middle" x="171.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TilingRegridderMod::TilingRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_subclass~3&#45;&gt;proc~copy_global_to_local -->
+<g id="proc~~copy_global_to_local~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_subclass~3&#45;&gt;proc~copy_global_to_local</title>
+<path fill="none" stroke="#255000" d="M343.11,-12C351.62,-12 360.19,-12 368.75,-12"/>
+<polygon fill="#255000" stroke="#255000" points="368.78,-15.5 378.78,-12 368.78,-8.5 368.78,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccopy_global_to_localCalledByGraph = svgPanZoom('#proccopy_global_to_localCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/copy_global_to_local.html#src">copy_global_to_local</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">copy_global_to_local</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">use </span><span class="n">MAPL_BaseMod</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_Grid_interior</span><span class="w"></span>
+<span class="w">      </span><span class="k">use </span><span class="n">pFIO</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">TilingRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IntegerVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">local_indices</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IntegerVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i_tile</span><span class="w"></span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cell_is_local</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">jn</span><span class="w"> </span><span class="c">! index bounds for grid_out</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_tiles</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_Grid_interior</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">jn</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">n_tiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">global_x_tiles</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">do </span><span class="n">i_tile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_tiles</span><span class="w"></span>
+<span class="w">         </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">global_x_tiles</span><span class="p">(</span><span class="n">i_tile</span><span class="p">)%</span><span class="n">idx_i_out</span><span class="w"></span>
+<span class="w">         </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">global_x_tiles</span><span class="p">(</span><span class="n">i_tile</span><span class="p">)%</span><span class="n">idx_j_out</span><span class="w"></span>
+<span class="w">         </span><span class="n">cell_is_local</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="o">&lt;=</span><span class="n">i</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">in</span><span class="o">&gt;=</span><span class="n">i</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w">  </span><span class="n">j1</span><span class="o">&lt;=</span><span class="n">j</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">jn</span><span class="o">&gt;=</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cell_is_local</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">local_indices</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">i_tile</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end do</span>
+
+<span class="k">      allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">local_x_tiles</span><span class="p">(</span><span class="n">local_indices</span><span class="p">%</span><span class="n">size</span><span class="p">()))</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">tiles</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">local_x_tiles</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_indices</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">        </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">local_indices</span><span class="p">%</span><span class="k">end</span><span class="p">())</span><span class="w"></span>
+<span class="w">           </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">           </span><span class="n">this</span><span class="p">%</span><span class="n">local_x_tiles</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">global_x_tiles</span><span class="p">(</span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">())</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="w"></span>
+<span class="w">        </span><span class="k">end do</span><span class="w"></span>
+<span class="w">        </span><span class="c">! fix offsets</span>
+<span class="w">        </span><span class="n">tiles</span><span class="p">(:)%</span><span class="n">idx_i_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tiles</span><span class="p">(:)%</span><span class="n">idx_i_out</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">tiles</span><span class="p">(:)%</span><span class="n">idx_j_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tiles</span><span class="p">(:)%</span><span class="n">idx_j_out</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">j1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">end associate</span>
+<span class="k">      </span>
+<span class="k">   end subroutine </span><span class="n">copy_global_to_local</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-09-26T17:05:17.412868             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
