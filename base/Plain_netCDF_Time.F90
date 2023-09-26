@@ -112,10 +112,10 @@ contains
     integer(kind=C_INT) :: c_ncid, c_varid
     character(len=100) :: str2
 
-    call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2), rc )
-    call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid),  rc )
-    call check_nc_status ( nf90_inq_varid (ncid,  var_name,  varid), rc )
-    call check_nc_status ( nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len), rc )
+    call check_nc_status ( nf90_open      (fileName, NF90_NOWRITE, ncid2))
+    call check_nc_status ( nf90_inq_ncid  (ncid2, group_name, ncid))
+    call check_nc_status ( nf90_inq_varid (ncid,  var_name,  varid))
+    call check_nc_status ( nf90_inquire_attribute(ncid, varid, attr_name, xtype, len=len))
     c_ncid= ncid
     c_varid= varid
     !! print*, 'f: xtype, len=', xtype, len
@@ -214,16 +214,45 @@ contains
   end subroutine get_v1d_netcdf_R8
 
 
+!  subroutine check_nc_status(status, rc) !wdb fixme deleteme 
+!    use netcdf
+!    implicit none
+!    integer, intent (in) :: status
+!    integer, intent (out), optional :: rc
+!    if(status /= nf90_noerr) then
+!       print *, 'netCDF error: '//trim(nf90_strerror(status))
+!    endif
+!    if(present(rc))  rc=status-nf90_noerr
+!  end subroutine check_nc_status
+
   subroutine check_nc_status(status, rc)
     use netcdf
     implicit none
     integer, intent (in) :: status
     integer, intent (out), optional :: rc
-    if(status /= nf90_noerr) then
-       print *, 'netCDF error: '//trim(nf90_strerror(status))
-    endif
-    if(present(rc))  rc=status-nf90_noerr
+
+    _ASSERT(status == nf90_noerr, 'netCDF error: '//trim(nf90_strerror(status)))
+
   end subroutine check_nc_status
+
+!  logical function check_nc_status(status) !wdb fixme deleteme
+!    use netcdf
+!    implicit none
+!    integer, intent (in) :: status
+!
+!    check_nc_status = (status == nf90_noerr)
+!
+!  end function check_nc_status
+!
+!
+!  function get_nf90_error_string(status) result(string) !wdb fixme deleteme 
+!     integer, intent(in) :: status
+!     character(len=:), allocatable :: string
+!
+!     string = ''
+!     if(.not. check_nc_status(status)) string = 'netCDF error: ' // trim(nf90_strerror(status))
+!
+!  end function get_nf90_error_string
 
 
   subroutine time_nc_int_2_esmf (time, tunit, n, rc)
