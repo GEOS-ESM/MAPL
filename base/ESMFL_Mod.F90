@@ -1991,7 +1991,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 ! locals
 
-   type(ESMF_Array) :: srcArr, dstArr
+   type(ESMF_Array) :: srcArr
    type(ESMF_Field) :: srcFld, dstFld
    integer :: rank
    integer :: sCPD(3), dCPD(3)   ! src and dst counts per dimension (local)
@@ -3153,6 +3153,9 @@ CONTAINS
 
            endif
 
+           _UNUSED_DUMMY(ATYPE)
+           _UNUSED_DUMMY(HTYPE)
+           _UNUSED_DUMMY(INC)
       end  subroutine stats_
 
    end subroutine BundleDiff
