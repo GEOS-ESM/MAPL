@@ -1809,6 +1809,7 @@ contains
       logical :: use_threads, is_test_framework, is_test_framework_driver
       logical :: is_grid_capture, restore_export
       character(len=ESMF_MAXSTR) :: comp_to_record
+      integer :: mpi_comm
 
       !=============================================================================
 
@@ -1900,6 +1901,14 @@ contains
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
          call omp_driver(GC, import, export, clock, _RC)  ! component threaded with OpenMP
       else
+         call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
+         block 
+            character(len=2) :: phase_int
+            character(len=ESMF_MAXSTR) :: message
+            write(phase_int,'(I2)')phase_
+            message = trim(comp_name)//"_phase:_"//trim(phase_int)
+            call MAPL_MemReport(mpi_comm,__FILE__,__LINE__,trim(message))
+         end block
          call func_ptr (GC, &
               importState=IMPORT, &
               exportState=EXPORT, &
@@ -2162,6 +2171,8 @@ contains
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
+      !type(ESMF_VM) :: vm
+      !integer :: mpi_comm
 
       !=============================================================================
 
@@ -2176,6 +2187,10 @@ contains
       Iam = "MAPL_GenericRunChildren"
       call ESMF_GridCompGet( GC, NAME=comp_name, RC=status )
       _VERIFY(status)
+
+      !call ESMF_VMGetCurrent(vm)
+      !call ESMF_VMGet(vm,mpiCommunicator=mpi_comm)
+      !call MAPL_MemReport(mpi_comm,__FILE__,__LINE__,comp_name)
       Iam = trim(comp_name) // trim(Iam)
 
       ! Retrieve the pointer to the internal state. It comes in a wrapper.

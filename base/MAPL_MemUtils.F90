@@ -486,7 +486,7 @@ module MAPL_MemUtilsMod
       call MAPL_MemUsed(mem_total,mem_used,percent_used)
       call MAPL_MemCommited(committed_total,committed,percent_committed)
       call MPI_Comm_Rank(comm,rank,status)
-      if (rank == 0) write(*,'("Mem report ",A20," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
+      if (rank == 0) write(*,'("Mem report ",A35," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
           
   end subroutine
 
