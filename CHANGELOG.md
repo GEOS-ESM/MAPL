@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-
-- Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
+- Updated handling of NetCDF time values
 
 ### Fixed
 
