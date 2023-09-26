@@ -2,7 +2,7 @@
 src_dir: ../../
 output_dir: dev-doc
 search: true
-graph: false
+graph: true
 coloured_edges: true
 graph_maxdepth: 4
 graph_maxnodes: 32
