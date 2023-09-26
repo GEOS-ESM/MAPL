@@ -1,0 +1,27 @@
+module test_Column
+   use MAPL_Profiler
+   use funit
+
+contains
+
+
+   subroutine test_one_timer()
+      type (ExclusiveTimeColumn) :: column
+      type (TimerTree), target :: tree
+      type (TimerReport) :: report
+      type (AbstractTimer) :: t
+
+      tree = TimerTree('all')
+      t => tree%get_timer()
+      call t%add_cycle(1.0)
+
+      column = ExclusiveTimeColumn(format='(f7.2)')
+      report = column%report(tree)
+
+      @assertEqual('  exc  ',report%get_header())
+      @assertEqual('   1.00',report%get_row(1))
+      
+   end subroutine test_one_timer
+
+
+end module test_Column
