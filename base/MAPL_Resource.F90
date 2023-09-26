@@ -419,7 +419,6 @@ contains
       character(len=*), optional, intent(in) :: component_name
       character(len=*), optional, intent(inout) :: iunit
       integer, optional, intent(out) :: rc
-      character(len=2) :: array_size_string
       ! We assume we will never have more than 99 values, hence len=2
 
       character(len=:), allocatable :: actual_label
