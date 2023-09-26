@@ -8,7 +8,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>setservices &ndash; MAPL</title>
+    <title>SetServices &ndash; MAPL</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -92,7 +92,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>setservices
+    <h1>SetServices
       <small>Subroutine</small>
       
     </h1>
@@ -104,18 +104,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">15 statements</a>
+               title=" 0.1% of total for procedures.">65 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/BBB_GridComp.F90"> Source File</a>
+              <a href="../src/ExtDataGridCompNG.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/bbb_gridcomp.f90.html'>BBB_GridComp.F90</a></li>
-              <li><a href='../module/bbb_gridcomp.html'>BBB_GridComp</a></li>
-          <li class="active">setservices</li>
+              <li><a href='../sourcefile/extdatagridcompng.f90.html'>ExtDataGridCompNG.F90</a></li>
+              <li><a href='../module/mapl_extdatagridcomp2g.html'>MAPL_ExtDataGridComp2G</a></li>
+          <li class="active">SetServices</li>
         </ol>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setservices.html#src">setservices</a>
+        <a class="list-group-item" href="../proc/setservices.html#src">SetServices</a>
       </div>
     </div>
 
@@ -164,10 +164,11 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine setservices(gc, rc)  
+    <h2>public  subroutine SetServices(GC, RC)  
 </h2>
     
 
+    <p>Sets Initialize, Run and Finalize services for the <code>MAPL_ExtData</code> component.</p>
 
 
     <h3>Arguments</h3>
@@ -183,7 +184,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~20"></span>
+              <span class="anchor" id="variable-gc"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
             </td>
 <td>intent(inout)</td>
@@ -191,24 +192,24 @@
               
             </td>
             <td>::</td>
-            <td><strong>gc</strong></td>
+            <td><strong>GC</strong></td>
             <td>
-                
+                <p>gridded component</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1383"></span>
+              <span class="anchor" id="variable-rc"></span>
               integer,
             </td>
-<td></td>
+<td>intent(out),</td>
               <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>rc</strong></td>
+            <td><strong>RC</strong></td>
             <td>
-                
+                <p>return code</p>
             </td>
         </tr>
     </tbody>
@@ -240,7 +241,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setservices.html#src">setservices</a>
+        <a class="list-group-item" href="../proc/setservices.html#src">SetServices</a>
       </div>
     </div>
 
@@ -259,25 +260,98 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">setservices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">SUBROUTINE </span><span class="n">SetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 
-<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w"></span>
-<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">  </span><span class="c">!! gridded component</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">  </span><span class="c">!! return code</span>
 
-<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="c">!-------------------------------------------------------------------------</span>
 
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">my_initialize</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">  </span><span class="n">my_run</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="c">!   Local derived type aliases</span>
+<span class="c">!   --------------------------</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_ExtData_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">self</span><span class="w">   </span><span class="c">! internal, that is</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_ExtData_wrap</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span><span class="w"></span>
 
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_AddImportSpec</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">short_name</span><span class="o">=</span><span class="s1">&#39;field1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                                 </span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                                 </span><span class="n">vlocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                             </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
 
+<span class="c">!                              ------------</span>
 
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="c">!   Get my name and set-up traceback handle</span>
+<span class="c">!   ---------------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 
-<span class="w">  </span><span class="k">end subroutine </span><span class="n">setservices</span><span class="w"></span>
+<span class="c">!   Wrap internal state for storing in GC; rename legacyState</span>
+<span class="c">!   -------------------------------------</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">wrap</span><span class="p">%</span><span class="n">ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
+
+<span class="c">!                       ------------------------</span>
+<span class="c">!                       ESMF Functional Services</span>
+<span class="c">!                       ------------------------</span>
+
+<span class="c">!   Set the Initialize, Run, Finalize entry points</span>
+<span class="c">!   ----------------------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">Initialize_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">   </span><span class="n">Run_</span><span class="p">,</span><span class="w">        </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_FINALIZE</span><span class="p">,</span><span class="w"> </span><span class="n">Finalize_</span><span class="p">,</span><span class="w">   </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!   Store internal state in GC</span>
+<span class="c">!   --------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_UserCompSetInternalState</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MAPL_ExtData_state&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Initialize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Run&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;-Read_Loop&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--CheckUpd&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--Read&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--GridCreate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--IclientWait&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--PRead&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;---CreateCFIO&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;---prefetch&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;----add-collection&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;----make-reference&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;----RegridStore&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;----request&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;---IclientDone&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;----RegridApply&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;---read-prefetch&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--Swap&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;--Bracket&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_TimerAdd</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;-Interpolate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="c">!   Generic Set Services</span>
+<span class="c">!   --------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="c">!   All done</span>
+<span class="c">!   --------</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">SetServices</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -298,7 +372,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-22T16:39:19.606377             </p>
+ on 2023-09-26T17:02:13.120526             </p>
           </div>
         </div>
         <br>

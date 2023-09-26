@@ -8,7 +8,7 @@
     <meta name="author" content="The MAPL Developers" >
     <link rel="icon" href="../favicon.png">
 
-    <title>setservices &ndash; MAPL</title>
+    <title>SetServices &ndash; MAPL</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -92,7 +92,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>setservices
+    <h1>SetServices
       <small>Subroutine</small>
       
     </h1>
@@ -104,18 +104,18 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">13 statements</a>
+               title=" 0.1% of total for procedures.">27 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/HelloWorld_GridComp.F90"> Source File</a>
+              <a href="../src/MAPL_NUOPCWrapperMod.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/helloworld_gridcomp.f90.html'>HelloWorld_GridComp.F90</a></li>
-              <li><a href='../module/helloworld_gridcomp.html'>HelloWorld_GridComp</a></li>
-          <li class="active">setservices</li>
+              <li><a href='../sourcefile/mapl_nuopcwrappermod.f90.html'>MAPL_NUOPCWrapperMod.F90</a></li>
+              <li><a href='../module/mapl_nuopcwrappermod.html'>MAPL_NUOPCWrapperMod</a></li>
+          <li class="active">SetServices</li>
         </ol>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setservices~6.html#src">setservices</a>
+        <a class="list-group-item" href="../proc/setservices~6.html#src">SetServices</a>
       </div>
     </div>
 
@@ -164,7 +164,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine setservices(gc, rc)  
+    <h2>public  subroutine SetServices(model, rc)  
 </h2>
     
 
@@ -183,26 +183,26 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-gc~25"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+              <span class="anchor" id="variable-model"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
             </td>
-<td>intent(inout)</td>
+<td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>gc</strong></td>
+            <td><strong>model</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1388"></span>
+              <span class="anchor" id="variable-rc~1115"></span>
               integer,
             </td>
-<td></td>
-              <td>optional</td>            <td>
+<td>intent(out)</td>
+              <td></td>            <td>
               
             </td>
             <td>::</td>
@@ -240,7 +240,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
-        <a class="list-group-item" href="../proc/setservices~6.html#src">setservices</a>
+        <a class="list-group-item" href="../proc/setservices~6.html#src">SetServices</a>
       </div>
     </div>
 
@@ -259,19 +259,62 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">setservices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">subroutine </span><span class="n">SetServices</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">model</span><span class="w"></span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
 
-<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span><span class="w"></span>
-<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">        </span><span class="c">! the NUOPC model component will register the generic methods</span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompDerive</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">model_routine_SS</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_GridCompSetEntryPoint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">userRoutine</span><span class="o">=</span><span class="n">initialize_p0</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w">  </span><span class="n">my_initialize</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GridCompSetEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_RUN</span><span class="p">,</span><span class="w">  </span><span class="n">my_run</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="k">call </span><span class="n">MAPL_GenericSetServices</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
-<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c">! set entry point for methods that require specific implementation</span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSetEntryPoint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">phaseLabelList</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;IPDv05p1&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">userRoutine</span><span class="o">=</span><span class="n">advertise_fields</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">  </span><span class="k">end subroutine </span><span class="n">setservices</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSetEntryPoint</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_METHOD_INITIALIZE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">phaseLabelList</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;IPDv05p4&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">userRoutine</span><span class="o">=</span><span class="n">realize_fields</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">! attach specializing method(s)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_DataInitialize</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">initialize_data</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_Advance</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">model_advance</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_MethodRemove</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">model_label_CheckImport</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_CheckImport</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">CheckImport</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">model_label_SetClock</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">set_clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">! call NUOPC_CompSpecialize(model, specLabel=model_label_CheckImport, &amp;</span>
+<span class="w">        </span><span class="c">!      specRoutine=CheckImport, rc=rc)</span>
+<span class="w">        </span><span class="c">! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &amp;</span>
+<span class="w">        </span><span class="c">!      line=__LINE__, &amp;</span>
+<span class="w">        </span><span class="c">!      file=__FILE__)) &amp;</span>
+<span class="w">        </span><span class="c">!      return  ! bail out</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">NUOPC_CompSpecialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">specLabel</span><span class="o">=</span><span class="n">label_Finalize</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="n">specRoutine</span><span class="o">=</span><span class="n">model_finalize</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">VERIFY_NUOPC_</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s2">&quot;Wrapper finish SetServices&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">SetServices</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -292,7 +335,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-22T16:39:19.606377             </p>
+ on 2023-09-26T17:02:13.120526             </p>
           </div>
         </div>
         <br>
