@@ -104,17 +104,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">4 statements</a>
+               title=" 0.0% of total for procedures.">11 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Test_LatLon_Corners.pf"> Source File</a>
+              <a href="../src/test_DirPath.pf"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/test_latlon_corners.pf.html'>Test_LatLon_Corners.pf</a></li>
-              <li><a href='../module/test_latlon_corners.html'>Test_LatLon_Corners</a></li>
+              <li><a href='../sourcefile/test_dirpath.pf.html'>test_DirPath.pf</a></li>
+              <li><a href='../module/test_dirpath.html'>test_DirPath</a></li>
           <li class="active">tearDown</li>
         </ol>
       </div>
@@ -164,43 +164,15 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine tearDown(this)  
+    <h2>public  subroutine tearDown()  
 </h2>
     
 
 
-    <h3>Type Bound</h3>
-    <p><a href='../type/test_latloncorners.html'>Test_LatLonCorners</a></p>
 
     <h3>Arguments</h3>
-        <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-this~2204"></span>
-              class(<a href='../type/test_latloncorners.html'>Test_LatLonCorners</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>this</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
+    <em>None</em>
+    <br>
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
@@ -246,10 +218,18 @@
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">tearDown</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">Test_LatLonCorners</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">tearDown</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridDestroy</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;dir1/exist.dat&#39;</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;dir1/dir3/exist3.dat&#39;</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;dir2/exist2.dat&#39;</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="s1">&#39;rmdir dir1/dir3&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="s1">&#39;rmdir dir1 dir2&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span>
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">tearDown</span><span class="w"></span>
 </pre></div>
@@ -272,7 +252,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-09-26T17:02:13.120526             </p>
+ on 2023-09-26T17:05:23.457278             </p>
           </div>
         </div>
         <br>
