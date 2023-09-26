@@ -4,7 +4,6 @@ module MAPL_FieldBinaryOperations
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
 

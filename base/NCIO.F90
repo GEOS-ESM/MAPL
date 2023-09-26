@@ -19,7 +19,6 @@ module NCIOMod
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
-  use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
   use netcdf
   use pFIO
   !use pFIO_ClientManagerMod
@@ -841,7 +840,6 @@ module NCIOMod
 ! Local variables
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:,:)
     integer                               :: IM_WORLD
-    integer                               :: JM_WORLD
     integer                               :: status
 
     real(kind=ESMF_KIND_R4),  allocatable :: recvbuf(:)
@@ -876,7 +874,6 @@ module NCIOMod
     if (present(arrdes)) then
 
        IM_WORLD = arrdes%im_world
-       JM_WORLD = arrdes%jm_world
 
        ndes_x = size(arrdes%in)
 
@@ -1018,17 +1015,6 @@ module NCIOMod
     integer                               :: start(4), cnt(4)
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: sendcounts(:), displs(:)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if (present(arrdes) ) then
 
@@ -1800,17 +1786,6 @@ module NCIOMod
     integer, allocatable                  :: activesendcounts(:)
     integer                               :: start(4), cnt(4)
 
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
@@ -2092,17 +2067,6 @@ module NCIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activesendcounts(:)
     integer                               :: start(4), cnt(4)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -2539,17 +2503,6 @@ module NCIOMod
     integer                               :: start(4), cnt(4)
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: sendcounts(:), displs(:)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -3278,7 +3231,6 @@ module NCIOMod
     real(KIND=REAL64),  allocatable :: lon(:), lat(:), lev(:), edges(:)
     integer, allocatable                  :: LOCATION(:), DIMS(:), UNGRID_DIMS(:,:)
     integer, allocatable                  :: UNIQUE_UNGRID_DIMS(:), ungriddim(:)
-    integer                               :: myungriddim1, myungriddim2
     real(KIND=REAL64)                     :: x0,x1
     integer                               :: arrayRank, KM_WORLD, DataType
     integer                               :: ungrid_dim_max_size, n_unique_ungrid_dims
@@ -3737,7 +3689,6 @@ module NCIOMod
                 found = .false.
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       found = .true.
                       exit
@@ -3759,7 +3710,6 @@ module NCIOMod
              elseif(DIMS(1)==MAPL_DimsTileOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3787,7 +3737,6 @@ module NCIOMod
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3797,14 +3746,12 @@ module NCIOMod
              else if (DIMS(1)==MAPL_DimsTileOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
-                      myungriddim2 = j
                       myUngridDimName2 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3818,7 +3765,6 @@ module NCIOMod
              if (DIMS(1)==MAPL_DimsHorzVert) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3835,14 +3781,12 @@ module NCIOMod
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
-                      myungriddim2 = j
                       myUngridDimName2 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if

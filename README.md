@@ -35,6 +35,13 @@ MAPL also has a variety of other auxiliary directories:
 7. **pflogger_stub** - workaround for apps that wish to avoid a dependency on pFlogger
 8. **pfunit** - pFUnit (unit testing framework) extensions for ESMF components
 
+## Using MAPL
+You can find simple examples on how to use MAPL components in ESMF applications at:
+
+[MAPL Tutorial](https://github.com/GEOS-ESM/MAPL/blob/main/docs/tutorial/README.md)
+
+A [MAPL User's Guide](https://github.com/GEOS-ESM/MAPL/blob/main/docs/user_guide/README.md) is also available to have an in depth description of MAPL components.
+
 ## Contributing
 
 Please check out our [contributing guidelines](CONTRIBUTING.md).
