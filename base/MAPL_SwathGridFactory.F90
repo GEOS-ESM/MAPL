@@ -438,6 +438,8 @@ contains
       call ESMF_ConfigGetAttribute(config, value=this%nc_latitude, default="", &
            label=prefix // 'nc_Latitude:', _RC)
       i=index(this%nc_longitude, '/')
+
+
       if (i>0) then
          this%found_group = .true.
          grp_name = this%nc_longitude(1:i-1)
@@ -448,7 +450,11 @@ contains
       this%var_name_lat = this%nc_latitude(i+1:)
       this%var_name_lon = this%nc_longitude(i+1:)
       this%var_name_time= this%nc_time(i+1:)
-      
+
+      print*, 'i=', i
+      print*, 'nc_time ', trim(this%nc_time)
+      write(6,'(10(2x,a))') 'name lat, lon, time',  &
+           trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
 
       ! read global dim from nc file
       ! ----------------------------
