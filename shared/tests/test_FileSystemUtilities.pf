@@ -15,40 +15,17 @@ contains
 
    @test
    subroutine test_get_file_extension()
-      @assertEqual(get_file_extension('t.extra.x'
-
       @assertEqual(get_file_extension('t.x'), '.x')
       @assertEqual(get_file_extension('t'), '')
+      @assertEqual(get_file_extension(THREEPART), EXTENSION)
+      
    end subroutine test_get_file_extension
 
    @test
    subroutine test_get_file_basename()
       @assertEqual(get_file_basename('t.x'), 't')
       @assertEqual(get_file_basename('abc.123'), 'abc')
+      @assertEqual(get_file_basename(THREEPART), BASENAME)
    end subroutine test_get_file_basename
-
-   @test
-   subroutine test_get_file_extension_three_parts()
-      @assertEqual(get_file_extension('t.x'), '.x')
-      @assertEqual(get_file_extension('t'), '')
-   end subroutine test_get_file_extension_three_parts
-
-   @test
-   subroutine test_get_file_extension_one_part()
-      @assertEqual(get_file_extension('t.x'), '.x')
-      @assertEqual(get_file_extension('t'), '')
-   end subroutine test_get_file_extension_one_part
-
-   @test
-   subroutine test_get_file_basename_one_part()
-      @assertEqual(get_file_basename('t.x'), 't')
-      @assertEqual(get_file_basename('abc.123'), 'abc')
-   end subroutine test_get_file_basename_one_part
-
-   @test
-   subroutine test_get_file_basename_three_parts()
-      @assertEqual(get_file_basename('t.x'), 't')
-      @assertEqual(get_file_basename('abc.123'), 'abc')
-   end subroutine test_get_file_basename_three_parts
 
 end module test_FileSystemUtilities
