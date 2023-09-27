@@ -10,4 +10,4 @@
 #ifdef _UNUSED_DUMMY
 #  undef _UNUSED_DUMMY
 #endif
-#define _UNUSED_DUMMY(x) associate (q____ => x); end associate
+#define _UNUSED_DUMMY(x) if (.false.) then; associate (q____ => x); end associate; endif
