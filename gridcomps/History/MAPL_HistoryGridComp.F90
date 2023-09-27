@@ -488,14 +488,6 @@ contains
 ! Read User-Supplied History Lists from Config File
 ! -------------------------------------------------
     call ESMF_GridCompGet( gc, config=config, _RC )
-
-    print*, __FILE__, __LINE__
-    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
-    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
-    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
-    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
-
-
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expsrc, &
                                    label ='EXPSRC:', default='', _RC )
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expid, &
@@ -624,14 +616,7 @@ contains
                 call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
                 call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
              end if
-
-    print*, __FILE__, __LINE__
-    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Time:', isPresent=ispresent, rc=status)
-    print*, 'SwathGrid.nc_Time: ispresent=', ispresent
-    call ESMF_ConfigFindLabel(config, 'SwathGrid.nc_Longitude:', isPresent=ispresent, rc=status)
-    print*, 'SwathGrid.nc_Longitude: ispresent=', ispresent
              
-
              if (trim(grid_type)/='Swath') then
                 print*, 'ch: bf inside swath ..'
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
@@ -677,18 +662,14 @@ contains
 ! ----------------------------------------------------------------------------
 
     if( MAPL_AM_I_ROOT(vm) ) then
-       print*, __FILE__, __LINE__
        call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
             label="HIST_CF:", default="HIST.rc", _RC )
        unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
-       print*, __FILE__, __LINE__
 !       for each collection
        do n = 1, nlist
          rewind(unitr)
          string = trim( list(n)%collection ) // '.'
          unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
-       print*, __FILE__, __LINE__
-
          match = .false.
          contLine = .false.
          con3 = .false.
@@ -1106,7 +1087,7 @@ contains
        endif LEVS ! selected levels
 
        vvarn(n) = vvar
-
+       
        cubeFormat = 1
        list(n)%xyoffset = 0
        ! Determine the file-side grid to use for the collection.
@@ -1149,7 +1130,7 @@ contains
              list(n)%output_grid_label=''
           end if
        end select
-
+       
 ! Handle "useNewFormat" mode: this is hidden (i.e. not documented) feature
 ! Affects only "new" cubed-sphere native output
 ! Defaults to .true.
