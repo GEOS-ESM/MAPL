@@ -1,30 +1,30 @@
 ---
-src_dir: ../
+src_dir: ../../
 output_dir: dev-doc
 search: true
-graph: false
+graph: true
 coloured_edges: true
 graph_maxdepth: 4
 graph_maxnodes: 32
-include: ../include/
-         ../gFTL/install/GFTL-1.10/include/v1
-         ../gFTL/install/GFTL-1.10/include/v2
+include: ../../include/
+         ../../gFTL/install/GFTL-1.10/include/v1
+         ../../gFTL/install/GFTL-1.10/include/v2
 exclude: EsmfRegridder.F90
          FieldBLAS_IntrinsicFunctions.F90
          GeomManager.F90
          MaplGeom.F90
          Regridder.F90
          StateSupplement.F90
-exclude_dir: ../Ford
-             ../Doxygen
-             ../ESMA_cmake
-             ../ESMA_env
-             ../build
-             ../gFTL
-             ../esmf
-             ../pFUnit
-             ../fArgParse
-             ../pFlogger
+exclude_dir: ../../docs
+             ../../Doxygen
+             ../../ESMA_cmake
+             ../../ESMA_env
+             ../../build
+             ../../gFTL
+             ../../esmf
+             ../../pFUnit
+             ../../fArgParse
+             ../../pFlogger
 macro: USE_MPI=1
        BUILD_WITH_PFLOGGER=1
        BUILD_WITH_EXTDATA2G=1
