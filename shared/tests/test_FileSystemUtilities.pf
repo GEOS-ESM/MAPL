@@ -3,29 +3,25 @@ module test_FileSystemUtilities
    use funit
    implicit none
 
-   character(len=*), parameter :: BASENAME = 't'
-   character(len=*), parameter :: EXTRA = '.extra'
-   character(len=*), parameter :: EXTENSION = '.x'
-   character(len=*), parameter :: TWOPART = BASENAME // EXTENSION
-   character(len=*), parameter :: THREEPART = BASENAME // EXTRA // EXTENSION
-   character(len=*), parameter :: ONEPART = BASENAME
-   character(len=*), parameter :: EMPTY_STRING = ''
-
 contains
 
    @test
    subroutine test_get_file_extension()
-      @assertEqual(get_file_extension('t.x'), '.x')
+
       @assertEqual(get_file_extension('t'), '')
-      @assertEqual(get_file_extension(THREEPART), EXTENSION)
+      @assertEqual(get_file_extension('t.x'), '.x')
+      @assertEqual(get_file_extension('t.u.x'), '.x')
       
    end subroutine test_get_file_extension
 
    @test
    subroutine test_get_file_basename()
+
+      @assertEqual(get_file_basename('q'), 'q')
       @assertEqual(get_file_basename('t.x'), 't')
       @assertEqual(get_file_basename('abc.123'), 'abc')
-      @assertEqual(get_file_basename(THREEPART), BASENAME)
+      @assertEqual(get_file_basename('abc.123.drm'), 'abc.123')
+
    end subroutine test_get_file_basename
 
 end module test_FileSystemUtilities
