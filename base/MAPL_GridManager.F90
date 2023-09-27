@@ -21,7 +21,7 @@ module MAPL_GridManager_private
    private
 
    public :: GridManager
-   public :: factory_id_attribute
+   public :: FACTORY_ID_ATTRIBUTE
 
    ! singleton
    type :: GridManager
@@ -32,6 +32,9 @@ module MAPL_GridManager_private
       type (Integer64GridFactoryMap) :: factories
    contains
       procedure :: add_prototype
+      procedure :: destroy_grid
+      generic :: destroy => destroy_grid
+
       procedure :: delete
 !!$   procedure :: make_field
 !!$   procedure :: delete_field
@@ -63,7 +66,7 @@ module MAPL_GridManager_private
    end type GridManager
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager_private::'
-   character(len=*), parameter :: factory_id_attribute = 'MAPL_grid_factory_id'
+   character(len=*), parameter :: FACTORY_ID_ATTRIBUTE = 'MAPL_grid_factory_id'
 
 
 contains
@@ -120,6 +123,7 @@ contains
       use MAPL_LlcGridFactoryMod, only: LlcGridFactory
       use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
       use MAPL_XYGridFactoryMod, only: XYGridFactory
+      use MAPL_SwathGridFactoryMod, only : SwathGridFactory
 
       class (GridManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -131,7 +135,8 @@ contains
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
       type (XYGridFactory) :: xy_factory
- 
+      type (SwathGridFactory) :: swath_factory
+      
       ! This is a local variable to prevent the subroutine from running
       ! initialiazation twice. Calling functions have their own local variables
       ! to prevent calling this subroutine twice, but the initialization status
@@ -147,6 +152,7 @@ contains
          call this%prototypes%insert('llc',  llc_factory)
          call this%prototypes%insert('External', external_factory)
          call this%prototypes%insert('XY', xy_factory)
+         call this%prototypes%insert('Swath', swath_factory)         
          initialized = .true. 
       end if
 
@@ -258,7 +264,7 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
+      call ESMF_AttributeSet(grid, FACTORY_ID_ATTRIBUTE, factory_id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -397,6 +403,27 @@ contains
    end function make_factory_from_distGrid
 
 
+   subroutine destroy_grid(this, grid, unusable, rc)
+      use ESMF
+      class (GridManager), target, intent(inout) :: this
+      type (ESMF_Grid), intent(inout) :: grid
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer (kind=ESMF_KIND_I8) :: id
+      class(AbstractGridFactory), pointer :: factory
+      type(Integer64GridFactoryMapIterator) :: iter
+
+      call ESMF_AttributeGet(grid, FACTORY_ID_ATTRIBUTE, id, _RC)
+      factory => this%factories%at(id)
+      call factory%destroy(_RC)
+      iter = this%factories%find(id)
+      call this%factories%erase(iter)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine destroy_grid
 
    ! Clients should use this procedure to release ESMF resources when a grid
    ! is no longer being used.
@@ -413,15 +440,13 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'destroy_grid'
 
-      _UNUSED_DUMMY(unusable)
-
       if (.not. this%keep_grids) then
-         call ESMF_GridDestroy(grid, rc=status)
+         call ESMF_GridDestroy(grid, noGarbage=.true., rc=status)
          _ASSERT(status==0,'failed to destroy grid')
       end if
 
       _RETURN(_SUCCESS)
-      
+      _UNUSED_DUMMY(unusable)
    end subroutine delete
 
 
@@ -438,7 +463,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
+      call ESMF_AttributeGet(grid, FACTORY_ID_ATTRIBUTE, id, rc=status)
       _VERIFY(status)
 
       factory => this%factories%at(id)
@@ -608,7 +633,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
+      call ESMF_AttributeGet(grid, FACTORY_ID_ATTRIBUTE, id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)

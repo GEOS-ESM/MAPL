@@ -87,7 +87,6 @@ contains
        lat_name=trim(key_lat)
        call check_nc_status(nf90_inq_dimid(ncid, trim(lat_name), dimid), _RC)
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlat), _RC)
-       call check_nc_status(nf90_close(ncid), _RC)
     endif
 
     if(present(key_time)) then

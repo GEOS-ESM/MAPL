@@ -82,6 +82,11 @@ module MAPL_AbstractGridFactoryMod
       procedure(get_file_format_vars), deferred :: get_file_format_vars
       procedure(decomps_are_equal), deferred :: decomps_are_equal
       procedure(physical_params_are_equal), deferred :: physical_params_are_equal
+
+      procedure :: get_xy_subset
+      procedure :: get_xy_mask
+      procedure :: destroy
+      procedure :: get_obs_time
    end type AbstractGridFactory
 
    abstract interface
@@ -237,6 +242,7 @@ module MAPL_AbstractGridFactoryMod
          real, pointer, intent(in) :: fpointer(:,:,:)
          type(FileMetadata), intent(in), optional :: metaData
       end function generate_file_reference3D
+
 
    end interface
 
@@ -1030,5 +1036,53 @@ contains
       end if
 
    end function get_grid
+
+    
+   ! This procedure should only be called for time dependent grids.
+   ! A default implementation is to fail for other grid types, so we do not 
+   ! have to explicitly add methods to all of the existing subclasses.  
+   subroutine get_xy_subset(this, interval, xy_subset, rc)
+      class(AbstractGridFactory), intent(in) :: this
+      type(ESMF_Time), intent(in) :: interval(2)
+      integer, intent(out) :: xy_subset(2,2)
+      integer, optional, intent(out) :: rc
+         
+      integer :: status
       
+      _RETURN(_FAILURE)
+    end subroutine get_xy_subset
+
+   subroutine get_xy_mask(this, interval, xy_mask, rc)
+      class(AbstractGridFactory), intent(inout) :: this
+      type(ESMF_Time), intent(in) :: interval(2)
+      integer, allocatable, intent(out) :: xy_mask(:,:)
+      integer, optional, intent(out) :: rc
+         
+      integer :: status
+      
+      _RETURN(_FAILURE)
+    end subroutine get_xy_mask
+
+   ! Probably don't need to do anything more for subclasses unless they have
+   ! other objects that don't finalize well.  (NetCDF, ESMF, MPI, ...)
+   subroutine destroy(this, rc)
+      class(AbstractGridFactory), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      call ESMF_GridDestroy(this%grid, noGarbage=.true., _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   subroutine get_obs_time(this, grid, obs_time,  rc)
+     class(AbstractGridFactory), intent(inout) :: this
+     type (ESMF_Grid), intent(in) :: grid
+     real(ESMF_KIND_R4), intent(out) :: obs_time(:,:)
+     integer, optional, intent(out) :: rc
+     
+     _RETURN(_SUCCESS)
+   end subroutine get_obs_time
+   
 end module MAPL_AbstractGridFactoryMod
