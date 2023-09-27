@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
+- Extend unit tests for FileSystemUtilities.
 
 ### Fixed
 
