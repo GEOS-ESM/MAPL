@@ -1015,7 +1015,7 @@ contains
       class(AbstractRegridder), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      
+
       _RETURN(_SUCCESS)
    end subroutine destroy
 

@@ -31,7 +31,7 @@ module MAPL_GriddedIOMod
   private
 
   type, public :: MAPL_GriddedIO
-     type(FileMetaData), allocatable :: metadata     
+     type(FileMetaData), allocatable :: metadata
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -147,11 +147,11 @@ module MAPL_GriddedIOMod
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
-        
+
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
 
-        
+
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
         ! to change the regrid_method in the GriddedIO object to be the same as the
@@ -188,7 +188,7 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
-        
+
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
         metadataVarsSize = order%size()
@@ -866,12 +866,8 @@ module MAPL_GriddedIOMod
 !!        write(6,'(6f12.2)')  this%lons(1:2,::10)
 
         ref = ArrayReference(this%lons)
-
-        ! print ref ?
-        
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
+        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+             ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
 
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
