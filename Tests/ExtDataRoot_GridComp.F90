@@ -155,10 +155,7 @@ MODULE ExtDataUtRoot_GridCompMod
          integer                     :: status
          character(len=ESMF_MAXSTR)  :: comp_name
 
-         !real(REAL64) :: ptop, pint
-         !real(REAL64), allocatable :: ak(:),bk(:)
          integer :: nrows, ncolumn,i
-         !integer :: ls
          type(ESMF_Grid) :: grid
          type(ESMF_Time) :: currTime
          type(SyntheticFieldSupportWrapper) :: synthWrap
