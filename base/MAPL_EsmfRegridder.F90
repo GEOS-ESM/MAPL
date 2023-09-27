@@ -23,27 +23,27 @@ module MAPL_EsmfRegridderMod
    ! ESMF Route handles
    type (RegridderSpecRouteHandleMap), save, target :: route_handles_r4
    type (RegridderSpecRouteHandleMap), save, target :: route_handles_r8
-   
+
    type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles_r4
    type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles_r8
-   
+
    type, extends(AbstractRegridder) :: EsmfRegridder
       integer :: regrid_method
       type (ESMF_DynamicMask) :: dynamic_mask
    contains
       procedure :: initialize_subclass
       procedure, nopass :: supports
-     
+
       procedure :: regrid_scalar_2d_real32
       procedure :: regrid_scalar_2d_real64
       procedure :: regrid_scalar_3d_real32
       procedure :: regrid_scalar_3d_real64
-      
+
       procedure :: regrid_vector_2d_real32
       procedure :: regrid_vector_2d_real64
       procedure :: regrid_vector_3d_real32
       procedure :: regrid_vector_3d_real64
-      
+
       procedure :: transpose_regrid_scalar_2d_real32
       procedure :: transpose_regrid_scalar_3d_real32
       procedure :: transpose_regrid_vector_2d_real32
@@ -53,7 +53,9 @@ module MAPL_EsmfRegridderMod
       procedure :: do_regrid
       procedure :: create_route_handle
       procedure :: select_route_handle
- 
+      procedure :: destroy
+      procedure :: destroy_route_handle
+
    end type EsmfRegridder
 
    interface EsmfRegridder
@@ -96,7 +98,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function supports
-   
+
 
    subroutine regrid_scalar_2d_real32(this, q_in, q_out, rc)
       class (EsmfRegridder), intent(in) :: this
@@ -114,7 +116,7 @@ contains
       logical :: HasDE
 
       spec = this%get_spec()
-      
+
       ! TODO support other staggerings
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[1,2],&
@@ -148,7 +150,7 @@ contains
       _VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      
+
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_2d_real32
@@ -169,7 +171,7 @@ contains
       logical :: HasDE
 
       spec = this%get_spec()
-      
+
       ! TODO support other staggerings
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
                   gridToFieldMap=[1,2],&
@@ -203,11 +205,11 @@ contains
       _VERIFY(status)
       call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      
+
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_2d_real64
-   
+
    subroutine transpose_regrid_scalar_2d_real32(this, q_in, q_out, rc)
       class (EsmfRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: q_in(:,:)
@@ -234,7 +236,7 @@ contains
          _VERIFY(status)
          p_src = q_in
       end if
-      
+
       dst_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[1,2],&
                   rc=status)
@@ -292,7 +294,7 @@ contains
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceflag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
-      
+
       if (hasDE) then
           _ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
@@ -306,7 +308,7 @@ contains
          p_src = reshape(q_in,shape(p_src), order=[2,3,1])
       end if
 
-      
+
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
       if (hasDE) then
@@ -375,7 +377,7 @@ contains
       end if
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceflag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
-      
+
       if (hasDE) then
           _ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
@@ -389,7 +391,7 @@ contains
          p_src = reshape(q_in,shape(p_src), order=[2,3,1])
       end if
 
-      
+
       HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
       if (hasDE) then
@@ -425,7 +427,7 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_3d_real64
-      
+
    subroutine transpose_regrid_scalar_3d_real32(this, q_in, q_out, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: q_in(:,:,:)
@@ -471,9 +473,9 @@ contains
          _VERIFY(status)
          p_src = reshape(q_in,shape(p_src), order=[2,3,1])
       end if
-      
+
       HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status) 
+      _VERIFY(status)
       if (hasDE) then
          km = size(q_out,3)
       else
@@ -495,7 +497,7 @@ contains
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
       _VERIFY(status)
- 
+
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
       call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
@@ -554,7 +556,7 @@ contains
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
-      
+
       ! TODO support other staggerings
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
@@ -568,7 +570,7 @@ contains
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
          _VERIFY(status)
       end if
-      
+
 
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
@@ -695,7 +697,7 @@ contains
 
    end subroutine regrid_vector_2d_real64
 
-   
+
    subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:)
@@ -753,10 +755,10 @@ contains
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
          _VERIFY(status)
       end if
-      
+
 
       hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status)      
+      _VERIFY(status)
       dst_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
            & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,1],rc=status)
       _VERIFY(status)
@@ -837,7 +839,7 @@ contains
       if (present(rotate)) then
          if (rotate) then
             grid_axis_in = 'xyz'
-            grid_axis_out = 'grid' 
+            grid_axis_out = 'grid'
          end if
       end if
 
@@ -861,9 +863,9 @@ contains
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
          _VERIFY(status)
       end if
-      
+
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-      _VERIFY(status) 
+      _VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
       if (hasDE) then
@@ -972,7 +974,7 @@ contains
      end if
 
      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
-     _VERIFY(status) 
+     _VERIFY(status)
      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
      _VERIFY(status)
      if (hasDE) then
@@ -1009,8 +1011,8 @@ contains
      _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_3d_real64
-    
-   
+
+
    subroutine transpose_regrid_vector_3d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:,:)
@@ -1065,7 +1067,7 @@ contains
       if (present(rotate)) then
          if (rotate) then
             grid_axis_in = 'grid'
-            grid_axis_out = 'xyz' 
+            grid_axis_out = 'xyz'
          end if
       end if
 
@@ -1089,9 +1091,9 @@ contains
          call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
          _VERIFY(status)
       end if
-      
+
       hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
-      _VERIFY(status) 
+      _VERIFY(status)
       if (hasDE) then
          km = size(u_out,3)
       else
@@ -1125,7 +1127,7 @@ contains
 
       deallocate(p_src)
       deallocate(p_dst)
-      
+
       _RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_vector_3d_real32
@@ -1154,7 +1156,7 @@ contains
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
                   if (.not. &
                        match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
-                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) & 
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
                      renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
@@ -1226,7 +1228,7 @@ contains
 
    logical function match(missing,b)
       real(kind=REAL32), intent(in) :: missing, b
-      match = (missing==b) 
+      match = (missing==b)
    end function match
 
 
@@ -1333,10 +1335,10 @@ contains
       _ASSERT(src_kind == dst_kind,'inconsistent kinds')
 
       route_handle = this%select_route_handle(src_kind, do_transpose = doTranspose, rc = status)
-      _VERIFY(status)     
+      _VERIFY(status)
 
       spec = this%get_spec()
-      
+
       if (spec%regrid_method /= REGRID_METHOD_NEAREST_STOD) then
          call ESMF_FieldRegrid(src_field, dst_field, &
               & routeHandle=route_handle, &
@@ -1364,17 +1366,17 @@ contains
      integer, optional, intent(out) :: rc
 
 
-     integer :: status      
+     integer :: status
      character(len=*), parameter :: Iam = 'initialize_subclass'
      type (RegridderSpec) :: spec
-    
+
      _UNUSED_DUMMY(unusable)
 
      spec = this%get_spec()
 
      this%regrid_method = spec%regrid_method
 
-     call this%create_route_handle(ESMF_TYPEKIND_R4, rc = status)     
+     call this%create_route_handle(ESMF_TYPEKIND_R4, rc = status)
      _VERIFY(status)
 
      ! TODO: should get missing value from source file
@@ -1411,14 +1413,14 @@ contains
      _RETURN(_SUCCESS)
 
    end subroutine initialize_subclass
-   
+
 
    subroutine create_route_handle(this, kind, rc)
      class (EsmfRegridder), intent(in) :: this
      type(ESMF_TypeKind_Flag), intent(in) :: kind
      integer, optional, intent(out) :: rc
 
-     integer :: status      
+     integer :: status
      character(len=*), parameter :: Iam = 'create_route_handle'
 
      type (RegridderSpec) :: spec
@@ -1434,7 +1436,7 @@ contains
      logical :: global, isPresent
      type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
-    
+
      if (kind == ESMF_TYPEKIND_R4) then
         route_handles => route_handles_r4
         transpose_route_handles => transpose_route_handles_r4
@@ -1468,7 +1470,7 @@ contains
 
         dst_field = ESMF_FieldCreate(spec%grid_out, typekind=kind, &
              & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
-        _VERIFY(status) 
+        _VERIFY(status)
         if (MAPL_GridHasDE(spec%grid_out)) then
            if (kind == ESMF_TYPEKIND_R4) then
               call ESMF_FieldGet(dst_field, localDe=0, farrayPtr=dst_dummy_r4, rc=status)
@@ -1552,7 +1554,7 @@ contains
      _RETURN(_SUCCESS)
    end subroutine create_route_handle
 
-   
+
    function select_route_handle(this, kind, do_transpose, rc) result(route_handle)
      type(ESMF_RouteHandle) :: route_handle
      class (EsmfRegridder), intent(in) :: this
@@ -1580,7 +1582,7 @@ contains
 
      ! Create route-handle if none exist
      if (route_handles%count(spec) == 0) then
-        call this%create_route_handle(kind, rc = status) 
+        call this%create_route_handle(kind, rc = status)
         _VERIFY(status)
      end if
 
@@ -1589,7 +1591,7 @@ contains
      if (present(do_transpose)) then
         transpose = do_transpose
      end if
-             
+
      if (.not. transpose) then
         route_handle = route_handles%at(spec)
      else
@@ -1599,5 +1601,54 @@ contains
      _RETURN(_SUCCESS)
 
    end function select_route_handle
+
+   subroutine destroy(this, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call this%destroy_route_handle(ESMF_TYPEKIND_R4, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   subroutine destroy_route_handle(this, kind, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      type(ESMF_TypeKind_Flag), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+
+     type (RegridderSpec) :: spec
+     type(ESMF_RouteHandle) :: dummy_rh
+     type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
+     type(ESMF_RouteHandle) :: route_handle
+     type(RegridderSpecRouteHandleMapIterator) :: iter
+     integer :: status
+
+     if (kind == ESMF_TYPEKIND_R4) then
+        route_handles => route_handles_r4
+        transpose_route_handles => transpose_route_handles_r4
+     else if(kind == ESMF_TYPEKIND_R8) then
+        route_handles => route_handles_r8
+        transpose_route_handles => transpose_route_handles_r8
+     else
+        _FAIL('unsupported type kind (must be R4 or R8)')
+     end if
+
+     spec = this%get_spec()
+
+     _ASSERT(route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     route_handle = route_handles%at(spec)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true.,_RC)
+     iter = route_handles%find(spec)
+     call route_handles%erase(iter)
+
+     _ASSERT(transpose_route_handles%count(spec) == 1, 'Did not find this spec in route handle table.')
+     route_handle = transpose_route_handles%at(spec)
+     call ESMF_RouteHandleDestroy(route_handle, noGarbage=.true., _RC)
+     iter = transpose_route_handles%find(spec)
+     call transpose_route_handles%erase(iter)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_route_handle
 
 end module MAPL_EsmfRegridderMod
