@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 #include "MAPL_Exceptions.h"
-module AAA_GridComp
+module BBB_GridComp
 
   use ESMF
   use MAPL
@@ -22,10 +22,10 @@ module AAA_GridComp
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
 
-     call MAPL_AddExportSpec(gc,short_name='field1', long_name='NA',units='NA', &
+     call MAPL_AddImportSpec(gc,short_name='field1', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
- 
+
 
      call MAPL_GenericSetServices(gc, _RC)
      _RETURN(_SUCCESS)
@@ -48,7 +48,7 @@ module AAA_GridComp
 
   end subroutine my_initialize
 
-    
+
   subroutine my_run(gc, import, export, clock, rc)
      type(ESMF_GridComp), intent(inout) :: gc
      type(ESMF_State), intent(inout) :: import
@@ -57,27 +57,25 @@ module AAA_GridComp
      integer, intent(out), optional :: rc
 
      real, pointer :: ptr_2d(:,:)
-     type(ESMF_Time) :: current_time, start_time
-     type(ESMF_TimeInterval) :: time_interval
-     real(ESMF_KIND_R8) :: relative_time
      integer :: status
 
-     call MAPL_GetPointer(export,ptr_2d,'field1',_RC)
-     call ESMF_ClockGet(clock,currTime=current_time,startTime=start_time,_RC)
-     time_interval = current_time - start_time
-     call ESMF_TimeIntervalGet(time_interval,h_r8=relative_time,_RC)
-     if (associated(ptr_2d)) ptr_2d = relative_time
+     call MAPL_GetPointer(import,ptr_2d,'field1',_RC)
+     write(*,*)"BBB import 1 maxval: ",maxval(ptr_2d)
 
      _RETURN(_SUCCESS)
 
+     _UNUSED_DUMMY(gc)
+     _UNUSED_DUMMY(export)
+     _UNUSED_DUMMY(clock)
+
   end subroutine my_run
 
-end module AAA_GridComp
+end module BBB_GridComp
 
 subroutine SetServices(gc, rc)
    use ESMF
-   use AAA_GridComp, only : mySetservices=>SetServices
+   use BBB_GridComp, only : mySetservices=>SetServices
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc
    call mySetServices(gc, rc=rc)
-end subroutine  
+end subroutine

@@ -360,7 +360,9 @@ contains
                        Work  ,1,MPI_INTEGER,Comm,status)
     _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
-    forall (J=1:NPES) Rank(J) = J-1
+    do concurrent (J=1:NPES)
+       Rank(J) = J-1
+    end do
 
     call CreateStrategy(Work, Rank, MyPE, BalCond_, Kpass, MyNewWork, MyBufSize, NOP)
 

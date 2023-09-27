@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+- Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.41.0] - 2023-09-22
+
+### Added
+
+- Saved weights and points for the vertical interpolation
+- Added new benchmark suite.  Initial benchmarks are:
+	1. measuring raw bandwidth of a filesystem with multiple independent streams
+	2. measuring the `MPI_Gatherv()` used in writing checkpoints.
+	3. a combo benchmark that does both operations
 - Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
 - Added markdown documentation for select items such as ExtData, History and a few other sources
 - Trajectory sampler with Epoch time span
@@ -18,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `_HERE`: Returns the current file and line number
   - `_RETURN_IF(cond)`: Returns if the condition is true
   - `_RETURN_UNLESS(cond)`: Returns if the condition is false
+- Created a new `docs` directory that has the following subdirectories
+  - `tutorial`: what used to be a top directory (with the same content)
+  - `user_guide`: a new directory that will serve as MAPL User's Guide.
+- OSSE project: trajectory sampler (regrid to IODA file locations), capable of ingesting multiple files and regridding via one route-handle
 
 ### Changed
 
@@ -28,22 +51,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated CircleCI to use v11.2.0 bcs
 - Backported changes in `pfio` from `release/MAPL-v3` to enable `pfio` unit tests
 - Update `components.yaml`
-  - ESMA_cmake v3.32.0 (Support for Intel Fortran under Rosetta2)
+  - ESMA_cmake v3.34.0 (Support for Intel Fortran under Rosetta2, updated NAG flags)
 - Cleanup Fortran
   - Converted all uses of `mpif.h` to `use mpi`
   - Converted all uses of `character*` to `character(len=)`
+  - Removed many unused variables
+  - Added many `_UNUSED_DUMMY()` calls
+  - Converted statement functions to internal functions
+- Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
 
 ### Fixed
 
+- Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
+- Corrected a typo for checking if fpp macro `_FILE_` was previously defined.
 - Add call to initialize pFlogger layer for the unit tests.
 - Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
   + MPT bug at NAS
+- Fix problem with macros in base/MAPL\_Resource.F90 uncovered while compiling with the NVIDIA Fortran compiler.
+  The macros in MAPL\_Resource.F90 had long lines which exceeded the line length limit of the NVIDIA compiler.
+  Change the macros into include files (.h) with macros and Fortran code.
 
 ### Removed
 
 - Deleted MAPL_HeapMod.F90.  This file was doing crazy nonstandard things and is not used anywhere else.  A new cleaner implementation based upon containers could be readily created if the functionality is ever missed.
 
-### Deprecated
+## [2.40.4] - 2023-09-14
+
+### Fixed
+
+- Fixed handling of MAPL dependencies for when `find_package(MAPL)` is used
 
 ## [2.40.3] - 2023-08-03
 

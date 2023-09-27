@@ -361,7 +361,7 @@ contains
     integer                                   :: useRegex
     integer                                   :: unitr, unitw
     integer                                   :: tm,resolution(2)
-    logical                                   :: match, contLine
+    logical                                   :: match, contLine, con3
     character(len=2048)                       :: line
     type(ESMF_Config)                         :: cfg
     character(len=ESMF_MAXSTR)                :: HIST_CF
@@ -398,6 +398,9 @@ contains
     integer              :: chnksz
     logical :: table_end
     logical :: old_fields_style
+
+!   variables for counting table
+    integer :: nline, ncol
 
     type(HistoryCollection) :: collection
     character(len=ESMF_MAXSTR) :: cFileOrder
@@ -664,7 +667,8 @@ contains
 
          match = .false.
          contLine = .false.
-
+         con3 = .false.
+            
          do while (.true.)
             read(unitr, '(A)', end=1234) line
             j = index( adjustl(line), trim(adjustl(string)) )
@@ -672,14 +676,18 @@ contains
             if (match) then
                j = index(line, trim(string)//'fields:')
                contLine = (j > 0)
+               k = index(line, trim(string)//'obs_files:')
+               con3 = (k > 0)               
             end if
-            if (match .or. contLine) then
+            if (match .or. contLine .or. con3) then
                write(unitw,'(A)') trim(line)
             end if
             if (contLine) then
                if (adjustl(line) == '::') contLine = .false.
             end if
-
+            if (con3) then
+               if (adjustl(line) == '::') con3 = .false.               
+            endif
          end do
 
 1234     continue
@@ -872,9 +880,12 @@ contains
             label=trim(string) // 'station_id_file:', _RC)
 
 ! Get an optional file containing a 1-D track for the output
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%obsFile, default="", &
-                                    label=trim(string) // 'obs_file:', _RC)
-       if (trim(list(n)%obsFile) /= '') list(n)%timeseries_output = .true.
+       call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
+       if (rc==0) then
+          if (nline > 0) then
+             list(n)%timeseries_output = .true.             
+          endif
+       endif
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
                                     label=trim(string) // 'recycle_track:', _RC)
 
@@ -3435,8 +3446,6 @@ ENDDO PARSER
          lgr => logging%get_logger('HISTORY.sampler')
          if (list(n)%timeseries_output) then
             if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
-               if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
-               call list(n)%trajectory%close_file_handle(_RC)
                call list(n)%trajectory%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
@@ -3596,6 +3605,7 @@ ENDDO PARSER
          call list(n)%trajectory%regrid_accumulate(_RC)
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call list(n)%trajectory%append_file(current_time,_RC)
+            call list(n)%trajectory%close_file_handle(_RC)
             call list(n)%trajectory%destroy_rh_regen_LS (_RC)
          end if
       end if
@@ -3861,11 +3871,11 @@ ENDDO PARSER
             call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,_RC)
             IM = dims(1)
             JM = dims(2)
-            DLON   =  360._REAL64/real(IM)
+            DLON   =  360._REAL64/IM
             if (JM /= 1) then
-               DLAT   =  180._REAL64/real(JM-1)
+               DLAT   =  180._REAL64/(JM-1)
             else
-               DLAT   =  1.0
+               DLAT   =  1._REAL64
             end if
             LONBEG = -180._REAL64
             LATBEG =  -90._REAL64
@@ -3987,27 +3997,11 @@ ENDDO PARSER
     type(ESMF_Alarm)                  :: PERPETUAL
     character(len=ESMF_MAXSTR)        :: TimeString
     character(len=ESMF_MAXSTR)        :: clockname
-    character                         :: String(ESMF_MAXSTR)
     logical                           :: LPERP
     integer                           :: YY,MM,DD,H,M,S
     integer                           :: noffset
 
-    character(len=4) :: year
-    character(len=2) :: month
-    character(len=2) :: day
-    character(len=2) :: hour
-    character(len=2) :: minute
-    character(len=2) :: second
-
     integer                    :: STATUS
-
-    equivalence ( string(01),TimeString )
-    equivalence ( string(01),year       )
-    equivalence ( string(06),month      )
-    equivalence ( string(09),day        )
-    equivalence ( string(12),hour       )
-    equivalence ( string(15),minute     )
-    equivalence ( string(18),second     )
 
     call ESMF_ClockGet ( clock, name=clockname, currTime=currentTime, _RC)
 
@@ -4047,7 +4041,17 @@ ENDDO PARSER
     call ESMF_TimeGet (currentTime, timeString=TimeString, _RC)
 
     if(present(DateStamp)) then
-       DateStamp = year//month//day//'_'//hour//minute//second //'z'
+       associate ( &
+         year   => TimeString( 1: 4), &
+         month  => TimeString( 6: 7), &
+         day    => TimeString( 9:10), &
+         hour   => TimeString(12:13), &
+         minute => TimeString(15:16), &
+         second => TimeString(18:19)  &
+         )
+         DateStamp = year//month//day//'_'//hour//minute//second //'z'
+      end associate
+
     end if
 
     _RETURN(ESMF_SUCCESS)

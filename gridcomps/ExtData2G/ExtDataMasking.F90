@@ -44,12 +44,12 @@ module MAPL_ExtDataMask
       _ASSERT(i1 > 0,'Incorrect format for function expression: missing "("')
       function_name = adjustl(mask_expression(:i1-1))
       function_name = ESMF_UtilStringLowerCase(function_name, _RC)
-      
-      if (index(function_name,"regionmask") /= 0) then 
+
+      if (index(function_name,"regionmask") /= 0) then
          new_mask%mask_type = "regionmask"
-      else if (index(function_name,"zonemask") /= 0) then 
+      else if (index(function_name,"zonemask") /= 0) then
          new_mask%mask_type = "zonemask"
-      else if (index(function_name,"boxmask") /= 0) then 
+      else if (index(function_name,"boxmask") /= 0) then
          new_mask%mask_type = "boxmask"
       else
          _FAIL("Invalid mask type")
@@ -64,11 +64,10 @@ module MAPL_ExtDataMask
    end function
 
    function get_mask_variables(this,rc) result(variables_in_mask)
-      class(ExtDataMask), intent(inout) :: this 
+      class(ExtDataMask), intent(inout) :: this
       type(StringVector) :: variables_in_mask
       integer, intent(out), optional :: rc
 
-      integer                         :: status
       integer                         :: i1,i2
       logical                         :: twovar
       character(len=:), allocatable   :: tmpstring1,tmpstring2
@@ -107,7 +106,7 @@ module MAPL_ExtDataMask
          call this%evaluate_box_mask(state,var_name,_RC)
       end select
       _RETURN(_SUCCESS)
-   end subroutine evaluate_mask   
+   end subroutine evaluate_mask
 
    subroutine evaluate_region_mask(this,state,var_name,rc)
       class(ExtDataMask), intent(inout) :: this
@@ -120,11 +119,11 @@ module MAPL_ExtDataMask
       character(len=:), allocatable :: maskString,maskname,vartomask
       integer, allocatable :: regionNumbers(:), flag(:)
       integer, allocatable :: mask(:,:)
-      real, pointer        :: rmask(:,:)   
-      real, pointer        :: rvar2d(:,:)  
+      real, pointer        :: rmask(:,:)
+      real, pointer        :: rvar2d(:,:)
       real, pointer        :: rvar3d(:,:,:)
-      real, pointer        :: var2d(:,:)   
-      real, pointer        :: var3d(:,:,:) 
+      real, pointer        :: var2d(:,:)
+      real, pointer        :: var3d(:,:,:)
       integer              :: rank,ib,ie
       type(ESMF_Field)     :: field,temp_field
 
@@ -201,11 +200,11 @@ module MAPL_ExtDataMask
 
        integer :: i
        character(len=:), allocatable :: vartomask,clatS,clatN
-       real, pointer        :: rvar2d(:,:)   
-       real, pointer        :: rvar3d(:,:,:) 
-       real, pointer        :: var2d(:,:)   
-       real, pointer        :: var3d(:,:,:) 
-       real(REAL64), pointer :: lats(:,:)    
+       real, pointer        :: rvar2d(:,:)
+       real, pointer        :: rvar3d(:,:,:)
+       real, pointer        :: var2d(:,:)
+       real, pointer        :: var3d(:,:,:)
+       real(REAL64), pointer :: lats(:,:)
        real(REAL64)         :: limitS, limitN
        type(ESMF_Field)     :: field,temp_field
        type(ESMF_Grid)      :: grid
@@ -257,7 +256,7 @@ module MAPL_ExtDataMask
              where(limitS <= lats .and. lats <=limitN) var3d(:,:,i) = rvar3d(:,:,i)
           enddo
        end if
- 
+
       _RETURN(_SUCCESS)
    end subroutine evaluate_zone_mask
 
@@ -271,12 +270,12 @@ module MAPL_ExtDataMask
 
        integer :: i
        character(len=:), allocatable :: vartomask,strtmp
-       real, pointer        :: rvar2d(:,:)  
+       real, pointer        :: rvar2d(:,:)
        real, pointer        :: rvar3d(:,:,:)
-       real, pointer        :: var2d(:,:)   
+       real, pointer        :: var2d(:,:)
        real, pointer        :: var3d(:,:,:)
-       real(REAL64), pointer :: lats(:,:)  
-       real(REAL64), pointer :: lons(:,:) 
+       real(REAL64), pointer :: lats(:,:)
+       real(REAL64), pointer :: lons(:,:)
        real(REAL64)         :: limitS, limitN, limitE, limitW
        real(REAL64)         :: limitE1, limitW1
        real(REAL64)         :: limitE2, limitW2

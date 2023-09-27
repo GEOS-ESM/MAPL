@@ -895,8 +895,6 @@ contains
       ! calls (see ESMF bug 3004440).
       ! Only coldstart is affected
       logical                          :: isPresent
-      logical                          :: isCreated
-      logical                          :: gridIsPresent
       logical :: is_associated
       character(len=ESMF_MAXSTR)       :: positive, comp_to_record
       type(ESMF_State), pointer :: child_export_state
@@ -913,6 +911,8 @@ contains
       Iam = "MAPL_GenericInitialize"
       call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
       Iam = trim(comp_name) // trim(Iam)
+
+      FILENAME = ""
 
       ! Retrieve the pointer to the internal state.
       ! -------------------------------------------
@@ -1800,8 +1800,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads, is_test_framework, is_test_framework_driver
-      logical :: is_grid_capture, restore_export
+      logical :: use_threads
       character(len=ESMF_MAXSTR) :: comp_to_record
 
       !=============================================================================
@@ -3017,25 +3016,9 @@ contains
 
       type(ESMF_Time)                   :: currentTime
       character(len=ESMF_MAXSTR)        :: TimeString
-      character                         :: String(ESMF_MAXSTR)
 
       character(len=ESMF_MAXSTR)                  :: IAm
       integer                                     :: status
-
-      character(len=4) :: year
-      character(len=2) :: month
-      character(len=2) :: day
-      character(len=2) :: hour
-      character(len=2) :: minute
-      character(len=2) :: second
-
-      equivalence ( string(01),TimeString )
-      equivalence ( string(01),year       )
-      equivalence ( string(06),month      )
-      equivalence ( string(09),day        )
-      equivalence ( string(12),hour       )
-      equivalence ( string(15),minute     )
-      equivalence ( string(18),second     )
 
       Iam = "MAPL_DateStampGet"
 
@@ -3044,7 +3027,16 @@ contains
       call ESMF_TimeGet  (currentTime, timeString=TimeString, rc=status)
       _VERIFY(status)
 
-      DateStamp = year // month // day // '_' // hour // minute // 'z'
+      associate ( &
+         year => TimeString( 1: 4), &
+         month=> TimeString( 6: 7), &
+         day  => TimeString( 9:10), &
+         hour => TimeString(12:13), &
+         minute=>TimeString(15:16), &
+         second=>TimeString(18:19)  &
+         )
+         DateStamp = year // month // day // '_' // hour // minute // 'z'
+      end associate
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_DateStampGet
@@ -6175,7 +6167,7 @@ contains
             call WRITE_PARALLEL('ERROR: Required restart '//trim(FNAME)//' does not exist!')
             _RETURN(ESMF_FAILURE)
          else
-            call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
+            if (len_trim(FNAME) > 0) call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
             _RETURN(ESMF_SUCCESS)
          end if
       end if
@@ -8485,20 +8477,38 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, unusable, default, value_is_set, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
-      logical :: value_is_set
+      logical :: value_set
       integer :: status
 
-      call MAPL_GetResource_config_scalar(state%cf, val, label, value_is_set, &
-         default = default, component_name = state%compname, rc = status)
+      _UNUSED_DUMMY(unusable)
 
-      if(.not. value_is_set) then
+      call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
+         default = default, component_name = state%compname, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_scalar.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8511,19 +8521,38 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, unusable, default, value_is_set, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: value_is_set
+      logical :: value_set
 
-      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
+      _UNUSED_DUMMY(unusable)
 
-      if(.not. value_is_set) then
+      call MAPL_GetResource_config_scalar(config, val, label, value_set, &
+         default = default, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_scalar.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8536,20 +8565,38 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, unusable, default, value_is_set, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
-      logical :: value_is_set
+      logical :: value_set
       integer :: status
 
-      call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
-         default = default, component_name = state%compname, rc = status)
+      _UNUSED_DUMMY(unusable)
 
-      if(.not. value_is_set) then
+      call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
+         default = default, component_name = state%compname, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_array.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8560,20 +8607,38 @@ contains
 
    end subroutine MAPL_GetResourceFromMAPL_array
 
-   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, unusable, default, value_is_set, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: value_is_set
+      logical :: value_set
 
-      call MAPL_GetResource_config_array(config, vals, label, value_is_set, &
-         default = default, rc = status)
+      _UNUSED_DUMMY(unusable)
 
-      if(.not. value_is_set) then
+      call MAPL_GetResource_config_array(config, vals, label, value_set, &
+         default = default, rc=status) 
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_array..
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
