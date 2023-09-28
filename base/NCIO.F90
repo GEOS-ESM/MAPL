@@ -1067,7 +1067,11 @@ module NCIOMod
           _VERIFY(STATUS)
 
           start(1) = 1
-          start(2) = arrdes%j1(myrow+1)
+          if (arrdes%split_restart) then
+             start(2) = 1
+          else
+             start(2) = arrdes%j1(myrow+1)
+          end if
           start(3) = 1
           if (present(lev)) start(3) = lev
           start(4) = 1
@@ -2578,7 +2582,11 @@ module NCIOMod
           _VERIFY(STATUS)
 
           start(1) = 1
-          start(2) = arrdes%j1(myrow+1)
+          if (arrdes%split_restart) then
+             start(2) = 1
+          else
+             start(2) = arrdes%j1(myrow+1)
+          end if
           start(3) = 1
           if (present(lev)) start(3)=lev
           start(4) = 1
@@ -2854,7 +2862,7 @@ module NCIOMod
     logical                            :: tile
 
     integer                            :: nVarFile, ncid
-    character(len=ESMF_MAXSTR), pointer :: VarNamesFile(:) => null()
+    character(len=ESMF_MAXSTR), allocatable :: VarNamesFile(:) 
     type(ESMF_VM)                      :: VM
     logical                            :: foundInFile
     integer                            :: dna
@@ -4268,11 +4276,10 @@ module NCIOMod
    integer                      :: unit
    integer                      :: i, cwrd
    logical                      :: typehdf5
+   character(len=12)            :: fmt
 
-
-   UNIT = 10
    INQUIRE(IOLENGTH=IREC) WORD
-   open (UNIT=UNIT, FILE=FILENAME, FORM='unformatted', ACCESS='DIRECT', RECL=IREC, IOSTAT=status)
+   open (NEWUNIT=UNIT, FILE=FILENAME, FORM='unformatted', ACCESS='DIRECT', RECL=IREC, IOSTAT=status)
    _VERIFY(STATUS)
 
 ! Read first 8 characters and compare with HDF5 signature
