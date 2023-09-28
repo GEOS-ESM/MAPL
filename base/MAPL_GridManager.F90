@@ -21,7 +21,7 @@ module MAPL_GridManager_private
    private
 
    public :: GridManager
-   public :: FACTORY_ID_ATTRIBUTE
+   public :: factory_id_attribute
 
    ! singleton
    type :: GridManager
@@ -66,7 +66,7 @@ module MAPL_GridManager_private
    end type GridManager
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager_private::'
-   character(len=*), parameter :: FACTORY_ID_ATTRIBUTE = 'MAPL_grid_factory_id'
+   character(len=*), parameter :: factory_id_attribute = 'MAPL_grid_factory_id'
 
 
 contains
@@ -264,7 +264,7 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-      call ESMF_AttributeSet(grid, FACTORY_ID_ATTRIBUTE, factory_id, rc=status)
+      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -415,7 +415,7 @@ contains
       class(AbstractGridFactory), pointer :: factory
       type(Integer64GridFactoryMapIterator) :: iter
 
-      call ESMF_AttributeGet(grid, FACTORY_ID_ATTRIBUTE, id, _RC)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
       factory => this%factories%at(id)
       call factory%destroy(_RC)
       iter = this%factories%find(id)
@@ -463,7 +463,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, FACTORY_ID_ATTRIBUTE, id, rc=status)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
       factory => this%factories%at(id)
@@ -633,7 +633,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, FACTORY_ID_ATTRIBUTE, id, rc=status)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)

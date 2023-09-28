@@ -1046,9 +1046,8 @@ contains
       type(ESMF_Time), intent(in) :: interval(2)
       integer, intent(out) :: xy_subset(2,2)
       integer, optional, intent(out) :: rc
-         
       integer :: status
-      
+
       _RETURN(_FAILURE)
     end subroutine get_xy_subset
 
@@ -1057,9 +1056,8 @@ contains
       type(ESMF_Time), intent(in) :: interval(2)
       integer, allocatable, intent(out) :: xy_mask(:,:)
       integer, optional, intent(out) :: rc
-         
       integer :: status
-      
+
       _RETURN(_FAILURE)
     end subroutine get_xy_mask
 
@@ -1068,11 +1066,9 @@ contains
    subroutine destroy(this, rc)
       class(AbstractGridFactory), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      
       integer :: status
 
-      call ESMF_GridDestroy(this%grid, noGarbage=.true., _RC)
-      
+      call ESMF_GridDestroy(this%grid, noGarbage=.true., _RC)      
       _RETURN(_SUCCESS)
    end subroutine destroy
 

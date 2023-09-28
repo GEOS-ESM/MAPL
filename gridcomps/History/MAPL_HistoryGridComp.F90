@@ -138,7 +138,7 @@
   type HISTORY_ExchangeListWrap
      type(HISTORY_ExchangeListType), pointer :: PTR
   end type HISTORY_ExchangeListWrap
-  
+
   integer, parameter :: MAPL_G2G = 1
   integer, parameter :: MAPL_T2G = 2
   integer, parameter :: MAPL_T2G2G = 3
@@ -616,11 +616,9 @@ contains
                 call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
                 call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
              end if
-             
+
              if (trim(grid_type)/='Swath') then
-                print*, 'ch: bf inside swath ..'
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
-                print*, 'ch: af inside swath ..'
              else
                 Hsampler = samplerHQ(clock, config, key, _RC)
                 output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
@@ -673,7 +671,7 @@ contains
          match = .false.
          contLine = .false.
          con3 = .false.
-            
+
          do while (.true.)
             read(unitr, '(A)', end=1234) line
             j = index( adjustl(line), trim(adjustl(string)) )
@@ -682,7 +680,7 @@ contains
                j = index(line, trim(string)//'fields:')
                contLine = (j > 0)
                k = index(line, trim(string)//'obs_files:')
-               con3 = (k > 0)               
+               con3 = (k > 0)
             end if
             if (match .or. contLine .or. con3) then
                write(unitw,'(A)') trim(line)
@@ -691,7 +689,7 @@ contains
                if (adjustl(line) == '::') contLine = .false.
             end if
             if (con3) then
-               if (adjustl(line) == '::') con3 = .false.               
+               if (adjustl(line) == '::') con3 = .false.
             endif
          end do
 
@@ -887,7 +885,7 @@ contains
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
        if (rc==0) then
           if (nline > 0) then
-             list(n)%timeseries_output = .true.             
+             list(n)%timeseries_output = .true.
           endif
        endif
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
@@ -1087,7 +1085,7 @@ contains
        endif LEVS ! selected levels
 
        vvarn(n) = vvar
-       
+
        cubeFormat = 1
        list(n)%xyoffset = 0
        ! Determine the file-side grid to use for the collection.
@@ -1130,7 +1128,7 @@ contains
              list(n)%output_grid_label=''
           end if
        end select
-       
+
 ! Handle "useNewFormat" mode: this is hidden (i.e. not documented) feature
 ! Affects only "new" cubed-sphere native output
 ! Defaults to .true.
@@ -2376,9 +2374,7 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
              call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
           endif
-          !
-          ! why I still need griddedio for sampler case?
-          !
+
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
           call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
@@ -2407,7 +2403,6 @@ ENDDO PARSER
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              else
-                !
                 if (trim(list(n)%output_grid_label)/='') then
                    pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                    call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
@@ -3242,7 +3237,7 @@ ENDDO PARSER
     type (StringGridMap)           :: pt_output_grids
     character(len=ESMF_MAXSTR)     :: key_grid_label
     type (ESMF_Grid), pointer      :: pgrid
-    
+
     integer :: collection_id
     integer :: create_mode
     type(StringStringMap) :: global_attributes
@@ -3368,7 +3363,7 @@ ENDDO PARSER
       else if (trim(list(n)%output_grid_label)=='SwathGrid') then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
-         Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )         
+         Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
 
 !      if(Writing(n)) then
@@ -3404,13 +3399,13 @@ ENDDO PARSER
        if( NewSeg(n)) then
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
        endif
-          
+
    end do
 
 
    if(any(Writing)) call WRITE_PARALLEL("")
-         
-             
+
+
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       if (trim(list(n)%output_grid_label)=='SwathGrid') then
@@ -3435,14 +3430,13 @@ ENDDO PARSER
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
-            
+
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
          endif
       end if
    end do epoch_swath_grid_case
 
-   
 ! Write Id and time
 ! -----------------
 
@@ -3554,7 +3548,7 @@ ENDDO PARSER
 !
    enddo OPENLOOP
    call MAPL_TimerOff(GENSTATE,"----IO Create")
-   
+
 
    call MAPL_TimerOn(GENSTATE,"----IO Write")
    call MAPL_TimerOn(GENSTATE,"-----IO Post")
@@ -3607,8 +3601,8 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         write(6,*) 'list(n)%unit=', list(n)%unit
-         
+         call lgr%debug('%a %i','list(n)%unit=', list(n)%unit)
+
          list(n)%currentFile = filename(n)
 
          if (.not.list(n)%timeseries_output) then
@@ -3647,7 +3641,6 @@ ENDDO PARSER
    enddo POSTLOOP
 
 
-   write(6,*) 'test writing=', writing(:)
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
@@ -3668,8 +3661,8 @@ ENDDO PARSER
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,ogrid=pgrid,&
-                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)            
-            write(6,'(///)')
+                 vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+            if( MAPL_AM_I_ROOT() )  write(6,'(//)')
          endif
       end if
    end do epoch_swath_regen_grid
@@ -3713,8 +3706,6 @@ ENDDO PARSER
 
    enddo WRITELOOP
 
-
- 
    call MAPL_TimerOff(GENSTATE,"-----IO Write")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 

@@ -520,8 +520,6 @@ contains
       this%cell_across_swath = nlon
       this%cell_along_swath = nlat
 
-
-!!      stop -11
       
       ! determine im_world from Epoch
       ! -----------------------------
@@ -536,7 +534,7 @@ contains
       tunit='seconds since 1993-01-01 00:00:00'
       this%tunit = tunit
       call time_esmf_2_nc_int (time0, tunit, j0, _RC)
-      call hms_2_s (this%Epoch, sec, _RC)
+      sec = hms_2_s (this%Epoch)
       j1= j0 + sec
       jx0= j0
       jx1= j1
