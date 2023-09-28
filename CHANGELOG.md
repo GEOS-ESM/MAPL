@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
 - Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
 - Updated handling of NetCDF time values
->>>>>>> develop
 
 ### Fixed
 
