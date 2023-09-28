@@ -1179,9 +1179,9 @@ contains
               default=1, _RC)
          call MAPL_GetResource( STATE, split_checkpoint, Label="SPLIT_CHECKPOINT:", &
               default='NO', _RC)
-         call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
-              default='NO', _RC)
-         split_restart = ESMF_UtilStringUpperCase(split_restart,_RC)
+         !call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
+              !default='NO', _RC)
+         split_restart = 'NO'
          split_checkpoint = ESMF_UtilStringUpperCase(split_checkpoint,_RC)
 
          call MAPL_GetResource( STATE, write_restart_by_oserver, Label="WRITE_RESTART_BY_OSERVER:", &
@@ -1199,9 +1199,9 @@ contains
          mygrid%comm = comm
          mygrid%num_readers =  num_readers
          mygrid%num_writers =  num_writers
-         if (trim(split_restart) == 'YES') then
-            mygrid%split_restart = .true.
-         endif
+         !if (trim(split_restart) == 'YES') then
+            !mygrid%split_restart = .true.
+         !endif
          if (trim(split_checkpoint) == 'YES') then
             mygrid%split_checkpoint = .true.
          endif
@@ -5999,7 +5999,9 @@ contains
       integer                               :: isNC4
       logical                               :: isPresent
       character(len=ESMF_MAXSTR) :: grid_type
-      logical :: empty
+      logical :: empty, split_restart
+      integer :: num_files
+      type(ESMF_HConfig) :: hconfig
 
       _UNUSED_DUMMY(CLOCK)
 
@@ -6043,18 +6045,25 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-
+      split_restart = .false.
+      isNC4 = -100
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
+             hconfig = ESMF_HConfigCreate(filename = trim(filename), rc=status)
+             if (status == ESMF_SUCCESS) then
+                _ASSERT(ESMF_HConfigIsDefined(hconfig,keyString="num_files"),"if input file is split must supply num_files")
+                num_files =  ESMF_HConfigAsI4(hconfig,keystring="num_files",_RC)
+                split_restart = .true.
+             end if
             block
               character(len=:), allocatable :: fname_by_reader
               logical :: fexist
               integer :: i
 
               FileExists = .false.
-              if (mpl%grid%split_restart) then
+              if (split_restart) then
                  FileExists = .true.
-                 do i = 0,mpl%grid%num_readers-1
+                 do i = 0,num_files-1
                     fname_by_reader = get_fname_by_face(trim(fname), i)
                     inquire(FILE = trim(fname_by_reader), EXIST=fexist)
                     FileExists = FileExists .and. fexist
@@ -6065,26 +6074,27 @@ contains
                     _VERIFY(status)
                  endif
                  deallocate(fname_by_reader)
+              else
+                 inquire(FILE = FNAME, EXIST=FileExists)
+                 if (FileExists) then
+                    call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
+                    _VERIFY(status)
+                 endif
               endif
             end block
-            if( .not. FileExists) then
-               inquire(FILE = FNAME, EXIST=FileExists)
-               if (FileExists) then
-                  call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
-                  _VERIFY(status)
-               endif
-            endif
+         end if
+         call MAPL_CommsBcast(vm,split_restart,n=1,ROOT=MAPL_Root,_RC)
+
+         call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, _RC)
+         call MAPL_CommsBcast(vm, isNC4, n=1, ROOT=MAPL_Root, _RC) 
+         if (split_restart) then
+            call MAPL_CommsBcast(vm, num_files,  n=1, ROOT=MAPL_Root, _RC)
+            call MAPL_CommsBcast(vm, split_restart, n=1, ROOT=MAPL_Root, _RC)
+            mpl%grid%num_readers = num_files
+            mpl%grid%split_restart = split_restart
          end if
 
-         call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, rc=status)
-         _VERIFY(status)
          if (FileExists) then
-            !if (AmIRoot) then
-               !call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
-               !_VERIFY(status)
-            !end if
-            call MAPL_CommsBcast(vm,isNC4,n=1,ROOT=MAPL_Root,rc=status)
-            _VERIFY(status)
             if (isNC4 == 0) then
                filetype = 'pnc4'
             else
@@ -6098,7 +6108,6 @@ contains
       else
          FileExists = MAPL_MemFileInquire(NAME=FNAME)
       end if
-
       if (.not. FileExists) then
          if (.not. bootstrapable .or. restartRequired) then
             call WRITE_PARALLEL('ERROR: Required restart '//trim(FNAME)//' does not exist!')
@@ -6108,7 +6117,6 @@ contains
             _RETURN(ESMF_SUCCESS)
          end if
       end if
-
       ! Open file
       !----------
 
@@ -6147,7 +6155,7 @@ contains
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,   &
                  im_world = COUNTS(1),                 &
                  jm_world = COUNTS(2)                  )
-            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
             call ArrDescrSet(arrdes, ioscattercomm = mpl%grid%comm )
 
          else
@@ -6157,7 +6165,7 @@ contains
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
                  im_world = mpl%grid%im_world,           &
                  jm_world = mpl%grid%jm_world)
-            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
 
          end if TILE
 
@@ -6217,7 +6225,6 @@ contains
       else
          UNIT=0
       end if
-
 
       ! Skip Header
       !------------
@@ -10999,8 +11006,8 @@ contains
          call ArrDescrSet(arrdes, offset_local, &
               !readers_comm  = mpl%grid%readers_comm,  &
               !ioscattercomm = mpl%grid%comm, &
-              writers_comm = mpl%grid%writers_comm, &
-              iogathercomm = mpl%grid%comm, &
+              !writers_comm = mpl%grid%writers_comm, &
+              !iogathercomm = mpl%grid%comm, &
               i1 = mpl%grid%i1, in = mpl%grid%in,     &
               j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
               im_world = COUNTS(1),                   &
@@ -11015,6 +11022,9 @@ contains
          call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
          call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
          arrdes%iogathercomm = mpl%grid%comm
+         arrdes%ioscattercomm = mpl%grid%comm
+         arrdes%split_restart = .false. 
+         arrdes%split_checkpoint = .false. 
       else
          call MAPL_GridGet(mpl%grid%ESMFGRID,globalCellCountPerDim=CCPD,RC=status)
          _VERIFY(status)
@@ -11040,6 +11050,8 @@ contains
          call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
          call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         arrdes%split_restart = mpl%grid%split_restart
+         arrdes%split_checkpoint = mpl%grid%split_checkpoint
          
       endif
       call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=status)
@@ -11054,8 +11066,6 @@ contains
       if (present(num_readers)) arrdes%num_readers=num_readers
       if (present(num_writers)) arrdes%num_writers=num_writers
       arrdes%write_restart_by_oserver = mpl%grid%write_restart_by_oserver
-      arrdes%split_restart = mpl%grid%split_restart
-      arrdes%split_checkpoint = mpl%grid%split_checkpoint
 
       _RETURN(ESMF_SUCCESS)
 
