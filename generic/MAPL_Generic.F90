@@ -1167,7 +1167,7 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: num_readers, num_writers
-         character(len=ESMF_MAXSTR)       :: split_restart, split_checkpoint
+         character(len=ESMF_MAXSTR)       :: split_checkpoint
          character(len=ESMF_MAXSTR)       :: write_restart_by_oserver
          integer :: j
 
@@ -1179,9 +1179,6 @@ contains
               default=1, _RC)
          call MAPL_GetResource( STATE, split_checkpoint, Label="SPLIT_CHECKPOINT:", &
               default='NO', _RC)
-         !call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
-              !default='NO', _RC)
-         split_restart = 'NO'
          split_checkpoint = ESMF_UtilStringUpperCase(split_checkpoint,_RC)
 
          call MAPL_GetResource( STATE, write_restart_by_oserver, Label="WRITE_RESTART_BY_OSERVER:", &
@@ -1199,74 +1196,9 @@ contains
          mygrid%comm = comm
          mygrid%num_readers =  num_readers
          mygrid%num_writers =  num_writers
-         !if (trim(split_restart) == 'YES') then
-            !mygrid%split_restart = .true.
-         !endif
          if (trim(split_checkpoint) == 'YES') then
             mygrid%split_checkpoint = .true.
          endif
-
-         !! Y-dir communicators
-         !color =  MYGRID%NX0
-         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Ycomm, status)
-
-         !! X-dir communicators
-         !color = MYGRID%NY0
-         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Xcomm, status)
-
-         !! READER-communicator
-         !if( num_readers>MYGRID%ny .or. mod(MYGRID%ny,num_readers)/=0 ) then
-            !if (MAPL_AM_I_Root(VM)) then
-               !print *
-               !print *,'***********************************************************'
-               !print *,'Error!  NUM_READERS must be <= MYGRID%ny: ',MYGRID%ny
-               !print *,'    and NUM_READERS must divide evenly into MYGRID%ny'
-               !print *,'***********************************************************'
-               !print *
-            !end if
-         !endif
-         !_ASSERT(num_readers<=MYGRID%ny,'needs informative message')
-         !_ASSERT(mod(MYGRID%ny,num_readers)==0,'needs informative message')
-         !ny_by_readers = MYGRID%ny/num_readers
-         !if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_readers) == 0) then
-            !color = 0
-         !else
-            !color = MPI_UNDEFINED
-         !endif
-         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%readers_comm, status)
-         !if (num_readers==MYGRID%ny) then
-            !mygrid%IOscattercomm = mygrid%Xcomm
-         !else
-            !j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_readers)
-            !call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOscattercomm, status)
-         !endif
-
-         !! WRITER-communicator
-         !if( num_writers>MYGRID%ny .or. mod(MYGRID%ny,num_writers)/=0 ) then
-            !if (MAPL_AM_I_Root(VM)) then
-               !print *
-               !print *,'***********************************************************'
-               !print *,'Error!  NUM_WRITERS must be <= MYGRID%ny: ',MYGRID%ny
-               !print *,'    and NUM_WRITERS must divide evenly into MYGRID%ny'
-               !print *,'***********************************************************'
-               !print *
-            !end if
-         !endif
-         !_ASSERT(num_writers<=MYGRID%ny,'needs informative message')
-         !_ASSERT(mod(MYGRID%ny,num_writers)==0,'needs informative message')
-         !ny_by_writers = MYGRID%ny/num_writers
-         !if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_writers) == 0) then
-            !color = 0
-         !else
-            !color = MPI_UNDEFINED
-         !endif
-         !call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%writers_comm, status)
-         !if (num_writers==MYGRID%ny) then
-            !mygrid%IOgathercomm = mygrid%Xcomm
-         !else
-            !j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_writers)
-            !call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOgathercomm, status)
-         !endif
          _RETURN(ESMF_SUCCESS)
       end subroutine set_checkpoint_restart_options
 
