@@ -1792,7 +1792,6 @@ contains
       integer                          :: PHASE_
       integer                          :: I
       type(ESMF_Method_Flag)           :: method
-      type(ESMF_VM) :: VM
       class(BaseProfiler), pointer :: t_p
       character(1) :: char_phase
 
@@ -1809,7 +1808,6 @@ contains
       logical :: use_threads, is_test_framework, is_test_framework_driver
       logical :: is_grid_capture, restore_export
       character(len=ESMF_MAXSTR) :: comp_to_record
-      integer :: mpi_comm
 
       !=============================================================================
 
@@ -1829,7 +1827,6 @@ contains
 
       lgr => logging%get_logger('MAPL.GENERIC')
 
-      call ESMF_VmGetCurrent(VM)
       ! Retrieve the pointer to the internal state. It comes in a wrapper.
       ! ------------------------------------------------------------------
 
@@ -1901,22 +1898,26 @@ contains
       if (use_threads .and. method == ESMF_METHOD_RUN)  then
          call omp_driver(GC, import, export, clock, _RC)  ! component threaded with OpenMP
       else
-         call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
-         block 
-            character(len=2) :: phase_int
-            character(len=ESMF_MAXSTR) :: message
-            write(phase_int,'(I2)')phase_
-            message = trim(comp_name)//"_phase:_"//trim(phase_int)
-            call MAPL_MemReport(mpi_comm,__FILE__,__LINE__,trim(message))
-         end block
          call func_ptr (GC, &
               importState=IMPORT, &
               exportState=EXPORT, &
               clock=CLOCK, PHASE=PHASE_, &
               userRC=userRC, _RC )
          _VERIFY(userRC)
+         block 
+           integer :: mpi_comm
+           character(len=2) :: phase_int
+           character(len=ESMF_MAXSTR) :: message
+           type(ESMF_VM) :: vm
 
-         _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+           if (method == ESMF_METHOD_RUN)  then
+              call ESMF_VmGetCurrent(vm)
+              call ESMF_VmGet(vm,mpiCommunicator=mpi_comm,_RC)
+              write(phase_int,'(I2)')phase
+              message = trim(comp_name)//"_phase:_"//trim(phase_int)
+              call MAPL_MemReport(mpi_comm,__FILE__,__LINE__,trim(message))
+           end if
+         end block
       end if
       
       if (comp_name == comp_to_record) then
