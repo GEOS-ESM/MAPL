@@ -670,7 +670,7 @@ module FileIOSharedMod
        color =  arrdes%NX0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, _IERROR)
        color = arrdes%NY0
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status) 
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, _IERROR) 
        ny_by_readers = ny/num_readers
        if (mod(myid,nx*ny/num_readers) == 0) then
           color = 0
