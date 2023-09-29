@@ -2768,7 +2768,7 @@ module NCIOMod
      _VERIFY(status)
      file_lon_size = metadata%get_dimension("lon")
      file_lat_size = metadata%get_dimension("lat")
-     !if (metadata%has_attribute("Cubed_Sphere_Face_Index")) file_lat_size = file_lat_size*6
+     if (metadata%has_attribute("Split_Cubed_Sphere")) file_lat_size = file_lat_size*6
      file_lev_size = metadata%get_dimension("lev")
      file_tile_size = metadata%get_dimension("tile")
 
@@ -3864,7 +3864,7 @@ module NCIOMod
                 if (writer_rank == 0) then
                     call create_control_file(filename,arrdes%im_world,arrdes%num_writers,rc)
                 end if
-                !call cf%add_attribute("Cubed_Sphere_Face_Index", arrdes%face_index, _RC)
+                call cf%add_attribute("Split_Cubed_Sphere", writer_rank, _RC)
              else
                 call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
