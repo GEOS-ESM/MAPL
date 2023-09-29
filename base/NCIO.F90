@@ -4606,17 +4606,6 @@ module NCIOMod
      integer :: i
 
      name = trim(fname)//"_"//i_to_string(rank)
-     !i= index(fname,'_checkpoint')
-     !if (i /= 0) then
-        !name = fname(1:i-1)//'_split_'//i_to_string(rank)//trim(fname(i:))
-        !return
-     !end if
-     !i= index(fname,'_rst')
-     !if (i /= 0) then
-        !name = fname(1:i-1)//'_split_'//i_to_string(rank)//trim(fname(i:))
-        !return
-     !endif
-     !name = trim(fname)//'_split_'//i_to_string(rank)
 
    end function get_fname_by_face
 
