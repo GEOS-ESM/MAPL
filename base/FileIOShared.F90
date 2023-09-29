@@ -631,7 +631,7 @@ module FileIOSharedMod
        _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
        call mpi_comm_rank(full_comm,myid, _IERROR)
        color =  arrdes%NX0
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, _IERROR)
        color = arrdes%NY0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Xcomm, status) 
        ny_by_writers = ny/num_writers
