@@ -677,7 +677,7 @@ module FileIOSharedMod
        else
           color = MPI_UNDEFINED
        endif
-       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, status)
+       call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, _IERROR)
        if (num_readers==ny) then
           arrdes%IOscattercomm = arrdes%Xcomm
        else
