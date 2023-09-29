@@ -682,7 +682,7 @@ module FileIOSharedMod
           arrdes%IOscattercomm = arrdes%Xcomm
        else
           j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_readers)
-          call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, status)
+          call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, _IERROR)
        endif      
        
        _RETURN(_SUCCESS)
