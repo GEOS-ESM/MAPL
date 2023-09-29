@@ -666,8 +666,7 @@ module FileIOSharedMod
        _ASSERT(num_readers < ny,'num readers must be less than NY')
        _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
     
-       call mpi_comm_rank(full_comm,myid, status)
-       _VERIFY(status)
+       call mpi_comm_rank(full_comm,myid, _IERROR)
        color =  arrdes%NX0
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%Ycomm, status)
        color = arrdes%NY0
