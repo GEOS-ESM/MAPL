@@ -15,6 +15,7 @@ set (TEST_SRCS
     test_DirPath.pf
     test_TimeStringConversion.pf
     test_MAPL_NetCDF.pf
+    Test_MAPL_Resource.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 
@@ -37,7 +38,7 @@ add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
 #                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
-                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.pfunit
+                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.generic MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8

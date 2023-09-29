@@ -70,8 +70,8 @@ module pFIO_AbstractMessageMod
        import SurrogateMessageVisitor
        import AbstractMessage
        implicit none
-       class (SurrogateMessageVisitor), intent(inout) :: this
-       class (AbstractMessage), intent(in) :: message
+       class (SurrogateMessageVisitor), target, intent(inout) :: this
+       class (AbstractMessage), target, intent(in) :: message
        integer, optional, intent(out) :: rc
      end subroutine handle
 
@@ -107,7 +107,7 @@ module pFIO_AbstractMessageMod
 
     recursive subroutine dispatch(this, visitor, rc)
        class (AbstractMessage), intent(in) :: this
-       class (SurrogateMessageVisitor), intent(inout) :: visitor
+       class (SurrogateMessageVisitor), target, intent(inout) :: visitor
        integer, optional, intent(out) :: rc
        integer :: status
 

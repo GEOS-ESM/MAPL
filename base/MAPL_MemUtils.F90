@@ -22,6 +22,7 @@ module MAPL_MemUtilsMod
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use mpi
 
 !Author: Balaji (V.Balaji@noaa.gov)
 !Various operations for memory management
@@ -79,8 +80,6 @@ module MAPL_MemUtilsMod
   integer, public, parameter :: MAPL_MemUtilsModeBase = 0
   integer, save      :: MAPL_MemUtilsMode
   real, save :: gmax_save
-
-  include "mpif.h"
 
   contains
 

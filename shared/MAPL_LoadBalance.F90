@@ -39,8 +39,6 @@ module MAPL_LoadBalanceMod
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
   type(TBalanceStrategy), save :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
 
-  character*30 :: Iam="MAPL_LoadBalanceMod in line "
-
 !---------------------------------------------------------------------------
 !>
 !### EXAMPLE
@@ -96,8 +94,8 @@ contains
 ! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
 ! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
 ! The blocksize of A (Idim) must be at least as large as the BufLen associated
-! with the strategy. This size can be obtained by quering the strategy using 
-! its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
+! with the strategy. This size can be obtained by quering the strategy using
+! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
 ! MAPL_BalanceCreate for details.
 
   subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)
@@ -122,7 +120,7 @@ contains
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
        _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
-! Initialize CURSOR, which is the location in the first block of A where 
+! Initialize CURSOR, which is the location in the first block of A where
 ! the next read or write is to occur. K1 and K2 are the limits
 
        if (Direction==MAPL_Distribute) then
@@ -200,8 +198,8 @@ contains
 ! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
 ! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
 ! The blocksize of A (Idim) must be at least as large as the BufLen associated
-! with the strategy. This size can be obtained by quering the strategy using 
-! its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
+! with the strategy. This size can be obtained by quering the strategy using
+! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
 ! MAPL_BalanceCreate for details.
 
   subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
@@ -226,7 +224,7 @@ contains
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
        _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
-! Initialize CURSOR, which is the location in the first block of A where 
+! Initialize CURSOR, which is the location in the first block of A where
 ! the next read or write is to occur. K1 and K2 are the limits
 
        if (Direction==MAPL_Distribute) then
@@ -324,7 +322,7 @@ contains
     integer :: KPASS, STATUS, Balance, MyNewWork, MyBufSize
     integer :: NPES, MyPE, J
 
-    integer, allocatable :: WORK(:), RANK(:), NOP(:,:) 
+    integer, allocatable :: WORK(:), RANK(:), NOP(:,:)
 
 ! Defaults of optional Inputs
 !----------------------------
@@ -362,7 +360,9 @@ contains
                        Work  ,1,MPI_INTEGER,Comm,status)
     _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
-    forall (J=1:NPES) Rank(J) = J-1
+    do concurrent (J=1:NPES)
+       Rank(J) = J-1
+    end do
 
     call CreateStrategy(Work, Rank, MyPE, BalCond_, Kpass, MyNewWork, MyBufSize, NOP)
 
@@ -386,7 +386,7 @@ contains
 
     if(present(BalLen)) BalLen =  MyNewWork
     if(present(BufLen)) BufLen =  MyBufSize
- 
+
 ! Save the Strategy
 !------------------
 
@@ -410,7 +410,7 @@ contains
       integer, intent(IN   ) :: MyPE
       real   , intent(IN   ) :: BalCond
       integer, intent(  OUT) :: NOP(:,:), KPASS, MyNewWork, MyBufSize
-      
+
       integer :: NPES, J, JSPARD, LEN, MaxPasses
       real    :: MEAN
 
@@ -421,7 +421,7 @@ contains
 !-------------------------------------------------------------------
 
       KPASS     = 0
-      MEAN      = sum(Work)/float(NPES)
+      MEAN      = sum(Work)/real(NPES)
       MyNewWork = OrgLen
       MyBufSize = OrgLen
 
@@ -488,7 +488,7 @@ contains
 
     integer :: Handle_
 
-    if (present(Handle)) then 
+    if (present(Handle)) then
        _ASSERT(Handle>=0, 'Handle is less than 0')
        _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STRATEGIES')
        Handle_ = Handle
@@ -519,9 +519,9 @@ contains
     integer, optional, intent(OUT) :: BalLen, BufLen, Passes, Comm
     integer, optional, intent(OUT) :: rc
 
-    _ASSERT(Handle>=0, 'Handle is less than 0') 
+    _ASSERT(Handle>=0, 'Handle is less than 0')
     _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STATEGIES')
-    
+
     _ASSERT(associated(THE_STRATEGIES(Handle)%NOP),'needs informative message')
 
     if(present(BalLen)) &

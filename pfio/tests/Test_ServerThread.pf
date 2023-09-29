@@ -89,11 +89,11 @@ contains
    ! Failure here is actually a hang.
    @test
    subroutine test_return_on_terminate_b()
-      type (ServerThread) :: s
+      type (ServerThread), target :: s
 
       type (MockSocketLog), target :: log
       type (MockSocket) :: client_socket
-      type (MockServer) :: mock_server
+      type (MockServer), target :: mock_server
       integer :: i       
 
       client_socket = MockSocket(log)
@@ -103,11 +103,11 @@ contains
       call s%init(client_socket, mock_server)
       call s%set_rank(1)
  
-      do i = 1,3 ! NOT 2. when done is issued, need one more run to receive terminate
+      do i = 1, 3 ! NOT 2. when done is issued, need one more run to receive terminate
          call s%run()
       enddo
       @assertEqual("receive<Done> :: receive<Terminate>", log%log)
-
+  
    end subroutine test_return_on_terminate_b
 
    @test

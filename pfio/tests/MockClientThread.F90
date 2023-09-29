@@ -35,6 +35,7 @@ module pFIO_MockClientThreadMod
 
    
    type, extends(ClientThread) :: MockClientThread
+      integer :: counter = 0
    contains
       procedure :: wait
    end type MockClientThread
@@ -58,10 +59,11 @@ contains
       integer, intent(in) :: request_id
       class(AbstractRequestHandle), pointer :: handle
 
+      this%counter = this%counter + 1
       handle => this%get_RequestHandle(request_id)
       call handle%wait()
       call this%erase_RequestHandle(request_id)
-
+ 
    end subroutine wait
 
 end module pFIO_MockClientThreadMod

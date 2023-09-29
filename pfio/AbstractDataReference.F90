@@ -4,7 +4,6 @@
 module pFIO_AbstractDataReferenceMod
    use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use, intrinsic :: iso_c_binding, only: c_associated
    use, intrinsic :: iso_fortran_env, only: INT32
@@ -137,6 +136,8 @@ contains
 
       integer,allocatable :: count(:),start(:)
       integer :: full_rank
+
+      _RETURN_UNLESS(C_ASSOCIATED(this%base_address))
 
       full_rank = size(global_shape)
       if(size(this%shape) > full_rank) then
@@ -446,13 +447,16 @@ contains
      integer(kind=INT64) :: n_words,n
 
      n_words = product(int(this%shape,INT64))*word_size(this%type_kind)
+     _RETURN_IF(n_words == 0)
+
      n       = product(int(to%shape,INT64))*word_size(to%type_kind)
      
      _ASSERT(this%type_kind == to%type_kind,"copy type_kind not match")
-     _ASSERT(n_words == n, "copy size does not match")  
+     _ASSERT(n_words == n, "copy size does not match")
      call c_f_pointer(this%base_address,fromPtr,[n])
      call c_f_pointer(to%base_address,toPtr,[n])
      toPtr(1:n) = fromPtr(1:n)
+
      _RETURN(_SUCCESS)
    end subroutine copy_data_to
 
