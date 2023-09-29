@@ -645,7 +645,7 @@ module FileIOSharedMod
           arrdes%IOgathercomm = arrdes%Xcomm
        else
             j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
-          call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, status)
+          call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, _IERROR)
        endif
 
 
