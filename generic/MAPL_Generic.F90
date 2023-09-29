@@ -5996,7 +5996,7 @@ contains
               if (split_restart) then
                  FileExists = .true.
                  do i = 0,num_files-1
-                    fname_by_reader = get_fname_by_face(trim(fname), i)
+                    fname_by_reader = get_fname_by_rank(trim(fname), i)
                     inquire(FILE = trim(fname_by_reader), EXIST=fexist)
                     FileExists = FileExists .and. fexist
                  enddo
@@ -6225,7 +6225,7 @@ contains
             !app_factory => get_factory(MPL%GRID%ESMFGRID)
             !! at this point, arrdes%read_restart_by_face is not initialized
             !! pick the first face
-            !fname_by_face = get_fname_by_face(trim(fname), 1)
+            !fname_by_face = get_fname_by_rank(trim(fname), 1)
             !inquire(FILE = trim(fname_by_face), EXIST=fexist)
             !if(fexist) then
                !allocate(file_factory,source=grid_manager%make_factory(fname_by_face))

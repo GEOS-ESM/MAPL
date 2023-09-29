@@ -38,7 +38,7 @@ module NCIOMod
   public MAPL_NCIOParseTimeUnits
   public MAPL_VarRead
   public MAPL_VarWrite
-  public get_fname_by_face
+  public get_fname_by_rank
   public MAPL_NCIOGetFileType
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
@@ -2669,7 +2669,7 @@ module NCIOMod
              
              call MPI_COMM_RANK(arrdes%readers_comm,reader_rank,status)
              _VERIFY(STATUS) 
-             fname_by_rank = get_fname_by_face(trim(filename),reader_rank)
+             fname_by_rank = get_fname_by_rank(trim(filename),reader_rank)
              call formatter%open(trim(fname_by_rank),pFIO_READ,rc=status)
              _VERIFY(STATUS)
           else
@@ -2833,7 +2833,7 @@ module NCIOMod
 
     if (MAPL_AM_I_Root()) then
        if(arrdes%split_restart) then
-          fname_by_face = get_fname_by_face(filename, 1)
+          fname_by_face = get_fname_by_rank(filename, 1)
           status = NF90_OPEN(trim(fname_by_face),NF90_NOWRITE, ncid) ! just pick one
           _VERIFY(STATUS)
        else
@@ -3858,7 +3858,7 @@ module NCIOMod
              if (arrdes%split_checkpoint) then
                 call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
                 _VERIFY(STATUS)
-                fname_by_writer = get_fname_by_face(trim(filename),writer_rank)
+                fname_by_writer = get_fname_by_rank(trim(filename),writer_rank)
                 call formatter%create(trim(fname_by_writer),rc=status)
                 _VERIFY(status)
                 if (writer_rank == 0) then
@@ -4599,7 +4599,7 @@ module NCIOMod
       end subroutine MAPL_NCIOParseTimeUnits
 
    ! WJ notes: To avoid changing gcm_run.j script, insert "_split_x_", not append
-   function get_fname_by_face(fname, rank) result(name)
+   function get_fname_by_rank(fname, rank) result(name)
      character(len=:), allocatable :: name
      character(len=*), intent(in) :: fname
      integer, intent(in) :: rank
@@ -4607,7 +4607,7 @@ module NCIOMod
 
      name = trim(fname)//"_"//i_to_string(rank)
 
-   end function get_fname_by_face
+   end function get_fname_by_rank
 
    function check_flip(metadata,rc) result(flip)
       type(FileMetadata), intent(inout) :: metadata
