@@ -16,6 +16,7 @@ set (TEST_SRCS
     test_TimeStringConversion.pf
     test_MAPL_NetCDF.pf
     Test_MAPL_Resource.pf
+    Test_ESMF_ConfigSet.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 
