@@ -59,7 +59,7 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-      _ASSERT(duration >= 0, 'Negative span not supported')
+!      _ASSERT(duration >= 0, 'Negative span not supported') !wdb fixme deleteme 
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
 
       cft = CF_Time_Integer(duration, units_string)
@@ -102,7 +102,7 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-      _ASSERT(duration >= 0, 'Negative span not supported')
+!      _ASSERT(duration >= 0, 'Negative span not supported') !wdb fixme deleteme 
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
 
       cft = CF_Time_Real(duration, units_string)

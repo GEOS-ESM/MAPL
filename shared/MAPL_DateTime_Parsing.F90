@@ -56,6 +56,7 @@ module MAPL_DateTime_Parsing
    public :: MAX_CHARACTER_LENGTH
    public :: is_time_unit
    public :: get_time_unit
+   public :: UNSET_FIELD
 
    public :: YEAR_TIME_UNIT, MONTH_TIME_UNIT, DAY_TIME_UNIT
    public :: HOUR_TIME_UNIT, MINUTE_TIME_UNIT, SECOND_TIME_UNIT
@@ -211,7 +212,7 @@ module MAPL_DateTime_Parsing
    ! END TIME_UNIT
 
    ! UNSET FIELD
-   integer, parameter :: UNSET_FIELD = -1
+   integer, parameter :: UNSET_FIELD = 0
 
    ! Error handling
    integer, parameter :: INVALID = -1
@@ -901,7 +902,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       this % year = val
 
@@ -913,7 +913,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       this % month = val
 
@@ -925,7 +924,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       this % day = val
 
@@ -937,7 +935,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % hour, this % hour_real)
 
@@ -949,7 +946,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % hour_real, this % hour)
 
@@ -961,7 +957,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % minute, this % minute_real)
 
@@ -973,7 +968,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % minute_real, this % minute)
 
@@ -985,7 +979,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % second, this % second_real)
 
@@ -997,7 +990,6 @@ contains
       class(datetime_duration), intent(inout) :: this
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       call set_field_value(val, this % second_real, this % second)
 
@@ -1010,7 +1002,6 @@ contains
       integer(kind(TIME_UNIT)), intent(in) :: tunit
       integer, intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       select case(tunit)
       case (YEAR_TIME_UNIT)
@@ -1038,7 +1029,6 @@ contains
       integer(kind(TIME_UNIT)), intent(in) :: tunit
       real(kind=R64), intent(in) :: val
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       select case(tunit)
       case (HOUR_TIME_UNIT)
@@ -1079,10 +1069,7 @@ contains
       character(len=*), parameter :: ISO_POINT = '.'
       character(len=len(datetime_string)) :: undelimited
       character(len=:), allocatable :: intermediate
-      character(len=2) :: int_length !wdb fixme deleteme 
-      integer :: io_stat !wdb fixme deleteme 
       integer :: undelimited_length
-      integer :: status !wdb fixme deleteme 
 
       iso_string = datetime_string
       undelimited = adjustl(undelimit_all(datetime_string))
@@ -1187,7 +1174,6 @@ contains
       character(len=*), intent(in) :: string
       class(StringVector), intent(inout) :: parts
       integer, optional, intent(out) :: rc
-      integer :: status
       integer :: next, start, strlen, last
 
       strlen = len(string)
@@ -1226,7 +1212,6 @@ contains
       class(StringVector), intent(inout) :: parts
       integer, optional, intent(out) :: rc
       integer, allocatable :: indices(:, :)
-      integer :: status !wdb fixme deleteme 
       integer :: i
       integer :: n(2)
 
@@ -1307,7 +1292,6 @@ contains
       integer(kind(TIME_UNIT)) :: i
       character(len=*), parameter :: IFMT = '(A,I1)'
       character(len=*), parameter :: LFMT = '(A,L)'
-      integer :: j !wdb fixme deleteme 
 
       check_plural_ = .TRUE.
 

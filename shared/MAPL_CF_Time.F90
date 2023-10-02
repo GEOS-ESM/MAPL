@@ -105,7 +105,6 @@ contains
       character(len=*), intent(in) :: units
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: isostring
       integer, optional, intent(out) :: rc
-      type(CF_Time_Integer) :: cft !wdb fixme deleteme 
       integer :: status
       
       call extract_ISO8601_from_CF_Time(CF_Time_Integer(0, units), isostring, _RC)
@@ -118,7 +117,6 @@ contains
       class(CF_Time), intent(in) :: cft
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: isostring
       integer, optional, intent(out) :: rc 
-      integer :: status !wdb fixme deleteme 
 
       if(cft % is_valid) then
          isostring = convert_CF_Time_datetime_string_to_ISO8601(cft % base_datetime)
@@ -133,7 +131,6 @@ contains
       class(CF_Time_Real), intent(in) :: cft
       real(kind=R64), intent(out) :: duration
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
       
       if(cft % is_valid) then
          duration = cft % duration
@@ -148,7 +145,6 @@ contains
       class(CF_Time_Integer), intent(in) :: cft
       integer, intent(out) :: duration
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
       
       if(cft % is_valid) then
          duration = cft % duration
@@ -163,7 +159,6 @@ contains
       class(CF_Time), intent(in) :: cft
       character(len=MAX_CHARACTER_LENGTH), intent(out) :: time_unit
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
 
       if(cft % is_valid) then
          time_unit = cft % time_unit
@@ -190,7 +185,6 @@ contains
       class(CF_Time_Integer), intent(in) :: cft
       type(datetime_duration), intent(out) :: dt_duration
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
       integer(kind(TIME_UNIT)) :: tu
 
       if(.not. cft % is_valid) then
@@ -210,7 +204,6 @@ contains
       class(CF_Time_Real), intent(in) :: cft
       type(datetime_duration), intent(out) :: dt_duration
       integer, optional, intent(out) :: rc
-      integer :: status !wdb fixme deleteme 
       integer(kind(TIME_UNIT)) :: tu
 
       if(.not. cft % is_valid) then
@@ -257,7 +250,6 @@ contains
       character(len=MAX_CHARACTER_LENGTH) :: isodatetime
       character(len=MAX_CHARACTER_LENGTH) :: remainder
       character(len=MAX_CHARACTER_LENGTH) :: part(NUM_TIME_UNITS)
-      character(len=MAX_CHARACTER_LENGTH) :: delimiters(NUM_TIME_UNITS) !wdb fixme deleteme 
 
       isodatetime = EMPTY_STRING
       remainder = datetime_string
@@ -315,12 +307,8 @@ contains
       character(len=*), intent(in) :: units
       type(CF_Time_Integer) :: cft
       
-      cft % is_valid = (duration >= 0)
-      if(.not. cft % is_valid) return
-
       cft % duration = duration
       call initialize_cf_time(cft, units)
-      cft % is_valid = .TRUE.
 
    end function construct_cf_time_integer
 
@@ -329,12 +317,8 @@ contains
       character(len=*), intent(in) :: units
       type(CF_Time_Real) :: cft
       
-      cft % is_valid = (duration >= 0.0)
-      if(.not. cft % is_valid) return
-
       cft % duration = duration
       call initialize_cf_time(cft, units)
-      cft % is_valid = .TRUE.
 
    end function construct_cf_time_real
 
@@ -342,14 +326,15 @@ contains
       class(CF_Time), intent(inout) :: cft
       character(len=*), intent(in) :: units
       character(len=MAX_CHARACTER_LENGTH) :: token, remainder
-      integer :: i !wdb fixme deleteme 
       
+      cft % is_valid = .FALSE.
       remainder = units
       if(len_trim(remainder) == 0) return
       call split(trim(remainder), token, remainder, CF_DELIM)
       cft % time_unit = token
       call split(trim(remainder), token, remainder, CF_DELIM)
       cft % base_datetime = remainder
+      cft % is_valid = .TRUE.
 
    end subroutine initialize_cf_time
 
