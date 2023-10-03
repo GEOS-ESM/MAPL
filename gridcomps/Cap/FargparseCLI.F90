@@ -8,7 +8,7 @@ module MAPL_FargparseCLIMod
    use gFTL2_IntegerVector
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
-   use mapl_CapOptionsMod, only:  MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
+   use mapl_CapOptionsMod, only:  MAPL_CapOptions_ => MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
    implicit none
    private
 
@@ -45,7 +45,7 @@ contains
 
    function new_CapOptions_from_fargparse(unusable, dummy, extra, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type (MAPL_CapOptions) :: cap_options
+      type (MAPL_CapOptions_) :: cap_options
       character(*), intent(in) :: dummy !Needed for backward compatibility. Remove after 3.0
       procedure(I_extraoptions), optional :: extra
       integer, optional, intent(out) :: rc
@@ -230,7 +230,7 @@ contains
 
    subroutine fill_cap_options(fargparseCLI, cap_options, unusable, rc)
       class(MAPL_FargparseCLI), intent(inout) :: fargparseCLI
-      type(MAPL_CapOptions), intent(out) :: cap_options
+      type(MAPL_CapOptions_), intent(out) :: cap_options
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
@@ -416,7 +416,7 @@ contains
 
    !Function for backward compatibility. Remove for 3.0
    function old_CapOptions_from_Fargparse( fargparseCLI, unusable, rc) result (cap_options)
-      type (MAPL_CapOptions) :: cap_options
+      type (MAPL_CapOptions_) :: cap_options
       type (MAPL_FargparseCLI), intent(inout) :: fargparseCLI
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc

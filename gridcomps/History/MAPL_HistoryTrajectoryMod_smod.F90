@@ -140,7 +140,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        end procedure
 
 
-       module procedure initialize
+       module procedure initialize_
          integer :: status
          type(ESMF_Grid) :: grid
          type(variable) :: v
@@ -223,7 +223,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          _RETURN(_SUCCESS)
 
-       end procedure initialize
+       end procedure initialize_
 
 
        module procedure reinitialize

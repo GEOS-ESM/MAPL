@@ -78,7 +78,7 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Te_index
      logical                        :: is_valid
    contains
-     procedure :: initialize
+     procedure :: initialize => initialize_
      procedure :: reinitialize
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
@@ -113,7 +113,7 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
-     module subroutine initialize(this,items,bundle,timeInfo,vdata,recycle_track,rc)
+     module subroutine initialize_(this,items,bundle,timeInfo,vdata,recycle_track,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(GriddedIOitemVector), target, intent(inout) :: items
        type(ESMF_FieldBundle), intent(inout)   :: bundle
@@ -121,7 +121,7 @@ module HistoryTrajectoryMod
        type(VerticalData), optional, intent(inout) :: vdata
        logical, optional, intent(inout)        :: recycle_track
        integer, optional, intent(out)          :: rc
-     end subroutine initialize
+     end subroutine initialize_
 
      module subroutine reinitialize(this,rc)
        class(HistoryTrajectory), intent(inout) :: this
