@@ -430,40 +430,6 @@ contains
 
    end subroutine test_construct_ISO8601DateTime
 
-! These tests are commented out because the subroutines have problems which
-! cause these tests to fail.
-!   @test
-!   subroutine test_construct_ISO8601Duration()
-!      character(len=*), parameter :: GOOD_STRING = 'P10000Y13M32DT25H60M61S'
-!      type(ISO8601Duration) :: duration
-!      integer :: years = 10000
-!      integer :: months = 13
-!      integer :: days = 32
-!      integer :: hours = 25
-!      integer :: minutes = 60
-!      integer :: seconds = 61
-!      integer :: status = -1
-
-!      duration = construct_ISO8601Duration(GOOD_STRING, 1, len(GOOD_STRING), rc=status)
-!      @assertEqual(_SUCCESS, status)
-
-!      @assertEqual(years, duration%get_years())
-!      @assertEqual(months, duration%get_months())
-!      @assertEqual(days, duration%get_days())
-!      @assertEqual(hours, duration%get_hours())
-!      @assertEqual(minutes, duration%get_minutes())
-!      @assertEqual(seconds, duration%get_seconds())
-!   end subroutine test_construct_ISO8601Duration
-
-!   @test
-!   subroutine test_construct_ISO8601Interval()
-!      character(len=*), parameter :: START_END = '2007-03-01T13:00:00Z/2008-05-11T15:30:00Z'
-!      type(ISO8601Interval) :: interval
-!      integer :: status = -1
-!      interval = construct_ISO8601Interval(START_END, rc=status)
-!      @assertFalse(status == 0)
-!   end subroutine test_construct_ISO8601Interval
-
    @test
    subroutine test_parse_timezone_offset()
       integer, parameter :: FIELD_WIDTH = 2
@@ -489,10 +455,6 @@ contains
       @assertEqual(OFFSET1500, parse_timezone_offset(HOUR_ONLY, FIELD_WIDTH))
       @assertEqual(OFFSET1500, parse_timezone_offset(HOUR_MINUTE00, FIELD_WIDTH))
       @assertEqual(OFFSET1530, parse_timezone_offset(HOUR_MINUTE, FIELD_WIDTH))
-
-!      @assertEqual(OFFSETM1500, parse_timezone_offset(NEG_HOUR, FIELD_WIDTH))
-!      @assertEqual(OFFSETM1500, parse_timezone_offset(NEG_HOURMIN00, FIELD_WIDTH))
-!      @assertEqual(OFFSETM1530, parse_timezone_offset(NEG_HOURMIN, FIELD_WIDTH))
 
       @assertTrue(parse_timezone_offset(NARROW1, FIELD_WIDTH) < 0)
       @assertTrue(parse_timezone_offset(NARROW3, FIELD_WIDTH) < 0)
@@ -570,20 +532,6 @@ contains
       @assertEqual(TIMEZONE_OFFSET, datetime%get_timezone_offset())
    end subroutine test_ISO8601DateTime_getters
 
-!   @test
-!   subroutine test_ISO8601Duration_getters()
-!      logical :: complete
-!      complete = .FALSE.
-!      @assertFalse(complete)
-!   end subroutine test_ISO8601Duration_getters
-
-!   @test
-!   subroutine test_ISO8601Interval_getters()
-!      logical :: complete
-!      complete = .FALSE.
-!      @assertFalse(complete)
-!   end subroutine test_ISO8601Interval_getters
-
    @test
    subroutine test_parse_date()
       type(date_fields) :: date
@@ -621,21 +569,6 @@ contains
       @assertEqual(513, time%millisecond_)
       @assertEqual(0, time%timezone_offset_)
 
-!      time = parse_time('T174107.513+0000')
-!      @assertTrue(time%is_valid_)
-!      @assertEqual(17, time%hour_)
-!      @assertEqual(41, time%minute_)
-!      @assertEqual(7, time%second_)
-!      @assertEqual(513, time%millisecond_)
-!      @assertEqual(0, time%timezone_offset_)
-
-!      time = parse_time('T174107.513-0500')
-!      @assertTrue(time%is_valid_)
-!      @assertEqual(17, time%hour_)
-!      @assertEqual(41, time%minute_)
-!      @assertEqual(7, time%second_)
-!      @assertEqual(513, time%millisecond_)
-!      @assertEqual(-300, time%timezone_offset_)
    end subroutine test_parse_time
 
    @test
