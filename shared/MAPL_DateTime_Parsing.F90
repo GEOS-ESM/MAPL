@@ -1298,7 +1298,6 @@ contains
       if(present(check_plural)) check_plural_ = check_plural
 
       unit_name_ = trim(unit_name)
-      write(*, fmt='(A)') 'unit_name_: ' // unit_name_
       tunits => time_units
 
       unit_num = UNKNOWN_TIME_UNIT
@@ -1306,7 +1305,6 @@ contains
          tunit = trim(tunits(i))
          if((tunit == unit_name_) .or. (check_plural_ .and. ((tunit // PLURAL) == unit_name_))) then
             unit_num = i
-            write(*, fmt='(A,I2)') 'unit_num = ', i
             exit
          end if
       end do

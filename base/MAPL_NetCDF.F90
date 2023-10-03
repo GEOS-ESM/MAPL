@@ -4,7 +4,6 @@
 ! NetCDF datetime is: {integer, character(len=*)}
 ! {1800, 'seconds since 2010-01-23 18:30:37'}
 ! {TIME_SPAN, 'TIME_UNIT since YYYY-MM-DD hh:mm:ss'}
-!wdb fixme deleteme Need to delete extra prints
 module MAPL_NetCDF
 
    use MAPL_ExceptionHandling
@@ -59,7 +58,6 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-!      _ASSERT(duration >= 0, 'Negative span not supported') !wdb fixme deleteme 
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
 
       cft = CF_Time_Integer(duration, units_string)
@@ -102,7 +100,6 @@ contains
       
       _UNUSED_DUMMY(unusable)
 
-!      _ASSERT(duration >= 0, 'Negative span not supported') !wdb fixme deleteme 
       _ASSERT((len_trim(adjustl(units_string)) > 0), 'units empty')
 
       cft = CF_Time_Real(duration, units_string)

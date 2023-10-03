@@ -475,7 +475,7 @@ contains
       logical, optional, intent(in) :: back
       character(len=len(string)) :: stripped
       logical :: back_
-      integer :: i, j, n !wdb fixme deleteme , k
+      integer :: i, j, n
       character :: ch
 
       stripped = EMPTY_STRING

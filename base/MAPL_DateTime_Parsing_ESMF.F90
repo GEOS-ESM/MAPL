@@ -25,9 +25,18 @@ contains
       ! Get duration(s) from datetime_duration
 
       ! Set ESMF_TimeInterval
-      if(duration % year_is_set()) call ESMF_TimeIntervalSet(interval, yy = duration % year, _RC)
-      if(duration % month_is_set()) call ESMF_TimeIntervalSet(interval, yy = duration % month, _RC)
-      if(duration % day_is_set()) call ESMF_TimeIntervalSet(interval, yy = duration % day, _RC)
+
+      if(duration % year_is_set()) then
+         call ESMF_TimeIntervalSet(interval, yy = duration % year, _RC)
+      end if
+
+      if(duration % month_is_set()) then
+         call ESMF_TimeIntervalSet(interval, yy = duration % month, _RC)
+      end if
+
+      if(duration % day_is_set()) then
+         call ESMF_TimeIntervalSet(interval, yy = duration % day, _RC)
+      end if
 
       if(duration % hour_is_real()) then
          call ESMF_TimeIntervalSet(interval, h_r8 = duration % hour_real, _RC)
