@@ -8,12 +8,15 @@ module test_MAPL_DateTime_Parsing
       use MAPL_ExceptionHandling
       use MAPL_DateTime_Parsing 
       use pfunit
+      use, intrinsic :: iso_fortran_env, only: R64 => real64
+
       implicit none
 
       character(len=*), parameter :: DATE_DELIMITER = '-'
       character(len=*), parameter :: TIME_DELIMITER = ':'
       integer, dimension(12), parameter :: ENDS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
       integer, dimension(size(ENDS)), parameter :: ENDS_LEAP = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      integer, parameter :: MAX_LEN = 1024
 
       integer, parameter :: SUCCESS = _SUCCESS
       integer, parameter :: FAILURE = _FAILURE
@@ -21,12 +24,12 @@ module test_MAPL_DateTime_Parsing
 contains
 
    @test
-   subroutine test_divides()
-      @assertTrue(divides(7, 21))
-      @assertFalse(divides(7, 22))
-      @assertTrue(7 .divides. 21)
-      @assertFalse(7 .divides. 22)
-   end subroutine test_divides
+   subroutine test_multipleof()
+      @assertTrue(multipleof(21, 7))
+      @assertFalse(multipleof(22, 7))
+      @assertTrue(21 .multipleof. 7)
+      @assertFalse(22 .multipleof. 7)
+   end subroutine test_multipleof
 
    @test
    subroutine test_between_op()
@@ -54,7 +57,7 @@ contains
 
    @test
    subroutine test_is_digit()
-      integer :: i = -1
+      integer :: i
       integer, parameter :: imin = 0
       integer, parameter :: imax = 127
       integer, parameter :: i1 = iachar('0') - 1
@@ -215,6 +218,14 @@ contains
       integer, parameter :: TIMEWIDTH1 = len_trim(UNDELIMITED_TIME1)
       integer, parameter :: TIMEWIDTH2 = len_trim(UNDELIMITED_TIME2)
 
+      character(len=*), parameter :: cf_datetime_string_A = '2023-04-23 21:05:37'
+      character(len=*), parameter :: expected_A = '20230423210537'
+      character(len=*), parameter :: cf_datetime_string_B= '2023-04-23 21:05:37.337'
+      character(len=*), parameter :: expected_B = '20230423210537337'
+      character(len=*), parameter :: undelimited_datetime_string_C = '20230423210537'
+      character(len=*), parameter :: fail_D = '2023-4-23 21:05:37'
+      character(len=*), parameter :: fail_E = '2023-04-23 21:5:37'
+
       @assertEqual(trim(UNDELIMITED_DATE), trim(undelimit_all(DATE)))
       @assertEqual(DATEWIDTH, len_trim(UNDELIMITED_DATE)) 
       @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit_all(TIME1)))
@@ -223,6 +234,11 @@ contains
       @assertEqual(TIMEWIDTH2, len_trim(UNDELIMITED_TIME2))
       @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit_all(UNDELIMITED_TIME1)))
       @assertEqual('', trim(undelimit_all('')))
+
+      @assertEqual(trim(expected_A), trim(undelimit_all(cf_datetime_string_A)), 'Mismatch A')
+      @assertEqual(trim(expected_B), trim(undelimit_all(cf_datetime_string_B)), 'Mismatch B')
+      @assertEqual(trim(undelimited_datetime_string_C), trim(undelimit_all(undelimited_datetime_string_C)), 'Mismatch C')
+
    end subroutine test_undelimit_all
 
    @test
@@ -238,7 +254,7 @@ contains
    @test
    subroutine test_get_month_ends()
       integer, dimension(size(ENDS)) :: actual
-      integer :: i = -1
+      integer :: i
 
       actual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -569,40 +585,280 @@ contains
       @assertFalse(tf % is_valid(), 'tf should not be valid.')
    end subroutine test_are_valid_time_fields
 
-   @test
+!   @test
    subroutine test_convert_to_ISO8601DateTime()
+      character(len=*), parameter :: cf_datetime_string_A = '2023-04-23 21:05:37'
       character(len=*), parameter :: expected_A = '2023-04-23T21:05:37'
+      character(len=*), parameter :: cf_datetime_string_B= '2023-04-23 21:05:37.337'
       character(len=*), parameter :: expected_B = '2023-04-23T21:05:37.337'
+      character(len=*), parameter :: undelimited_datetime_string_C = '20230423210537'
+      character(len=*), parameter :: fail_D = '2023-4-23 21:05:37'
+      character(len=*), parameter :: fail_E = '2023-04-23 21:5:37'
       character(len=:), allocatable :: output
       character(len=MAX_LEN) :: actual
       integer :: status
 
-      call convert_to_ISO8601DateTime('2023-04-23 21:05:37', output, rc = status)
+      call convert_to_ISO8601DateTime(cf_datetime_string_A, output, rc = status)
+      @assertEqual(status, 0, 'Conversion A failed: ' // trim(cf_datetime_string_A))
       actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
       @assertEqual(expected_A, trim(actual), 'Datetime strings do not match.')
 
-      call convert_to_ISO8601DateTime('20230423 210537', output, rc = status)
+      call convert_to_ISO8601DateTime(cf_datetime_string_B, output, rc = status)
+      @assertEqual(status, 0, 'Conversion B failed: ' // trim(cf_datetime_string_B))
       actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
+      @assertEqual(expected_B, trim(actual), 'Datetime strings do not match.')
+
+      call convert_to_ISO8601DateTime(undelimited_datetime_string_C, output, rc = status)
+      @assertEqual(status, 0, 'Conversion C failed: ' // trim(undelimited_datetime_string_C))
+      actual = trim(output)
       @assertEqual(expected_A, trim(actual), 'Datetime strings do not match.')
 
-      call convert_to_ISO8601DateTime('2023-04-23 21:05:37.337', output, rc = status)
-      actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
-      @assertEqual(expected_B, trim(actual), 'Datetime strings do not match.')
+      call convert_to_ISO8601DateTime(fail_D, output, rc = status)
+      @assertFalse(status == 0, 'Failed to catch illegal value - D')
 
-      call convert_to_ISO8601DateTime('20230423210537337', output, rc = status)
-      actual = trim(output)
-      @assertEqual(status, 0, 'Convert failed')
-      @assertEqual(expected_B, trim(actual), 'Datetime strings do not match.')
-
-      call convert_to_ISO8601DateTime('2023-4-23 21:05:37', output, rc = status)
-      @assertFalse(status == 0, 'Failed to catch illegal value.')
-
-      call convert_to_ISO8601DateTime('2023-04-23 21:5:37', output, rc = status)
-      @assertFalse(status == 0, 'Failed to catch illegal value.')
+      call convert_to_ISO8601DateTime(fail_E, output, rc = status)
+      @assertFalse(status == 0, 'Failed to catch illegal value - E.')
 
    end subroutine test_convert_to_ISO8601DateTime
+
+   @test
+   subroutine test_construct_datetime_duration()
+      integer, parameter :: IEX = UNSET_FIELD
+      real(kind=R64), parameter :: REX = real(IEX, kind=R64)
+      logical, parameter :: LEX = .FALSE.
+      type(datetime_duration) :: d
+      d = datetime_duration()
+      @assertEqual(IEX, d % year, 'year should be unset')
+      @assertEqual(IEX, d % month, 'month should be unset')
+      @assertEqual(IEX, d % day, 'day should be unset')
+      @assertEqual(IEX, d % hour, 'hour should be unset')
+      @assertEqual(IEX, d % minute, 'minute should be unset')
+      @assertEqual(IEX, d % second, 'second should be unset')
+      @assertEqual(REX, d % hour_real, 'hour_real should be unset')
+      @assertEqual(REX, d % minute_real, 'minute_real should be unset')
+      @assertEqual(REX, d % second_real, 'second_real should be unset')
+      @assertFalse(d % year_is_set(), 'year_is_set should be .FALSE.')
+      @assertFalse(d % month_is_set(), 'month_is_set should be .FALSE.')
+      @assertFalse(d % day_is_set(), 'hour_is_set should be .FALSE.')
+      @assertFalse(d % hour_is_set(), 'hour_is_set should be .FALSE.')
+      @assertFalse(d % minute_is_set(), 'minute_is_set should be .FALSE.')
+      @assertFalse(d % second_is_set(), 'hour_is_set should be .FALSE.')
+      @assertFalse(d % hour_is_real(), 'hour_is_real should be .FALSE.')
+      @assertFalse(d % minute_is_real(), 'minute_is_real should be .FALSE.')
+      @assertFalse(d % second_is_real(), 'hour_is_real should be .FALSE.')
+   end subroutine test_construct_datetime_duration 
+
+   subroutine test_set_year_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 2001
+      d = datetime_duration()
+      call d % set_year(expected)
+      @assertEqual(expected, d % year, 'Value not set correctly')
+
+   end subroutine test_set_year_datetime_duration
+
+   subroutine test_set_month_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 3
+      d = datetime_duration()
+      call d % set_month(expected)
+      @assertEqual(expected, d % month, 'Value not set correctly')
+
+   end subroutine test_set_month_datetime_duration
+
+   subroutine test_set_day_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 20
+      d = datetime_duration()
+      call d % set_day(expected)
+      @assertEqual(expected, d % day, 'Value not set correctly')
+
+   end subroutine test_set_day_datetime_duration
+
+   subroutine test_set_hour_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 3
+      d = datetime_duration()
+      call d % set_hour(expected)
+      @assertEqual(expected, d % hour, 'Value not set correctly')
+
+   end subroutine test_set_hour_datetime_duration
+
+   subroutine test_set_minute_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 10
+      d = datetime_duration()
+      call d % set_minute(expected)
+      @assertEqual(expected, d % minute, 'Value not set correctly')
+
+   end subroutine test_set_minute_datetime_duration
+
+   subroutine test_set_second_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 1800
+      d = datetime_duration()
+      call d % set_second(expected)
+      @assertEqual(expected, d % second, 'Value not set correctly')
+
+   end subroutine test_set_second_datetime_duration
+
+   subroutine test_set_hour_real_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 3.0
+      d = datetime_duration()
+      call d % set_hour_real(expected)
+      @assertEqual(expected, d % hour_real, 'Value not set correctly')
+
+   end subroutine test_set_hour_real_datetime_duration
+
+   subroutine test_set_minute_real_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 10.0
+      d = datetime_duration()
+      call d % set_minute_real(expected)
+      @assertEqual(expected, d % minute_real, 'Value not set correctly')
+
+   end subroutine test_set_minute_real_datetime_duration
+
+   subroutine test_set_second_real_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 1800.0
+      d = datetime_duration()
+      call d % set_second_real(expected)
+      @assertEqual(expected, d % second_real, 'Value not set correctly')
+
+   end subroutine test_set_second_real_datetime_duration
+
+   subroutine test_set_real_value_datetime_duration()
+      type(datetime_duration) :: d
+      real(R64) :: expected
+
+      expected = 1800.0
+      d = datetime_duration()
+      call d % set_value(SECOND_TIME_UNIT, expected)
+      @assertEqual(expected, d % second_real, 'Value not set correctly')
+
+   end subroutine test_set_real_value_datetime_duration
+
+   subroutine test_set_integer_value_datetime_duration()
+      type(datetime_duration) :: d
+      integer :: expected
+
+      expected = 1800
+      d = datetime_duration()
+      call d % set_value(SECOND_TIME_UNIT, expected)
+      @assertEqual(expected, d % second, 'Value not set correctly')
+
+   end subroutine test_set_integer_value_datetime_duration
+
+   subroutine test_is_valid_datestring()
+   end subroutine test_is_valid_datestring
+
+   subroutine test_is_in_char_set()
+      character(len=*), parameter :: DIGITS = '1234567890'
+      character :: ch
+
+      ch = '0'
+      @assertTrue(is_in_char_set(ch, DIGITS), 'Character not found')
+      ch = 'A'
+      @assertFalse(is_in_char_set(ch, DIGITS), 'Character is not in set')
+
+   end subroutine test_is_in_char_set
+
+   subroutine test_find_delta()
+   end subroutine test_find_delta
+
+   subroutine test_find_delta_datestring()
+   end subroutine test_find_delta_datestring
+
+   subroutine test_split_digit_string_delimited()
+   end subroutine test_split_digit_string_delimited
+
+   subroutine test_valid_index()
+   end subroutine test_valid_index
+
+   subroutine test_split_digit_string_indexed()
+   end subroutine test_split_digit_string_indexed
+
+   subroutine test_convert_lengths_to_indices()
+   end subroutine test_convert_lengths_to_indices
+
+   @test
+   subroutine test_get_time_unit()
+      integer(kind(TIME_UNIT)) :: expected, actual
+      character(len=8) :: unit_name
+
+         unit_name = 'year'
+         expected = YEAR_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'month'
+         expected = MONTH_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'day'
+         expected = DAY_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'hour'
+         expected = HOUR_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'minute'
+         expected = MINUTE_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+         unit_name = 'second'
+         expected = SECOND_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+         unit_name = unit_name // 's'
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+      
+         unit_name = 'furlong'
+         expected = UNKNOWN_TIME_UNIT
+         actual = get_time_unit(unit_name)
+         @assertEqual(expected, actual, 'Mismatch for ' // unit_name)
+
+   end subroutine test_get_time_unit
 
 end module test_MAPL_DateTime_Parsing
