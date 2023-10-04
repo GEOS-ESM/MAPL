@@ -315,9 +315,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout) :: GC      !! Grid Component
    type(ESMF_State), intent(inout)    :: IMPORT  !! Import State
    type(ESMF_State), intent(inout)    :: EXPORT  !! Export State
-   integer, intent(out)               :: rc      !! Error return code:    
-                                                 !!  0 - all is well    
-                                                 !!  1 -    
+   integer, intent(out)               :: rc      !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 !
 !-------------------------------------------------------------------------
 
@@ -1201,9 +1201,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:    
-                                                 !!  0 - all is well    
-                                                 !!  1 -    
+   integer, intent(out) ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 !
 !-------------------------------------------------------------------------
 
@@ -1605,9 +1605,9 @@ CONTAINS
    type(ESMF_GridComp), intent(inout)  :: GC     !! Grid Component
    type(ESMF_State), intent(inout) :: IMPORT     !! Import State
    type(ESMF_State), intent(inout) :: EXPORT     !! Export State
-   integer, intent(out) ::  rc                   !! Error return code:    
-                                                 !!  0 - all is well    
-                                                 !!  1 -    
+   integer, intent(out) ::  rc                   !! Error return code:
+                                                 !!  0 - all is well
+                                                 !!  1 -
 !
 !-------------------------------------------------------------------------
 
@@ -3765,14 +3765,14 @@ CONTAINS
 ! extracts integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
 ! of Chem_Util, this is provided for determining the numerically indexed regions over which an
 ! emission might be applied.
-!           
+!
 ! In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
 ! including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
 ! allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
 ! the (local copy of the) string, and the process is started over.
 !
 ! The default delimiter is a comma (",").
-!           
+!
 ! "Unfilled" iValues are zero.
 !
 ! Return codes:
@@ -3781,7 +3781,7 @@ CONTAINS
 !
 ! @bug
 !-The routine works under the following assumptions:
-!- A non-zero return code does not stop execution. 
+!- A non-zero return code does not stop execution.
 !- Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
 !- A delimiter must be separated from another delimiter by at least one numeral.
 !- The delimiter cannot be a numeral or a negative sign.
@@ -3794,9 +3794,9 @@ CONTAINS
 ! Examples of strings that will work:
 !```
 !  "1"
-!  "-1"  
+!  "-1"
 !  "-1,2004,-3"
-!  "1+-2+3" 
+!  "1+-2+3"
 !  "-1A100A5"
 !```
 !
@@ -4461,15 +4461,6 @@ CONTAINS
          _VERIFY(STATUS)
          call MAPL_FieldBundleAdd(pbundle,Field2,rc=status)
          _VERIFY(STATUS)
-
-         !block
-            !character(len=ESMF_MAXSTR) :: vectorlist(2)
-            !vectorlist(1) = item%fcomp1
-            !vectorlist(2) = item%fcomp2
-            !call ESMF_AttributeSet(pbundle,name="VectorList:", itemCount=2, &
-                 !valuelist = vectorlist, rc=status)
-            !_VERIFY(STATUS)
-         !end block
 
       else
 
