@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Adding missing check on the return status when reading import checkpoint in MAPL\_GenericInitialize
+
 ### Removed
 
 ### Deprecated
