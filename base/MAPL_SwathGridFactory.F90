@@ -47,7 +47,9 @@ module MAPL_SwathGridFactoryMod
       character(len=ESMF_MAXSTR)     :: var_name_time
       character(len=ESMF_MAXSTR)     :: var_name_lat
       character(len=ESMF_MAXSTR)     :: var_name_lon
+      character(len=ESMF_MAXSTR)     :: input_template
       logical                        :: found_group
+
 
       ! Domain decomposition:
       integer :: nx = MAPL_UNDEFINED_INTEGER
@@ -410,24 +412,29 @@ contains
       logical :: ispresent
 
       _UNUSED_DUMMY(unusable)
-
+      lgr => logging%get_logger('HISTORY.sampler')
+      
       call ESMF_VmGetCurrent(VM, _RC)
 
-      
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
       call ESMF_ConfigGetAttribute(config, this%nx,  label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%ny,  label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%lm,  label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, filename, label=prefix//'GRIDSPEC:', default='unknown.txt', _RC)
+      call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
 
+      call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
+
+      print*,__FILE__, __LINE__
       !!write(6,'(2x,a,/,4i8,/,5(2x,a))') 'nx,ny,lm,epoch -- filename,tmp', &
       !!     this%nx,this%ny,this%lm,this%epoch,&
       !!     trim(filename),trim(tmp)
       !!print*, 'ck: Epoch_init:', trim(tmp)
 
+!      filename
+      
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(time0, timeString=tmp, _RC)
       else
@@ -471,8 +478,18 @@ contains
       key_lat=this%var_name_lat
       key_time=this%var_name_time
       !      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
-      CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, tdim=tdim, &
-           key_lon=key_lon, key_lat=key_lat, key_time=key_time, _RC)
+
+      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.hdf'
+
+      
+      CALL get_ncfile_dimension(filename, nlon=nlon, &
+           key_lon=key_lon, _RC)
+      print*, trim(key_lon), ' nlon ', nlon
+
+      _FAIL('stop')
+
+      CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
+           key_lon=key_lon, key_lat=key_lat, _RC)
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
       

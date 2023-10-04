@@ -5,6 +5,7 @@ use ESMF
 use MAPL_ExceptionHandling
 use MAPL_KeywordEnforcerMod
 
+
 implicit none
 private
 
@@ -165,6 +166,9 @@ contains
       logical, intent(in) :: preserve
       character(len=4) :: buffer
       character(len=1) :: c1,c2
+      type(ESMF_Time)  :: time
+      integer(ESMF_KIND_I4) :: doy
+      integer :: status, rc
       c1=token(1:1)
       c2=token(2:2)
       select case(c1)
@@ -204,6 +208,19 @@ contains
                else
                   write(buffer,'(i2)')day
                end if
+            end if
+         else
+            buffer="%"//token
+         end if
+      case("D")   ! dayOfYear
+         if (.not.skip_token(day,preserve)) then
+            if (c2 == "3") then
+               call ESMF_TimeSet(time, yy=year, mm=month, dd=day, _RC)
+               call ESMF_TimeGet(time, dayOfYear=doy, _RC)
+               write(buffer,'(i3.3)')doy
+               write(6,*) 'doy=', doy
+            else
+               _FAIL('Day of Year must be %D3')
             end if
          else
             buffer="%"//token
