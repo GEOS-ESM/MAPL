@@ -28,32 +28,51 @@ contains
    subroutine test_ESMF_ConfigSetAttribute_array()
       character(len=MAX_LENGTH) :: attr(PAIR_SIZE, NCOL)
       character(len=MAX_LENGTH) :: message
+      type(ESMF_Config) :: config
       character(len=MAX_LENGTH) :: submessage
       character(len=*), parameter :: PROCNAME = 'array_main'
+      character(len=MAX_LENGTH) :: time_string
+      character(len=MAX_LENGTH) :: label_set
+      character(len=MAX_LENGTH) :: label_find
+      logical :: ispresent
       integer :: stat
 
-      attr(ILABEL, 1) = 'datetime'
-      attr(IVALUE, 1) ='19991231T235959'
+      ! set up character array for config attributes
+      attr(ILABEL, 1) = 'SwatchGrid.Epoch_init:'
+      attr(IVALUE, 1) = '20121113T000000'
 
-      attr(ILABEL, 2) = 'is_set'
-      attr(IVALUE, 2) = '.T.'
+      attr(ILABEL, 2) = 'SwathGrid.nc_Time:'
+      attr(IVALUE, 2) = 'time'
 
-      attr(ILABEL, 3) = 'size'
-      attr(IVALUE, 3) = '3'
+      attr(ILABEL, 3) = 'SwatchGrid.nc_Longitude:'
+      attr(IVALUE, 3) = 'cell_across_swath'
 
-      call array_main(attr, submessage, rc=stat)
+      ! set config attributes
+      call array_main(attr, config, submessage, rc=stat)
       message = PROCNAME // DIVIDER // trim(submessage) 
       @assertEqual(SUCCESS, stat, 'Failed ' // trim(message))
 
+      ! set attribute for overwrite
+      time_string = '19991231T235959'
+      label_set = attr(ILABEL, 1)
+      call ESMF_ConfigSetAttribute(config, trim(time_string), label=label_set, rc=stat)
+
+      ! check to see if following attribute is erased
+      label_find = attr(ILABEL, 2)
+      call ESMF_ConfigFindLabel(config, label_find, isPresent=ispresent, rc=stat)
+      @assertTrue(ispresent, label_find // ' not found')
+      ! check rc code to verify accuracy of result
+      @assertTrue(stat == SUCCESS, 'Nonzero rc')
+
    end subroutine test_ESMF_ConfigSetAttribute_array
 
-   subroutine array_main(attr_array, message, rc)
+   subroutine array_main(attr_array, config, message, rc)
       character(len=*), intent(in) :: attr_array(:,:)
+      type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(out) :: message
       character(len=len(message)) :: submessage
       character(len=*), parameter :: PROCNAME = 'array_main'
       integer, optional, intent(out) :: rc
-      type(ESMF_Config) :: config
       integer :: stat
 
       if(size(attr_array, ROW) /= PAIR_SIZE) then
@@ -83,14 +102,14 @@ contains
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: attr(:,:)
       character(len=*), intent(out) :: message
-      character(len=*), parameter :: PROCNAME = 'array_main'
+      character(len=*), parameter :: PROCNAME = 'load_config_array'
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: FMT_ = '(I16)'
       integer :: stat
       integer :: i
       character(len=16) :: stri
 
-      if(.not. config_created(config, stat, rc)) then
+      if(.not. config_created(config, rc=stat)) then
          SET_RC(stat, rc)
          message = PROCNAME // DIVIDER // 'notcreated'
          return
@@ -98,30 +117,25 @@ contains
 
       do i = 1, size(attr)
          call ESMF_ConfigSetAttribute(config, value=attr(IVALUE, i), label=attr(ILABEL, i), rc=stat)
-         if(stat /= SUCCESS) then
-            SET_RC(stat, rc)
-            write(stri, fmt=FMT_) i
-            message = PROCNAME  // DIVIDER // 'iteration_' // trim(stri)
-            return
-         end if
+         if(stat == SUCCESS) cycle
+         write(stri, fmt=FMT_) i
+         message = PROCNAME  // DIVIDER // 'iteration_' // trim(stri)
+         SET_RC(stat, rc)
+         exit
       end do
 
    end subroutine load_config_array
 
-   logical function config_created(config, stat, rc) 
+   logical function config_created(config, rc) 
       type(ESMF_Config), intent(inout) :: config
-      integer :: stat
       integer, optional, intent(out) :: rc
-      logical :: config_is_created
+      integer :: stat
 
-      config_is_created = ESMF_ConfigIsCreated(config, rc=stat)
-      config_is_created = .not. (config_is_created .and. (stat == SUCCESS))
-      if(.not. config_is_created) then
+      if(ESMF_ConfigIsCreated(config, rc=stat)) config_created = (stat == SUCCESS)
+      if(.not. config_created) then
          SET_RC(stat, rc)
       end if
       
-      config_created = config_is_created
-
    end function config_created
 
 end module Test_ESMF_ConfigSet
