@@ -14,23 +14,80 @@ module Test_ESMF_ConfigSet
    integer, parameter :: ILABEL = 1
    integer, parameter :: IVALUE = 2
    integer, parameter :: PAIR_SIZE = 2
-   integer, parameter :: NCOL = 3
+   integer, parameter :: NUM_ATTR = 3
    integer, parameter :: SUCCESS = ESMF_SUCCESS
    integer, parameter :: FAILURE = SUCCESS - 1
    integer, parameter :: ROW = 1
    integer, parameter :: COLUMN = 2
-   character(len=*), parameter :: DIVIDER = '::'
-
+   character(len=*), parameter :: DIVIDER = ' :: '
 
 contains
 
    @test
+   subroutine quick_test_ESMFConfigSetAttribute_array()
+      type(ESMF_Config) :: config
+      character(len=*), parameter :: LABEL_BASE = 'SwathGrid.'
+      character, parameter :: LABEL_TAIL = ':'
+      character(len=*), parameter :: EPOCH_INIT = LABEL_BASE // 'Epoch_init' // LABEL_TAIL
+      character(len=*), parameter :: NC_TIME = LABEL_BASE // 'nc_Time' // LABEL_TAIL
+      character(len=*), parameter :: NC_LONGITUDE = LABEL_BASE // 'nc_Longitude' // LABEL_TAIL
+      character(len=*), parameter :: EPOCH_INIT_DATETIME = '20121113T000000'
+      character(len=*), parameter :: TIME_STRING = 'time'
+      character(len=*), parameter :: LONGITUDE_STRING = 'cell_across_swath'
+      character(len=MAX_LENGTH) :: label, value_
+      logical :: is_present
+      integer :: stat
+
+      config = ESMF_ConfigCreate(rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to create ESMF_Config')
+
+      value_ = EPOCH_INIT_DATETIME
+      label = EPOCH_INIT
+      call ESMF_ConfigSetAttribute(config, value=value_, label=label, rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to set ' // label)
+      value_ = TIME_STRING
+      label = NC_TIME
+      call ESMF_ConfigSetAttribute(config, value=value_, label=label, rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to set ' // label)
+      value_ = LONGITUDE_STRING 
+      label = NC_LONGITUDE
+      call ESMF_ConfigSetAttribute(config, value=value_, label=label, rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to set ' // label)
+
+      value_ = '19991231T235959'
+      call ESMF_ConfigSetAttribute(config, value=value_, label=label, rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to set (overwrite)' // label)
+
+      label = NC_TIME
+      call ESMF_ConfigFindLabel(config, label, isPresent=is_present, rc = stat)
+      @assertTrue(is_present, label // ' not found')
+      @assertTrue(stat==SUCCESS, 'Nonzero rc')
+
+   end subroutine quick_test_ESMFConfigSetAttribute_array
+
+   @test
+   subroutine quick_test_ESMFConfigSetAttribute_file()
+      character(len=*), parameter :: FILENAME = 'test_esmf_configset.rc'
+      type(ESMF_Config) :: config
+      character(len=MAX_LENGTH) :: label, value_
+      logical :: is_present
+      integer :: stat
+
+      config = ESMF_ConfigCreate(rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to create ESMF_Config')
+
+      call ESMF_ConfigLoadFile(config, FILENAME, rc=stat)
+      @assertTrue(stat==SUCCESS, 'Failed to load ESMF_Config')
+
+   end subroutine quick_test_ESMFConfigSetAttribute_file
+
+   !@test
    subroutine test_ESMF_ConfigSetAttribute_array()
-      character(len=MAX_LENGTH) :: attr(PAIR_SIZE, NCOL)
+      character(len=MAX_LENGTH) :: attr(PAIR_SIZE, NUM_ATTR)
       character(len=MAX_LENGTH) :: message
       type(ESMF_Config) :: config
       character(len=MAX_LENGTH) :: submessage
-      character(len=*), parameter :: PROCNAME = 'array_main'
+      character(len=*), parameter :: PROCNAME = 'TEST'
       character(len=MAX_LENGTH) :: time_string
       character(len=MAX_LENGTH) :: label_set
       character(len=MAX_LENGTH) :: label_find
@@ -38,19 +95,19 @@ contains
       integer :: stat
 
       ! set up character array for config attributes
-      attr(ILABEL, 1) = 'SwatchGrid.Epoch_init:'
+      attr(ILABEL, 1) = 'SwathGrid.Epoch_init:'
       attr(IVALUE, 1) = '20121113T000000'
 
       attr(ILABEL, 2) = 'SwathGrid.nc_Time:'
       attr(IVALUE, 2) = 'time'
 
-      attr(ILABEL, 3) = 'SwatchGrid.nc_Longitude:'
+      attr(ILABEL, 3) = 'SwathGrid.nc_Longitude:'
       attr(IVALUE, 3) = 'cell_across_swath'
 
       ! set config attributes
       call array_main(attr, config, submessage, rc=stat)
-      message = PROCNAME // DIVIDER // trim(submessage) 
-      @assertEqual(SUCCESS, stat, 'Failed ' // trim(message))
+      message = PROCNAME // DIVIDER // trimall(submessage)
+      @assertTrue(stat == SUCCESS, 'Failed ' // trimall(message))
 
       ! set attribute for overwrite
       time_string = '19991231T235959'
@@ -70,7 +127,7 @@ contains
       character(len=*), intent(in) :: attr_array(:,:)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(out) :: message
-      character(len=len(message)) :: submessage
+      character(len=MAX_LENGTH) :: submessage
       character(len=*), parameter :: PROCNAME = 'array_main'
       integer, optional, intent(out) :: rc
       integer :: stat
@@ -89,10 +146,18 @@ contains
          return
       end if
 
+
+!      do i = 1, size(attr_array, 2)
+!         call ESMF_ConfigSetAttribute(config, value=attr_array(IVALUE, i), label=attr_array(ILABEL, i), rc = stat)
+!         if(stat /= SUCCESS) then
+!            SET_RC(stat, rc)
+!            return
+!         end if
+!      end do 
       call load_config_array(config, attr_array, submessage, rc=stat)
       if(stat /= SUCCESS) then
          SET_RC(stat, rc)
-         message = PROCNAME // DIVIDER // trim(submessage)
+         message = PROCNAME // DIVIDER // trimall(submessage)
          return
       end if
 
@@ -115,11 +180,11 @@ contains
          return
       end if
 
-      do i = 1, size(attr)
+      do i = 1, size(attr, 2)
          call ESMF_ConfigSetAttribute(config, value=attr(IVALUE, i), label=attr(ILABEL, i), rc=stat)
          if(stat == SUCCESS) cycle
          write(stri, fmt=FMT_) i
-         message = PROCNAME  // DIVIDER // 'iteration_' // trim(stri)
+         message = PROCNAME  // DIVIDER // 'iteration_' // trimall(stri)
          SET_RC(stat, rc)
          exit
       end do
@@ -137,5 +202,13 @@ contains
       end if
       
    end function config_created
+
+   function trimall(string)
+      character(len=*), intent(in) :: string
+      character(len=:), allocatable :: trimall
+
+      trimall = trim(adjustl(string))
+
+   end function trimall
 
 end module Test_ESMF_ConfigSet
