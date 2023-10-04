@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>deserialize &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>deserialize
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">23 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/AbstractDataMessage.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/abstractdatamessage.f90.html'>AbstractDataMessage.F90</a></li>
+              <li><a href='../module/pfio_abstractdatamessagemod.html'>pFIO_AbstractDataMessageMod</a></li>
+          <li class="active">deserialize</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/deserialize~8.html#src">deserialize</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine deserialize(this, buffer, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/abstractdatamessage.html'>AbstractDataMessage</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1288"></span>
+              class(<a href='../type/abstractdatamessage.html'>AbstractDataMessage</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buffer~15"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~440"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~deserialize~8~~CallsGraph Pages: 1 -->
+<svg id="procdeserialize8CallsGraph" width="641pt" height="357pt"
+ viewBox="0.00 0.00 641.00 357.07" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~deserialize~8~~CallsGraph" class="graph" transform="scale(2.67 2.67) rotate(0) translate(4 948)">
+<title>proc~~deserialize~8~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-948 1705,-948 1705,4 -4,4"/>
+<!-- proc~deserialize~8 -->
+<g id="proc~~deserialize~8~~CallsGraph_node1" class="node">
+<title>proc~deserialize~8</title>
+<polygon fill="none" stroke="black" points="372,-484 0,-484 0,-460 372,-460 372,-484"/>
+<text text-anchor="middle" x="186" y="-469.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_AbstractDataMessageMod::AbstractDataMessage%deserialize</text>
+</g>
+<!-- interface~deserialize_intrinsic -->
+<g id="proc~~deserialize~8~~CallsGraph_node2" class="node">
+<title>interface~deserialize_intrinsic</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node2"><a xlink:href=".././interface/deserialize_intrinsic.html" xlink:title="pFIO_UtilitiesMod::deserialize_intrinsic">
+<polygon fill="#a7506f" stroke="#a7506f" points="632,-713 416,-713 416,-689 632,-689 632,-713"/>
+<text text-anchor="middle" x="524" y="-698.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_intrinsic</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~8&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize~8~~CallsGraph_edge1" class="edge">
+<title>proc~deserialize~8&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#255000" d="M205.06,-484.31C260.91,-522.38 430.98,-638.29 496.7,-683.07"/>
+<polygon fill="#255000" stroke="#255000" points="495.02,-686.17 505.25,-688.91 498.96,-680.38 495.02,-686.17"/>
+</g>
+<!-- interface~serialize_buffer_length -->
+<g id="proc~~deserialize~8~~CallsGraph_node3" class="node">
+<title>interface~serialize_buffer_length</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node3"><a xlink:href=".././interface/serialize_buffer_length.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length">
+<polygon fill="#a7506f" stroke="#a7506f" points="640,-255 408,-255 408,-231 640,-231 640,-255"/>
+<text text-anchor="middle" x="524" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~8&#45;&gt;interface~serialize_buffer_length -->
+<g id="proc~~deserialize~8~~CallsGraph_edge2" class="edge">
+<title>proc~deserialize~8&#45;&gt;interface~serialize_buffer_length</title>
+<path fill="none" stroke="#255000" d="M205.06,-459.69C260.91,-421.62 430.98,-305.71 496.7,-260.93"/>
+<polygon fill="#255000" stroke="#255000" points="498.96,-263.62 505.25,-255.09 495.02,-257.83 498.96,-263.62"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node4"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1223,-484 1003,-484 1003,-460 1223,-460 1223,-484"/>
+<text text-anchor="middle" x="1113" y="-469.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~8&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge3" class="edge">
+<title>proc~deserialize~8&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M372.24,-472C556.96,-472 835.21,-472 992.53,-472"/>
+<polygon fill="#255000" stroke="#255000" points="992.72,-475.5 1002.72,-472 992.72,-468.5 992.72,-475.5"/>
+</g>
+<!-- proc~deserialize_int32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node5" class="node">
+<title>proc~deserialize_int32_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node5"><a xlink:href=".././proc/deserialize_int32_0d.html" xlink:title="pFIO_UtilitiesMod::deserialize_int32_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="931.5,-902 711.5,-902 711.5,-878 931.5,-878 931.5,-902"/>
+<text text-anchor="middle" x="821.5" y="-887.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_int32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge4" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_0d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M531.88,-713.36C550.4,-745.32 604.78,-830.87 676,-869 684.04,-873.31 692.68,-876.81 701.58,-879.67"/>
+<polygon fill="#255000" stroke="#255000" points="700.76,-883.07 711.34,-882.51 702.72,-876.35 700.76,-883.07"/>
+</g>
+<!-- proc~deserialize_int32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node6" class="node">
+<title>proc~deserialize_int32_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node6"><a xlink:href=".././proc/deserialize_int32_1d.html" xlink:title="pFIO_UtilitiesMod::deserialize_int32_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="931.5,-860 711.5,-860 711.5,-836 931.5,-836 931.5,-860"/>
+<text text-anchor="middle" x="821.5" y="-845.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_int32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge5" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M535.23,-713.23C557.7,-739.14 614.27,-799.44 676,-827 684.16,-830.64 692.81,-833.68 701.67,-836.21"/>
+<polygon fill="#255000" stroke="#255000" points="700.78,-839.6 711.34,-838.76 702.56,-832.83 700.78,-839.6"/>
+</g>
+<!-- proc~deserialize_int64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node7" class="node">
+<title>proc~deserialize_int64_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node7"><a xlink:href=".././proc/deserialize_int64_0d.html" xlink:title="pFIO_UtilitiesMod::deserialize_int64_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="931.5,-818 711.5,-818 711.5,-794 931.5,-794 931.5,-818"/>
+<text text-anchor="middle" x="821.5" y="-803.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_int64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge6" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_0d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M541.71,-713C568.58,-731.66 623.71,-767.32 676,-785 684.2,-787.77 692.78,-790.18 701.5,-792.27"/>
+<polygon fill="#255000" stroke="#255000" points="700.87,-795.71 711.39,-794.49 702.41,-788.88 700.87,-795.71"/>
+</g>
+<!-- proc~deserialize_int64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node8" class="node">
+<title>proc~deserialize_int64_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node8"><a xlink:href=".././proc/deserialize_int64_1d.html" xlink:title="pFIO_UtilitiesMod::deserialize_int64_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="931.5,-776 711.5,-776 711.5,-752 931.5,-752 931.5,-776"/>
+<text text-anchor="middle" x="821.5" y="-761.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_int64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge7" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M563.15,-713.06C593.48,-722.3 637.13,-734.8 676,-743 688.75,-745.69 702.2,-748.14 715.57,-750.35"/>
+<polygon fill="#255000" stroke="#255000" points="715.33,-753.86 725.75,-751.99 716.44,-746.95 715.33,-753.86"/>
+</g>
+<!-- proc~deserialize_logical_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node9" class="node">
+<title>proc~deserialize_logical_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node9"><a xlink:href=".././proc/deserialize_logical_0d.html" xlink:title="pFIO_UtilitiesMod::deserialize_logical_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="935.5,-734 707.5,-734 707.5,-710 935.5,-710 935.5,-734"/>
+<text text-anchor="middle" x="821.5" y="-719.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_logical_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge8" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_0d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M632.1,-708.61C653.2,-710.11 675.51,-711.7 697.1,-713.23"/>
+<polygon fill="#255000" stroke="#255000" points="697.07,-716.74 707.29,-713.95 697.57,-709.75 697.07,-716.74"/>
+</g>
+<!-- proc~deserialize_logical_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node10" class="node">
+<title>proc~deserialize_logical_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node10"><a xlink:href=".././proc/deserialize_logical_1d.html" xlink:title="pFIO_UtilitiesMod::deserialize_logical_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="935.5,-692 707.5,-692 707.5,-668 935.5,-668 935.5,-692"/>
+<text text-anchor="middle" x="821.5" y="-677.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_logical_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge9" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M632.1,-693.39C653.2,-691.89 675.51,-690.3 697.1,-688.77"/>
+<polygon fill="#255000" stroke="#255000" points="697.57,-692.25 707.29,-688.05 697.07,-685.26 697.57,-692.25"/>
+</g>
+<!-- proc~deserialize_real32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node11" class="node">
+<title>proc~deserialize_real32_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node11"><a xlink:href=".././proc/deserialize_real32_0d.html" xlink:title="pFIO_UtilitiesMod::deserialize_real32_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="934.5,-650 708.5,-650 708.5,-626 934.5,-626 934.5,-650"/>
+<text text-anchor="middle" x="821.5" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_real32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge10" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_0d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M563.15,-688.94C593.48,-679.7 637.13,-667.2 676,-659 688.75,-656.31 702.2,-653.86 715.57,-651.65"/>
+<polygon fill="#255000" stroke="#255000" points="716.44,-655.05 725.75,-650.01 715.33,-648.14 716.44,-655.05"/>
+</g>
+<!-- proc~deserialize_real32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node12" class="node">
+<title>proc~deserialize_real32_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node12"><a xlink:href=".././proc/deserialize_real32_1d.html" xlink:title="pFIO_UtilitiesMod::deserialize_real32_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="934.5,-608 708.5,-608 708.5,-584 934.5,-584 934.5,-608"/>
+<text text-anchor="middle" x="821.5" y="-593.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_real32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge11" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M541.71,-689C568.58,-670.34 623.71,-634.68 676,-617 683.51,-614.46 691.35,-612.23 699.31,-610.27"/>
+<polygon fill="#255000" stroke="#255000" points="700.13,-613.67 709.08,-608 698.55,-606.85 700.13,-613.67"/>
+</g>
+<!-- proc~deserialize_real64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node13" class="node">
+<title>proc~deserialize_real64_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node13"><a xlink:href=".././proc/deserialize_real64_0d.html" xlink:title="pFIO_UtilitiesMod::deserialize_real64_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="934.5,-566 708.5,-566 708.5,-542 934.5,-542 934.5,-566"/>
+<text text-anchor="middle" x="821.5" y="-551.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_real64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge12" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_0d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M535.23,-688.77C557.7,-662.86 614.27,-602.56 676,-575 683.16,-571.8 690.7,-569.07 698.43,-566.74"/>
+<polygon fill="#255000" stroke="#255000" points="699.6,-570.05 708.29,-564 697.72,-563.3 699.6,-570.05"/>
+</g>
+<!-- proc~deserialize_real64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node14" class="node">
+<title>proc~deserialize_real64_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node14"><a xlink:href=".././proc/deserialize_real64_1d.html" xlink:title="pFIO_UtilitiesMod::deserialize_real64_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="934.5,-524 708.5,-524 708.5,-500 934.5,-500 934.5,-524"/>
+<text text-anchor="middle" x="821.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_real64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge13" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_1d</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M531.88,-688.64C550.4,-656.68 604.78,-571.13 676,-533 683.15,-529.17 690.77,-525.97 698.63,-523.31"/>
+<polygon fill="#255000" stroke="#255000" points="699.8,-526.61 708.32,-520.31 697.73,-519.92 699.8,-526.61"/>
+</g>
+<!-- proc~deserialize_string -->
+<g id="proc~~deserialize~8~~CallsGraph_node15" class="node">
+<title>proc~deserialize_string</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node15"><a xlink:href=".././proc/deserialize_string.html" xlink:title="pFIO_UtilitiesMod::deserialize_string">
+<polygon fill="#d9534f" stroke="#d9534f" points="923.5,-944 719.5,-944 719.5,-920 923.5,-920 923.5,-944"/>
+<text text-anchor="middle" x="821.5" y="-929.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::deserialize_string</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_string -->
+<g id="proc~~deserialize~8~~CallsGraph_edge14" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_string</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M529.64,-713.1C544.48,-749.99 594.64,-861.58 676,-911 686.24,-917.22 697.63,-921.86 709.38,-925.29"/>
+<polygon fill="#255000" stroke="#255000" points="708.77,-928.75 719.33,-927.89 710.54,-921.98 708.77,-928.75"/>
+</g>
+<!-- proc~serialize_buffer_length_int32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node18" class="node">
+<title>proc~serialize_buffer_length_int32_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node18"><a xlink:href=".././proc/serialize_buffer_length_int32_0d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_int32_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="963,-318 680,-318 680,-294 963,-294 963,-318"/>
+<text text-anchor="middle" x="821.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_int32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge15" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_0d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M563.15,-255.06C593.48,-264.3 637.13,-276.8 676,-285 688.75,-287.69 702.2,-290.14 715.57,-292.35"/>
+<polygon fill="#025500" stroke="#025500" points="715.33,-295.86 725.75,-293.99 716.44,-288.95 715.33,-295.86"/>
+</g>
+<!-- proc~serialize_buffer_length_int32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node19" class="node">
+<title>proc~serialize_buffer_length_int32_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node19"><a xlink:href=".././proc/serialize_buffer_length_int32_1d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_int32_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="963,-444 680,-444 680,-420 963,-420 963,-444"/>
+<text text-anchor="middle" x="821.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_int32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge16" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_1d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M531.88,-255.36C550.4,-287.32 604.78,-372.87 676,-411 679.54,-412.9 683.2,-414.64 686.95,-416.24"/>
+<polygon fill="#025500" stroke="#025500" points="685.84,-419.56 696.43,-419.93 688.38,-413.04 685.84,-419.56"/>
+</g>
+<!-- proc~serialize_buffer_length_int64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node20" class="node">
+<title>proc~serialize_buffer_length_int64_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node20"><a xlink:href=".././proc/serialize_buffer_length_int64_0d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_int64_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="963,-402 680,-402 680,-378 963,-378 963,-402"/>
+<text text-anchor="middle" x="821.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_int64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge17" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_0d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M535.23,-255.23C557.7,-281.14 614.27,-341.44 676,-369 680.8,-371.14 685.76,-373.07 690.84,-374.82"/>
+<polygon fill="#025500" stroke="#025500" points="690.14,-378.26 700.73,-377.94 692.24,-371.59 690.14,-378.26"/>
+</g>
+<!-- proc~serialize_buffer_length_int64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node21" class="node">
+<title>proc~serialize_buffer_length_int64_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node21"><a xlink:href=".././proc/serialize_buffer_length_int64_1d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_int64_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="963,-234 680,-234 680,-210 963,-210 963,-234"/>
+<text text-anchor="middle" x="821.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_int64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge18" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_1d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M640.09,-234.82C649.72,-234.14 659.53,-233.44 669.37,-232.74"/>
+<polygon fill="#025500" stroke="#025500" points="669.89,-236.21 679.62,-232.01 669.4,-229.23 669.89,-236.21"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node22" class="node">
+<title>proc~serialize_buffer_length_logical_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node22"><a xlink:href=".././proc/serialize_buffer_length_logical_0d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_logical_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="967,-192 676,-192 676,-168 967,-168 967,-192"/>
+<text text-anchor="middle" x="821.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_logical_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge19" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_0d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M563.15,-230.94C593.48,-221.7 637.13,-209.2 676,-201 688.75,-198.31 702.2,-195.86 715.57,-193.65"/>
+<polygon fill="#025500" stroke="#025500" points="716.44,-197.05 725.75,-192.01 715.33,-190.14 716.44,-197.05"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node23" class="node">
+<title>proc~serialize_buffer_length_logical_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node23"><a xlink:href=".././proc/serialize_buffer_length_logical_1d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_logical_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="967,-150 676,-150 676,-126 967,-126 967,-150"/>
+<text text-anchor="middle" x="821.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_logical_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge20" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_1d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M541.71,-231C568.58,-212.34 623.71,-176.68 676,-159 683.51,-156.46 691.35,-154.23 699.31,-152.27"/>
+<polygon fill="#025500" stroke="#025500" points="700.13,-155.67 709.08,-150 698.55,-148.85 700.13,-155.67"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node24" class="node">
+<title>proc~serialize_buffer_length_real32_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node24"><a xlink:href=".././proc/serialize_buffer_length_real32_0d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_real32_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="966,-108 677,-108 677,-84 966,-84 966,-108"/>
+<text text-anchor="middle" x="821.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_real32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge21" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_0d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M535.23,-230.77C557.7,-204.86 614.27,-144.56 676,-117 680.8,-114.86 685.76,-112.93 690.84,-111.18"/>
+<polygon fill="#025500" stroke="#025500" points="692.24,-114.41 700.73,-108.06 690.14,-107.74 692.24,-114.41"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node25" class="node">
+<title>proc~serialize_buffer_length_real32_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node25"><a xlink:href=".././proc/serialize_buffer_length_real32_1d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_real32_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="966,-66 677,-66 677,-42 966,-42 966,-66"/>
+<text text-anchor="middle" x="821.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_real32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge22" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_1d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M531.88,-230.64C550.4,-198.68 604.78,-113.13 676,-75 679.54,-73.1 683.2,-71.36 686.95,-69.76"/>
+<polygon fill="#025500" stroke="#025500" points="688.38,-72.96 696.43,-66.07 685.84,-66.44 688.38,-72.96"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_node26" class="node">
+<title>proc~serialize_buffer_length_real64_0d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node26"><a xlink:href=".././proc/serialize_buffer_length_real64_0d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_real64_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="966,-24 677,-24 677,0 966,0 966,-24"/>
+<text text-anchor="middle" x="821.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_real64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_0d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge23" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_0d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M529.64,-230.9C544.48,-194.01 594.64,-82.42 676,-33 678.82,-31.29 681.72,-29.7 684.69,-28.22"/>
+<polygon fill="#025500" stroke="#025500" points="686.13,-31.41 693.81,-24.11 683.26,-25.03 686.13,-31.41"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_node27" class="node">
+<title>proc~serialize_buffer_length_real64_1d</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node27"><a xlink:href=".././proc/serialize_buffer_length_real64_1d.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_real64_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="966,-276 677,-276 677,-252 966,-252 966,-276"/>
+<text text-anchor="middle" x="821.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_real64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_1d -->
+<g id="proc~~deserialize~8~~CallsGraph_edge24" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_1d</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M640.09,-251.18C648.81,-251.8 657.68,-252.43 666.58,-253.06"/>
+<polygon fill="#025500" stroke="#025500" points="666.42,-256.56 676.64,-253.78 666.91,-249.58 666.42,-256.56"/>
+</g>
+<!-- proc~serialize_buffer_length_string -->
+<g id="proc~~deserialize~8~~CallsGraph_node28" class="node">
+<title>proc~serialize_buffer_length_string</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node28"><a xlink:href=".././proc/serialize_buffer_length_string.html" xlink:title="pFIO_UtilitiesMod::serialize_buffer_length_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="955,-360 688,-360 688,-336 955,-336 955,-360"/>
+<text text-anchor="middle" x="821.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::serialize_buffer_length_string</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_string -->
+<g id="proc~~deserialize~8~~CallsGraph_edge25" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_string</title>
+<path fill="none" stroke="#025500" stroke-dasharray="5,2" d="M541.71,-255C568.58,-273.66 623.71,-309.32 676,-327 683.51,-329.54 691.35,-331.77 699.31,-333.73"/>
+<polygon fill="#025500" stroke="#025500" points="698.55,-337.15 709.08,-336 700.13,-330.33 698.55,-337.15"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~deserialize~8~~CallsGraph_node16" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node16"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1512,-505 1259,-505 1259,-481 1512,-481 1512,-505"/>
+<text text-anchor="middle" x="1385.5" y="-490.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~deserialize~8~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#002505" d="M1223.24,-480.48C1231.67,-481.14 1240.25,-481.8 1248.82,-482.47"/>
+<polygon fill="#002505" stroke="#002505" points="1248.64,-485.96 1258.88,-483.25 1249.18,-478.98 1248.64,-485.96"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~deserialize~8~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node17"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1500,-463 1271,-463 1271,-439 1500,-439 1500,-463"/>
+<text text-anchor="middle" x="1385.5" y="-448.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~deserialize~8~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M1223.24,-463.52C1235.62,-462.56 1248.3,-461.57 1260.85,-460.6"/>
+<polygon fill="#002505" stroke="#002505" points="1261.18,-464.08 1270.88,-459.82 1260.64,-457.11 1261.18,-464.08"/>
+</g>
+<!-- proc~deserialize_int32_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge29" class="edge">
+<title>proc~deserialize_int32_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M931.75,-888.88C944.79,-884.69 957,-878.35 967,-869 1022.77,-816.84 978.42,-773.3 1003,-701 1030.04,-621.45 1077.33,-533.25 1099.66,-493.5"/>
+<polygon fill="#255000" stroke="#255000" points="1102.89,-494.9 1104.77,-484.47 1096.8,-491.45 1102.89,-494.9"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_node30" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node30"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1221.5,-734 1004.5,-734 1004.5,-710 1221.5,-710 1221.5,-734"/>
+<text text-anchor="middle" x="1113" y="-719.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize_int32_0d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge28" class="edge">
+<title>proc~deserialize_int32_0d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M931.78,-881.91C944.03,-878.75 956.03,-874.55 967,-869 1026.36,-838.98 1075.84,-775.25 1098.59,-742.45"/>
+<polygon fill="#255000" stroke="#255000" points="1101.55,-744.31 1104.28,-734.07 1095.76,-740.37 1101.55,-744.31"/>
+</g>
+<!-- proc~deserialize_int32_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge31" class="edge">
+<title>proc~deserialize_int32_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255630" d="M931.54,-846.12C944.54,-842.04 956.79,-835.93 967,-827 1010.85,-788.67 982.41,-755.48 1003,-701 1032.84,-622.02 1079.13,-532.88 1100.49,-493.11"/>
+<polygon fill="#255630" stroke="#255630" points="1103.68,-494.56 1105.36,-484.1 1097.52,-491.23 1103.68,-494.56"/>
+</g>
+<!-- proc~deserialize_int32_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge30" class="edge">
+<title>proc~deserialize_int32_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255630" d="M931.72,-837.91C943.85,-835.1 955.84,-831.53 967,-827 1017.11,-806.66 1066.09,-765.46 1092.32,-741.16"/>
+<polygon fill="#255630" stroke="#255630" points="1094.83,-743.6 1099.71,-734.2 1090.03,-738.51 1094.83,-743.6"/>
+</g>
+<!-- proc~deserialize_int64_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge33" class="edge">
+<title>proc~deserialize_int64_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M931.62,-802.55C944.38,-798.67 956.55,-793.03 967,-785 999.21,-760.25 986.27,-738.01 1003,-701 1037.78,-624.07 1081.61,-533.91 1101.42,-493.5"/>
+<polygon fill="transparent" stroke="transparent" points="1104.65,-494.85 1105.92,-484.33 1098.37,-491.77 1104.65,-494.85"/>
+</g>
+<!-- proc~deserialize_int64_0d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge32" class="edge">
+<title>proc~deserialize_int64_0d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M928.16,-793.97C941.35,-791.5 954.56,-788.54 967,-785 1007.32,-773.53 1051.14,-753.32 1079.94,-738.89"/>
+<polygon fill="transparent" stroke="transparent" points="1081.77,-741.88 1089.1,-734.23 1078.6,-735.64 1081.77,-741.88"/>
+</g>
+<!-- proc~deserialize_int64_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge35" class="edge">
+<title>proc~deserialize_int64_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M931.72,-759.46C944.32,-755.73 956.42,-750.43 967,-743 1012.43,-711.12 1079.76,-552.13 1103.41,-493.64"/>
+<polygon fill="transparent" stroke="transparent" points="1106.71,-494.82 1107.19,-484.24 1100.21,-492.22 1106.71,-494.82"/>
+</g>
+<!-- proc~deserialize_int64_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge34" class="edge">
+<title>proc~deserialize_int64_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M905.46,-751.96C940.97,-746.81 982.58,-740.78 1019.12,-735.48"/>
+<polygon fill="transparent" stroke="transparent" points="1019.89,-738.9 1029.28,-734 1018.88,-731.97 1019.89,-738.9"/>
+</g>
+<!-- proc~deserialize_logical_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge37" class="edge">
+<title>proc~deserialize_logical_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M935.67,-715.37C946.76,-711.88 957.43,-707.21 967,-701 1045.38,-650.17 1089.4,-540.45 1105.21,-493.75"/>
+<polygon fill="transparent" stroke="transparent" points="1108.6,-494.64 1108.39,-484.04 1101.95,-492.46 1108.6,-494.64"/>
+</g>
+<!-- proc~deserialize_logical_0d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge36" class="edge">
+<title>proc~deserialize_logical_0d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M935.67,-722C954.85,-722 974.8,-722 994.1,-722"/>
+<polygon fill="transparent" stroke="transparent" points="994.12,-725.5 1004.12,-722 994.12,-718.5 994.12,-725.5"/>
+</g>
+<!-- proc~deserialize_logical_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge39" class="edge">
+<title>proc~deserialize_logical_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M935.84,-672.2C946.77,-668.92 957.36,-664.62 967,-659 1035.38,-619.14 1082.97,-533.35 1102.32,-493.35"/>
+<polygon fill="transparent" stroke="transparent" points="1105.53,-494.76 1106.63,-484.22 1099.2,-491.77 1105.53,-494.76"/>
+</g>
+<!-- proc~deserialize_logical_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge38" class="edge">
+<title>proc~deserialize_logical_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M905.46,-692.04C940.97,-697.19 982.58,-703.22 1019.12,-708.52"/>
+<polygon fill="transparent" stroke="transparent" points="1018.88,-712.03 1029.28,-710 1019.89,-705.1 1018.88,-712.03"/>
+</g>
+<!-- proc~deserialize_real32_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge41" class="edge">
+<title>proc~deserialize_real32_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="transparent" d="M934.77,-629.04C945.97,-625.99 956.92,-622.06 967,-617 1025.76,-587.53 1075.19,-525.14 1098.18,-492.65"/>
+<polygon fill="transparent" stroke="transparent" points="1101.12,-494.54 1103.95,-484.33 1095.37,-490.55 1101.12,-494.54"/>
+</g>
+<!-- proc~deserialize_real32_0d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge40" class="edge">
+<title>proc~deserialize_real32_0d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="transparent" d="M928.16,-650.03C941.35,-652.5 954.56,-655.46 967,-659 1007.32,-670.47 1051.14,-690.68 1079.94,-705.11"/>
+<polygon fill="transparent" stroke="transparent" points="1078.6,-708.36 1089.1,-709.77 1081.77,-702.12 1078.6,-708.36"/>
+</g>
+<!-- proc~deserialize_real32_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge43" class="edge">
+<title>proc~deserialize_real32_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#632550" d="M934.74,-585.09C945.83,-582.41 956.76,-579.1 967,-575 1016.62,-555.13 1065.43,-515.04 1091.84,-491.16"/>
+<polygon fill="#632550" stroke="#632550" points="1094.3,-493.65 1099.29,-484.31 1089.56,-488.5 1094.3,-493.65"/>
+</g>
+<!-- proc~deserialize_real32_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge42" class="edge">
+<title>proc~deserialize_real32_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#632550" d="M934.78,-606.82C945.86,-609.51 956.78,-612.85 967,-617 1017.11,-637.34 1066.09,-678.54 1092.32,-702.84"/>
+<polygon fill="#632550" stroke="#632550" points="1090.03,-705.49 1099.71,-709.8 1094.83,-700.4 1090.03,-705.49"/>
+</g>
+<!-- proc~deserialize_real64_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge45" class="edge">
+<title>proc~deserialize_real64_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025500" d="M927.34,-541.98C940.8,-539.5 954.3,-536.53 967,-533 1006.95,-521.89 1050.52,-502.5 1079.36,-488.56"/>
+<polygon fill="#025500" stroke="#025500" points="1081.11,-491.6 1088.55,-484.06 1078.03,-485.31 1081.11,-491.6"/>
+</g>
+<!-- proc~deserialize_real64_0d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge44" class="edge">
+<title>proc~deserialize_real64_0d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025500" d="M934.81,-562.89C946,-565.95 956.93,-569.91 967,-575 1026.36,-605.02 1075.84,-668.75 1098.59,-701.55"/>
+<polygon fill="#025500" stroke="#025500" points="1095.76,-703.63 1104.28,-709.93 1101.55,-699.69 1095.76,-703.63"/>
+</g>
+<!-- proc~deserialize_real64_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge47" class="edge">
+<title>proc~deserialize_real64_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025563" d="M909.36,-500C942.63,-495.4 980.79,-490.13 1014.96,-485.41"/>
+<polygon fill="#025563" stroke="#025563" points="1015.53,-488.86 1024.95,-484.03 1014.57,-481.93 1015.53,-488.86"/>
+</g>
+<!-- proc~deserialize_real64_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge46" class="edge">
+<title>proc~deserialize_real64_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025563" d="M934.75,-519.41C946.07,-522.74 957.05,-527.17 967,-533 1035.74,-573.31 1083.14,-660 1102.39,-700.42"/>
+<polygon fill="#025563" stroke="#025563" points="1099.29,-702.05 1106.67,-709.65 1105.64,-699.1 1099.29,-702.05"/>
+</g>
+<!-- proc~deserialize_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge49" class="edge">
+<title>proc~deserialize_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025512" stroke-opacity="0.027451" d="M923.71,-933.68C939.85,-929.63 955.11,-922.59 967,-911 1034.81,-844.9 974.38,-791.27 1003,-701 1028.39,-620.91 1076.5,-532.97 1099.34,-493.4"/>
+<polygon fill="#025512" fill-opacity="0.027451" stroke="#025512" stroke-opacity="0.027451" points="1102.57,-494.81 1104.58,-484.41 1096.52,-491.29 1102.57,-494.81"/>
+</g>
+<!-- proc~deserialize_string&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize~8~~CallsGraph_edge48" class="edge">
+<title>proc~deserialize_string&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025512" stroke-opacity="0.027451" d="M923.83,-927.45C938.97,-923.93 953.88,-918.69 967,-911 1035.74,-870.69 1083.14,-784 1102.39,-743.58"/>
+<polygon fill="#025512" fill-opacity="0.027451" stroke="#025512" stroke-opacity="0.027451" points="1105.64,-744.9 1106.67,-734.35 1099.29,-741.95 1105.64,-744.9"/>
+</g>
+<!-- at -->
+<g id="proc~~deserialize~8~~CallsGraph_node29" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1651.5,-505 1597.5,-505 1597.5,-481 1651.5,-481 1651.5,-505"/>
+<text text-anchor="middle" x="1624.5" y="-490.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~deserialize~8~~CallsGraph_edge50" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025519" stroke-opacity="0.003922" d="M1512.29,-493C1539.83,-493 1566.86,-493 1587.36,-493"/>
+<polygon fill="#025519" fill-opacity="0.003922" stroke="#025519" stroke-opacity="0.003922" points="1587.46,-496.5 1597.46,-493 1587.46,-489.5 1587.46,-496.5"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~deserialize~8~~CallsGraph_node31" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node31"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1701,-463 1548,-463 1548,-439 1701,-439 1701,-463"/>
+<text text-anchor="middle" x="1624.5" y="-448.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~deserialize~8~~CallsGraph_edge51" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1500.14,-451C1512.76,-451 1525.46,-451 1537.65,-451"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1537.77,-454.5 1547.77,-451 1537.77,-447.5 1537.77,-454.5"/>
+</g>
+<!-- proc~serialize_buffer_length_int32_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge52" class="edge">
+<title>proc~serialize_buffer_length_int32_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#019125" stroke-opacity="0.019608" d="M945.25,-318.11C952.77,-320.6 960.09,-323.53 967,-327 1025.76,-356.47 1075.19,-418.86 1098.18,-451.35"/>
+<polygon fill="#019125" fill-opacity="0.019608" stroke="#019125" stroke-opacity="0.019608" points="1095.37,-453.45 1103.95,-459.67 1101.12,-449.46 1095.37,-453.45"/>
+</g>
+<!-- proc~serialize_buffer_length_int32_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge53" class="edge">
+<title>proc~serialize_buffer_length_int32_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#012725" stroke-opacity="0.019608" d="M909.36,-444C942.63,-448.6 980.79,-453.87 1014.96,-458.59"/>
+<polygon fill="#012725" fill-opacity="0.019608" stroke="#012725" stroke-opacity="0.019608" points="1014.57,-462.07 1024.95,-459.97 1015.53,-455.14 1014.57,-462.07"/>
+</g>
+<!-- proc~serialize_buffer_length_int64_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge54" class="edge">
+<title>proc~serialize_buffer_length_int64_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#063255" d="M927.34,-402.02C940.8,-404.5 954.3,-407.47 967,-411 1006.95,-422.11 1050.52,-441.5 1079.36,-455.44"/>
+<polygon fill="#063255" stroke="#063255" points="1078.03,-458.69 1088.55,-459.94 1081.11,-452.4 1078.03,-458.69"/>
+</g>
+<!-- proc~serialize_buffer_length_int64_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge55" class="edge">
+<title>proc~serialize_buffer_length_int64_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M950.15,-234.02C956.03,-236.58 961.68,-239.55 967,-243 1045.38,-293.83 1089.4,-403.55 1105.21,-450.25"/>
+<polygon fill="#002505" stroke="#002505" points="1101.95,-451.54 1108.39,-459.96 1108.6,-449.36 1101.95,-451.54"/>
+</g>
+<!-- proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_node32" class="node">
+<title>proc~word_size</title>
+<g id="a_proc~~deserialize~8~~CallsGraph_node32"><a xlink:href=".././proc/word_size.html" xlink:title="pFIO_UtilitiesMod::word_size">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1194.5,-150 1031.5,-150 1031.5,-126 1194.5,-126 1194.5,-150"/>
+<text text-anchor="middle" x="1113" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_UtilitiesMod::word_size</text>
+</a>
+</g>
+</g>
+<!-- proc~serialize_buffer_length_int64_1d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge56" class="edge">
+<title>proc~serialize_buffer_length_int64_1d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#002505" d="M928.16,-209.97C941.35,-207.5 954.56,-204.54 967,-201 1007.32,-189.53 1051.14,-169.32 1079.94,-154.89"/>
+<polygon fill="#002505" stroke="#002505" points="1081.77,-157.88 1089.1,-150.23 1078.6,-151.64 1081.77,-157.88"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge57" class="edge">
+<title>proc~serialize_buffer_length_logical_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#630255" d="M951.5,-192.03C956.92,-194.61 962.12,-197.58 967,-201 1055.69,-263.24 1094.91,-397.24 1107.34,-450.01"/>
+<polygon fill="#630255" stroke="#630255" points="1103.98,-451 1109.59,-459.98 1110.8,-449.45 1103.98,-451"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_0d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge58" class="edge">
+<title>proc~serialize_buffer_length_logical_0d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#630255" d="M905.46,-167.96C941.5,-162.74 983.84,-156.59 1020.77,-151.24"/>
+<polygon fill="#630255" stroke="#630255" points="1021.63,-154.65 1031.03,-149.75 1020.63,-147.72 1021.63,-154.65"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge59" class="edge">
+<title>proc~serialize_buffer_length_logical_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M952.43,-150.03C957.54,-152.62 962.43,-155.59 967,-159 1066.23,-232.98 1099.75,-391.52 1108.98,-449.86"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1105.53,-450.47 1110.47,-459.84 1112.45,-449.44 1105.53,-450.47"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_1d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge60" class="edge">
+<title>proc~serialize_buffer_length_logical_1d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M967.25,-138C985.68,-138 1004.12,-138 1021.36,-138"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1021.36,-141.5 1031.36,-138 1021.36,-134.5 1021.36,-141.5"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge61" class="edge">
+<title>proc~serialize_buffer_length_real32_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#191025" stroke-opacity="0.019608" d="M953.31,-108.13C958.12,-110.7 962.71,-113.64 967,-117 1023,-160.79 1086.48,-378.6 1105.99,-449.59"/>
+<polygon fill="#191025" fill-opacity="0.019608" stroke="#191025" stroke-opacity="0.019608" points="1102.73,-450.94 1108.73,-459.67 1109.48,-449.11 1102.73,-450.94"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_0d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge62" class="edge">
+<title>proc~serialize_buffer_length_real32_0d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#191025" stroke-opacity="0.019608" d="M905.46,-108.04C941.5,-113.26 983.84,-119.41 1020.77,-124.76"/>
+<polygon fill="#191025" fill-opacity="0.019608" stroke="#191025" stroke-opacity="0.019608" points="1020.63,-128.28 1031.03,-126.25 1021.63,-121.35 1020.63,-128.28"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge63" class="edge">
+<title>proc~serialize_buffer_length_real32_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M953.8,-66.11C958.44,-68.69 962.87,-71.64 967,-75 974.81,-81.35 1075.72,-368.37 1104.43,-450.35"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1101.17,-451.62 1107.77,-459.9 1107.77,-449.31 1101.17,-451.62"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_1d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge64" class="edge">
+<title>proc~serialize_buffer_length_real32_1d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M928.16,-66.03C941.35,-68.5 954.56,-71.46 967,-75 1007.32,-86.47 1051.14,-106.68 1079.94,-121.11"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1078.6,-124.36 1089.1,-125.77 1081.77,-118.12 1078.6,-124.36"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_0d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge65" class="edge">
+<title>proc~serialize_buffer_length_real64_0d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M954.76,-24.13C959.08,-26.72 963.18,-29.66 967,-33 1010.85,-71.33 985.42,-103.48 1003,-159 1037.95,-269.36 1085.29,-399.58 1103.96,-450.28"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1100.74,-451.68 1107.49,-459.85 1107.31,-449.26 1100.74,-451.68"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_0d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge66" class="edge">
+<title>proc~serialize_buffer_length_real64_0d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M939.74,-24.07C949.11,-26.53 958.31,-29.47 967,-33 1017.11,-53.34 1066.09,-94.54 1092.32,-118.84"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1090.03,-121.49 1099.71,-125.8 1094.83,-116.4 1090.03,-121.49"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge67" class="edge">
+<title>proc~serialize_buffer_length_real64_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255012" stroke-opacity="0.027451" d="M948.32,-276.07C954.81,-278.6 961.09,-281.55 967,-285 1035.38,-324.86 1082.97,-410.65 1102.32,-450.65"/>
+<polygon fill="#255012" fill-opacity="0.027451" stroke="#255012" stroke-opacity="0.027451" points="1099.2,-452.23 1106.63,-459.78 1105.53,-449.24 1099.2,-452.23"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_1d&#45;&gt;proc~word_size -->
+<g id="proc~~deserialize~8~~CallsGraph_edge68" class="edge">
+<title>proc~serialize_buffer_length_real64_1d&#45;&gt;proc~word_size</title>
+<path fill="none" stroke="#255012" stroke-opacity="0.027451" d="M939.74,-251.93C949.11,-249.47 958.31,-246.53 967,-243 1017.11,-222.66 1066.09,-181.46 1092.32,-157.16"/>
+<polygon fill="#255012" fill-opacity="0.027451" stroke="#255012" stroke-opacity="0.027451" points="1094.83,-159.6 1099.71,-150.2 1090.03,-154.51 1094.83,-159.6"/>
+</g>
+<!-- proc~serialize_buffer_length_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~8~~CallsGraph_edge69" class="edge">
+<title>proc~serialize_buffer_length_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255063" d="M939.32,-360.06C948.84,-362.52 958.18,-365.47 967,-369 1016.62,-388.87 1065.43,-428.96 1091.84,-452.84"/>
+<polygon fill="#255063" stroke="#255063" points="1089.56,-455.5 1099.29,-459.69 1094.3,-450.35 1089.56,-455.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdeserialize8CallsGraph = svgPanZoom('#procdeserialize8CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/deserialize~8.html#src">deserialize</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">deserialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_name</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">file_name</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">this</span><span class="p">%</span><span class="n">var_name</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">var_name</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="nb">count</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="nb">count</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">deserialize</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T18:31:47.795848             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

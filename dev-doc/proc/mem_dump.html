@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mem_dump &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>mem_dump
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">73 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_MemUtils.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_memutils.f90.html'>MAPL_MemUtils.F90</a></li>
+              <li><a href='../module/mapl_memutilsmod.html'>MAPL_MemUtilsMod</a></li>
+          <li class="active">mem_dump</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mem_dump.html#src">mem_dump</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine mem_dump(memhwm, memrss, memused, swapused, commitlimit, committed_as, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-memhwm"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>memhwm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-memrss"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>memrss</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-memused"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>memused</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-swapused"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>swapused</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-commitlimit"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>commitlimit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-committed_as~2"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>committed_as</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~260"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mem_dump~~CallsGraph Pages: 1 -->
+<svg id="procmem_dumpCallsGraph" width="641pt" height="80pt"
+ viewBox="0.00 0.00 641.00 79.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mem_dump~~CallsGraph" class="graph" transform="scale(1.45 1.45) rotate(0) translate(4 112)">
+<title>proc~~mem_dump~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 927,-112 927,4 -4,4"/>
+<!-- proc~mem_dump -->
+<g id="proc~~mem_dump~~CallsGraph_node1" class="node">
+<title>proc~mem_dump</title>
+<polygon fill="none" stroke="black" points="189,-66 0,-66 0,-42 189,-42 189,-66"/>
+<text text-anchor="middle" x="94.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_MemUtilsMod::mem_dump</text>
+</g>
+<!-- proc~get_unit -->
+<g id="proc~~mem_dump~~CallsGraph_node2" class="node">
+<title>proc~get_unit</title>
+<g id="a_proc~~mem_dump~~CallsGraph_node2"><a xlink:href=".././proc/get_unit.html" xlink:title="MAPL_MemUtilsMod::get_unit">
+<polygon fill="#d9534f" stroke="#d9534f" points="419,-108 251,-108 251,-84 419,-84 419,-108"/>
+<text text-anchor="middle" x="335" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod::get_unit</text>
+</a>
+</g>
+</g>
+<!-- proc~mem_dump&#45;&gt;proc~get_unit -->
+<g id="proc~~mem_dump~~CallsGraph_edge1" class="edge">
+<title>proc~mem_dump&#45;&gt;proc~get_unit</title>
+<path fill="none" stroke="#255000" d="M163.84,-66.04C192.54,-71.09 226.07,-76.99 255.74,-82.22"/>
+<polygon fill="#255000" stroke="#255000" points="255.19,-85.68 265.65,-83.96 256.4,-78.78 255.19,-85.68"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mem_dump~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mem_dump~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="445,-66 225,-66 225,-42 445,-42 445,-66"/>
+<text text-anchor="middle" x="335" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mem_dump&#45;&gt;proc~mapl_return -->
+<g id="proc~~mem_dump~~CallsGraph_edge2" class="edge">
+<title>proc~mem_dump&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M189.08,-54C197.52,-54 206.14,-54 214.76,-54"/>
+<polygon fill="#255000" stroke="#255000" points="214.87,-57.5 224.87,-54 214.87,-50.5 214.87,-57.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mem_dump~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mem_dump~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="442,-24 228,-24 228,0 442,0 442,-24"/>
+<text text-anchor="middle" x="335" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mem_dump&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mem_dump~~CallsGraph_edge3" class="edge">
+<title>proc~mem_dump&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M163.84,-41.96C192.54,-36.91 226.07,-31.01 255.74,-25.78"/>
+<polygon fill="#255000" stroke="#255000" points="256.4,-29.22 265.65,-24.04 255.19,-22.32 256.4,-29.22"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mem_dump~~CallsGraph_node5" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mem_dump~~CallsGraph_node5"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="734,-66 481,-66 481,-42 734,-42 734,-66"/>
+<text text-anchor="middle" x="607.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mem_dump~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M445.24,-54C453.67,-54 462.25,-54 470.82,-54"/>
+<polygon fill="#025500" stroke="#025500" points="470.88,-57.5 480.88,-54 470.88,-50.5 470.88,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mem_dump~~CallsGraph_node6" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mem_dump~~CallsGraph_node6"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="722,-24 493,-24 493,0 722,0 722,-24"/>
+<text text-anchor="middle" x="607.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mem_dump~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M413.51,-41.96C446.48,-36.85 485.08,-30.85 519.06,-25.58"/>
+<polygon fill="#025500" stroke="#025500" points="519.63,-29.03 528.97,-24.04 518.56,-22.11 519.63,-29.03"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mem_dump~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M442.13,-12C455.34,-12 468.94,-12 482.39,-12"/>
+<polygon fill="#002505" stroke="#002505" points="482.64,-15.5 492.64,-12 482.64,-8.5 482.64,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mem_dump~~CallsGraph_node7" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="873.5,-66 819.5,-66 819.5,-42 873.5,-42 873.5,-66"/>
+<text text-anchor="middle" x="846.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mem_dump~~CallsGraph_edge7" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M734.29,-54C761.83,-54 788.86,-54 809.36,-54"/>
+<polygon fill="#255000" stroke="#255000" points="809.46,-57.5 819.46,-54 809.46,-50.5 809.46,-57.5"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mem_dump~~CallsGraph_node8" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mem_dump~~CallsGraph_node8"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="923,-24 770,-24 770,0 923,0 923,-24"/>
+<text text-anchor="middle" x="846.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~mem_dump~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M722.14,-12C734.76,-12 747.46,-12 759.65,-12"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="759.77,-15.5 769.77,-12 759.77,-8.5 759.77,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmem_dumpCallsGraph = svgPanZoom('#procmem_dumpCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mem_dump~~CalledByGraph Pages: 1 -->
+<svg id="procmem_dumpCalledByGraph" width="641pt" height="120pt"
+ viewBox="0.00 0.00 641.00 120.24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mem_dump~~CalledByGraph" class="graph" transform="scale(2.54 2.54) rotate(0) translate(4 301)">
+<title>proc~~mem_dump~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-301 1622,-301 1622,4 -4,4"/>
+<!-- proc~mem_dump -->
+<g id="proc~~mem_dump~~CalledByGraph_node1" class="node">
+<title>proc~mem_dump</title>
+<polygon fill="none" stroke="black" points="1618,-87 1429,-87 1429,-63 1618,-63 1618,-87"/>
+<text text-anchor="middle" x="1523.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_MemUtilsMod::mem_dump</text>
+</g>
+<!-- proc~mapl_memutilswritecomm -->
+<g id="proc~~mem_dump~~CalledByGraph_node2" class="node">
+<title>proc~mapl_memutilswritecomm</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_memutilswritecomm.html" xlink:title="MAPL_MemUtilsMod::MAPL_MemUtilsWriteComm">
+<polygon fill="#d9534f" stroke="#d9534f" points="1393,-87 1122,-87 1122,-63 1393,-63 1393,-87"/>
+<text text-anchor="middle" x="1257.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod::MAPL_MemUtilsWriteComm</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_memutilswritecomm&#45;&gt;proc~mem_dump -->
+<g id="proc~~mem_dump~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_memutilswritecomm&#45;&gt;proc~mem_dump</title>
+<path fill="none" stroke="#255000" d="M1393.21,-75C1401.79,-75 1410.36,-75 1418.77,-75"/>
+<polygon fill="#255000" stroke="#255000" points="1418.94,-78.5 1428.94,-75 1418.94,-71.5 1418.94,-78.5"/>
+</g>
+<!-- interface~mapl_memutilswrite -->
+<g id="proc~~mem_dump~~CalledByGraph_node3" class="node">
+<title>interface~mapl_memutilswrite</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node3"><a xlink:href=".././interface/mapl_memutilswrite.html" xlink:title="MAPL_MemUtilsMod::MAPL_MemUtilsWrite">
+<polygon fill="#a7506f" stroke="#a7506f" points="798,-87 563,-87 563,-63 798,-63 798,-87"/>
+<text text-anchor="middle" x="680.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod::MAPL_MemUtilsWrite</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_memutilswrite&#45;&gt;proc~mapl_memutilswritecomm -->
+<g id="proc~~mem_dump~~CalledByGraph_edge3" class="edge">
+<title>interface~mapl_memutilswrite&#45;&gt;proc~mapl_memutilswritecomm</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M798.07,-75.84C810.2,-75.91 822.35,-75.96 834,-76 946,-76.37 974,-76.33 1086,-76 1094.3,-75.98 1102.82,-75.94 1111.42,-75.91"/>
+<polygon fill="#255000" stroke="#255000" points="1111.57,-79.41 1121.55,-75.86 1111.54,-72.41 1111.57,-79.41"/>
+</g>
+<!-- proc~mapl_memutilswritevm -->
+<g id="proc~~mem_dump~~CalledByGraph_node4" class="node">
+<title>proc~mapl_memutilswritevm</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node4"><a xlink:href=".././proc/mapl_memutilswritevm.html" xlink:title="MAPL_MemUtilsMod::MAPL_MemUtilsWriteVM">
+<polygon fill="#d9534f" stroke="#d9534f" points="1086,-67 834,-67 834,-43 1086,-43 1086,-67"/>
+<text text-anchor="middle" x="960" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtilsMod::MAPL_MemUtilsWriteVM</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_memutilswrite&#45;&gt;proc~mapl_memutilswritevm -->
+<g id="proc~~mem_dump~~CalledByGraph_edge8" class="edge">
+<title>interface~mapl_memutilswrite&#45;&gt;proc~mapl_memutilswritevm</title>
+<path fill="none" stroke="#025525" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M798.38,-66.58C806.7,-65.98 815.13,-65.37 823.54,-64.76"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="824.06,-68.23 833.78,-64.02 823.55,-61.25 824.06,-68.23"/>
+</g>
+<!-- proc~mapl_memutilswritevm&#45;&gt;proc~mapl_memutilswritecomm -->
+<g id="proc~~mem_dump~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_memutilswritevm&#45;&gt;proc~mapl_memutilswritecomm</title>
+<path fill="none" stroke="#255000" d="M1086.32,-63.48C1094.8,-64.06 1103.38,-64.64 1111.94,-65.22"/>
+<polygon fill="#255000" stroke="#255000" points="1111.77,-68.71 1121.99,-65.9 1112.25,-61.73 1111.77,-68.71"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mem_dump~~CalledByGraph_node5" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node5"><a xlink:href=".././proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericMod::MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="515,-192 277,-192 277,-168 515,-168 515,-192"/>
+<text text-anchor="middle" x="396" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;interface~mapl_memutilswrite -->
+<g id="proc~~mem_dump~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;interface~mapl_memutilswrite</title>
+<path fill="none" stroke="#255000" d="M429.41,-167.96C480.78,-148.86 580.9,-111.65 637.64,-90.56"/>
+<polygon fill="#255000" stroke="#255000" points="638.88,-93.83 647.04,-87.07 636.44,-87.27 638.88,-93.83"/>
+</g>
+<!-- proc~run_mapl_gridcomp -->
+<g id="proc~~mem_dump~~CalledByGraph_node6" class="node">
+<title>proc~run_mapl_gridcomp</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node6"><a xlink:href=".././proc/run_mapl_gridcomp.html" xlink:title="MAPL_CapGridCompMod::run_MAPL_GridComp">
+<polygon fill="#d9534f" stroke="#d9534f" points="527,-108 265,-108 265,-84 527,-84 527,-108"/>
+<text text-anchor="middle" x="396" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::run_MAPL_GridComp</text>
+</a>
+</g>
+</g>
+<!-- proc~run_mapl_gridcomp&#45;&gt;interface~mapl_memutilswrite -->
+<g id="proc~~mem_dump~~CalledByGraph_edge5" class="edge">
+<title>proc~run_mapl_gridcomp&#45;&gt;interface~mapl_memutilswrite</title>
+<path fill="none" stroke="#255000" d="M527.09,-86.33C535.53,-85.7 544.02,-85.07 552.45,-84.44"/>
+<polygon fill="#255000" stroke="#255000" points="552.98,-87.92 562.69,-83.68 552.46,-80.93 552.98,-87.92"/>
+</g>
+<!-- proc~test_main -->
+<g id="proc~~mem_dump~~CalledByGraph_node7" class="node">
+<title>proc~test_main</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node7"><a xlink:href=".././proc/test_main.html" xlink:title="Test_CFIO_Bundle::test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="478.5,-66 313.5,-66 313.5,-42 478.5,-42 478.5,-66"/>
+<text text-anchor="middle" x="396" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CFIO_Bundle::test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main&#45;&gt;interface~mapl_memutilswrite -->
+<g id="proc~~mem_dump~~CalledByGraph_edge6" class="edge">
+<title>proc~test_main&#45;&gt;interface~mapl_memutilswrite</title>
+<path fill="none" stroke="#255000" d="M478.71,-60.07C501.87,-61.8 527.65,-63.71 552.8,-65.58"/>
+<polygon fill="#255000" stroke="#255000" points="552.55,-69.07 562.78,-66.32 553.06,-62.09 552.55,-69.07"/>
+</g>
+<!-- proc~test_main~3 -->
+<g id="proc~~mem_dump~~CalledByGraph_node8" class="node">
+<title>proc~test_main~3</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node8"><a xlink:href=".././proc/test_main~3.html" xlink:title="utCFIO::test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="449.5,-24 342.5,-24 342.5,0 449.5,0 449.5,-24"/>
+<text text-anchor="middle" x="396" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO::test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~3&#45;&gt;interface~mapl_memutilswrite -->
+<g id="proc~~mem_dump~~CalledByGraph_edge7" class="edge">
+<title>proc~test_main~3&#45;&gt;interface~mapl_memutilswrite</title>
+<path fill="none" stroke="#255000" d="M449.74,-19.19C473.47,-22.77 501.76,-27.5 527,-33 561.96,-40.61 600.83,-51.35 630.57,-60.07"/>
+<polygon fill="#255000" stroke="#255000" points="629.71,-63.46 640.3,-62.94 631.7,-56.75 629.71,-63.46"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mem_dump~~CalledByGraph_node9" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node9"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_HistoryGridCompMod::Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="220.5,-297 8.5,-297 8.5,-273 220.5,-273 220.5,-297"/>
+<text text-anchor="middle" x="114.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridCompMod::Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mem_dump~~CalledByGraph_edge9" class="edge">
+<title>proc~initialize&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#255000" d="M196.53,-272.95C207.57,-270.45 218.65,-267.49 229,-264 279.69,-246.88 334.28,-216.75 366.51,-197.61"/>
+<polygon fill="#255000" stroke="#255000" points="368.6,-200.43 375.37,-192.28 364.99,-194.43 368.6,-200.43"/>
+</g>
+<!-- proc~initialize_ -->
+<g id="proc~~mem_dump~~CalledByGraph_node10" class="node">
+<title>proc~initialize_</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node10"><a xlink:href=".././proc/initialize_.html" xlink:title="MAPL_ExtDataGridComp2G::Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="221.5,-255 7.5,-255 7.5,-231 221.5,-231 221.5,-255"/>
+<text text-anchor="middle" x="114.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridComp2G::Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mem_dump~~CalledByGraph_edge10" class="edge">
+<title>proc~initialize_&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#255000" d="M184.37,-231C199.13,-228.22 214.61,-225.15 229,-222 266.63,-213.77 308.71,-203.11 341.08,-194.59"/>
+<polygon fill="#255000" stroke="#255000" points="342.02,-197.96 350.8,-192.01 340.23,-191.19 342.02,-197.96"/>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="proc~~mem_dump~~CalledByGraph_node11" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node11"><a xlink:href=".././proc/initialize_~2.html" xlink:title="MAPL_ExtDataGridCompMod::Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="225.5,-213 3.5,-213 3.5,-189 225.5,-189 225.5,-213"/>
+<text text-anchor="middle" x="114.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataGridCompMod::Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mem_dump~~CalledByGraph_edge11" class="edge">
+<title>proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#255000" d="M225.56,-192.73C239.09,-191.71 253,-190.67 266.76,-189.64"/>
+<polygon fill="#255000" stroke="#255000" points="267.03,-193.12 276.74,-188.89 266.51,-186.14 267.03,-193.12"/>
+</g>
+<!-- proc~initialize_~3 -->
+<g id="proc~~mem_dump~~CalledByGraph_node12" class="node">
+<title>proc~initialize_~3</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node12"><a xlink:href=".././proc/initialize_~3.html" xlink:title="MAPL_OrbGridCompMod::Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="214,-171 15,-171 15,-147 214,-147 214,-171"/>
+<text text-anchor="middle" x="114.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod::Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mem_dump~~CalledByGraph_edge12" class="edge">
+<title>proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#255000" d="M214.04,-166.4C230.99,-167.68 248.83,-169.02 266.42,-170.34"/>
+<polygon fill="#255000" stroke="#255000" points="266.52,-173.86 276.75,-171.12 267.04,-166.88 266.52,-173.86"/>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~mem_dump~~CalledByGraph_node13" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node13"><a xlink:href=".././proc/initialize_~5.html" xlink:title="ExtDataUtRoot_GridCompMod::Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="229,-129 0,-129 0,-105 229,-105 229,-129"/>
+<text text-anchor="middle" x="114.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataUtRoot_GridCompMod::Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mem_dump~~CalledByGraph_edge13" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#255000" d="M184.37,-129C199.13,-131.78 214.61,-134.85 229,-138 266.63,-146.23 308.71,-156.89 341.08,-165.41"/>
+<polygon fill="#255000" stroke="#255000" points="340.23,-168.81 350.8,-167.99 342.02,-162.04 340.23,-168.81"/>
+</g>
+<!-- proc~run_gc -->
+<g id="proc~~mem_dump~~CalledByGraph_node14" class="node">
+<title>proc~run_gc</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node14"><a xlink:href=".././proc/run_gc.html" xlink:title="MAPL_CapGridCompMod::run_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="208,-87 21,-87 21,-63 208,-63 208,-87"/>
+<text text-anchor="middle" x="114.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridCompMod::run_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~run_gc&#45;&gt;proc~run_mapl_gridcomp -->
+<g id="proc~~mem_dump~~CalledByGraph_edge14" class="edge">
+<title>proc~run_gc&#45;&gt;proc~run_mapl_gridcomp</title>
+<path fill="none" stroke="transparent" d="M208.18,-81.96C223.11,-83.08 238.84,-84.27 254.59,-85.45"/>
+<polygon fill="transparent" stroke="transparent" points="254.7,-88.97 264.93,-86.23 255.22,-81.99 254.7,-88.97"/>
+</g>
+<!-- program~utcfio~2 -->
+<g id="proc~~mem_dump~~CalledByGraph_node15" class="node">
+<title>program~utcfio~2</title>
+<g id="a_proc~~mem_dump~~CalledByGraph_node15"><a xlink:href=".././program/utcfio~2.html" xlink:title="utCFIO">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="141.5,-24 87.5,-24 87.5,0 141.5,0 141.5,-24"/>
+<text text-anchor="middle" x="114.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
+</a>
+</g>
+</g>
+<!-- program~utcfio~2&#45;&gt;proc~test_main~3 -->
+<g id="proc~~mem_dump~~CalledByGraph_edge15" class="edge">
+<title>program~utcfio~2&#45;&gt;proc~test_main~3</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M141.54,-12C184.72,-12 272.29,-12 332.29,-12"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="332.42,-15.5 342.42,-12 332.42,-8.5 332.42,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmem_dumpCalledByGraph = svgPanZoom('#procmem_dumpCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mem_dump.html#src">mem_dump</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">mem_dump</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">memhwm</span><span class="p">,</span><span class="w"> </span><span class="n">memrss</span><span class="p">,</span><span class="w"> </span><span class="n">memused</span><span class="p">,</span><span class="w"> </span><span class="n">swapused</span><span class="p">,</span><span class="w"> </span><span class="n">commitlimit</span><span class="p">,</span><span class="w"> </span><span class="n">committed_as</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">memhwm</span><span class="p">,</span><span class="w"> </span><span class="n">memrss</span><span class="p">,</span><span class="w"> </span><span class="n">memused</span><span class="p">,</span><span class="w"> </span><span class="n">swapused</span><span class="p">,</span><span class="w"> </span><span class="n">commitlimit</span><span class="p">,</span><span class="w"> </span><span class="n">committed_as</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w"></span>
+
+<span class="c">! This routine returns the memory usage on Linux systems.</span>
+<span class="c">! It does this by querying a system file (file_name below).</span>
+
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">proc_self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/proc/self/status&#39;</span><span class="w"></span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">meminfo</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/proc/meminfo&#39;</span><span class="w"></span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">memtot</span><span class="p">,</span><span class="w"> </span><span class="n">memfree</span><span class="p">,</span><span class="w"> </span><span class="n">swaptot</span><span class="p">,</span><span class="w"> </span><span class="n">swapfree</span><span class="w"></span>
+<span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mem_unit</span><span class="w"></span>
+<span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span><span class="o">=</span><span class="s2">&quot;MAPL_MemUtils:mem_dump&quot;</span><span class="w"></span>
+<span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">memhwm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="w">  </span><span class="n">memrss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="w">  </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">call </span><span class="n">get_unit</span><span class="p">(</span><span class="n">mem_unit</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">open</span><span class="p">(</span><span class="n">UNIT</span><span class="o">=</span><span class="n">mem_unit</span><span class="p">,</span><span class="k">FILE</span><span class="o">=</span><span class="n">proc_self</span><span class="p">,</span><span class="n">FORM</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">,</span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">do</span><span class="p">;</span><span class="w"> </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">mem_unit</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;VmHWM:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! High Water Mark</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">7</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">memhwm</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">memhwm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memhwm</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;VmRSS:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! Resident Memory</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">7</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">memrss</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">memrss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memrss</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">  enddo</span>
+<span class="mi">10</span><span class="w"> </span><span class="k">close</span><span class="p">(</span><span class="n">mem_unit</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">call </span><span class="n">get_unit</span><span class="p">(</span><span class="n">mem_unit</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">open</span><span class="p">(</span><span class="n">UNIT</span><span class="o">=</span><span class="n">mem_unit</span><span class="p">,</span><span class="k">FILE</span><span class="o">=</span><span class="n">meminfo</span><span class="p">,</span><span class="n">FORM</span><span class="o">=</span><span class="s1">&#39;formatted&#39;</span><span class="p">,</span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">do</span><span class="p">;</span><span class="w"> </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">mem_unit</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">end</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MemTotal:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! High Water Mark</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">10</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">memtot</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">memtot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memtot</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MemFree:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! High Water Mark</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">9</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">memfree</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">memfree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memfree</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SwapTotal:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! Resident Memory</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">11</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">swaptot</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">swaptot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">swaptot</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SwapFree:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! Resident Memory</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">10</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">swapfree</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">swapfree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">swapfree</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CommitLimit:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! Resident Memory</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">13</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">commitlimit</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">commitlimit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commitlimit</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">INDEX</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Committed_AS:&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! Resident Memory</span>
+<span class="w">      </span><span class="k">read</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="mi">14</span><span class="p">:</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">committed_as</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="nb">LEN_TRIM</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;kB&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">        </span><span class="n">multiplier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mi">102</span><span class="mf">4.</span><span class="w"> </span><span class="c">! Convert from kB to MB</span>
+<span class="w">      </span><span class="n">committed_as</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">committed_as</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multiplier</span><span class="w"></span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">  enddo</span>
+<span class="mi">20</span><span class="w"> </span><span class="k">close</span><span class="p">(</span><span class="n">mem_unit</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">memused</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memtot</span><span class="o">-</span><span class="n">memfree</span><span class="w"></span>
+<span class="w">   </span><span class="n">swapused</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">swaptot</span><span class="o">-</span><span class="n">swapfree</span><span class="w"></span>
+
+<span class="w">   </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="k">end subroutine </span><span class="n">mem_dump</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T18:31:47.795848             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

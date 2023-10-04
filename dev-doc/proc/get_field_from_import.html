@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_field_from_import &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_field_from_import
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">15 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CapGridComp.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mapl_capgridcomp.f90.html'>MAPL_CapGridComp.F90</a></li>
+              <li><a href='../module/mapl_capgridcompmod.html'>MAPL_CapGridCompMod</a></li>
+          <li class="active">get_field_from_import</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_field_from_import.html#src">get_field_from_import</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine get_field_from_import(this, field_name, state_name, field, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/mapl_capgridcomp.html'>MAPL_CapGridComp</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~171"></span>
+              class(<a href='../type/mapl_capgridcomp.html'>MAPL_CapGridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field_name"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-state_name"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>state_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~25"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~151"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_field_from_import~~CallsGraph Pages: 1 -->
+<svg id="procget_field_from_importCallsGraph" width="641pt" height="137pt"
+ viewBox="0.00 0.00 641.00 137.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_field_from_import~~CallsGraph" class="graph" transform="scale(2.87 2.87) rotate(0) translate(4 390)">
+<title>proc~~get_field_from_import~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-390 1836,-390 1836,4 -4,4"/>
+<!-- proc~get_field_from_import -->
+<g id="proc~~get_field_from_import~~CallsGraph_node1" class="node">
+<title>proc~get_field_from_import</title>
+<polygon fill="none" stroke="black" points="386,-202 0,-202 0,-178 386,-178 386,-202"/>
+<text text-anchor="middle" x="193" y="-187.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CapGridCompMod::MAPL_CapGridComp%get_field_from_import</text>
+</g>
+<!-- child_imports -->
+<g id="proc~~get_field_from_import~~CallsGraph_node2" class="node">
+<title>child_imports</title>
+<polygon fill="#777777" stroke="#777777" points="581,-320 497,-320 497,-296 581,-296 581,-320"/>
+<text text-anchor="middle" x="539" y="-305.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">child_imports</text>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;child_imports -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge1" class="edge">
+<title>proc~get_field_from_import&#45;&gt;child_imports</title>
+<path fill="none" stroke="#255000" d="M219.83,-202.04C261.57,-221.13 346.81,-258.58 422,-282 442.9,-288.51 466.4,-294.09 486.75,-298.39"/>
+<polygon fill="#255000" stroke="#255000" points="486.27,-301.87 496.77,-300.46 487.69,-295.01 486.27,-301.87"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_node3" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="906,-386 818,-386 818,-362 906,-362 906,-386"/>
+<text text-anchor="middle" x="862" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;esmf_stateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge2" class="edge">
+<title>proc~get_field_from_import&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#255000" d="M235.75,-202.04C281.26,-214.88 356.38,-235.21 422,-249 525.11,-270.67 570.02,-226.11 656,-287 683.27,-306.31 664.38,-334.2 692,-353 725.59,-375.86 771.82,-380.23 807.44,-379.37"/>
+<polygon fill="#255000" stroke="#255000" points="807.8,-382.86 817.66,-378.98 807.53,-375.86 807.8,-382.86"/>
+</g>
+<!-- gcs -->
+<g id="proc~~get_field_from_import~~CallsGraph_node4" class="node">
+<title>gcs</title>
+<polygon fill="#777777" stroke="#777777" points="566,-24 512,-24 512,0 566,0 566,-24"/>
+<text text-anchor="middle" x="539" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gcs</text>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;gcs -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge3" class="edge">
+<title>proc~get_field_from_import&#45;&gt;gcs</title>
+<path fill="none" stroke="#255000" d="M208.11,-177.82C242.32,-148.94 333.43,-75.89 422,-38 447.51,-27.09 478.21,-20.47 501.62,-16.64"/>
+<polygon fill="#255000" stroke="#255000" points="502.46,-20.05 511.81,-15.07 501.4,-13.13 502.46,-20.05"/>
+</g>
+<!-- proc~mapl_importstateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_node5" class="node">
+<title>proc~mapl_importstateget</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node5"><a xlink:href=".././proc/mapl_importstateget.html" xlink:title="MAPL_GenericMod::MAPL_ImportStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="656,-222 422,-222 422,-198 656,-198 656,-222"/>
+<text text-anchor="middle" x="539" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_ImportStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;proc~mapl_importstateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge4" class="edge">
+<title>proc~get_field_from_import&#45;&gt;proc~mapl_importstateget</title>
+<path fill="none" stroke="#255000" d="M386.12,-201.17C394.76,-201.67 403.33,-202.17 411.75,-202.66"/>
+<polygon fill="#255000" stroke="#255000" points="411.75,-206.17 421.93,-203.25 412.15,-199.18 411.75,-206.17"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_field_from_import~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node6"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1321,-211 1101,-211 1101,-187 1321,-187 1321,-211"/>
+<text text-anchor="middle" x="1211" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge5" class="edge">
+<title>proc~get_field_from_import&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M386.19,-189.1C398.31,-189.06 410.32,-189.03 422,-189 526,-188.77 552,-188.06 656,-189 805.83,-190.35 978.43,-193.76 1090.62,-196.22"/>
+<polygon fill="#255000" stroke="#255000" points="1090.87,-199.73 1100.95,-196.45 1091.03,-192.73 1090.87,-199.73"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_field_from_import~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node7"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1318,-85 1104,-85 1104,-61 1318,-61 1318,-85"/>
+<text text-anchor="middle" x="1211" y="-70.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_field_from_import&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge6" class="edge">
+<title>proc~get_field_from_import&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M231.89,-177.92C314.43,-152.31 517.1,-93.27 692,-73 829.38,-57.08 988.64,-60.29 1093.92,-65.39"/>
+<polygon fill="#255000" stroke="#255000" points="1093.77,-68.88 1103.93,-65.88 1094.12,-61.89 1093.77,-68.88"/>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;esmf_stateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M599.88,-222.02C619.87,-228.6 640.87,-238.67 656,-254 688.88,-287.33 655.38,-323.82 692,-353 724.09,-378.57 771.07,-382.59 807.35,-380.91"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="807.99,-384.37 817.76,-380.26 807.56,-377.39 807.99,-384.37"/>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_importstateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_importstateget</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M485.76,-222.01C467.17,-230.97 484.91,-240 539,-240 577.87,-240 597.98,-235.34 599.3,-229.39"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="601.69,-226.81 592.24,-222.01 596.63,-231.66 601.69,-226.81"/>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M656.32,-208.09C777.97,-206.09 967.94,-202.97 1090.69,-200.96"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1090.94,-204.46 1100.88,-200.79 1090.82,-197.46 1090.94,-204.46"/>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M552.95,-197.89C577.7,-175.61 634.41,-128.59 692,-109 763.62,-84.63 963.96,-76.74 1093.47,-74.2"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1093.9,-77.69 1103.84,-74 1093.77,-70.69 1093.9,-77.69"/>
+</g>
+<!-- get_num_children -->
+<g id="proc~~get_field_from_import~~CallsGraph_node8" class="node">
+<title>get_num_children</title>
+<polygon fill="#777777" stroke="#777777" points="915.5,-302 808.5,-302 808.5,-278 915.5,-278 915.5,-302"/>
+<text text-anchor="middle" x="862" y="-287.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_children</text>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;get_num_children -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;get_num_children</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M572.61,-222.05C595.92,-230.74 627.98,-242.85 656,-254 672.11,-260.41 675.25,-264.56 692,-269 726.43,-278.13 765.87,-283.32 797.99,-286.25"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="797.89,-289.75 808.15,-287.13 798.49,-282.78 797.89,-289.75"/>
+</g>
+<!-- proc~get_child_gridcomp -->
+<g id="proc~~get_field_from_import~~CallsGraph_node9" class="node">
+<title>proc~get_child_gridcomp</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node9"><a xlink:href=".././proc/get_child_gridcomp.html" xlink:title="MAPL_GenericMod::MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1024,-344 700,-344 700,-320 1024,-320 1024,-344"/>
+<text text-anchor="middle" x="862" y="-329.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~get_child_gridcomp -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~get_child_gridcomp</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M592.54,-222.08C613.87,-228.87 637.74,-239.08 656,-254 679.2,-272.96 666.7,-294.94 692,-311 694.52,-312.6 697.1,-314.1 699.73,-315.52"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="698.36,-318.74 708.89,-319.99 701.44,-312.46 698.36,-318.74"/>
+</g>
+<!-- proc~get_child_import_state -->
+<g id="proc~~get_field_from_import~~CallsGraph_node10" class="node">
+<title>proc~get_child_import_state</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node10"><a xlink:href=".././proc/get_child_import_state.html" xlink:title="MAPL_GenericMod::MAPL_MetaComp%get_child_import_state">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1032,-260 692,-260 692,-236 1032,-236 1032,-260"/>
+<text text-anchor="middle" x="862" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_MetaComp%get_child_import_state</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~get_child_import_state -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~get_child_import_state</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M641.57,-222.02C675.84,-226.08 714.27,-230.63 749.28,-234.77"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="749.2,-238.29 759.54,-235.99 750.02,-231.34 749.2,-238.29"/>
+</g>
+<!-- proc~mapl_internalstateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_node12" class="node">
+<title>proc~mapl_internalstateget</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node12"><a xlink:href=".././proc/mapl_internalstateget.html" xlink:title="MAPL_GenericMod::MAPL_InternalStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="982,-142 742,-142 742,-118 982,-118 982,-142"/>
+<text text-anchor="middle" x="862" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_InternalStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_importstateget&#45;&gt;proc~mapl_internalstateget -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_importstateget&#45;&gt;proc~mapl_internalstateget</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M588.4,-197.94C645.81,-183.63 741.42,-159.8 802.81,-144.5"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="803.87,-147.85 812.73,-142.03 802.18,-141.05 803.87,-147.85"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_field_from_import~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node11"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1643,-211 1390,-211 1390,-187 1643,-187 1643,-211"/>
+<text text-anchor="middle" x="1516.5" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#002505" d="M1321.14,-199C1340.1,-199 1360.02,-199 1379.59,-199"/>
+<polygon fill="#002505" stroke="#002505" points="1379.78,-202.5 1389.78,-199 1379.78,-195.5 1379.78,-202.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_field_from_import~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node13"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1631,-127 1402,-127 1402,-103 1631,-103 1631,-127"/>
+<text text-anchor="middle" x="1516.5" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M1312.65,-186.99C1326.64,-184.49 1340.75,-181.52 1354,-178 1398.82,-166.11 1448.18,-145.71 1480.39,-131.36"/>
+<polygon fill="#002505" stroke="#002505" points="1482.13,-134.41 1489.81,-127.11 1479.26,-128.03 1482.13,-134.41"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1298.97,-85.04C1336.36,-90.21 1380.2,-96.28 1418.62,-101.59"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1418.39,-105.1 1428.78,-103 1419.35,-98.16 1418.39,-105.1"/>
+</g>
+<!-- get_gridcomp -->
+<g id="proc~~get_field_from_import~~CallsGraph_node17" class="node">
+<title>get_gridcomp</title>
+<polygon fill="#777777" stroke="#777777" points="1254,-344 1168,-344 1168,-320 1254,-320 1254,-344"/>
+<text text-anchor="middle" x="1211" y="-329.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_gridcomp</text>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;get_gridcomp -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge18" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;get_gridcomp</title>
+<path fill="none" stroke="transparent" d="M1024.06,-332C1072.26,-332 1121.75,-332 1157.55,-332"/>
+<polygon fill="transparent" stroke="transparent" points="1157.73,-335.5 1167.73,-332 1157.73,-328.5 1157.73,-335.5"/>
+</g>
+<!-- proc~get_ith_child -->
+<g id="proc~~get_field_from_import~~CallsGraph_node19" class="node">
+<title>proc~get_ith_child</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node19"><a xlink:href=".././proc/get_ith_child.html" xlink:title="MAPL_GenericMod::MAPL_MetaComp%get_ith_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1354,-302 1068,-302 1068,-278 1354,-278 1354,-302"/>
+<text text-anchor="middle" x="1211" y="-287.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericMod::MAPL_MetaComp%get_ith_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_ith_child -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge19" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_ith_child</title>
+<path fill="none" stroke="transparent" d="M962.44,-319.96C1005.72,-314.72 1056.59,-308.57 1100.91,-303.2"/>
+<polygon fill="transparent" stroke="transparent" points="1101.34,-306.68 1110.85,-302 1100.5,-299.73 1101.34,-306.68"/>
+</g>
+<!-- get_import_state -->
+<g id="proc~~get_field_from_import~~CallsGraph_node18" class="node">
+<title>get_import_state</title>
+<polygon fill="#777777" stroke="#777777" points="1262,-260 1160,-260 1160,-236 1262,-236 1262,-260"/>
+<text text-anchor="middle" x="1211" y="-245.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_import_state</text>
+</g>
+<!-- proc~get_child_import_state&#45;&gt;get_import_state -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge20" class="edge">
+<title>proc~get_child_import_state&#45;&gt;get_import_state</title>
+<path fill="none" stroke="#025500" d="M1032.18,-248C1074.29,-248 1116.74,-248 1149.59,-248"/>
+<polygon fill="#025500" stroke="#025500" points="1149.91,-251.5 1159.91,-248 1149.91,-244.5 1149.91,-251.5"/>
+</g>
+<!-- proc~get_child_import_state&#45;&gt;proc~get_ith_child -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge21" class="edge">
+<title>proc~get_child_import_state&#45;&gt;proc~get_ith_child</title>
+<path fill="none" stroke="#025500" d="M962.44,-260.04C1005.72,-265.28 1056.59,-271.43 1100.91,-276.8"/>
+<polygon fill="#025500" stroke="#025500" points="1100.5,-280.27 1110.85,-278 1101.34,-273.32 1100.5,-280.27"/>
+</g>
+<!-- at -->
+<g id="proc~~get_field_from_import~~CallsGraph_node16" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1782.5,-211 1728.5,-211 1728.5,-187 1782.5,-187 1782.5,-211"/>
+<text text-anchor="middle" x="1755.5" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1643.29,-199C1670.83,-199 1697.86,-199 1718.36,-199"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1718.46,-202.5 1728.46,-199 1718.46,-195.5 1718.46,-202.5"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002505" d="M981.34,-142.08C998.61,-145.6 1015.97,-150.14 1032,-156 1049.61,-162.44 1050.37,-171.61 1068,-178 1075.33,-180.66 1082.99,-182.98 1090.79,-185.01"/>
+<polygon fill="#002505" stroke="#002505" points="1090.19,-188.46 1100.73,-187.42 1091.84,-181.66 1090.19,-188.46"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#002505" d="M954.14,-118C979.46,-114.12 1006.9,-109.4 1032,-104 1048.23,-100.51 1051.76,-97.44 1068,-94 1080.63,-91.32 1093.96,-88.87 1107.19,-86.66"/>
+<polygon fill="#002505" stroke="#002505" points="1107.97,-90.08 1117.28,-85.02 1106.85,-83.17 1107.97,-90.08"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~get_field_from_import~~CallsGraph_node14" class="node">
+<title>ESMF_GridCompGet</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="1288,-169 1134,-169 1134,-145 1288,-145 1288,-169"/>
+<text text-anchor="middle" x="1211" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_GridCompGet</text>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#002505" d="M982.42,-139.29C1028.88,-142.91 1081.09,-146.97 1123.78,-150.29"/>
+<polygon fill="#002505" stroke="#002505" points="1123.61,-153.79 1133.85,-151.07 1124.15,-146.81 1123.61,-153.79"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~get_field_from_import~~CallsGraph_node15" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="1323.5,-127 1098.5,-127 1098.5,-103 1323.5,-103 1323.5,-127"/>
+<text text-anchor="middle" x="1211" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_UserCompGetInternalState</text>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#002505" d="M982.42,-124.84C1016.59,-123.36 1053.87,-121.75 1088.18,-120.27"/>
+<polygon fill="#002505" stroke="#002505" points="1088.41,-123.76 1098.25,-119.83 1088.1,-116.77 1088.41,-123.76"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~get_field_from_import~~CallsGraph_node20" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~get_field_from_import~~CallsGraph_node20"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1832,-127 1679,-127 1679,-103 1832,-103 1832,-127"/>
+<text text-anchor="middle" x="1755.5" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#255025" stroke-opacity="0.019608" d="M1631.14,-115C1643.76,-115 1656.46,-115 1668.65,-115"/>
+<polygon fill="#255025" fill-opacity="0.019608" stroke="#255025" stroke-opacity="0.019608" points="1668.77,-118.5 1678.77,-115 1668.77,-111.5 1668.77,-118.5"/>
+</g>
+<!-- gcnamelist -->
+<g id="proc~~get_field_from_import~~CallsGraph_node21" class="node">
+<title>gcnamelist</title>
+<polygon fill="#777777" stroke="#777777" points="1552,-309 1481,-309 1481,-285 1552,-285 1552,-309"/>
+<text text-anchor="middle" x="1516.5" y="-294.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gcnamelist</text>
+</g>
+<!-- proc~get_ith_child&#45;&gt;gcnamelist -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge28" class="edge">
+<title>proc~get_ith_child&#45;&gt;gcnamelist</title>
+<path fill="none" stroke="#720255" d="M1354.42,-293.28C1396.62,-294.26 1439.79,-295.25 1470.8,-295.97"/>
+<polygon fill="#720255" stroke="#720255" points="1470.76,-299.47 1480.84,-296.2 1470.92,-292.47 1470.76,-299.47"/>
+</g>
+<!-- get_child -->
+<g id="proc~~get_field_from_import~~CallsGraph_node22" class="node">
+<title>get_child</title>
+<polygon fill="#777777" stroke="#777777" points="1547,-267 1486,-267 1486,-243 1547,-243 1547,-267"/>
+<text text-anchor="middle" x="1516.5" y="-252.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_child</text>
+</g>
+<!-- proc~get_ith_child&#45;&gt;get_child -->
+<g id="proc~~get_field_from_import~~CallsGraph_edge29" class="edge">
+<title>proc~get_ith_child&#45;&gt;get_child</title>
+<path fill="none" stroke="#720255" d="M1316.45,-277.95C1371.34,-271.62 1435.41,-264.24 1475.72,-259.59"/>
+<polygon fill="#720255" stroke="#720255" points="1476.15,-263.06 1485.68,-258.44 1475.35,-256.11 1476.15,-263.06"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_field_from_importCallsGraph = svgPanZoom('#procget_field_from_importCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_field_from_import.html#src">get_field_from_import</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">get_field_from_import</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">field_name</span><span class="p">,</span><span class="n">state_name</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">MAPL_CapGridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_name</span><span class="w"></span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state_name</span><span class="w"></span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_ImportStateGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="n">this</span><span class="p">%</span><span class="n">child_imports</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">root_id</span><span class="p">),&amp;</span><span class="w"></span>
+<span class="w">         </span><span class="n">state_name</span><span class="p">,</span><span class="n">state</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">field_name</span><span class="p">),</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">get_field_from_import</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T18:31:47.795848             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

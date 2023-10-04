@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CreateVariable &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>CreateVariable
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">85 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GriddedIO.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/griddedio.f90.html'>GriddedIO.F90</a></li>
+              <li><a href='../module/mapl_griddediomod.html'>MAPL_GriddedIOMod</a></li>
+          <li class="active">CreateVariable</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/createvariable.html#src">CreateVariable</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine CreateVariable(this, itemName, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/mapl_griddedio.html'>MAPL_GriddedIO</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~906"></span>
+              class(<a href='../type/mapl_griddedio.html'>MAPL_GriddedIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-itemname"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>itemName</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~302"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~createvariable~~CallsGraph Pages: 1 -->
+<svg id="proccreatevariableCallsGraph" width="641pt" height="259pt"
+ viewBox="0.00 0.00 641.00 259.04" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~createvariable~~CallsGraph" class="graph" transform="scale(2.27 2.27) rotate(0) translate(4 584)">
+<title>proc~~createvariable~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-584 1451,-584 1451,4 -4,4"/>
+<!-- proc~createvariable -->
+<g id="proc~~createvariable~~CallsGraph_node1" class="node">
+<title>proc~createvariable</title>
+<polygon fill="none" stroke="black" points="307,-330 0,-330 0,-306 307,-306 307,-330"/>
+<text text-anchor="middle" x="153.5" y="-315.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateVariable</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~createvariable~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="556,-580 410,-580 410,-556 556,-556 556,-580"/>
+<text text-anchor="middle" x="483" y="-565.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF::ESMF_AttributeGet</text>
+</g>
+<!-- proc~createvariable&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~createvariable~~CallsGraph_edge1" class="edge">
+<title>proc~createvariable&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#255000" d="M160.32,-330.08C179.83,-369.14 247.15,-492.63 343,-547 360.08,-556.69 380.16,-562.36 399.66,-565.59"/>
+<polygon fill="#255000" stroke="#255000" points="399.39,-569.09 409.79,-567.06 400.4,-562.16 399.39,-569.09"/>
+</g>
+<!-- add_attribute -->
+<g id="proc~~createvariable~~CallsGraph_node3" class="node">
+<title>add_attribute</title>
+<polygon fill="#777777" stroke="#777777" points="525,-538 441,-538 441,-514 525,-514 525,-538"/>
+<text text-anchor="middle" x="483" y="-523.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_attribute</text>
+</g>
+<!-- proc~createvariable&#45;&gt;add_attribute -->
+<g id="proc~~createvariable~~CallsGraph_edge2" class="edge">
+<title>proc~createvariable&#45;&gt;add_attribute</title>
+<path fill="none" stroke="#255000" d="M162.52,-330.22C185.75,-364.48 256.92,-461.74 343,-505 369.97,-518.56 403.33,-523.91 430.61,-525.83"/>
+<polygon fill="#255000" stroke="#255000" points="430.56,-529.34 440.74,-526.41 430.96,-522.35 430.56,-529.34"/>
+</g>
+<!-- append_variable_metadata -->
+<g id="proc~~createvariable~~CallsGraph_node4" class="node">
+<title>append_variable_metadata</title>
+<polygon fill="#777777" stroke="#777777" points="562.5,-496 403.5,-496 403.5,-472 562.5,-472 562.5,-496"/>
+<text text-anchor="middle" x="483" y="-481.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">append_variable_metadata</text>
+</g>
+<!-- proc~createvariable&#45;&gt;append_variable_metadata -->
+<g id="proc~~createvariable~~CallsGraph_edge3" class="edge">
+<title>proc~createvariable&#45;&gt;append_variable_metadata</title>
+<path fill="none" stroke="#255000" d="M165.88,-330.27C193.27,-358.93 266.27,-430.31 343,-463 358.67,-469.68 376.13,-474.28 393.24,-477.43"/>
+<polygon fill="#255000" stroke="#255000" points="392.81,-480.91 403.25,-479.13 393.98,-474.01 392.81,-480.91"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~createvariable~~CallsGraph_node5" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="543.5,-454 422.5,-454 422.5,-430 543.5,-430 543.5,-454"/>
+<text text-anchor="middle" x="483" y="-439.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~createvariable&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~createvariable~~CallsGraph_edge4" class="edge">
+<title>proc~createvariable&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#255000" d="M171.73,-330.15C203.79,-352.11 275.5,-398.25 343,-421 364.96,-428.4 389.76,-433.2 412.26,-436.31"/>
+<polygon fill="#255000" stroke="#255000" points="412.05,-439.81 422.42,-437.62 412.95,-432.87 412.05,-439.81"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~createvariable~~CallsGraph_node6" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="525.5,-412 440.5,-412 440.5,-388 525.5,-388 525.5,-412"/>
+<text text-anchor="middle" x="483" y="-397.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~createvariable&#45;&gt;esmf_fieldget -->
+<g id="proc~~createvariable~~CallsGraph_edge5" class="edge">
+<title>proc~createvariable&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#255000" d="M186.4,-330.09C223.53,-343.75 286.92,-365.78 343,-379 371.52,-385.72 403.86,-390.76 430.17,-394.21"/>
+<polygon fill="#255000" stroke="#255000" points="429.94,-397.71 440.3,-395.5 430.83,-390.77 429.94,-397.71"/>
+</g>
+<!-- get_grid_vars -->
+<g id="proc~~createvariable~~CallsGraph_node7" class="node">
+<title>get_grid_vars</title>
+<polygon fill="#777777" stroke="#777777" points="525,-370 441,-370 441,-346 525,-346 525,-370"/>
+<text text-anchor="middle" x="483" y="-355.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_grid_vars</text>
+</g>
+<!-- proc~createvariable&#45;&gt;get_grid_vars -->
+<g id="proc~~createvariable~~CallsGraph_edge6" class="edge">
+<title>proc~createvariable&#45;&gt;get_grid_vars</title>
+<path fill="none" stroke="#255000" d="M252.76,-330C311.39,-337.16 383.43,-345.96 430.92,-351.76"/>
+<polygon fill="#255000" stroke="#255000" points="430.61,-355.25 440.96,-352.99 431.46,-348.3 430.61,-355.25"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~createvariable~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~createvariable~~CallsGraph_node8"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="591.5,-192 374.5,-192 374.5,-168 591.5,-168 591.5,-192"/>
+<text text-anchor="middle" x="483" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;interface~mapl_assert -->
+<g id="proc~~createvariable~~CallsGraph_edge7" class="edge">
+<title>proc~createvariable&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M170.64,-305.7C202.03,-282.41 274.25,-231.92 343,-206 355.48,-201.3 368.92,-197.42 382.35,-194.23"/>
+<polygon fill="#255000" stroke="#255000" points="383.13,-197.64 392.12,-192.02 381.59,-190.81 383.13,-197.64"/>
+</g>
+<!-- interface~mapl_fieldbundleadd -->
+<g id="proc~~createvariable~~CallsGraph_node9" class="node">
+<title>interface~mapl_fieldbundleadd</title>
+<g id="a_proc~~createvariable~~CallsGraph_node9"><a xlink:href=".././interface/mapl_fieldbundleadd.html" xlink:title="MAPL_Base::MAPL_FieldBundleAdd">
+<polygon fill="#a7506f" stroke="#a7506f" points="581,-150 385,-150 385,-126 581,-126 581,-150"/>
+<text text-anchor="middle" x="483" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldBundleAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;interface~mapl_fieldbundleadd -->
+<g id="proc~~createvariable~~CallsGraph_edge8" class="edge">
+<title>proc~createvariable&#45;&gt;interface~mapl_fieldbundleadd</title>
+<path fill="none" stroke="#255000" d="M164.44,-305.89C190.27,-275.39 263.05,-195.21 343,-159 353.06,-154.44 363.9,-150.84 374.94,-148"/>
+<polygon fill="#255000" stroke="#255000" points="375.76,-151.4 384.68,-145.69 374.14,-144.59 375.76,-151.4"/>
+</g>
+<!-- interface~mapl_fieldcreate -->
+<g id="proc~~createvariable~~CallsGraph_node10" class="node">
+<title>interface~mapl_fieldcreate</title>
+<g id="a_proc~~createvariable~~CallsGraph_node10"><a xlink:href=".././interface/mapl_fieldcreate.html" xlink:title="MAPL_Base::MAPL_FieldCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="570,-108 396,-108 396,-84 570,-84 570,-108"/>
+<text text-anchor="middle" x="483" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;interface~mapl_fieldcreate -->
+<g id="proc~~createvariable~~CallsGraph_edge9" class="edge">
+<title>proc~createvariable&#45;&gt;interface~mapl_fieldcreate</title>
+<path fill="none" stroke="#255000" d="M161.64,-305.9C183.53,-270.05 253.64,-163.95 343,-117 356.08,-110.13 370.74,-105.33 385.51,-102.02"/>
+<polygon fill="#255000" stroke="#255000" points="386.63,-105.36 395.74,-99.95 385.24,-98.5 386.63,-105.36"/>
+</g>
+<!-- proc~get_factory -->
+<g id="proc~~createvariable~~CallsGraph_node11" class="node">
+<title>proc~get_factory</title>
+<g id="a_proc~~createvariable~~CallsGraph_node11"><a xlink:href=".././proc/get_factory.html" xlink:title="MAPL_GridManagerMod::get_factory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="586,-272 380,-272 380,-248 586,-248 586,-272"/>
+<text text-anchor="middle" x="483" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManagerMod::get_factory</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;proc~get_factory -->
+<g id="proc~~createvariable~~CallsGraph_edge10" class="edge">
+<title>proc~createvariable&#45;&gt;proc~get_factory</title>
+<path fill="none" stroke="#255000" d="M222.36,-305.98C275.27,-296.61 348.81,-283.59 404.12,-273.79"/>
+<polygon fill="#255000" stroke="#255000" points="404.99,-277.19 414.23,-272 403.77,-270.3 404.99,-277.19"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~createvariable~~CallsGraph_node12" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~createvariable~~CallsGraph_node12"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="912,-276 692,-276 692,-252 912,-252 912,-276"/>
+<text text-anchor="middle" x="802" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;proc~mapl_return -->
+<g id="proc~~createvariable~~CallsGraph_edge11" class="edge">
+<title>proc~createvariable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M175.38,-305.97C209.24,-287.24 278.82,-251.91 343,-239 465,-214.47 498.86,-230.32 623,-239 632.11,-239.64 670.09,-244.92 708.65,-250.46"/>
+<polygon fill="#255000" stroke="#255000" points="708.58,-253.99 718.98,-251.95 709.58,-247.06 708.58,-253.99"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~createvariable~~CallsGraph_node13" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~createvariable~~CallsGraph_node13"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="909,-318 695,-318 695,-294 909,-294 909,-318"/>
+<text text-anchor="middle" x="802" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;proc~mapl_verify -->
+<g id="proc~~createvariable~~CallsGraph_edge12" class="edge">
+<title>proc~createvariable&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M307.3,-315.16C422.86,-313.02 579.12,-310.12 684.65,-308.16"/>
+<polygon fill="#255000" stroke="#255000" points="684.77,-311.66 694.7,-307.97 684.64,-304.66 684.77,-311.66"/>
+</g>
+<!-- proc~regrid_method_int_to_string -->
+<g id="proc~~createvariable~~CallsGraph_node14" class="node">
+<title>proc~regrid_method_int_to_string</title>
+<g id="a_proc~~createvariable~~CallsGraph_node14"><a xlink:href=".././proc/regrid_method_int_to_string.html" xlink:title="mapl_RegridMethods::regrid_method_int_to_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="623,-66 343,-66 343,-42 623,-42 623,-66"/>
+<text text-anchor="middle" x="483" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_RegridMethods::regrid_method_int_to_string</text>
+</a>
+</g>
+</g>
+<!-- proc~createvariable&#45;&gt;proc~regrid_method_int_to_string -->
+<g id="proc~~createvariable~~CallsGraph_edge13" class="edge">
+<title>proc~createvariable&#45;&gt;proc~regrid_method_int_to_string</title>
+<path fill="none" stroke="#255000" d="M159.84,-305.77C178.33,-265 243.98,-133.08 343,-75 346.04,-73.22 349.18,-71.57 352.39,-70.05"/>
+<polygon fill="#255000" stroke="#255000" points="353.84,-73.23 361.65,-66.07 351.08,-66.8 353.84,-73.23"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~createvariable~~CallsGraph_node20" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~createvariable~~CallsGraph_node20"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="938,-234 666,-234 666,-210 938,-210 938,-234"/>
+<text text-anchor="middle" x="802" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~createvariable~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025519" stroke-dasharray="5,2" stroke-opacity="0.023529" d="M574.84,-192.04C614.05,-197.23 660.07,-203.33 700.32,-208.66"/>
+<polygon fill="#025519" fill-opacity="0.023529" stroke="#025519" stroke-opacity="0.023529" points="700.05,-212.16 710.42,-210 700.97,-205.22 700.05,-212.16"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~createvariable~~CallsGraph_node21" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~createvariable~~CallsGraph_node21"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="945,-192 659,-192 659,-168 945,-168 945,-192"/>
+<text text-anchor="middle" x="802" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~createvariable~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025519" stroke-dasharray="5,2" stroke-opacity="0.023529" d="M591.76,-180C610.11,-180 629.46,-180 648.69,-180"/>
+<polygon fill="#025519" fill-opacity="0.023529" stroke="#025519" stroke-opacity="0.023529" points="648.73,-183.5 658.73,-180 648.73,-176.5 648.73,-183.5"/>
+</g>
+<!-- interface~mapl_fieldbundleaddfield -->
+<g id="proc~~createvariable~~CallsGraph_node15" class="node">
+<title>interface~mapl_fieldbundleaddfield</title>
+<g id="a_proc~~createvariable~~CallsGraph_node15"><a xlink:href=".././interface/mapl_fieldbundleaddfield.html" xlink:title="MAPL_Base::MAPL_FieldBundleAddField">
+<polygon fill="#a7506f" stroke="#a7506f" points="912.5,-150 691.5,-150 691.5,-126 912.5,-126 912.5,-150"/>
+<text text-anchor="middle" x="802" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldBundleAddField</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldbundleadd&#45;&gt;interface~mapl_fieldbundleaddfield -->
+<g id="proc~~createvariable~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_fieldbundleadd&#45;&gt;interface~mapl_fieldbundleaddfield</title>
+<path fill="none" stroke="#019625" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M581.26,-138C612.85,-138 648.27,-138 681.29,-138"/>
+<polygon fill="#019625" fill-opacity="0.019608" stroke="#019625" stroke-opacity="0.019608" points="681.46,-141.5 691.46,-138 681.46,-134.5 681.46,-141.5"/>
+</g>
+<!-- interface~mapl_fieldcreatenewgrid -->
+<g id="proc~~createvariable~~CallsGraph_node16" class="node">
+<title>interface~mapl_fieldcreatenewgrid</title>
+<g id="a_proc~~createvariable~~CallsGraph_node16"><a xlink:href=".././interface/mapl_fieldcreatenewgrid.html" xlink:title="MAPL_Base::MAPL_FieldCreateNewgrid">
+<polygon fill="#a7506f" stroke="#a7506f" points="910.5,-108 693.5,-108 693.5,-84 910.5,-84 910.5,-108"/>
+<text text-anchor="middle" x="802" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldCreateNewgrid</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldcreate&#45;&gt;interface~mapl_fieldcreatenewgrid -->
+<g id="proc~~createvariable~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_fieldcreate&#45;&gt;interface~mapl_fieldcreatenewgrid</title>
+<path fill="none" stroke="#078255" stroke-dasharray="5,2" d="M570.2,-96C604.89,-96 645.46,-96 682.83,-96"/>
+<polygon fill="#078255" stroke="#078255" points="683.28,-99.5 693.28,-96 683.28,-92.5 683.28,-99.5"/>
+</g>
+<!-- interface~mapl_fieldcreater4 -->
+<g id="proc~~createvariable~~CallsGraph_node17" class="node">
+<title>interface~mapl_fieldcreater4</title>
+<g id="a_proc~~createvariable~~CallsGraph_node17"><a xlink:href=".././interface/mapl_fieldcreater4.html" xlink:title="MAPL_Base::MAPL_FieldCreateR4">
+<polygon fill="#a7506f" stroke="#a7506f" points="896,-66 708,-66 708,-42 896,-42 896,-66"/>
+<text text-anchor="middle" x="802" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldCreateR4</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldcreate&#45;&gt;interface~mapl_fieldcreater4 -->
+<g id="proc~~createvariable~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_fieldcreate&#45;&gt;interface~mapl_fieldcreater4</title>
+<path fill="none" stroke="#078255" stroke-dasharray="5,2" d="M570.2,-84.58C610.43,-79.25 658.56,-72.87 700.44,-67.32"/>
+<polygon fill="#078255" stroke="#078255" points="700.93,-70.79 710.38,-66.01 700.01,-63.85 700.93,-70.79"/>
+</g>
+<!-- interface~mapl_fieldcreaterename -->
+<g id="proc~~createvariable~~CallsGraph_node18" class="node">
+<title>interface~mapl_fieldcreaterename</title>
+<g id="a_proc~~createvariable~~CallsGraph_node18"><a xlink:href=".././interface/mapl_fieldcreaterename.html" xlink:title="MAPL_Base::MAPL_FieldCreateRename">
+<polygon fill="#a7506f" stroke="#a7506f" points="911,-24 693,-24 693,0 911,0 911,-24"/>
+<text text-anchor="middle" x="802" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Base::MAPL_FieldCreateRename</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldcreate&#45;&gt;interface~mapl_fieldcreaterename -->
+<g id="proc~~createvariable~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_fieldcreate&#45;&gt;interface~mapl_fieldcreaterename</title>
+<path fill="none" stroke="#078255" stroke-dasharray="5,2" d="M570.19,-92.66C588.43,-89.35 606.99,-83.87 623,-75 644.5,-63.08 637.48,-44.88 659,-33 666.61,-28.8 674.78,-25.35 683.22,-22.53"/>
+<polygon fill="#078255" stroke="#078255" points="684.29,-25.87 692.84,-19.61 682.26,-19.17 684.29,-25.87"/>
+</g>
+<!-- proc~get_factory&#45;&gt;proc~get_factory -->
+<g id="proc~~createvariable~~CallsGraph_edge20" class="edge">
+<title>proc~get_factory&#45;&gt;proc~get_factory</title>
+<path fill="none" stroke="#390255" d="M430.42,-272.01C412.06,-280.97 429.59,-290 483,-290 521.39,-290 541.24,-285.34 542.56,-279.39"/>
+<polygon fill="#390255" stroke="#390255" points="544.99,-276.87 535.58,-272.01 539.91,-281.68 544.99,-276.87"/>
+</g>
+<!-- proc~get_factory&#45;&gt;proc~mapl_return -->
+<g id="proc~~createvariable~~CallsGraph_edge21" class="edge">
+<title>proc~get_factory&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#390255" d="M586.05,-261.29C616.5,-261.67 650.16,-262.1 681.63,-262.49"/>
+<polygon fill="#390255" stroke="#390255" points="681.72,-266 691.76,-262.62 681.8,-259 681.72,-266"/>
+</g>
+<!-- proc~get_factory&#45;&gt;proc~mapl_verify -->
+<g id="proc~~createvariable~~CallsGraph_edge22" class="edge">
+<title>proc~get_factory&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#390255" d="M566.87,-272.03C610.19,-278.31 663.36,-286.03 708.07,-292.51"/>
+<polygon fill="#390255" stroke="#390255" points="707.66,-295.99 718.06,-293.96 708.67,-289.06 707.66,-295.99"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~createvariable~~CallsGraph_node19" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~createvariable~~CallsGraph_node19"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1246,-213 993,-213 993,-189 1246,-189 1246,-213"/>
+<text text-anchor="middle" x="1119.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~createvariable~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#156025" stroke-opacity="0.019608" d="M912.19,-252.2C923.42,-249.7 934.54,-246.67 945,-243 962.48,-236.87 963.54,-228.17 981,-222 987.89,-219.57 995.07,-217.41 1002.37,-215.51"/>
+<polygon fill="#156025" fill-opacity="0.019608" stroke="#156025" stroke-opacity="0.019608" points="1003.51,-218.83 1012.4,-213.07 1001.86,-212.03 1003.51,-218.83"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~createvariable~~CallsGraph_node22" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~createvariable~~CallsGraph_node22"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1234,-255 1005,-255 1005,-231 1234,-231 1234,-255"/>
+<text text-anchor="middle" x="1119.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createvariable~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#156025" stroke-opacity="0.019608" d="M912.02,-256.74C938.75,-254.96 967.55,-253.05 994.91,-251.23"/>
+<polygon fill="#156025" fill-opacity="0.019608" stroke="#156025" stroke-opacity="0.019608" points="995.17,-254.72 1004.92,-250.56 994.71,-247.73 995.17,-254.72"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createvariable~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255023" stroke-opacity="0.019608" d="M892.97,-293.95C910.29,-291.28 928.24,-288.26 945,-285 985.15,-277.19 1030.01,-266.27 1064.06,-257.52"/>
+<polygon fill="#255023" fill-opacity="0.019608" stroke="#255023" stroke-opacity="0.019608" points="1065,-260.89 1073.81,-255 1063.25,-254.12 1065,-260.89"/>
+</g>
+<!-- proc~mapl_fieldbundleaddfield -->
+<g id="proc~~createvariable~~CallsGraph_node25" class="node">
+<title>proc~mapl_fieldbundleaddfield</title>
+<g id="a_proc~~createvariable~~CallsGraph_node25"><a xlink:href=".././proc/mapl_fieldbundleaddfield.html" xlink:title="Base_Implementation::MAPL_FieldBundleAddField">
+<polygon fill="#d9534f" stroke="#d9534f" points="1258,-150 981,-150 981,-126 1258,-126 1258,-150"/>
+<text text-anchor="middle" x="1119.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_FieldBundleAddField</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldbundleaddfield&#45;&gt;proc~mapl_fieldbundleaddfield -->
+<g id="proc~~createvariable~~CallsGraph_edge26" class="edge">
+<title>interface~mapl_fieldbundleaddfield&#45;&gt;proc~mapl_fieldbundleaddfield</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M912.9,-138C931.61,-138 951.3,-138 970.79,-138"/>
+<polygon fill="#255000" stroke="#255000" points="970.96,-141.5 980.96,-138 970.96,-134.5 970.96,-141.5"/>
+</g>
+<!-- proc~mapl_fieldcreatenewgrid -->
+<g id="proc~~createvariable~~CallsGraph_node26" class="node">
+<title>proc~mapl_fieldcreatenewgrid</title>
+<g id="a_proc~~createvariable~~CallsGraph_node26"><a xlink:href=".././proc/mapl_fieldcreatenewgrid.html" xlink:title="Base_Implementation::MAPL_FieldCreateNewgrid">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1256.5,-108 982.5,-108 982.5,-84 1256.5,-84 1256.5,-108"/>
+<text text-anchor="middle" x="1119.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_FieldCreateNewgrid</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldcreatenewgrid&#45;&gt;proc~mapl_fieldcreatenewgrid -->
+<g id="proc~~createvariable~~CallsGraph_edge27" class="edge">
+<title>interface~mapl_fieldcreatenewgrid&#45;&gt;proc~mapl_fieldcreatenewgrid</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M910.69,-96C930.48,-96 951.45,-96 972.15,-96"/>
+<polygon fill="transparent" stroke="transparent" points="972.28,-99.5 982.28,-96 972.28,-92.5 972.28,-99.5"/>
+</g>
+<!-- proc~mapl_fieldcreater4 -->
+<g id="proc~~createvariable~~CallsGraph_node27" class="node">
+<title>proc~mapl_fieldcreater4</title>
+<g id="a_proc~~createvariable~~CallsGraph_node27"><a xlink:href=".././proc/mapl_fieldcreater4.html" xlink:title="Base_Implementation::MAPL_FieldCreateR4">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1241.5,-66 997.5,-66 997.5,-42 1241.5,-42 1241.5,-66"/>
+<text text-anchor="middle" x="1119.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_FieldCreateR4</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldcreater4&#45;&gt;proc~mapl_fieldcreater4 -->
+<g id="proc~~createvariable~~CallsGraph_edge28" class="edge">
+<title>interface~mapl_fieldcreater4&#45;&gt;proc~mapl_fieldcreater4</title>
+<path fill="none" stroke="transparent" stroke-dasharray="5,2" d="M896.38,-54C924.79,-54 956.55,-54 986.98,-54"/>
+<polygon fill="transparent" stroke="transparent" points="987.24,-57.5 997.24,-54 987.24,-50.5 987.24,-57.5"/>
+</g>
+<!-- proc~mapl_fieldcreaterename -->
+<g id="proc~~createvariable~~CallsGraph_node28" class="node">
+<title>proc~mapl_fieldcreaterename</title>
+<g id="a_proc~~createvariable~~CallsGraph_node28"><a xlink:href=".././proc/mapl_fieldcreaterename.html" xlink:title="Base_Implementation::MAPL_FieldCreateRename">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1256.5,-24 982.5,-24 982.5,0 1256.5,0 1256.5,-24"/>
+<text text-anchor="middle" x="1119.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Implementation::MAPL_FieldCreateRename</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_fieldcreaterename&#45;&gt;proc~mapl_fieldcreaterename -->
+<g id="proc~~createvariable~~CallsGraph_edge29" class="edge">
+<title>interface~mapl_fieldcreaterename&#45;&gt;proc~mapl_fieldcreaterename</title>
+<path fill="none" stroke="#025563" stroke-dasharray="5,2" d="M911.14,-12C930.83,-12 951.68,-12 972.27,-12"/>
+<polygon fill="#025563" stroke="#025563" points="972.34,-15.5 982.34,-12 972.34,-8.5 972.34,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~createvariable~~CallsGraph_node23" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1397.5,-213 1343.5,-213 1343.5,-189 1397.5,-189 1397.5,-213"/>
+<text text-anchor="middle" x="1370.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~createvariable~~CallsGraph_edge30" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1246.09,-201C1277.96,-201 1309.72,-201 1333.05,-201"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1333.14,-204.5 1343.14,-201 1333.14,-197.5 1333.14,-204.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createvariable~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#063255" d="M938.17,-231C956.94,-232.25 976.15,-233.52 994.69,-234.76"/>
+<polygon fill="#063255" stroke="#063255" points="994.71,-238.27 1004.92,-235.44 995.18,-231.28 994.71,-238.27"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~createvariable~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M945.06,-189.46C957.45,-190.28 969.98,-191.11 982.32,-191.94"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="982.44,-195.45 992.65,-192.62 982.9,-188.47 982.44,-195.45"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~createvariable~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M913.33,-192.05C924.17,-194.5 934.89,-197.45 945,-201 962.48,-207.13 963.54,-215.83 981,-222 987.89,-224.43 995.07,-226.59 1002.37,-228.49"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1001.86,-231.97 1012.4,-230.93 1003.51,-225.17 1001.86,-231.97"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~createvariable~~CallsGraph_node24" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~createvariable~~CallsGraph_node24"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1447,-255 1294,-255 1294,-231 1447,-231 1447,-255"/>
+<text text-anchor="middle" x="1370.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~createvariable~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#255019" stroke-opacity="0.003922" d="M1234.07,-243C1250.69,-243 1267.58,-243 1283.53,-243"/>
+<polygon fill="#255019" fill-opacity="0.003922" stroke="#255019" stroke-opacity="0.003922" points="1283.86,-246.5 1293.86,-243 1283.86,-239.5 1283.86,-246.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreatevariableCallsGraph = svgPanZoom('#proccreatevariableCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~createvariable~~CalledByGraph Pages: 1 -->
+<svg id="proccreatevariableCalledByGraph" width="641pt" height="30pt"
+ viewBox="0.00 0.00 641.00 29.99" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~createvariable~~CalledByGraph" class="graph" transform="scale(1.07 1.07) rotate(0) translate(4 28)">
+<title>proc~~createvariable~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 680,-28 680,4 -4,4"/>
+<!-- proc~createvariable -->
+<g id="proc~~createvariable~~CalledByGraph_node1" class="node">
+<title>proc~createvariable</title>
+<polygon fill="none" stroke="black" points="676,-24 369,-24 369,0 676,0 676,-24"/>
+<text text-anchor="middle" x="522.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateVariable</text>
+</g>
+<!-- proc~createfilemetadata -->
+<g id="proc~~createvariable~~CalledByGraph_node2" class="node">
+<title>proc~createfilemetadata</title>
+<g id="a_proc~~createvariable~~CalledByGraph_node2"><a xlink:href=".././proc/createfilemetadata.html" xlink:title="MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData">
+<polygon fill="#d9534f" stroke="#d9534f" points="333,-24 0,-24 0,0 333,0 333,-24"/>
+<text text-anchor="middle" x="166.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOMod::MAPL_GriddedIO%CreateFileMetaData</text>
+</a>
+</g>
+</g>
+<!-- proc~createfilemetadata&#45;&gt;proc~createvariable -->
+<g id="proc~~createvariable~~CalledByGraph_edge1" class="edge">
+<title>proc~createfilemetadata&#45;&gt;proc~createvariable</title>
+<path fill="none" stroke="#255000" d="M333.1,-12C341.7,-12 350.34,-12 358.93,-12"/>
+<polygon fill="#255000" stroke="#255000" points="358.99,-15.5 368.99,-12 358.99,-8.5 358.99,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreatevariableCalledByGraph = svgPanZoom('#proccreatevariableCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/createvariable.html#src">CreateVariable</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">     </span><span class="k">subroutine </span><span class="n">CreateVariable</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">itemName</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GriddedIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">itemName</span><span class="w"></span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="n">newField</span><span class="w"></span>
+<span class="w">        </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factory</span><span class="w"></span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldRank</span><span class="w"></span>
+<span class="w">        </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span><span class="w"></span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varName</span><span class="p">,</span><span class="n">longName</span><span class="p">,</span><span class="n">units</span><span class="w"></span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_dims</span><span class="w"></span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vdims</span><span class="w"></span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">Variable</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">input_bundle</span><span class="p">,</span><span class="n">itemName</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">factory</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_factory</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">rank</span><span class="o">=</span><span class="n">fieldRank</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="n">varName</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;LONG_NAME&quot;</span><span class="p">,</span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">isPresent</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_AttributeGet</span><span class="w">  </span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;LONG_NAME&quot;</span><span class="p">,</span><span class="k">VALUE</span><span class="o">=</span><span class="n">LongName</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">LongName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">varName</span><span class="w"></span>
+<span class="w">        </span><span class="k">endif</span>
+<span class="k">        call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;UNITS&quot;</span><span class="p">,</span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">isPresent</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">ESMF_AttributeGet</span><span class="w">  </span><span class="p">(</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;UNITS&quot;</span><span class="p">,</span><span class="k">VALUE</span><span class="o">=</span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="k">endif</span>
+<span class="k">        </span><span class="n">grid_dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">%</span><span class="n">get_grid_vars</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">timeInfo</span><span class="p">%</span><span class="n">is_initialized</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">fieldRank</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">vdims</span><span class="o">=</span><span class="n">grid_dims</span><span class="o">//</span><span class="s2">&quot;,time&quot;</span><span class="w"></span>
+<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">fieldRank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">vdims</span><span class="o">=</span><span class="n">grid_dims</span><span class="o">//</span><span class="s2">&quot;,lev,time&quot;</span><span class="w"></span>
+<span class="w">           </span><span class="k">else</span>
+<span class="k">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Unsupported field rank&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">        else</span>
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">fieldRank</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">vdims</span><span class="o">=</span><span class="n">grid_dims</span><span class="w"></span>
+<span class="w">           </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">fieldRank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">vdims</span><span class="o">=</span><span class="n">grid_dims</span><span class="o">//</span><span class="s2">&quot;,lev&quot;</span><span class="w"></span>
+<span class="w">           </span><span class="k">else</span>
+<span class="k">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;Unsupported field rank&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">        end if</span>
+<span class="k">        </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Variable</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">PFIO_REAL32</span><span class="p">,</span><span class="n">dimensions</span><span class="o">=</span><span class="n">vdims</span><span class="p">,</span><span class="n">chunksizes</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">chunking</span><span class="p">,</span><span class="n">deflation</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">deflateLevel</span><span class="p">,</span><span class="n">quantize_algorithm</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">quantizeAlgorithm</span><span class="p">,</span><span class="n">quantize_level</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">quantizeLevel</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;units&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">units</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;long_name&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">longName</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;standard_name&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">longName</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;missing_value&#39;</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;fmissing_value&#39;</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;vmax&#39;</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;vmin&#39;</span><span class="p">,</span><span class="o">-</span><span class="n">MAPL_UNDEF</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;scale_factor&#39;</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;add_offset&#39;</span><span class="p">,</span><span class="mf">0.0</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;valid_range&#39;</span><span class="p">,(</span><span class="o">/-</span><span class="n">MAPL_UNDEF</span><span class="p">,</span><span class="n">MAPL_UNDEF</span><span class="o">/</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="c">! Weird workaround for NAG 7.1.113</span>
+<span class="cp">#ifdef __NAG_COMPILER_RELEASE</span>
+<span class="w">        </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">regrid_method_int_to_string</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">))</span><span class="w"></span>
+<span class="w">          </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;regrid_method&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">end associate</span><span class="w"></span>
+<span class="cp">#else</span>
+<span class="w">        </span><span class="k">call </span><span class="n">v</span><span class="p">%</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;regrid_method&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">regrid_method_int_to_string</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">))</span><span class="w"></span>
+<span class="cp">#endif</span>
+<span class="w">        </span><span class="k">call </span><span class="n">factory</span><span class="p">%</span><span class="n">append_variable_metadata</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">metadata</span><span class="p">%</span><span class="n">add_variable</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">varName</span><span class="p">),</span><span class="n">v</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c">! finally make a new field if neccessary</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">doVertRegrid</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">fieldRank</span><span class="w"> </span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">newField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">lm</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">vData</span><span class="p">%</span><span class="n">lm</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_FieldBundleAdd</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">newField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="k">call </span><span class="n">MAPL_FieldBundleAdd</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">newField</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">     </span><span class="k">end subroutine </span><span class="n">CreateVariable</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T18:31:47.795848             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

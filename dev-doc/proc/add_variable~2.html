@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>add_variable &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>add_variable
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">17 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/NetCDF4_FileFormatter.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/netcdf4_fileformatter.f90.html'>NetCDF4_FileFormatter.F90</a></li>
+              <li><a href='../module/pfio_netcdf4_fileformattermod.html'>pFIO_NetCDF4_FileFormatterMod</a></li>
+          <li class="active">add_variable</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/add_variable~2.html#src">add_variable</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine add_variable(this, cf, varname, unusable, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2457"></span>
+              class(<a href='../type/netcdf4_fileformatter.html'>NetCDF4_FileFormatter</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cf"></span>
+              type(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>cf</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varname"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>varname</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~106"></span>
+              class(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~727"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_variable~2~~CallsGraph Pages: 1 -->
+<svg id="procadd_variable2CallsGraph" width="641pt" height="400pt"
+ viewBox="0.00 0.00 641.00 400.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_variable~2~~CallsGraph" class="graph" transform="scale(2.48 2.48) rotate(0) translate(4 988)">
+<title>proc~~add_variable~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-988 1585,-988 1585,4 -4,4"/>
+<!-- proc~add_variable~2 -->
+<g id="proc~~add_variable~2~~CallsGraph_node1" class="node">
+<title>proc~add_variable~2</title>
+<polygon fill="none" stroke="black" points="397,-902 0,-902 0,-878 397,-878 397,-902"/>
+<text text-anchor="middle" x="198.5" y="-887.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%add_variable</text>
+</g>
+<!-- nf90_enddef -->
+<g id="proc~~add_variable~2~~CallsGraph_node2" class="node">
+<title>nf90_enddef</title>
+<polygon fill="#777777" stroke="#777777" points="672,-984 593,-984 593,-960 672,-960 672,-984"/>
+<text text-anchor="middle" x="632.5" y="-969.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_enddef</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;nf90_enddef -->
+<g id="proc~~add_variable~2~~CallsGraph_edge1" class="edge">
+<title>proc~add_variable~2&#45;&gt;nf90_enddef</title>
+<path fill="none" stroke="#255000" d="M238.35,-902.07C284.36,-915.91 363.55,-938.33 433,-951 483.65,-960.24 542.36,-965.83 582.73,-968.89"/>
+<polygon fill="#255000" stroke="#255000" points="582.6,-972.39 592.83,-969.63 583.11,-965.41 582.6,-972.39"/>
+</g>
+<!-- nf90_redef -->
+<g id="proc~~add_variable~2~~CallsGraph_node3" class="node">
+<title>nf90_redef</title>
+<polygon fill="#777777" stroke="#777777" points="667.5,-942 597.5,-942 597.5,-918 667.5,-918 667.5,-942"/>
+<text text-anchor="middle" x="632.5" y="-927.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_redef</text>
+</g>
+<!-- proc~add_variable~2&#45;&gt;nf90_redef -->
+<g id="proc~~add_variable~2~~CallsGraph_edge2" class="edge">
+<title>proc~add_variable~2&#45;&gt;nf90_redef</title>
+<path fill="none" stroke="#255000" d="M329.11,-902C416.57,-910.1 526.64,-920.29 586.93,-925.87"/>
+<polygon fill="#255000" stroke="#255000" points="586.96,-929.39 597.24,-926.83 587.6,-922.42 586.96,-929.39"/>
+</g>
+<!-- proc~def_variables -->
+<g id="proc~~add_variable~2~~CallsGraph_node4" class="node">
+<title>proc~def_variables</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node4"><a xlink:href=".././proc/def_variables.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%def_variables">
+<polygon fill="#d9534f" stroke="#d9534f" points="832,-486 433,-486 433,-462 832,-462 832,-486"/>
+<text text-anchor="middle" x="632.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%def_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~def_variables -->
+<g id="proc~~add_variable~2~~CallsGraph_edge3" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~def_variables</title>
+<path fill="none" stroke="#255000" d="M211.96,-878C272.56,-819.64 536.55,-565.43 611.56,-493.2"/>
+<polygon fill="#255000" stroke="#255000" points="614.21,-495.51 618.99,-486.05 609.36,-490.47 614.21,-495.51"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node5"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1190,-906 970,-906 970,-882 1190,-882 1190,-906"/>
+<text text-anchor="middle" x="1080" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_edge4" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M397.15,-890.9C569.9,-891.68 815.07,-892.8 959.51,-893.46"/>
+<polygon fill="#255000" stroke="#255000" points="959.72,-896.96 969.74,-893.5 959.75,-889.96 959.72,-896.96"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~add_variable~2~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node6"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1187,-864 973,-864 973,-840 1187,-840 1187,-864"/>
+<text text-anchor="middle" x="1080" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~add_variable~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~add_variable~2~~CallsGraph_edge5" class="edge">
+<title>proc~add_variable~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M397.15,-881.46C571.14,-873.94 818.58,-863.25 962.6,-857.03"/>
+<polygon fill="#255000" stroke="#255000" points="962.95,-860.52 972.79,-856.59 962.64,-853.52 962.95,-860.52"/>
+</g>
+<!-- proc~def_variables&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_variable~2~~CallsGraph_edge25" class="edge">
+<title>proc~def_variables&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M636.38,-486.22C650.27,-542.22 716.07,-775.76 868,-873 894.93,-890.24 927.87,-898.19 959.65,-901.18"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="959.67,-904.7 969.92,-901.99 960.22,-897.72 959.67,-904.7"/>
+</g>
+<!-- proc~def_variables&#45;&gt;proc~mapl_verify -->
+<g id="proc~~add_variable~2~~CallsGraph_edge26" class="edge">
+<title>proc~def_variables&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M637.25,-486.35C653.92,-538.96 726.86,-745.55 868,-831 896.11,-848.02 930.27,-855.72 962.85,-858.54"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="962.67,-862.03 972.9,-859.26 963.17,-855.05 962.67,-862.03"/>
+</g>
+<!-- at -->
+<g id="proc~~add_variable~2~~CallsGraph_node7" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1107,-570 1053,-570 1053,-546 1107,-546 1107,-570"/>
+<text text-anchor="middle" x="1080" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~def_variables&#45;&gt;at -->
+<g id="proc~~add_variable~2~~CallsGraph_edge6" class="edge">
+<title>proc~def_variables&#45;&gt;at</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M670.84,-486.06C716.75,-500.42 797.3,-524.07 868,-537 928.76,-548.11 1000.51,-553.68 1042.74,-556.19"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1042.64,-559.69 1052.82,-556.77 1043.04,-552.71 1042.64,-559.69"/>
+</g>
+<!-- begin -->
+<g id="proc~~add_variable~2~~CallsGraph_node8" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="1107,-528 1053,-528 1053,-504 1107,-504 1107,-528"/>
+<text text-anchor="middle" x="1080" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~def_variables&#45;&gt;begin -->
+<g id="proc~~add_variable~2~~CallsGraph_edge7" class="edge">
+<title>proc~def_variables&#45;&gt;begin</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M760.86,-486.01C856.69,-495.04 981.54,-506.81 1042.41,-512.55"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1042.38,-516.06 1052.67,-513.52 1043.04,-509.09 1042.38,-516.06"/>
+</g>
+<!-- get -->
+<g id="proc~~add_variable~2~~CallsGraph_node9" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="1107,-486 1053,-486 1053,-462 1107,-462 1107,-486"/>
+<text text-anchor="middle" x="1080" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get -->
+<g id="proc~~add_variable~2~~CallsGraph_edge8" class="edge">
+<title>proc~def_variables&#45;&gt;get</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M832.15,-474C912.01,-474 996.05,-474 1042.57,-474"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1042.73,-477.5 1052.73,-474 1042.73,-470.5 1042.73,-477.5"/>
+</g>
+<!-- get_chunksizes -->
+<g id="proc~~add_variable~2~~CallsGraph_node10" class="node">
+<title>get_chunksizes</title>
+<polygon fill="#777777" stroke="#777777" points="1126.5,-444 1033.5,-444 1033.5,-420 1126.5,-420 1126.5,-444"/>
+<text text-anchor="middle" x="1080" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_chunksizes</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_chunksizes -->
+<g id="proc~~add_variable~2~~CallsGraph_edge9" class="edge">
+<title>proc~def_variables&#45;&gt;get_chunksizes</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M760.86,-461.99C847.52,-453.82 957.91,-443.42 1023.26,-437.25"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1023.73,-440.73 1033.36,-436.3 1023.07,-433.76 1023.73,-440.73"/>
+</g>
+<!-- get_deflation -->
+<g id="proc~~add_variable~2~~CallsGraph_node11" class="node">
+<title>get_deflation</title>
+<polygon fill="#777777" stroke="#777777" points="1121,-402 1039,-402 1039,-378 1121,-378 1121,-402"/>
+<text text-anchor="middle" x="1080" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_deflation</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_deflation -->
+<g id="proc~~add_variable~2~~CallsGraph_edge10" class="edge">
+<title>proc~def_variables&#45;&gt;get_deflation</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M670.84,-461.94C716.75,-447.58 797.3,-423.93 868,-411 922.36,-401.06 985.53,-395.56 1028.47,-392.7"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1028.91,-396.18 1038.67,-392.05 1028.47,-389.2 1028.91,-396.18"/>
+</g>
+<!-- get_dimensions -->
+<g id="proc~~add_variable~2~~CallsGraph_node12" class="node">
+<title>get_dimensions</title>
+<polygon fill="#777777" stroke="#777777" points="1128,-360 1032,-360 1032,-336 1128,-336 1128,-360"/>
+<text text-anchor="middle" x="1080" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_dimensions</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_dimensions -->
+<g id="proc~~add_variable~2~~CallsGraph_edge11" class="edge">
+<title>proc~def_variables&#45;&gt;get_dimensions</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M654.31,-461.9C694.24,-439.33 785.02,-391.08 868,-369 918.78,-355.49 978.52,-350.51 1021.45,-348.76"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1021.85,-352.25 1031.72,-348.39 1021.6,-345.25 1021.85,-352.25"/>
+</g>
+<!-- get_order -->
+<g id="proc~~add_variable~2~~CallsGraph_node13" class="node">
+<title>get_order</title>
+<polygon fill="#777777" stroke="#777777" points="1112,-318 1048,-318 1048,-294 1112,-294 1112,-318"/>
+<text text-anchor="middle" x="1080" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_order</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_order -->
+<g id="proc~~add_variable~2~~CallsGraph_edge12" class="edge">
+<title>proc~def_variables&#45;&gt;get_order</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M647.37,-461.98C681.87,-432.87 775.48,-358.65 868,-327 924.47,-307.68 994.05,-304.41 1037.48,-304.61"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1037.63,-308.11 1047.66,-304.72 1037.7,-301.11 1037.63,-308.11"/>
+</g>
+<!-- get_quantize_algorithm -->
+<g id="proc~~add_variable~2~~CallsGraph_node14" class="node">
+<title>get_quantize_algorithm</title>
+<polygon fill="#777777" stroke="#777777" points="1149,-276 1011,-276 1011,-252 1149,-252 1149,-276"/>
+<text text-anchor="middle" x="1080" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_quantize_algorithm</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_quantize_algorithm -->
+<g id="proc~~add_variable~2~~CallsGraph_edge13" class="edge">
+<title>proc~def_variables&#45;&gt;get_quantize_algorithm</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M643.65,-461.92C673.69,-427.14 766.39,-326.62 868,-285 909.61,-267.95 959.55,-262.39 1000.4,-261.24"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1000.65,-264.74 1010.58,-261.04 1000.51,-257.74 1000.65,-264.74"/>
+</g>
+<!-- get_quantize_level -->
+<g id="proc~~add_variable~2~~CallsGraph_node15" class="node">
+<title>get_quantize_level</title>
+<polygon fill="#777777" stroke="#777777" points="1136,-234 1024,-234 1024,-210 1136,-210 1136,-234"/>
+<text text-anchor="middle" x="1080" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_quantize_level</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_quantize_level -->
+<g id="proc~~add_variable~2~~CallsGraph_edge14" class="edge">
+<title>proc~def_variables&#45;&gt;get_quantize_level</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M641.24,-461.86C667.38,-422.05 757.02,-295.05 868,-243 913.51,-221.65 970.51,-217.11 1013.78,-217.51"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1013.85,-221.01 1023.91,-217.69 1013.98,-214.01 1013.85,-221.01"/>
+</g>
+<!-- get_type -->
+<g id="proc~~add_variable~2~~CallsGraph_node16" class="node">
+<title>get_type</title>
+<polygon fill="#777777" stroke="#777777" points="1109,-192 1051,-192 1051,-168 1109,-168 1109,-192"/>
+<text text-anchor="middle" x="1080" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_type</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_type -->
+<g id="proc~~add_variable~2~~CallsGraph_edge15" class="edge">
+<title>proc~def_variables&#45;&gt;get_type</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M639.48,-461.9C662.09,-417.65 747.19,-263.92 868,-201 922.86,-172.43 996.61,-172.32 1040.81,-175.61"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1040.59,-179.11 1050.85,-176.46 1041.18,-172.13 1040.59,-179.11"/>
+</g>
+<!-- get_variables -->
+<g id="proc~~add_variable~2~~CallsGraph_node17" class="node">
+<title>get_variables</title>
+<polygon fill="#777777" stroke="#777777" points="1122,-150 1038,-150 1038,-126 1122,-126 1122,-150"/>
+<text text-anchor="middle" x="1080" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_variables</text>
+</g>
+<!-- proc~def_variables&#45;&gt;get_variables -->
+<g id="proc~~add_variable~2~~CallsGraph_edge16" class="edge">
+<title>proc~def_variables&#45;&gt;get_variables</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M638.23,-461.78C657.74,-413.23 737.17,-233.05 868,-159 916.89,-131.33 982.48,-129.19 1027.48,-131.97"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1027.37,-135.47 1037.6,-132.7 1027.88,-128.49 1027.37,-135.47"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~add_variable~2~~CallsGraph_node18" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node18"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="1188.5,-108 971.5,-108 971.5,-84 1188.5,-84 1188.5,-108"/>
+<text text-anchor="middle" x="1080" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~def_variables&#45;&gt;interface~mapl_assert -->
+<g id="proc~~add_variable~2~~CallsGraph_edge17" class="edge">
+<title>proc~def_variables&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M637.25,-461.65C653.92,-409.04 726.86,-202.45 868,-117 895.56,-100.31 928.94,-92.58 960.94,-89.63"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="961.57,-93.09 971.27,-88.84 961.03,-86.11 961.57,-93.09"/>
+</g>
+<!-- next -->
+<g id="proc~~add_variable~2~~CallsGraph_node19" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="1107,-66 1053,-66 1053,-42 1107,-42 1107,-66"/>
+<text text-anchor="middle" x="1080" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~def_variables&#45;&gt;next -->
+<g id="proc~~add_variable~2~~CallsGraph_edge18" class="edge">
+<title>proc~def_variables&#45;&gt;next</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M636.38,-461.78C650.27,-405.78 716.07,-172.24 868,-75 921.25,-40.92 998.01,-43.11 1042.77,-48.25"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1042.53,-51.75 1052.89,-49.53 1043.41,-44.8 1042.53,-51.75"/>
+</g>
+<!-- nf90_def_var -->
+<g id="proc~~add_variable~2~~CallsGraph_node20" class="node">
+<title>nf90_def_var</title>
+<polygon fill="#777777" stroke="#777777" points="1121,-24 1039,-24 1039,0 1121,0 1121,-24"/>
+<text text-anchor="middle" x="1080" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_def_var</text>
+</g>
+<!-- proc~def_variables&#45;&gt;nf90_def_var -->
+<g id="proc~~add_variable~2~~CallsGraph_edge19" class="edge">
+<title>proc~def_variables&#45;&gt;nf90_def_var</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M635.7,-461.75C647.09,-402.28 705.23,-142.14 868,-33 915.47,-1.17 982.97,-0.22 1028.74,-4.41"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1028.43,-7.9 1038.74,-5.44 1029.15,-0.93 1028.43,-7.9"/>
+</g>
+<!-- nf90_def_var_chunking -->
+<g id="proc~~add_variable~2~~CallsGraph_node21" class="node">
+<title>nf90_def_var_chunking</title>
+<polygon fill="#777777" stroke="#777777" points="1148,-822 1012,-822 1012,-798 1148,-798 1148,-822"/>
+<text text-anchor="middle" x="1080" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_def_var_chunking</text>
+</g>
+<!-- proc~def_variables&#45;&gt;nf90_def_var_chunking -->
+<g id="proc~~add_variable~2~~CallsGraph_edge20" class="edge">
+<title>proc~def_variables&#45;&gt;nf90_def_var_chunking</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M638.23,-486.22C657.74,-534.77 737.17,-714.95 868,-789 908.1,-811.7 959.44,-817.22 1001.43,-816.94"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1001.68,-820.43 1011.62,-816.75 1001.56,-813.43 1001.68,-820.43"/>
+</g>
+<!-- nf90_def_var_deflate -->
+<g id="proc~~add_variable~2~~CallsGraph_node22" class="node">
+<title>nf90_def_var_deflate</title>
+<polygon fill="#777777" stroke="#777777" points="1142,-780 1018,-780 1018,-756 1142,-756 1142,-780"/>
+<text text-anchor="middle" x="1080" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_def_var_deflate</text>
+</g>
+<!-- proc~def_variables&#45;&gt;nf90_def_var_deflate -->
+<g id="proc~~add_variable~2~~CallsGraph_edge21" class="edge">
+<title>proc~def_variables&#45;&gt;nf90_def_var_deflate</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M639.48,-486.1C662.09,-530.35 747.19,-684.08 868,-747 910.77,-769.28 965.02,-774.25 1007.8,-773.8"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1007.93,-777.3 1017.86,-773.6 1007.79,-770.3 1007.93,-777.3"/>
+</g>
+<!-- nf90_def_var_fill -->
+<g id="proc~~add_variable~2~~CallsGraph_node23" class="node">
+<title>nf90_def_var_fill</title>
+<polygon fill="#777777" stroke="#777777" points="1130,-738 1030,-738 1030,-714 1130,-714 1130,-738"/>
+<text text-anchor="middle" x="1080" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_def_var_fill</text>
+</g>
+<!-- proc~def_variables&#45;&gt;nf90_def_var_fill -->
+<g id="proc~~add_variable~2~~CallsGraph_edge22" class="edge">
+<title>proc~def_variables&#45;&gt;nf90_def_var_fill</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M641.24,-486.14C667.38,-525.95 757.02,-652.95 868,-705 915.52,-727.29 975.55,-731.26 1019.42,-730.41"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1019.75,-733.9 1029.65,-730.12 1019.55,-726.91 1019.75,-733.9"/>
+</g>
+<!-- nf90_inq_dimid -->
+<g id="proc~~add_variable~2~~CallsGraph_node24" class="node">
+<title>nf90_inq_dimid</title>
+<polygon fill="#777777" stroke="#777777" points="1127,-696 1033,-696 1033,-672 1127,-672 1127,-696"/>
+<text text-anchor="middle" x="1080" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+</g>
+<!-- proc~def_variables&#45;&gt;nf90_inq_dimid -->
+<g id="proc~~add_variable~2~~CallsGraph_edge23" class="edge">
+<title>proc~def_variables&#45;&gt;nf90_inq_dimid</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M643.65,-486.08C673.69,-520.86 766.39,-621.38 868,-663 917.51,-683.28 978.82,-687.3 1022.57,-686.99"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="1022.79,-690.49 1032.74,-686.84 1022.68,-683.49 1022.79,-690.49"/>
+</g>
+<!-- proc~get_xtype -->
+<g id="proc~~add_variable~2~~CallsGraph_node26" class="node">
+<title>proc~get_xtype</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node26"><a xlink:href=".././proc/get_xtype.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::get_xtype">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1203.5,-654 956.5,-654 956.5,-630 1203.5,-630 1203.5,-654"/>
+<text text-anchor="middle" x="1080" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::get_xtype</text>
+</a>
+</g>
+</g>
+<!-- proc~def_variables&#45;&gt;proc~get_xtype -->
+<g id="proc~~add_variable~2~~CallsGraph_edge24" class="edge">
+<title>proc~def_variables&#45;&gt;proc~get_xtype</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M647.37,-486.02C681.87,-515.13 775.48,-589.35 868,-621 892.71,-629.45 919.93,-634.83 946.36,-638.19"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="946.11,-641.69 956.45,-639.39 946.93,-634.74 946.11,-641.69"/>
+</g>
+<!-- proc~put_var_attributes -->
+<g id="proc~~add_variable~2~~CallsGraph_node28" class="node">
+<title>proc~put_var_attributes</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node28"><a xlink:href=".././proc/put_var_attributes.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var_attributes">
+<polygon fill="#d9534f" stroke="#d9534f" points="1292,-612 868,-612 868,-588 1292,-588 1292,-612"/>
+<text text-anchor="middle" x="1080" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%put_var_attributes</text>
+</a>
+</g>
+</g>
+<!-- proc~def_variables&#45;&gt;proc~put_var_attributes -->
+<g id="proc~~add_variable~2~~CallsGraph_edge27" class="edge">
+<title>proc~def_variables&#45;&gt;proc~put_var_attributes</title>
+<path fill="none" stroke="#025510" stroke-opacity="0.007843" d="M654.31,-486.1C694.24,-508.67 785.02,-556.92 868,-579 878.21,-581.72 888.79,-584.09 899.52,-586.16"/>
+<polygon fill="#025510" fill-opacity="0.007843" stroke="#025510" stroke-opacity="0.007843" points="898.94,-589.61 909.41,-587.98 900.21,-582.73 898.94,-589.61"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~add_variable~2~~CallsGraph_node25" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node25"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1581,-906 1328,-906 1328,-882 1581,-882 1581,-906"/>
+<text text-anchor="middle" x="1454.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~add_variable~2~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1190.25,-894C1230.19,-894 1275.88,-894 1317.85,-894"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1317.87,-897.5 1327.87,-894 1317.87,-890.5 1317.87,-897.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_node27" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~add_variable~2~~CallsGraph_node27"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1569,-864 1340,-864 1340,-840 1569,-840 1569,-864"/>
+<text text-anchor="middle" x="1454.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#010225" stroke-opacity="0.019608" d="M1190.04,-883.78C1222.84,-880.54 1258.9,-876.8 1292,-873 1312.28,-870.67 1333.96,-867.99 1354.64,-865.33"/>
+<polygon fill="#010225" fill-opacity="0.019608" stroke="#010225" stroke-opacity="0.019608" points="1355.24,-868.79 1364.71,-864.03 1354.34,-861.84 1355.24,-868.79"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_variable~2~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#204025" stroke-opacity="0.019608" d="M1187.25,-852C1231.72,-852 1283.71,-852 1329.89,-852"/>
+<polygon fill="#204025" fill-opacity="0.019608" stroke="#204025" stroke-opacity="0.019608" points="1329.95,-855.5 1339.95,-852 1329.95,-848.5 1329.95,-855.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_variable2CallsGraph = svgPanZoom('#procadd_variable2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_variable~2~~CalledByGraph Pages: 1 -->
+<svg id="procadd_variable2CalledByGraph" width="641pt" height="17pt"
+ viewBox="0.00 0.00 641.00 16.72" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_variable~2~~CalledByGraph" class="graph" transform="scale(1.91 1.91) rotate(0) translate(4 28)">
+<title>proc~~add_variable~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 1223,-28 1223,4 -4,4"/>
+<!-- proc~add_variable~2 -->
+<g id="proc~~add_variable~2~~CalledByGraph_node1" class="node">
+<title>proc~add_variable~2</title>
+<polygon fill="none" stroke="black" points="1219,-24 822,-24 822,0 1219,0 1219,-24"/>
+<text text-anchor="middle" x="1020.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%add_variable</text>
+</g>
+<!-- proc~inq_variables -->
+<g id="proc~~add_variable~2~~CalledByGraph_node2" class="node">
+<title>proc~inq_variables</title>
+<g id="a_proc~~add_variable~2~~CalledByGraph_node2"><a xlink:href=".././proc/inq_variables.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%inq_variables">
+<polygon fill="#d9534f" stroke="#d9534f" points="786,-24 388,-24 388,0 786,0 786,-24"/>
+<text text-anchor="middle" x="587" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%inq_variables</text>
+</a>
+</g>
+</g>
+<!-- proc~inq_variables&#45;&gt;proc~add_variable~2 -->
+<g id="proc~~add_variable~2~~CalledByGraph_edge1" class="edge">
+<title>proc~inq_variables&#45;&gt;proc~add_variable~2</title>
+<path fill="none" stroke="#255000" d="M786.07,-12C794.59,-12 803.15,-12 811.68,-12"/>
+<polygon fill="#255000" stroke="#255000" points="811.7,-15.5 821.7,-12 811.7,-8.5 811.7,-15.5"/>
+</g>
+<!-- proc~read -->
+<g id="proc~~add_variable~2~~CalledByGraph_node3" class="node">
+<title>proc~read</title>
+<g id="a_proc~~add_variable~2~~CalledByGraph_node3"><a xlink:href=".././proc/read.html" xlink:title="pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%read">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="352,-24 0,-24 0,0 352,0 352,-24"/>
+<text text-anchor="middle" x="176" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod::NetCDF4_FileFormatter%read</text>
+</a>
+</g>
+</g>
+<!-- proc~read&#45;&gt;proc~inq_variables -->
+<g id="proc~~add_variable~2~~CalledByGraph_edge2" class="edge">
+<title>proc~read&#45;&gt;proc~inq_variables</title>
+<path fill="none" stroke="#255000" d="M352.23,-12C360.73,-12 369.29,-12 377.86,-12"/>
+<polygon fill="#255000" stroke="#255000" points="377.92,-15.5 387.92,-12 377.92,-8.5 377.92,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_variable2CalledByGraph = svgPanZoom('#procadd_variable2CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/add_variable~2.html#src">add_variable</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">add_variable</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">cf</span><span class="p">,</span><span class="w"> </span><span class="n">varname</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cf</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varname</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span><span class="w"></span>
+<span class="w">      </span><span class="c">!integer, optional, intent(in) :: chunksizes(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">      </span><span class="c">!$omp critical</span>
+<span class="w">      </span><span class="n">status</span><span class="o">=</span><span class="n">nf90_redef</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">ncid</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!$omp end critical</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">def_variables</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span><span class="w"> </span><span class="n">varname</span><span class="o">=</span><span class="n">varname</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!$omp critical</span>
+<span class="w">      </span><span class="n">status</span><span class="o">=</span><span class="n">nf90_enddef</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">ncid</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!$omp end critical</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">add_variable</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T18:31:47.795848             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
