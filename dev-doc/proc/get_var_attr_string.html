@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_var_attr_string &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_var_attr_string
+      <small>Function</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">29 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FileMetadataUtilities.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/filemetadatautilities.f90.html'>FileMetadataUtilities.F90</a></li>
+              <li><a href='../module/mapl_filemetadatautilsmod.html'>MAPL_FileMetadataUtilsMod</a></li>
+          <li class="active">get_var_attr_string</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_var_attr_string.html#src">get_var_attr_string</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function get_var_attr_string(this, var_name, attr_name, rc) result(attr_string)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/filemetadatautils.html'>FileMetadataUtils</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3111"></span>
+              class(<a href='../type/filemetadatautils.html'>FileMetadataUtils</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_name~82"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attr_name~13"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>attr_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~926"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-attr_string"></span>
+          character(len=:), allocatable
+        </small>
+      </h3>
+      
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_var_attr_string~~CallsGraph Pages: 1 -->
+<svg id="procget_var_attr_stringCallsGraph" width="641pt" height="114pt"
+ viewBox="0.00 0.00 641.00 113.85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_var_attr_string~~CallsGraph" class="graph" transform="scale(2.42 2.42) rotate(0) translate(4 272)">
+<title>proc~~get_var_attr_string~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-272 1550,-272 1550,4 -4,4"/>
+<!-- proc~get_var_attr_string -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node1" class="node">
+<title>proc~get_var_attr_string</title>
+<polygon fill="none" stroke="black" points="367,-144 0,-144 0,-120 367,-120 367,-144"/>
+<text text-anchor="middle" x="183.5" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FileMetadataUtilsMod::FileMetadataUtils%get_var_attr_string</text>
+</g>
+<!-- get_attribute -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node2" class="node">
+<title>get_attribute</title>
+<polygon fill="#777777" stroke="#777777" points="615,-268 534,-268 534,-244 615,-244 615,-268"/>
+<text text-anchor="middle" x="574.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_attribute</text>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;get_attribute -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge1" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;get_attribute</title>
+<path fill="none" stroke="#255000" d="M204.43,-144.07C241.86,-166.12 325.85,-212.69 403,-235 442.6,-246.45 489.13,-251.66 523.57,-254.03"/>
+<polygon fill="#255000" stroke="#255000" points="523.65,-257.54 533.85,-254.67 524.09,-250.55 523.65,-257.54"/>
+</g>
+<!-- get_value -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node3" class="node">
+<title>get_value</title>
+<polygon fill="#777777" stroke="#777777" points="606.5,-226 542.5,-226 542.5,-202 606.5,-202 606.5,-226"/>
+<text text-anchor="middle" x="574.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_value</text>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;get_value -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge2" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;get_value</title>
+<path fill="none" stroke="#255000" d="M221.21,-144.07C264.29,-157.81 338.12,-180.02 403,-193 446.73,-201.75 497.55,-207.44 532.25,-210.66"/>
+<polygon fill="#255000" stroke="#255000" points="532.2,-214.17 542.48,-211.58 532.83,-207.2 532.2,-214.17"/>
+</g>
+<!-- get_variable -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node4" class="node">
+<title>get_variable</title>
+<polygon fill="#777777" stroke="#777777" points="614,-184 535,-184 535,-160 614,-160 614,-184"/>
+<text text-anchor="middle" x="574.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_variable</text>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;get_variable -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge3" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;get_variable</title>
+<path fill="none" stroke="#255000" d="M301.21,-144C376,-151.69 469.17,-161.27 524.86,-167"/>
+<polygon fill="#255000" stroke="#255000" points="524.5,-170.48 534.8,-168.02 525.21,-163.52 524.5,-170.48"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node5"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="683,-104 466,-104 466,-80 683,-80 683,-104"/>
+<text text-anchor="middle" x="574.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge4" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M301.21,-120C350.1,-114.97 406.84,-109.14 455.83,-104.1"/>
+<polygon fill="#255000" stroke="#255000" points="456.25,-107.58 465.84,-103.07 455.53,-100.61 456.25,-107.58"/>
+</g>
+<!-- proc~get_file_name -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node6" class="node">
+<title>proc~get_file_name</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node6"><a xlink:href=".././proc/get_file_name.html" xlink:title="MAPL_FileMetadataUtilsMod::FileMetadataUtils%get_file_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="746,-24 403,-24 403,0 746,0 746,-24"/>
+<text text-anchor="middle" x="574.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FileMetadataUtilsMod::FileMetadataUtils%get_file_name</text>
+</a>
+</g>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;proc~get_file_name -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge5" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;proc~get_file_name</title>
+<path fill="none" stroke="#255000" d="M207.07,-119.99C245.95,-99.83 328.56,-59.31 403,-38 420.12,-33.1 438.5,-29.07 456.61,-25.78"/>
+<polygon fill="#255000" stroke="#255000" points="457.39,-29.19 466.64,-24.02 456.18,-22.3 457.39,-29.19"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node7"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1035,-24 815,-24 815,0 1035,0 1035,-24"/>
+<text text-anchor="middle" x="925" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge6" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M220.79,-119.91C263.8,-106.05 337.85,-83.62 403,-71 553.58,-41.84 593.62,-50.43 746,-33 767.72,-30.52 790.92,-27.81 813.15,-25.2"/>
+<polygon fill="#255000" stroke="#255000" points="813.77,-28.65 823.29,-24.01 812.95,-21.7 813.77,-28.65"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node8"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1032,-150 818,-150 818,-126 1032,-126 1032,-150"/>
+<text text-anchor="middle" x="925" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_var_attr_string&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge7" class="edge">
+<title>proc~get_var_attr_string&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M367.3,-133.48C504.96,-134.6 689.55,-136.1 807.66,-137.06"/>
+<polygon fill="#255000" stroke="#255000" points="807.79,-140.56 817.82,-137.14 807.84,-133.56 807.79,-140.56"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node10" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node10"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1061,-108 789,-108 789,-84 1061,-84 1061,-108"/>
+<text text-anchor="middle" x="925" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#025514" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M683.38,-93.24C713.5,-93.58 746.74,-93.97 778.65,-94.33"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="778.91,-97.83 788.95,-94.45 778.99,-90.84 778.91,-97.83"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node11" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node11"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1068,-66 782,-66 782,-42 1068,-42 1068,-66"/>
+<text text-anchor="middle" x="925" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#025514" stroke-dasharray="5,2" stroke-opacity="0.019608" d="M683.38,-80.24C721.46,-76.08 764.51,-71.39 803.56,-67.13"/>
+<polygon fill="#025514" fill-opacity="0.019608" stroke="#025514" stroke-opacity="0.019608" points="804.36,-70.57 813.92,-66 803.6,-63.61 804.36,-70.57"/>
+</g>
+<!-- proc~get_file_name&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge10" class="edge">
+<title>proc~get_file_name&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#014525" stroke-opacity="0.019608" d="M746.18,-12C765.91,-12 785.71,-12 804.55,-12"/>
+<polygon fill="#014525" fill-opacity="0.019608" stroke="#014525" stroke-opacity="0.019608" points="804.61,-15.5 814.61,-12 804.61,-8.5 804.61,-15.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node9"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1357,-45 1104,-45 1104,-21 1357,-21 1357,-45"/>
+<text text-anchor="middle" x="1230.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#720255" d="M1035.14,-19.55C1054.1,-20.86 1074.02,-22.24 1093.59,-23.6"/>
+<polygon fill="#720255" stroke="#720255" points="1093.57,-27.1 1103.78,-24.3 1094.05,-20.12 1093.57,-27.1"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node12"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1345,-97 1116,-97 1116,-73 1345,-73 1345,-97"/>
+<text text-anchor="middle" x="1230.5" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#720255" d="M1035.19,-23.8C1046.42,-26.3 1057.54,-29.33 1068,-33 1085.48,-39.13 1086.83,-47.04 1104,-54 1120.34,-60.63 1138.48,-66.1 1155.76,-70.52"/>
+<polygon fill="#720255" stroke="#720255" points="1155.28,-74 1165.82,-72.99 1156.95,-67.2 1155.28,-74"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#255021" stroke-opacity="0.031373" d="M1012.09,-125.96C1030.56,-123.18 1049.95,-120.12 1068,-117 1099.12,-111.62 1133.45,-104.92 1162.43,-99.05"/>
+<polygon fill="#255021" fill-opacity="0.031373" stroke="#255021" stroke-opacity="0.031373" points="1163.35,-102.44 1172.45,-97.01 1161.95,-95.58 1163.35,-102.44"/>
+</g>
+<!-- at -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1496.5,-45 1442.5,-45 1442.5,-21 1496.5,-21 1496.5,-45"/>
+<text text-anchor="middle" x="1469.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge14" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1357.29,-33C1384.83,-33 1411.86,-33 1432.36,-33"/>
+<polygon fill="#255000" stroke="#255000" points="1432.46,-36.5 1442.46,-33 1432.46,-29.5 1432.46,-36.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M1061.33,-91.1C1076.1,-90.56 1091.08,-90.02 1105.7,-89.49"/>
+<polygon fill="transparent" stroke="transparent" points="1105.89,-92.98 1115.76,-89.12 1105.64,-85.99 1105.89,-92.98"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1068.42,-44.15C1076.85,-43.56 1085.32,-42.98 1093.72,-42.39"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1094.2,-45.87 1103.93,-41.69 1093.72,-38.89 1094.2,-45.87"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M1043.78,-66.03C1064.11,-68.11 1085.3,-70.27 1105.79,-72.36"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1105.47,-75.85 1115.78,-73.38 1106.19,-68.89 1105.47,-75.85"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~get_var_attr_string~~CallsGraph_node14" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~get_var_attr_string~~CallsGraph_node14"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1546,-97 1393,-97 1393,-73 1546,-73 1546,-97"/>
+<text text-anchor="middle" x="1469.5" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~get_var_attr_string~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1345.14,-85C1357.76,-85 1370.46,-85 1382.65,-85"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1382.77,-88.5 1392.77,-85 1382.77,-81.5 1382.77,-88.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_var_attr_stringCallsGraph = svgPanZoom('#procget_var_attr_stringCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_var_attr_string~~CalledByGraph Pages: 1 -->
+<svg id="procget_var_attr_stringCalledByGraph" width="641pt" height="55pt"
+ viewBox="0.00 0.00 641.00 55.49" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_var_attr_string~~CalledByGraph" class="graph" transform="scale(2.09 2.09) rotate(0) translate(4 112)">
+<title>proc~~get_var_attr_string~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 1336,-112 1336,4 -4,4"/>
+<!-- proc~get_var_attr_string -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node1" class="node">
+<title>proc~get_var_attr_string</title>
+<polygon fill="none" stroke="black" points="1332,-66 965,-66 965,-42 1332,-42 1332,-66"/>
+<text text-anchor="middle" x="1148.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FileMetadataUtilsMod::FileMetadataUtils%get_var_attr_string</text>
+</g>
+<!-- proc~mapl_create_bundle_from_metdata_id -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node2" class="node">
+<title>proc~mapl_create_bundle_from_metdata_id</title>
+<g id="a_proc~~get_var_attr_string~~CalledByGraph_node2"><a xlink:href=".././proc/mapl_create_bundle_from_metdata_id.html" xlink:title="MAPL_ESMFFieldBundleRead::MAPL_create_bundle_from_metdata_id">
+<polygon fill="#d9534f" stroke="#d9534f" points="929,-66 553,-66 553,-42 929,-42 929,-66"/>
+<text text-anchor="middle" x="741" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleRead::MAPL_create_bundle_from_metdata_id</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_create_bundle_from_metdata_id&#45;&gt;proc~get_var_attr_string -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_create_bundle_from_metdata_id&#45;&gt;proc~get_var_attr_string</title>
+<path fill="none" stroke="#255000" d="M929.02,-54C937.61,-54 946.23,-54 954.82,-54"/>
+<polygon fill="#255000" stroke="#255000" points="954.9,-57.5 964.9,-54 954.9,-50.5 954.9,-57.5"/>
+</g>
+<!-- proc~mapl_read_bundle -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node3" class="node">
+<title>proc~mapl_read_bundle</title>
+<g id="a_proc~~get_var_attr_string~~CalledByGraph_node3"><a xlink:href=".././proc/mapl_read_bundle.html" xlink:title="MAPL_ESMFFieldBundleRead::MAPL_read_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="517,-66 246,-66 246,-42 517,-42 517,-66"/>
+<text text-anchor="middle" x="381.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFFieldBundleRead::MAPL_read_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_read_bundle&#45;&gt;proc~mapl_create_bundle_from_metdata_id -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_read_bundle&#45;&gt;proc~mapl_create_bundle_from_metdata_id</title>
+<path fill="none" stroke="#255000" d="M517.15,-54C525.54,-54 534.07,-54 542.66,-54"/>
+<polygon fill="#255000" stroke="#255000" points="542.77,-57.5 552.77,-54 542.77,-50.5 542.77,-57.5"/>
+</g>
+<!-- proc~main -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node4" class="node">
+<title>proc~main</title>
+<g id="a_proc~~get_var_attr_string~~CalledByGraph_node4"><a xlink:href=".././proc/main.html" xlink:title="Regrid_Util::main">
+<polygon fill="#d9534f" stroke="#d9534f" points="210,-108 106,-108 106,-84 210,-84 210,-108"/>
+<text text-anchor="middle" x="158" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util::main</text>
+</a>
+</g>
+</g>
+<!-- proc~main&#45;&gt;proc~mapl_read_bundle -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_edge3" class="edge">
+<title>proc~main&#45;&gt;proc~mapl_read_bundle</title>
+<path fill="none" stroke="#255000" d="M210.09,-86.31C238.8,-80.87 275.13,-73.98 306.86,-67.96"/>
+<polygon fill="#255000" stroke="#255000" points="307.81,-71.35 316.99,-66.04 306.51,-64.47 307.81,-71.35"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node5" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~get_var_attr_string~~CalledByGraph_node5"><a xlink:href=".././program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="188.5,-66 127.5,-66 127.5,-42 188.5,-42 188.5,-66"/>
+<text text-anchor="middle" x="158" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~mapl_read_bundle -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_edge4" class="edge">
+<title>program~time_ave&#45;&gt;proc~mapl_read_bundle</title>
+<path fill="none" stroke="#255000" d="M188.87,-54C201.8,-54 217.97,-54 235.39,-54"/>
+<polygon fill="#255000" stroke="#255000" points="235.79,-57.5 245.79,-54 235.79,-50.5 235.79,-57.5"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node6" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~get_var_attr_string~~CalledByGraph_node6"><a xlink:href=".././program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="202,-24 114,-24 114,0 202,0 202,-24"/>
+<text text-anchor="middle" x="158" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~mapl_read_bundle -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_edge5" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~mapl_read_bundle</title>
+<path fill="none" stroke="#255000" d="M202.23,-20.2C231.91,-25.83 272.05,-33.44 306.73,-40.01"/>
+<polygon fill="#255000" stroke="#255000" points="306.34,-43.5 316.82,-41.93 307.65,-36.62 306.34,-43.5"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_node7" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~get_var_attr_string~~CalledByGraph_node7"><a xlink:href=".././program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-108 0,-108 0,-84 70,-84 70,-108"/>
+<text text-anchor="middle" x="35" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main -->
+<g id="proc~~get_var_attr_string~~CalledByGraph_edge6" class="edge">
+<title>program~regrid_util&#45;&gt;proc~main</title>
+<path fill="none" stroke="#255000" d="M70.03,-96C77.97,-96 86.66,-96 95.39,-96"/>
+<polygon fill="#255000" stroke="#255000" points="95.6,-99.5 105.6,-96 95.6,-92.5 95.6,-99.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_var_attr_stringCalledByGraph = svgPanZoom('#procget_var_attr_stringCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_var_attr_string.html#src">get_var_attr_string</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">get_var_attr_string</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">var_name</span><span class="p">,</span><span class="n">attr_name</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">attr_string</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr_string</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var_name</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr_name</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fname</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Attribute</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Variable</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">var</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attr_val</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">fname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">var</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_variable</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">var</span><span class="p">),</span><span class="s2">&quot;no variable named &quot;</span><span class="o">//</span><span class="n">var_name</span><span class="o">//</span><span class="s2">&quot; in &quot;</span><span class="o">//</span><span class="n">fname</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">attr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">attr</span><span class="p">),</span><span class="s2">&quot;no attribute named &quot;</span><span class="o">//</span><span class="n">attr_name</span><span class="o">//</span><span class="s2">&quot; in &quot;</span><span class="o">//</span><span class="n">var_name</span><span class="o">//</span><span class="s2">&quot; in &quot;</span><span class="o">//</span><span class="n">fname</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">attr_val</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">attr</span><span class="p">%</span><span class="n">get_value</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="k">select type</span><span class="p">(</span><span class="n">attr_val</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">type is</span><span class="p">(</span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="n">attr_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attr_val</span><span class="w"></span>
+<span class="w">      </span><span class="k">class </span><span class="n">default</span><span class="w"></span>
+<span class="w">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unsupported subclass (not string) for units of attribute named &#39;</span><span class="o">//</span><span class="n">attr_name</span><span class="o">//</span><span class="s1">&#39; in &#39;</span><span class="o">//</span><span class="n">var_name</span><span class="o">//</span><span class="s1">&#39; in &#39;</span><span class="o">//</span><span class="n">fname</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">end function </span><span class="n">get_var_attr_string</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T17:28:41.480113             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,276 @@
+#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
+module test_MAPL_NetCDF
+   use MAPL_ExceptionHandling
+   use MAPL_NetCDF
+   use ESMF
+   use pfunit
+
+   implicit none
+
+   type(ESMF_CalKind_Flag), parameter :: CALKIND_FLAG_DEF = ESMF_CALKIND_GREGORIAN
+
+contains
+
+   @Before
+   subroutine set_up()
+      integer :: status
+
+      call ESMF_CalendarSetDefault(CALKIND_FLAG_DEF, rc=status)
+      if(status /= 0) write(*, *) 'Failed to set ESMF_Calendar'
+
+   end subroutine set_up
+
+   @Test
+   subroutine test_convert_NetCDF_DateTime_to_ESMF()
+      character(len=*), parameter :: expected_tunit = 'seconds'
+      integer, parameter :: int_time = 1800
+      character(len=*), parameter :: units_string = expected_tunit // ' since 2012-08-26 12:36:37'
+      character(len=*), parameter :: t0_iso_string = '2012-08-26T12:36:37'
+      character(len=*), parameter :: t1_iso_string = '2012-08-26T13:06:37'
+      type(ESMF_TimeInterval) :: expected_interval
+      type(ESMF_Time) :: expected_time0
+      type(ESMF_Time) :: expected_time1
+
+      type(ESMF_TimeInterval) :: interval
+      type(ESMF_Time) :: time0
+      type(ESMF_Time) :: time1
+      character(len=:), allocatable :: tunit
+      integer :: rc, status
+
+      call ESMF_TimeSet(expected_time0, timeString=t0_iso_string, _RC)
+      call ESMF_TimeSet(expected_time1, timeString=t1_iso_string, _RC)
+      call ESMF_TimeIntervalSet(expected_interval, startTime=expected_time0, s=int_time, _RC)
+
+      call convert_NetCDF_DateTime_to_ESMF(int_time, units_string, interval, time0, time1=time1, tunit=tunit, _RC)
+      @assertTrue(expected_time0 == time0, 'Mismatch for time0')
+      @assertTrue(expected_time1 == time1, 'Mismatch for time1')
+      @assertTrue(expected_interval == interval, 'Mismatch for interval')
+      
+   end subroutine test_convert_NetCDF_DateTime_to_ESMF
+
+   @Test
+   subroutine test_convert_ESMF_to_NetCDF_DateTime()
+      character(len=*), parameter :: tunit = 'seconds'
+      character(len=*), parameter :: t0_iso_string = '2013-08-26T12:34:56'
+      type(ESMF_Time) :: t0
+      character(len=*), parameter :: t1_iso_string = '2013-08-26T13:04:56'
+      type(ESMF_Time) :: t1
+      type(ESMF_TimeInterval) :: interval
+      integer, parameter :: span = 1800
+      character(len=*), parameter :: expected_units_string = tunit // ' since 2013-08-26 12:34:56'
+      integer, parameter :: expected_int_time = span
+      integer :: int_time
+      character(len=:), allocatable :: units_string
+      integer :: rc, status
+
+      call ESMF_TimeSet(t0, t0_iso_string, _RC)
+      call ESMF_TimeSet(t1, t1_iso_string, _RC)
+      call ESMF_TimeIntervalSet(interval, startTime=t0, s=span, _RC)
+
+      call convert_ESMF_to_NetCDF_DateTime(tunit, t0, int_time, units_string, t1=t1, _RC)
+      @assertEqual(expected_int_time, int_time, 'Using t1, expected_int_time /= int_time')
+      @assertEqual(expected_units_string, units_string, 'Using t1, expected_units_strin g/= units_string')
+
+      call convert_ESMF_to_NetCDF_DateTime(tunit, t0, int_time, units_string, interval=interval, _RC)
+      @assertEqual(expected_int_time, int_time, 'Using interval, expected_int_time /= int_time')
+      @assertEqual(expected_units_string, units_string, 'Using interval, expected_units_strin g/= units_string')
+
+   end subroutine test_convert_ESMF_to_NetCDF_DateTime
+
+   @Test
+   subroutine test_make_ESMF_TimeInterval()
+      character(len=*), parameter :: tunit = 'seconds'
+      character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
+      integer, parameter :: span = 1800
+      type(ESMF_TimeInterval) :: expected_interval
+      type(ESMF_Time) :: t0
+      type(ESMF_TimeInterval) :: interval
+      integer :: rc, status
+
+      call ESMF_TimeSet(t0, iso_string, _RC)
+      call ESMF_TimeIntervalSet(expected_interval, startTime=t0, s=span, _RC)
+      call make_ESMF_TimeInterval(span, tunit, t0, interval, _RC)
+      @assertTrue(expected_interval == interval, 'ESMF_TimeInterval variables do not match.')
+
+   end subroutine test_make_ESMF_TimeInterval
+
+   @Test
+   subroutine test_make_NetCDF_DateTime_int_time()
+      character(len=*), parameter :: tunit = 'seconds'
+      character(len=*), parameter :: iso_string = '2013-08-26T12:34:56'
+      type(ESMF_TimeInterval) :: interval
+      type(ESMF_Time) :: t0
+      integer, parameter :: expected_int_time = 1800
+      integer :: int_time
+      integer :: status, rc
+
+      call ESMF_TimeSet(t0, iso_string, _RC)
+      call ESMF_TimeIntervalSet(interval, startTime=t0, s=expected_int_time, _RC)
+
+      call make_NetCDF_DateTime_int_time(interval, t0, tunit, int_time, _RC)
+      @assertEqual(expected_int_time, int_time, 'int_time does not match.') 
+
+   end subroutine test_make_NetCDF_DateTime_int_time
+
+   @Test
+   subroutine test_make_NetCDF_DateTime_units_string()
+      type(ESMF_Time) :: t0
+      character(len=*), parameter :: tunit = 'seconds'
+      character(len=*), parameter :: expected = tunit // ' since 2012-08-26 08:36:37'
+      character(len=:), allocatable :: actual
+      integer :: status, rc
+
+      call ESMF_TimeSet(t0, yy=2012, mm=08, dd=26, h=08, m=36, s=37, _RC)
+      call make_NetCDF_DateTime_units_string(t0, tunit, actual, _RC)
+      @assertEqual(expected, actual, 'Strings don''t match: ' // expected // '/=' // actual)
+   end subroutine test_make_NetCDF_DateTime_units_string
+
+   @Test
+   subroutine test_convert_ESMF_Time_to_NetCDF_DateTimeString()
+      type(ESMF_Time) :: esmf_datetime
+      character(len=*), parameter :: expected = '2022-08-26 07:30:37'
+      integer, parameter :: yy = 2022
+      integer, parameter :: mm = 08
+      integer, parameter :: dd  = 26
+      integer, parameter :: h  = 07
+      integer, parameter :: m  = 30
+      integer, parameter :: s  = 37
+      character(len=:), allocatable :: actual
+      integer :: status, rc
+
+      call ESMF_TimeSet(esmf_datetime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      call convert_ESMF_Time_to_NetCDF_DateTimeString(esmf_datetime, actual, _RC)
+      @assertEqual(expected, actual, 'Strings don''t match: ' // expected  // '/=' // actual)
+   end subroutine test_convert_ESMF_Time_to_NetCDF_DateTimeString
+
+   @Test
+   subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time()
+      character(len=19), parameter:: netcdf_string='2023-01-31 14:04:37'
+      type(ESMF_Time) :: etime
+      integer :: yy, mm, dd, h, m, s
+      integer :: status, rc
+
+      call convert_NetCDF_DateTimeString_to_ESMF_Time(netcdf_string, etime, _RC)
+      call ESMF_TimeGet(etime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      @assertEqual(2023, yy, 'Incorrect year')
+      @assertEqual(01, mm, 'Incorrect month')
+      @assertEqual(31, dd, 'Incorrect day')
+      @assertEqual(14, h, 'Incorrect hour')
+      @assertEqual(04, m, 'Incorrect minute')
+      @assertEqual(37, s, 'Incorrect second')
+
+   end subroutine test_convert_NetCDF_DateTimeString_to_ESMF_Time
+
+!   @Test
+   subroutine test_is_time_unit()
+
+      @assertTrue(is_time_unit('years'))
+      @assertTrue(is_time_unit('months'))
+      @assertTrue(is_time_unit('days'))
+      @assertTrue(is_time_unit('hours'))
+      @assertTrue(is_time_unit('minutes'))
+      @assertTrue(is_time_unit('seconds'))
+      @assertTrue(is_time_unit('milliseconds'))
+      @assertTrue(is_time_unit(' milliseconds '))
+
+      @assertFalse(is_time_unit('nanoseconds'))
+      @assertFalse(is_time_unit('year'))
+
+   end subroutine test_is_time_unit
+
+!   @Test
+   subroutine test_lr_trim()
+      @assertEqual('word', lr_trim(' word'))
+      @assertEqual('word', lr_trim('word '))
+      @assertEqual('word', lr_trim(' word '))
+   end subroutine test_lr_trim
+
+!   @test
+   subroutine test_get_shift_sign()
+      character(len=:), allocatable :: preposition
+      integer, parameter :: expected = 1
+
+      preposition = 'since'
+      @assertEqual(expected, get_shift_sign(preposition))
+      preposition = 'before'
+      @assertFalse(get_shift_sign(preposition) == expected)
+      preposition = ''
+      @assertFalse(get_shift_sign(preposition) == expected)
+   end subroutine test_get_shift_sign
+
+!   @test
+   subroutine test_split()
+      character(len=*), parameter :: head = 'head'
+      character(len=*), parameter :: tail = 'tail'
+      character(len=*), parameter :: delim = '::'
+      character(len=*), parameter :: test_string = head // delim // tail
+      character(len=:), allocatable :: parts(:)
+
+      parts = split_all(test_string, delim)
+      @assertEqual(2, size(parts))
+      @assertEqual(head, parts(1))
+      @assertEqual(tail, parts(2))
+
+   end subroutine test_split
+
+!   @test
+   subroutine test_split_all()
+      character(len=4), parameter :: chunk(6) = ['mice', 'dogs', 'rats', 'fish', 'deer', 'pigs']
+      character(len=*), parameter :: dlm = '::'
+      character(len=:), allocatable :: test_string
+      character(len=:), allocatable :: parts(:)
+      integer :: i
+
+      test_string = chunk(1)
+      do i = 2, size(chunk)
+         test_string = test_string // dlm // chunk(i)
+      end do
+
+      parts = split_all(test_string, dlm)
+      @assertEqual(size(parts), size(chunk))
+      do i = 1, size(chunk)
+         @assertEqual(chunk(i), parts(i))
+      end do
+
+   end subroutine test_split_all
+ 
+!   @test
+   subroutine test_is_valid_netcdf_datetime_string()
+      character(len=:), allocatable :: string
+
+!      string = ''
+!      @assertTrue(is_valid_netcdf_datetime_string(string), string // ' is not a valid NetCDF datetime string.')
+
+      string = '1970-01-01 23:59:59'
+      @assertTrue(is_valid_netcdf_datetime_string(string), string // ' is not a valid NetCDF datetime string.')
+
+      string = '1970-01-01  23:59:59'
+      @assertFalse(is_valid_netcdf_datetime_string(string), string // ' is not a valid NetCDF datetime string.')
+
+      string = '1970:01-01 23:59:59'
+      @assertFalse(is_valid_netcdf_datetime_string(string), string // ' is not a valid NetCDF datetime string.')
+
+      string = '1970-01-01 23-59:59'
+      @assertFalse(is_valid_netcdf_datetime_string(string), string // ' is not a valid NetCDF datetime string.')
+
+      string = '1970-01-01T23:59:59'
+      @assertFalse(is_valid_netcdf_datetime_string(string), string // ' is not a valid NetCDF datetime string.')
+
+   end subroutine test_is_valid_netcdf_datetime_string
+
+!   @test
+   subroutine test_convert_to_integer()
+      character(len=:), allocatable :: str
+      integer :: expected, actual, status
+      integer, parameter :: SUCCESSFUL = 0
+
+      expected = 2023
+      str = '2023'
+      call convert_to_integer(str, actual, rc = status)
+      @assertEqual(SUCCESSFUL, status, 'Unsuccessful conversion: ' // str)
+      @assertEqual(expected, actual, 'Incorrect conversion: ' // str)
+
+   end subroutine test_convert_to_integer
+
+end module test_MAPL_NetCDF

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>handle_Done_collective_stage &ndash; MAPL</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>handle_Done_collective_stage
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">22 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ServerThread.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/serverthread.f90.html'>ServerThread.F90</a></li>
+              <li><a href='../module/pfio_serverthreadmod.html'>pFIO_ServerThreadMod</a></li>
+          <li class="active">handle_Done_collective_stage</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/handle_done_collective_stage.html#src">handle_Done_collective_stage</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private recursive subroutine handle_Done_collective_stage(this, message, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/serverthread.html'>ServerThread</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2222"></span>
+              class(<a href='../type/serverthread.html'>ServerThread</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-message~32"></span>
+              type(<a href='../type/collectivestagedonemessage.html'>CollectiveStageDoneMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>message</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~659"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~handle_done_collective_stage~~CallsGraph Pages: 1 -->
+<svg id="prochandle_done_collective_stageCallsGraph" width="641pt" height="65pt"
+ viewBox="0.00 0.00 641.00 64.59" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~handle_done_collective_stage~~CallsGraph" class="graph" transform="scale(2.26 2.26) rotate(0) translate(4 142)">
+<title>proc~~handle_done_collective_stage~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-142 1445,-142 1445,4 -4,4"/>
+<!-- proc~handle_done_collective_stage -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node1" class="node">
+<title>proc~handle_done_collective_stage</title>
+<polygon fill="none" stroke="black" points="388,-76 0,-76 0,-52 388,-52 388,-76"/>
+<text text-anchor="middle" x="194" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50">pFIO_ServerThreadMod::ServerThread%handle_Done_collective_stage</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node2"><a xlink:href=".././interface/mapl_assert.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="641,-76 424,-76 424,-52 641,-52 641,-76"/>
+<text text-anchor="middle" x="532.5" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_done_collective_stage&#45;&gt;interface~mapl_assert -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge1" class="edge">
+<title>proc~handle_done_collective_stage&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#255000" d="M388.31,-64C396.95,-64 405.5,-64 413.87,-64"/>
+<polygon fill="#255000" stroke="#255000" points="413.98,-67.5 423.98,-64 413.98,-60.5 413.98,-67.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node3"><a xlink:href=".././proc/mapl_return.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="930,-24 710,-24 710,0 930,0 930,-24"/>
+<text text-anchor="middle" x="820" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_done_collective_stage&#45;&gt;proc~mapl_return -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge2" class="edge">
+<title>proc~handle_done_collective_stage&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#255000" d="M322.76,-51.99C355.73,-48.97 391.18,-45.79 424,-43 516.49,-35.13 621.22,-26.94 699.6,-20.96"/>
+<polygon fill="#255000" stroke="#255000" points="700.29,-24.42 709.99,-20.17 699.75,-17.44 700.29,-24.42"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node4" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node4"><a xlink:href=".././proc/mapl_verify.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="639.5,-138 425.5,-138 425.5,-114 639.5,-114 639.5,-138"/>
+<text text-anchor="middle" x="532.5" y="-123.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_done_collective_stage&#45;&gt;proc~mapl_verify -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge3" class="edge">
+<title>proc~handle_done_collective_stage&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#255000" d="M260.28,-76.03C316.38,-86.36 397.29,-101.27 456.13,-112.11"/>
+<polygon fill="#255000" stroke="#255000" points="455.65,-115.58 466.12,-113.95 456.92,-108.7 455.65,-115.58"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node6"><a xlink:href=".././proc/mapl_assert_condition.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="956,-108 684,-108 684,-84 956,-84 956,-108"/>
+<text text-anchor="middle" x="820" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M640.62,-76.01C660.52,-78.24 681.4,-80.58 701.59,-82.84"/>
+<polygon fill="#255000" stroke="#255000" points="701.42,-86.34 711.75,-83.98 702.2,-79.39 701.42,-86.34"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node7" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node7"><a xlink:href=".././proc/mapl_assert_return_code.html" xlink:title="MAPL_ErrorHandlingMod::MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="963,-66 677,-66 677,-42 963,-42 963,-66"/>
+<text text-anchor="middle" x="820" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge5" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M641.03,-60.23C649.44,-59.94 658.02,-59.64 666.64,-59.34"/>
+<polygon fill="#255000" stroke="#255000" points="666.92,-62.83 676.79,-58.98 666.67,-55.83 666.92,-62.83"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node5" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node5"><a xlink:href=".././proc/get_error_message.html" xlink:title="MAPL_ErrorHandlingMod::get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1252,-45 999,-45 999,-21 1252,-21 1252,-45"/>
+<text text-anchor="middle" x="1125.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod::get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025500" d="M930.14,-19.55C949.1,-20.86 969.02,-22.24 988.59,-23.6"/>
+<polygon fill="#025500" stroke="#025500" points="988.57,-27.1 998.78,-24.3 989.05,-20.12 988.57,-27.1"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node8"><a xlink:href=".././proc/mapl_throw_exception.html" xlink:title="MAPL_ThrowMod::MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1240,-97 1011,-97 1011,-73 1240,-73 1240,-97"/>
+<text text-anchor="middle" x="1125.5" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025500" d="M930.19,-23.8C941.42,-26.3 952.54,-29.33 963,-33 980.48,-39.13 981.83,-47.04 999,-54 1015.34,-60.63 1033.48,-66.1 1050.76,-70.52"/>
+<polygon fill="#025500" stroke="#025500" points="1050.28,-74 1060.82,-72.99 1051.95,-67.2 1050.28,-74"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002505" d="M639.74,-128.92C726.86,-130.07 853.26,-128.93 963,-117 997.21,-113.28 1034.96,-105.98 1065.36,-99.29"/>
+<polygon fill="#002505" stroke="#002505" points="1066.37,-102.65 1075.37,-97.06 1064.84,-95.82 1066.37,-102.65"/>
+</g>
+<!-- at -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1391.5,-45 1337.5,-45 1337.5,-21 1391.5,-21 1391.5,-45"/>
+<text text-anchor="middle" x="1364.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge9" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#255000" d="M1252.29,-33C1279.83,-33 1306.86,-33 1327.36,-33"/>
+<polygon fill="#255000" stroke="#255000" points="1327.46,-36.5 1337.46,-33 1327.46,-29.5 1327.46,-36.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="transparent" d="M956.33,-91.1C971.1,-90.56 986.08,-90.02 1000.7,-89.49"/>
+<polygon fill="transparent" stroke="transparent" points="1000.89,-92.98 1010.76,-89.12 1000.64,-85.99 1000.89,-92.98"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M963.42,-44.15C971.85,-43.56 980.32,-42.98 988.72,-42.39"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="989.2,-45.87 998.93,-41.69 988.72,-38.89 989.2,-45.87"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M938.78,-66.03C959.11,-68.11 980.3,-70.27 1000.79,-72.36"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="1000.47,-75.85 1010.78,-73.38 1001.19,-68.89 1000.47,-75.85"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_node10" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~handle_done_collective_stage~~CallsGraph_node10"><a xlink:href=".././proc/initialize.html" xlink:title="MAPL_ThrowMod::initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1441,-97 1288,-97 1288,-73 1441,-73 1441,-97"/>
+<text text-anchor="middle" x="1364.5" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ThrowMod::initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~handle_done_collective_stage~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#127025" stroke-opacity="0.019608" d="M1240.14,-85C1252.76,-85 1265.46,-85 1277.65,-85"/>
+<polygon fill="#127025" fill-opacity="0.019608" stroke="#127025" stroke-opacity="0.019608" points="1277.77,-88.5 1287.77,-85 1277.77,-81.5 1277.77,-88.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprochandle_done_collective_stageCallsGraph = svgPanZoom('#prochandle_done_collective_stageCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/handle_done_collective_stage.html#src">handle_Done_collective_stage</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">recursive subroutine </span><span class="n">handle_Done_collective_stage</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w"></span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDoneMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">message</span><span class="w"></span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w"></span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">thread_rank</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="k">all</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">%</span><span class="n">serverthread_done_msgs</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;need server&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">%</span><span class="n">create_remote_win</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">%</span><span class="n">receive_output_data</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">%</span><span class="n">put_dataToFile</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">containing_server</span><span class="p">%</span><span class="n">clean_up</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">handle_Done_collective_stage</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>MAPL was developed by The MAPL Developers<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-10-04T17:28:41.480113             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
