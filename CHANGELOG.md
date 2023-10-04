@@ -10,10 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-
 - Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
 - Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
 - Extend unit tests for FileSystemUtilities.
+- Updated handling of NetCDF time values
 
 ### Fixed
 
@@ -155,6 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Suppress some common warnings with Intel Debug
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
 - Update CI to use BCs v11.1.0 and Baselibs 7.14.0
+- Update MAPL_NetCDF public subroutine returns and support for real time
 - Updates to support building MAPL with spack instead of Baselibs
   - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
   - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
