@@ -217,7 +217,6 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
     integer :: ncid, varid, ncid2
-    integer :: iret
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     if(present(group_name)) then

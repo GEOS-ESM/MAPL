@@ -55,6 +55,7 @@ set (srcs
   MAPL_Resource.F90
   MAPL_XYGridFactory.F90
   MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
+  MAPL_DateTime_Parsing_ESMF.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
