@@ -3591,7 +3591,6 @@ contains
     type(ESMF_Grid)            :: grid
     type(ESMF_Array)           :: array, arraySlice
     type(ESMF_TypeKind_Flag)   :: tk
-    integer, pointer           :: ungl(:), ungu(:)
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
@@ -3611,12 +3610,7 @@ contains
        if (fieldRank == 4) then
           !ALT: get the pointer on the first PET
           call ESMF_FieldGet(Field,0,ptr4D,_RC)
-          allocate(ungl(1), ungu(1), _STAT)
-          ungl(1)=lbound(ptr4d,3)
-          ungu(1)=ubound(ptr4d,3)
        else if (fieldRank == 3) then
-          ungl => NULL() ! to emulate 'not present' argument
-          ungu => NULL()
 #ifndef USE_SSI_ARRAY 
           call ESMF_FieldGet(Field,0,ptr3D,_RC)
 #endif
@@ -3649,15 +3643,10 @@ contains
 #ifndef USE_SSI_ARRAY 
        if (fieldRank==4) then
 #endif
-          arraySlice = ESMF_ArrayCreate(array, &
-               datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-               trailingUndistSlice=[k], _RC)
-          ! create a new field
-          f = ESMF_FieldCreate(name=splitName, grid=grid, &
-               array=arraySlice, &
-               datacopyFlag = ESMF_DATACOPY_REFERENCE,                &
-               gridToFieldMap=gridToFieldMap, &
-               ungriddedLBound=ungl, ungriddedUBound=ungu, _RC)
+          f = ESMF_FieldCreate(field, &
+               datacopyflag=ESMF_DATACOPY_REFERENCE, &
+               trailingUngridSlice=[k], name=splitName, _RC)
+
 #ifndef USE_SSI_ARRAY 
        else if (fieldRank==3) then 
           f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, _RC)
@@ -3698,8 +3687,6 @@ contains
 
        fields(n) = f
     end do
-    if (associated(ungl)) deallocate(ungl)
-    if (associated(ungu)) deallocate(ungu)
 
     deallocate(gridToFieldMap)
     deallocate(splitNameArray)
