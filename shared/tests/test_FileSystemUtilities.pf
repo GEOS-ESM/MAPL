@@ -7,14 +7,21 @@ contains
 
    @test
    subroutine test_get_file_extension()
-      @assertEqual(get_file_extension('t.x'), '.x')
+
       @assertEqual(get_file_extension('t'), '')
+      @assertEqual(get_file_extension('t.x'), '.x')
+      @assertEqual(get_file_extension('t.u.x'), '.x')
+      
    end subroutine test_get_file_extension
 
    @test
    subroutine test_get_file_basename()
+
+      @assertEqual(get_file_basename('q'), 'q')
       @assertEqual(get_file_basename('t.x'), 't')
       @assertEqual(get_file_basename('abc.123'), 'abc')
+      @assertEqual(get_file_basename('abc.123.drm'), 'abc.123')
+
    end subroutine test_get_file_basename
 
 end module test_FileSystemUtilities
