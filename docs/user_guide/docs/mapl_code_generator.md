@@ -92,6 +92,29 @@ The [MAPL_GridCompSpecs_ACG.py
 2. `category: EXPORT`: for listing the Expport state variables
 3. `category: INTERNAL`: for listing the Internal state variables
 
+For each category has the possible columns in the following order:
+
+- `NAME`: (required) the name of the field as it is delared in the gridded component
+- `UNIT`: (required) the unit of the field
+- `DIMS`: (required) the dimensions of the field with any of the three options
+     - `z`: corresponding to `MAPL_DimsVertOnly`
+     - `xy`: corresponding to `MAPL_DimsHorzOnly`
+     - `xyz`: corresponding to `MAPL_DimsHorzVert`
+- `VLOC`: (required) vertical location with any of the three options: 
+     - `C`: corresponding to `MAPL_VlocationCenter`
+     - `E`: corresponding to `MAPL_VlocationEdge`
+     - `N`: corresponding to `MAPL_VlocationNone`
+- `LONG NAME`: (required) the long name of the field
+- `RESTART`: (optional and only needed for Import fileds) can have the options:
+     - `OPT`: `MAPL_RestartOptional`
+     - `SKIP`: `MAPL_RestartSkip`
+     - `REQ`: `MAPL_RestartRequired`
+     - `BOOT`: `MAPL_RestartBoot`
+     - `SKIPI`: `MAPL_RestartSkipInitial`
+
+More column options are listed in the file: [MAPL_GridCompSpecs_ACG.py
+](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py).
+
 Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the variables used in the previous section.
 `MyComponent_StateSpecs.rc` looks like:
 
@@ -100,30 +123,30 @@ Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and
 component: MOIST
 
 category: IMPORT
-#----------------------------------------------------------------------------------------
-#  VARIABLE       | DIMENSIONS  |          Additional Metadata
-#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------
+#  VARIABLE            | DIMENSIONS  |          Additional Metadata
+#----------------------------------------------------------------------------
      NAME   | UNITS    | DIMS | VLOC | RESTART | LONG NAME
-#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------
  ZLE        | m        | xyz  | E    |         | geopotential_height
  T          | K        | xyz  | C    | OPT     | air_temperature
  PLE        | Pa       | xyz  | E    | OPT     | air_pressure
 
 category: EXPORT
-#----------------------------------------------------------------------------------------
-#  VARIABLE               | DIMENSIONS  |          Additional Metadata
-#----------------------------------------------------------------------------------------
- NAME       | UNITS     | DIMS | VLOC | UNGRIDDED       | LONG NAME
-#----------------------------------------------------------------------------------------
- ZPBLCN     | m         | xy   | N    |                 | boundary_layer_depth
- CNV_FRC    |           | xy   | N    |                 | convective_fraction
+#---------------------------------------------------------------------------
+#  VARIABLE             | DIMENSIONS  |          Additional Metadata
+#---------------------------------------------------------------------------
+ NAME       | UNITS     | DIMS | VLOC |  LONG NAME
+#---------------------------------------------------------------------------
+ ZPBLCN     | m         | xy   | N    |  boundary_layer_depth
+ CNV_FRC    |           | xy   | N    |  convective_fraction
 
 category: INTERNAL
-#----------------------------------------------------------------------------------------
-#  VARIABLE                | DIMENSION        |          Additional Metadata
-#----------------------------------------------------------------------------------------
-  NAME | UNITS | DIMS | VLOC | UNGRIDDED | RESTART | ADD2EXPORT | FRIENDLYTO | LONG NAME
-#----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+#  VARIABLE    | DIMENSION   |          Additional Metadata
+#---------------------------------------------------------------------------
+  NAME | UNITS | DIMS | VLOC | ADD2EXPORT | FRIENDLYTO | LONG NAME
+#---------------------------------------------------------------------------
 
 
 #********************************************************
@@ -157,9 +180,72 @@ category: INTERNAL
 
 Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.rc` generates at compilation time three includes files:
 
-1. `MyComponent_Export___.h`: for the `MAPL_AddExportSpec` calls in the `SetServices` routine.
-2. `MyComponent_Import___.h`: for the `MAPL_AddImportSpec` calls in the `SetServices` routine.
-3. `MyComponent_DeclarePointer___.h`: contains all the `MAPL_GetPointer` calls in the `Run` method.
+1. `MyComponent_Export___.h` for the `MAPL_AddExportSpec` calls in the `SetServices` routine:
+
+
+```
+call MAPL_AddExportSpec(GC,                              &
+    SHORT_NAME='ZPBLCN',                                 &
+    LONG_NAME ='boundary_layer_depth',                   &
+    UNITS     ='m'   ,                                   &
+    DIMS      = MAPL_DimsHorzOnly,                       &
+    VLOCATION = MAPL_VLocationNone,           RC=STATUS  )
+VERIFY_(STATUS)
+
+call MAPL_AddExportSpec(GC,                              &
+    SHORT_NAME='CNV_FRC',                                &
+    LONG_NAME ='convective_fraction',                    &
+    UNITS     =''  ,                                     &
+    DIMS      = MAPL_DimsHorzOnly,                       &
+    VLOCATION = MAPL_VLocationNone,           RC=STATUS  )
+VERIFY_(STATUS)
+```
+
+2. `MyComponent_Import___.h` for the `MAPL_AddImportSpec` calls in the `SetServices` routine:
+
+```fortran
+call MAPL_AddImportSpec(GC,                              &
+    SHORT_NAME = 'PLE',                                  &
+    LONG_NAME  = 'air_pressure',                         &
+    UNITS      = 'Pa',                                   &
+    DIMS       = MAPL_DimsHorzVert,                      &
+    VLOCATION  = MAPL_VLocationEdge,                     &
+    AVERAGING_INTERVAL = AVRGNINT,                       &
+    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
+VERIFY_(STATUS)
+
+call MAPL_AddImportSpec(GC,                              &
+    SHORT_NAME = 'ZLE',                                  &
+    LONG_NAME  = 'geopotential_height',                  &
+    UNITS      = 'm',                                    &
+    DIMS       =  MAPL_DimsHorzVert,                     &
+    VLOCATION  =  MAPL_VLocationEdge,                    &
+    AVERAGING_INTERVAL = AVRGNINT,                       &
+    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
+VERIFY_(STATUS)
+
+call MAPL_AddImportSpec(GC,                              &
+    SHORT_NAME = 'T',                                    &
+    LONG_NAME  = 'temperature',                          &
+    UNITS      = 'K',                                    &
+    DIMS       = MAPL_DimsHorzVert,                      &
+    VLOCATION  = MAPL_VLocationCenter,                   &
+    AVERAGING_INTERVAL = AVRGNINT,                       &
+    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
+VERIFY_(STATUS)
+```
+
+
+3. `MyComponent_DeclarePointer___.h` contains all the `MAPL_GetPointer` calls in the `Run` method:
+
+```fortran
+call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, ZLE,     'ZLE'     , RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
+
+call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
+```
 
 ### Edit the Source Code
 
@@ -183,3 +269,7 @@ mapl_acg (${this}   MyComponent_StateSpecs.rc
           IMPORT_SPECS EXPORT_SPECS INTERNAL_SPECS
           GET_POINTERS DECLARE_POINTERS)
 ```
+
+### Future Work
+
+A future version of the tool will support a YAML specfiction file.
