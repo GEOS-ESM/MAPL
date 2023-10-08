@@ -12,6 +12,7 @@
 module NCIOMod
 
   use FileIOSharedMod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
+  use FileIOSharedMod, only: ArrayScatterShm
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
@@ -1207,13 +1208,11 @@ module NCIOMod
 #endif
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
-          allocate(GVAR(Rsize), stat=status)
-          _VERIFY(STATUS)
+          allocate(GVAR(Rsize), _STAT)
+          allocate(VAR(Rsize), msk(Rsize), _STAT)
+       else
+          allocate(VAR(0), msk(0), _STAT)
        end if
-       allocate(VAR(Rsize), stat=status)
-       _VERIFY(STATUS)
-       allocate(msk(Rsize), stat=status)
-       _VERIFY(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
        _VERIFY(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
@@ -1756,7 +1755,8 @@ module NCIOMod
     integer,           optional   , intent(  OUT) :: RC
 
 ! Local variables
-    real(kind=ESMF_KIND_R4),  allocatable :: VAR(:)
+    real(kind=ESMF_KIND_R4), allocatable  :: VAR(:)
+    real(kind=ESMF_KIND_R4), pointer  :: VR(:)=>null()
     integer                               :: IM_WORLD
     integer                               :: status
     character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarReadNCpar_R4_1d'
@@ -1778,11 +1778,12 @@ module NCIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activesendcounts(:)
     integer                               :: start(4), cnt(4)
+    logical :: amIRoot
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
-
+#ifdef USE_MAPL_ORIGINAL_TILE_HANDLING
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
        _VERIFY(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
@@ -1986,6 +1987,54 @@ module NCIOMod
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           deallocate(idx)
        end if
+#else
+!if USE_MAPL_ORIGINAL_TILE_HANDLING
+
+       amIRoot = MAPL_am_i_root(layout)
+       if (.not. MAPL_ShmInitialized) then
+          if (amIRoot) then
+             allocate(VR(IM_WORLD), stat=status)
+             _VERIFY(STATUS)
+          else
+             allocate(VR(0), stat=status)
+             _VERIFY(STATUS)
+          end if
+       else
+          call MAPL_AllocNodeArray(vr,[IM_WORLD],_RC)
+       end if
+
+       if (amIRoot) then
+          start(1) = 1
+          start(2) = 1
+          start(3) = 1
+          if ( present(offset1) ) start(2) = offset1
+          if ( present(offset2) ) start(3) = offset2
+          start(4) = 1
+          cnt(1) = im_world
+          cnt(2) = 1
+          cnt(3) = 1
+          cnt(4) = 1
+
+          call formatter%get_var(trim(name),vr,start=start,count=cnt,rc=status)
+          if(status /= NF90_NOERR) then
+             print*,'Error reading variable ',status
+             print*, NF90_STRERROR(status)
+             _VERIFY(STATUS)
+          endif
+       end if
+
+       if (.not. MAPL_ShmInitialized) then
+          call ArrayScatter(A, VR, arrdes%grid, mask=mask, rc=status)
+          _VERIFY(STATUS)
+
+          deallocate(VR)
+       else
+          call ArrayScatterShm(A, VR, arrdes%grid, mask=mask, rc=status)
+          _VERIFY(STATUS)
+          call MAPL_DeAllocNodeArray(VR,rc=STATUS)
+          _VERIFY(STATUS)
+       end if
+#endif
 
     else
 
@@ -3856,15 +3905,17 @@ module NCIOMod
              _VERIFY(STATUS)
           else
              if (arrdes%split_checkpoint) then
-                call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
-                _VERIFY(STATUS)
-                fname_by_writer = get_fname_by_rank(trim(filename),writer_rank)
-                call formatter%create(trim(fname_by_writer),rc=status)
-                _VERIFY(status)
-                if (writer_rank == 0) then
-                    call create_control_file(filename,arrdes%im_world,arrdes%num_writers,rc)
+!@@@                if (arrdes%writers_comm /= MPI_COMM_NULL) then
+                   call mpi_comm_rank(arrdes%writers_comm,writer_rank,status)
+                   _VERIFY(STATUS)
+                   fname_by_writer = get_fname_by_rank(trim(filename),writer_rank)
+                   call formatter%create(trim(fname_by_writer),rc=status)
+                   _VERIFY(status)
+                   if (writer_rank == 0) then
+                      call create_control_file(filename,arrdes%im_world,arrdes%num_writers,rc)
+!@@@                   end if
+                   call cf%add_attribute("Split_Cubed_Sphere", writer_rank, _RC)
                 end if
-                call cf%add_attribute("Split_Cubed_Sphere", writer_rank, _RC)
              else
                 call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
