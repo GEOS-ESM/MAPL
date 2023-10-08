@@ -1831,6 +1831,7 @@ contains
               clock=CLOCK, PHASE=PHASE_, &
               userRC=userRC, _RC )
          _VERIFY(userRC)
+#ifdef ENABLE_MEM_REPORT_IN_WRAPPER
          block 
            integer :: mpi_comm
            character(len=2) :: phase_int
@@ -1845,6 +1846,7 @@ contains
               call MAPL_MemReport(mpi_comm,__FILE__,__LINE__,trim(message))
            end if
          end block
+#endif         
       end if
 
       if (comp_name == comp_to_record) then
@@ -5908,6 +5910,14 @@ contains
          status = -1  ! not yet
          _VERIFY(status)
       endif
+      block
+        integer :: mpi_comm
+        type(ESMF_VM) :: vm
+
+        call ESMF_VmGetCurrent(vm)
+        call ESMF_VmGet(vm,mpiCommunicator=mpi_comm,_RC)
+        call MAPL_MemReport(mpi_comm,__FILE__,__LINE__)
+      end block
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_ESMFStateWriteToFile
