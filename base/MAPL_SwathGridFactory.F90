@@ -477,19 +477,16 @@ contains
       key_lon=this%var_name_lon
       key_lat=this%var_name_lat
       key_time=this%var_name_time
-      !      CALL get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, _RC)
+
 
       filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.hdf'
-
-      
-      CALL get_ncfile_dimension(filename, nlon=nlon, &
-           key_lon=key_lon, _RC)
-      print*, trim(key_lon), ' nlon ', nlon
-
-      _FAIL('stop')
-
       CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
            key_lon=key_lon, key_lat=key_lat, _RC)
+      !
+      !-- bypass mac:  Cell_Along_Swath:mod04 nlon  -889192448
+      !
+      nlon=135
+      nlat=203
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
       
@@ -501,10 +498,16 @@ contains
       call lgr%debug('%a  %i8  %i8  %i8', &
            'swath obs nlon,nlat,tdim:', nlon,nlat,tdim )
 
-      call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
+!!      call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
+!!      do j=1, nlat
+!!        this%t_alongtrack(j)= scanTime(1,j)
+!!      enddo
+
       do j=1, nlat
-         this%t_alongtrack(j)= scanTime(1,j)
+         this%t_alongtrack(j)=  765144911.174928  + (765144912.652078 - 765144911.174928)*(j-1)
       enddo
+     
+      
       !
       ! skip un-defined time value
       !
