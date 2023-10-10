@@ -1,4 +1,4 @@
-## MAPL Autimatic Code Generator
+## MAPL Automatic Code Generator
 
 Any ESMF gridded component typically requires an Import State and an Export State (we can even add an Internal state).
 Each of the states contains member variables (Fields, Bundles) that need to be declared before they are used.
@@ -6,7 +6,7 @@ The number of the those variables can be large and make the declaration process 
 (possibly missing parameters) and the declaration section in the code extremely long.
 
 MAPL has a utility tool (named [MAPL_GridCompSpecs_ACG.py
-](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py)) that simplifies and faciliates the declaration and access of member variables of Export and Import states of gridded components.
+](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py)) that simplifies and facilitates the declaration and access of member variables of Export and Import states of gridded components.
 The tool relies on a formatted ASCII file (spec file) to autmatically generate (at compilation time) include files that have the necessary code segments for defining and accessing the expected state member variables.
 In this document, we describe the [steps](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) to follow to use the tool.
 
@@ -87,7 +87,7 @@ We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `
 ### Create the Spec ASCII File
 
 The [MAPL_GridCompSpecs_ACG.py
-](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py) tool takes as input an ASCII speficication file that has three main sections:
+](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py) tool takes as input an ASCII specification file that has three main sections:
 
 1. `category: IMPORT`: for listing the Import state variables
 2. `category: EXPORT`: for listing the Expport state variables
@@ -276,8 +276,8 @@ mapl_acg (${this}   MyComponent_StateSpecs.rc
           GET_POINTERS DECLARE_POINTERS)
 ```
 
-In case there is no Internal state, `INTERNAL_SPECS` needs not to be added in the above command.
+Note, if in your case, there is no Internal state, `INTERNAL_SPECS` needs not to be added in the above command. But there is no harm including it.  
 
 ### Future Work
 
-A future version of the tool will support a YAML specfiction file.
+A future version of the tool will support a YAML specification file.
