@@ -1,20 +1,24 @@
 ## MAPL Autimatic Code Generator
 
-Any ESMF gridded component typically requires an Import State and an Export State.
-Each of the states contain member variables (Fields, Bundles) that need to be declared before they are used.
+Any ESMF gridded component typically requires an Import State and an Export State (we can even add an Internal state).
+Each of the states contains member variables (Fields, Bundles) that need to be declared before they are used.
 The number of the those variables can be large and make the declaration process cumbersome
 (possibly missing parameters) and the declaration section in the code extremely long.
 
 MAPL has a utility tool (named [MAPL_GridCompSpecs_ACG.py
 ](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py)) that simplifies and faciliates the declaration and access of member variables of Export and Import states of gridded components.
-The tool relies on a formatted ASCII file to autmatically generate (at compilation time) include files that have the necessary code segments for defining the expected state member variables.
+The tool relies on a formatted ASCII file (spec file) to autmatically generate (at compilation time) include files that have the necessary code segments for defining and accessing the expected state member variables.
 In this document, we describe the [steps](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) to follow to use the tool.
 
 ### Understanding the Issue
 
-Consider for instance the `Moist` gridded component which code is available in the file [GEOS_MoistGRidComp.F90](https://github.com/GEOS-ESM/GEOSgcm_GridComp/blob/develop/GEOSagcm_GridComp/GEOSphysics_GridComp/GEOSmoist_GridComp/GEOS_MoistGridComp.F90). 
+Consider for instance the `MOIST` gridded component which code is available in the file [GEOS_MoistGRidComp.F90](https://github.com/GEOS-ESM/GEOSgcm_GridComp/blob/develop/GEOSagcm_GridComp/GEOSphysics_GridComp/GEOSmoist_GridComp/GEOS_MoistGridComp.F90). 
 It has over 50 Import State member variables and over 500 Export State member variables.
-REgistering each of them in the `SetServices` routine, requires at least 7 lines for the code to be readble:
+Registering each of them in the `SetServices` routine, requires at least 7 lines for the code to be readble. For instance, assume that we have:
+- `PLE`, `ZLE`, and `T` as Import state fields, and
+- `ZPBLCN` and `CNV_FRC` as Export state fields.
+
+The `SetServices` routine will then have:
 
 ```fortran
 call MAPL_AddImportSpec(GC,                              &
@@ -64,9 +68,7 @@ call MAPL_AddExportSpec(GC,                              &
 VERIFY_(STATUS)
 
 ```
-
-
-This is well over 35 hundred of lines. 
+Having such statements for over 550 fields leads to more than 35 hundred of lines of code. 
 In addition, in the `Run` subroutine, we need to access the memory location of each member variable through the `MAPL_GetPointer` call:
 
 ```fortran
@@ -77,10 +79,9 @@ call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 ```
-This is at least 500 lines of code.
-Basically, most of the source code of the `MIST` gridded component will mainly be on ESMF state variable registration and access.
-We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `MAPL_GetPointer`) into include files to facilitate the code readability,
-to avoid any omission.
+This is at least 550 lines of code.
+Basically, most of the source code of the `MOIST` gridded component will mainly be on ESMF state variable registration and access.
+We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `MAPL_GetPointer`) into include files to facilitate the code readability and also avoid any omission.
 
 
 ### Create the Spec ASCII File
@@ -92,7 +93,9 @@ The [MAPL_GridCompSpecs_ACG.py
 2. `category: EXPORT`: for listing the Expport state variables
 3. `category: INTERNAL`: for listing the Internal state variables
 
-For each category has the possible columns in the following order:
+Each category is a orgazined as aet of rows and columns where each row is associated with a unique field. 
+The columns are labelled and only listed if one of the fields used them.
+The mandatory columns are:
 
 - `NAME`: (required) the name of the field as it is delared in the gridded component
 - `UNIT`: (required) the unit of the field
@@ -105,6 +108,9 @@ For each category has the possible columns in the following order:
      - `E`: corresponding to `MAPL_VlocationEdge`
      - `N`: corresponding to `MAPL_VlocationNone`
 - `LONG NAME`: (required) the long name of the field
+
+We can also add for the sake of our example here, the optional column:
+
 - `RESTART`: (optional and only needed for Import fileds) can have the options:
      - `OPT`: `MAPL_RestartOptional`
      - `SKIP`: `MAPL_RestartSkip`
@@ -115,7 +121,7 @@ For each category has the possible columns in the following order:
 More column options are listed in the file: [MAPL_GridCompSpecs_ACG.py
 ](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py).
 
-Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the variables used in the previous section.
+Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the fields used in the previous section.
 `MyComponent_StateSpecs.rc` looks like:
 
 
@@ -249,7 +255,7 @@ call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIF
 
 ### Edit the Source Code
 
-In the `SetServices` routine, all the `MAPL_AddExportSpec` and `MAPL_AddImportSpec` calls for the variables listed in the `MyComponent_StateSpecs.rc` need to be removed and replaced with the two line:
+In the `SetServices` routine, all the `MAPL_AddExportSpec` and `MAPL_AddImportSpec` calls for the variables listed in the `MyComponent_StateSpecs.rc` need to be removed and replaced with the two lines just after the declaration of the local variables:
 ```
 #include "MyComponent_Export___.h"
 #include "MyComponent_Import___.h"
@@ -269,6 +275,8 @@ mapl_acg (${this}   MyComponent_StateSpecs.rc
           IMPORT_SPECS EXPORT_SPECS INTERNAL_SPECS
           GET_POINTERS DECLARE_POINTERS)
 ```
+
+In case there is no Internal state, `INTERNAL_SPECS` needs not to be added in the above command.
 
 ### Future Work
 
