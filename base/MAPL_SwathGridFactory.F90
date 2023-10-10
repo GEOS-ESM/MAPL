@@ -480,13 +480,14 @@ contains
 
 
       filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.hdf'
+      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.hdf'      
+
       CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
            key_lon=key_lon, key_lat=key_lat, _RC)
       !
       !-- bypass mac:  Cell_Along_Swath:mod04 nlon  -889192448
       !
-      nlon=135
-      nlat=203
+      print*, 'nlon, nlat=', nlon, nlat
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
       
@@ -498,14 +499,15 @@ contains
       call lgr%debug('%a  %i8  %i8  %i8', &
            'swath obs nlon,nlat,tdim:', nlon,nlat,tdim )
 
-!!      call get_v2d_netcdf(filename, 'scanTime', scanTime, nlon, nlat)
-!!      do j=1, nlat
-!!        this%t_alongtrack(j)= scanTime(1,j)
-!!      enddo
-
+      call get_v2d_netcdf(filename, this%nc_time, scanTime, nlon, nlat)
       do j=1, nlat
-         this%t_alongtrack(j)=  765144911.174928  + (765144912.652078 - 765144911.174928)*(j-1)
+        this%t_alongtrack(j)= scanTime(1,j)
       enddo
+
+      write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::3)
+!      do j=1, nlat
+!         this%t_alongtrack(j)=  765144911.174928  + (765144912.652078 - 765144911.174928)*(j-1)
+!      enddo
      
       
       !
