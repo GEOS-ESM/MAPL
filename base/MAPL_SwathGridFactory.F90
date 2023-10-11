@@ -398,10 +398,12 @@ contains
       integer :: nlon, nlat, tdim
       integer :: Xdim, Ydim, ntime
       character(len=ESMF_MAXSTR) :: key_lon, key_lat, key_time
-      character(len=ESMF_MAXSTR) :: filename, tunit, tmp, grp_name
+      character(len=ESMF_MAXSTR) :: filename, tunit, tmp, grp1, grp2
+      !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
       integer :: yy, mm, dd, h, m, s, sec
       integer :: i, j
+      integer :: ncid, ncid2, varid
 
       type(ESMF_Time) :: time0
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
@@ -452,26 +454,34 @@ contains
       call ESMF_ConfigGetAttribute(config, this%nc_latitude, &
            label=prefix // 'nc_Latitude:', default="", _RC)
 
-      write(6,'((2x,a),10(2x,a15))') 'nc_time =', trim(this%nc_time)
-      write(6,'((2x,a),10(2x,a15))') 'nc_lon  =',            trim(this%nc_longitude)
-      write(6,'((2x,a),10(2x,a15))') 'nc_lat  =',            trim(this%nc_latitude)     
-
-      
-      i=index(this%nc_longitude, '/')
+      i=index(this%nc_time, '/')
       if (i>0) then
          this%found_group = .true.
-         grp_name = this%nc_longitude(1:i-1)
+         grp1 = this%nc_time(1:i-1)
+         j=index(this%nc_time(i+1:), '/')
+         if (j>0) then
+            grp2=this%nc_time(i+1:i+j-1)
+         else
+            grp2=''
+         endif
+         i=i+j
       else
          this%found_group = .false.
-         grp_name = ''
+         grp1 = ''
+         grp2=''
       endif
+      this%var_name_time= this%nc_time(i+1:)
+
+      i=index(this%nc_longitude, '/')      
       this%var_name_lat = this%nc_latitude(i+1:)
       this%var_name_lon = this%nc_longitude(i+1:)
-      this%var_name_time= this%nc_time(i+1:)
+
 
       write(6,'(10(2x,a))') 'name lat, lon, time',  &
            trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
+      write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
 
+           
       ! read global dim from nc file
       ! ----------------------------
       key_lon=this%var_name_lon
@@ -479,14 +489,12 @@ contains
       key_time=this%var_name_time
 
 
-      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.hdf'
-      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.hdf'      
+      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'      
+      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
+      filename='./MOD04_L2.A2017090.0010.051.NRT.h5'
 
       CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
            key_lon=key_lon, key_lat=key_lat, _RC)
-      !
-      !-- bypass mac:  Cell_Along_Swath:mod04 nlon  -889192448
-      !
       print*, 'nlon, nlat=', nlon, nlat
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
@@ -496,18 +504,30 @@ contains
            'swath Epoch init time:', trim(tmp) )
       call lgr%debug('%a  %a', &
            'swath obs filename:   ', trim(filename) )
-      call lgr%debug('%a  %i8  %i8  %i8', &
-           'swath obs nlon,nlat,tdim:', nlon,nlat,tdim )
+      call lgr%debug('%a  %i8  %i8', &
+           'swath obs nlon,nlat:', nlon,nlat)
 
-      call get_v2d_netcdf(filename, this%nc_time, scanTime, nlon, nlat)
+
+      call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), _RC)
+      if ( this%found_group ) then
+         call check_nc_status(nf90_inq_ncid(ncid2, grp1, ncid), _RC)
+         print*, 'ck grp1'
+         if (j>0) then
+            call check_nc_status(nf90_inq_ncid(ncid, grp2, ncid2), _RC)
+            ncid=ncid2
+            print*, 'ck grp2'            
+         endif
+      else
+         ncid=ncid2
+      endif
+      !      call check_nc_status(nf90_inq_varid(ncid, key_time, varid), _RC)
+      call check_nc_status(nf90_inq_varid(ncid, 'Scan_Start_Time', varid), _RC)
+      call check_nc_status(nf90_get_var(ncid, varid, scanTime), _RC)
       do j=1, nlat
         this%t_alongtrack(j)= scanTime(1,j)
       enddo
 
       write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::3)
-!      do j=1, nlat
-!         this%t_alongtrack(j)=  765144911.174928  + (765144912.652078 - 765144911.174928)*(j-1)
-!      enddo
      
       
       !
