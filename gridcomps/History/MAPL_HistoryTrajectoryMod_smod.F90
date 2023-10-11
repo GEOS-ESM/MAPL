@@ -27,17 +27,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
    contains
 
      module procedure HistoryTrajectory_from_config
+         use BinIOMod
          use pflogger, only         :  Logger, logging
          type(ESMF_Time)            :: currTime
          type(ESMF_TimeInterval)    :: epoch_frequency
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: status
-         character(len=ESMF_MAXSTR) :: STR1
+         character(len=ESMF_MAXSTR) :: STR1, line
          character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: nline, ncol
          logical                    :: tend
          integer                    :: i, j, k
+         integer                    :: unitr, unitw         
          type(Logger), pointer :: lgr
 
          traj%clock=clock
@@ -60,30 +62,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'nc_Longitude:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%nc_latitude, default="", &
               label=trim(string) // 'nc_Latitude:', _RC)
-         call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
-         _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
-         traj%nobs_type = nline
-         allocate (traj%obs(nline))
-         do k=1, nline
-            allocate (traj%obs(k)%metadata)
-            if (mapl_am_i_root()) then
-               allocate (traj%obs(k)%file_handle)
-            end if
-         end do
-         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
-         lgr => logging%get_logger('HISTORY.sampler')
-         call lgr%debug('%a %i8', 'nobs_type=', nline)
 
-         do i=1, nline
-            call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
-            call ESMF_ConfigGetAttribute( config, traj%obs(i)%input_template, rc=rc)
-            call lgr%debug('%a %i4 %a  %a', 'obs(', i, ') input_template =', &
-                 trim(traj%obs(i)%input_template))
-            j=index(traj%obs(i)%input_template , '%')
-            k=index(traj%obs(i)%input_template , '/', back=.true.)
-            _ASSERT(j>0, '% is not found,  template is wrong')
-            traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
-         enddo
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
@@ -133,6 +112,50 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)
          traj%is_valid = .true.
 
+
+         call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
+         _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
+
+         
+         
+
+!         call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
+!         _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
+!         traj%nobs_type = nline
+!         allocate (traj%obs(nline))
+!         do k=1, nline
+!            allocate (traj%obs(k)%metadata)
+!            if (mapl_am_i_root()) then
+!               allocate (traj%obs(k)%file_handle)
+!            end if
+!         end do
+!         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+!         lgr => logging%get_logger('HISTORY.sampler')
+!         call lgr%debug('%a %i8', 'nobs_type=', nline)
+!
+!         do i=1, nline
+!            call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
+!            call ESMF_ConfigGetAttribute( config, traj%obs(i)%input_template, rc=rc)
+!            call lgr%debug('%a %i4 %a  %a', 'obs(', i, ') input_template =', &
+!                 trim(traj%obs(i)%input_template))
+!            j=index(traj%obs(i)%input_template , '%')
+!            k=index(traj%obs(i)%input_template , '/', back=.true.)
+!            _ASSERT(j>0, '% is not found,  template is wrong')
+!            traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
+!         enddo
+
+
+!         unitr = getfile ( config, form='formatted', _RC)
+!         unitw = getfile ( 'temp_hist.rcx', form='formatted', _RC)         
+!
+!         do while (.true.)
+!            read (unitr, '(a)', end=1234) line
+!            write (unitw, '(a)') line
+!         enddo
+!1234     continue
+         
+         
+         
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
