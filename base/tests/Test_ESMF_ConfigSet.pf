@@ -41,44 +41,6 @@ module Test_ESMF_ConfigSet
 
 contains
 
-   logical function file_is_open(iounit, filename)
-      integer, optional, intent(in) :: iounit
-      character(len=*), optional, intent(in) :: filename
-      integer :: ios
-
-      if(present(iounit)) then
-         inquire(unit=iounit, opened=file_is_open, iostat=ios)
-         file_is_open = file_is_open .and. ios == IOSUCCESS
-      else if(present(filename)) then
-         inquire(file=trim(filename), opened=file_is_open, iostat=ios)
-         file_is_open = file_is_open .and. ios == IOSUCCESS
-      else
-         file_is_open = .FALSE.
-      end if
-
-   end function file_is_open
-
-   logical function file_is_closed(iounit, filename)
-      integer, optional, intent(in) :: iounit
-      character(len=*), optional, intent(in) :: filename
-      file_is_closed = .not. file_is_open(iounit, filename)
-   end function file_is_closed
-
-   function get_unit(filename) result(iounit)
-      character(len=*), intent(in) :: filename
-      integer :: iounit
-      integer :: ios
-
-      if(file_is_open(filename=filename)) then
-         inquire(file=trim(filename), number=iounit, iostat=ios)
-      else
-         open(newunit=iounit, file=trim(filename), iostat=ios)
-      end if
-
-      if(ios /= IOSUCCESS) iounit=ios
-
-   end function get_unit
-
    subroutine write_attributes(attributes_, iounit, rc)
       character(len=*), intent(in) :: attributes_(:, :)
       integer, intent(in) :: iounit
@@ -103,19 +65,6 @@ contains
 
    end subroutine write_attributes
          
-   function build_attributes() result(attr)
-      character(len=MAX_LENGTH) :: attr(NROWS, NCOLS)
-
-      attr = EMPTY_STRING
-      attr(1, 1) = LABEL1
-      attr(2, 1) = VALUE1
-      attr(1, 2) = LABEL2
-      attr(2, 2) = VALUE2
-      attr(1, 3) = LABEL3
-      attr(2, 3) = VALUE3
-
-   end function build_attributes
-
    @before 
    subroutine setup()
       integer :: stat, iounit, ios

@@ -1,302 +1,193 @@
-#ifdef SET_RC
-#   undef SET_RC
-#endif
-#define SET_RC(S,R) if(present(R)) R=S
-
 program overwrite_config
 
    use ESMF
-!   use ESMFL_Mod
 
    implicit none
 
-!   interface overwrite_main
-!      procedure :: file_main
-!      procedure :: array_main
-!   end interface overwrite_main
-!
-!   interface load_config
-!      procedure :: load_config_array
-!      procedure :: load_config_file
-!   end interface load_config
+   interface failed
+      procedure :: failed_integer
+      procedure :: failed_logical
+   end interface failed
 
-   integer, parameter :: MAX_LENGTH = 80
-   integer, parameter :: ILABEL = 1
-   integer, parameter :: IVALUE = 2
-   integer, parameter :: PAIR_SIZE = 2
-   integer, parameter :: NCOL = 3
+   interface fail_close
+      procedure :: fail_integer_close
+      procedure :: fail_logical_close
+   end interface fail_close
+
+   integer, parameter :: MAX_LENGTH = 1024
    integer, parameter :: SUCCESS = ESMF_SUCCESS
    integer, parameter :: FAILURE = SUCCESS - 1
-   integer, parameter :: ROW = 1
-   integer, parameter :: COLUMN = 2
-
-   integer :: stat
-!   character(len=MAX_LENGTH) :: config_filename
-   character(len=MAX_LENGTH) :: attr(PAIR_SIZE, NCOL)
-
-   attr(ILABEL, 1) = 'datetime'
-   attr(IVALUE, 1) ='19991231T235959'
-
-   attr(ILABEL, 2) = 'is_set'
-   attr(IVALUE, 2) = '.T.'
-
-   attr(ILABEL, 3) = 'size'
-   attr(IVALUE, 3) = '3'
-
-!   config_filename = 'overwrite.rc'
-
-   call array_main(attr, rc=stat)
-   if(stat /= SUCCESS) stop 'Failed'
+   integer, parameter :: IOSUCCESS = 0
 
 contains
 
-!   subroutine file_main(filename, rc)
-!      character(len=*), intent(in) :: filename
-!      integer, optional, intent(out) :: rc
-!      type(ESMF_Config) :: config
-!      integer :: stat
-!
-!      config = ESMF_ConfigCreate(rc=stat)
-!
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!      call load_config(config, filename, rc=stat)
-!
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!   end subroutine file_main
-
-   subroutine array_main(attr_array, rc)
-      character(len=*), intent(in) :: attr_array(:,:)
+   subroutine main(rc)
       integer, optional, intent(out) :: rc
+      integer, parameter :: NROWS = 2
+      integer, parameter :: NCOLS = 3
+      character(len=*), parameter :: EMPTY_STRING = ''
+      character(len=*), parameter :: LABEL1 = 'SwathGrid.Epoch_init:'
+      character(len=*), parameter :: VALUE1 = "'20121113T000000'"
+      character(len=*), parameter :: LABEL2 = 'SwathGrid.nc_Time:'
+      character(len=*), parameter :: VALUE2 = "'time'"
+      character(len=*), parameter :: LABEL3 = 'SwathGrid.nc_Longitude:'
+      character(len=*), parameter :: VALUE3 = "'cell_across_swath'"
+      integer :: stat, iounit
       type(ESMF_Config) :: config
-      integer :: stat
+      character(len=MAX_LENGTH) :: filename
+      character(len=MAX_LENGTH) :: message
+      logical :: test_passed
 
-      if(size(attr_array, ROW) /= PAIR_SIZE) then
-         SET_RC(FAILURE, rc)
-         return
+      filename = 'temp_file'
+      call setup(config, filename, iounit, rc = stat)
+      if(fail_close(stat, SUCCESS, rc)) then
+         write(*, fmt='(A)') 'Setup failed'
+         test_passed = .FALSE.
       end if
 
-      config = ESMF_ConfigCreate(rc=stat)
-
-      if(stat /= SUCCESS) then
-         SET_RC(stat, rc)
-         return
+      if(test_passed) then
+         call test_overwrite(config, LABEL1, VALUE1, LABEL2, test_passed, message, rc=stat)
       end if
 
-      call load_config_array(config, attr_array, rc=stat)
-      if(stat /= SUCCESS) then
-         SET_RC(stat, rc)
-         return
+      if(fail_close(stat, .not. test_passed, rc)) write(*, fmt='(A)') trim(messaage)
+
+      if(test_passed) then
+         if (fail_close(stat, SUCCESS, rc)) write(*, fmt='(A)') 'test_overwrite failed.'
       end if
 
-   end subroutine array_main
+   contains
 
-   subroutine load_config_array(config, attr, rc)
-      type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(in) :: attr(:,:)
-      integer, optional, intent(out) :: rc
-      integer :: stat
-      integer :: i
+      subroutine setup(config, filename, iounit, rc)
+         type(ESMF_Config), intent(inout) :: config
+         character(len=*), intent(in) :: filename
+         integer, intent(inout) :: iounit
+         integer, optional, intent(out) :: rc
+         integer :: stat, ios
+         logical :: config_not_created
 
-      if(.not. config_created(config, stat, rc)) then
-         SET_RC(stat, rc)
-         return
-      end if
+         config = ESMF_ConfigCreate()
+         if(fail_close(stat, SUCCESS, iounit, rc)) return
 
-      do i = 1, size(attr)
-         call ESMF_ConfigSetAttribute(config, value=attr(IVALUE, i), label=attr(ILABEL, i), rc=stat)
-         if(stat /= SUCCESS) then
-            SET_RC(stat, rc)
-            return
+         config_not_created = .not. ESMF_ConfigIsCreated(config, rc=stat)
+         if(fail_close(stat, config_not_created, iounit, rc)) return
+
+         open(file=filename, newunit=iounit, iostat=ios)
+         if(fail_close(ios, IOSUCCESS, rc, FAILURE)) return
+
+         call write_attributes(build_attributes(), iounit, rc=stat)
+         if(fail_close(stat, SUCCESS, rc)) return
+
+         call ESMF_ConfigLoadFile(config, trim(filename),  rc=stat)
+         if(fail_close(stat, SUCCESS, rc)) return
+
+      end subroutine setup
+
+      function build_attributes(nrows, ncols) result(attr)
+         integer, intent(in) :: nr, nc
+         character(len=MAX_LENGTH) :: attr(nr, nc)
+
+         attr = EMPTY_STRING
+         if((nr == NROWS) .and. (nc == NCOLS)) then
+            attr(1, 1) = LABEL1
+            attr(2, 1) = VALUE1
+            attr(1, 2) = LABEL2
+            attr(2, 2) = VALUE2
+            attr(1, 3) = LABEL3
+            attr(2, 3) = VALUE3
          end if
+
+      end function build_attributes
+
+   end subroutine main
+
+   subroutine write_attributes(attributes_, iounit, rc)
+      character(len=*), intent(in) :: attributes_(:, :)
+      integer, intent(in) :: iounit
+      integer, optional, intent(out) :: rc
+      character, parameter :: DELIMITER = ' '
+      character(len=MAX_LENGTH) :: line
+      logical :: is_open
+      integer :: ios, i
+
+      inquire(unit=iounit, opened=is_open, iostat=ios)
+      if(failed(ios, IOSUCCESS, rc, FAILURE)) return
+      if(failed(ios, .not. open, rc, FAILURE)) return
+
+      do i = 1, size(attributes_, 2)
+         line = trim(attributes_(1, i)) // DELIMITER // trim(attributes_(2, i))
+         write(unit=iounit, fmt='(A)', iostat=ios) trim(line)
+         if(failed(ios, IOSUCCESS, rc, FAILURE)) exit
       end do
 
-   end subroutine load_config_array
+   end subroutine write_attributes
 
-!   subroutine load_config_file(config, filename, rc)
-!      type(ESMF_Config), intent(inout) :: config
-!      character(len=*), intent(in) :: filename
-!      integer, optional, intent(out) :: rc
-!      integer :: stat
-!
-!      if(.not. config_created(config, stat, rc=stat)) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!      call ESMF_ConfigLoad(config, filename, rc=stat)
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!   end subroutine load_config_file
-
-   logical function config_created(config, stat, rc) 
+   subroutine test_overwrite(config, label_set, value_set, label_find, passed, message, rc)
       type(ESMF_Config), intent(inout) :: config
-      integer :: stat
+      character(len=*), intent(in) :: label_set, value_set, label_find
+      logical, intent(out) :: passed
+      character(len=MAX_LENGTH), intent(out) :: message
       integer, optional, intent(out) :: rc
-      logical :: config_is_created
+      logical :: is_present
 
-      config_is_created = ESMF_ConfigIsCreated(config, rc=stat)
-      config_is_created = .not. (config_is_created .and. (stat == SUCCESS))
-      if(.not. config_is_created) then
-         SET_RC(stat, rc)
+      call ESMF_ConfigSetAttribute(config, value=value_set, label=label_set, rc=stat)
+      passed = .not. failed(stat, SUCCESS, rc)
+      if(.not. passed) message = 'Failed to set ' // label_set
+
+      if(passed) then
+         call ESMF_ConfigFindLabel(config, label=label_find, isPresent=is_present, rc = stat)
       end if
-      
-      config_created = config_is_created
 
-   end function config_created
+      passed = .not. failed(stat, SUCCESS, rc)
+      if(.not. passed) message = 'Search for ' // label_find // ' failed.'
+      if(passed) passed = .not. failed(stat, is_present, rc)
+      if(.not. passed) message = label_find // ' not found.'
+
+   end subroutine test_overwrite
+
+   function failed_integer(stat, check_value, rc, rc_value) result(lreturn)
+      integer, intent(in) :: stat
+      integer, intent(in)  :: check_value
+      integer, optional, intent(inout) :: rc
+      integer, optional, intent(in) :: rc_value
+      logical :: lreturn
+
+      lreturn = failed(stat, stat /= check_value, rc=rc, rc_value)
+
+   end function failed_integer
+
+   function failed_logical(stat, check_value, rc, rc_value) result(lreturn)
+      integer, intent(in) :: stat
+      logical, intent(in)  :: check_value
+      integer, optional, intent(inout) :: rc
+      integer, optional, intent(in) :: rc_value
+      logical :: lreturn
+
+      lreturn = check_value
+      if(lreturn .and. present(rc)) rc = merge(rc_value, stat, present(rc_value))
+
+   end function failed_logical
+
+   function fail_integer_close(stat, check_value, iounit, rc, rc_value) result(lreturn)
+      integer, intent(in) :: stat, check_value, iounit
+      integer, optional, intent(inout) :: rc
+      integer, optional, intent(in) :: rc_value
+      logical :: lreturn
+
+      lreturn = failed(stat, check_value, rc, rc_value)
+      if(lreturn) close(iounit)
+
+   end function fail_integer_close
+
+   function fail_logical_close(stat, check_value, iounit, rc, rc_value) result(lreturn)
+      integer, intent(in) :: stat, iounit
+      logical, intent(in) :: check_value
+      integer, optional, intent(inout) :: rc
+      integer, optional, intent(in) :: rc_value
+      logical :: lreturn
+
+      lreturn = failed(stat, check_value, rc, rc_value)
+      if(lreturn) close(iounit)
+
+   end function fail_logical_close
 
 end program overwrite_config
-
-!module overwrite_config_mod
-!
-!   use ESMF
-!
-!   implicit none
-!
-!   public:: MAX_LENGTH
-!   public:: ILABEL
-!   public:: IVALUE
-!   public:: PAIR_SIZE
-!   public:: NCOL
-!   public:: SUCCESS
-!   public:: FAILURE
-!   public:: ROW
-!   public:: COLUMN
-!
-!   integer, parameter :: MAX_LENGTH = 80
-!   integer, parameter :: ILABEL = 1
-!   integer, parameter :: IVALUE = 2
-!   integer, parameter :: PAIR_SIZE = 2
-!   integer, parameter :: NCOL = 3
-!   integer, parameter :: SUCCESS = ESMF_SUCCESS
-!   integer, parameter :: FAILURE = SUCCESS - 1
-!   integer, parameter :: ROW = 1
-!   integer, parameter :: COLUMN = 2
-!
-!   private
-!
-!   public :: overwrite_main
-!
-!   interface overwrite_main
-!      module procedure :: file_main
-!      module procedure :: array_main
-!   end interface overwrite_main
-!
-!   interface load_config
-!      module procedure :: load_config_array
-!      module procedure :: load_config_file
-!   end interface load_config
-!
-!contains
-!
-!   subroutine file_main(filename, rc)
-!      character(len=*), intent(in) :: filename
-!      integer, optional, intent(out) :: rc
-!      type(ESMF_Config) :: config
-!      integer :: stat
-!
-!      config = ESMF_ConfigCreate(rc=stat)
-!
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!      call load_config(config, filename, rc=stat)
-!
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!   end subroutine file_main
-!
-!   subroutine array_main(attr_array, rc)
-!      character(len=*), intent(in) :: attr_array(:,:)
-!      integer, optional, intent(out) :: rc
-!      type(ESMF_Config) :: config
-!      integer :: stat
-!
-!      if(size(attr_array, ROW) /= PAIR_SIZE) then
-!         SET_RC(FAILURE, rc)
-!         return
-!      end if
-!
-!      config = ESMF_ConfigCreate(rc=stat)
-!
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!      call load_config(config, attr_array, rc=stat)
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!   end subroutine array_main
-!
-!   subroutine load_config_array(config, attr, rc)
-!      type(ESMF_Config), intent(inout) :: config
-!      character(len=*), intent(in) :: attr(:,:)
-!      integer, optional, intent(out) :: rc
-!      integer :: stat
-!      integer :: i
-!
-!      if(.not. config_created(config, stat, rc)) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!      do i = 1, size(attr)
-!         call ESMF_ConfigSetAttribute(config, value=attr(IVALUE, i), label=attr(ILABEL, i), rc=stat)
-!         if(stat /= SUCCESS) then
-!            SET_RC(stat, rc)
-!            return
-!         end if
-!      end do
-!
-!   end subroutine load_config_array
-!
-!   subroutine load_config_file(config, filename, rc)
-!      type(ESMF_Config), intent(inout) :: config
-!      character(len=*), intent(in) :: filename
-!      integer, optional, intent(out) :: rc
-!      integer :: stat
-!
-!      if(.not. config_created(config, stat, rc=stat)) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!      call ESMF_ConfigLoad(config, filename, rc=stat)
-!      if(stat /= SUCCESS) then
-!         SET_RC(stat, rc)
-!         return
-!      end if
-!
-!   end subroutine load_config_file
-!
-!   logical function config_created(config, stat, rc) 
-!      type(ESMF_Config), intent(inout) :: config
-!      integer :: stat
-!      integer, optional, intent(out) :: rc
-!
-!      config_created = ESMF_ConfigIsCreated(config, rc=stat)
-!      config_created = .not. (config_created .and. (stat == SUCCESS))
-!      if(.not. config_created) SET_RC(stat, rc)
-!      
-!   end function config_created
-!
-!end module overwrite_config_mod
