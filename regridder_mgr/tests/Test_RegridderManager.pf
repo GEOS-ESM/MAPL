@@ -8,6 +8,41 @@ module Test_RegridderManager
 
 contains
 
+   ! Helper procedures
+   ! TODO add error handling to helper procedures
+   
+   function make_geom(geom_mgr) result(geom)
+      type(ESMF_Geom) :: geom
+      type(GeomManager), intent(inout) :: geom_mgr
+
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom), pointer :: mapl_geom
+      class(GeomSpec), allocatable :: spec
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      spec = geom_mgr%make_geom_spec(hconfig, rc=status)
+      mapl_geom => geom_mgr%get_mapl_geom(spec, rc=status)
+      geom = mapl_geom%get_geom()
+   end function make_geom
+
+   function make_field(geom, name, value) result(field)
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), intent(in) :: geom
+      character(*), intent(in) :: name
+      real(kind=ESMF_KIND_R4), intent(in) :: value
+
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name=name, rc=status)
+      call ESMF_FieldEmptySet(field, geom, rc=status)
+      call ESMF_FieldEmptyComplete(field, typekind=ESMF_TypeKind_R4, rc=status)
+      call ESMF_FieldGet(field, farrayptr=x,rc=status)
+      x = value
+
+   end function make_field
+
    @test(type=ESMF_TestMethod, npes=[1])
    ! Just execute a series of plausible commands and ensure that no
    ! failures are indicated Regrid a constant field onto identical
@@ -27,8 +62,7 @@ contains
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager()
 
-      geom = make_geom()
-
+      geom = make_geom(geom_mgr)
 
       ! use default esmf regrid parameters: method, zero region, etc
       regridder_spec = RegridderSpec(EsmfRegridderParam(), geom, geom)
@@ -47,34 +81,37 @@ contains
       @assert_that(x, every_item(is(equal_to(3._ESMF_KIND_R4))))
 
    contains
-      ! TODO add error handling to helper procedures
-
-      function make_geom() result(geom)
-         type(ESMF_Geom) :: geom
-         type(ESMF_HConfig) :: hconfig
-         type(MaplGeom), pointer :: mapl_geom
-         class(GeomSpec), allocatable :: spec
-
-         hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
-         spec = geom_mgr%make_geom_spec(hconfig, rc=status)
-         mapl_geom => geom_mgr%get_mapl_geom(spec, rc=status)
-         geom = mapl_geom%get_geom()
-      end function make_geom
-
-      function make_field(geom, name, value) result(field)
-         type(ESMF_Field) :: field
-         type(ESMF_Geom), intent(in) :: geom
-         character(*), intent(in) :: name
-         real(kind=ESMF_KIND_R4), intent(in) :: value
-
-         field = ESMF_FieldEmptyCreate(name=name, rc=status)
-         call ESMF_FieldEmptySet(field, geom, rc=status)
-         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TypeKind_R4, rc=status)
-         call ESMF_FieldGet(field, farrayptr=x,rc=status)
-         x = value
-
-      end function make_field
 
    end subroutine test_basic
 
-end module Test_RegridderManager
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Just execute a series of plausible commands and ensure that no
+   ! failures are indicated Regrid a constant field onto identical
+   ! geometry should not change any values.
+   subroutine test_reuse_regridder(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager) :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: regridder_spec
+      integer :: status
+      class(Regridder), pointer :: regridder_1, regridder_2
+      type(ESMF_Geom) :: geom
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager()
+
+      geom = make_geom(geom_mgr)
+
+      regridder_spec = RegridderSpec(EsmfRegridderParam(), geom, geom)
+
+      regridder_1 => regridder_mgr%get_regridder(regridder_spec, rc=status)
+      @assert_that(status, is(0))
+
+      regridder_2 => regridder_mgr%get_regridder(regridder_spec, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(associated(regridder_2, regridder_1))
+   end subroutine test_reuse_regridder
+
+   end module Test_RegridderManager
+

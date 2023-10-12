@@ -1,3 +1,5 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_RegridderSpec
    use esmf
    use mapl3g_RegridderParam

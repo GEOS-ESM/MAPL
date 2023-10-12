@@ -3,6 +3,7 @@
 submodule (mapl3g_MaplGeom) MaplGeom_smod
    use mapl3g_GeomSpec
    use mapl3g_VectorBasis
+   use mapl3g_GeomUtilities
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Info
@@ -33,8 +34,7 @@ contains
       integer :: status
       type(ESMF_Info) :: infoh
 
-      call ESMF_InfoGetFromHost(this%geom, infoh, _RC)
-      call ESMF_InfoSet(infoh, 'MAPL::id', id, _RC)
+      call MAPL_GeomSetId(this%geom, id, _RC)
       
       _RETURN(_SUCCESS)
    end subroutine set_id

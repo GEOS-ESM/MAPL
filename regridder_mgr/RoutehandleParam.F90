@@ -188,6 +188,7 @@ contains
 
       eq = same_mask_values(a%srcMaskValues, b%srcMaskValues)
       if (.not. eq) return
+
       eq = same_mask_values(a%dstMaskValues, b%dstMaskValues)
       if (.not. eq) return
 
@@ -223,7 +224,7 @@ contains
 
       eq = a%ignoreDegenerate .eqv. b%ignoreDegenerate
       if (.not. eq) return
-      
+
    contains
 
       logical function same_mask_values(a, b) result(eq)
@@ -248,6 +249,10 @@ contains
 
          eq = .false.
          if (allocated(a) .neqv. allocated(b)) return
+
+         eq = .true.
+         if (.not. allocated(a)) return
+
          eq = (a == b)
 
       end function same_scalar_int
