@@ -31,6 +31,10 @@ module mapl3g_RegridderManager
       procedure :: delete_regridder
    end type RegridderManager
 
+   interface RegridderManager
+      procedure new_RegridderManager
+   end interface RegridderManager
+
 contains
 
    function new_RegridderManager() result(mgr)

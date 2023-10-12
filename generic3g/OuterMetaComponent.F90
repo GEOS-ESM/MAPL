@@ -51,22 +51,25 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_Geom), allocatable                :: geom
-      type(VerticalGeom), allocatable             :: vertical_geom
+!#      type(ChildComponent)                        :: user_comp
+      type(ESMF_GridComp)                         :: user_gridcomp
       type(MultiState)                            :: user_states
       type(ESMF_HConfig)                          :: hconfig
-      type(ChildComponentMap)                     :: children
+
+      type(ESMF_Geom), allocatable                :: geom
+      type(VerticalGeom), allocatable             :: vertical_geom
       logical                                     :: is_root_ = .false.
 
-      type(ESMF_GridComp)                         :: user_gridcomp
       type(MethodPhasesMap)                       :: phases_map
       type(InnerMetaComponent), allocatable       :: inner_meta
 
+      ! Hierarchy
+      type(ChildComponentMap)                     :: children
+      type(HierarchicalRegistry) :: registry
+ 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
       type(ComponentSpec)                         :: component_spec
-      type(OuterMetaComponent), pointer           :: parent_private_state
-      type(HierarchicalRegistry) :: registry
       type(ExtensionVector) :: state_extensions
 
       integer :: counter

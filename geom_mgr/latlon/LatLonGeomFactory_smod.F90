@@ -186,7 +186,7 @@ contains
       lon_axis = spec%get_lon_axis()
       lat_axis = spec%get_lat_axis()
       decomp = spec%get_decomposition()
-      
+
       nx = size(decomp%get_lon_distribution())
       ny = size(decomp%get_lat_distribution())
       call get_ranks(nx, ny, ix, iy, _RC)

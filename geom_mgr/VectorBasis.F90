@@ -18,7 +18,7 @@ module mapl3g_VectorBasis
    integer, parameter :: NJ = 2 ! num dims tangent (u,v)
 
    type :: VectorBasis
-      type(ESMF_Field)  :: elements(NI,NJ)
+      type(ESMF_Field), allocatable :: elements(:,:) ! (NI,NJ)
    contains
       final :: destroy_fields
    end type VectorBasis
