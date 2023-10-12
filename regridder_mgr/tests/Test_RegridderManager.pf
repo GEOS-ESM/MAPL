@@ -10,16 +10,14 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    ! Just execute a series of plausible commands and ensure that no
-   ! failures are indicated
+   ! failures are indicated Regrid a constant field onto identical
+   ! geometry should not change any values.
    subroutine test_basic(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(GeomManager) :: geom_mgr
       type(RegridderManager) :: regridder_mgr
-      type(ESMF_HConfig) :: hconfig
       type(RegridderSpec) :: regridder_spec
       integer :: status
-      type(MaplGeom), pointer :: mapl_geom
-      class(GeomSpec), allocatable :: spec
       class(Regridder), pointer :: my_regridder
       type(ESMF_Geom) :: geom
 
@@ -29,13 +27,7 @@ contains
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager()
 
-      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
-      @assert_that(status, is(0))
-      spec = geom_mgr%make_geom_spec(hconfig, rc=status)
-      @assert_that(status, is(0))
-      mapl_geom => geom_mgr%get_mapl_geom(spec, rc=status)
-      @assert_that(status, is(0))
-      geom = mapl_geom%get_geom()
+      geom = make_geom()
 
 
       ! use default esmf regrid parameters: method, zero region, etc
@@ -44,22 +36,8 @@ contains
       my_regridder => regridder_mgr%get_regridder(regridder_spec, rc=status)
       @assert_that(status, is(0))
 
-      f1 = ESMF_FieldEmptyCreate(name='f1', rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldEmptySet(f1, geom, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldEmptyComplete(f1, typekind=ESMF_TypeKind_R4, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldGet(f1, farrayptr=x,rc=status)
-      @assert_that(status, is(0))
-      x = 3
-      
-      f2 = ESMF_FieldEmptyCreate(name='f2', rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldEmptySet(f2, geom, rc=status)
-      @assert_that(status, is(0))
-      call ESMF_FieldEmptyComplete(f2, typekind=ESMF_TypeKind_R4, rc=status)
-      @assert_that(status, is(0))
+      f1 = make_field(geom, 'f1', value=3._ESMF_KIND_R4)
+      f2 = make_field(geom, 'f2', value=0._ESMF_KIND_R4)
 
       call my_regridder%regrid(f1, f2, rc=status)
       @assert_that(status, is(0))
@@ -67,6 +45,35 @@ contains
       call ESMF_FieldGet(f1, farrayptr=x,rc=status)
       @assert_that(status, is(0))
       @assert_that(x, every_item(is(equal_to(3._ESMF_KIND_R4))))
+
+   contains
+      ! TODO add error handling to helper procedures
+
+      function make_geom() result(geom)
+         type(ESMF_Geom) :: geom
+         type(ESMF_HConfig) :: hconfig
+         type(MaplGeom), pointer :: mapl_geom
+         class(GeomSpec), allocatable :: spec
+
+         hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+         spec = geom_mgr%make_geom_spec(hconfig, rc=status)
+         mapl_geom => geom_mgr%get_mapl_geom(spec, rc=status)
+         geom = mapl_geom%get_geom()
+      end function make_geom
+
+      function make_field(geom, name, value) result(field)
+         type(ESMF_Field) :: field
+         type(ESMF_Geom), intent(in) :: geom
+         character(*), intent(in) :: name
+         real(kind=ESMF_KIND_R4), intent(in) :: value
+
+         field = ESMF_FieldEmptyCreate(name=name, rc=status)
+         call ESMF_FieldEmptySet(field, geom, rc=status)
+         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TypeKind_R4, rc=status)
+         call ESMF_FieldGet(field, farrayptr=x,rc=status)
+         x = value
+
+      end function make_field
 
    end subroutine test_basic
 
