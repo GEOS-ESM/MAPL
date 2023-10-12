@@ -1152,7 +1152,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          len = size (this%times_R8)
          do i=1, len
             int_time = this%times_R8(i)
-            call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, time0, time1=time1, tunit=tunit, _RC)
+            call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, time0, time=time1, time_unit=tunit, _RC)
             this%times(i) = time1
          enddo
 

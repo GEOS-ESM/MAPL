@@ -7,6 +7,7 @@ module MAPL_ISO8601_DateTime_ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ISO8601_DateTime
+   use MAPL_DateTime_Parsing
    use ESMF
    implicit none
 
