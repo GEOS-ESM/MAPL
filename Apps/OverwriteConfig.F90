@@ -18,6 +18,11 @@ program overwrite_config
    integer, parameter :: SUCCESS = ESMF_SUCCESS
    integer, parameter :: FAILURE = SUCCESS - 1
    integer, parameter :: IOSUCCESS = 0
+   character(len=*), parameter :: FMT_ = '(A)'
+   integer :: stat
+
+   call main(rc=stat)
+   if(stat /= 0) write(*, fmt=FMT_) 'Failure'
 
 contains
 
@@ -41,7 +46,7 @@ contains
       filename = 'temp_file'
       call setup(config, filename, iounit, rc = stat)
       if(fail_close(stat, SUCCESS, rc)) then
-         write(*, fmt='(A)') 'Setup failed'
+         write(*, fmt=FMT_) 'Setup failed'
          test_passed = .FALSE.
       end if
 
@@ -49,10 +54,10 @@ contains
          call test_overwrite(config, LABEL1, VALUE1, LABEL2, test_passed, message, rc=stat)
       end if
 
-      if(fail_close(stat, .not. test_passed, rc)) write(*, fmt='(A)') trim(messaage)
+      if(fail_close(stat, .not. test_passed, rc)) write(*, fmt=FMT_) trim(messaage)
 
       if(test_passed) then
-         if (fail_close(stat, SUCCESS, rc)) write(*, fmt='(A)') 'test_overwrite failed.'
+         if (fail_close(stat, SUCCESS, rc)) write(*, fmt=FMT_) 'test_overwrite failed.'
       end if
 
    contains
@@ -115,7 +120,7 @@ contains
 
       do i = 1, size(attributes_, 2)
          line = trim(attributes_(1, i)) // DELIMITER // trim(attributes_(2, i))
-         write(unit=iounit, fmt='(A)', iostat=ios) trim(line)
+         write(unit=iounit, fmt=FMT_, iostat=ios) trim(line)
          if(failed(ios, IOSUCCESS, rc, FAILURE)) exit
       end do
 
@@ -189,5 +194,57 @@ contains
       if(lreturn) close(iounit)
 
    end function fail_logical_close
+
+   integer function randint(low, high, seed) 
+      integer, intent(in) :: low, high
+      integer, optional, intent(in) :: seed
+      integer :: randint
+
+      real(R64) :: harvest
+
+      call random_number(harvest)
+
+      randint = low + floor((high - low + 1) * harvest)
+
+   end function randint
+
+   character function generate_random_character(restricted) result(c)
+      logical, intent(in) :: restricted
+      character, save :: character_set(64) = ''
+      integer :: n
+
+      if(.not. present(restricted)) return
+
+      if(len_trim(character_set) == 0) call create_restricted_character_set(character_set)
+   
+      n = randint(1, 64)
+      c = character(len=*)
+
+   contains
+
+      subroutine create_restricted_character_set(character_set)
+         character, intent(inout) :: character_set(:)
+         integer :: i, j, k, m, sizes
+         integer, parameter :: NR = 2, NC = 3
+         integer :: ranges(:, :) = reshape(&
+            [iachar('0'), iachar('9'), iachar('A'), iachar('Z'), iachar('a'), iachar('z')],&
+            [NR, NC])
+         
+         sizes = size(character_set)
+         character_set = '-_'
+         if(sizes < 3) return
+
+         i = 2
+         
+         do k = 1, size(ranges, 2)
+            m = min(ranges(2, k), 0)
+            do j = min(ranges(1, k), m), m
+               i = i + 1
+               if(i > sizes) return
+               character_set(i) = achar(j)
+            end do
+         end do
+
+   end function generate_random_character
 
 end program overwrite_config
