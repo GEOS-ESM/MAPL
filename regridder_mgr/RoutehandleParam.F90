@@ -151,9 +151,11 @@ contains
 
       field_in = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_in, geom_in, _RC)
+      call ESMF_FieldEmptyComplete(field_in, typekind=ESMF_TypeKind_R4, _RC)
       
       field_out = ESMF_FieldEmptyCreate(name='tmp', _RC)
-      call ESMF_FieldEmptySet(field_in, geom_out, _RC)
+      call ESMF_FieldEmptySet(field_out, geom_out, _RC)
+      call ESMF_FieldEmptyComplete(field_out, typekind=ESMF_TypeKind_R4, _RC)
 
       call ESMF_FieldRegridStore(field_in, field_out, &
            srcMaskValues=param%srcMaskValues, &

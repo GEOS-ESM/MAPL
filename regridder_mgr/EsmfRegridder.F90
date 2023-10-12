@@ -22,7 +22,7 @@ module mapl3g_EsmfRegridder
       type(ESMF_Region_Flag) :: zeroregion
       type(ESMF_TermOrder_Flag) :: termorder
       logical :: checkflag
-      type(DynamicMask), allocatable :: dyn_mask
+      type(DynamicMask) :: dyn_mask
    contains
       procedure :: equal_to
       procedure :: get_routehandle_param
@@ -122,7 +122,12 @@ contains
 
    subroutine regrid_scalar_safe(routehandle, param, f_in, f_out, rc)
       type(ESMF_Routehandle), intent(inout) :: routehandle
-      type(EsmfRegridderParam), intent(in) :: param
+      ! TODO: The TARGET attribute on the next line really should not
+      ! be necessary, but apparently is at least with NAG 7.138.  The
+      ! corresponding dummy arg in the ESMF call below has the TARGET
+      ! attribute, and passing in an unallocated non TARGET actual, is
+      ! apparently not being treated as a non present argument.
+      type(EsmfRegridderParam), target, intent(in) :: param
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
       
@@ -130,10 +135,10 @@ contains
 
       call ESMF_FieldRegrid(f_in, f_out, &
            routehandle=routehandle, &
-           dynamicMask=param%dyn_mask%esmf_mask, &
            termorderflag=param%termorder, &
            zeroregion=param%zeroregion, &
            checkflag=param%checkflag, &
+           dynamicMask=param%dyn_mask%esmf_mask, &
            _RC)
 
       _RETURN(_SUCCESS)
@@ -153,7 +158,7 @@ contains
          if (.not. this%termorder == q%termorder) return
          if (this%checkflag .neqv. q%checkflag) return
          
-         if (allocated(this%dyn_mask) .neqv. allocated(q%dyn_mask)) return
+         if (allocated(this%dyn_mask%esmf_mask) .neqv. allocated(q%dyn_mask%esmf_mask)) return
          if (this%dyn_mask /= q%dyn_mask) return
       class default
          return

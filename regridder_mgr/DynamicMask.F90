@@ -19,7 +19,9 @@ module mapl3g_DynamicMask
       integer :: id = -1
       real(ESMF_KIND_R8), allocatable :: src_mask_value
       real(ESMF_KIND_R8), allocatable :: dst_mask_value
-      type(ESMF_DynamicMask) :: esmf_mask
+      ! The following component is allocatable so that it can be used
+      ! as a non-present optional argument.
+      type(ESMF_DynamicMask), allocatable :: esmf_mask
    end type DynamicMask
 
    interface operator(==)

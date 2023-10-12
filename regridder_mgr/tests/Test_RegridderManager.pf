@@ -1,0 +1,73 @@
+module Test_RegridderManager
+   use pfunit
+   use mapl3g_regridder_mgr
+   use mapl3g_geom_mgr
+   use esmf_TestMethod_mod ! mapl
+   use esmf
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Just execute a series of plausible commands and ensure that no
+   ! failures are indicated
+   subroutine test_basic(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager) :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(ESMF_HConfig) :: hconfig
+      type(RegridderSpec) :: regridder_spec
+      integer :: status
+      type(MaplGeom), pointer :: mapl_geom
+      class(GeomSpec), allocatable :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Field) :: f1, f2
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager()
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      @assert_that(status, is(0))
+      spec = geom_mgr%make_geom_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+      mapl_geom => geom_mgr%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+      geom = mapl_geom%get_geom()
+
+
+      ! use default esmf regrid parameters: method, zero region, etc
+      regridder_spec = RegridderSpec(EsmfRegridderParam(), geom, geom)
+
+      my_regridder => regridder_mgr%get_regridder(regridder_spec, rc=status)
+      @assert_that(status, is(0))
+
+      f1 = ESMF_FieldEmptyCreate(name='f1', rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldEmptySet(f1, geom, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldEmptyComplete(f1, typekind=ESMF_TypeKind_R4, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldGet(f1, farrayptr=x,rc=status)
+      @assert_that(status, is(0))
+      x = 3
+      
+      f2 = ESMF_FieldEmptyCreate(name='f2', rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldEmptySet(f2, geom, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_FieldEmptyComplete(f2, typekind=ESMF_TypeKind_R4, rc=status)
+      @assert_that(status, is(0))
+
+      call my_regridder%regrid(f1, f2, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_FieldGet(f1, farrayptr=x,rc=status)
+      @assert_that(status, is(0))
+      @assert_that(x, every_item(is(equal_to(3._ESMF_KIND_R4))))
+
+   end subroutine test_basic
+
+end module Test_RegridderManager
