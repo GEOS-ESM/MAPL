@@ -11,17 +11,20 @@ contains
    ! Helper procedures
    ! TODO add error handling to helper procedures
    
-   function make_geom(geom_mgr) result(geom)
+   function make_geom(geom_mgr, hconfig) result(geom)
       type(ESMF_Geom) :: geom
       type(GeomManager), intent(inout) :: geom_mgr
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
 
-      type(ESMF_HConfig) :: hconfig
       type(MaplGeom), pointer :: mapl_geom
       class(GeomSpec), allocatable :: spec
       integer :: status
+      type(ESMF_HConfig) :: hconfig_
 
-      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
-      spec = geom_mgr%make_geom_spec(hconfig, rc=status)
+      hconfig_ = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      if (present(hconfig)) hconfig_ = hconfig
+
+      spec = geom_mgr%make_geom_spec(hconfig_, rc=status)
       mapl_geom => geom_mgr%get_mapl_geom(spec, rc=status)
       geom = mapl_geom%get_geom()
    end function make_geom
@@ -85,9 +88,8 @@ contains
    end subroutine test_basic
 
    @test(type=ESMF_TestMethod, npes=[1])
-   ! Just execute a series of plausible commands and ensure that no
-   ! failures are indicated Regrid a constant field onto identical
-   ! geometry should not change any values.
+   ! Test that identical spec returns same regridder object.  I.e.,
+   ! that the manager is properly caching.
    subroutine test_reuse_regridder(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(GeomManager) :: geom_mgr
@@ -112,6 +114,38 @@ contains
 
       @assertTrue(associated(regridder_2, regridder_1))
    end subroutine test_reuse_regridder
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that different spec returns different regridder object.  I.e.,
+   ! that the manager is properly caching.
+   subroutine test_do_not_reuse_regridder(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager) :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec_1, spec_2
+      integer :: status
+      class(Regridder), pointer :: regridder_1, regridder_2
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager()
+
+      geom_1 = make_geom(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 11, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      geom_2 = make_geom(geom_mgr, hconfig) ! variant of geom_1
+
+      spec_1 = RegridderSpec(EsmfRegridderParam(), geom_1, geom_1)
+      regridder_1 => regridder_mgr%get_regridder(spec_1, rc=status)
+      @assert_that(status, is(0))
+
+      spec_2 = RegridderSpec(EsmfRegridderParam(), geom_1, geom_2)
+      regridder_2 => regridder_mgr%get_regridder(spec_2, rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(associated(regridder_1, regridder_2))
+   end subroutine test_do_not_reuse_regridder
 
    end module Test_RegridderManager
 
