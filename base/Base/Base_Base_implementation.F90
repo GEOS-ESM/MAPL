@@ -1311,20 +1311,20 @@ contains
     call ESMF_FieldGet(FIELD, grid=GRID, dimCount=fieldRank, &
          name=fieldName, RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
-    _VERIFY(STATUS)
-    allocate(gridToFieldMap(gridRank), stat=status)
-    _VERIFY(STATUS)
-    call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, typekind=tk, RC=STATUS)
-    _VERIFY(STATUS)
+!    call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
+!    _VERIFY(STATUS)
+!    allocate(gridToFieldMap(gridRank), stat=status)
+!    _VERIFY(STATUS)
+!    call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, typekind=tk, RC=STATUS)
+!    _VERIFY(STATUS)
 
-    hasUngridDims = .false.
-    notGridded = count(gridToFieldMap==0)
-    unGridDims = fieldRank - gridRank + notGridded
+!    hasUngridDims = .false.
+!    notGridded = count(gridToFieldMap==0)
+!    unGridDims = fieldRank - gridRank + notGridded
 
-    if (unGridDims > 0) then
-       hasUngridDims = .true.
-    endif
+!    if (unGridDims > 0) then
+!       hasUngridDims = .true.
+!    endif
 
     if (doCopy_) then
        datacopy = ESMF_DATACOPY_VALUE
@@ -1332,90 +1332,92 @@ contains
        datacopy = ESMF_DATACOPY_REFERENCE
     end if
 
-    f = MAPL_FieldCreateEmpty(name=NAME, grid=grid, rc=status)
-    _VERIFY(STATUS)
+    f = ESMF_FieldCreate(field, datacopyflag=datacopy, name=NAME, _RC)
 
-    if (tk == ESMF_TypeKind_R4) then
-       select case (fieldRank)
-       case (1)
-          call ESMF_FieldGet(field, farrayPtr=var_1d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_1D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case (2)
-          call ESMF_FieldGet(field, farrayPtr=var_2d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_2D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case (3)
-          call ESMF_FieldGet(field, farrayPtr=var_3d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_3D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case (4)
-          call ESMF_FieldGet(field, farrayPtr=var_4d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farray=VAR_4D,    &
-               indexflag=ESMF_INDEX_DELOCAL, &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               ungriddedLBound=[lbound(var_4d,3),lbound(var_4d,4)],&
-               ungriddedUBound=[ubound(var_4d,3),ubound(var_4d,4)],&
-               _RC )
-       case default
-          _FAIL( 'only upto 4D are supported')
-       end select
-    else if (tk == ESMF_TypeKind_R8) then
-       select case (fieldRank)
-       case (1)
-          call ESMF_FieldGet(field, farrayPtr=vr8_1d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_1D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case (2)
-          call ESMF_FieldGet(field, farrayPtr=vr8_2d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_2D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case (3)
-          call ESMF_FieldGet(field, farrayPtr=vr8_3d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_3D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case (4)
-          call ESMF_FieldGet(field, farrayPtr=vr8_4d, rc=status)
-          _VERIFY(STATUS)
-          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_4D,    &
-               gridToFieldMap=gridToFieldMap,                      &
-               datacopyFlag = datacopy,             &
-               rc = status)
-          _VERIFY(STATUS)
-       case default
-          _FAIL( 'only 2D and 3D are supported')
-       end select
-    else
-       _FAIL( 'unsupported typekind')
-    endif
-
-    deallocate(gridToFieldMap)
+!    f = MAPL_FieldCreateEmpty(name=NAME, grid=grid, rc=status)
+!    _VERIFY(STATUS)
+!
+!    if (tk == ESMF_TypeKind_R4) then
+!       select case (fieldRank)
+!       case (1)
+!          call ESMF_FieldGet(field, farrayPtr=var_1d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_1D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case (2)
+!          call ESMF_FieldGet(field, farrayPtr=var_2d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_2D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case (3)
+!          call ESMF_FieldGet(field, farrayPtr=var_3d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_3D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case (4)
+!          call ESMF_FieldGet(field, farrayPtr=var_4d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farray=VAR_4D,    &
+!               indexflag=ESMF_INDEX_DELOCAL, &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               ungriddedLBound=[lbound(var_4d,3),lbound(var_4d,4)],&
+!               ungriddedUBound=[ubound(var_4d,3),ubound(var_4d,4)],&
+!               _RC )
+!       case default
+!          _FAIL( 'only upto 4D are supported')
+!       end select
+!    else if (tk == ESMF_TypeKind_R8) then
+!       select case (fieldRank)
+!       case (1)
+!          call ESMF_FieldGet(field, farrayPtr=vr8_1d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_1D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case (2)
+!          call ESMF_FieldGet(field, farrayPtr=vr8_2d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_2D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case (3)
+!          call ESMF_FieldGet(field, farrayPtr=vr8_3d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_3D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case (4)
+!          call ESMF_FieldGet(field, farrayPtr=vr8_4d, rc=status)
+!          _VERIFY(STATUS)
+!          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_4D,    &
+!               gridToFieldMap=gridToFieldMap,                      &
+!               datacopyFlag = datacopy,             &
+!               rc = status)
+!          _VERIFY(STATUS)
+!       case default
+!          _FAIL( 'only 2D and 3D are supported')
+!       end select
+!    else
+!       _FAIL( 'unsupported typekind')
+!    endif
+!
+!    deallocate(gridToFieldMap)
 
     call MAPL_FieldCopyAttributes(FIELD_IN=field, FIELD_OUT=f, RC=status)
     _VERIFY(STATUS)
