@@ -1,5 +1,22 @@
 #include "MAPL_Generic.h"
 
+! This purpose of this class is to provide a caching mechanism for
+! ESMF Routehandle objects and thereby minimize the creation of
+! distinct ESMF Routehandle objects during execution.  The creation of
+! these objects can be expensive in terms of time and memory, so it is
+! best to recognize when the objects can be used in new contexts.
+
+! A Routehandle can be reused in any regridding scenario with the same
+! in/out geometries.  At the same time there are options to
+! FieldRegrid() that are independent of Routehandle which in turn
+! results in the situation that distinct EsmfRegidder objects may
+! utilize identical Routehandles due to the additional arguments.
+
+! One nice thing is that since MAPL/GEOS only need a single
+! EsmfRegridderFactory object, it is sensible to put a RH Manager
+! object in that derived type rather than use a global object.
+
+
 module mapl3g_RoutehandleManager
    use esmf
    use mapl3g_RoutehandleSpec
@@ -67,7 +84,7 @@ contains
       integer :: status
 
       associate (b => this%specs%begin(), e => this%specs%end())
-          _ASSERT(find(b, e, spec) /= e, "Spec not found in registry.")
+          _ASSERT(find(b, e, spec) == e, "Spec already exists in registry.")
       end associate
 
       routehandle = make_routehandle(spec, _RC)

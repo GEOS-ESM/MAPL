@@ -17,7 +17,7 @@ module mapl3g_EsmfRegridderFactory
 
    type, extends(RegridderFactory) :: EsmfRegridderFactory
       private
-      type(RoutehandleManager) :: routehandle_manager
+      type(RoutehandleManager) :: rh_manager
    contains
       procedure :: supports
       procedure :: make_regridder_typesafe
@@ -32,7 +32,7 @@ contains
    function new_EsmfRegridderFactory() result(factory)
       type(EsmfRegridderFactory) :: factory
 
-      factory%routehandle_manager = RoutehandleManager()
+      factory%rh_manager = RoutehandleManager()
 
    end function new_EsmfRegridderFactory
 
@@ -48,18 +48,21 @@ contains
 
    function make_regridder_typesafe(this, spec, rc) result(regriddr)
       class(Regridder), allocatable  :: regriddr
-      class(EsmfRegridderFactory), intent(in) :: this
+      class(EsmfRegridderFactory), intent(inout) :: this
       type(RegridderSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Routehandle) :: routehandle
+      type(RoutehandleSpec) :: rh_spec
 
       regriddr = NULL_REGRIDDER
       associate (p => spec%get_param())
         select type (p)
         type is (EsmfRegridderParam)
-           routehandle = make_routehandle(spec%get_geom_in(), spec%get_geom_out(), p%get_routehandle_param(), _RC)
+!#           routehandle = make_routehandle(spec%get_geom_in(), spec%get_geom_out(), p%get_routehandle_param(), _RC)
+           rh_spec = RoutehandleSpec(spec%get_geom_in(), spec%get_geom_out(), p%get_routehandle_param())
+           routehandle = this%rh_manager%get_routehandle(rh_spec, _RC)
         class default
            _FAIL('Wrong RegridderParam subclass passed to EsmfRegridderFactory.')
         end select

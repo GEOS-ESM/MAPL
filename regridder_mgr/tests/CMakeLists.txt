@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.geom_mgr/tests")
 set(this MAPL.regridder_mgr.tests)
 
 set (TEST_SRCS
+  Test_RouteHandleManager.pf
   Test_RegridderManager.pf
   )
 
