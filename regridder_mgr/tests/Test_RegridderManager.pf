@@ -79,7 +79,7 @@ contains
       call my_regridder%regrid(f1, f2, rc=status)
       @assert_that(status, is(0))
 
-      call ESMF_FieldGet(f1, farrayptr=x,rc=status)
+      call ESMF_FieldGet(f2, farrayptr=x,rc=status)
       @assert_that(status, is(0))
       @assert_that(x, every_item(is(equal_to(3._ESMF_KIND_R4))))
 
@@ -144,6 +144,52 @@ contains
 
       @assertFalse(associated(regridder_1, regridder_2))
    end subroutine test_do_not_reuse_regridder
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test realistic regridding.  A checkerboard input field (in
+   ! longitude) with constant spacing should produce a constant output
+   ! grid with default bilinear regrid method.
+   subroutine test_regrid_values(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager) :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2
+      real(kind=ESMF_KIND_R4), pointer :: x1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x2(:,:)
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager()
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", rc=status)
+      geom_1 = make_geom(geom_mgr, hconfig)
+
+      hconfig = ESMF_HConfigCreate(content="{im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", rc=status)
+      geom_2 = make_geom(geom_mgr, hconfig) ! variant of geom_1
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, rc=status)
+      @assert_that(status, is(0))
+
+      f1 = make_field(geom_1, 'f1', value=2._ESMF_KIND_R4)
+      call ESMF_FieldGet(f1, farrayptr=x1)
+      x1(2::2,:) = 0 ! checkerboard
+      
+      f2 = make_field(geom_2, 'f2', value=0._ESMF_KIND_R4)
+
+      ! (0 + 2)/2 == 1
+      call my_regridder%regrid(f1, f2, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_FieldGet(f2, farrayptr=x2,rc=status)
+ 
+      @assert_that(status, is(0))
+      @assert_that(x2, every_item(is(equal_to(1._ESMF_KIND_R4))))
+   end subroutine test_regrid_values
 
    end module Test_RegridderManager
 
