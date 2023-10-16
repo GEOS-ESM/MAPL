@@ -18,7 +18,7 @@ contains
       type(ESMF_HConfig) :: hconfig
       integer :: status
       class(GeomSpec), allocatable :: spec
-      type(MaplGeom) :: mapl_geom
+      type(MaplGeom), pointer :: mapl_geom
       type(ESMF_Geom) :: geom
 
       hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
@@ -26,10 +26,11 @@ contains
       @assert_that(status, is(0))
 
       geom_manager = GeomManager()
-      spec = geom_manager%make_geom_spec(hconfig, rc=status)
-      @assert_that(status, is(0))
+!#      spec = geom_manager%make_geom_spec(hconfig, rc=status)
+!#      @assert_that(status, is(0))
 
-      mapl_geom = geom_manager%make_mapl_geom(spec, rc=status)
+!#      mapl_geom = geom_manager%make_mapl_geom(spec, rc=status)
+      mapl_geom => geom_manager%get_mapl_geom(spec, rc=status)
       @assert_that(status, is(0))
 
       geom = mapl_geom%get_geom()

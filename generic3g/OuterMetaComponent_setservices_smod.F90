@@ -8,7 +8,6 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use mapl3g_HierarchicalRegistry
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
-   use mapl3g_geom_mgr, only: geom_manager
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)

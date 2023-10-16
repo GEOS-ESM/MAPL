@@ -32,7 +32,6 @@ contains
       integer, optional, intent(out) :: rc
 
       type(MaplGeom), pointer :: mapl_geom
-      class(GeomSpec), allocatable :: spec
       integer :: status
       type(ESMF_HConfig) :: hconfig_
 
@@ -40,9 +39,7 @@ contains
            _RC2)
       if (present(hconfig)) hconfig_ = hconfig
 
-      spec = geom_mgr%make_geom_spec(hconfig_, rc=status)
-!#      spec = geom_mgr%make_geom_spec(hconfig_, _RC2)
-      mapl_geom => geom_mgr%get_mapl_geom(spec, _RC2)
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig_, _RC2)
       geom = mapl_geom%get_geom()
 
       _RETURN(_SUCCESS)
@@ -63,11 +60,11 @@ contains
       field = ESMF_FieldEmptyCreate(name=name, _RC2)
       call ESMF_FieldEmptySet(field, geom, _RC2)
       if (present(lm)) then
-         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TypeKind_R4, ungriddedLBound=[1], ungriddedUBound=[lm], _RC2)
+         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, ungriddedLBound=[1], ungriddedUBound=[lm], _RC2)
          call ESMF_FieldGet(field, farrayptr=x_3d,_RC2)
          x_3d = value
       else
-         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TypeKind_R4, _RC2)
+         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, _RC2)
          call ESMF_FieldGet(field, farrayptr=x, _RC2)
          x = value
       end if
@@ -212,8 +209,7 @@ contains
    end subroutine test_regrid_values
 
 
-   @disable
-!   @test(type=ESMF_TestMethod, npes=[1])
+!#   @test(type=ESMF_TestMethod, npes=[1])
    ! Test regridding on fields with ungridded dimensions.  ESMF does
    ! not directly support this case, and this test is to drive the
    ! creation of a wrapper layer in MAPL.
