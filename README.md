@@ -33,6 +33,7 @@ MAPL also has a variety of other auxiliary directories:
 9. **docs** - documentation
 
 ## Using MAPL
+
 You can find simple examples on how to use MAPL components in ESMF applications at:
 
 [MAPL Tutorial](https://github.com/GEOS-ESM/MAPL/blob/main/docs/tutorial/README.md)
