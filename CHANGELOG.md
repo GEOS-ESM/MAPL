@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
+- Fix incorrect History print during runtime
 
 ### Removed
 
