@@ -8,12 +8,15 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use mapl3g_HierarchicalRegistry
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
+   use mapl3g_geom_mgr, only: geom_manager
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
    implicit none
 
+
+   logical :: first = .true.
 
 contains
 
@@ -38,6 +41,9 @@ contains
 
       integer :: status
 
+      ! TODO: Move next line eventually
+      if (first) geom_manager = GeomManager() ! init
+      first = .false.
       this%component_spec = parse_component_spec(this%hconfig, _RC)
       call process_user_gridcomp(this, _RC)
       call process_children(this, _RC)

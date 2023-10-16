@@ -132,7 +132,23 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
+      logical :: has_ungridded_dims
+      logical :: has_dynamic_mask
+      integer :: dimCount, rank
 
+
+      call ESMF_FieldGet(f_in, dimCount=dimCount, rank=rank, _RC)
+      has_ungridded_dims = (rank > dimcount)
+      has_dynamic_mask = allocated(param%dyn_mask%esmf_mask)
+      _HERE,'dynamic mask? ', has_dynamic_mask
+      _HERE,'has_ungridded?', has_ungridded_dims, rank ,dimcount
+
+      if (has_dynamic_mask .and. has_ungridded_dims) then
+         call regrid_ungridded(routehandle, param, f_in, f_out, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      
       call ESMF_FieldRegrid(f_in, f_out, &
            routehandle=routehandle, &
            termorderflag=param%termorder, &
@@ -144,6 +160,89 @@ contains
       _RETURN(_SUCCESS)
    end subroutine regrid_scalar_safe
 
+   subroutine regrid_ungridded(routehandle, param, f_in, f_out, rc)
+      type(ESMF_Routehandle), intent(inout) :: routehandle
+      type(EsmfRegridderParam), target, intent(in) :: param
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc 
+
+      integer :: dimCount, rank
+      integer :: status
+
+      integer :: k, n
+      type(ESMF_Field) :: f_tmp_in, f_tmp_out
+
+      call ESMF_FieldGet(f_in, dimCount=dimCount, rank=rank, _RC)
+
+      do k = 1, n
+
+         f_tmp_in = get_slice(f_in, k, _RC)
+         f_tmp_out = get_slice(f_out, k, _RC)
+
+         _HERE, k
+         call ESMF_FieldRegrid(f_tmp_in, f_tmp_out, &
+              routehandle=routehandle, &
+              termorderflag=param%termorder, &
+              zeroregion=param%zeroregion, &
+              checkflag=param%checkflag, &
+              dynamicMask=param%dyn_mask%esmf_mask, &
+              _RC)
+
+         call ESMF_FieldDestroy(f_tmp_in, nogarbage=.true., _RC)
+         call ESMF_FieldDestroy(f_tmp_out, nogarbage=.true.,  _RC)
+         
+      end do
+      
+      _RETURN(_SUCCESS)
+
+   contains
+
+      function get_slice(f, k, rc) result(f_slice)
+         type(ESMF_Field) :: f_slice
+         type(ESMF_Field), intent(inout) :: f
+         integer, intent(in) :: k
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+         real(kind=ESMF_KIND_R4), pointer :: x_slice(:,:)
+         type(ESMF_Geom) :: geom
+         type(ESMF_GeomType_Flag) :: geomtype
+         type(ESMF_Grid) :: grid
+         type(ESMF_Mesh) :: mesh
+         type(ESMF_XGrid) :: xgrid
+         type(ESMF_LocStream) :: locstream
+
+         call ESMF_FieldGet(f, farrayptr=x, _RC)
+         call ESMF_FieldGet(f, geomtype=geomtype, _RC)
+
+         if (geomtype == ESMF_GEOMTYPE_GRID) then
+            call ESMF_FieldGet(f, grid=grid, _RC)
+            geom = ESMF_GeomCreate(grid, _RC)
+         elseif (geomtype == ESMF_GEOMTYPE_MESH) then
+            call ESMF_FieldGet(f, mesh=mesh, _RC)
+            geom = ESMF_GeomCreate(mesh, _RC)
+         elseif (geomtype == ESMF_GEOMTYPE_XGRID) then
+            call ESMF_FieldGet(f, xgrid=xgrid, _RC)
+            geom = ESMF_GeomCreate(xgrid, _RC)
+         elseif (geomtype == ESMF_GEOMTYPE_LOCSTREAM) then
+            call ESMF_FieldGet(f, locstream=locstream, _RC)
+            geom = ESMF_GeomCreate(locstream, _RC)
+         else
+            _FAIL('Invalid geometry type.')
+         end if
+
+         x_slice => x(:,:,k)
+         f_slice = ESMF_FieldCreate(geom, &
+              datacopyflag=ESMF_DATACOPY_REFERENCE, &
+              farrayptr=x_slice, _RC)
+
+         call ESMF_GeomDestroy(geom, _RC)
+         
+         _RETURN(_SUCCESS)
+      end function get_slice
+
+   end subroutine regrid_ungridded
 
    logical function equal_to(this, other)
       class(EsmfRegridderParam), intent(in) :: this

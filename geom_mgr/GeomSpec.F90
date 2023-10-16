@@ -6,6 +6,7 @@ module mapl3g_GeomSpec
    private
 
    public :: GeomSpec
+   public :: NULL_GEOM_SPEC
 
    type, abstract :: GeomSpec
       private
@@ -22,5 +23,21 @@ module mapl3g_GeomSpec
          class(GeomSpec), intent(in) :: b
       end function I_equal_to
    end interface
+
+
+   type, extends(GeomSpec) :: NullGeomSpec
+   contains
+      procedure :: equal_to => false
+   end type NullGeomSpec
+
+   type(NullGeomSpec) :: NULL_GEOM_SPEC
+
+contains
+
+   logical function false(a,b)
+      class(NullGeomSpec), intent(in) :: a
+      class(GeomSpec), intent(in) :: b
+      false = .false.
+   end function false
    
 end module mapl3g_GeomSpec

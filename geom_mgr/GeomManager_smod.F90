@@ -1,3 +1,4 @@
+
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_GeomManager) GeomManager_smod
@@ -136,18 +137,15 @@ contains
 
       associate (b => this%geom_specs%begin(), e => this%geom_specs%end())
         iter = find(first=b, last=e, value=geom_spec)
-
         if (iter /= this%geom_specs%end()) then
            idx = iter - b + 1  ! Fortran index starts at 1
            mapl_geom => this%mapl_geoms%at(idx, _RC)
            _RETURN(_SUCCESS)
         end if
-
       end associate
 
       ! Otherwise build a new geom and store it.
       mapl_geom => this%add_mapl_geom(geom_spec, _RC)
-
       _RETURN(_SUCCESS)
    end function get_mapl_geom_from_spec
 
@@ -224,6 +222,7 @@ contains
       integer :: status
       logical :: supports
 
+      geom_spec = NULL_GEOM_SPEC ! in case construction fails
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          supports = factory%supports(hconfig, _RC)
@@ -259,7 +258,6 @@ contains
          found = .true.
          exit
       end do
-
       _ASSERT(found, 'No factory supports spec.')
 
       geom = factory%make_geom(spec, _RC)

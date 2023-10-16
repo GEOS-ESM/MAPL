@@ -21,7 +21,8 @@ contains
       type(MaplGeom) :: mapl_geom
       type(ESMF_Geom) :: geom
 
-      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
       @assert_that(status, is(0))
 
       geom_manager = GeomManager()
@@ -56,7 +57,8 @@ contains
       type(ESMF_Info) :: infoh
       logical :: flag
 
-      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
       @assert_that(status, is(0))
 
       geom_manager = GeomManager()
@@ -103,7 +105,8 @@ contains
       logical :: is_present
 
       ! geom a
-      hconfig = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
       @assert_that(status, is(0))
       geom_manager = GeomManager()
       spec = geom_manager%make_geom_spec(hconfig, rc=status)
@@ -120,7 +123,8 @@ contains
       
 
       ! geom b
-      hconfig = ESMF_HConfigCreate(content="{im_world: 10, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", rc=status)
+      hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 10, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
       @assert_that(status, is(0))
       spec = geom_manager%make_geom_spec(hconfig, rc=status)
       @assert_that(status, is(0))

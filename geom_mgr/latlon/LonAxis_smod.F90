@@ -118,6 +118,7 @@ contains
       logical :: has_im_world
       logical :: has_lon_range
       logical :: has_dateline
+
       supports = .true.
 
       has_im_world = ESMF_HConfigIsDefined(hconfig, keystring='im_world', _RC)

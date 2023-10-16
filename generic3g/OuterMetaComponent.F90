@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_OuterMetaComponent
+   use mapl3g_geom_mgr
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
    use mapl3g_VariableSpec
    use mapl3g_StateItem
@@ -435,9 +436,15 @@ contains
 
    ! ESMF initialize methods
 
-   ! initialize_geom() is responsible for passing grid down to
-   ! children.  User component can insert a different grid using
-   ! GENERIC_INIT_GRID phase in their component.
+   !----------
+   ! The procedure initialize_geom() is responsible for passing grid
+   ! down to children.  The parent geom can be overridden by a
+   ! component by:
+   !   - providing a geom spec in the generic section of its config
+   !     file, or
+   !   - specifying an INIT_GEOM phase
+   ! If both are specified, the INIT_GEOM overrides the config spec.
+   ! ---------
    recursive subroutine initialize_geom(this, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
@@ -446,11 +453,17 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GRID'
+      type(MaplGeom), pointer :: mapl_geom
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM'
+
+      if (this%component_spec%has_geom_hconfig()) then
+         mapl_geom => geom_manager%get_mapl_geom(this%component_spec%geom_hconfig, _RC)
+         this%geom = mapl_geom%get_geom()
+      end if
 
       call exec_user_init_phase(this, clock, PHASE_NAME, _RC)
       call apply_to_children(this, set_child_geom, _RC)
-      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GRID, _RC)
+      call apply_to_children(this, clock, phase_idx=GENERIC_INIT_GEOM, _RC)
 
       _RETURN(ESMF_SUCCESS)
    contains
@@ -518,6 +531,9 @@ contains
          type(VariableSpecVectorIterator) :: iter
          type(VariableSpec), pointer :: var_spec
 
+         if (this%component_spec%var_specs%size() > 0) then
+            _ASSERT(allocated(this%geom),'Component must define a geom to advertise variables.')
+         end if
          associate (e => this%component_spec%var_specs%end())
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
@@ -753,7 +769,7 @@ contains
       end if
 
       select case (phase_name)
-      case ('GENERIC::INIT_GRID')
+      case ('GENERIC::INIT_GEOM')
          call this%initialize_geom(clock, _RC)
       case ('GENERIC::INIT_ADVERTISE')
          call this%initialize_advertise(clock, _RC)

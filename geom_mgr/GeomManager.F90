@@ -69,7 +69,7 @@ module mapl3g_GeomManager
    integer, parameter :: MAX_ID = 10000
 
    ! Singleton - must be initialized in mapl_init()
-   type(GeomManager) :: geom_manager
+   type(GeomManager), target :: geom_manager
 
    interface GeomManager
       procedure new_GeomManager

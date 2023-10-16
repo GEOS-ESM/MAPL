@@ -159,7 +159,7 @@ contains
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, _RC)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-
+      
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function create_basic_grid
