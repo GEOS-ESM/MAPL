@@ -35,15 +35,10 @@ contains
       integer :: status
       type(ESMF_HConfig) :: hconfig_
 
-      print*,__FILE__,__LINE__
-      hconfig_ = ESMF_HConfigCreate(content="{im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", _RC2)
-      print*,__FILE__,__LINE__
+      hconfig_ = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", _RC2)
       if (present(hconfig)) hconfig_ = hconfig
 
-      print*,__FILE__,__LINE__
-      spec = geom_mgr%make_geom_spec(hconfig_, _RC2)
-      print*,__FILE__,__LINE__
-      mapl_geom => geom_mgr%get_mapl_geom(spec, _RC2)
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig_, _RC2)
       geom = mapl_geom%get_geom()
 
       _RETURN(_SUCCESS)

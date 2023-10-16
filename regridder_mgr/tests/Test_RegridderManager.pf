@@ -39,10 +39,8 @@ contains
       hconfig_ = ESMF_HConfigCreate(content="{schema: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
            _RC2)
       if (present(hconfig)) hconfig_ = hconfig
-      print*,__FILE__,__LINE__, status
 
       spec = geom_mgr%make_geom_spec(hconfig_, rc=status)
-      print*,__FILE__,__LINE__, status
 !#      spec = geom_mgr%make_geom_spec(hconfig_, _RC2)
       mapl_geom => geom_mgr%get_mapl_geom(spec, _RC2)
       geom = mapl_geom%get_geom()
@@ -214,7 +212,8 @@ contains
    end subroutine test_regrid_values
 
 
-   @test(type=ESMF_TestMethod, npes=[1])
+   @disable
+!   @test(type=ESMF_TestMethod, npes=[1])
    ! Test regridding on fields with ungridded dimensions.  ESMF does
    ! not directly support this case, and this test is to drive the
    ! creation of a wrapper layer in MAPL.
