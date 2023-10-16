@@ -17,7 +17,6 @@ contains
       type(GeomManager) :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
-      class(GeomSpec), allocatable :: spec
       type(MaplGeom), pointer :: mapl_geom
       type(ESMF_Geom) :: geom
 
@@ -26,11 +25,7 @@ contains
       @assert_that(status, is(0))
 
       geom_manager = GeomManager()
-!#      spec = geom_manager%make_geom_spec(hconfig, rc=status)
-!#      @assert_that(status, is(0))
-
-!#      mapl_geom = geom_manager%make_mapl_geom(spec, rc=status)
-      mapl_geom => geom_manager%get_mapl_geom(spec, rc=status)
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
       @assert_that(status, is(0))
 
       geom = mapl_geom%get_geom()
