@@ -10,10 +10,9 @@ program overwrite_config
       procedure :: failed_logical
    end interface failed
 
-   interface fail_close
-      procedure :: fail_integer_close
-      procedure :: fail_logical_close
-   end interface fail_close
+   interface append
+      procedure :: append_character
+   end interface append
 
    integer, parameter :: MAX_LENGTH = 1024
    integer, parameter :: SUCCESS = ESMF_SUCCESS
@@ -29,62 +28,100 @@ program overwrite_config
    character(len=*), parameter :: VALUE2 = "'time'"
    character(len=*), parameter :: LABEL3 = 'SwathGrid.nc_Longitude:'
    character(len=*), parameter :: VALUE3 = "'cell_across_swath'"
-   integer :: stat
+   character(len=*), parameter :: SUCCESS_MESSAGE = 'Success: '
+   character(len=*), parameter :: FAILURE_MESSAGE = 'Failure: '
+   character(len=*), parameter :: DELIMITER = ' :: '
 
-   call main(rc=stat)
-   if(stat /= 0) write(*, fmt=FMT_) 'Failure'
+   character(len=MAX_LENGTH) :: filename, message
+   character(len=10) :: date, time
+   integer :: stat, length
+   logical :: passed
+
+   call get_command_argument(1, filename, length, stat)
+   if(stat /= 0 .or. length<1) then
+      call date_and_time(date=date, time=time)
+      filename = 'overwrite_' // trim(date) // trim(time) // '_rc.tmp'
+   end if
+
+   write(*, *) 'temporary file: ' // trim(filename)
+   call main(trim(filename), message, passed)
+
+   if(passed) then
+      message = SUCCESS_MESSAGE // message
+   else
+      message = FAILURE_MESSAGE // message
+   end if
+
+   write(*, FMT_) 'Result - ' // trim(message)
 
 contains
 
-   subroutine main(rc)
-      integer, optional, intent(out) :: rc
-      integer :: stat, iounit
+   subroutine main(filename, message, passed)
+      character(len=*), intent(in) :: filename
+      character(len=MAX_LENGTH), intent(out) :: message
+      character(len=MAX_LENGTH) :: submessage
+      logical, intent(out) :: passed
       type(ESMF_Config) :: config
-      character(len=MAX_LENGTH) :: filename
-      character(len=MAX_LENGTH) :: message
-      logical :: test_passed
+      integer :: stat, iounit, ios
 
-      filename = 'temp_file'
-      call setup(config, filename, iounit, rc = stat)
-      if(fail_close(stat, SUCCESS, rc)) then
-         write(*, fmt=FMT_) 'Setup failed'
-         test_passed = .FALSE.
+      call ESMF_Initialize(rc=stat)
+      passed = (stat == SUCCESS)
+      if(.not. passed) message = 'Failed to initialize ESMF'
+
+      if(passed) then
+         open(file=trim(filename), newunit=iounit, iostat=ios)
+         passed = (ios == IOSUCCESS)
+         if(.not. passed) message = 'Failed to open tempoarary file: ' // filename
       end if
 
-      if(test_passed) then
-         call test_overwrite(config, LABEL1, VALUE1, LABEL2, test_passed, message, rc=stat)
+      if(passed) then
+         call setup(config, filename, iounit, message=submessage, rc=stat)
+         passed = (stat == SUCCESS)
+         message = 'Setup failed'
+         if(.not. passed) message = append(message, submessage, DELIMITER)
+      end if
+      
+      if(passed) then
+         call test_overwrite(config, LABEL1, VALUE1, LABEL2, passed, message = submessage, rc=stat)
+         passed = passed .and. (stat == SUCCESS)
+         if(.not. passed) message = append('test_overwrite failed: ', submessage, DELIMITER)
       end if
 
-      if(fail_close(stat, .not. test_passed, rc)) write(*, fmt=FMT_) trim(message)
-
-      if(test_passed) then
-         if (fail_close(stat, SUCCESS, rc)) write(*, fmt=FMT_) 'test_overwrite failed.'
-      end if
+      if(passed) call ESMF_Finalize(rc=stat)
+      
+      close(iounit, status='DELETE', iostat=ios)
+      if(stat /= SUCCESS) write(*, *) 'Error closing ' // trim(filename) // '. Manually delete if necessary.'
 
    end subroutine main
 
-   subroutine setup(config, filename, iounit, rc)
+   subroutine setup(config, filename, iounit, message, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: filename
-      integer, intent(inout) :: iounit
+      integer, intent(in) :: iounit
+      character(len=*), optional, intent(inout) :: message
       integer, optional, intent(out) :: rc
-      integer :: stat, ios
-      logical :: config_not_created
+      integer :: stat 
+      logical :: config_created, make_message
 
-      config = ESMF_ConfigCreate()
-      if(fail_close(stat, SUCCESS, iounit, rc)) return
+      make_message = present(message)
 
-      config_not_created = .not. ESMF_ConfigIsCreated(config, rc=stat)
-      if(fail_close(stat, config_not_created, iounit, rc)) return
+      config = ESMF_ConfigCreate(rc=stat)
+      if(failed(stat, SUCCESS, rc)) return
 
-      open(file=filename, newunit=iounit, iostat=ios)
-      if(fail_close(ios, IOSUCCESS, iounit, rc=stat)) return
+      config_created = ESMF_ConfigIsCreated(config, rc=stat)
+      if(failed(FAILURE, config_created, rc)) return
+      if(failed(stat, SUCCESS, rc)) return
+
+      if(make_message) message = 'ESMF_ConfigCreate successful'
 
       call write_attributes(build_attributes(), iounit, rc=stat)
-      if(fail_close(stat, SUCCESS, iounit, rc=stat)) return
+      if(failed(stat, SUCCESS, rc=stat)) return
 
-      call ESMF_ConfigLoadFile(config, trim(filename),  rc=stat)
-      if(fail_close(stat, SUCCESS, iounit, rc=stat)) return
+      if(make_message) message = append(message, 'write_attributes successful', DELIMITER)
+      call ESMF_ConfigLoadFile(config, trim(filename), rc=stat)
+      if(failed(stat, SUCCESS, rc=stat)) return
+
+      if(make_message) message = append(message, 'ESMF_ConfigLoadFile successful', DELIMITER)
 
    end subroutine setup
 
@@ -105,14 +142,14 @@ contains
       character(len=*), intent(in) :: attributes_(:, :)
       integer, intent(in) :: iounit
       integer, optional, intent(out) :: rc
-      character, parameter :: DELIMITER = ' '
+      character(len=*), parameter :: DELIMITER = achar(9) ! TAB
       character(len=MAX_LENGTH) :: line
       logical :: is_open
       integer :: ios, i
 
       inquire(unit=iounit, opened=is_open, iostat=ios)
       if(failed(ios, IOSUCCESS, rc, FAILURE)) return
-      if(failed(ios, .not. is_open, rc, FAILURE)) return
+      if(failed(FAILURE, is_open, rc)) return
 
       do i = 1, size(attributes_, 2)
          line = trim(attributes_(1, i)) // DELIMITER // trim(attributes_(2, i))
@@ -128,142 +165,66 @@ contains
       logical, intent(out) :: passed
       character(len=MAX_LENGTH), intent(out) :: message
       integer, optional, intent(out) :: rc
-      logical :: is_present
+      logical :: is_present, test_failed
 
       call ESMF_ConfigSetAttribute(config, value=value_set, label=label_set, rc=stat)
-      passed = .not. failed(stat, SUCCESS, rc)
-      if(.not. passed) message = 'Failed to set ' // label_set
-
-      if(passed) then
+      test_failed = failed(stat, SUCCESS, rc)
+      if(test_failed) then
+         message = 'Failed to set ' // label_set
+      else
          call ESMF_ConfigFindLabel(config, label=label_find, isPresent=is_present, rc = stat)
+         test_failed = failed(stat, SUCCESS, rc)
       end if
 
-      passed = .not. failed(stat, SUCCESS, rc)
-      if(.not. passed) message = 'Search for ' // label_find // ' failed.'
-      if(passed) passed = .not. failed(stat, is_present, rc)
-      if(.not. passed) message = label_find // ' not found.'
+      if(test_failed) then
+         message = 'Search for ' // label_find // ' failed.'
+      else
+         test_failed = .not. failed(FAILURE, is_present, rc)
+      end if
+      
+      if(test_failed) message = label_find // ' not found.'
+
+      passed = .not. test_failed
 
    end subroutine test_overwrite
 
-   function failed_integer(stat, check_value, rc, rc_value) result(lreturn)
+   function failed_integer(stat, check_value, rc, rc_value) result(is_failed)
       integer, intent(in) :: stat
       integer, intent(in)  :: check_value
       integer, optional, intent(inout) :: rc
       integer, optional, intent(in) :: rc_value
-      logical :: lreturn
+      logical :: is_failed
+      integer :: rc_value_
 
-      lreturn = failed(stat, stat /= check_value, rc=rc, rc_value=rc_value)
+      rc_value_ = merge(rc_value, stat, present(rc_value))
+      is_failed = failed(rc_value_, stat == check_value, rc=rc)
 
    end function failed_integer
 
-   function failed_logical(stat, check_value, rc, rc_value) result(lreturn)
+   function failed_logical(stat, check_value, rc) result(is_failed)
       integer, intent(in) :: stat
       logical, intent(in)  :: check_value
       integer, optional, intent(inout) :: rc
-      integer, optional, intent(in) :: rc_value
-      logical :: lreturn
+      logical :: is_failed
 
-      lreturn = check_value
-      if(lreturn .and. present(rc)) rc = merge(rc_value, stat, present(rc_value))
+      is_failed = .not. check_value
+      if(is_failed .and. present(rc)) rc = stat
 
    end function failed_logical
 
-   function fail_integer_close(stat, check_value, iounit, rc, rc_value) result(lreturn)
-      integer, intent(in) :: stat, check_value, iounit
-      integer, optional, intent(inout) :: rc
-      integer, optional, intent(in) :: rc_value
-      logical :: lreturn
+   function append_character(message, update, dlmtr) result(appended)
+      character(len=*), intent(in) :: message
+      character(len=*), intent(in) :: update
+      character(len=*), optional, intent(in) :: dlmtr
+      character(len=MAX_LENGTH) :: appended
+      character(len=:), allocatable :: dlmtr_      
 
-      lreturn = failed(stat, check_value, rc, rc_value)
-      if(lreturn) close(iounit)
-
-   end function fail_integer_close
-
-   function fail_logical_close(stat, check_value, iounit, rc, rc_value) result(lreturn)
-      integer, intent(in) :: stat, iounit
-      logical, intent(in) :: check_value
-      integer, optional, intent(inout) :: rc
-      integer, optional, intent(in) :: rc_value
-      logical :: lreturn
-
-      lreturn = failed(stat, check_value, rc, rc_value)
-      if(lreturn) close(iounit)
-
-   end function fail_logical_close
-
-   integer function randint(low, high, seed)
-      integer, intent(in) :: low, high
-      integer, optional, intent(in) :: seed
-
-      real(R64) :: harvest
-
-      call random_number(harvest)
-
-      randint = low + floor((high - low + 1) * harvest)
-
-   end function randint
-
-   subroutine create_restricted_character_set(chars)
-      character, intent(inout) :: chars(:)
-      integer :: i, j, k, m, sizes
-      integer, parameter :: RANGE_SIZE = 2
-      integer :: ranges(RANGE_SIZE, 5)
-
-      ranges = reshape([ &
-            iachar('0'), iachar('9'), &
-            iachar('A'), iachar('Z'), &
-            iachar('a'), iachar('z'), &
-            iachar('-'), iachar('-'), &
-            iachar('_'), iachar('_')  &
-         ], shape(ranges))
-
-      sizes = size(chars)
-      chars = '-_'
-      if(sizes < 3) return
-
-      i = 2
-
-      do k = 1, size(ranges, 2)
-         m = min(ranges(2, k), 0)
-         do j = min(ranges(1, k), m), m
-            i = i + 1
-            if(i > sizes) return
-            chars(i) = achar(j)
-         end do
-      end do
-
-   end subroutine create_restricted_character_set
-
-   character function generate_random_character(restricted) result(c)
-      logical, optional, intent(in) :: restricted
-      character, save :: character_set(64) = EMPTY_STRING
-      integer, save :: size_chars
-      logical :: restricted_ = .TRUE.
-
-      if(present(restricted)) restricted_ = restricted
-      
-      if(restricted) then
-         if(all(character_set == '')) then
-             call create_restricted_character_set(character_set)
-             size_chars = size(character_set)
-         end if
-         c = character_set(randint(1, size(character_set)))
+      if(present(dlmtr)) then
+         appended = trim(message) // dlmtr_ // update
+      else
+         appended = trim(message) // update
       end if
-      
-   end function generate_random_character
 
-   function generate_random_characters(length, restricted) result(chars)
-      integer, intent(in) :: length
-      logical, optional, intent(in) :: restricted
-      character(len=length) :: chars
-      integer :: i
-
-      chars = EMPTY_STRING
-
-      do i = 1, length
-         chars(i:i) = generate_random_character(restricted)
-      end do
-
-   end function generate_random_characters
+   end function append_character
 
 end program overwrite_config
