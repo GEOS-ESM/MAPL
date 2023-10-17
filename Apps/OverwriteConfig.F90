@@ -180,9 +180,8 @@ contains
          message = 'Search for ' // label_find // ' failed.'
       else
          test_failed = .not. failed(FAILURE, is_present, rc)
+         if(test_failed) message = label_find // ' not found.'
       end if
-      
-      if(test_failed) message = label_find // ' not found.'
 
       passed = .not. test_failed
 
@@ -217,10 +216,9 @@ contains
       character(len=*), intent(in) :: update
       character(len=*), optional, intent(in) :: dlmtr
       character(len=MAX_LENGTH) :: appended
-      character(len=:), allocatable :: dlmtr_      
 
       if(present(dlmtr)) then
-         appended = trim(message) // dlmtr_ // update
+         appended = trim(message) // dlmtr // update
       else
          appended = trim(message) // update
       end if
