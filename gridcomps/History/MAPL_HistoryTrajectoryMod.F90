@@ -8,16 +8,21 @@ module HistoryTrajectoryMod
   use MAPL_LocstreamRegridderMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
+  integer, parameter :: mx_ngeoval = 60
+
   private
 
   public :: obs_unit
   type :: obs_unit
      integer :: nobs_epoch
+     integer :: ngeoval
+     logical :: export_all_geoval
      type(FileMetadata), allocatable            :: metadata
      type(NetCDF4_FileFormatter), allocatable   :: file_handle
      character(len=ESMF_MAXSTR)                 :: name
      character(len=ESMF_MAXSTR)                 :: obsFile_output
      character(len=ESMF_MAXSTR)                 :: input_template
+     character(len=ESMF_MAXSTR)                 :: geoval_name(mx_ngeoval)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)

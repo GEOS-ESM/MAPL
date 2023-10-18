@@ -142,7 +142,7 @@ contains
     endif
     attr = str(1:i+5)//trim(str2)
     deallocate(str)
-    call check_nc_status(nf90_close(ncid), _RC)
+    call check_nc_status(nf90_close(ncid2), _RC)
 
     _RETURN(_SUCCESS)
 

@@ -36,7 +36,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer                    :: status
          character(len=ESMF_MAXSTR) :: STR1, line
          character(len=ESMF_MAXSTR) :: symd, shms
-         integer                    :: nline, ncol
+         integer                    :: nline, ncol, col
+         integer                    :: nobs, head, jvar         
+         
          logical                    :: tend
          integer                    :: i, j, k
          integer                    :: unitr, unitw         
@@ -113,54 +115,104 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%is_valid = .true.
 
 
+         ! __ s1. overall print
          call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
          _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
-
+         write(6,*) 'nline, col', nline, col
          
+
+         ! __ s2. find nobs  &&  distinguish design with vs wo  '------'
+         nobs=0
+         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+         do i=1, nline
+            call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
+            call ESMF_ConfigGetAttribute( config, STR1, rc=rc)
+            if ( index(trim(STR1), '-----') > 0 ) nobs=nobs+1
+         enddo
+
+         ! __ s3. retrieve template and geoval, set metadata file_handle
+         lgr => logging%get_logger('HISTORY.sampler')         
+         if ( nobs == 0 ) then
+            !
+            !-- no separate treatment for geovals, output will print out all variabls
+            !   treatment-1:
+            traj%nobs_type = nline         ! here .rc format cannot have empty spaces
+            allocate (traj%obs(nline))
+            do k=1, nline
+               allocate (traj%obs(k)%metadata)
+               if (mapl_am_i_root()) then
+                  allocate (traj%obs(k)%file_handle)
+               end if
+            end do
+            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+            do i=1, nline
+               call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
+               call ESMF_ConfigGetAttribute( config, traj%obs(i)%input_template, rc=rc)
+               traj%obs(i)%export_all_geoval = .true.
+            enddo
+         else
+            !
+            !-- selectively output geovals
+            !   treatment-2:
+            traj%nobs_type = nobs
+            allocate (traj%obs(nobs))          
+            do k=1, nobs
+               allocate (traj%obs(k)%metadata)
+               if (mapl_am_i_root()) then
+                  allocate (traj%obs(k)%file_handle)
+               end if
+            end do
+            !
+            nobs=0   ! reuse counter
+            head=1
+            jvar=0
+            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+
+            !
+            !-- To be added
+            !
+            !   count '------' as ngeoval
+            !
+            do i=1, nline
+               call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
+               call ESMF_ConfigGetAttribute( config, STR1, rc=rc)
+               if ( index(trim(STR1), '-----') == 0 ) then
+                  if (head==1 .AND. trim(STR1)/='') then
+                     nobs=nobs+1
+                     traj%obs(nobs)%input_template = trim(STR1)
+                     traj%obs(nobs)%export_all_geoval = .false.
+                     head=0
+                  else
+                     if (trim(STR1)/='') then
+                        jvar=jvar+1
+                        traj%obs(nobs)%geoval_name(jvar) = trim(STR1)
+                     end if
+                  end if
+               else
+                  traj%obs(nobs)%ngeoval=jvar
+                  head=1
+                  jvar=0
+               endif
+            enddo
+         end if
+
+         call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
+         do i=1, traj%nobs_type
+            call lgr%debug('%a %i4 %a  %a', 'obs(', i, ') input_template =', &
+                 trim(traj%obs(i)%input_template))
+            j=index(traj%obs(i)%input_template , '%')
+            k=index(traj%obs(i)%input_template , '/', back=.true.)
+            _ASSERT(j>0, '% is not found,  template is wrong')
+            traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
+         end do
          
 
-!         call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
-!         _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
-!         traj%nobs_type = nline
-!         allocate (traj%obs(nline))
-!         do k=1, nline
-!            allocate (traj%obs(k)%metadata)
-!            if (mapl_am_i_root()) then
-!               allocate (traj%obs(k)%file_handle)
-!            end if
-!         end do
-!         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
-!         lgr => logging%get_logger('HISTORY.sampler')
-!         call lgr%debug('%a %i8', 'nobs_type=', nline)
-!
-!         do i=1, nline
-!            call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
-!            call ESMF_ConfigGetAttribute( config, traj%obs(i)%input_template, rc=rc)
-!            call lgr%debug('%a %i4 %a  %a', 'obs(', i, ') input_template =', &
-!                 trim(traj%obs(i)%input_template))
-!            j=index(traj%obs(i)%input_template , '%')
-!            k=index(traj%obs(i)%input_template , '/', back=.true.)
-!            _ASSERT(j>0, '% is not found,  template is wrong')
-!            traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
-!         enddo
-
-
-!         unitr = getfile ( config, form='formatted', _RC)
-!         unitw = getfile ( 'temp_hist.rcx', form='formatted', _RC)         
-!
-!         do while (.true.)
-!            read (unitr, '(a)', end=1234) line
-!            write (unitw, '(a)') line
-!         enddo
-!1234     continue
-         
-         
          
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
-       end procedure
+       end procedure HistoryTrajectory_from_config
 
 
        module procedure initialize
@@ -510,6 +562,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             this%var_name_lon = this%nc_longitude(i+1:)
             this%var_name_time= this%nc_time(i+1:)
 
+            write(6,'(100(2x,a))') 'grp_name,this%var_name_lat,this%var_name_lon,this%var_name_time', &
+                 trim(grp_name),trim(this%var_name_lat),trim(this%var_name_lon),trim(this%var_name_time)                 
+
+
             L=0
             fid_s=this%obsfile_Ts_index
             fid_e=this%obsfile_Te_index
@@ -691,6 +747,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             ! defer destroy fieldB at regen_grid step
             !
          end if
+
+         _FAIL('ck')
+
          _RETURN(_SUCCESS)
        end procedure create_grid
 
