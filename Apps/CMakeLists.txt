@@ -49,3 +49,6 @@ endif ()
 
 ecbuild_add_executable (TARGET OverwriteConfig.x SOURCES OverwriteConfig.F90)
 target_link_libraries (OverwriteConfig.x PRIVATE MPI::MPI_Fortran esmf)
+
+ecbuild_add_executable (TARGET SimpleOverwriteConfig.x SOURCES SimpleOverwriteConfig.F90)
+target_link_libraries (SimpleOverwriteConfig.x PRIVATE MPI::MPI_Fortran esmf)
