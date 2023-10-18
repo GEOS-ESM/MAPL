@@ -1613,6 +1613,7 @@ contains
                   if (MAPL_AM_I_Root(VM)) then
                      call ESMF_StatePrint(Import)
                   end if
+                  _RETURN(ESMF_FAILURE)
                end if
             endif
          end if

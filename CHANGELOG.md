@@ -9,18 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add new benchmark to simulation writing a cubed-sphere file using various tunable strategies
+
 ### Changed
 
 - Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
 - Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
+- Extend unit tests for FileSystemUtilities.
+- Updated handling of NetCDF time values
 
 ### Fixed
 
-- Various fixes for NVHPCP work
+- Various fixes for NVHPC work
+- Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
+- Fix incorrect History print during runtime
 
 ### Removed
 
 ### Deprecated
+
+## [2.41.1] - 2023-10-04
+
+### Fixed
+
+- Adding missing check on the return status when reading import checkpoint in MAPL\_GenericInitialize
 
 ## [2.41.0] - 2023-09-22
 
@@ -156,6 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Suppress some common warnings with Intel Debug
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
 - Update CI to use BCs v11.1.0 and Baselibs 7.14.0
+- Update MAPL_NetCDF public subroutine returns and support for real time
 - Updates to support building MAPL with spack instead of Baselibs
   - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
   - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
