@@ -52,3 +52,6 @@ target_link_libraries (OverwriteConfig.x PRIVATE MPI::MPI_Fortran esmf)
 
 ecbuild_add_executable (TARGET SimpleOverwriteConfig.x SOURCES SimpleOverwriteConfig.F90)
 target_link_libraries (SimpleOverwriteConfig.x PRIVATE MPI::MPI_Fortran esmf)
+
+ecbuild_add_executable (TARGET OverwriteConfig_FullTest.x SOURCES OverwriteConfig_FullTest.F90)
+target_link_libraries (OverwriteConfig_FullTest.x PRIVATE MPI::MPI_Fortran esmf)
