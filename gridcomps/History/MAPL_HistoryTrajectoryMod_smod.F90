@@ -138,12 +138,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !   treatment-1:
             traj%nobs_type = nline         ! here .rc format cannot have empty spaces
             allocate (traj%obs(nline))
-            do k=1, nline
-               allocate (traj%obs(k)%metadata)
-               if (mapl_am_i_root()) then
-                  allocate (traj%obs(k)%file_handle)
-               end if
-            end do
             call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
             do i=1, nline
                call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
@@ -156,12 +150,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !   treatment-2:
             traj%nobs_type = nobs
             allocate (traj%obs(nobs))          
-            do k=1, nobs
-               allocate (traj%obs(k)%metadata)
-               if (mapl_am_i_root()) then
-                  allocate (traj%obs(k)%file_handle)
-               end if
-            end do
             !
             nobs=0   ! reuse counter
             head=1
@@ -196,6 +184,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
          end if
 
+         do k=1, traj%nobs_type
+            allocate (traj%obs(k)%metadata)
+            if (mapl_am_i_root()) then
+               allocate (traj%obs(k)%file_handle)
+            end if
+         end do
+         
          call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
          do i=1, traj%nobs_type
             call lgr%debug('%a %i4 %a  %a', 'obs(', i, ') input_template =', &
