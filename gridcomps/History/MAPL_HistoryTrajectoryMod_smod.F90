@@ -200,16 +200,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             _ASSERT(j>0, '% is not found,  template is wrong')
             traj%obs(i)%name = traj%obs(i)%input_template(k+1:j-1)
          end do
-         
-
-         
+                  
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
        end procedure HistoryTrajectory_from_config
 
-
+       
+       !
+       !-- integrate both initialize and reinitialize
+       !
        module procedure initialize
          integer :: status
          type(ESMF_Grid) :: grid
@@ -223,22 +224,22 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             if(present(bundle))   this%bundle=bundle
             if(present(items))    this%items=items
             if(present(timeInfo)) this%time_info=timeInfo            
-         end if
-         if (present(vdata)) then
-            this%vdata=vdata
+            if (present(vdata)) then
+               this%vdata=vdata
+            else
+               this%vdata=VerticalData(_RC)
+            end if
          else
-            this%vdata=VerticalData(_RC)
+            if (reinitialize) then
+               do k=1, this%nobs_type
+                  allocate (this%obs(k)%metadata)
+                  if (mapl_am_i_root()) then
+                     allocate (this%obs(k)%file_handle)
+                  end if
+               end do
+            end if
          end if
          
-         do k=1, this%nobs_type
-            if (.not. allocated (this%obs(k)%metadata)) &
-                 allocate (this%obs(k)%metadata)
-            if (mapl_am_i_root()) then
-               if (.not. allocated (this%obs(k)%file_handle)) &
-                    allocate (this%obs(k)%file_handle)
-            end if
-         end do
-
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
