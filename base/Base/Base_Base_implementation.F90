@@ -3500,32 +3500,23 @@ contains
     integer :: status
     integer :: k, n
     integer :: k1,k2,kk
-    integer :: gridRank
-
     logical                    :: has_ungrd
     integer                    :: ungrd_cnt
     integer                    :: fieldRank
     integer, allocatable       :: ungrd(:)
     integer, allocatable       :: localMinIndex(:), localMaxIndex(:)
     type(ESMF_Field)           :: f, fld
-    type(ESMF_Grid)            :: grid
-    type(ESMF_Array)           :: array, arraySlice
-    type(ESMF_TypeKind_Flag)   :: tk
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
     character(len=ESMF_MAXSTR) :: longName
 
-    type(ESMF_Index_Flag) :: arrayIndexFlag, gridIndexFlag
-
-    call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, _RC)
-
-    call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
+    call ESMF_FieldGet(field, name=name, _RC)
 
     call ESMF_FieldGet(FIELD, dimCount=fieldRank, _RC)
 
     allocate(localMinIndex(fieldRank),localMaxIndex(fieldRank), _STAT)
-    call ESMF_FieldGet(Field, array=array,&
+    call ESMF_FieldGet(Field, &
          localMinIndex=localMinIndex, localMaxIndex=localMaxIndex, _RC)
 
     k1 = localMinIndex(fieldRank)
