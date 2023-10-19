@@ -1,18 +1,5 @@
 !=========================== SIMPLE_OVERWRITE_CONFIG ===========================
 ! =========== Simple reproducer for ESMF_SetAttribute overwrite bug. ===========
-
-! The config file name is hard-coded to "OverwriteConfig.rc", so
-! "OverwriteConfig.rc" must exist in the directory where the application is run.
-! The contents of "OverwriteConfig.rc" are found at the end of the program file.
-! Attribute labels are hard-coded, so "OverwriteConfig.rc" must match the
-! contents at the end of this program file.
-
-! The test is performed in sections 4 and 5. Sections 1 to 3 are setup, and
-! section 6 is teardown. So there are 6 ESMF procedure calls, but the test is 
-! two ESMF procedure calls. There are return (rc) calls to verify that each
-! ESMF procedure call is successful, even if the result indicates a bug.
-! LABEL = 1, VALUE = 2
-
 program simple_overwrite_config
 
    use ESMF
@@ -23,7 +10,7 @@ program simple_overwrite_config
    integer, parameter            :: MAX_LENGTH = 64
    integer, parameter            :: IOSUCCESS = 0
    character(len=*), parameter   :: NEW_VALUE = '19991231235959'
-   character(len=*), parameter   :: DEFNAME = 'OverwriteConfig.rc.tmp'
+   character(len=*), parameter   :: DEFNAME = 'overwriteconfig.rc.tmp'
    character(len=*), parameter   :: AFMT = '(A)'
    character(len=*), parameter   :: FIRST_LABEL = 'LABEL1:'
    character(len=*), parameter   :: SECOND_LABEL = 'LABEL2:'
@@ -32,12 +19,12 @@ program simple_overwrite_config
    type(ESMF_Config) :: config
    integer :: stat
    character(len=MAX_LENGTH) :: filename
-   logical :: is_open, label_found, filename_found
+   logical :: label_found
 
 !  1. Initialize.
    call ESMF_Initialize(rc=stat)
    call check(stat == ESMF_SUCCESS, 'Initialize ESMF failed.')
-   call setup(config, filename, filename_found)
+   call setup(config, filename)
 
 !=================================== TEST ======================================
    ! 2. Set (new) value for first attribute.
@@ -54,7 +41,9 @@ program simple_overwrite_config
       write(*, fmt=AFMT) 'Second attribute is not found.'
    end if
 !================================= END TEST ====================================
-   call teardown(config, filename_found, KEEP_TEMPORARY_FILE, filename)
+
+   call ESMF_ConfigDestroy(config, rc=stat)
+   if(stat /= ESMF_SUCCESS) write(*, fmt=AFMT) 'Destroy failed for config.'
 
 contains
 
@@ -72,11 +61,9 @@ contains
 
    end subroutine check
 
-   subroutine setup(config, filename, filename_found)
+   subroutine setup(config, filename)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(out) :: filename
-      logical, intent(out) :: filename_found
-      character(len=:), allocatable :: attribute(:,:)
       character(len=MAX_LENGTH) :: message
       logical :: successful
       integer :: stat
@@ -86,11 +73,7 @@ contains
       call check(stat == ESMF_SUCCESS, 'Create config failed.')
 
       call get_command_argument(1, filename, status=stat)
-      filename_found = (stat == IOSUCCESS)
-      if(.not. filename_found) then
-         ! Make attributes for ESMF_Config.
-         attribute = make_attribute()
-
+      if(.not. (stat == IOSUCCESS)) then
          ! Generate config file.
          filename = DEFNAME
          call generate_config_file(filename, message, successful)
@@ -103,31 +86,11 @@ contains
 
    end subroutine setup
 
-   subroutine teardown(config, filename_found, keep_temp_file, filename)
-      type(ESMF_Config), intent(inout) :: config
-      logical, intent(in) :: filename_found, keep_temp_file
-      character(len=*), intent(in) :: filename
-      integer :: iounit, ios, stat
-
-      ! 5. Destroy config.
-      call ESMF_ConfigDestroy(config, rc=stat)
-      if(stat /= ESMF_SUCCESS) write(*, fmt=AFMT) 'Destroy failed for config.'
-
-      if(filename_found  .or. keep_temp_file) return
-
-      inquire(file=trim(filename), number=iounit, iostat=ios)
-      if(ios == 0) close(unit=iounit, status='DELETE', iostat=ios)
-      if(ios /= 0) write(*, fmt=AFMT) 'Failed to delete temporary file ' // trim(filename)
-
-   end subroutine teardown
-
    subroutine generate_config_file(filename, message, successful)
       character(len=*), intent(in) :: filename
       character(len=*), intent(out) :: message
       logical, intent(out) :: successful
-      type(ESMF_Config) :: config
-      character(len=MAX_LENGTH) :: label, value
-      integer :: iounit, i, ios, stat = 0
+      integer :: iounit, i, ios
       character(len=:), allocatable :: attribute(:, :)
 
       write(*, fmt=AFMT) 'temporary file = ' // trim(filename)
@@ -144,44 +107,29 @@ contains
       successful = (ios == 0)
       if(.not. successful) then
          close(unit=iounit, iostat=ios)
-         message = 'Failed to close filename ' // trim(filename)
-         return
-      end if
-
-      ! 6. Create config (locally.)
-      config = ESMF_ConfigCreate(rc=stat)
-      successful = (stat == ESMF_SUCCESS)
-      if(.not. successful) then
-         close(unit=iounit, iostat=ios)
-         message = 'Failed to create config for temporary file'
+         message = 'Failed to open filename ' // trim(filename)
          return
       end if
 
       attribute = make_attribute()
-
-      ! 7. Set attributes.
       do i = 1, size(attribute, 2)
-         label = attribute(1, i)
-         value = attribute(2, i)
-         call ESMF_ConfigSetAttribute(config, value=trim(value), &
-            label=trim(label), rc=stat)
-         successful = (stat == ESMF_SUCCESS)
-         if(.not. successful) exit
+         write(*, *) trim(attribute(1, i)) // ' ' // trim(attribute(2,i))
+         write(unit=iounit, fmt='(A)', iostat=ios) trim(attribute(1, i)) // ' ' // trim(attribute(2,i))
+         successful = (ios == 0)
+         if(.not. successful) then
+            message = 'Failed to write'
+            exit
+         end if
       end do
 
-      if(.not. successful) then
-         close(unit=iounit, iostat=ios)
-         message = 'Failed to set attribute ' // trim(attribute(1, i))
-         return
-      end if
-
-      ! 8. Destroy config (locally.)
-      call ESMF_ConfigDestroy(config, rc=stat)
-      if(stat /= ESMF_SUCCESS) message = 'Failed to destroy ESMF_Config :: '
-
-      message = trim(message) // 'Config file generated successfully'
-
       close(unit=iounit, iostat=ios)
+      successful = (ios == IOSUCCESS)
+
+      if(successful .and. len_trim(message) == 0) then
+         message = 'Config file generated successfully'
+      else
+         message = trim(message) // ' :: Failed to close'
+      end if
       
    end subroutine generate_config_file
 

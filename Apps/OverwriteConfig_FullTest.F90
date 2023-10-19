@@ -89,8 +89,8 @@ contains
 
       if(passed) call ESMF_Finalize(rc=stat)
       
-      close(iounit, status='DELETE', iostat=ios)
-      if(stat /= SUCCESS) write(*, *) 'Error closing ' // trim(filename) // '. Manually delete if necessary.'
+      close(iounit, status='KEEP', iostat=ios)
+      if(stat /= SUCCESS) write(*, *) 'Error closing ' // trim(filename) // '.' 
 
    end subroutine main
 
