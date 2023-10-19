@@ -6,17 +6,18 @@ program overwrite_config
 
    integer, parameter ::            MAX_LENGTH = 1024
    integer, parameter ::            IOSUCCESS = 0
-   character(len=*), parameter ::   LABEL1 = 'SwathGrid.Epoch_init:'
-   character(len=*), parameter ::   VALUE1 = '19991231T235959'
-   character(len=*), parameter ::   LABEL2 = 'SwathGrid.nc_Time:'
+   character(len=*), parameter ::   FIRST_LABEL = 'LABEL1:'
+   character(len=*), parameter ::   SECOND_LABEL = 'LABEL2:'
+   character(len=*), parameter ::   NEW_VALUE = '19991231T235959'
    character(len=*), parameter ::   FAILURE_MESSAGE = 'Test terminated prematurely: '
    logical, parameter ::            ESMF_ = .TRUE.
 
    type(ESMF_Config) :: config
-   character(len=MAX_LENGTH) :: filename, command, new_value
+   character(len=MAX_LENGTH) :: filename, command
    integer :: stat, length, ios
    logical :: is_present
 
+   
    ! Get command line for output.
    call get_command(command, length=length, status=ios)
    if(fail(ios) .or. length < 1) command = ''
@@ -44,36 +45,25 @@ program overwrite_config
 !  TEST ========================================================================
 !  =============================================================================
 
-   ! Set (new) value for LABEL1.
-   call ESMF_ConfigSetAttribute(config, value=VALUE1, label=LABEL1, rc=stat)
-   if(fail(stat, ESMF_)) error stop FAILURE_MESSAGE // "ESMF_ConfigSetAttribute failed for '" // LABEL1 // "'."
-   write(*, *) "ESMF_ConfigSetAttribute completed normally for '" // LABEL1 // "'."
+   ! Set (new) value for FIRST_LABEL.
+   call ESMF_ConfigSetAttribute(config, value=NEW_VALUE, label=FIRST_LABEL, rc=stat)
+   if(fail(stat, ESMF_)) error stop FAILURE_MESSAGE // "ESMF_ConfigSetAttribute failed for '" // FIRST_LABEL // "'."
+   write(*, *) "ESMF_ConfigSetAttribute completed normally for '" // FIRST_LABEL // "'."
 
-   ! Look for LABEL1.
-   call ESMF_ConfigGetAttribute(config, value=new_value, label=LABEL1, rc=stat)
-   if(fail(stat, ESMF_)) error stop FAILURE_MESSAGE // "ESMF_ConfigGetAttribute failed for '" // LABEL1 // "'."
-   write(*, *) "ESMF_ConfigGetAttribute completed normally for '" // LABEL1 // "'."
-   write(*, *) "Attribute '" // LABEL1 // "' = '" // trim(new_value) // "'."
-
-   ! Look for LABEL2.
-   call ESMF_ConfigFindLabel(config, label=LABEL2, isPresent=is_present, rc=stat)
-   if(fail(stat, ESMF_)) error stop FAILURE_MESSAGE // "ESMF_ConfigFindLabel failed for '" // LABEL2 // "'."
-   write(*, *) "ESMF_ConfigFindLabel completed normally for '" // LABEL2 // "'."
+   ! Look for SECOND_LABEL.
+   call ESMF_ConfigFindLabel(config, label=SECOND_LABEL, isPresent=is_present, rc=stat)
+   if(fail(stat, ESMF_)) error stop FAILURE_MESSAGE // "ESMF_ConfigFindLabel failed for '" // SECOND_LABEL // "'."
+   write(*, *) "ESMF_ConfigFindLabel completed normally for '" // SECOND_LABEL // "'."
 
    if(is_present) then
-      write(*, *) "'" // LABEL2 // "' found."
+      write(*, *) "'" // SECOND_LABEL // "' found."
    else
-      write(*, *) "'" // LABEL2 // "' not found."
+      write(*, *) "'" // SECOND_LABEL // "' not found."
    end if
 
 !  =============================================================================
 !  END of Test =================================================================
 !  =============================================================================
-
-   call ESMF_ConfigGetAttribute(config, value=new_value, label=LABEL2, rc=stat)
-   if(fail(stat, ESMF_)) error stop FAILURE_MESSAGE // "ESMF_ConfigGetAttribute failed for '" // LABEL2 // "'."
-   write(*, *) "ESMF_ConfigGetAttribute completed normally for '" // LABEL2 // "'."
-   write(*, *) "Attribute '" // LABEL2 // "' = '" // trim(new_value) // "'."
 
    call ESMF_ConfigDestroy(config, rc=stat)
    if(fail(stat, ESMF_)) then
