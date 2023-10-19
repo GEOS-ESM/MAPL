@@ -56,7 +56,6 @@ module HistoryTrajectoryMod
 
      type(LocstreamRegridder) :: regridder
      type(TimeData) :: time_info
-     logical :: recycle_track
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
@@ -84,7 +83,6 @@ module HistoryTrajectoryMod
      logical                        :: is_valid
    contains
      procedure :: initialize
-     procedure :: reinitialize
      procedure :: create_variable => create_metadata_variable
      procedure :: create_file_handle
      procedure :: close_file_handle
@@ -118,20 +116,15 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
-     module subroutine initialize(this,items,bundle,timeInfo,vdata,recycle_track,rc)
+     module subroutine initialize(this,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(HistoryTrajectory), intent(inout) :: this
-       type(GriddedIOitemVector), target, intent(inout) :: items
-       type(ESMF_FieldBundle), intent(inout)   :: bundle
-       type(TimeData), intent(inout)           :: timeInfo
+       type(GriddedIOitemVector), optional, intent(inout) :: items
+       type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
+       type(TimeData), optional, intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout) :: vdata
-       logical, optional, intent(inout)        :: recycle_track
+       logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
      end subroutine initialize
-
-     module subroutine reinitialize(this,rc)
-       class(HistoryTrajectory), intent(inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine reinitialize
 
      module subroutine  create_metadata_variable(this,vname,rc)
        class(HistoryTrajectory), intent(inout) :: this

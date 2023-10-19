@@ -225,8 +225,11 @@ contains
     end if
     call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
-    call check_nc_status(nf90_close(ncid), _RC)
-
+    if(present(group_name)) then
+       call check_nc_status(nf90_close(ncid2), _RC)
+    else
+       call check_nc_status(nf90_close(ncid), _RC)
+    end if
     _RETURN(_SUCCESS)
 
   end subroutine get_v1d_netcdf_R8

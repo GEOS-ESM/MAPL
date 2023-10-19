@@ -224,13 +224,26 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_Time)            :: currTime
          integer :: k
 
-         this%bundle=bundle
-         this%items=items
+         if (.not. present(reinitialize)) then
+            if(present(bundle))   this%bundle=bundle
+            if(present(items))    this%items=items
+            if(present(timeInfo)) this%time_info=timeInfo            
+         end if
          if (present(vdata)) then
             this%vdata=vdata
          else
             this%vdata=VerticalData(_RC)
          end if
+         
+         do k=1, this%nobs_type
+            if (.not. allocated (this%obs(k)%metadata)) &
+                 allocate (this%obs(k)%metadata)
+            if (mapl_am_i_root()) then
+               if (.not. allocated (this%obs(k)%file_handle)) &
+                    allocate (this%obs(k)%file_handle)
+            end if
+         end do
+
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
@@ -252,7 +265,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
          this%output_bundle = this%create_new_bundle(_RC)
          this%acc_bundle    = this%create_new_bundle(_RC)
-         this%time_info = timeInfo
+
 
          do k=1, this%nobs_type
             call this%obs(k)%metadata%add_dimension(this%nc_index, this%obs(k)%nobs_epoch)
@@ -276,6 +289,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call this%obs(k)%metadata%add_variable(this%var_name_lat,v)
          end do
 
+         ! push varible names down to each obs(k); see create_metadata_variable
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
@@ -288,93 +302,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call iter%next()
          enddo
 
-         this%recycle_track=.false.
-         if (present(recycle_track)) then
-            this%recycle_track=recycle_track
-         end if
-         if (this%recycle_track) then
-            call this%reset_times_to_current_day(_RC)
-         end if
+!!         if (this%reinitialize) then
+!!            call this%reset_times_to_current_day(_RC)
+!!         end if
 
          _RETURN(_SUCCESS)
 
        end procedure initialize
 
-
-       module procedure reinitialize
-         integer :: status
-         type(ESMF_Grid) :: grid
-         type(variable) :: v
-         type(GriddedIOitemVectorIterator) :: iter
-         type(GriddedIOitem), pointer :: item
-         type(ESMF_Time)            :: currTime
-         integer :: k
-
-         do k=1, this%nobs_type
-            allocate (this%obs(k)%metadata)
-            if (mapl_am_i_root()) then
-               allocate (this%obs(k)%file_handle)
-            end if
-         end do
-
-         do k=1, this%nobs_type
-            call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
-         end do
-         this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
-
-         call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
-         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
-         if (this%obsfile_Te_index < 0) then
-            if (mapl_am_I_root()) then
-               write(6,*) "model start time is earlier than obsfile_start_time"
-               write(6,*) "solution: adjust obsfile_start_time and Epoch in rc file"
-            end if
-            _FAIL("obs file not found at init time")
-         endif
-         call this%create_grid(_RC)
-
-         call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
-         this%regridder = LocStreamRegridder(grid,this%LS_ds,_RC)
-         this%output_bundle = this%create_new_bundle(_RC)
-         this%acc_bundle    = this%create_new_bundle(_RC)
-
-         do k=1, this%nobs_type
-            call this%obs(k)%metadata%add_dimension(this%nc_index, this%obs(k)%nobs_epoch)
-            if (this%time_info%integer_time) then
-               v = Variable(type=PFIO_INT32,dimensions=this%nc_index)
-            else
-               v = Variable(type=PFIO_REAL32,dimensions=this%nc_index)
-            end if
-            call v%add_attribute('units', this%datetime_units)
-            call v%add_attribute('long_name', 'dateTime')
-            call this%obs(k)%metadata%add_variable(this%var_name_time,v)
-
-            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
-            call v%add_attribute('units','degrees_east')
-            call v%add_attribute('long_name','longitude')
-            call this%obs(k)%metadata%add_variable(this%var_name_lon,v)
-
-            v = variable(type=PFIO_REAL64,dimensions=this%nc_index)
-            call v%add_attribute('units','degrees_north')
-            call v%add_attribute('long_name','latitude')
-            call this%obs(k)%metadata%add_variable(this%var_name_lat,v)
-         end do
-
-         iter = this%items%begin()
-         do while (iter /= this%items%end())
-            item => iter%get()
-            if (item%itemType == ItemTypeScalar) then
-               call this%create_variable(item%xname,_RC)
-            else if (item%itemType == ItemTypeVector) then
-               call this%create_variable(item%xname,_RC)
-               call this%create_variable(item%yname,_RC)
-            end if
-            call iter%next()
-         enddo
-         _RETURN(_SUCCESS)
-
-       end procedure reinitialize
 
 
       module procedure create_metadata_variable
@@ -383,7 +318,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         logical :: is_present
         integer :: field_rank, status
         character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
-        integer :: k
+        integer :: k, ig
 
         call ESMF_FieldBundleGet(this%bundle,vname,field=field,_RC)
         call ESMF_FieldGet(field,name=var_name,rank=field_rank,_RC)
@@ -412,7 +347,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
 
         do k = 1, this%nobs_type
-           call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+           do ig = 1, this%obs(k)%ngeoval
+              if (trim(var_name) == trim(this%obs(k)%geoval_name(ig))) then
+                 call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+              endif
+           enddo
         enddo
 
          _RETURN(_SUCCESS)
@@ -748,7 +687,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !
          end if
 
-         _FAIL('ck')
 
          _RETURN(_SUCCESS)
        end procedure create_grid
@@ -771,7 +709,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: lm
          integer :: rank
          integer :: status
-         integer :: j, k
+         integer :: j, k, ig
          integer, allocatable :: ix(:)
 
          if (.NOT. this%is_valid) then
@@ -853,8 +791,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
-                           call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
-                                start=[is],count=[nx])
+                           do ig = 1, this%obs(k)%ngeoval
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then
+                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
+                                      start=[is],count=[nx])
+                              end if
+                           enddo
                         endif
                      enddo
                   end if
@@ -899,8 +841,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
-                           call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                           do ig = 1, this%obs(k)%ngeoval
+                              if (trim(item%xname) == trim(this%obs(k)%geoval_name(ig))) then                           
+                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                              end if
+                           end do
                         endif
                      enddo
                      !!write(6,'(10f8.2)') p_acc_rt_3d(:,:)
@@ -1074,7 +1020,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
            this%epoch_index(1:2)=0
 
-           call this%reinitialize(_RC)
+           call this%initialize(reinitialize=.true., _RC)
 
            _RETURN(ESMF_SUCCESS)
 
