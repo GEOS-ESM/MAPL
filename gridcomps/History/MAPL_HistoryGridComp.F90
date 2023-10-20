@@ -698,7 +698,12 @@ contains
 
     end if
 
-
+! Repeat and enhance the above process if HISTORY.rc encounters DEFINE_OBS_PLATFORM for OSSE
+! ----------------------------------------------------------------------------
+    if( MAPL_AM_I_ROOT(vm) ) then
+       call regen_rcx_for_obs_platform (nlist, list, _RC)
+    end if
+       
     call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
@@ -5159,5 +5164,124 @@ ENDDO PARSER
      _RETURN(_SUCCESS)
   end function
 
+  
+  subroutine regen_rcx_for_obs_platform (config, nlist, collections, _RC)
+    !Plan:
+    !- read and write  schema
+    !- extract union of field lines, print out to rc    
+    type(ESMF_Config), intent(in)          :: config
+    integer, intent(in)                    :: nlist
+    character(len=ESMF_MAXSTR), intent(in) :: collections(nlist)
+    integer, intent(inout), optional :: rc
 
+    integer n, unitr, unitw
+    logical :: match, contLine, con3, count
+
+    ! -- note: work on HEAD node
+    !
+    call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
+         label="HIST_CF:", default="HIST.rc", _RC )
+    unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
+
+    ios = 0
+    count = 0 
+    do while (ios==0)
+       read (unitr, '(A)', iostat = ios, end = 1235) line
+       if (ios.NE.0) then
+          ! something wrong or end of file
+          exit
+       else
+          if(index(line, 'DEFINE_OBS_PLATFORM') > 0) then
+             count = 1
+          endif
+       endif
+    enddo
+1235 continue    
+    if (count == 0) then
+       rc = 0
+       return
+    end if
+
+
+
+    ! __ s1.  union geovals_fields
+
+    igeoval = 0
+    count = 0
+    itest = 0
+    do while (itest==0) then
+       call scan_begin (unitr, 'PLATFORM.', itest)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, 'PLATFORM.')
+       call scan_begin (unitr, 'geovals_fields', itest)
+       igeoval = igeoval + 1
+       itest_var = 0
+       fieldname_set(igeoval) = ''
+       PLF_name(igeoval) = trim(line(i+9:))
+       do while (itest_var == 0) then
+          read (unitr, '(A)' ) line
+          if (trim(line)=='::') then
+             itest_var = 1
+          else
+             string1 = get_first_word (line)
+             fieldname_set(igeoval) = trim(fieldname_set(igeoval))//' '//trim(string1)
+             count = count + 1
+             lines_var(count) = line
+             map(count) = igeoval
+          endif
+       enddo
+    enddo
+    nvar = count
+    ngeoval = igeoval
+
+    
+    
+    
+!  for each collection
+    do n = 1, nlist
+       rewind(unitr)
+       string = trim( collections(n) ) // '.'
+         unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+
+         match = .false.
+         contLine = .false.
+         con3 = .false.
+            
+         do while (.true.)
+            read(unitr, '(A)', end=1236) line
+            j = index( adjustl(line), trim(adjustl(string)) )
+            match = (j == 1)
+            if (match) then
+               j = index(line, trim(string)//'fields:')
+               contLine = (j > 0)
+               k = index(line, trim(string)//'obs_files:')
+               con3 = (k > 0)               
+            end if
+            if (match .or. contLine .or. con3) then
+               write(unitw,'(A)') trim(line)
+            end if
+            if (contLine) then
+               if (adjustl(line) == '::') contLine = .false.
+            end if
+            if (con3) then
+               if (adjustl(line) == '::') con3 = .false.               
+            endif
+
+            if ( index(line, 'DEFINE_OBS_PLATFORM') > 0 ) exit
+         end do
+1236     continue
+
+
+
+         call free_file(unitw, _RC)
+      end do
+
+      call free_file(unitr, _RC)
+
+    end if
+    
+
+  end subroutine regen_rcx_for_obs_platform
+    
 end module MAPL_HistoryGridCompMod
