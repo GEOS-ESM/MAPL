@@ -52,7 +52,6 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
-!#      type(ChildComponent)                        :: user_comp
       type(ESMF_GridComp)                         :: user_gridcomp
       type(MultiState)                            :: user_states
       type(ESMF_HConfig)                          :: hconfig
@@ -455,9 +454,11 @@ contains
       integer :: status
       type(MaplGeom), pointer :: mapl_geom
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM'
+      type(GeomManager), pointer :: geom_mgr
 
       if (this%component_spec%has_geom_hconfig()) then
-         mapl_geom => geom_manager%get_mapl_geom(this%component_spec%geom_hconfig, _RC)
+         geom_mgr => get_geom_manager()
+         mapl_geom => geom_mgr%get_mapl_geom(this%component_spec%geom_hconfig, _RC)
          this%geom = mapl_geom%get_geom()
       end if
 

@@ -1,4 +1,3 @@
-
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_GeomManager) GeomManager_smod
@@ -40,10 +39,21 @@ contains
 !#      call mgr%factories%push_back(TrajectorySampler_factory)
 !#      call mgr%factories%push_back(SwathSampler_factory)
 
+      _HERE
       call mgr%add_factory(latlon_factory)
+      _HERE
 
    end function new_GeomManager
 
+   module subroutine initialize(this)
+      use mapl3g_LatLonGeomFactory
+      class(GeomManager), intent(inout) :: this
+
+      ! Load default factories
+      type(LatLonGeomFactory) :: latlon_factory
+      call this%add_factory(latlon_factory)
+
+   end subroutine initialize
 
    module subroutine add_factory(this, factory)
       class(GeomManager), intent(inout) :: this

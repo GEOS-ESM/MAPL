@@ -74,7 +74,6 @@ contains
       spec%var_specs = parse_var_specs(subcfg, _RC)
       spec%connections = parse_connections(subcfg, _RC)
       spec%children = parse_children(subcfg, _RC)
-!!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 

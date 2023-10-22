@@ -17,6 +17,7 @@ module mapl3g_GeomManager
 
    public :: GeomManager
    public :: geom_manager ! singleton
+   public :: get_geom_manager
 
    type GeomManager
       private
@@ -38,6 +39,7 @@ module mapl3g_GeomManager
 
       ! Public API
       ! ----------
+      procedure :: initialize
       procedure :: add_factory
       procedure :: get_mapl_geom_from_hconfig
       procedure :: get_mapl_geom_from_metadata
@@ -69,7 +71,7 @@ module mapl3g_GeomManager
    integer, parameter :: MAX_ID = 10000
 
    ! Singleton - must be initialized in mapl_init()
-   type(GeomManager), target :: geom_manager
+   type(GeomManager), target, protected :: geom_manager
 
    interface GeomManager
       procedure new_GeomManager
@@ -80,6 +82,9 @@ module mapl3g_GeomManager
          type(GeomManager) :: mgr
       end function new_GeomManager
 
+      module subroutine initialize(this)
+         class(GeomManager), intent(inout) :: this
+      end subroutine
 
       module subroutine add_factory(this, factory)
          class(GeomManager), intent(inout) :: this
@@ -163,4 +168,12 @@ module mapl3g_GeomManager
          integer, optional, intent(out) :: rc
       end function get_geom_from_id
    end interface
+
+contains
+   
+   function get_geom_manager() result(geom_mgr)
+      type(GeomManager), pointer :: geom_mgr
+      geom_mgr => geom_manager
+   end function get_geom_manager
+
 end module mapl3g_GeomManager
