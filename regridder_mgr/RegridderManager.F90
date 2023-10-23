@@ -101,10 +101,8 @@ contains
       integer :: status
       class(Regridder), allocatable :: tmp_regridder
 
-      
       associate (b => this%specs%begin(), e => this%specs%end())
         associate (iter => find(b, e, spec))
-
           if (iter /= e) then
              regriddr => this%regridders%of((iter-b+1))
              _RETURN(_SUCCESS)
@@ -134,6 +132,7 @@ contains
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          if (factory%supports(spec%get_param())) then
+            deallocate(regriddr) ! workaround for gfortran 12.3
             regriddr = factory%make_regridder(spec, _RC)
             _RETURN(_SUCCESS)
          end if

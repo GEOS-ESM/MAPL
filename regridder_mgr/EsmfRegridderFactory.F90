@@ -67,7 +67,7 @@ contains
            _FAIL('Wrong RegridderParam subclass passed to EsmfRegridderFactory.')
         end select
       end associate
-
+      deallocate(regriddr) ! workaround for gfortran 12.3
       regriddr = EsmfRegridder(routehandle=routehandle, regridder_spec=spec)
       
       _RETURN(_SUCCESS)

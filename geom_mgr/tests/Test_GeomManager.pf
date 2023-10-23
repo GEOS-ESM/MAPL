@@ -14,7 +14,7 @@ contains
    subroutine test_make_from_hconfig(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager) :: geom_manager
+      type(GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
       type(MaplGeom), pointer :: mapl_geom
@@ -43,7 +43,7 @@ contains
    subroutine test_reuse_geom(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager) :: geom_manager
+      type(GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
       class(GeomSpec), allocatable :: spec
@@ -90,7 +90,7 @@ contains
    subroutine test_do_not_reuse_geom(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager) :: geom_manager
+      type(GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
       class(GeomSpec), allocatable :: spec

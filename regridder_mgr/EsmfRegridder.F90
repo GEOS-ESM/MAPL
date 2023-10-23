@@ -140,8 +140,6 @@ contains
       call ESMF_FieldGet(f_in, dimCount=dimCount, rank=rank, _RC)
       has_ungridded_dims = (rank > dimcount)
       has_dynamic_mask = allocated(param%dyn_mask%esmf_mask)
-      _HERE,'dynamic mask? ', has_dynamic_mask
-      _HERE,'has_ungridded?', has_ungridded_dims, rank ,dimcount
 
       if (has_dynamic_mask .and. has_ungridded_dims) then
          call regrid_ungridded(routehandle, param, f_in, f_out, _RC)
@@ -174,12 +172,12 @@ contains
 
       call ESMF_FieldGet(f_in, dimCount=dimCount, rank=rank, _RC)
 
+      _HERE, allocated(param%dyn_mask%esmf_mask)
       do k = 1, n
 
          f_tmp_in = get_slice(f_in, k, _RC)
          f_tmp_out = get_slice(f_out, k, _RC)
 
-         _HERE, k
          call ESMF_FieldRegrid(f_tmp_in, f_tmp_out, &
               routehandle=routehandle, &
               termorderflag=param%termorder, &

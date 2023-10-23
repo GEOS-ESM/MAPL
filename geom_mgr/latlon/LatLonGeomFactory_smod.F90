@@ -11,6 +11,7 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use pFIO
    use gFTL_StringVector
    use esmf
+   implicit none
 
 
 contains
@@ -23,7 +24,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
+      
       geom_spec = make_LatLonGeomSpec(hconfig, _RC)
 
       _RETURN(_SUCCESS)

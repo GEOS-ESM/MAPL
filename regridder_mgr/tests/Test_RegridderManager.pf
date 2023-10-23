@@ -259,7 +259,9 @@ contains
       print*,'b',x2(:,:,1)
       print*,'c',x2(1:2,:,1)
       @assert_that(x2(1:2,:,1), every_item(is(equal_to(1._ESMF_KIND_R4))))
-      @assert_that(x2(:,:,2), every_item(is(equal_to(1._ESMF_KIND_R4))))
+      ! Weird that roundoff happens here but not in previous test.
+      ! Issue opened with ESMF core team.
+      @assert_that(x2(:,:,2), every_item(near(1._ESMF_KIND_R4,1.e-6)))
 
    end subroutine test_regrid_3d
 

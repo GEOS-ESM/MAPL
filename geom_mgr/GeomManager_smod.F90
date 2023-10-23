@@ -39,9 +39,7 @@ contains
 !#      call mgr%factories%push_back(TrajectorySampler_factory)
 !#      call mgr%factories%push_back(SwathSampler_factory)
 
-      _HERE
       call mgr%add_factory(latlon_factory)
-      _HERE
 
    end function new_GeomManager
 
@@ -236,10 +234,11 @@ contains
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          supports = factory%supports(hconfig, _RC)
-         if (supports) then
-            geom_spec = factory%make_spec(hconfig, _RC)
-            _RETURN(_SUCCESS)
-         end if
+         if (.not. supports) cycle
+
+         deallocate(geom_spec)  ! workaround for gfortran 12.3
+         geom_spec = factory%make_spec(hconfig, _RC)
+         _RETURN(_SUCCESS)
       end do
 
       _FAIL("No factory found to interpret hconfig")
