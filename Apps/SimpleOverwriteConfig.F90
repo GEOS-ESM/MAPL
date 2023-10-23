@@ -32,6 +32,8 @@ program simple_overwrite_config
    write(*, *) 'ESMF_ConfigSetAttribute: ', stat
    call ESMF_ConfigFindLabel(config, label='SwathGrid.nc_Time:', isPresent=is_present, rc = stat)
    write(*, *) 'ESMF_ConfigFindLabel: ', is_present, stat
+   call ESMF_ConfigGetAttribute(config, label='SwathGrid.nc_Time:', value=val, rc=stat) 
+   write(*, *) 'ESMF_GetAttribute (2): ', trim(val), stat
    call ESMF_ConfigDestroy(config, rc=stat)
    write(*, *) 'ESMF_ConfigDestroy: ', stat
    call ESMF_Finalize(rc=stat)
