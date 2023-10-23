@@ -21,6 +21,22 @@ program simple_overwrite_config
    character(len=MAX_LENGTH) :: filename, val
    logical :: is_present
 
+   write(*, *) 'SANITY CHECK'
+   call ESMF_Initialize(rc=stat)
+   write(*, *) 'ESMF_Initialize: ', stat
+   config = ESMF_ConfigCreate(rc=stat)
+   write(*, *) 'ESMF_ConfigCreate: ', stat
+   call ESMF_ConfigLoadFile(config, 'OverwriteConfig.rc', rc=stat)
+   write(*, *) 'ESMF_ConfigLoadFile: ', stat
+   call ESMF_ConfigSetAttribute(config, value= '19991231235959', label='SwathGrid.Epoch_init:', rc=stat)
+   write(*, *) 'ESMF_ConfigSetAttribute: ', stat
+   call ESMF_ConfigFindLabel(config, label='SwathGrid.nc_Time:', isPresent=is_present, rc = stat)
+   write(*, *) 'ESMF_ConfigFindLabel: ', is_present, stat
+   call ESMF_ConfigDestroy(config, rc=stat)
+   write(*, *) 'ESMF_ConfigDestroy: ', stat
+   call ESMF_Finalize(rc=stat)
+   write(*, *) 'ESMF_Finalize: ', stat
+
    attribs(1, 1) = LABEL1
    attribs(1, 2) = LABEL2
    attribs(1, 3) = LABEL3
