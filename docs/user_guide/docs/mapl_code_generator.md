@@ -1,20 +1,20 @@
 ## MAPL Automatic Code Generator
 
-Any ESMF gridded component typically requires an Import State and an Export State (we can even add an Internal state).
+Any ESMF gridded component typically requires an Import State and an Export State (we can even add an Internal State).
 Each of the states contains member variables (Fields, Bundles) that need to be declared before they are used.
 The number of the those variables can be large and make the declaration process cumbersome
-(possibly missing parameters) and the declaration section in the code extremely long.
+(possibly missing fields) and the declaration section in the code extremely long.
 
 MAPL has a utility tool (named [MAPL_GridCompSpecs_ACG.py
-](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py)) that simplifies and facilitates the declaration and access of member variables of Export and Import states of gridded components.
-The tool relies on a formatted ASCII file (spec file) to autmatically generate (at compilation time) include files that have the necessary code segments for defining and accessing the expected state member variables.
+](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py)) that simplifies and facilitates the declaration and access of member variables of the various states (Export, Import, and Internal) of gridded components.
+The tool relies on a formatted ASCII file (`spec`` file) to autmatically generate (at compilation time) include files that have the necessary code segments for defining and accessing the expected state member variables.
 In this document, we describe the [steps](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) to follow to use the tool.
 
 ### Understanding the Issue
 
 Consider for instance the `MOIST` gridded component which code is available in the file [GEOS_MoistGRidComp.F90](https://github.com/GEOS-ESM/GEOSgcm_GridComp/blob/develop/GEOSagcm_GridComp/GEOSphysics_GridComp/GEOSmoist_GridComp/GEOS_MoistGridComp.F90). 
-It has over 50 Import State member variables and over 500 Export State member variables.
-Registering each of them in the `SetServices` routine, requires at least 7 lines for the code to be readble. For instance, assume that we have:
+It has over fifty (50) Import State member variables and over five hundred (500) Export State member variables.
+Registering each of them in the `SetServices` routine, requires at least seven (7) lines for the code to be readble. For instance, assume that we have:
 - `PLE`, `ZLE`, and `T` as Import state fields, and
 - `ZPBLCN` and `CNV_FRC` as Export state fields.
 
@@ -68,23 +68,30 @@ call MAPL_AddExportSpec(GC,                              &
 VERIFY_(STATUS)
 
 ```
-Having such statements for over 550 fields leads to more than 35 hundred of lines of code. 
-In addition, in the `Run` subroutine, we need to access the memory location of each member variable through the `MAPL_GetPointer` call:
+Having such statements for over five hundred fifty (550) fields leads to more than thirty five hundred (3500) lines of code. 
+In addition, in the `Run` subroutine, we need to explicetely declare the necessary arrays and access the memory location of each member variable through the `MAPL_GetPointer` call:
 
 ```fortran
-call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(IMPORT, ZLE,     'ZLE'     , RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
+real, pointer, dimension(:,:,:) :: PLE
+real, pointer, dimension(:,:,:) :: ZLE
+real, pointer, dimension(:,:,:) :: T
+real, pointer, dimension(:,:)   :: ZPBLCN
+real, pointer, dimension(:,:)   :: CNV_FRC
+...
+...
+call MAPL_GetPointer(IMPORT, PLE,  'PLE', RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, ZLE,  'ZLE', RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, T,     'T' , RC=STATUS); VERIFY_(STATUS)
 
 call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 ```
-This is at least 550 lines of code.
-Basically, most of the source code of the `MOIST` gridded component will mainly be on ESMF state variable registration and access.
-We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `MAPL_GetPointer`) into include files to facilitate the code readability and also avoid any omission.
+This is at least eleven hundred (1100) lines of code.
+Basically, most (over 80%) of the source code of the `MOIST` gridded component will mainly be on ESMF state variable registration and access.
+We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `MAPL_GetPointer`) and the explicit array declarations into include files to facilitate the code readability and also avoid any omission.
 
 
-### Create the Spec ASCII File
+### Create the Specification (`spec`) ASCII File
 
 The [MAPL_GridCompSpecs_ACG.py
 ](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py) tool takes as input an ASCII specification file that has three main sections:
@@ -184,7 +191,7 @@ category: INTERNAL
 #--------------------------------------------
 ```
 
-Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.rc` generates at compilation time three includes files:
+Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.rc` generates at compilation time four (4) includes files:
 
 1. `MyComponent_Export___.h` for the `MAPL_AddExportSpec` calls in the `SetServices` routine:
 
@@ -240,9 +247,17 @@ call MAPL_AddImportSpec(GC,                              &
     REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
 VERIFY_(STATUS)
 ```
+3. `MyComponent_DeclarePointer___.h` contains all the array (associated with each field used the the various states) delarations in the `Run` method (the `#include MyComponent_DeclarePointer___.h` statement should be the line of the local declaration variable declarion section):
 
+```fortran
+real, pointer, dimension(:,:,:) :: PLE
+real, pointer, dimension(:,:,:) :: ZLE
+real, pointer, dimension(:,:,:) :: T
+real, pointer, dimension(:,:)   :: ZPBLCN
+real, pointer, dimension(:,:)   :: CNV_FRC
+```
 
-3. `MyComponent_DeclarePointer___.h` contains all the `MAPL_GetPointer` calls in the `Run` method:
+4. `MyComponent_GetPointer___.h` contains all the `MAPL_GetPointer` calls in the `Run` method (the `#include MyComponent_GetPointer___.h` statement needs to be well before any field is accessed):
 
 ```fortran
 call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , RC=STATUS); VERIFY_(STATUS)
@@ -252,6 +267,8 @@ call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 ```
+ 
+
 
 ### Edit the Source Code
 
@@ -261,9 +278,11 @@ In the `SetServices` routine, all the `MAPL_AddExportSpec` and `MAPL_AddImportSp
 #include "MyComponent_Import___.h"
 ```
 
-Similarly in the  `Run` routine, the `MAPL_GetPointer` calls are removed and replaced with the line:
+Similarly in the  `Run` routine, array declaration section and the `MAPL_GetPointer` calls are removed and replaced with the lines:
 ```
 #include "MyComponent_DeclarePointer___.h"
+...
+#include "MyComponent_GetPointer___.h"
 ```
 
 ### Edit the `CMakeLists.txt` File
