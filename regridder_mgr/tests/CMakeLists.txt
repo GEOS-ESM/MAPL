@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.geom_mgr/tests")
+set(MODULE_DIRECTORY "${esma_include}/MAPL.regridder_mgr/tests")
 set(this MAPL.regridder_mgr.tests)
 
 set (TEST_SRCS
