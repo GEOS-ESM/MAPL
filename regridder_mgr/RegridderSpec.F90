@@ -1,3 +1,5 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_RegridderSpec
    use esmf
    use mapl3g_RegridderParam
@@ -21,9 +23,24 @@ module mapl3g_RegridderSpec
 
    interface operator(==)
       module procedure equal_to
-   end interface
+   end interface operator(==)
+
+   interface RegridderSpec
+      procedure new_RegridderSpec
+   end interface RegridderSpec
 
 contains
+
+   function new_RegridderSpec(param, geom_in, geom_out) result(spec)
+      type(RegridderSpec) :: spec
+      class(RegridderParam), intent(in) :: param
+      type(ESMF_Geom), intent(in) :: geom_in
+      type(ESMF_Geom), intent(in) :: geom_out
+
+      spec%param = param
+      spec%geom_in = geom_in
+      spec%geom_out = geom_out
+   end function new_RegridderSpec
 
    function get_param(this) result(param)
       class(RegridderParam), allocatable :: param

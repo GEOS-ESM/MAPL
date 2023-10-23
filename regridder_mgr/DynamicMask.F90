@@ -19,7 +19,9 @@ module mapl3g_DynamicMask
       integer :: id = -1
       real(ESMF_KIND_R8), allocatable :: src_mask_value
       real(ESMF_KIND_R8), allocatable :: dst_mask_value
-      type(ESMF_DynamicMask) :: esmf_mask
+      ! The following component is allocatable so that it can be used
+      ! as a non-present optional argument.
+      type(ESMF_DynamicMask), allocatable :: esmf_mask
    end type DynamicMask
 
    interface operator(==)
@@ -48,11 +50,17 @@ contains
       real(ESMF_KIND_R4), allocatable :: src_mask_value_r4
       real(ESMF_KIND_R4), allocatable :: dst_mask_value_r4
 
+      allocate(mask%esmf_mask)
+
       mask%id = 1
 
       mask%src_mask_value = MAPL_UNDEF
-      if (present(src_mask_value)) mask%src_mask_value = src_mask_value
+      if (present(src_mask_value)) then
+         mask%src_mask_value = src_mask_value
+      end if
       src_mask_value_r4 = mask%src_mask_value
+
+      _HERE,'r8: ', mask%src_mask_value, ' r4: ', src_mask_value_r4,  src_mask_value_r4 - MAPL_UNDEF
 
       ! No default for dst_mask_value.  Usually left unallocated
       if (present(dst_mask_value)) then
@@ -65,7 +73,7 @@ contains
            dynamicDstMaskValue= mask%dst_mask_value, &
            _RC)
 
-      
+
       call ESMF_DynamicMaskSetR4R8R4V(mask%esmf_mask, missing_r4r8r4v, &
            dynamicSrcMaskValue=src_mask_value_r4, &
            dynamicDstMaskValue=dst_mask_value_r4, &
@@ -84,6 +92,7 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R8), allocatable  :: renorm(:)
 
+         print*,__FILE__,__LINE__
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
             allocate(renorm(n))
@@ -124,6 +133,7 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
+         print*,__FILE__,__LINE__
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
             allocate(renorm(n))
@@ -168,6 +178,7 @@ contains
       real(ESMF_KIND_R4), allocatable :: src_mask_value_r4
       real(ESMF_KIND_R4), allocatable :: dst_mask_value_r4
 
+      allocate(mask%esmf_mask)
       mask%id = 2
 
       mask%src_mask_value = MAPL_UNDEF
@@ -204,7 +215,6 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R8), allocatable  :: renorm(:),max_input(:),min_input(:)
 
-         _UNUSED_DUMMY(dynamicDstMaskValue)
 
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -244,6 +254,7 @@ contains
          endif
          ! return successfully
          rc = ESMF_SUCCESS
+         _UNUSED_DUMMY(dynamicDstMaskValue)
       end subroutine monotonic_r8r8r8V
 
       subroutine monotonic_r4r8r4V(dynamicMaskList, dynamicSrcMaskValue, &
@@ -255,8 +266,6 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R4), allocatable  :: renorm(:),max_input(:),min_input(:)
 
-         _UNUSED_DUMMY(dynamicDstMaskValue)
-
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
             allocate(renorm(n),max_input(n),min_input(n))
@@ -295,6 +304,8 @@ contains
          endif
          ! return successfully
          rc = ESMF_SUCCESS
+         _UNUSED_DUMMY(dynamicDstMaskValue)
+
       end subroutine monotonic_r4r8r4V
 
    end function monotonic_dynamic_mask
@@ -310,6 +321,7 @@ contains
       real(ESMF_KIND_R4), allocatable :: src_mask_value_r4
       real(ESMF_KIND_R4), allocatable :: dst_mask_value_r4
 
+      allocate(mask%esmf_mask)
       mask%id = 3
 
       mask%src_mask_value = MAPL_UNDEF
@@ -346,7 +358,6 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R8), allocatable  :: renorm(:)
 
-         _UNUSED_DUMMY(dynamicDstMaskValue)
 
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -375,6 +386,7 @@ contains
          endif
          ! return successfully
          rc = ESMF_SUCCESS
+         _UNUSED_DUMMY(dynamicDstMaskValue)
       end subroutine vote_r8r8r8v
 
 
@@ -387,8 +399,6 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-         _UNUSED_DUMMY(dynamicDstMaskValue)
-
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
             allocate(renorm(n))
@@ -416,6 +426,8 @@ contains
          endif
          ! return successfully
          rc = ESMF_SUCCESS
+         _UNUSED_DUMMY(dynamicDstMaskValue)
+
       end subroutine vote_r4r8r4v
 
    end function vote_dynamic_mask
@@ -430,6 +442,7 @@ contains
       real(ESMF_KIND_R4), allocatable :: src_mask_value_r4
       real(ESMF_KIND_R4), allocatable :: dst_mask_value_r4
 
+      allocate(mask%esmf_mask)
       mask%id = 4
 
       mask%src_mask_value = MAPL_UNDEF
@@ -465,8 +478,6 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R8), allocatable  :: renorm(:)
 
-         _UNUSED_DUMMY(dynamicDstMaskValue)
-
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
             allocate(renorm(n))
@@ -491,6 +502,8 @@ contains
          endif
          ! return successfully
          rc = ESMF_SUCCESS
+         _UNUSED_DUMMY(dynamicDstMaskValue)
+
       end subroutine fraction_r8r8r8v
 
       subroutine fraction_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, &
@@ -502,8 +515,6 @@ contains
          integer :: i, j, k, n
          real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-         _UNUSED_DUMMY(dynamicDstMaskValue)
-
          if (associated(dynamicMaskList)) then
             n = size(dynamicMaskList(1)%srcElement(1)%ptr)
             allocate(renorm(n))
@@ -528,6 +539,8 @@ contains
          endif
          ! return successfully
          rc = ESMF_SUCCESS
+         _UNUSED_DUMMY(dynamicDstMaskValue)
+
       end subroutine fraction_r4r8r4v
    end function fraction_dynamic_mask
 

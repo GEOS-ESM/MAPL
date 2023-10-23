@@ -27,14 +27,14 @@ contains
       integer :: nx, nx_start
 
       associate (aspect_ratio => real(dims(1))/dims(2))
-        nx_start = floor(sqrt(petCount * aspect_ratio))
+        nx_start = max(1, floor(sqrt(petCount * aspect_ratio)))
         do nx = nx_start, 1, -1
            if (mod(petcount, nx) == 0) then ! found a decomposition
               exit
            end if
         end do
-
       end associate
+
       decomp = LatLonDecomposition(dims, topology=[nx, petCount/nx])
 
    end function new_LatLonDecomposition_petcount
@@ -153,7 +153,6 @@ contains
       type(ESMF_VM) :: vm
 
       call ESMF_VMGetCurrent(vm, _RC)
-
       decomp = make_LatLonDecomposition(dims, vm, _RC)
 
       _RETURN(_SUCCESS)
@@ -169,7 +168,7 @@ contains
       integer :: petCount
 
       call ESMF_VMGet(vm, petCount=petCount, _RC)
-      decomp = make_LatLonDecomposition(dims, petCount)
+      decomp = LatLonDecomposition(dims, petCount=petCount)
 
       _RETURN(_SUCCESS)
    end function make_LatLonDecomposition_vm

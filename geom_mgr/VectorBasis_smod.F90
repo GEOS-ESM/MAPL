@@ -323,6 +323,7 @@ contains
 
       integer :: i, j
 
+      if (.not. allocated(this%elements)) return
       do j = 1, size(this%elements,2)
          do i =  1, size(this%elements,1)
             call ESMF_FieldDestroy(this%elements(i,j))

@@ -16,31 +16,49 @@ submodule (mapl3g_GeomManager) GeomManager_smod
 contains
    
    module function new_GeomManager() result(mgr)
-!!$      use mapl_LatLonGeomFactory
-!!$      use mapl_CubedSphereGeomFactory
+      use mapl3g_LatLonGeomFactory
+!#      use mapl_CubedSphereGeomFactory
       type(GeomManager) :: mgr
 
-!!$      ! Load default factories
-!!$      type(LatLonGeomFactory) :: latlon_factory
-!!$      type(CubedSphereGeomFactory) :: cs_factory
-!!$      type(FakeCubedSphereGeomFactory) :: fake_cs_factory 
-!!$      type(TripolarGeomFactory) :: tripolar_factory
-!!$      type(CustomGeomFactory) :: custom_geom_factory
-!!$
-!!$      call mgr%factories%push_back(latlon_factory)
-!!$      call mgr%factories%push_back(cs_factory)
-!!$      call mgr%factories%push_back(fake_cs_factory)
-!!$      call mgr%factories%push_back(tripolar_factory)
-!!$      call mgr%factories%push_back(custom_geom_factory)
+      ! Load default factories
+      type(LatLonGeomFactory) :: latlon_factory
+!#      type(CubedSphereGeomFactory) :: cs_factory
+!#      type(FakeCubedSphereGeomFactory) :: fake_cs_factory 
+!#      type(TripolarGeomFactory) :: tripolar_factory
+!#      type(CustomGeomFactory) :: custom_geom_factory
+!#
+!#      call mgr%factories%push_back(latlon_factory)
+!#      call mgr%factories%push_back(cs_factory)
+!#      call mgr%factories%push_back(fake_cs_factory)
+!#      call mgr%factories%push_back(tripolar_factory)
+!#      call mgr%factories%push_back(custom_geom_factory)
+!#
+!#      ! Output only samplers.  These cannot be created from metadata.
+!#      ! And likely have a time dependence.
+!#      call mgr%factories%push_back(StationSampler_factory)
+!#      call mgr%factories%push_back(TrajectorySampler_factory)
+!#      call mgr%factories%push_back(SwathSampler_factory)
 
-!!$      ! Output only samplers.  These cannot be created from metadata.
-!!$      ! And likely have a time dependence.
-!!$      call mgr%factories%push_back(StationSampler_factory)
-!!$      call mgr%factories%push_back(TrajectorySampler_factory)
-!!$      call mgr%factories%push_back(SwathSampler_factory)
+      call mgr%add_factory(latlon_factory)
 
    end function new_GeomManager
 
+   module subroutine initialize(this)
+      use mapl3g_LatLonGeomFactory
+      class(GeomManager), intent(inout) :: this
+
+      ! Load default factories
+      type(LatLonGeomFactory) :: latlon_factory
+      call this%add_factory(latlon_factory)
+
+   end subroutine initialize
+
+   module subroutine add_factory(this, factory)
+      class(GeomManager), intent(inout) :: this
+      class(GeomFactory), intent(in) :: factory
+
+      call this%factories%push_back(factory)
+   end subroutine add_factory
 
    module subroutine delete_mapl_geom(this, geom_spec, rc)
       class(GeomManager), intent(inout) :: this
@@ -127,18 +145,15 @@ contains
 
       associate (b => this%geom_specs%begin(), e => this%geom_specs%end())
         iter = find(first=b, last=e, value=geom_spec)
-
         if (iter /= this%geom_specs%end()) then
-           idx = iter - b
+           idx = iter - b + 1  ! Fortran index starts at 1
            mapl_geom => this%mapl_geoms%at(idx, _RC)
            _RETURN(_SUCCESS)
         end if
-
       end associate
 
       ! Otherwise build a new geom and store it.
       mapl_geom => this%add_mapl_geom(geom_spec, _RC)
-
       _RETURN(_SUCCESS)
    end function get_mapl_geom_from_spec
 
@@ -159,7 +174,7 @@ contains
 
       associate (b => this%geom_specs%begin(), e => this%geom_specs%end())
         iter = find(b, e, geom_spec)
-        _ASSERT(iter /= e, "Requested geom_spec already exists.")
+        _ASSERT(iter == e, "Requested geom_spec already exists.")
       end associate
 
       tmp_mapl_geom = this%make_mapl_geom(geom_spec, _RC)
@@ -215,13 +230,15 @@ contains
       integer :: status
       logical :: supports
 
+      geom_spec = NULL_GEOM_SPEC ! in case construction fails
       do i = 1, this%factories%size()
          factory => this%factories%of(i)
          supports = factory%supports(hconfig, _RC)
-         if (supports) then
-            geom_spec = factory%make_spec(hconfig, _RC)
-            _RETURN(_SUCCESS)
-         end if
+         if (.not. supports) cycle
+
+         deallocate(geom_spec)  ! workaround for gfortran 12.3
+         geom_spec = factory%make_spec(hconfig, _RC)
+         _RETURN(_SUCCESS)
       end do
 
       _FAIL("No factory found to interpret hconfig")
@@ -250,13 +267,11 @@ contains
          found = .true.
          exit
       end do
-
       _ASSERT(found, 'No factory supports spec.')
 
       geom = factory%make_geom(spec, _RC)
       file_metadata = factory%make_file_metadata(spec, _RC)
       gridded_dims = factory%make_gridded_dims(spec, _RC)
-         
       mapl_geom = MaplGeom(spec, geom, file_metadata, gridded_dims)
 
       _RETURN(_SUCCESS)

@@ -1,6 +1,7 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.geom_mgr/tests")
 
 set (TEST_SRCS
+  Test_GeomManager.pf
   Test_LatLonDecomposition.pf
   Test_CoordinateAxis.pf
   Test_LonAxis.pf

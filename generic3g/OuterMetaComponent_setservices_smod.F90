@@ -15,6 +15,8 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    implicit none
 
 
+   logical :: first = .true.
+
 contains
 
    ! Note we spell the following routine with trailing underscore as a workaround
@@ -37,7 +39,15 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      type(GeomManager), pointer :: geom_mgr
 
+      ! TODO: Move next line eventually
+      if (first) then
+         geom_mgr => get_geom_manager() ! init
+         _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
+         call geom_mgr%initialize()
+         first = .false.
+      end if
       this%component_spec = parse_component_spec(this%hconfig, _RC)
       call process_user_gridcomp(this, _RC)
       call process_children(this, _RC)

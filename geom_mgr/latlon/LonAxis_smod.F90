@@ -110,7 +110,7 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to
 
-   module logical function supports_hconfig(hconfig, rc) result(supports)
+   logical module function supports_hconfig(hconfig, rc) result(supports)
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
@@ -118,6 +118,7 @@ contains
       logical :: has_im_world
       logical :: has_lon_range
       logical :: has_dateline
+
       supports = .true.
 
       has_im_world = ESMF_HConfigIsDefined(hconfig, keystring='im_world', _RC)
@@ -132,7 +133,7 @@ contains
    end function supports_hconfig
    
 
-   module logical function supports_metadata(file_metadata, rc) result(supports)
+   logical module function supports_metadata(file_metadata, rc) result(supports)
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
 

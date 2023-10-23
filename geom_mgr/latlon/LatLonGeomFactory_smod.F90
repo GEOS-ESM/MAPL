@@ -11,6 +11,7 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use pFIO
    use gFTL_StringVector
    use esmf
+   implicit none
 
 
 contains
@@ -23,7 +24,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
+      
       geom_spec = make_LatLonGeomSpec(hconfig, _RC)
 
       _RETURN(_SUCCESS)
@@ -159,7 +160,7 @@ contains
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, _RC)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-
+      
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function create_basic_grid
@@ -186,7 +187,7 @@ contains
       lon_axis = spec%get_lon_axis()
       lat_axis = spec%get_lat_axis()
       decomp = spec%get_decomposition()
-      
+
       nx = size(decomp%get_lon_distribution())
       ny = size(decomp%get_lat_distribution())
       call get_ranks(nx, ny, ix, iy, _RC)

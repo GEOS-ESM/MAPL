@@ -37,6 +37,7 @@ module mapl3g_ComponentSpecParser
 !!$   public :: parse_ChildSpec
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
+   character(*), parameter :: COMPONENT_GEOM_SECTION = 'geom'
    character(*), parameter :: COMPONENT_STATES_SECTION = 'states'
    character(*), parameter :: COMPONENT_IMPORT_STATE_SECTION = 'import'
    character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = 'export'
@@ -58,17 +59,21 @@ contains
 
       integer :: status
       logical :: has_mapl_section
+      logical :: has_geom_section
       type(ESMF_HConfig) :: subcfg
 
       has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
       _RETURN_UNLESS(has_mapl_section)
-
       subcfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
-      
+
+      has_geom_section = ESMF_HConfigIsDefined(subcfg,keyString=COMPONENT_GEOM_SECTION, _RC)
+      if (has_geom_section) then
+         spec%geom_hconfig = parse_geom_spec(subcfg, _RC)
+      end if
+
       spec%var_specs = parse_var_specs(subcfg, _RC)
       spec%connections = parse_connections(subcfg, _RC)
       spec%children = parse_children(subcfg, _RC)
-!!$      spec%grid_spec = process_grid_spec(config%of('grid', _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
@@ -76,6 +81,23 @@ contains
    end function parse_component_spec
 
 
+   ! Geom subcfg is passed raw to the GeomManager layer.  So little
+   ! processing is needed here.
+   function parse_geom_spec(hconfig, rc) result(geom_hconfig)
+      type(ESMF_HConfig) :: geom_hconfig
+      type(ESMF_HConfig), optional, intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      geom_hconfig = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_GEOM_SECTION, _RC)
+
+      _RETURN(_SUCCESS)
+   end function parse_geom_spec
+
+   ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
+   ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
+   ! imports and exports.
    function parse_var_specs(hconfig, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), optional, intent(in) :: hconfig

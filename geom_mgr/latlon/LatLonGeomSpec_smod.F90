@@ -199,8 +199,15 @@ contains
       integer :: status
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
-      
-      supports = .false.
+      character(:), allocatable :: geom_schema
+
+      ! Mandatory entry: "class: latlon"
+      supports = ESMF_HConfigIsDefined(hconfig, keystring='schema', _RC)
+      _RETURN_UNLESS(supports)
+
+      call MAPL_GetResource(geom_schema, hconfig, 'schema', _RC)
+      supports = (geom_schema == 'latlon')
+      _RETURN_UNLESS(supports)
       
       supports = lon_axis%supports(hconfig, _RC)
       _RETURN_UNLESS(supports)

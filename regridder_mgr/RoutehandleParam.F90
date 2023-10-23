@@ -151,9 +151,11 @@ contains
 
       field_in = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_in, geom_in, _RC)
+      call ESMF_FieldEmptyComplete(field_in, typekind=ESMF_TypeKind_R4, _RC)
       
       field_out = ESMF_FieldEmptyCreate(name='tmp', _RC)
-      call ESMF_FieldEmptySet(field_in, geom_out, _RC)
+      call ESMF_FieldEmptySet(field_out, geom_out, _RC)
+      call ESMF_FieldEmptyComplete(field_out, typekind=ESMF_TypeKind_R4, _RC)
 
       call ESMF_FieldRegridStore(field_in, field_out, &
            srcMaskValues=param%srcMaskValues, &
@@ -186,6 +188,7 @@ contains
 
       eq = same_mask_values(a%srcMaskValues, b%srcMaskValues)
       if (.not. eq) return
+
       eq = same_mask_values(a%dstMaskValues, b%dstMaskValues)
       if (.not. eq) return
 
@@ -221,7 +224,7 @@ contains
 
       eq = a%ignoreDegenerate .eqv. b%ignoreDegenerate
       if (.not. eq) return
-      
+
    contains
 
       logical function same_mask_values(a, b) result(eq)
@@ -246,6 +249,10 @@ contains
 
          eq = .false.
          if (allocated(a) .neqv. allocated(b)) return
+
+         eq = .true.
+         if (.not. allocated(a)) return
+
          eq = (a == b)
 
       end function same_scalar_int
