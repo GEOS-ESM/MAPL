@@ -1,159 +1,137 @@
-!=========================== SIMPLE_OVERWRITE_CONFIG ===========================
-! =========== Simple reproducer for ESMF_SetAttribute overwrite bug. ===========
 program simple_overwrite_config
 
    use ESMF
 
    implicit none
 
-   logical, parameter            :: KEEP_TEMPORARY_FILE = .TRUE.
-   integer, parameter            :: MAX_LENGTH = 64
-   integer, parameter            :: IOSUCCESS = 0
-   character(len=*), parameter   :: NEW_VALUE = '19991231235959'
-   character(len=*), parameter   :: DEFNAME = 'overwriteconfig.rc.tmp'
-   character(len=*), parameter   :: AFMT = '(A)'
-   character(len=*), parameter   :: FIRST_LABEL = 'LABEL1:'
-   character(len=*), parameter   :: SECOND_LABEL = 'LABEL2:'
-   character(len=*), parameter   :: THIRD_LABEL = 'LABEL3:'
+   integer, parameter :: MAX_LENGTH = 1024
+   integer, parameter :: SUCCESS = 0
+   character(len=*), parameter :: NEW_VALUE = '19991231235959'
+   character(len=*), parameter :: QUOTED_NEW_VALUE = "'" // NEW_VALUE // "'"
+   character(len=*), parameter :: LABEL1 = 'SwathGrid.Epoch_init:'
+   character(len=*), parameter :: VALUE1 = '20121113T000000'
+   character(len=*), parameter :: LABEL2 = 'SwathGrid.nc_Time:'
+   character(len=*), parameter :: VALUE2 = 'time'
+   character(len=*), parameter :: LABEL3 = 'SwathGrid.nc_Longitude:'
+   character(len=*), parameter :: VALUE3 = 'cell_across_swath'
+   character(len=MAX_LENGTH) :: attribs(2, 3)
 
    type(ESMF_Config) :: config
    integer :: stat
-   character(len=MAX_LENGTH) :: filename
-   logical :: label_found
+   character(len=MAX_LENGTH) :: filename, val
+   logical :: is_present
 
-!  1. Initialize.
+   attribs(1, 1) = LABEL1
+   attribs(1, 2) = LABEL2
+   attribs(1, 3) = LABEL3
+   attribs(2, 1) = VALUE1
+   attribs(2, 2) = VALUE2
+   attribs(2, 3) = VALUE3
+
+   ! Get valid config file name.
+   call get_command_argument(1, filename, status=stat)
+   write(*, *) 'filename: ' // trim(filename) // ', stat:', stat
+   if(stat /= SUCCESS) error stop 'Failed to get filename'
+   if(len_trim(filename) == 0) error stop 'Filename empty'
+
+   ! 1. Initialize ESMF.
    call ESMF_Initialize(rc=stat)
-   call check(stat == ESMF_SUCCESS, 'Initialize ESMF failed.')
-   call setup(config, filename)
+   write(*, *) 'ESMF_Initialize stat:', stat
+   if(stat /= ESMF_SUCCESS) error stop 'Failed to initialize ESMF'
 
-!=================================== TEST ======================================
-   ! 2. Set (new) value for first attribute.
-   call ESMF_ConfigSetAttribute(config, value=NEW_VALUE, label=FIRST_LABEL, rc=stat)
-   call check(stat == ESMF_SUCCESS, 'Set failed for first attribute')
+   ! 2. Create config.
+   config = ESMF_ConfigCreate(rc=stat)
+   write(*, *) 'ESMF_ConfigCreate stat:', stat
+   if(stat /= ESMF_SUCCESS) error stop 'Failed to create config'
 
-   ! 3. Look for second attribute.
-   call ESMF_ConfigFindLabel(config, label=SECOND_LABEL, isPresent=label_found, rc=stat)
-   call check(stat == ESMF_SUCCESS, 'Find failed for second attribute')
+   ! 3. Load config from file.
+   call ESMF_ConfigLoadFile(config, trim(filename), rc=stat)
+   write(*, *) 'ESMF_ConfigLoadFile stat:', stat
+   if(stat /= ESMF_SUCCESS) error stop 'Failed to load config'
 
-   if(label_found) then
-      write(*, fmt=AFMT) 'Second attribute is found.'
+   ! Show attributes before.
+   write(*, *)
+   write(*, *) 'Print attributes (before):'
+   call print_attributes(attribs)
+   write(*, *)
+
+
+   ! 4. SET FIRST ATTRIBUTE.
+   write(*, *) 'BEGIN TEST'
+   call ESMF_ConfigSetAttribute(config, value=quote(NEW_VALUE), label=LABEL1, rc=stat)
+   write(*, *) 'ESMF_ConfigSetAttribute attribute 1 stat:', stat
+   if(stat /= ESMF_SUCCESS) error stop 'Failed to change value of attribute 1'
+
+   ! Check first attribute was set correctly.
+   call ESMF_ConfigGetAttribute(config, value=val, label=LABEL1, rc=stat)
+   write(*, *) 'ESMF_ConfigGetAttribute attribute 1: ' // trim(val) // ', stat:'  , stat
+   write(*, *) 'actual 1: ' // trim(val) // ', expected 1: ' // NEW_VALUE
+   if(stat /= ESMF_SUCCESS) error stop 'Failed to get new value of attribute 1 from config'
+   if(trim(val) /= trim(quote(NEW_VALUE))) write(*, *) 'First attribute value does not match value set.'
+   attribs(2, 1) = trim(val)
+
+   ! 5. FIND SECOND LABEL (ATTRIBUTE).
+   call ESMF_ConfigFindLabel(config, label=LABEL2, isPresent=is_present, rc = stat)
+   write(*, *) 'ESMF_ConfigFindLabel: ', is_present, ', stat:', stat
+   if(stat /= ESMF_SUCCESS) error stop 'Failed find of attribute 2'
+
+   ! Test Result
+   if(is_present) then
+      write(*, *) 'TEST: Label 2 found.'
    else
-      write(*, fmt=AFMT) 'Second attribute is not found.'
+      write(*, *) 'TEST: Label 2 not found.'
    end if
-!================================= END TEST ====================================
+   write(*, *) 'END TEST'
 
+   ! Show attributes after.
+   write(*, *) 
+   write(*, *) 'Print attributes (after):'
+   call print_attributes(attribs)
+   write(*, *) 
+
+   ! 6. Destroy config.
    call ESMF_ConfigDestroy(config, rc=stat)
-   if(stat /= ESMF_SUCCESS) write(*, fmt=AFMT) 'Destroy failed for config.'
+   write(*, *) 'ESMF_ConfigDestroy stat:', stat
+   if(stat /= ESMF_SUCCESS) error stop 'Failed to destroy config'
+
+   ! 7. Finalize ESMF.
+   call ESMF_Finalize(rc=stat)
+   write(*, *) 'ESMF_Finalize stat:', stat
+   if(stat /= ESMF_SUCCESS) write(*, *) 'Failed to finalize ESMF'
 
 contains
 
-   subroutine check(condition, message)
-      logical, intent(in) :: condition
-      character(len=*), optional, intent(in) :: message
+   ! Put quotes around string s.
+   function quote(s, use_double) result(quoted)
+      character(len=*), intent(in) :: s
+      logical, optional, intent(in) :: use_double
+      character(len=:), allocatable :: quoted
 
-      if(.not. condition) then
-         if(present(message)) then
-            error stop message
-         else
-            error stop
-         end if
+      if(present(use_double) .and. use_double) then
+         quoted = '"' // s // '"'
+      else
+         quoted = "'" // s // "'"
       end if
 
-   end subroutine check
+   end function quote
 
-   subroutine setup(config, filename)
-      type(ESMF_Config), intent(inout) :: config
-      character(len=*), intent(out) :: filename
-      character(len=MAX_LENGTH) :: message
-      logical :: successful
-      integer :: stat
+   ! Print attributes in array. Label is first row; value is second row.
+   subroutine print_attributes(attribs)
+      character(len=*), intent(in) :: attribs(:, :)
+      integer :: i
+      character(len=*), parameter :: FMT2A = '(A, " ", A)'
 
-      ! 3. Create config.
-      config = ESMF_ConfigCreate(rc=stat)
-      call check(stat == ESMF_SUCCESS, 'Create config failed.')
-
-      call get_command_argument(1, filename, status=stat)
-      if(.not. (stat == IOSUCCESS)) then
-         ! Generate config file.
-         filename = DEFNAME
-         call generate_config_file(filename, message, successful)
-         call check(successful, message)
-      end if
-
-      ! 4. Load config.
-      call ESMF_ConfigLoadFile(config, trim(filename), rc=stat)
-      call check(stat == ESMF_SUCCESS , 'Load config file failed.')
-
-   end subroutine setup
-
-   subroutine generate_config_file(filename, message, successful)
-      character(len=*), intent(in) :: filename
-      character(len=*), intent(out) :: message
-      logical, intent(out) :: successful
-      integer :: iounit, i, ios
-      character(len=:), allocatable :: attribute(:, :)
-
-      write(*, fmt=AFMT) 'temporary file = ' // trim(filename)
-
-      message = ''
-
-      successful = (len_trim(filename) > 0)
-      if(.not. successful) then
-         message = 'Filename is empty.'
-         return
-      end if
-      
-      open(file=trim(filename), newunit=iounit, iostat=ios)
-      successful = (ios == 0)
-      if(.not. successful) then
-         close(unit=iounit, iostat=ios)
-         message = 'Failed to open filename ' // trim(filename)
-         return
-      end if
-
-      attribute = make_attribute()
-      do i = 1, size(attribute, 2)
-         write(*, *) trim(attribute(1, i)) // ' ' // trim(attribute(2,i))
-         write(unit=iounit, fmt='(A)', iostat=ios) trim(attribute(1, i)) // ' ' // trim(attribute(2,i))
-         successful = (ios == 0)
-         if(.not. successful) then
-            message = 'Failed to write'
-            exit
-         end if
+      do i = 1, size(attribs, 2)
+         write(*, fmt=FMT2A) trim(attribs(1, i)), trim(attribs(2, i))
       end do
 
-      close(unit=iounit, iostat=ios)
-      successful = (ios == IOSUCCESS)
-
-      if(successful .and. len_trim(message) == 0) then
-         message = 'Config file generated successfully'
-      else
-         message = trim(message) // ' :: Failed to close'
-      end if
-      
-   end subroutine generate_config_file
-
-   function make_attribute() result(attribute)
-      character(len=MAX_LENGTH) :: attribute(2,3)
-      ! Each column is an attribute: [<label>, <value>]
-
-      ! First attribute
-      attribute(1, 1) = FIRST_LABEL
-      attribute(2, 1) = '19991231T235959'
-
-      ! Second attribute
-      attribute(1, 2) = SECOND_LABEL     
-      attribute(2, 2) = 'time'
-
-      ! Third attribute
-      attribute(1, 3) = THIRD_LABEL
-      attribute(2, 3) = 'cell_across_swath'
-
-   end function make_attribute
+   end subroutine print_attributes
 
 end program simple_overwrite_config
 
 !============================= OverwriteConfig.rc ==============================
-!LABEL1:	'20121113T000000'
-!LABEL2:	'time'
-!LABEL3: 	'cell_across_swath'
+! The config file must have attrbute labels identical and in the same order as
+! the following lines (without '!'):
+! SwathGrid.Epoch_init: '20121113T000000'
+! SwathGrid.nc_Time: 'time'
+! SwathGrid.nc_Longitude: 'cell_across_swath'

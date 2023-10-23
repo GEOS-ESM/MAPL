@@ -1,6 +1,5 @@
 program overwrite_config_fulltest
 
-   use, intrinsic :: iso_fortran_env, only: R64 => real64
    use ESMF
 
    implicit none
@@ -38,7 +37,7 @@ program overwrite_config_fulltest
    logical :: passed
 
    call get_command_argument(1, filename, length, stat)
-   if(stat /= 0 .or. length<1) then
+   if(stat /= IOSUCCESS .or. length<1) then
       call date_and_time(date=date, time=time)
       filename = 'overwrite_' // trim(date) // trim(time) // '_rc.tmp'
    end if
@@ -62,23 +61,18 @@ contains
       character(len=MAX_LENGTH) :: submessage
       logical, intent(out) :: passed
       type(ESMF_Config) :: config
-      integer :: stat, iounit, ios
+      integer :: stat
+
+      message = ''
 
       call ESMF_Initialize(rc=stat)
       passed = (stat == SUCCESS)
       if(.not. passed) message = 'Failed to initialize ESMF'
 
       if(passed) then
-         open(file=trim(filename), newunit=iounit, iostat=ios)
-         passed = (ios == IOSUCCESS)
-         if(.not. passed) message = 'Failed to open tempoarary file: ' // filename
-      end if
-
-      if(passed) then
-         call setup(config, filename, iounit, message=submessage, rc=stat)
+         call setup(config, filename, message=submessage, rc=stat)
          passed = (stat == SUCCESS)
-         message = 'Setup failed'
-         if(.not. passed) message = append(message, submessage, DELIMITER)
+         if(.not. passed) message = append('Setup failed', submessage, DELIMITER)
       end if
       
       if(passed) then
@@ -87,41 +81,51 @@ contains
          if(.not. passed) message = append('test_overwrite failed: ', submessage, DELIMITER)
       end if
 
-      if(passed) call ESMF_Finalize(rc=stat)
-      
-      close(iounit, status='KEEP', iostat=ios)
-      if(stat /= SUCCESS) write(*, *) 'Error closing ' // trim(filename) // '.' 
+      call ESMF_Finalize(rc=stat)
+      if(stat /= SUCCESS) message = append(message, 'Failed to finalize ESMF', DELIMITER)
 
    end subroutine main
 
-   subroutine setup(config, filename, iounit, message, rc)
+   subroutine setup(config, filename, message, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: filename
-      integer, intent(in) :: iounit
       character(len=*), optional, intent(inout) :: message
       integer, optional, intent(out) :: rc
-      integer :: stat 
+      integer :: stat
       logical :: config_created, make_message
+      character(len=MAX_LENGTH) :: label, val
 
       make_message = present(message)
 
       config = ESMF_ConfigCreate(rc=stat)
       if(failed(stat, SUCCESS, rc)) return
-
       config_created = ESMF_ConfigIsCreated(config, rc=stat)
       if(failed(FAILURE, config_created, rc)) return
       if(failed(stat, SUCCESS, rc)) return
-
       if(make_message) message = 'ESMF_ConfigCreate successful'
 
-      call write_attributes(build_attributes(), iounit, rc=stat)
+      call write_attributes(build_attributes(), filename, rc=stat)
       if(failed(stat, SUCCESS, rc=stat)) return
-
       if(make_message) message = append(message, 'write_attributes successful', DELIMITER)
+
       call ESMF_ConfigLoadFile(config, trim(filename), rc=stat)
       if(failed(stat, SUCCESS, rc=stat)) return
-
       if(make_message) message = append(message, 'ESMF_ConfigLoadFile successful', DELIMITER)
+      
+      label = LABEL1
+      call ESMF_ConfigGetAttribute(config, value=val, label=label, rc=stat)
+      if(stat /= SUCCESS) error stop "Cannot get attribute 1: " // trim(label)
+      write(*, fmt='(A, " ", A)') trim(label), trim(val)
+
+      label = LABEL2
+      call ESMF_ConfigGetAttribute(config, value=val, label=label, rc=stat)
+      if(stat /= SUCCESS) error stop "Cannot get attribute 2: " // trim(label)
+      write(*, fmt='(A, " ", A)') trim(label), trim(val)
+
+      label = LABEL3
+      call ESMF_ConfigGetAttribute(config, value=val, label=label, rc=stat)
+      if(stat /= SUCCESS) error stop "Cannot get attribute 3: " // trim(label)
+      write(*, fmt='(A, " ", A)') trim(label), trim(val)
 
    end subroutine setup
 
@@ -138,24 +142,30 @@ contains
 
    end function build_attributes
 
-   subroutine write_attributes(attributes_, iounit, rc)
+   subroutine write_attributes(attributes_, filename, rc)
       character(len=*), intent(in) :: attributes_(:, :)
-      integer, intent(in) :: iounit
+      character(len=*), intent(in) :: filename
       integer, optional, intent(out) :: rc
-      character(len=*), parameter :: DELIMITER = achar(9) ! TAB
+      character(len=*), parameter :: DELIMITER = ' ' !achar(9) ! TAB
       character(len=MAX_LENGTH) :: line
-      logical :: is_open
-      integer :: ios, i
+      integer :: ios, i, iounit
 
-      inquire(unit=iounit, opened=is_open, iostat=ios)
-      if(failed(ios, IOSUCCESS, rc, FAILURE)) return
-      if(failed(FAILURE, is_open, rc)) return
+      open(file=trim(filename), newunit=iounit, iostat=ios)
+      if(failed(ios, IOSUCCESS, rc)) then
+         write(*, fmt=FMT_) 'Open failed.'
+      else
+         do i = 1, size(attributes_, 2)
+            line = trim(attributes_(1, i)) // DELIMITER // trim(attributes_(2, i))
+            write(unit=iounit, fmt=FMT_, iostat=ios) trim(line)
+            if(failed(ios, IOSUCCESS, rc, FAILURE)) then
+               write(*, fmt=FMT_) 'Write failed.'
+               exit
+            end if
+         end do
+      end if
 
-      do i = 1, size(attributes_, 2)
-         line = trim(attributes_(1, i)) // DELIMITER // trim(attributes_(2, i))
-         write(unit=iounit, fmt=FMT_, iostat=ios) trim(line)
-         if(failed(ios, IOSUCCESS, rc, FAILURE)) exit
-      end do
+      close(unit=iounit, status='KEEP', iostat=ios)
+      if(ios /= IOSUCCESS) write(*, fmt=FMT_) 'Close failed.'
 
    end subroutine write_attributes
 
