@@ -125,9 +125,8 @@ contains
          spec%dst_mask_value_r4 = dst_mask_value
       end if
 
-      _HERE
       mask = DynamicMask(spec, _RC)
-      _HERE
+
       _RETURN(_SUCCESS)
 
    end function new_DynamicMask_r8
@@ -143,7 +142,7 @@ contains
       procedure(I_r8r8r8), pointer :: mask_routine_r8
 
       mask%spec = spec
-      _HERE
+
       allocate(mask%esmf_mask_r4)
       mask_routine_r4 => get_mask_routine_r4(spec%mask_type, _RC)
       call ESMF_DynamicMaskSetR4R8R4V(mask%esmf_mask_r4, mask_routine_r4, &
@@ -152,7 +151,6 @@ contains
            handleAllElements=spec%handleAllElements, &
            _RC)
 
-      _HERE
       allocate(mask%esmf_mask_r8)
       mask_routine_r8 => get_mask_routine_r8(spec%mask_type, _RC)
       call ESMF_DynamicMaskSetR8R8R8V(mask%esmf_mask_r8, mask_routine_r8, &
@@ -262,7 +260,6 @@ contains
       integer :: i, j, k, n
       real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-      _HERE
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
          allocate(renorm(n))

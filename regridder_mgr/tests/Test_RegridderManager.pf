@@ -254,20 +254,14 @@ contains
 
       call ESMF_FieldGet(f2, farrayptr=x2, _RC)
 
-      print*,shape(x2)
-      print*,'undef: ', MAPL_UNDEF
-      print*,'a',x1(:,6,1)
-      print*,'c1',x2(:,1,1)
-      print*,'c2',x2(:,2,1)
-      print*,'c3',x2(:,3,1)
-      print*,'c4',x2(:,4,1)
-      print*,'c5',x2(:,5,1)
 
       ! Missing elements case
       @assert_that(x2(1:2,:,1), every_item(is(equal_to(2._ESMF_KIND_R4))))
       ! Non missing elements case
-      print*, x2(:,:,2)-1
-      @assert_that(x2(:,:,2), every_item(is(equal_to(1._ESMF_KIND_R4))))
+
+      ! Weirdly this introduces roundoff that was not present in the
+      ! previous test.  This has been reported to the ESMF core team.
+      @assert_that(x2(:,:,2), every_item(is(near(1._ESMF_KIND_R4, 1.e-6))))
 
    end subroutine test_regrid_3d
 
