@@ -58,7 +58,8 @@ contains
 
       param%routehandle_param = RoutehandleParam(regridmethod=regridmethod)
       param = EsmfRegridderParam(RoutehandleParam(regridmethod=regridmethod), &
-           zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, dyn_mask=dyn_mask)
+           zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, &
+           dyn_mask=dyn_mask)
       
    end function new_EsmfRegridderParam_simple
 
@@ -134,56 +135,61 @@ contains
       integer :: status
       logical :: has_ungridded_dims
       logical :: has_dynamic_mask
-      integer :: dimCount, rank
+      integer :: ub(ESMF_MAXDIM)
+      type(ESMF_TypeKind_Flag) :: typekind
+      type(ESMF_DynamicMask), allocatable :: mask
 
+      call ESMF_FieldGet(f_in, ungriddedUBound=ub, typekind=typekind, _RC)
+      has_ungridded_dims = any(ub > 1)
 
-      call ESMF_FieldGet(f_in, dimCount=dimCount, rank=rank, _RC)
-      has_ungridded_dims = (rank > dimcount)
-      has_dynamic_mask = allocated(param%dyn_mask%esmf_mask)
+      if (typekind == ESMF_TYPEKIND_R4) then
+         has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r4)
+         if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r4
+      elseif (typekind == ESMF_TYPEKIND_R8) then
+         has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r8)
+         if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r8
+      end if
 
       if (has_dynamic_mask .and. has_ungridded_dims) then
-         call regrid_ungridded(routehandle, param, f_in, f_out, _RC)
+         call regrid_ungridded(routehandle, mask, param, f_in, f_out, n=product(max(ub,1)), _RC)
          _RETURN(_SUCCESS)
       end if
 
-      
       call ESMF_FieldRegrid(f_in, f_out, &
            routehandle=routehandle, &
            termorderflag=param%termorder, &
            zeroregion=param%zeroregion, &
            checkflag=param%checkflag, &
-           dynamicMask=param%dyn_mask%esmf_mask, &
+           dynamicMask=mask, &
            _RC)
 
       _RETURN(_SUCCESS)
    end subroutine regrid_scalar_safe
 
-   subroutine regrid_ungridded(routehandle, param, f_in, f_out, rc)
+   subroutine regrid_ungridded(routehandle, mask, param, f_in, f_out, n, rc)
       type(ESMF_Routehandle), intent(inout) :: routehandle
+      type(ESMF_DynamicMask), intent(in) :: mask
       type(EsmfRegridderParam), target, intent(in) :: param
       type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, intent(in) :: n
       integer, optional, intent(out) :: rc 
 
-      integer :: dimCount, rank
       integer :: status
-
-      integer :: k, n
+      integer :: k
       type(ESMF_Field) :: f_tmp_in, f_tmp_out
 
-      call ESMF_FieldGet(f_in, dimCount=dimCount, rank=rank, _RC)
-
-      _HERE, allocated(param%dyn_mask%esmf_mask)
       do k = 1, n
 
          f_tmp_in = get_slice(f_in, k, _RC)
          f_tmp_out = get_slice(f_out, k, _RC)
 
+         ! Can only call this if esmf_mask is allocated.
          call ESMF_FieldRegrid(f_tmp_in, f_tmp_out, &
               routehandle=routehandle, &
               termorderflag=param%termorder, &
               zeroregion=param%zeroregion, &
               checkflag=param%checkflag, &
-              dynamicMask=param%dyn_mask%esmf_mask, &
+              dynamicMask=mask, &
               _RC)
 
          call ESMF_FieldDestroy(f_tmp_in, nogarbage=.true., _RC)
@@ -255,7 +261,6 @@ contains
          if (.not. this%termorder == q%termorder) return
          if (this%checkflag .neqv. q%checkflag) return
          
-         if (allocated(this%dyn_mask%esmf_mask) .neqv. allocated(q%dyn_mask%esmf_mask)) return
          if (this%dyn_mask /= q%dyn_mask) return
       class default
          return
