@@ -126,13 +126,21 @@ contains
       type (Directory), pointer :: dir
       type (Directory), target  :: dirnull
       integer(kind=MPI_ADDRESS_KIND) :: sz
+#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+      integer(kind=MPI_ADDRESS_KIND) :: baseaddr
+#endif
       integer :: ierror, rank
 
       call MPI_Comm_Rank(comm, rank, ierror)
 
       if (rank == 0)  then
          sz = sizeof_directory()
+#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
          call MPI_Alloc_mem(sz, MPI_INFO_NULL, addr, ierror)
+#else
+         call MPI_Alloc_mem(sz, MPI_INFO_NULL, baseaddr, ierror)
+         addr = transfer(baseaddr, addr)
+#endif
          call c_f_pointer(addr, dir)
       else
          sz  = 0
