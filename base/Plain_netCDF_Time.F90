@@ -515,3 +515,188 @@ contains
   end subroutine convert_twostring_2_esmfinterval
 
 end module Plain_NetCDF_Time
+
+
+module Fortran_read_file
+
+!  procedure :: matchbgn
+!  procedure :: matches
+!  procedure :: scan_begin
+!  procedure :: scan_contain
+!  generic :: scan_count_match
+!  generic :: go_last_pattern
+
+contains
+  subroutine scan_begin (iunps, substring, rew)
+    implicit none
+    ! unit of input
+    integer, intent(in) :: iunps
+    ! Label to be matched
+    character (len=*), intent(in) :: substring
+    logical, intent(in) :: rew
+    ! String read from file
+    character (len=100) :: line
+    ! Flag if .true. rewind the file
+    !logical, external :: matchbgn
+!    logical :: matchbgn
+    integer :: ios
+    !
+    ios = 0
+    if (rew) rewind (iunps)
+    do while (ios==0)
+       read (iunps, '(a100)', iostat = ios, err = 300) line
+       if (matchbgn (line, substring) ) return
+    enddo
+    return
+300 call error_nonstop ('scan_begin', &
+         'No '//trim(substring)//' block', abs (ios) )
+  end subroutine scan_begin
+
+
+  subroutine scan_contain (iunps, stop_string, rew)
+    !---------------------------------------------------------------------
+    !
+    implicit none
+    integer, intent(in) :: iunps
+    character (len=*), intent(in) :: stop_string
+    logical, intent(in) :: rew            ! if rewind
+    character (len=100) :: line
+!!    logical :: matches          ! function name
+    integer :: ios
+    !
+    ios = 0
+    if (rew) rewind (iunps)
+    do while (ios==0)
+       read (iunps, '(a100)', iostat = ios, err = 300) line
+       if (matches (line, stop_string) ) return
+    enddo
+    return
+300 call error_nonstop ('scan_contain', &
+         'No '//trim(stop_string)//' block', abs (ios) )
+  end subroutine scan_contain
+
+
+
+  subroutine scan_count_match_bgn (iunps, string, count, rew)
+    !---------------------------------------------------------------------
+    !
+    implicit none
+    integer, intent(in) :: iunps
+    character (len=*), intent(in) :: string
+    integer, intent(out) :: count
+    logical, intent(in) :: rew            ! if rewind
+    character (len=100) :: line
+!!    logical :: matches          ! function name
+    integer :: ios
+    !
+    ios = 0
+    count = 0
+    if (rew) rewind (iunps)
+    do while (ios==0)
+       read (iunps, '(a100)', iostat = ios, err = 300) line
+       if (matchbgn (line, string) ) then
+          count = count + 1
+       endif
+    enddo
+    return
+300 call error_nonstop ('scan_contain', &
+         'No '//trim(string)//' block', abs (ios) )
+  end subroutine scan_count_match_bgn
+
+
+
+
+  subroutine go_last_patn (iunps, substring, outline, rew)
+    !---------------------------------------------------------------------
+    !
+    implicit none
+    integer, intent(in) :: iunps
+    logical, intent(in) :: rew
+    character (len=*), intent(in) :: substring
+    character (len=150), intent(out) :: outline   ! fixed
+    character (len=150) :: line
+    integer :: ios, nr, mx
+    !
+
+    if (rew) rewind (iunps)
+    ios=0
+    nr=0
+    do while (ios==0)
+       read (iunps, '(a150)', iostat = ios, err = 300) line
+       if (index(line, substring).ge.1 ) then
+          nr=nr+1
+          !        write (6,*) 'nr', nr
+       endif
+    enddo
+
+    rewind (iunps)
+    ios=0
+    mx=0
+    do while (ios==0)
+       read (iunps, '(a150)', iostat = ios, err = 300) line
+       if (index(line, substring).ge.1 ) then
+          mx=mx+1
+          if (mx.eq.nr) then
+             outline=line
+             return
+          endif
+       endif
+    enddo
+300 continue
+  end subroutine go_last_patn
+
+
+  function matchbgn ( string, substring )
+    ! only begin with
+    ! string:  main-str
+    ! substring:  sub-str
+    IMPLICIT NONE
+    CHARACTER (LEN=*), INTENT(IN) :: string, substring
+    LOGICAL                       :: matchbgn
+    if (index(string, substring).eq.1) then
+       matchbgn = .TRUE.
+    else
+       matchbgn = .FALSE.
+    endif
+    return
+  end function matchbgn
+
+
+  !-----------------------------------------------------------------------
+  function matches( string, substring )
+    !-----------------------------------------------------------------------
+    !
+    ! ... .TRUE. if string is contained in substring, .FALSE. otherwise
+    !
+    IMPLICIT NONE
+    !
+    CHARACTER (LEN=*), INTENT(IN) :: string, substring
+    LOGICAL                       :: matches
+    INTEGER                       :: l
+
+    l=index (string, substring)
+    if (l.ge.1) then
+       matches = .TRUE.
+    else
+       matches = .FALSE.
+    endif
+    RETURN
+  end function matches
+
+
+
+  subroutine error_nonstop( insubroutine, message, ierr )
+    character (len=*), intent (in) :: insubroutine
+    character (len=*), intent (in) :: message
+    integer, intent (in) :: ierr
+    !
+    write (6, 11)
+    write (6, 12)  trim(insubroutine), trim(message), ierr
+    write (6, 11)
+11  format ('**====================**')
+12  format (2x, a, 4x, a, 4x, "ierr =", i4)
+    return
+  end subroutine error_nonstop
+
+
+end module Fortran_read_file
