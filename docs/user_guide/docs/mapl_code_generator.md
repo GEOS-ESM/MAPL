@@ -12,7 +12,7 @@ In this document, we describe the [steps](https://github.com/GEOS-ESM/MAPL/wiki/
 
 ### Understanding the Issue
 
-Consider for instance the `MOIST` gridded component which code is available in the file [GEOS_MoistGRidComp.F90](https://github.com/GEOS-ESM/GEOSgcm_GridComp/blob/develop/GEOSagcm_GridComp/GEOSphysics_GridComp/GEOSmoist_GridComp/GEOS_MoistGridComp.F90). 
+Consider for instance the `MOIST` gridded component which code is available in the file [GEOS_MoistGridComp.F90](https://github.com/GEOS-ESM/GEOSgcm_GridComp/blob/develop/GEOSagcm_GridComp/GEOSphysics_GridComp/GEOSmoist_GridComp/GEOS_MoistGridComp.F90). 
 It has over fifty (50) Import State member variables and over five hundred (500) Export State member variables.
 Registering each of them in the `SetServices` routine, requires at least seven (7) lines for the code to be readble. For instance, assume that we have:
 - `PLE`, `ZLE`, and `T` as Import state fields, and
@@ -100,7 +100,7 @@ The [MAPL_GridCompSpecs_ACG.py
 2. `category: EXPORT`: for listing the Expport state variables
 3. `category: INTERNAL`: for listing the Internal state variables
 
-Each category is a orgazined as aet of rows and columns where each row is associated with a unique field. 
+Each category is orgazined as a set of rows and columns where each row is associated with a unique field. 
 The columns are labelled and only listed if one of the fields used them.
 The mandatory columns are:
 
