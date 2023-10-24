@@ -111,7 +111,11 @@
 #    define _RC _RC_(rc,status)
 
 #    define _STAT _RC_(stat,status)
+#if defined(SUPPORT_FOR_MPI_IERROR_KEYWORD)
 #    define _IERROR _RC_(ierror,status)
+#else
+#    define _IERROR _RC_(ierr,status)
+#endif
 #    define _IOSTAT _RC_(iostat,status)
 
 #    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return
