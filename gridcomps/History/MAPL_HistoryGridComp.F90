@@ -5190,7 +5190,12 @@ ENDDO PARSER
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
-!
+    call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
+    write(6,*) 'count PLATFORM.', count
+    if (count==0) then
+       rc = 0
+       return
+    endif
 
 
     ios = 0
@@ -5208,8 +5213,7 @@ ENDDO PARSER
     enddo
 1235 continue    
     if (count == 0) then
-       rc = 0
-       return
+
     end if
 
 
