@@ -545,7 +545,10 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios, err = 300) line
-       if (matchbgn (line, substring) ) return
+       !       if (matchbgn (line, substring) ) return
+       !!write(6,*) 'line ', trim(line)
+       !!write(6,*) 'substring ', trim(substring)
+       if (matchbgn (trim(line), trim(substring)) ) return
     enddo
     return
 300 call error_nonstop ('scan_begin', &
@@ -568,7 +571,7 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios, err = 300) line
-       if (matches (line, stop_string) ) return
+       if (matches (trim(line), trim(stop_string)) ) return
     enddo
     return
 300 call error_nonstop ('scan_contain', &

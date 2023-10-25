@@ -1,37 +1,31 @@
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
 
-
 program  test_platform
-
   use ESMF
   use MAPL
   use Fortran_read_file
   use obs_platform
-  use, intrinsic :: iso_fortran_env, only: int32, int64, int16, real32, real64
-  use ieee_arithmetic, only: isnan => ieee_is_nan
 
   implicit none
-
   type(ESMF_VM) :: vm
   integer  unitr
   integer  status, rc, count
-
   type(ESMF_Config)           :: cf
   character(len=ESMF_MAXSTR)  :: HIST_CF
   character (len=ESMF_MAXSTR) :: fname
-  character (len=ESMF_MAXSTR) :: marker  
+  character (len=ESMF_MAXSTR) :: marker
+  character (len=ESMF_MAXSTR) :: line  
   type(platform), allocatable :: PLFS(:)
+  integer :: k, i, j
 
 
-  
   namelist /input/   fname
   ! -- note: work on HEAD node
   !
 
   read (5, nml=input)
   write(6,*) 'input fname = ', trim(fname)
-
 
   call ESMF_Initialize(vm=vm, rc=rc)
   rc=0   
@@ -47,6 +41,7 @@ program  test_platform
 
   
   call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
+  rewind(unitr)
   write(6,*) 'count PLATFORM.', count
   if (count==0) then
      rc = 0
@@ -61,44 +56,49 @@ program  test_platform
      read(unitr, '(a)') line
      i=index(line, 'PLATFORM.')
      j=index(line, ':')
-     PLFS(k)%name = line(i+1:j-1)
-     marker=line(1:j))
+     PLFS(k)%name = line(i:j-1)
+     marker=line(1:j)
 
+     write(6,102)  'marker=', trim(marker)
      call scan_contain(unitr, marker, .true.)
-     call scan_begin(unitr, 'longitude:', .false.)
+     call scan_contain(unitr, 'longitude:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
      i=index(line, 'longitude:')
-     PLFS(k)%nc_lon = trim(line(i+1:))
+     PLFS(k)%nc_lon = trim(line(i:))
+     write(6,*) 'line1 = ', trim(line)
+
 
      call scan_contain(unitr, marker, .true.)     
-     call scan_begin(unitr, 'latitude:', .false.)
+     call scan_contain(unitr, 'latitude:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
      i=index(line, 'latitude:')
-     PLFS(k)%nc_lat = trim(line(i+1:))
+     PLFS(k)%nc_lat = trim(line(i:))
+     write(6,*) 'line2 = ', trim(line)
 
+     
      call scan_contain(unitr, marker, .true.)     
-     call scan_begin(unitr, 'time:', .false.)
+     call scan_contain(unitr, 'time:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
      i=index(line, 'time:')
-     PLFS(k)%nc_time = trim(line(i+1:))
+     PLFS(k)%nc_time = trim(line(i:))
 
      call scan_contain(unitr, marker, .true.)     
-     call scan_begin(unitr, 'file_name_template:', .false.)
+     call scan_contain(unitr, 'file_name_template:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
      i=index(line, 'file_name_template:')
-     PLFS(k)%nc_time = trim(line(i+1:))     
+     PLFS(k)%file_name_template = trim(line(i:))     
 
-     write(6,*) 'ck  PLFS(k) ', &
-          PLFS(k)%name, &
-          PLFS(k)%nc_lon, &
-          PLFS(k)%nc_lat, &
-          PLFS(k)%time, &
-          PLFS(k)%file_name_template
-
+     write(6,102) 'ck  PLFS(k) ', &
+          trim( PLFS(k)%name ), &
+          trim( PLFS(k)%nc_lon ), &
+          trim( PLFS(k)%nc_lat ), &
+          trim( PLFS(k)%nc_time ), &
+          trim( PLFS(k)%file_name_template )
+  end do
   
   
   include '/Users/yyu11/sftp/myformat.inc'      
