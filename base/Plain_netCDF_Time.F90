@@ -695,15 +695,11 @@ contains
     integer,           intent (out):: nseg
     character (len=length_mx), intent (out):: str_piece(mxseg)
     integer,           intent (out):: jstatus
-    INTEGER                        :: len1, l
-    integer                        :: iseg
-    integer,           allocatable :: ipos(:)
-
     character (len=length_mx) :: string
     character (len=1) :: mark
     integer :: ios
     integer :: wc
-    
+
     !
     !  "xxxx  yy zz   uu   vv"
     !
@@ -712,24 +708,26 @@ contains
     mark=' '
     wc=0
     ios=0
-    string = trim(string_in)
-    stop -1
+    string = trim( adjustl(string_in) )
     do while (ios==0)
-       i = index (trim(string), mark)
+       i = index (string, mark)
+       print*, 'index=', i
        if (i > 1) then
           wc = wc + 1
-          str_piece(wc)=trim(string(1:i))
+          str_piece(wc)=trim(adjustl(string(1:i)))
+          write(6,*) 'str_piece(wc)=', trim(str_piece(wc))
+          string = trim(adjustl(string(i:)))
+       else
+          ios=1
        end if
-       string = trim(string(i:))
-       if (LEN_TRIM(string)== 0) ios=1
+       if (LEN_TRIM(adjustl(string)) == 0) ios=1
     end do
-    wc=wc+1
-    str_piece(wc)=string(:)
 
-    do i=1, wc
-       write(6,*) 'str_piece(', i, ')=', trim(str_piece(i))
-    enddo
-    
+    nseg=wc
+!    do i=1, wc
+!       write(6,*) 'str_piece(', i, ')=', trim(str_piece(i))
+!    enddo
+
     return
   end subroutine split_string_by_space
 
@@ -761,10 +759,6 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-
-
-
-
 end module Fortran_read_file
 
 
@@ -780,8 +774,8 @@ module obs_platform
      character (len=ESMF_MAXSTR) :: nc_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
-     !     character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
-     character (len=ESMF_MAXSTR), allocatable :: field_name(:)
+     character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
+     !character (len=ESMF_MAXSTR), allocatable :: field_name(:)
   end type platform
 
 contains
