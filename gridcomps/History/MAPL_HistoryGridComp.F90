@@ -5164,10 +5164,16 @@ ENDDO PARSER
      end if
      _RETURN(_SUCCESS)
   end function
-
   
+  
+  ! __ read data to obs_platform
+  ! __ for each collection: find union fields, write collection.rcx
+  !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
-    !Plan:
+    use Fortran_read_file
+    use obs_platform
+    !
+    !  Plan:
     !- read and write  schema
     !- extract union of field lines, print out to rc    
     type(ESMF_Config), intent(inout)       :: config
@@ -5177,119 +5183,166 @@ ENDDO PARSER
     integer, intent(inout), optional :: rc
 
     character(len=ESMF_MAXSTR) :: HIST_CF
-    character(len=ESMF_MAXSTR) :: line    
-    integer n, unitr, unitw
-    logical :: match, contLine, con3 
+    integer :: n, unitr, unitw
+    logical :: match, contLine, con3
+    integer :: status
 
-    integer :: ios, status, count
-
+    character (len=ESMF_MAXSTR) :: fname
+    character (len=ESMF_MAXSTR) :: marker
+    character (len=ESMF_MAXSTR) :: line
+    character (len=ESMF_MAXSTR), allocatable :: str_piece(:)  
+    type(platform), allocatable :: PLFS(:)
+    integer :: k, i, j
+    integer :: ios, ngeoval, count, nplf
+    integer :: length_mx
+    integer :: mxseg
+    integer :: nseg
 
     ! -- note: work on HEAD node
     !
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
-
+    print*, __FILE__, __LINE__
+    
     call scan_count_match_bgn (unitr, 'PLATFORM.', count, .false.)
+    rewind(unitr)
     write(6,*) 'count PLATFORM.', count
     if (count==0) then
        rc = 0
        return
     endif
+    nplf = count
+    allocate (PLFS(count))
+
+    ! __ s1. scan platform name + nc_lat ...
+    do k=1, count
+       call scan_begin(unitr, 'PLATFORM.', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, 'PLATFORM.')
+       j=index(line, ':')
+       PLFS(k)%name = line(i:j-1)
+       marker=line(1:j)
+
+       write(6,102)  'marker=', trim(marker)
+       call scan_contain(unitr, marker, .true.)
+       call scan_contain(unitr, 'longitude:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_lon = trim(line(i+1:))
+
+       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, 'latitude:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_lat = trim(line(i+1:))
+
+       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, 'time:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%nc_time = trim(line(i+1:))
+
+       call scan_contain(unitr, marker, .true.)     
+       call scan_contain(unitr, 'file_name_template:', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, ':')
+       PLFS(k)%file_name_template = trim(line(i+1:))     
+
+       write(6,*) 'ck  PLFS(k) ', &
+            trim( PLFS(k)%name ), &
+            trim( PLFS(k)%nc_lon ), &
+            trim( PLFS(k)%nc_lat ), &
+            trim( PLFS(k)%nc_time ), &
+            trim( PLFS(k)%file_name_template )
+    end do
 
 
-    ios = 0
-    count = 0 
-    do while (ios==0)
-       read (unitr, '(A)', iostat = ios, end = 1235) line
-       if (ios.NE.0) then
-          ! something wrong or end of file
-          exit
-       else
-          if(index(line, 'DEFINE_OBS_PLATFORM') > 0) then
-             count = 1
+    ! __ s2.1 scan fields: get ngeoval / nseg = nword
+    length_mx = ESMF_MAXSTR
+    mxseg = 10 
+    allocate (str_piece(mxseg))
+    rewind(unitr)
+    do k=1, count
+       call scan_begin(unitr, 'PLATFORM.', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, 'PLATFORM.')
+       j=index(line, ':')
+       PLFS(k)%name = line(i:j-1)
+       marker=line(1:j)
+       write(6,102)  'marker=', trim(marker)
+
+       call scan_begin(unitr, marker, .true.)     
+       call scan_contain(unitr, 'geovals_fields:', .false.)
+       ios=0
+       ngeoval=0
+       do while (ios == 0)
+          read (unitr, '(A)' ) line
+          write(6,*) 'field line:', trim(line)
+          i=index(line, '::')
+          if (i==0) then
+             ngeoval = ngeoval + 1
+             call  split_string_by_space (line, length_mx, mxseg, &
+                  nseg, str_piece, status)
+             write(6,*) 'nseg', nseg
+             write(6,*) 'str_piece(1:nseg)', str_piece(1:nseg)
+          else
+             exit
           endif
-       endif
+       enddo
+       PLFS(k)%ngeoval = ngeoval
+       write(6,*)  'ngeoval=', ngeoval     
+       allocate ( PLFS(k)%field_name (nseg, ngeoval) )
+    end do
+
+
+    ! __ s2.2 scan fields: get splitted PLFS(k)%field_name
+    rewind(unitr)
+    do k=1, count
+       call scan_begin(unitr, 'PLATFORM.', .false.)
+       backspace(unitr)
+       read(unitr, '(a)') line
+       i=index(line, 'PLATFORM.')
+       j=index(line, ':')
+       PLFS(k)%name = line(i:j-1)
+       marker=line(1:j)
+       write(6,102)  'marker=', trim(marker)
+       !
+       call scan_begin(unitr, marker, .true.)     
+       call scan_contain(unitr, 'geovals_fields:', .false.)
+       ios=0
+       ngeoval=0
+       do while (ios == 0)
+          read (unitr, '(A)' ) line
+          write(6,*) 'field line:', trim(line)
+          i=index(line, '::')
+          if (i==0) then
+             ngeoval = ngeoval + 1
+             call  split_string_by_space (line, length_mx, mxseg, &
+                  nseg, str_piece, status)
+             PLFS(k)%field_name (1:nseg, ngeoval) = str_piece(1:nseg)
+          else
+             exit
+          endif
+       enddo
+    end do
+
+    do k=1, nplf
+       do i=1, ngeoval
+          write(6,*) 'PLFS(k)%field_name (1:nseg, ngeoval)=', PLFS(k)%field_name (1:nseg,i)
+       enddo
     enddo
-1235 continue    
-    if (count == 0) then
-
-    end if
 
 
-!    ! __ s1.  read in PLATFORM objects
-!
-!    igeoval = 0
-!    count = 0
-!    itest = 0
-!    do while (itest==0) then
-!       call scan_begin (unitr, 'PLATFORM.', itest)
-!       backspace(unitr)
-!       read(unitr, '(a)') line
-!       i=index(line, 'PLATFORM.')
-!       call scan_begin (unitr, 'geovals_fields', itest)
-!       igeoval = igeoval + 1
-!       itest_var = 0
-!       fieldname_set(igeoval) = ''
-!       PLF_name(igeoval) = trim(line(i+9:))
-!       do while (itest_var == 0) then
-!          read (unitr, '(A)' ) line
-!          if (trim(line)=='::') then
-!             itest_var = 1
-!          else
-!             string1 = get_first_word (line)
-!             fieldname_set(igeoval) = trim(fieldname_set(igeoval))//' '//trim(string1)
-!             count = count + 1
-!             lines_var(count) = line
-!             map(count) = igeoval
-!          endif
-!       enddo
-!    enddo
-!    nvar = count
-!    ngeoval = igeoval
-!
-!
-!!  for each collection
-!    do n = 1, nlist
-!       rewind(unitr)
-!       string = trim( collections(n) ) // '.'
-!         unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
-!
-!         match = .false.
-!         contLine = .false.
-!         con3 = .false.
-!            
-!         do while (.true.)
-!            read(unitr, '(A)', end=1236) line
-!            j = index( adjustl(line), trim(adjustl(string)) )
-!            match = (j == 1)
-!            if (match) then
-!               j = index(line, trim(string)//'fields:')
-!               contLine = (j > 0)
-!               k = index(line, trim(string)//'obs_files:')
-!               con3 = (k > 0)               
-!            end if
-!            if (match .or. contLine .or. con3) then
-!               write(unitw,'(A)') trim(line)
-!            end if
-!            if (contLine) then
-!               if (adjustl(line) == '::') contLine = .false.
-!            end if
-!            if (con3) then
-!               if (adjustl(line) == '::') con3 = .false.               
-!            endif
-!
-!            if ( index(line, 'DEFINE_OBS_PLATFORM') > 0 ) exit
-!         end do
-!1236     continue
-!
-!         call free_file(unitw, _RC)
-!      end do
-!
-!      call free_file(unitr, _RC)
-!    end if
-!
     
+    !! include '/Users/yyu11/sftp/myformat.inc'      
   end subroutine regen_rcx_for_obs_platform
-    
+
+      
 end module MAPL_HistoryGridCompMod
