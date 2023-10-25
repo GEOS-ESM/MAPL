@@ -428,7 +428,12 @@ CONTAINS
          enddo
       else
          num_primary=num_primary+1
-         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+!        call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,_RC)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,rc=status)
+         if ( status /= 0 ) THEN
+           print*,'EXTDATA problem 123 '//TRIM(current_base_name)
+         end if
+         _VERIFY(status)
       end if
       call ESMF_StateGet(Export,current_base_name,state_item_type,_RC)
       if (state_item_type /= ESMF_STATEITEM_NOTFOUND) then
@@ -1818,6 +1823,9 @@ CONTAINS
            exit
         end if
      enddo
+  IF ( .NOT. found ) THEN
+    print*,'PROBLEM W BASENAME '//TRIM(base_name)
+  END IF
      _ASSERT(found,"no item with that basename found")
 
      item_index = -1
@@ -1832,6 +1840,9 @@ CONTAINS
            endif
         enddo
      end if
+  IF ( item_index .EQ. -1 ) THEN
+    print*,'PROBLEM W TIME for BASENAME '//TRIM(base_name)
+  END IF
      _ASSERT(item_index/=-1,"did not find item")
      _RETURN(_SUCCESS)
   end function get_item_index
