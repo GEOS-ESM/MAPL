@@ -686,6 +686,52 @@ contains
     RETURN
   end function matches
 
+  
+  subroutine split_string_by_space (string_in, length_mx, &
+       mxseg, nseg, str_piece, jstatus)
+    integer,           intent (in) :: length_mx
+    character (len=length_mx), intent (in) :: string_in
+    integer,           intent (in) :: mxseg
+    integer,           intent (out):: nseg
+    character (len=length_mx), intent (out):: str_piece(mxseg)
+    integer,           intent (out):: jstatus
+    INTEGER                        :: len1, l
+    integer                        :: iseg
+    integer,           allocatable :: ipos(:)
+
+    character (len=length_mx) :: string
+    character (len=1) :: mark
+    integer :: ios
+    integer :: wc
+    
+    !
+    !  "xxxx  yy zz   uu   vv"
+    !
+
+    ! split by space ''
+    mark=' '
+    wc=0
+    ios=0
+    string = trim(string_in)
+    stop -1
+    do while (ios==0)
+       i = index (trim(string), mark)
+       if (i > 1) then
+          wc = wc + 1
+          str_piece(wc)=trim(string(1:i))
+       end if
+       string = trim(string(i:))
+       if (LEN_TRIM(string)== 0) ios=1
+    end do
+    wc=wc+1
+    str_piece(wc)=string(:)
+
+    do i=1, wc
+       write(6,*) 'str_piece(', i, ')=', trim(str_piece(i))
+    enddo
+    
+    return
+  end subroutine split_string_by_space
 
 
   subroutine error_nonstop( insubroutine, message, ierr )
@@ -700,6 +746,23 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error_nonstop
+
+
+  subroutine error(insubroutine, message, ierr )
+    character (len=*), intent (in) :: insubroutine
+    character (len=*), intent (in) :: message
+    integer, intent (in) :: ierr
+    !
+    write (6, 11)
+    write (6, 12)  trim(insubroutine), trim(message), ierr
+    write (6, 11)
+    stop
+11  format ('**====================**')
+12  format (2x, a, 4x, a, 4x, "ierr =", i4)
+    return
+  end subroutine error
+
+
 
 
 end module Fortran_read_file
@@ -717,7 +780,8 @@ module obs_platform
      character (len=ESMF_MAXSTR) :: nc_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
-     character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
+     !     character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
+     character (len=ESMF_MAXSTR), allocatable :: field_name(:)
   end type platform
 
 contains

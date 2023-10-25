@@ -12,14 +12,19 @@ program  test_platform
   integer  unitr
   integer  status, rc, count
   type(ESMF_Config)           :: cf
-  character(len=ESMF_MAXSTR)  :: HIST_CF
+  character (len=ESMF_MAXSTR) :: HIST_CF
   character (len=ESMF_MAXSTR) :: fname
   character (len=ESMF_MAXSTR) :: marker
-  character (len=ESMF_MAXSTR) :: line  
+  character (len=ESMF_MAXSTR) :: line
+  character (len=ESMF_MAXSTR), allocatable :: str_piece(:)  
   type(platform), allocatable :: PLFS(:)
   integer :: k, i, j
+  integer :: ios, ngeoval
+  integer :: length_mx
+  integer :: mxseg
+  integer :: nseg
 
-
+    
   namelist /input/   fname
   ! -- note: work on HEAD node
   !
@@ -49,7 +54,7 @@ program  test_platform
   endif
   allocate (PLFS(count))
 
-
+  ! __ s1. scan platform name + nc_lat ...
   do k=1, count
      call scan_begin(unitr, 'PLATFORM.', .false.)
      backspace(unitr)
@@ -64,33 +69,29 @@ program  test_platform
      call scan_contain(unitr, 'longitude:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
-     i=index(line, 'longitude:')
-     PLFS(k)%nc_lon = trim(line(i:))
-     write(6,*) 'line1 = ', trim(line)
-
+     i=index(line, ':')
+     PLFS(k)%nc_lon = trim(line(i+1:))
 
      call scan_contain(unitr, marker, .true.)     
      call scan_contain(unitr, 'latitude:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
-     i=index(line, 'latitude:')
-     PLFS(k)%nc_lat = trim(line(i:))
-     write(6,*) 'line2 = ', trim(line)
-
+     i=index(line, ':')
+     PLFS(k)%nc_lat = trim(line(i+1:))
      
      call scan_contain(unitr, marker, .true.)     
      call scan_contain(unitr, 'time:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
-     i=index(line, 'time:')
-     PLFS(k)%nc_time = trim(line(i:))
+     i=index(line, ':')
+     PLFS(k)%nc_time = trim(line(i+1:))
 
      call scan_contain(unitr, marker, .true.)     
      call scan_contain(unitr, 'file_name_template:', .false.)
      backspace(unitr)
      read(unitr, '(a)') line
-     i=index(line, 'file_name_template:')
-     PLFS(k)%file_name_template = trim(line(i:))     
+     i=index(line, ':')
+     PLFS(k)%file_name_template = trim(line(i+1:))     
 
      write(6,102) 'ck  PLFS(k) ', &
           trim( PLFS(k)%name ), &
@@ -99,7 +100,54 @@ program  test_platform
           trim( PLFS(k)%nc_time ), &
           trim( PLFS(k)%file_name_template )
   end do
+
   
+  ! __ s2.1 scan fields: get ngeoval / nseg = nword
+  length_mx = ESMF_MAXSTR
+  mxseg = 10 
+  allocate (str_piece(mxseg))
+  rewind(unitr)
+  do k=1, count
+     call scan_begin(unitr, 'PLATFORM.', .false.)
+     backspace(unitr)
+     read(unitr, '(a)') line
+     i=index(line, 'PLATFORM.')
+     j=index(line, ':')
+     PLFS(k)%name = line(i:j-1)
+     marker=line(1:j)
+     write(6,102)  'marker=', trim(marker)
+
+     ! __ 
+     call scan_begin(unitr, marker, .true.)     
+     call scan_contain(unitr, 'geovals_fields:', .false.)
+     ios=0
+     ngeoval=0
+     do while (ios == 0)
+        read (unitr, '(A)' ) line
+        write(6,*) 'field line:', trim(line)
+        i=index(line, '::')
+        if (i==0) then
+           ngeoval = ngeoval + 1
+           call  split_string_by_space (line, length_mx, mxseg, &
+                nseg, str_piece, status)
+           stop -1
+           write(6,*) 'nseg', nseg
+           write(6,*) 'str_piece(1:nseg)', str_piece(1:nseg)
+        else
+           exit
+        endif
+     enddo
+     PLFS(k)%ngeoval = ngeoval
+     write(6,*)  'ngeoval=', ngeoval     
+     allocate ( PLFS(k)%field_name (ngeoval) )
+
+     ! __ get field_name(ngeoval)
+     
+     
+  end do
+
+
+  ! __ s2.2 scan fields: get splitted  PLFS(k)%field_name
   
   include '/Users/yyu11/sftp/myformat.inc'      
 
