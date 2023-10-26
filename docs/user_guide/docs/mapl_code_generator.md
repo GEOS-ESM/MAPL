@@ -7,7 +7,7 @@ The number of the those variables can be large and make the declaration process 
 
 MAPL has a utility tool (named [MAPL_GridCompSpecs_ACG.py
 ](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py)) that simplifies and facilitates the registration and access of member variables of the various states (Export, Import, and Internal) of gridded components.
-The tool relies on a formatted ASCII file (`spec`` file) to autmatically generate, at compilation time, include files that have the necessary code segments for defining and accessing the expected state member variables.
+The tool relies on a formatted ASCII file (`spec` file) to autmatically generate, at compilation time, include files that have the necessary code segments for defining and accessing the expected state member variables.
 In this document, we describe the [steps](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) to follow to use the tool.
 
 To simplify this documents, we use the words _Imports_, _Exports_ and _Internals_ to refer to member variables of the Import, Export and Internal states, respectively.
@@ -138,6 +138,7 @@ Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and
 
 
 ```
+schema_version: 2.0.0
 component: MyComponent
 
 category: IMPORT
@@ -196,7 +197,12 @@ category: INTERNAL
 #--------------------------------------------
 ```
 
-Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.rc` generates at compilation time four (4) includes files:
+#### Remark
+It is required to have the settings for the two variable `schema_version` (here `2.0.0`) 
+and `component` (here `MyComponent`) on top of the `spec` file.
+
+
+Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.rc` generates at compilation time four (4) include files:
 
 1. `MyComponent_Export___.h` for the `MAPL_AddExportSpec` calls in the `SetServices` routine:
 
@@ -306,6 +312,16 @@ mapl_acg (${this}   MyComponent_StateSpecs.rc
 ```
 
 Note, if in your case, there is no Internal state, `INTERNAL_SPECS` needs not to be added in the above command. But there is no harm including it.  
+
+### Sample code
+We provide a sample code (gridded component module, `spec` and `CMakeLists.txt` files) that shows
+how the automatic code generator is used. The code is available at:
+
+```
+  docs/tutorial/grid_comps/code_generator
+```
+
+The code is provided for illustration only and compiled with the entire MAPL package.
 
 ### Future Work
 
