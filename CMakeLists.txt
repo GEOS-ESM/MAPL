@@ -199,8 +199,6 @@ if (COMMAND esma)
   endforeach ()
 endif ()
 
-add_link_options("-Wl,-ld_classic")
-
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
 else ()
