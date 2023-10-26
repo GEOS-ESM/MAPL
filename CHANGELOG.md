@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extend unit tests for FileSystemUtilities.
 - Updated handling of NetCDF time values
 - Update `components.yaml`
-  - ESMA_cmake v3.35.0 (Support for SLES15 at NCCS)
+  - ESMA_cmake v3.36.0 (Support for SLES15 at NCCS, support for Intel 2021.10)
   - ESMA_env v4.20.5 (Support for SLES15 at NCCS)
 
 ### Fixed
