@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
 - Extend unit tests for FileSystemUtilities.
 - Updated handling of NetCDF time values
+- Update `components.yaml`
+  - ESMA_cmake v3.35.0 (Support for SLES15 at NCCS)
+  - ESMA_env v4.20.5 (Support for SLES15 at NCCS)
 
 ### Fixed
 
