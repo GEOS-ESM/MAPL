@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for LLVM Intel build on OSX with arm processors.
 - Various workarounds for building MAPL with MPICH
   - Non-support for `C_PTR` in `MPI_Alloc_Mem` ((MPICH Issue #6691)[https://github.com/pmodels/mpich/issues/6691])
   - Non-support for `ierror` keyword arguments with `use mpi` ((MPICH Issue #6693)[https://github.com/pmodels/mpich/issues/6693])
@@ -21,10 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
 - Extend unit tests for FileSystemUtilities.
 - Updated handling of NetCDF time values
+- Update `components.yaml`
+  - ESMA_cmake v3.36.0 (Support for SLES15 at NCCS, support for Intel 2021.10)
+  - ESMA_env v4.20.5 (Support for SLES15 at NCCS)
 
 ### Fixed
 
-- Introduced workaround for LLVM Intel bug in generic layer.
+- Introduced workaround for Intel 2021.10 bug in generic layer.
 - Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
 - Fix incorrect History print during runtime
 
