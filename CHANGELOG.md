@@ -53,6 +53,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.42.0] - 2023-10-27
+
+### Added
+
 - Various workarounds for building MAPL with MPICH
   - Non-support for `C_PTR` in `MPI_Alloc_Mem` ((MPICH Issue #6691)[https://github.com/pmodels/mpich/issues/6691])
   - Non-support for `ierror` keyword arguments with `use mpi` ((MPICH Issue #6693)[https://github.com/pmodels/mpich/issues/6693])
@@ -60,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
+- Modified fpp macro `_UNUSED_DUMMY(x)` to use ASSOCIATE instead of PRINT. With this change it can be used in PURE procedures.
 - Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
 - Extend unit tests for FileSystemUtilities.
 - Updated handling of NetCDF time values
@@ -74,10 +86,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated write_by_oserver logic so that the decision to write by the oserver is based on whether the output server client is passed in
 - Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
 - Fix incorrect History print during runtime
-
-### Removed
-
-### Deprecated
 
 ## [2.41.2] - 2023-10-27
 
