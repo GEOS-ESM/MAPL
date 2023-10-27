@@ -1,7 +1,7 @@
-esma_set_this (OVERRIDE MAPL.mycomponent)
+esma_set_this (OVERRIDE MAPL.acg)
 
 set (srcs
-    MyComponent_GridComp.F90
+    ACG_GridComp.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE ${MAPL_LIBRARY_TYPE})
@@ -16,7 +16,7 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 
 include(mapl_acg)
 
-mapl_acg (${this}   MyComponent_StateSpecs.rc
+mapl_acg (${this}   ACG_StateSpecs.rc
           IMPORT_SPECS EXPORT_SPECS
           GET_POINTERS DECLARE_POINTERS)
 

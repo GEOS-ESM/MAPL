@@ -318,7 +318,7 @@ We provide a sample code (gridded component module, `spec` and `CMakeLists.txt` 
 how the automatic code generator is used. The code is available at:
 
 ```
-  docs/tutorial/grid_comps/code_generator
+  docs/tutorial/grid_comps/automatic_code_generator
 ```
 
 The code is provided for illustration only and compiled with the entire MAPL package.
