@@ -35,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.41.2] - 2023-10-27
+
+### Fixed
+
+- Fixed missing initialize of pFlogger in a pfio test.  Not clear why this was not failing for other compilers - detected with ifort 2021.10.0.
+
 ## [2.41.1] - 2023-10-04
 
 ### Fixed
