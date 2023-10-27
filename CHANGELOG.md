@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Introduced workaround for Intel 2021.10 bug in generic layer.
+- Updated write_by_oserver logic so that the decision to write by the oserver is based on whether the output server client is passed in
 - Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
 - Fix incorrect History print during runtime
 
