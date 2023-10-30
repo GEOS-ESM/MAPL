@@ -9,13 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add new benchmark to simulation writing a cubed-sphere file using various tunable strategies
+- New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
 
 ### Changed
-- Modified fpp macro `_UNUSED_DUMMY(x) to use ASSOCIATE instead of PRINT.   With this change it can be used in PURE procedures.
-- Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
-- Extend unit tests for FileSystemUtilities.
-- Updated handling of NetCDF time values
 
 ### Fixed
 
@@ -23,11 +19,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## 2023-10-27
+## [2.42.0] - 2023-10-27
 
 ### Added
 
-- New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool. 
+- Various workarounds for building MAPL with MPICH
+  - Non-support for `C_PTR` in `MPI_Alloc_Mem` ((MPICH Issue #6691)[https://github.com/pmodels/mpich/issues/6691])
+  - Non-support for `ierror` keyword arguments with `use mpi` ((MPICH Issue #6693)[https://github.com/pmodels/mpich/issues/6693])
+- Add new benchmark to simulation writing a cubed-sphere file using various tunable strategies
+
+### Changed
+
+- Modified fpp macro `_UNUSED_DUMMY(x)` to use ASSOCIATE instead of PRINT. With this change it can be used in PURE procedures.
+- Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
+- Extend unit tests for FileSystemUtilities.
+- Updated handling of NetCDF time values
+- Update `components.yaml`
+  - ESMA_cmake v3.36.0 (Support for SLES15 at NCCS, support for Intel 2021.10)
+  - ESMA_env v4.20.5 (Support for SLES15 at NCCS)
+
+### Fixed
+
+- Introduced workaround for Intel 2021.10 bug in generic layer.
+- Updated write_by_oserver logic so that the decision to write by the oserver is based on whether the output server client is passed in
+- Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
+- Fix incorrect History print during runtime
+
+## [2.41.2] - 2023-10-27
+
+### Fixed
+
+- Fixed missing initialize of pFlogger in a pfio test.  Not clear why this was not failing for other compilers - detected with ifort 2021.10.0.
 
 ## [2.41.1] - 2023-10-04
 

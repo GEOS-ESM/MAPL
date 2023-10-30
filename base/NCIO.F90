@@ -312,6 +312,7 @@ module NCIOMod
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
+    logical :: have_oclients
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
@@ -320,9 +321,7 @@ module NCIOMod
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    if( arrdes%write_restart_by_oserver) then
-      _ASSERT(present(oClients), "output server is needed")
-    endif
+    have_oclients = present(oClients) 
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
     _VERIFY(STATUS)
@@ -351,7 +350,7 @@ module NCIOMod
                 size_1d = size(var_1d,1)
              endif
 
-             if (arrdes%write_restart_by_oserver) then
+             if (have_oclients) then
                 if( MAPL_AM_I_ROOT())  then
                    lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[size_1d])
@@ -390,7 +389,7 @@ module NCIOMod
                 size_1d = size(vr8_1d,1)
              endif
 
-             if (arrdes%write_restart_by_oserver) then
+             if (have_oclients) then
                 if(MAPL_AM_I_ROOT()) then
                    lMemRef = LocalMemReference(pFIO_REAL64,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[size_1d])
@@ -428,7 +427,7 @@ module NCIOMod
           if (associated(var_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if(MAPL_AM_I_ROOT()) then
                       lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[arrdes%im_world, size(var_2d,2)])
@@ -462,7 +461,7 @@ module NCIOMod
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[arrdes%im_world,size(vr8_2d,2)])
@@ -497,7 +496,7 @@ module NCIOMod
           if (associated(var_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if( MAPL_Am_I_Root() ) then
                       lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
@@ -536,7 +535,7 @@ module NCIOMod
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if( MAPL_Am_I_Root() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
@@ -619,8 +618,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
     if (present(arrdes)) then
-       if (arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if (present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
           _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -670,8 +668,7 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "output server is needed")
+    if (present(oClients)) then
        call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
        _VERIFY(status)
        call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -712,8 +709,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
     if (present(arrdes)) then
-       if (arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if (present(oclients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
           _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -780,8 +776,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "outpur server is needed")
+    if (present(oclients)) then
        call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
         _VERIFY(status)
        call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -852,8 +847,7 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
 
     if (present(arrdes)) then
-       if(arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -2342,8 +2336,7 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
 
     if (present(arrdes)) then
-       if( arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -3274,8 +3267,9 @@ module NCIOMod
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
     type(ESMF_Field) :: lons_field, lats_field
-    logical :: isGridCapture
+    logical :: isGridCapture, have_oclients
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
+    have_oclients = present(oClients)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
@@ -3471,7 +3465,7 @@ module NCIOMod
     ndims = ndims + 1
 
     !WJ note: if arrdes%write_restart_by_oserver is true, all processors will participate
-    if (arrdes%writers_comm/=MPI_COMM_NULL .or. arrdes%write_restart_by_oserver) then
+    if (arrdes%writers_comm/=MPI_COMM_NULL .or. have_oclients ) then
 
        ! Create dimensions as needed
        if (Have_HorzVert .or. Have_HorzOnly) then
@@ -3832,8 +3826,7 @@ module NCIOMod
        _VERIFY(STATUS)
 
 
-       if (arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), 'output server is needed')
+       if (have_oclients) then
           call oClients%set_optimal_server(1)
           iter = RstCollections%find(trim(BundleName))
           if (iter == RstCollections%end()) then
@@ -3935,7 +3928,7 @@ module NCIOMod
        call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
     end if
 
-    if (arrdes%write_restart_by_oserver) then
+    if (have_oclients) then
        call oClients%done_collective_stage(_RC)
        call oClients%post_wait()
        call MPI_Info_free(info, status)

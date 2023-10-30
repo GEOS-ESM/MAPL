@@ -719,7 +719,10 @@ program checkpoint_tester
       write(*,'(A,I3)')"Num writers:  ",support%num_writers
       write(*,'(A,I6)')"Total cores:  ",comm_size
       write(*,'(A,I6,I6)')"Cube size:  ",support%im_world,support%lm
-      write(*,'(A,L,L,L,L,L,L,L)')"Split file, 3D_gather, chunk, extra, netcdf output, write barrier, do writes:  ",support%split_file,support%gather_3d,support%do_chunking,support%extra_info,support%netcdf_writes,support%write_barrier,support%do_writes
+      write(*,'(A,7(L1))')"Split file, 3D_gather, chunk, extra, netcdf output, write barrier, do writes:  ",&
+         support%split_file, support%gather_3d, &
+         support%do_chunking,support%extra_info, &
+         support%netcdf_writes,support%write_barrier, support%do_writes
       write(*,'(A,I6)')"Number of trial:  ",support%n_trials
       write(*,'(A,G16.8)')"Application  time: ",application_time
    end if
