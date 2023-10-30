@@ -207,6 +207,11 @@ endif ()
 
 add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 
+# Support for automated code generation
+include(mapl_acg)
+include(mapl_create_stub_component)
+add_subdirectory (Apps)
+
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
 add_subdirectory (MAPL_cfio MAPL_cfio_r8)
@@ -241,11 +246,6 @@ if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
-
-# Support for automated code generation
-include(mapl_acg)
-include(mapl_create_stub_component)
-add_subdirectory (Apps)
 
 add_subdirectory (Tests)
 
