@@ -14,9 +14,6 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
    implicit none
 
-
-   logical :: first = .true.
-
 contains
 
    ! Note we spell the following routine with trailing underscore as a workaround
@@ -41,13 +38,9 @@ contains
       integer :: status
       type(GeomManager), pointer :: geom_mgr
 
-      ! TODO: Move next line eventually
-      if (first) then
-         geom_mgr => get_geom_manager() ! init
-         _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
-         call geom_mgr%initialize()
-         first = .false.
-      end if
+      geom_mgr => get_geom_manager()
+      _ASSERT(associated(geom_mgr), 'uh oh - cannot acces global geom_manager.')
+
       this%component_spec = parse_component_spec(this%hconfig, _RC)
       call process_user_gridcomp(this, _RC)
       call process_children(this, _RC)
@@ -98,7 +91,8 @@ contains
               child_spec => iter%second()
 
               if (allocated(child_spec%config_file)) then
-                 child_hconfig = ESMF_HConfigCreate(filename=child_spec%config_file, _RC)
+                 child_hconfig = ESMF_HConfigCreate(filename=child_spec%config_file, rc=status)
+                 _ASSERT(status==0,'problem with config file: '//child_spec%config_file)
               end if
               call this%add_child(child_name, child_spec%user_setservices, child_hconfig, _RC)
            end do
