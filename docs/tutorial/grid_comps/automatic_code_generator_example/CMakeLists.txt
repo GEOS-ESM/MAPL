@@ -12,10 +12,6 @@ target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
-#target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
-include(mapl_acg)
-
 mapl_acg (${this}   ACG_StateSpecs.rc
           IMPORT_SPECS EXPORT_SPECS
           GET_POINTERS DECLARE_POINTERS)
