@@ -169,7 +169,7 @@ contains
             dx    = Xout(j_out+1)-Xin(j1)
             ff    = ff + dx
             b(j1) = dx
-            b     = b/ff
+            b(:)     = b(:)/ff
          end if
          
        end associate
@@ -208,63 +208,63 @@ contains
 
       spec = this%get_spec()
 
-      block
-        integer :: N_in(NUM_DIMS)
-        integer :: dims(5)
-
-        call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=dims, rc=status)
-        _VERIFY(status)
-        N_in = dims(1:2)
-
-        if ((N_in(1) /= size(q_in,1)) .or. (N_in(2) /= size(q_in,2))) then
-           redistribute = .true.
-        else
-           redistribute = .false.
-        end if
-
-      end block
-      if (redistribute) then
-         block
-           real (kind=REAL32), pointer :: q_in_global(:,:,:)
-           real (kind=REAL32), allocatable :: q_out_global(:,:,:)
-           integer :: N_out(NUM_DIMS)
-           integer :: dims(5)
-
-           q_in_global=> null()
-
-           call MAPL_CollectiveGather3D(spec%grid_in, q_in, q_in_global, rc=status)
-           _VERIFY(status)
-
-           call MAPL_GridGet(spec%grid_out, globalCellCountPerDim=dims, rc=status)
-           _VERIFY(status)
-           N_out = dims(1:2)
-
-           allocate(q_out_global(n_out(1), n_out(2), size(q_in_global,3)))
-
-           if (size(q_in_global) > 1) then
-              do k = 1, size(q_in_global,3)
-                 call this%regrid(q_in_global(:,:,k), q_out_global(:,:,k), rc=status)
-                 _VERIFY(status)
-              end do
-           end if
-
-           deallocate(q_in_global)
-
-           call MAPL_CollectiveScatter3D(spec%grid_out, q_out_global, q_out, rc=status)
-           _VERIFY(status)
-
-           deallocate(q_out_global)
-         end block
-      else
-         if (size(q_in) > 1) then
-            do k = 1, size(q_in,3)
-               call this%regrid(q_in(:,:,k), q_out(:,:,k), rc=status)
-               _VERIFY(status)
-            end do
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
+!#      block
+!#        integer :: N_in(NUM_DIMS)
+!#        integer :: dims(5)
+!#
+!#        call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=dims, rc=status)
+!#        _VERIFY(status)
+!#        N_in = dims(1:2)
+!#
+!#        if ((N_in(1) /= size(q_in,1)) .or. (N_in(2) /= size(q_in,2))) then
+!#           redistribute = .true.
+!#        else
+!#           redistribute = .false.
+!#        end if
+!#
+!#      end block
+!#      if (redistribute) then
+!#         block
+!#           real (kind=REAL32), pointer :: q_in_global(:,:,:)
+!#           real (kind=REAL32), allocatable :: q_out_global(:,:,:)
+!#           integer :: N_out(NUM_DIMS)
+!#           integer :: dims(5)
+!#
+!#           q_in_global=> null()
+!#
+!#           call MAPL_CollectiveGather3D(spec%grid_in, q_in, q_in_global, rc=status)
+!#           _VERIFY(status)
+!#
+!#           call MAPL_GridGet(spec%grid_out, globalCellCountPerDim=dims, rc=status)
+!#           _VERIFY(status)
+!#           N_out = dims(1:2)
+!#
+!#           allocate(q_out_global(n_out(1), n_out(2), size(q_in_global,3)))
+!#
+!#           if (size(q_in_global) > 1) then
+!#              do k = 1, size(q_in_global,3)
+!#                 call this%regrid(q_in_global(:,:,k), q_out_global(:,:,k), rc=status)
+!#                 _VERIFY(status)
+!#              end do
+!#           end if
+!#
+!#           deallocate(q_in_global)
+!#
+!#           call MAPL_CollectiveScatter3D(spec%grid_out, q_out_global, q_out, rc=status)
+!#           _VERIFY(status)
+!#
+!#           deallocate(q_out_global)
+!#         end block
+!#      else
+!#         if (size(q_in) > 1) then
+!#            do k = 1, size(q_in,3)
+!#               call this%regrid(q_in(:,:,k), q_out(:,:,k), rc=status)
+!#               _VERIFY(status)
+!#            end do
+!#         end if
+!#      end if
+!#
+!#      _RETURN(_SUCCESS)
 
    end subroutine regrid_scalar_3d_real32   
 
@@ -279,55 +279,55 @@ contains
       integer :: jj, jx, ix, ii
       real :: q, w, f
 
-      real(kind=REAL32) :: undef
-
-      _UNUSED_DUMMY(rc)
-
-      undef = -HUGE(1.)
-
-      do j = 1, this%num_points_out(2)
-         associate(weights_y => this%mappings(2)%WeightList(j)%f)
-  
-           do i = 1, this%num_points_out(1)
-              
-              associate(weights_x => this%mappings(1)%WeightList(i)%f)
-                
-                q = 0.0
-                w = 0.0
-            
-                do jj = lbound(weights_y,1), ubound(weights_y,1)
-                   if(jj > this%num_points_in(2)) then
-                      jx = jj - this%num_points_in(2)
-                   else
-                      jx = jj
-                   end if
-                   
-                   do ii = lbound(weights_x,1), ubound(weights_x,1)
-                      if(ii>this%num_points_in(1)) then
-                         ix = ii - this%num_points_in(1)
-                      else
-                         ix = ii
-                      end if
-                      
-                      if(q_in(ix,jx) /= undef) then
-                         f = weights_x(ii) *  weights_y(jj)
-                         q = q + f*q_in(ix,jx)
-                         w = w + f           
-                      end if
-                   end do
-                end do
-                
-                if ( w >= WEIGHT_THRESHOLD ) then
-                   q_out(i,j) = q / w
-                else
-                   q_out(i,j) = undef
-                end if
-                
-              end associate
-              
-           end do
-         end associate
-      end do
+!#      real(kind=REAL32) :: undef
+!#
+!#      _UNUSED_DUMMY(rc)
+!#
+!#      undef = -HUGE(1.)
+!#
+!#      do j = 1, this%num_points_out(2)
+!#         associate(weights_y => this%mappings(2)%WeightList(j)%f)
+!#  
+!#           do i = 1, this%num_points_out(1)
+!#              
+!#              associate(weights_x => this%mappings(1)%WeightList(i)%f)
+!#                
+!#                q = 0.0
+!#                w = 0.0
+!#            
+!#                do jj = lbound(weights_y,1), ubound(weights_y,1)
+!#                   if(jj > this%num_points_in(2)) then
+!#                      jx = jj - this%num_points_in(2)
+!#                   else
+!#                      jx = jj
+!#                   end if
+!#                   
+!#                   do ii = lbound(weights_x,1), ubound(weights_x,1)
+!#                      if(ii>this%num_points_in(1)) then
+!#                         ix = ii - this%num_points_in(1)
+!#                      else
+!#                         ix = ii
+!#                      end if
+!#                      
+!#                      if(q_in(ix,jx) /= undef) then
+!#                         f = weights_x(ii) *  weights_y(jj)
+!#                         q = q + f*q_in(ix,jx)
+!#                         w = w + f           
+!#                      end if
+!#                   end do
+!#                end do
+!#                
+!#                if ( w >= WEIGHT_THRESHOLD ) then
+!#                   q_out(i,j) = q / w
+!#                else
+!#                   q_out(i,j) = undef
+!#                end if
+!#                
+!#              end associate
+!#              
+!#           end do
+!#         end associate
+!#      end do
 
       _RETURN(_SUCCESS)
 
@@ -346,55 +346,55 @@ contains
 
       real(kind=REAL64) :: undef
 
-      _UNUSED_DUMMY(rc)
-
-      undef = -HUGE(1.d0)
-
-      do j = 1, this%num_points_out(2)
-
-         associate(weights_y => this%mappings(2)%WeightList(j)%f)
-  
-           do i=1,this%num_points_out(1)
-              
-              associate(weights_x => this%mappings(1)%WeightList(i)%f)
-                
-                q = 0.0
-                w = 0.0
-            
-                do jj = lbound(weights_y,1), ubound(weights_y,1)
-                   if(jj > this%num_points_in(2)) then
-                      jx = jj - this%num_points_in(2)
-                   else
-                      jx = jj
-                   end if
-                   
-                   do ii = lbound(weights_x,1), ubound(weights_x,1)
-                      if(ii>this%num_points_in(1)) then
-                         ix = ii - this%num_points_in(1)
-                      else
-                         ix = ii
-                      end if
-                      
-                      if(q_in(ix,jx) /= undef) then
-                         f = weights_x(ii) *  weights_y(jj)
-                         q = q + f*q_in(ix,jx)
-                         w = w + f           
-                      end if
-                   end do
-                end do
-                
-                if ( w >= WEIGHT_THRESHOLD ) then
-                   q_out(i,j) = q / w
-                else
-                   q_out(i,j) = undef
-                end if
-                
-              end associate
-              
-           end do
-         end associate
-      end do
-      _RETURN(_SUCCESS)
+!#      _UNUSED_DUMMY(rc)
+!#
+!#      undef = -HUGE(1.d0)
+!#
+!#      do j = 1, this%num_points_out(2)
+!#
+!#         associate(weights_y => this%mappings(2)%WeightList(j)%f)
+!#  
+!#           do i=1,this%num_points_out(1)
+!#              
+!#              associate(weights_x => this%mappings(1)%WeightList(i)%f)
+!#                
+!#                q = 0.0
+!#                w = 0.0
+!#            
+!#                do jj = lbound(weights_y,1), ubound(weights_y,1)
+!#                   if(jj > this%num_points_in(2)) then
+!#                      jx = jj - this%num_points_in(2)
+!#                   else
+!#                      jx = jj
+!#                   end if
+!#                   
+!#                   do ii = lbound(weights_x,1), ubound(weights_x,1)
+!#                      if(ii>this%num_points_in(1)) then
+!#                         ix = ii - this%num_points_in(1)
+!#                      else
+!#                         ix = ii
+!#                      end if
+!#                      
+!#                      if(q_in(ix,jx) /= undef) then
+!#                         f = weights_x(ii) *  weights_y(jj)
+!#                         q = q + f*q_in(ix,jx)
+!#                         w = w + f           
+!#                      end if
+!#                   end do
+!#                end do
+!#                
+!#                if ( w >= WEIGHT_THRESHOLD ) then
+!#                   q_out(i,j) = q / w
+!#                else
+!#                   q_out(i,j) = undef
+!#                end if
+!#                
+!#              end associate
+!#              
+!#           end do
+!#         end associate
+!#      end do
+!#      _RETURN(_SUCCESS)
 
    end subroutine apply_weights_real64
 
@@ -412,51 +412,51 @@ contains
       real    :: dx
 
       _UNUSED_DUMMY(rc)
-
-
-      if (present(stagger)) then
-         stagger_ = stagger
-      else
-         stagger_ = .false.
-      end if
-
-      block
-        integer n
-        n = spec%num_points
-        if (spec%topology == MAPL_DimTopoCyclic) then
-           if (input) then
-              jm = 2*n + 1
-           else
-              jm = n + 1
-           end if
-        else if (stagger_) then
-           jm = n + 1
-        else
-           jm = n
-        end if
-      end block
-      allocate(x(jm))
-
-      if (spec%num_points > 1) then
-         dx = (spec%x_max - spec%x_min) / (spec%num_points - 1)
-      else
-         dx = 0
-      end if
-
-      if (stagger_ ) then
-         x(1)       = spec%x_min-0.5*dx
-      else
-         x(1)       = spec%x_min
-      end if
-
-      do j = 2, jm
-         x(j) = x(1) + (j - 1)*dx
-      end do
-      
-      if(spec%topology == MAPL_DimTopoEdge  ) then
-         x(1) = spec%x_min
-         x(jm) = spec%x_max
-      end if
+!#
+!#
+!#      if (present(stagger)) then
+!#         stagger_ = stagger
+!#      else
+!#         stagger_ = .false.
+!#      end if
+!#
+!#      block
+!#        integer n
+!#        n = spec%num_points
+!#        if (spec%topology == MAPL_DimTopoCyclic) then
+!#           if (input) then
+!#              jm = 2*n + 1
+!#           else
+!#              jm = n + 1
+!#           end if
+!#        else if (stagger_) then
+!#           jm = n + 1
+!#        else
+!#           jm = n
+!#        end if
+!#      end block
+!#      allocate(x(jm))
+!#
+!#      if (spec%num_points > 1) then
+!#         dx = (spec%x_max - spec%x_min) / (spec%num_points - 1)
+!#      else
+!#         dx = 0
+!#      end if
+!#
+!#      if (stagger_ ) then
+!#         x(1)       = spec%x_min-0.5*dx
+!#      else
+!#         x(1)       = spec%x_min
+!#      end if
+!#
+!#      do j = 2, jm
+!#         x(j) = x(1) + (j - 1)*dx
+!#      end do
+!#      
+!#      if(spec%topology == MAPL_DimTopoEdge  ) then
+!#         x(1) = spec%x_min
+!#         x(jm) = spec%x_max
+!#      end if
 
    end function get_coordinates
 
@@ -492,102 +492,102 @@ contains
       type(dimensionSpec) :: dimspec
       character(len=ESMF_MAXSTR) :: grid_type
 
-      _UNUSED_DUMMY(unusable)
-
-      spec = this%get_spec()
-
-      ! Verify that grids are of the support type: 'LatLon'
-      call ESMF_AttributeGet(spec%grid_in , name="GridType", value=grid_type, rc=status)
-      _VERIFY(status)
-      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_in type: '//trim(grid_type))
-        
-      call ESMF_AttributeGet(spec%grid_out , name="GridType", value=grid_type, rc=status)
-      _VERIFY(status)
-      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_out type: '//trim(grid_type))
-      
-      call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=this%num_points_in, rc=status)
-      _VERIFY(status)
-
-      call MAPL_GridGet(spec%grid_out, globalCellCountPerDim=this%num_points_out, rc=status)
-      _VERIFY(status)
-
-      do dim = 1, NUM_DIMS
-
-         nin = this%num_points_in(dim)
-         nsize = this%num_points_out(dim)
-         allocate(this%mappings(dim)%weightlist(nsize), stat=status)
-         _VERIFY(status)
-         Weightlist => this%mappings(dim)%WeightList
-
-         allocate(xg_out(nsize),stat=status)
-         _VERIFY(status)
-         allocate(xg_in(nin),stat=status)
-         _VERIFY(status)
-            
-         call MAPL_GetLatLonCoord(spec%grid_in,dim,xg_in,rc=status)
-         _VERIFY(status)
-         call MAPL_GetLatLonCoord(spec%grid_out,dim,xg_out,rc=status)
-         _VERIFY(status)
-         xMaxIn=maxval(xg_in)
-         xMaxOut=maxval(xg_out)
-         xMinIn=minval(xg_in)
-         xMinOut=minval(xg_out)
-  
-         stagger=.false. 
-         cyclic_dim = (dim==1)
-         hasPoles = (dim==2)
-         dimspec%topology = MAPL_DimTopoEdge
-         if (cyclic_dim) dimspec%topology = MAPL_DimTopoCyclic
-         if (spec%regrid_method == REGRID_METHOD_BILINEAR) then
-            stagger=.false.
-         else if (spec%regrid_method == REGRID_METHOD_CONSERVE) then
-            stagger=.true.
-         end if
-
-         dimspec%x_min=xMinIn
-         dimspec%x_max=xMaxIn
-         dimspec%num_points = this%num_points_in(dim)
-         xf_in = get_coordinates(dimspec,.true.,stagger,rc=status)
-         _VERIFY(status)
-         dimspec%x_min=xMinOut
-         dimspec%x_max=xMaxOut
-         dimspec%num_points = this%num_points_out(dim)
-         xf_out = get_coordinates(dimspec,.false.,stagger,rc=status)
-         _VERIFY(status)
-
-         if (cyclic_dim) then
-            if (this%num_points_in(dim) > 1) then
-               rngIn = ((xMaxIn  - xMinIn)*this%num_points_in(dim))/(this%num_points_in(dim)-1)
-            else
-               rngIn = 0
-            end if
-            if (this%num_points_out(dim) > 1) then
-               rngOut = ((xMaxOut  - xMinOut)*this%num_points_out(dim))/(this%num_points_out(dim)-1)
-            else
-               rngOut = 0
-            end if
-!!$            _ASSERT(abs( (rngIn-rngOut)/rngIn ) < 1.e-5, 'range to small')
-            if(xf_out(1) < xf_in(1)) then
-               xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn+(MAPL_PI_R8/180.0d0))*rngIn
-            else
-               xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn)*rngIn
-            end if
-         end if
-         _ASSERT(xf_in(size(xf_in)) >= xf_out(size(xf_out)), 'incorrect bracketing?')
-         _ASSERT(xf_in(1) <= xf_out(1),'incorrect bracketing?')
-         select case (spec%regrid_method)
-         case (REGRID_METHOD_BILINEAR)
-            call compute_linear_weights(this%mappings(dim)%WeightList, xf_in, xf_out, rc=status)
-            _VERIFY(status)
-         case (REGRID_METHOD_CONSERVE)
-            call compute_binning_weights(this%mappings(dim)%WeightList,xf_in,xf_out,hasPoles,rc=status)
-            _VERIFY(status)
-         case default
-            _FAIL('unsupported regrid method')
-         end select
-         deallocate(xg_in,xg_out,xf_in,xf_out)
-         
-      end do
+!#      _UNUSED_DUMMY(unusable)
+!#
+!#      spec = this%get_spec()
+!#
+!#      ! Verify that grids are of the support type: 'LatLon'
+!#      call ESMF_AttributeGet(spec%grid_in , name="GridType", value=grid_type, rc=status)
+!#      _VERIFY(status)
+!#      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_in type: '//trim(grid_type))
+!#        
+!#      call ESMF_AttributeGet(spec%grid_out , name="GridType", value=grid_type, rc=status)
+!#      _VERIFY(status)
+!#      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_out type: '//trim(grid_type))
+!#      
+!#      call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=this%num_points_in, rc=status)
+!#      _VERIFY(status)
+!#
+!#      call MAPL_GridGet(spec%grid_out, globalCellCountPerDim=this%num_points_out, rc=status)
+!#      _VERIFY(status)
+!#
+!#      do dim = 1, NUM_DIMS
+!#
+!#         nin = this%num_points_in(dim)
+!#         nsize = this%num_points_out(dim)
+!#         allocate(this%mappings(dim)%weightlist(nsize), stat=status)
+!#         _VERIFY(status)
+!#         Weightlist => this%mappings(dim)%WeightList
+!#
+!#         allocate(xg_out(nsize),stat=status)
+!#         _VERIFY(status)
+!#         allocate(xg_in(nin),stat=status)
+!#         _VERIFY(status)
+!#            
+!#         call MAPL_GetLatLonCoord(spec%grid_in,dim,xg_in,rc=status)
+!#         _VERIFY(status)
+!#         call MAPL_GetLatLonCoord(spec%grid_out,dim,xg_out,rc=status)
+!#         _VERIFY(status)
+!#         xMaxIn=maxval(xg_in)
+!#         xMaxOut=maxval(xg_out)
+!#         xMinIn=minval(xg_in)
+!#         xMinOut=minval(xg_out)
+!#  
+!#         stagger=.false. 
+!#         cyclic_dim = (dim==1)
+!#         hasPoles = (dim==2)
+!#         dimspec%topology = MAPL_DimTopoEdge
+!#         if (cyclic_dim) dimspec%topology = MAPL_DimTopoCyclic
+!#         if (spec%regrid_method == REGRID_METHOD_BILINEAR) then
+!#            stagger=.false.
+!#         else if (spec%regrid_method == REGRID_METHOD_CONSERVE) then
+!#            stagger=.true.
+!#         end if
+!#
+!#         dimspec%x_min=xMinIn
+!#         dimspec%x_max=xMaxIn
+!#         dimspec%num_points = this%num_points_in(dim)
+!#         xf_in = get_coordinates(dimspec,.true.,stagger,rc=status)
+!#         _VERIFY(status)
+!#         dimspec%x_min=xMinOut
+!#         dimspec%x_max=xMaxOut
+!#         dimspec%num_points = this%num_points_out(dim)
+!#         xf_out = get_coordinates(dimspec,.false.,stagger,rc=status)
+!#         _VERIFY(status)
+!#
+!#         if (cyclic_dim) then
+!#            if (this%num_points_in(dim) > 1) then
+!#               rngIn = ((xMaxIn  - xMinIn)*this%num_points_in(dim))/(this%num_points_in(dim)-1)
+!#            else
+!#               rngIn = 0
+!#            end if
+!#            if (this%num_points_out(dim) > 1) then
+!#               rngOut = ((xMaxOut  - xMinOut)*this%num_points_out(dim))/(this%num_points_out(dim)-1)
+!#            else
+!#               rngOut = 0
+!#            end if
+!#!!$            _ASSERT(abs( (rngIn-rngOut)/rngIn ) < 1.e-5, 'range to small')
+!#            if(xf_out(1) < xf_in(1)) then
+!#               xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn+(MAPL_PI_R8/180.0d0))*rngIn
+!#            else
+!#               xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn)*rngIn
+!#            end if
+!#         end if
+!#         _ASSERT(xf_in(size(xf_in)) >= xf_out(size(xf_out)), 'incorrect bracketing?')
+!#         _ASSERT(xf_in(1) <= xf_out(1),'incorrect bracketing?')
+!#         select case (spec%regrid_method)
+!#         case (REGRID_METHOD_BILINEAR)
+!#            call compute_linear_weights(this%mappings(dim)%WeightList, xf_in, xf_out, rc=status)
+!#            _VERIFY(status)
+!#         case (REGRID_METHOD_CONSERVE)
+!#            call compute_binning_weights(this%mappings(dim)%WeightList,xf_in,xf_out,hasPoles,rc=status)
+!#            _VERIFY(status)
+!#         case default
+!#            _FAIL('unsupported regrid method')
+!#         end select
+!#         deallocate(xg_in,xg_out,xf_in,xf_out)
+!#         
+!#      end do
 
       _RETURN(_SUCCESS)
 

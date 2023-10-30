@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Workaround for gfortran 13.2 regression in `MAPL_LatLonToLatLonRegridder.F90`
+
 ### Removed
 
 ### Deprecated
