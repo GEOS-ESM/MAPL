@@ -504,6 +504,7 @@ contains
       type is (FieldSpec)
 
          if (.not. MAPL_SameGeom(this%geom, dst_spec%geom)) then
+            deallocate(action)
             action = RegridAction(this%geom, this%payload, dst_spec%geom, dst_spec%payload)
             _RETURN(_SUCCESS)
          end if
