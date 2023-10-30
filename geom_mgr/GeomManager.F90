@@ -35,6 +35,7 @@ module mapl3g_GeomManager
       ! a unique label.  This allows other classes to support
       ! time-varying geoms by detecting when the ID has changed.
       integer :: id_counter = 0
+
    contains
 
       ! Public API
@@ -173,6 +174,13 @@ contains
    
    function get_geom_manager() result(geom_mgr)
       type(GeomManager), pointer :: geom_mgr
+      logical :: init = .false.
+
+      if (.not. init) then
+         call geom_manager%initialize()
+         init = .true.
+      end if
+
       geom_mgr => geom_manager
    end function get_geom_manager
 

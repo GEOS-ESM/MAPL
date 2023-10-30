@@ -49,6 +49,7 @@ contains
 
       ! Load default factories
       type(LatLonGeomFactory) :: latlon_factory
+
       call this%add_factory(latlon_factory)
 
    end subroutine initialize

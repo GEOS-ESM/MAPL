@@ -16,6 +16,8 @@ module mapl3g_RegridderManager
    private
 
    public :: RegridderManager
+   public :: regridder_manager ! singleton
+   public :: get_regridder_manager
 
    type :: RegridderManager
       private
@@ -34,6 +36,8 @@ module mapl3g_RegridderManager
    interface RegridderManager
       procedure new_RegridderManager
    end interface RegridderManager
+
+   type(RegridderManager), target, protected :: regridder_manager
 
 contains
 
@@ -141,5 +145,18 @@ contains
       _FAIL('No factory found to make regridder for spec.')
    end function make_regridder
 
+   function get_regridder_manager() result(regridder_mgr)
+      type(RegridderManager), pointer :: regridder_mgr
+      logical :: init = .false.
+
+      if (.not. init) then
+         regridder_manager = RegridderManager()
+         init = .true.
+      end if
+
+      regridder_mgr => regridder_manager
+         
+
+   end function get_regridder_manager
 
 end module mapl3g_RegridderManager
