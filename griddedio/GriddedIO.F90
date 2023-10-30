@@ -31,7 +31,7 @@ module MAPL_GriddedIOMod
   private
 
   type, public :: MAPL_GriddedIO
-     type(FileMetaData), allocatable :: metadata
+     type(FileMetaData) :: metadata
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -73,7 +73,6 @@ module MAPL_GriddedIOMod
         procedure :: request_data_from_file
         procedure :: process_data_from_file
         procedure :: swap_undef_value
-        procedure :: destroy
   end type MAPL_GriddedIO
 
   interface MAPL_GriddedIO
@@ -115,7 +114,7 @@ module MAPL_GriddedIOMod
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-        type(StringStringMap), target, intent(in), optional :: global_attributes
+        type(StringStringMap), intent(in), optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -128,11 +127,6 @@ module MAPL_GriddedIOMod
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
         integer :: status
-
-        if ( allocated (this%metadata) ) deallocate(this%metadata)
-        allocate(this%metadata)
-
-        call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
         this%items = items
         this%input_bundle = bundle
@@ -147,10 +141,8 @@ module MAPL_GriddedIOMod
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
-
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
-
 
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
@@ -163,7 +155,6 @@ module MAPL_GriddedIOMod
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
         call factory%append_metadata(this%metadata)
-
 
         if (present(vdata)) then
            this%vdata=vdata
@@ -187,7 +178,6 @@ module MAPL_GriddedIOMod
         else
            call this%check_chunking(this%vdata%lm,_RC)
         end if
-
 
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
@@ -223,16 +213,7 @@ module MAPL_GriddedIOMod
         end if
         _RETURN(_SUCCESS)
 
-      end subroutine CreateFileMetaData
-
-
-      subroutine destroy(this, rc)
-        class (MAPL_GriddedIO), intent(inout) :: this
-        integer, intent(out), optional :: rc
-        if(allocated(this%chunking)) deallocate(this%chunking)
-        _RETURN(_SUCCESS)
-      end subroutine destroy
-
+     end subroutine CreateFileMetaData
 
      subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
@@ -502,7 +483,6 @@ module MAPL_GriddedIOMod
            end if
         else
            tindex = -1
-           call this%stage2DLatLon(filename,oClients=oClients,_RC)
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
@@ -861,9 +841,8 @@ module MAPL_GriddedIOMod
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-             ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
@@ -904,7 +883,6 @@ module MAPL_GriddedIOMod
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
-
      _RETURN(_SUCCESS)
 
   end subroutine stage2DLatLon
@@ -958,12 +936,11 @@ module MAPL_GriddedIOMod
            allocate(ptr2d(0,0))
         end if
         ref = factory%generate_file_reference2D(Ptr2D)
+        allocate(localStart,source=[gridLocalStart,1])
         if (tindex > -1) then
-           allocate(localStart,source=[gridLocalStart,1])
            allocate(globalStart,source=[gridGlobalStart,tindex])
            allocate(globalCount,source=[gridGlobalCount,1])
         else
-           allocate(localStart,source=[gridLocalStart])
            allocate(globalStart,source=gridGlobalStart)
            allocate(globalCount,source=gridGlobalCount)
         end if
@@ -980,19 +957,17 @@ module MAPL_GriddedIOMod
             allocate(ptr3d(0,0,0))
          end if
          ref = factory%generate_file_reference3D(Ptr3D)
+         allocate(localStart,source=[gridLocalStart,1,1])
          if (tindex > -1) then
-            allocate(localStart,source=[gridLocalStart,1,1])
             allocate(globalStart,source=[gridGlobalStart,1,tindex])
             allocate(globalCount,source=[gridGlobalCount,lm,1])
          else
-            allocate(localStart,source=[gridLocalStart,1])
             allocate(globalStart,source=[gridGlobalStart,1])
             allocate(globalCount,source=[gridGlobalCount,lm])
          end if
       else
          _FAIL( "Rank not supported")
       end if
-
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
       _RETURN(_SUCCESS)
