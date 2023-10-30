@@ -88,6 +88,7 @@ contains
       type(ESMF_Field) :: f1, f2
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
 
+
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager()
 
@@ -209,7 +210,7 @@ contains
    end subroutine test_regrid_values
 
 
-!#   @test(type=ESMF_TestMethod, npes=[1])
+   @test(type=ESMF_TestMethod, npes=[1])
    ! Test regridding on fields with ungridded dimensions.  ESMF does
    ! not directly support this case, and this test is to drive the
    ! creation of a wrapper layer in MAPL.
@@ -237,14 +238,14 @@ contains
       hconfig = ESMF_HConfigCreate(content="{schema: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
 
-      dyn_mask = missing_value_dynamic_mask(src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), _RC)
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
       
       spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE, dyn_mask=dyn_mask), geom_1, geom_2)
       my_regridder => regridder_mgr%get_regridder(spec, _RC)
 
       f1 = make_field(geom_1, 'f1', value=2._ESMF_KIND_R4, lm=2, _RC)
       call ESMF_FieldGet(f1, farrayptr=x1)
-      x1(::4,5,1) = MAPL_UNDEF ! missing bits in level 1
+      x1(::4,6,1) = MAPL_UNDEF ! missing bits in level 1
       x1(1::2,:,2) = 0 ! checkerboard on level 2
       
       f2 = make_field(geom_2, 'f2', value=0._ESMF_KIND_R4, lm=2, _RC)
@@ -253,15 +254,14 @@ contains
 
       call ESMF_FieldGet(f2, farrayptr=x2, _RC)
 
-      print*,shape(x2)
-      print*,'undef: ', MAPL_UNDEF
-      print*,'a',x1(:,:,1)
-      print*,'b',x2(:,:,1)
-      print*,'c',x2(1:2,:,1)
-      @assert_that(x2(1:2,:,1), every_item(is(equal_to(1._ESMF_KIND_R4))))
-      ! Weird that roundoff happens here but not in previous test.
-      ! Issue opened with ESMF core team.
-      @assert_that(x2(:,:,2), every_item(near(1._ESMF_KIND_R4,1.e-6)))
+
+      ! Missing elements case
+      @assert_that(x2(1:2,:,1), every_item(is(equal_to(2._ESMF_KIND_R4))))
+      ! Non missing elements case
+
+      ! Weirdly this introduces roundoff that was not present in the
+      ! previous test.  This has been reported to the ESMF core team.
+      @assert_that(x2(:,:,2), every_item(is(near(1._ESMF_KIND_R4, 1.e-6))))
 
    end subroutine test_regrid_3d
 

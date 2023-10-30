@@ -52,7 +52,7 @@ contains
 
       type(FargparseCLI_Type) :: fargparse_cli
 
-      fargparse_cli%parser = ArgParser()
+      call fargparse_cli%parser%initialize('executable')
 
       call fargparse_cli%add_command_line_options(fargparse_cli%parser, _RC)
 

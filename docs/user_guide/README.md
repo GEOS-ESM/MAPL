@@ -33,4 +33,6 @@ It:
 
 ### 3.8 [Miscellaneous Features: MAPL_Utils](docs/mapl_other_features.md)
 
+### 3.9 [Automatic Code Generator](docs/mapl_code_generator.md)
+
 ## 4 [Demos](../tutorial/README.md)
