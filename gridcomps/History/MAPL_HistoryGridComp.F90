@@ -5384,6 +5384,16 @@ ENDDO PARSER
 1236   continue
 
        if (obs_flag) then
+
+          ! __ write common nc_index,time,lon,lat
+          k=1   ! plat form # 1
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Index:    ', trim(adjustl(PLFS(k)%nc_index))
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Time:     ', trim(adjustl(PLFS(k)%nc_time))
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Longitude:', trim(adjustl(PLFS(k)%nc_lon))
+          write(unitw, '(2(2x,a))') trim(string)//'nc_Latitude: ', trim(adjustl(PLFS(k)%nc_lat))
+          write(unitw, '(//)')
+
+
           length_mx = ESMF_MAXSTR
           mxseg = 100
           allocate (str_piece(mxseg))
@@ -5396,6 +5406,7 @@ ENDDO PARSER
 !          do j=1, nplf
 !             write(6,*) 'PLFS(j)%name=', trim( PLFS(j)%name )
 !          enddo
+
 
           !
           !   a) union the platform
@@ -5463,13 +5474,3 @@ ENDDO PARSER
 
       
 end module MAPL_HistoryGridCompMod
-
-
-
-!          write(6,*) 'nfield, nentry_name', nfield, nentry_name 
-!          do k=1, nfield
-!             line=''
-!             do i=1, nentry_name
-!                print*, 'p1%field_name(i,k)=', trim(p1%field_name(i,k))
-!             enddo
-!          end do
