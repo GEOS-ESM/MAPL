@@ -5391,8 +5391,7 @@ ENDDO PARSER
           write(unitw, '(2(2x,a))') trim(string)//'nc_Time:     ', trim(adjustl(PLFS(k)%nc_time))
           write(unitw, '(2(2x,a))') trim(string)//'nc_Longitude:', trim(adjustl(PLFS(k)%nc_lon))
           write(unitw, '(2(2x,a))') trim(string)//'nc_Latitude: ', trim(adjustl(PLFS(k)%nc_lat))
-          write(unitw, '(//)')
-
+          write(unitw, '(/)')
 
           length_mx = ESMF_MAXSTR
           mxseg = 100
@@ -5446,7 +5445,7 @@ ENDDO PARSER
                 write(unitw, '(12x,a)') trim(line)                
              end if
           end do
-          write(unitw,'(a)') '::'
+          write(unitw,'(a,/)') '::'
           write(unitw,'(a)') 'geovals.obs_files:     # table start from next line'
 
           do k=1, nplatform

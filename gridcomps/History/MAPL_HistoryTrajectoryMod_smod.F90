@@ -493,8 +493,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             i=index(this%nc_longitude, '/')
             _ASSERT (i>0, 'group name not found')
             grp_name = this%nc_longitude(1:i-1)
-            this%var_name_lat = this%nc_latitude(i+1:)
             this%var_name_lon = this%nc_longitude(i+1:)
+            i=index(this%nc_latitude, '/')
+            this%var_name_lat = this%nc_latitude(i+1:)
+            i=index(this%nc_time, '/')
             this%var_name_time= this%nc_time(i+1:)
 
             write(6,'(100(2x,a))') 'grp_name,this%var_name_lat,this%var_name_lon,this%var_name_time', &
@@ -520,7 +522,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   j = max (fid_s, L)
                   do while (j<=fid_e)
                      filename = this%get_filename_from_template_use_index(j, this%obs(k)%input_template,  _RC)
-                     call lgr%debug('%a %a', 'input filename: ', trim(filename))
+                     call lgr%debug('%a %a', 'true filename: ', trim(filename))
                      call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
                      len = len + num_times
                      j=j+1
@@ -541,6 +543,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                      call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)
                      call get_v1d_netcdf_R8 (filename, this%var_name_time, times_R8_full(len+1:), num_times, group_name=grp_name)
+
+
                      call get_attribute_from_group (filename, grp_name, this%var_name_time, "units", timeunits_file)
                      obstype_id_full(len+1:len+num_times) = k
                      call lgr%debug('%a %f25.12, %f25.12', 'times_R8_full(1:200:100)', &

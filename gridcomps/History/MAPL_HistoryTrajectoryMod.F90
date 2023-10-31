@@ -30,8 +30,8 @@ module HistoryTrajectoryMod
      real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
 
-  public :: HistoryTrajectory
 
+  public :: HistoryTrajectory
   type :: HistoryTrajectory
      private
      type(ESMF_LocStream)   :: LS_rt
