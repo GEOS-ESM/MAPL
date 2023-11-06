@@ -34,13 +34,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: status
-         character(len=ESMF_MAXSTR) :: STR1, line
+         character(len=ESMF_MAXSTR) :: STR1, line, word
          character(len=ESMF_MAXSTR) :: symd, shms
-         integer                    :: nline, ncol, col
+         integer                    :: nline, col
+         integer, allocatable       :: ncol(:)
          integer                    :: nobs, head, jvar         
          
          logical                    :: tend
-         integer                    :: i, j, k
+         integer                    :: i, j, k, M
          integer                    :: unitr, unitw         
          type(Logger), pointer :: lgr
 
@@ -116,17 +117,25 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
          ! __ s1. overall print
-         call ESMF_ConfigGetDim(config, nline, ncol, label=trim(string)//'obs_files:', rc=rc)
+         call ESMF_ConfigGetDim(config, nline, col, label=trim(string)//'obs_files:', rc=rc)
          _ASSERT(rc==0 .AND. nline > 0, 'obs_files not found')
          write(6,*) 'nline, col', nline, col
-         
+         allocate(ncol(1:nline))
 
+         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC )
+         do i = 1, nline
+            call ESMF_ConfigNextLine(config, _RC)
+            ncol(i) = ESMF_ConfigGetLen(config, _RC)
+            !!write(6,*) 'line', i, 'ncol(i)', ncol(i)
+         enddo
+
+         
          ! __ s2. find nobs  &&  distinguish design with vs wo  '------'
          nobs=0
-         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+         call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
          do i=1, nline
-            call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
-            call ESMF_ConfigGetAttribute( config, STR1, rc=rc)
+            call ESMF_ConfigNextLine( config, tableEnd=tend, _RC)
+            call ESMF_ConfigGetAttribute( config, STR1, _RC)
             if ( index(trim(STR1), '-----') > 0 ) nobs=nobs+1
          enddo
 
@@ -134,36 +143,53 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          lgr => logging%get_logger('HISTORY.sampler')         
          if ( nobs == 0 ) then
             !
+            !   obsolete:
             !-- no separate treatment for geovals, output will print out all variabls
             !   treatment-1:
+            !
             traj%nobs_type = nline         ! here .rc format cannot have empty spaces
             allocate (traj%obs(nline))
-            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
+            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
             do i=1, nline
-               call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
-               call ESMF_ConfigGetAttribute( config, traj%obs(i)%input_template, rc=rc)
+               call ESMF_ConfigNextLine( config, tableEnd=tend, _RC)
+               call ESMF_ConfigGetAttribute( config, traj%obs(i)%input_template, _RC)
                traj%obs(i)%export_all_geoval = .true.
             enddo
          else
             !
             !-- selectively output geovals
             !   treatment-2:
+            !
             traj%nobs_type = nobs
             allocate (traj%obs(nobs))          
             !
             nobs=0   ! reuse counter
             head=1
             jvar=0
-            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', rc=rc)
 
             !
-            !-- To be added
             !
             !   count '------' as ngeoval
             !
+            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
             do i=1, nline
-               call ESMF_ConfigNextLine( config, tableEnd=tend, rc=rc)
-               call ESMF_ConfigGetAttribute( config, STR1, rc=rc)
+               call ESMF_ConfigNextLine( config, tableEnd=tend, _RC)
+               M = ncol(i)
+               do col=1, M
+                  call ESMF_ConfigGetAttribute( config, word, _RC)
+                  !if (rc == ESMF_SUCCESS) then
+                  !   write(6,*) trim(word)
+                  !end if
+                  if (M==1) then
+                     if (col==1) then
+                        STR1=trim(word)      ! 1-item case:  file template
+                     endif
+                  else
+                     if (col==M) then
+                        STR1=trim(word)      ! multi-item case, use the last word as VAR
+                     end if
+                  end if
+               end do
                if ( index(trim(STR1), '-----') == 0 ) then
                   if (head==1 .AND. trim(STR1)/='') then
                      nobs=nobs+1
@@ -753,6 +779,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
+            write(6, '(2x,a,2x,a)') 'item%xname', trim(item%xname)
+
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
@@ -901,7 +929,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
               call this%vdata%setup_eta_to_pressure(_RC)
            endif
-
 
            iter = this%items%begin()
            do while (iter /= this%items%end())
