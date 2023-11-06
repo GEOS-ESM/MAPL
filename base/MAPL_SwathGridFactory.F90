@@ -435,7 +435,6 @@ contains
       !!     trim(filename),trim(tmp)
       !!print*, 'ck: Epoch_init:', trim(tmp)
 
-!      filename
       
       if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
          call ESMF_TimeSet(time0, timeString=tmp, _RC)
@@ -447,12 +446,15 @@ contains
       
       call ESMF_ConfigGetAttribute(config, value=this%nc_index, default="", &
                  label=prefix // 'nc_Index:', _RC)      
-      call ESMF_ConfigGetAttribute(config, value=this%nc_time, default="", &
+      call ESMF_ConfigGetAttribute(config, this%nc_time, default="", &
            label=prefix//'nc_Time:',  _RC)
       call ESMF_ConfigGetAttribute(config, this%nc_longitude, &
            label=prefix // 'nc_Longitude:', default="", _RC)
       call ESMF_ConfigGetAttribute(config, this%nc_latitude, &
            label=prefix // 'nc_Latitude:', default="", _RC)
+
+      write(6,*) 'this%nc index, time, long, lat=', &
+           trim(this%nc_index), trim(this%nc_time), trim(this%nc_longitude), trim(this%nc_latitude)
 
       i=index(this%nc_time, '/')
       if (i>0) then
@@ -488,13 +490,14 @@ contains
       key_lat=this%var_name_lat
       key_time=this%var_name_time
 
-
-      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'      
-      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
+!      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
+!      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
+!      I am taking short cuts
+      
       filename='./MOD04_L2.A2017090.0010.051.NRT.h5'
-
       CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
            key_lon=key_lon, key_lat=key_lat, _RC)
+      print*, 'filename input', trim(filename)
       print*, 'nlon, nlat=', nlon, nlat
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
@@ -506,6 +509,7 @@ contains
            'swath obs filename:   ', trim(filename) )
       call lgr%debug('%a  %i8  %i8', &
            'swath obs nlon,nlat:', nlon,nlat)
+      print*, 'key_time=', trim(key_time)
 
 
       call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), _RC)
@@ -521,7 +525,7 @@ contains
          ncid=ncid2
       endif
       !      call check_nc_status(nf90_inq_varid(ncid, key_time, varid), _RC)
-      call check_nc_status(nf90_inq_varid(ncid, 'Scan_Start_Time', varid), _RC)
+      call check_nc_status(nf90_inq_varid(ncid, key_time, varid), _RC)
       call check_nc_status(nf90_get_var(ncid, varid, scanTime), _RC)
       do j=1, nlat
         this%t_alongtrack(j)= scanTime(1,j)
