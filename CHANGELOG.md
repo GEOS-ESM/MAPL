@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
+
 ### Changed
+
+- Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
 
 ### Fixed
 
