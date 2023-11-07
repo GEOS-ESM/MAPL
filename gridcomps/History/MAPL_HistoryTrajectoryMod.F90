@@ -6,30 +6,12 @@ module HistoryTrajectoryMod
   use MAPL_VerticalDataMod
   use LocStreamFactoryMod
   use MAPL_LocstreamRegridderMod
+  use MAPL_ObsUtilMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   integer, parameter :: mx_ngeoval = 60
 
   private
-
-  public :: obs_unit
-  type :: obs_unit
-     integer :: nobs_epoch
-     integer :: ngeoval
-     logical :: export_all_geoval
-     type(FileMetadata), allocatable            :: metadata
-     type(NetCDF4_FileFormatter), allocatable   :: file_handle
-     character(len=ESMF_MAXSTR)                 :: name
-     character(len=ESMF_MAXSTR)                 :: obsFile_output
-     character(len=ESMF_MAXSTR)                 :: input_template
-     character(len=ESMF_MAXSTR)                 :: geoval_name(mx_ngeoval)
-     real(kind=REAL64), allocatable :: lons(:)
-     real(kind=REAL64), allocatable :: lats(:)
-     real(kind=REAL64), allocatable :: times_R8(:)
-     real(kind=REAL32), allocatable :: p2d(:)
-     real(kind=REAL32), allocatable :: p3d(:,:)
-  end type obs_unit
-
 
   public :: HistoryTrajectory
   type :: HistoryTrajectory
@@ -88,14 +70,10 @@ module HistoryTrajectoryMod
      procedure :: close_file_handle
      procedure :: append_file
      procedure :: create_new_bundle
-     procedure :: reset_times_to_current_day
-     procedure :: time_real_to_ESMF
      procedure :: create_grid
      procedure :: regrid_accumulate => regrid_accumulate_on_xsubset
      procedure :: destroy_rh_regen_LS
      procedure :: get_x_subset
-     procedure :: get_obsfile_Tbracket_from_epoch
-     procedure :: get_filename_from_template_use_index
   end type HistoryTrajectory
 
   interface HistoryTrajectory
@@ -155,26 +133,6 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine append_file
 
-     module subroutine reset_times_to_current_day(this,rc)
-       class(HistoryTrajectory), intent(Inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine reset_times_to_current_day
-
-     module subroutine sort_three_arrays_by_time(U,V,T,rc)
-       real(ESMF_KIND_R8) :: U(:), V(:), T(:)
-       integer, optional, intent(out)          :: rc
-     end subroutine sort_three_arrays_by_time
-
-     module subroutine sort_four_arrays_by_time(U,V,T,ID,rc)
-       real(ESMF_KIND_R8) :: U(:), V(:), T(:)
-       integer :: ID(:)
-       integer, optional, intent(out)          :: rc
-     end subroutine sort_four_arrays_by_time
-
-     module subroutine time_real_to_ESMF (this,rc)
-       class(HistoryTrajectory), intent(inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine time_real_to_ESMF
 
      module subroutine create_grid(this, rc)
        class(HistoryTrajectory), intent(inout) :: this
@@ -198,27 +156,6 @@ module HistoryTrajectoryMod
        class(HistoryTrajectory), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine destroy_rh_regen_LS
-
-     module subroutine get_obsfile_Tbracket_from_epoch(this, currTime, rc)
-       class(HistoryTrajectory), intent(inout) :: this
-       type(ESMF_Time), intent(in)             :: currTime
-       integer, optional, intent(out)          :: rc
-     end subroutine get_obsfile_Tbracket_from_epoch
-
-     module function get_filename_from_template (time, file_template, rc) result(filename)
-       type(ESMF_Time), intent(in)             :: time
-       character(len=*), intent(in)            :: file_template
-       character(len=ESMF_MAXSTR)              :: filename
-       integer, optional, intent(out)          :: rc
-     end function get_filename_from_template
-
-     module function get_filename_from_template_use_index (this, f_index, file_template, rc) result(filename)
-       class(HistoryTrajectory), intent(inout) :: this
-       character(len=*), intent(in)            :: file_template
-       character(len=ESMF_MAXSTR)              :: filename
-       integer, intent(in)                     :: f_index
-       integer, optional, intent(out)          :: rc
-     end function get_filename_from_template_use_index
 
   end interface
 end module HistoryTrajectoryMod
