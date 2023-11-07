@@ -34,10 +34,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: status
-         character(len=ESMF_MAXSTR) :: STR1, line, word
+         character(len=ESMF_MAXSTR) :: STR1, line
          character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: nline, col
-         integer, allocatable       :: ncol(:)
+         integer, allocatable       :: ncol(:), word(:)
          integer                    :: nobs, head, jvar         
          
          logical                    :: tend
@@ -175,21 +175,23 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             do i=1, nline
                call ESMF_ConfigNextLine( config, tableEnd=tend, _RC)
                M = ncol(i)
+               allocate (word(M))
+               count=0
                do col=1, M
-                  call ESMF_ConfigGetAttribute( config, word, _RC)
-                  !if (rc == ESMF_SUCCESS) then
-                  !   write(6,*) trim(word)
-                  !end if
-                  if (M==1) then
-                     if (col==1) then
-                        STR1=trim(word)      ! 1-item case:  file template
-                     endif
-                  else
-                     if (col==M) then
-                        STR1=trim(word)      ! multi-item case, use the last word as VAR
-                     end if
+                  call ESMF_ConfigGetAttribute( config, word(col), _RC)
+                  if (trim(word)/=',') then
+                     count=count=1
                   end if
-               end do
+               enddo
+               if (count ==1 .or. count==2) then
+                  ! 1-item case:  file template or one-var
+                  ! 2-item     :  var1 , 'root' case
+                  STR1=trim(word(1))
+               else                 
+                  ! 3-item     :  var1 , 'root' case               
+                  STR1=trim(word(M))                  
+               end if
+               deallocate(word)
                if ( index(trim(STR1), '-----') == 0 ) then
                   if (head==1 .AND. trim(STR1)/='') then
                      nobs=nobs+1
