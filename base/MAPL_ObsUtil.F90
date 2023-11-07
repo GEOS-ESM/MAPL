@@ -3,6 +3,7 @@
 
 module MAPL_ObsUtilMod
   use ESMF
+  use MAPL_FileMetadataUtilsMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   integer, parameter :: mx_ngeoval = 60
@@ -35,7 +36,7 @@ contains
 
   subroutine get_obsfile_Tbracket_from_epoch(currTime, &
        obsfile_start_time, obsfile_end_time, obsfile_interval, &
-       epoch_frequency, obsfile_Ts_index, rc)
+       epoch_frequency, obsfile_Ts_index, obsfile_Te_index, rc)
     implicit none
     type(ESMF_Time), intent(in) :: currTime
     type(ESMF_Time), intent(in) :: obsfile_start_time, obsfile_end_time
@@ -84,11 +85,12 @@ contains
   end subroutine get_obsfile_Tbracket_from_epoch
 
   function get_filename_from_template (time, file_template, rc) result(filename)
+    use Plain_netCDF_Time, only : ESMF_time_to_two_integer
+    use  MAPL_StringTemplate, only : fill_grads_template
     type(ESMF_Time), intent(in) :: time
     character(len=*), intent(in) :: file_template
     character(len=ESMF_MAXSTR) :: filename
     integer, optional, intent(out) :: rc
-
 
     integer :: itime(2)
     integer :: nymd, nhms
@@ -101,7 +103,7 @@ contains
     nhms = itime(2)
     call fill_grads_template ( filename, file_template, &
          experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    print*, 'ck: this%obsFile_T=', trim(filename)
+    print*, 'ck: obsFile_T=', trim(filename)
     _RETURN(ESMF_SUCCESS)
 
   end function get_filename_from_template
@@ -109,8 +111,12 @@ contains
 
   function get_filename_from_template_use_index (obsfile_start_time, obsfile_interval, &
        f_index, file_template, rc) result(filename)
-    character(len=*), intent(in) :: file_template
+    use Plain_netCDF_Time, only : ESMF_time_to_two_integer
+    use  MAPL_StringTemplate, only : fill_grads_template    
     character(len=ESMF_MAXSTR) :: filename
+    type(ESMF_Time), intent(in) :: obsfile_start_time
+    type(ESMF_TimeInterval), intent(in) :: obsfile_interval
+    character(len=*), intent(in) :: file_template
     integer, intent(in) :: f_index
     integer, optional, intent(out) :: rc
 
@@ -122,10 +128,10 @@ contains
     type(ESMF_TimeInterval) :: dT
     type(ESMF_Time) :: time
 
-    call ESMF_TimeIntervalGet(this%obsfile_interval, s_r8=dT0_s, rc=status)
+    call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
     s = dT0_s * f_index
     call ESMF_TimeIntervalSet(dT, s_r8=s, rc=status)
-    time = this%obsfile_start_time + dT
+    time = obsfile_start_time + dT
 
     call ESMF_time_to_two_integer(time, itime, _RC)
     nymd = itime(1)
@@ -140,8 +146,10 @@ contains
 
 
   subroutine time_real_to_ESMF (times_R8_1d, times_esmf_1d, datetime_units, rc)
+    use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
+
     real(kind=REAL64), intent(in) :: times_R8_1d(:)
-    type(ESMF_Time), intent(in) :: times_esmf_1d(:)
+    type(ESMF_Time), intent(inout) :: times_esmf_1d(:)
     character(len=*), intent(in) :: datetime_units
     integer, optional, intent(out) :: rc
 
@@ -154,14 +162,11 @@ contains
     integer :: int_time
     integer :: status
 
-    len = size (this%times_R8_1d)
+    len = size (times_R8_1d)
     do i=1, len
        int_time = times_R8_1d(i)
        call convert_NetCDF_DateTime_to_ESMF(int_time, datetime_units, interval, &
-            time0, &
-            time=time1, &
-            time_unit=tunit, &
-            _RC)
+            time0, time=time1, time_unit=tunit, _RC)
        times_esmf_1d(i) = time1
     enddo
 
@@ -186,6 +191,7 @@ contains
 
 
   subroutine sort_three_arrays_by_time(U,V,T,rc)
+    use MAPL_SortMod
     real(ESMF_KIND_R8), intent(inout) :: U(:), V(:), T(:)
     integer, optional, intent(out) :: rc
 
@@ -221,6 +227,7 @@ contains
   end subroutine sort_three_arrays_by_time
 
   subroutine sort_four_arrays_by_time(U,V,T,ID,rc)
+    use MAPL_SortMod
     real(ESMF_KIND_R8) :: U(:), V(:), T(:)
     integer :: ID(:)
     integer, optional, intent(out) :: rc

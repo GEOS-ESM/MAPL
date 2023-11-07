@@ -37,12 +37,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          character(len=ESMF_MAXSTR) :: STR1, line
          character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: nline, col
-         integer, allocatable       :: ncol(:), word(:)
+         integer, allocatable       :: ncol(:)
+         character(len=ESMF_MAXSTR), allocatable :: word(:)         
          integer                    :: nobs, head, jvar         
-         
          logical                    :: tend
          integer                    :: i, j, k, M
-         integer                    :: unitr, unitw         
+         integer                    :: count
+         integer                    :: unitr, unitw
          type(Logger), pointer :: lgr
 
          traj%clock=clock
@@ -167,20 +168,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             head=1
             jvar=0
 
-            !
+
             !
             !   count '------' as ngeoval
             !
-            call ESMF_ConfigFindLabel( config, trim(string)//'obs_files:', _RC)
+            call ESMF_ConfigFindLabel(config, trim(string)//'obs_files:', _RC)
             do i=1, nline
-               call ESMF_ConfigNextLine( config, tableEnd=tend, _RC)
+               call ESMF_ConfigNextLine(config, tableEnd=tend, _RC)
                M = ncol(i)
+               _ASSERT(M>1, '# of columns should be >= 1')
                allocate (word(M))
                count=0
                do col=1, M
-                  call ESMF_ConfigGetAttribute( config, word(col), _RC)
-                  if (trim(word)/=',') then
-                     count=count=1
+                  call ESMF_ConfigGetAttribute(config, word(col), _RC)
+                  if (trim(word(col))/=',') then
+                     count=count+1
                   end if
                enddo
                if (count ==1 .or. count==2) then
@@ -188,7 +190,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   ! 2-item     :  var1 , 'root' case
                   STR1=trim(word(1))
                else                 
-                  ! 3-item     :  var1 , 'root' case               
+                  ! 3-item     :  var1 , 'root', var1_alias case             
                   STR1=trim(word(M))                  
                end if
                deallocate(word)
