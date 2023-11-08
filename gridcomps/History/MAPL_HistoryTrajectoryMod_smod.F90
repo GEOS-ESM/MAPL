@@ -177,7 +177,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             do i=1, nline
                call ESMF_ConfigNextLine(config, tableEnd=tend, _RC)
                M = ncol(i)
-               _ASSERT(M>1, '# of columns should be >= 1')
+               _ASSERT(M>=1, '# of columns should be >= 1')
                allocate (word(M))
                count=0
                do col=1, M

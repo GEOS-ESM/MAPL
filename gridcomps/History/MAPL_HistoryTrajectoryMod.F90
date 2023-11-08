@@ -9,7 +9,6 @@ module HistoryTrajectoryMod
   use MAPL_ObsUtilMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
-  integer, parameter :: mx_ngeoval = 60
 
   private
 
@@ -19,7 +18,7 @@ module HistoryTrajectoryMod
      type(ESMF_LocStream)   :: LS_rt
      type(ESMF_LocStream)   :: LS_ds
      type(LocStreamFactory) :: locstream_factory
-     type(obs_unit), allocatable    :: obs(:)
+     type(obs_unit),    allocatable :: obs(:)
      type(ESMF_Time),   allocatable :: times(:)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
@@ -37,7 +36,7 @@ module HistoryTrajectoryMod
      logical :: do_vertical_regrid
 
      type(LocstreamRegridder) :: regridder
-     type(TimeData) :: time_info
+     type(TimeData)           :: time_info
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime
@@ -128,7 +127,6 @@ module HistoryTrajectoryMod
        type(ESMF_Time), intent(inout)          :: current_time
        integer, optional, intent(out)          :: rc
      end subroutine append_file
-
 
      module subroutine create_grid(this, rc)
        class(HistoryTrajectory), intent(inout) :: this
