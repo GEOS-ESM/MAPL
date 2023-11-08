@@ -7,7 +7,7 @@ module HistoryTrajectoryMod
   use LocStreamFactoryMod
   use MAPL_LocstreamRegridderMod
   use MAPL_ObsUtilMod
-  use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+  use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
   integer, parameter :: mx_ngeoval = 60
 
@@ -80,10 +80,6 @@ module HistoryTrajectoryMod
      module procedure HistoryTrajectory_from_config
   end interface HistoryTrajectory
 
-  interface sort_multi_arrays_by_time
-     module procedure  sort_three_arrays_by_time
-     module procedure  sort_four_arrays_by_time
-  end interface sort_multi_arrays_by_time
 
   interface
      module function HistoryTrajectory_from_config(config,string,clock,rc) result(traj)

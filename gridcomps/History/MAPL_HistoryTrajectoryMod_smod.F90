@@ -278,7 +278,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
          call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
-         call this%get_obsfile_Tbracket_from_epoch(currTime, _RC)
+         call get_obsfile_Tbracket_from_epoch(currTime, &
+              this%obsfile_start_time, this%obsfile_end_time, &
+              this%obsfile_interval, this%epoch_frequency, &
+              this%obsfile_Ts_index, this%obsfile_Te_index, _RC)         
          if (this%obsfile_Te_index < 0) then
             if (mapl_am_I_root()) then
                write(6,*) "model start time is earlier than obsfile_start_time"
@@ -552,7 +555,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                do k=1, this%nobs_type
                   j = max (fid_s, L)
                   do while (j<=fid_e)
-                     filename = this%get_filename_from_template_use_index(j, this%obs(k)%input_template,  _RC)
+                     filename = get_filename_from_template_use_index( &
+                          this%obsfile_start_time, this%obsfile_interval, &
+                          j, this%obs(k)%input_template, _RC)
                      call lgr%debug('%a %a', 'true filename: ', trim(filename))
                      call get_ncfile_dimension(filename, tdim=num_times, key_time=this%nc_index, _RC)
                      len = len + num_times
@@ -569,7 +574,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                do k=1, this%nobs_type
                   j = max (fid_s, L)
                   do while (j<=fid_e)
-                     filename = this%get_filename_from_template_use_index(j, this%obs(k)%input_template, _RC)
+                     filename = get_filename_from_template_use_index( &
+                          this%obsfile_start_time, this%obsfile_interval, &
+                          j, this%obs(k)%input_template, _RC)
                      call get_ncfile_dimension(trim(filename), tdim=num_times, key_time=this%nc_index, _RC)
                      call get_v1d_netcdf_R8 (filename, this%var_name_lon,  lons_full(len+1:), num_times, group_name=grp_name)
                      call get_v1d_netcdf_R8 (filename, this%var_name_lat,  lats_full(len+1:), num_times, group_name=grp_name)

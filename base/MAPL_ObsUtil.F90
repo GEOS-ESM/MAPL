@@ -7,7 +7,7 @@ module MAPL_ObsUtilMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   integer, parameter :: mx_ngeoval = 60
-  private
+!!  private
 
   public :: obs_unit
   type :: obs_unit
