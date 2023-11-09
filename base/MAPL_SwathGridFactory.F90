@@ -50,6 +50,13 @@ module MAPL_SwathGridFactoryMod
       character(len=ESMF_MAXSTR)     :: input_template
       logical                        :: found_group
 
+      type(ESMF_Time)                :: obsfile_start_time   ! user specify
+      type(ESMF_Time)                :: obsfile_end_time
+      type(ESMF_TimeInterval)        :: obsfile_interval
+      type(ESMF_TimeInterval)        :: EPOCH_FREQUENCY      
+      integer                        :: obsfile_Ts_index     ! for epoch
+      integer                        :: obsfile_Te_index
+      logical                        :: is_valid 
 
       ! Domain decomposition:
       integer :: nx = MAPL_UNDEFINED_INTEGER
@@ -398,14 +405,18 @@ contains
       integer :: nlon, nlat, tdim
       integer :: Xdim, Ydim, ntime
       character(len=ESMF_MAXSTR) :: key_lon, key_lat, key_time
-      character(len=ESMF_MAXSTR) :: filename, tunit, tmp, grp1, grp2
+      character(len=ESMF_MAXSTR) :: tunit, grp1, grp2
+      character(len=ESMF_MAXSTR) :: filename, STR1, tmp      
+      character(len=ESMF_MAXSTR) :: symd, shms
+
       !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
-      integer :: yy, mm, dd, h, m, s, sec
-      integer :: i, j
+      integer :: yy, mm, dd, h, m, s, sec, second
+      integer :: i, j, L
       integer :: ncid, ncid2, varid
+      integer :: fid_s, fid_e
 
-      type(ESMF_Time) :: time0
+      type(ESMF_Time) :: currTime
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
       real(ESMF_KIND_R8) :: jx0, jx1
       real(ESMF_KIND_R8) :: x0, x1
@@ -418,32 +429,85 @@ contains
       
       call ESMF_VmGetCurrent(VM, _RC)
 
+
+      !__ s1. read in file spec.
+      !       set time, nc spec. 
+      !
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
       call ESMF_ConfigGetAttribute(config, this%nx,  label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%ny,  label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%lm,  label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE:', default='unknown.txt', _RC)
+      call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE_template:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
+      !
 
+
+      call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+           label= prefix// 'obs_file_begin:', _RC)
+      if (trim(STR1)=='') then
+         _FAIL('obs_file_begin missing, code crash')
+      else
+         call ESMF_TimeSet(this%obsfile_start_time, STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_begin provided: ', trim(STR1)
+         end if
+      end if
+      
+      call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+           label=prefix // 'obs_file_end:', _RC)
+      if (trim(STR1)=='') then
+         _FAIL('obs_file_end missing, code crash')
+      else
+         call ESMF_TimeSet(this%obsfile_end_time, STR1, _RC)
+         if (mapl_am_I_root()) then
+            write(6,105) 'obs_file_end provided:', trim(STR1)
+         end if
+      end if
+
+
+      
+
+      call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
+           label= prefix// 'obs_file_interval:', _RC)
+      _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+      if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+      if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', sec
+      
+      i= index( trim(STR1), ' ' )
+      if (i>0) then
+         symd=STR1(1:i-1)
+         shms=STR1(i+1:)
+      else
+         symd=''
+         shms=trim(STR1)
+      endif
+      call convert_twostring_2_esmfinterval (symd, shms,  this%obsfile_interval, _RC)      
+
+
+
+
+      
+      second = hms_2_s(this%Epoch)
+      call ESMF_TimeIntervalSet(this%epoch_frequency, s=second, _RC)      
+
+      if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
+         call ESMF_TimeSet(currTime, timeString=tmp, _RC)
+      else
+         read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
+         call ESMF_Timeset(currTime, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      endif
+      
       call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
-
       print*,__FILE__, __LINE__
       !!write(6,'(2x,a,/,4i8,/,5(2x,a))') 'nx,ny,lm,epoch -- filename,tmp', &
       !!     this%nx,this%ny,this%lm,this%epoch,&
       !!     trim(filename),trim(tmp)
       !!print*, 'ck: Epoch_init:', trim(tmp)
 
-      
-      if ( index(tmp, 'T') /= 0 .OR. index(tmp, '-') /= 0 ) then
-         call ESMF_TimeSet(time0, timeString=tmp, _RC)
-      else
-         read(tmp,'(i4,5i2)') yy,mm,dd,h,m,s
-         call ESMF_Timeset(time0, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
-      endif
-      this%grid_file_name = trim(filename)
-      
+
+
       call ESMF_ConfigGetAttribute(config, value=this%nc_index, default="", &
                  label=prefix // 'nc_Index:', _RC)      
       call ESMF_ConfigGetAttribute(config, this%nc_time, default="", &
@@ -452,10 +516,7 @@ contains
            label=prefix // 'nc_Longitude:', default="", _RC)
       call ESMF_ConfigGetAttribute(config, this%nc_latitude, &
            label=prefix // 'nc_Latitude:', default="", _RC)
-
-      write(6,*) 'this%nc index, time, long, lat=', &
-           trim(this%nc_index), trim(this%nc_time), trim(this%nc_longitude), trim(this%nc_latitude)
-
+      
       i=index(this%nc_time, '/')
       if (i>0) then
          this%found_group = .true.
@@ -477,12 +538,6 @@ contains
       i=index(this%nc_longitude, '/')      
       this%var_name_lat = this%nc_latitude(i+1:)
       this%var_name_lon = this%nc_longitude(i+1:)
-
-
-      write(6,'(10(2x,a))') 'name lat, lon, time',  &
-           trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
-      write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
-
            
       ! read global dim from nc file
       ! ----------------------------
@@ -490,11 +545,42 @@ contains
       key_lat=this%var_name_lat
       key_time=this%var_name_time
 
+      write(6,*) 'this%nc index, time, long, lat=', &
+           trim(this%nc_index), trim(this%nc_time), trim(this%nc_longitude), trim(this%nc_latitude)
+      write(6,'(10(2x,a))') 'name lat, lon, time',  &
+           trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
+      write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
+
+
+      
+      
+
+      
+      !__ s2. loop over filenames to get this%t_alongtrack(:)
+      !
+!      call get_obsfile_Tbracket_from_epoch(currTime, &
+!           this%obsfile_start_time, this%obsfile_end_time, &
+!           this%obsfile_interval, this%epoch_frequency, &
+!           this%obsfile_Ts_index, this%obsfile_Te_index, _RC)
+!         
+!
+!      L=0
+!      fid_s=this%obsfile_Ts_index
+!      fid_e=this%obsfile_Te_index
+
+!! marker bug
+      this%grid_file_name = trim(filename)
+      
+
+
+
+!! marker bug      
 !      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
 !      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
-!      I am taking short cuts
-      
+!      I am taking short cuts      
       filename='./MOD04_L2.A2017090.0010.051.NRT.h5'
+
+
       CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
            key_lon=key_lon, key_lat=key_lat, _RC)
       print*, 'filename input', trim(filename)
@@ -566,74 +652,80 @@ contains
       this%cell_across_swath = nlon
       this%cell_along_swath = nlat
 
-      
-      ! determine im_world from Epoch
-      ! -----------------------------
-      ! t_axis = t_alongtrack = t_a
-      ! convert time0 to j0
-      ! use Epoch to find j1
-      ! search j0, j1 in t_a
 
 
-      ! this is a bug
-      !
-      tunit='seconds since 1993-01-01 00:00:00'
-      this%tunit = tunit
-      call time_esmf_2_nc_int (time0, tunit, j0, _RC)
-      sec = hms_2_s (this%Epoch)
-      j1= j0 + sec
-      jx0= j0
-      jx1= j1
-      !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
-      call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
 
-      
-      this%epoch_index(1)= 1
-      this%epoch_index(2)= this%cell_across_swath
-      call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-      call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-
-
-      if (jt1==jt2) then
-         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
-      endif
-      jt1 = jt1 + 1               ! (x1,x2]  design
-      this%epoch_index(3)= jt1
-      this%epoch_index(4)= jt2
-      Xdim = this%cell_across_swath
-      Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
-
-
-      call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
-      call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
-      call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
-      call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
-           this%epoch_index(1), this%epoch_index(2), &
-           this%epoch_index(3), this%epoch_index(4))
-
-
-      this%im_world = Xdim
-      this%jm_world = Ydim
-
-
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
-      if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)
-      else
-         call get_multi_integer(this%ims, 'IMS:', _RC)
-      endif
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
-      if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%jms, trim(tmp),this%ny, _RC)
-      else
-         call get_multi_integer(this%jms, 'JMS:', _RC)
-      endif
-      ! ims is set at here
-      call this%check_and_fill_consistency(_RC)
-
+! P2.      
+!      
+!      ! determine im_world from Epoch
+!      ! -----------------------------
+!      ! t_axis = t_alongtrack = t_a
+!      ! convert currTime to j0
+!      ! use Epoch to find j1
+!      ! search j0, j1 in t_a
+!
+!
+!      ! this is a bug
+!      !
+!      tunit='seconds since 1993-01-01 00:00:00'
+!      this%tunit = tunit
+!      call time_esmf_2_nc_int (currTime, tunit, j0, _RC)
+!      sec = hms_2_s (this%Epoch)
+!      j1= j0 + sec
+!      jx0= j0
+!      jx1= j1
+!      !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
+!      call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
+!
+!      
+!      this%epoch_index(1)= 1
+!      this%epoch_index(2)= this%cell_across_swath
+!      call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+!      call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+!
+!
+!      if (jt1==jt2) then
+!         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+!      endif
+!      jt1 = jt1 + 1               ! (x1,x2]  design
+!      this%epoch_index(3)= jt1
+!      this%epoch_index(4)= jt2
+!      Xdim = this%cell_across_swath
+!      Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
+!
+!
+!      call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
+!      call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
+!      call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
+!      call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
+!           this%epoch_index(1), this%epoch_index(2), &
+!           this%epoch_index(3), this%epoch_index(4))
+!
+!
+!      this%im_world = Xdim
+!      this%jm_world = Ydim
+!
+!
+!      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
+!      if ( status == _SUCCESS ) then
+!         call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)
+!      else
+!         call get_multi_integer(this%ims, 'IMS:', _RC)
+!      endif
+!      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
+!      if ( status == _SUCCESS ) then
+!         call get_ims_from_file(this%jms, trim(tmp),this%ny, _RC)
+!      else
+!         call get_multi_integer(this%jms, 'JMS:', _RC)
+!      endif
+!      ! ims is set at here
+!      call this%check_and_fill_consistency(_RC)
+!
 
       _RETURN(_SUCCESS)
-
+      
+105      format (1x,a,2x,a)
+106      format (1x,a,2x,i8)
 
    contains
 
