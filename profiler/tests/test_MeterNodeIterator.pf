@@ -12,11 +12,12 @@ contains
 
       class (AbstractMeterNodeIterator), allocatable :: iter_1
       class (AbstractMeterNodeIterator), allocatable :: iter_2
-
+      print*,__FILE__,__LINE__
       node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
 
-      iter_1 = node%begin()
-      iter_2 = node%begin()
+      allocate(iter_1, source=node%begin())
+      allocate(iter_2, source=node%begin())
+
       @assertTrue(iter_1 == iter_2)
       @assertFalse(iter_1 /= iter_2)
       @assertTrue(iter_1 /= node%end())
@@ -46,8 +47,8 @@ contains
       class (AbstractMeterNodeIterator), allocatable :: iter_2
 
       node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
-      iter_1 = node%begin()
-      iter_2 = node%begin()
+      allocate(iter_1, source=node%begin())
+      allocate(iter_2, source=node%begin())
 
       call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
 
@@ -73,7 +74,7 @@ contains
       node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
 
       count = 0
-      iter = node%begin()
+      allocate(iter, source=node%begin())
       do while (iter /= node%end())
          count = count + 1
          call iter%next()
@@ -98,7 +99,7 @@ contains
       call node%add_child('c', AdvancedMeter(MpiTimerGauge()))
 
       count = 0
-      iter = node%begin()
+      allocate(iter, source=node%begin())
       do while (iter /= node%end())
          count = count + 1
          call iter%next()
@@ -162,7 +163,7 @@ contains
 
 
       count = 0
-      iter = node%begin()
+      allocate(iter, source=node%begin())
       do while (iter /= node%end())
          count = count + 1
          t => iter%get_meter()
