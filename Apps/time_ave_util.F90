@@ -28,10 +28,10 @@ contains
     type(ESMF_Time), intent(in) :: currTime
     type(ESMF_Time), intent(in) :: obsfile_start_time, obsfile_end_time
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval, epoch_frequency
-    type(ESMF_TimeInterval), intent(in), optional :: T_offset_in_file_content
     character(len=*), intent(in) :: file_template
     integer, intent(out) :: M
     character(len=ESMF_MAXSTR), intent(out) :: filenames(200)
+    type(ESMF_TimeInterval), intent(in), optional :: T_offset_in_file_content
     integer, optional, intent(out) :: rc
 
     type(ESMF_Time) :: T1, Tn
@@ -53,8 +53,7 @@ contains
     if (present(T_offset_in_file_content)) then
        Toff = T_offset_in_file_content
     else
-       s1 = 0.d0
-       call ESMF_TimeIntervalSet(Toff, s_r8=s1, rc=status)
+       call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=60, rc=status)
     endif
 
 !    T1 = obsfile_start_time + Toff
@@ -65,18 +64,17 @@ contains
     
     cT1 = currTime
     dT1 = currTime - T1
-    !    dT2 = currTime + epoch_frequency - T1
-    dT2 = dT1 + epoch_frequency
-
+    dT2 = currTime + epoch_frequency - T1
+    
     call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
     call ESMF_TimeIntervalGet(dT1, s_r8=dT1_s, rc=status)
     call ESMF_TimeIntervalGet(dT2, s_r8=dT2_s, rc=status)
+    
     n1 = floor (dT1_s / dT0_s)
     n2 = floor (dT2_s / dT0_s)
 
-    print*, '1st n1, n2', n1, n2
     print*, 'ck dT0_s, dT1_s, dT2_s', dT0_s, dT1_s, dT2_s
-    stop -3
+    print*, '1st n1, n2', n1, n2
     
     
     obsfile_Ts_index = n1
@@ -131,6 +129,11 @@ contains
     type(ESMF_Time) :: time
     integer :: j
 
+    character(len=ESMF_MAXSTR) :: file_template_left
+    character(len=ESMF_MAXSTR) :: file_template_right
+    character(len=ESMF_MAXSTR) :: filename_left
+    character(len=ESMF_MAXSTR) :: filename_full    
+
     print*, __LINE__, __FILE__
 
     call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
@@ -147,12 +150,18 @@ contains
     if (j>0) then
        ! wild char exist
        print*, 'pos of * in template =', j
+       file_template_left = file_template(1:j-1)
+    else
+       file_template_left = file_template       
     endif
-
-    call fill_grads_template ( filename, file_template, &
+    write(6,*) 'file_template_left=', trim(file_template_left)
+    
+    call fill_grads_template ( filename_left, file_template_left, &
          experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    print*, 'new filename=', trim(filename)
+    print*, 'new filename_left=', trim(filename_left)
 
+
+    print*, 'new filename=', trim(filename)
     stop -1
     
     rc=0
@@ -185,24 +194,28 @@ program main
     gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs' , rc=rc)
 
         
-    STR1='2017-03-31T00:00:00'
-    call ESMF_TimeSet(currTime, STR1, rc=rc)
+!    STR1='2017-03-31T00:00:00'
+!    call ESMF_TimeSet(currTime, trim(STR1), rc=rc)
+         
+!    STR1='2017-03-31T00:00:00'
+!    call ESMF_TimeSet(obsfile_start_time, trim(STR1), rc=rc)
 
-    STR1='2017-03-31T00:00:00'
-    call ESMF_TimeSet(obsfile_start_time, STR1, rc=rc)
+!    STR1='2017-04-01T00:00:00'
+!    call ESMF_TimeSet(obsfile_end_time, trim(STR1), rc=rc)
 
-    STR1='2017-04-01T00:00:00'
-    call ESMF_TimeSet(obsfile_end_time, STR1, rc=rc)
 
-    sec = 300.d0
-    call ESMF_TimeIntervalSet(obsfile_interval, s_r8=sec, rc=status)
-
-!    sec = 3600.d0
-!    call ESMF_TimeIntervalSet(Epoch_frequency, s_r8=sec, rc=status)    
-
-    call ESMF_TimeIntervalSet(Epoch_frequency, m=59, rc=status)    
+    call ESMF_TimeSet(currTime, yy=2007, mm=3, dd=31, h=0, m=0, s=0, &
+           calendar=gregorianCalendar, rc=rc)
+    obsfile_start_time = currTime
+    call ESMF_TimeSet(obsfile_end_time, yy=2008, mm=3, dd=31, h=0, m=0, s=0, &
+         calendar=gregorianCalendar, rc=rc)
     
-    !    sec = 60.d0
+    sec = 300.d0
+    call ESMF_TimeIntervalSet(obsfile_interval, h=0, m=5, s=0, rc=rc)
+
+    sec = 3600.d0
+    call ESMF_TimeIntervalSet(Epoch_frequency, h=1, m=0, s=0, rc=rc)    
+    
     sec = 0.d0
     call ESMF_TimeIntervalSet(Toff, s_r8=sec, rc=status)
     
