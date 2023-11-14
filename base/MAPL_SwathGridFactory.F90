@@ -552,27 +552,21 @@ contains
       write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
 
 
-      
-      
 
-      
       !__ s2. loop over filenames to get this%t_alongtrack(:)
       !
 !      call get_obsfile_Tbracket_from_epoch(currTime, &
 !           this%obsfile_start_time, this%obsfile_end_time, &
 !           this%obsfile_interval, this%epoch_frequency, &
 !           this%obsfile_Ts_index, this%obsfile_Te_index, _RC)
-!         
 !
 !      L=0
 !      fid_s=this%obsfile_Ts_index
 !      fid_e=this%obsfile_Te_index
 
+      
 !! marker bug
       this%grid_file_name = trim(filename)
-      
-
-
 
 !! marker bug      
 !      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
