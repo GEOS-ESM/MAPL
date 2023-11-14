@@ -36,28 +36,30 @@ module FieldUnits
    ! Do I need to keep track of pointers?
 !   procedure(FieldUnitConverter), pointer :: fldunicon(:)
 
-abstract interface
+   abstract interface
 
-   ! conversion procedure tied to ESMF_Field instances
-   subroutine FieldUnitConverter(rc)
-      integer, optional, intent(out) :: rc
-   end subroutine FieldUnitConverter
+      ! conversion procedure from t1 to t2
+      elemental subroutine ScalarConverter(t1, t2, rc)
+         real(r64), intent(in) :: t1
+         real(r64), intent(out) :: t2
+         integer, optional, intent(out) :: rc
+      end subroutine ScalarConverter
 
-   ! conversion procedure from t1 to t2
-   elemental subroutine ScalarConverter(t1, t2, rc)
-      real(r64), intent(in) :: t1
-      real(r64), intent(out) :: t2
-      integer, optional, intent(out) :: rc
-   end subroutine ScalarConverter
+      ! conversion procedure from e1 to e2
+      subroutine FieldConverter(e1, e1, rc)
+         type(ESMF_Field), intent(inout) :: e1
+         type(ESMF_Field), intent(inout) :: e2
+         integer, optional, intent(out) :: rc
+      end subroutine FieldConverter
 
-end abstract interface
+   end abstract interface
 
 contains
     
    subroutine get_field_unit_converter(e1, e2, cf, invcf, rc)
       type(Field), intent(inout) :: e1, e2
-      procedure(FieldUnitConverter), pointer, intent(out) :: cf
-      procedure(FieldUnitConverter), optional, pointer, intent(out) :: invcf
+      procedure(FieldConverter), pointer, intent(out) :: cf
+      procedure(FieldConverter), optional, pointer, intent(out) :: invcf
       integer, optional, intent(out) :: rc
       class(fut_unit) :: fu1, fu2
       integer :: status
@@ -67,18 +69,24 @@ contains
       call get_unit(e2, fu2, _RC)
       _VERIFY 
 
-   end subroutine get_field_unit_converter
+      call are_compatible(fu1, fu2, compatible, _RC)
+      _VERIFY
 
-   ! conversion procedure from e1 to e2
-   ! calls ScalarConverter
-   ! iterates over grid
-   subroutine fc1(e1, e2, fptr, rc)
-      type(Field), intent(inout) :: e1
-      type(Field), intent(inout) :: e2
-      procedure(ScalarConverter), pointer, intent(in) :: fc
-      integer, optional, intent(out) :: rc
-      
-   end subroutine fc1
+      if(.not. compatible) then
+         status = FAILURE
+         if(present(rc)) rc = status
+         return
+      end if
+
+      call get_scalar_unit_converter(fu1, fu1, cf, _RC)
+      _VERIFY
+
+      if(present(invcf)) then
+         call get_scalar_unit_converter(fu1, fu2, invcf, _RC)
+         _VERIFY
+      end if
+
+   end subroutine get_field_unit_converter
 
    ! get the fu for e using get_unit_name or get_unit_symbol
    ! calls get_unit_name or get_unit_symbol to get unit name or symbol
@@ -95,12 +103,13 @@ contains
       call get_unit_symbol(e, unit_symbol, _RC)
       _VERIFY 
 
+
    end subroutine get_unit
 
    ! get unit_name for ESMF_Field e
    ! grabs from ESMF_Field info
    subroutine get_unit_name(e, unit_name, rc)
-      type(Field, intent(in) :: e
+      type(Field), intent(inout) :: e
       character(len=*), intent(out) :: unit_name
       integer, optional, intent(out) :: rc
    end subroutine get_unit_name
