@@ -127,12 +127,13 @@ contains
     real(ESMF_KIND_R8) :: s
     type(ESMF_TimeInterval) :: dT
     type(ESMF_Time) :: time
-    integer :: j
+    integer :: i, j
 
     character(len=ESMF_MAXSTR) :: file_template_left
     character(len=ESMF_MAXSTR) :: file_template_right
     character(len=ESMF_MAXSTR) :: filename_left
-    character(len=ESMF_MAXSTR) :: filename_full    
+    character(len=ESMF_MAXSTR) :: filename_full
+    character(len=ESMF_MAXSTR) :: cmd
 
     print*, __LINE__, __FILE__
 
@@ -146,6 +147,9 @@ contains
     nymd = itime(1)
     nhms = itime(2)
 
+    print*, 'nymd, nhms=', nymd, nhms
+
+
     j= index(file_template, '*')
     if (j>0) then
        ! wild char exist
@@ -158,13 +162,30 @@ contains
     
     call fill_grads_template ( filename_left, file_template_left, &
          experiment_id='', nymd=nymd, nhms=nhms, _RC )
+
     print*, 'new filename_left=', trim(filename_left)
 
+    filename= trim(filename_left)//trim(file_template(j:))
 
-    print*, 'new filename=', trim(filename)
-    stop -1
+    cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
+    print*, 'cmd=', trim(cmd)
+    CALL execute_command_line(trim(cmd))
+
+    open(7213, file='zzz_MAPL', status='unknown')
+    read(7213, '(a)') filename
+    print*, 'readin filename=', trim(filename)
+
+    i=index(trim(filename), 'ls')
+    if (i==1) then
+       filename=''
+       write(6,*) 'No such file or directory:', trim(filename_left)//trim(file_template(j:))
+    end if
     
-    rc=0
+    cmd="rm -f ./zzz_MAPL"
+    CALL execute_command_line(trim(cmd))
+    close(7213)
+    
+    _RETURN(_SUCCESS)
 
   end function get_filename_from_template_use_index
 
@@ -204,10 +225,10 @@ program main
 !    call ESMF_TimeSet(obsfile_end_time, trim(STR1), rc=rc)
 
 
-    call ESMF_TimeSet(currTime, yy=2007, mm=3, dd=31, h=0, m=0, s=0, &
+    call ESMF_TimeSet(currTime, yy=2017, mm=3, dd=31, h=0, m=0, s=0, &
            calendar=gregorianCalendar, rc=rc)
     obsfile_start_time = currTime
-    call ESMF_TimeSet(obsfile_end_time, yy=2008, mm=3, dd=31, h=0, m=0, s=0, &
+    call ESMF_TimeSet(obsfile_end_time, yy=2018, mm=3, dd=31, h=0, m=0, s=0, &
          calendar=gregorianCalendar, rc=rc)
     
     sec = 300.d0

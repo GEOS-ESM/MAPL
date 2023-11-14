@@ -12,7 +12,7 @@ private
 public fill_grads_template
 public StrTemplate
 
-character(len=2), parameter :: valid_tokens(14) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2"]
+character(len=2), parameter :: valid_tokens(15) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2","D3"]
 character(len=3),parameter :: mon_lc(12) = [&
    'jan','feb','mar','apr','may','jun',   &
    'jul','aug','sep','oct','nov','dec']
@@ -169,6 +169,7 @@ contains
       type(ESMF_Time)  :: time
       integer(ESMF_KIND_I4) :: doy
       integer :: status, rc
+      type(ESMF_Calendar) :: gregorianCalendar
       c1=token(1:1)
       c2=token(2:2)
       select case(c1)
@@ -215,8 +216,12 @@ contains
       case("D")   ! dayOfYear
          if (.not.skip_token(day,preserve)) then
             if (c2 == "3") then
-               call ESMF_TimeSet(time, yy=year, mm=month, dd=day, _RC)
+               gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, &
+                    name='Gregorian_obs' , rc=rc)
+               call ESMF_TimeSet(time, yy=year, mm=month, dd=day, &
+                    calendar=gregorianCalendar, _RC)
                call ESMF_TimeGet(time, dayOfYear=doy, _RC)
+               call ESMF_CalendarDestroy(gregorianCalendar)
                write(buffer,'(i3.3)')doy
                write(6,*) 'doy=', doy
             else
