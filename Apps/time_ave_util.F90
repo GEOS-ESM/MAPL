@@ -143,8 +143,8 @@ contains
     character(len=ESMF_MAXSTR) :: filename
     integer, allocatable :: nlons(:), nlats(:)
     real(ESMF_KIND_R8), allocatable :: time_loc_R8(:,:)
-    real, allocatable :: lon_loc(:)
-    real, allocatable :: lat_loc(:)
+    real(ESMF_KIND_R8), allocatable :: lon_loc(:,:)
+    real(ESMF_KIND_R8), allocatable :: lat_loc(:,:)
 
 
     !__ s1. get Xdim Ydim
@@ -177,6 +177,20 @@ contains
           call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
           time_R8(1:nlon,jx+1:jx+nlat) = time_loc_R8(1:nlon,1:nlat)
           deallocate(time_loc_R8)
+       end if
+       
+       if (present(var_name_lon).AND.present(lon)) then
+          allocate (lon_loc(nlon, nlat))
+          call get_var_from_name_w_group (var_name_lon, lon_loc, filename, _RC)
+          lon(1:nlon,jx+1:jx+nlat) = lon_loc(1:nlon,1:nlat)
+          deallocate(lon_loc)
+       end if
+
+       if (present(var_name_lat).AND.present(lat)) then
+          allocate (lat_loc(nlon, nlat))
+          call get_var_from_name_w_group (var_name_lat, lat_loc, filename, _RC)
+          lat(1:nlon,jx+1:jx+nlat) = lat_loc(1:nlon,1:nlat)
+          deallocate(lat_loc)
        end if
 
        jx = jx + nlat
@@ -349,11 +363,14 @@ program main
   integer :: Xdim, Ydim
 
   real(ESMF_kind_R8), allocatable :: time_R8(:,:)
+  real, allocatable :: lon_center(:,:)
 
   file_template = '/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A%y4%D3.%h2%n2.*.h5'
   index_name_lon= 'Cell_Across_Swath:mod04'
   index_name_lat= 'Cell_Along_Swath:mod04'
   var_name_time= 'mod04/Data Fields/Scan_Start_Time'
+  var_name_lon= 'mod04/Geolocation Fields/Longitude'
+  var_name_lat= 'mod04/Geolocation Fields/Latitude'
 
 
   gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, name='Gregorian_obs' , rc=rc)
@@ -395,12 +412,13 @@ program main
   call read_M_files_4_swath (filenames(1:M),  Xdim, Ydim, &
        index_name_lon, index_name_lat, rc=rc)
   allocate( time_R8(Xdim, Ydim) )
+  allocate( lon_center(Xdim, Ydim) )  
 
   call read_M_files_4_swath (filenames(1:M),  Xdim, Ydim, &
        index_name_lon, index_name_lat, &
-       var_name_time=var_name_time, time_R8=time_R8, rc=rc)    
-  deallocate( time_R8 )
+       var_name_time=var_name_time, time_R8=time_R8, &
+       var_name_lon=var_name_lon, lon=lon_center, rc=rc)           
+
+  deallocate( time_R8, lon_center )
   
 end program main
-
-
