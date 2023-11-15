@@ -10,12 +10,13 @@ module MAPL_SwathGridFactoryMod
    use MAPL_ShmemMod
    use mapl_ErrorHandlingMod
    use MAPL_Constants
-   use Plain_netCDF_Time
    use MAPL_Base, only : MAPL_GridGetInterior
    use ESMF
    use pFIO
    use MAPL_CommsMod
-   use netcdf
+   !!use netcdf
+   !!use Plain_netCDF_Time
+   use MAPL_ObsUtilMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -40,10 +41,8 @@ module MAPL_SwathGridFactoryMod
       integer(ESMF_KIND_I8) :: epoch_index(4)  ! is,ie,js,je
       character(len=ESMF_MAXSTR) :: tunit
       real(ESMF_KIND_R8), allocatable :: t_alongtrack(:)
-      character(len=ESMF_MAXSTR)     :: nc_index
-      character(len=ESMF_MAXSTR)     :: nc_time
-      character(len=ESMF_MAXSTR)     :: nc_latitude
-      character(len=ESMF_MAXSTR)     :: nc_longitude
+      character(len=ESMF_MAXSTR)     :: index_name_lon
+      character(len=ESMF_MAXSTR)     :: index_name_lat      
       character(len=ESMF_MAXSTR)     :: var_name_time
       character(len=ESMF_MAXSTR)     :: var_name_lat
       character(len=ESMF_MAXSTR)     :: var_name_lon
@@ -394,6 +393,7 @@ contains
       use esmf
       use pflogger, only : Logger, logging
       implicit none
+      integer, parameter :: mx_file = 300
       class (SwathGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: prefix
@@ -408,13 +408,15 @@ contains
       character(len=ESMF_MAXSTR) :: tunit, grp1, grp2
       character(len=ESMF_MAXSTR) :: filename, STR1, tmp      
       character(len=ESMF_MAXSTR) :: symd, shms
-
+      character(len=ESMF_MAXSTR) :: filenames(mx_file)      
+      
       !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
       integer :: yy, mm, dd, h, m, s, sec, second
       integer :: i, j, L
       integer :: ncid, ncid2, varid
       integer :: fid_s, fid_e
+      integer :: M_file
 
       type(ESMF_Time) :: currTime
       integer (ESMF_KIND_I8) :: j0, j1, jt, jt1, jt2
@@ -424,6 +426,8 @@ contains
       type(Logger), pointer :: lgr
       logical :: ispresent
 
+      type(ESMF_TimeInterval) :: Toff
+      
       _UNUSED_DUMMY(unusable)
       lgr => logging%get_logger('HISTORY.sampler')
       
@@ -431,7 +435,6 @@ contains
 
 
       !__ s1. read in file spec.
-      !       set time, nc spec. 
       !
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
@@ -441,7 +444,6 @@ contains
       call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE_template:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
-      !
 
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
@@ -467,8 +469,6 @@ contains
       end if
 
 
-      
-
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_interval:', _RC)
       _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
@@ -484,9 +484,6 @@ contains
          shms=trim(STR1)
       endif
       call convert_twostring_2_esmfinterval (symd, shms,  this%obsfile_interval, _RC)      
-
-
-
 
       
       second = hms_2_s(this%Epoch)
@@ -508,53 +505,62 @@ contains
 
 
 
-      call ESMF_ConfigGetAttribute(config, value=this%nc_index, default="", &
-                 label=prefix // 'nc_Index:', _RC)      
-      call ESMF_ConfigGetAttribute(config, this%nc_time, default="", &
-           label=prefix//'nc_Time:',  _RC)
-      call ESMF_ConfigGetAttribute(config, this%nc_longitude, &
-           label=prefix // 'nc_Longitude:', default="", _RC)
-      call ESMF_ConfigGetAttribute(config, this%nc_latitude, &
-           label=prefix // 'nc_Latitude:', default="", _RC)
+      call ESMF_ConfigGetAttribute(config, value=this%index_name_lon, default="", &
+                 label=prefix // 'index_name_lon:', _RC)      
+      call ESMF_ConfigGetAttribute(config, this%var_name_time, default="", &
+           label=prefix//'var_name_time:',  _RC)
+      call ESMF_ConfigGetAttribute(config, this%var_name_lon, &
+           label=prefix // 'var_name_Longitude:', default="", _RC)
+      call ESMF_ConfigGetAttribute(config, this%var_name_lat, &
+           label=prefix // 'var_name_Latitude:', default="", _RC)
       
-      i=index(this%nc_time, '/')
-      if (i>0) then
-         this%found_group = .true.
-         grp1 = this%nc_time(1:i-1)
-         j=index(this%nc_time(i+1:), '/')
-         if (j>0) then
-            grp2=this%nc_time(i+1:i+j-1)
-         else
-            grp2=''
-         endif
-         i=i+j
-      else
-         this%found_group = .false.
-         grp1 = ''
-         grp2=''
-      endif
-      this%var_name_time= this%nc_time(i+1:)
+!      i=index(this%nc_time, '/')
+!      if (i>0) then
+!         this%found_group = .true.
+!         grp1 = this%nc_time(1:i-1)
+!         j=index(this%nc_time(i+1:), '/')
+!         if (j>0) then
+!            grp2=this%nc_time(i+1:i+j-1)
+!         else
+!            grp2=''
+!         endif
+!         i=i+j
+!      else
+!         this%found_group = .false.
+!         grp1 = ''
+!         grp2=''
+!      endif
+!      this%var_name_time= this%nc_time(i+1:)
+!
+!      i=index(this%nc_longitude, '/')      
+!      this%var_name_lat = this%nc_latitude(i+1:)
+!      this%var_name_lon = this%nc_longitude(i+1:)
+!           
+!      ! read global dim from nc file
+!      ! ----------------------------
+!      key_lon=this%var_name_lon
+!      key_lat=this%var_name_lat
+!      key_time=this%var_name_time
+!
+!      write(6,*) 'this%nc index, time, long, lat=', &
+!           trim(this%nc_index), trim(this%nc_time), trim(this%nc_longitude), trim(this%nc_latitude)
+!      write(6,'(10(2x,a))') 'name lat, lon, time',  &
+!           trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
+!      write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
+!
 
-      i=index(this%nc_longitude, '/')      
-      this%var_name_lat = this%nc_latitude(i+1:)
-      this%var_name_lon = this%nc_longitude(i+1:)
-           
-      ! read global dim from nc file
-      ! ----------------------------
-      key_lon=this%var_name_lon
-      key_lat=this%var_name_lat
-      key_time=this%var_name_time
 
-      write(6,*) 'this%nc index, time, long, lat=', &
-           trim(this%nc_index), trim(this%nc_time), trim(this%nc_longitude), trim(this%nc_latitude)
-      write(6,'(10(2x,a))') 'name lat, lon, time',  &
-           trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
-      write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
-
-
-
-      !__ s2. loop over filenames to get this%t_alongtrack(:)
+      !__ s2. find obsFile on disk and get array: this%t_alongtrack(:)
       !
+
+      call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=0, _RC)
+      call Find_M_files_for_currTime (currTime, &
+           this%obsfile_start_time, this%obsfile_end_time, this%obsfile_interval, &
+           this%epoch_frequency,  this%input_template, M_file, filenames, &
+           T_offset_in_file_content = Toff,  _RC)
+
+      stop -1
+
 !      call get_obsfile_Tbracket_from_epoch(currTime, &
 !           this%obsfile_start_time, this%obsfile_end_time, &
 !           this%obsfile_interval, this%epoch_frequency, &

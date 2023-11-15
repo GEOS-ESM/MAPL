@@ -179,7 +179,7 @@ contains
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval, epoch_frequency
     character(len=*), intent(in) :: file_template
     integer, intent(out) :: M
-    character(len=ESMF_MAXSTR), intent(out) :: filenames(200)
+    character(len=ESMF_MAXSTR), intent(inout) :: filenames(:)
     type(ESMF_TimeInterval), intent(in), optional :: T_offset_in_file_content
     integer, optional, intent(out) :: rc
 
@@ -254,6 +254,7 @@ contains
     end do
     M=j
 
+    _ASSERT ( M < size(filenames) , 'code crash, number of files exceeds upper bound')
     _RETURN(_SUCCESS)
 
   end subroutine Find_M_files_for_currTime
