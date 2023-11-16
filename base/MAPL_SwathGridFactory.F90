@@ -441,39 +441,42 @@ contains
       call ESMF_ConfigGetAttribute(config, this%nx,  label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%ny,  label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%lm,  label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE_template:', default='unknown.txt', _RC)
+      call ESMF_ConfigGetAttribute(config, this%input_template, label=prefix//'GRID_FILE:', default='unknown.txt', _RC)
       call ESMF_ConfigGetAttribute(config, this%epoch, label=prefix//'Epoch:', default=300, _RC)
       call ESMF_ConfigGetAttribute(config, tmp,      label=prefix//'Epoch_init:', default='2006', _RC)
 
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_begin:', _RC)
+      print*, 'obs_file_begin: str1=', trim(STR1)
+      
       if (trim(STR1)=='') then
          _FAIL('obs_file_begin missing, code crash')
       else
-         call ESMF_TimeSet(this%obsfile_start_time, STR1, _RC)
+         call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
          if (mapl_am_I_root()) then
             write(6,105) 'obs_file_begin provided: ', trim(STR1)
          end if
       end if
-      
+
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label=prefix // 'obs_file_end:', _RC)
+      print*, 'obs_file_end: str1=', trim(STR1)
+
       if (trim(STR1)=='') then
          _FAIL('obs_file_end missing, code crash')
       else
-         call ESMF_TimeSet(this%obsfile_end_time, STR1, _RC)
+         call ESMF_TimeSet(this%obsfile_end_time, timestring=STR1, _RC)
          if (mapl_am_I_root()) then
             write(6,105) 'obs_file_end provided:', trim(STR1)
          end if
       end if
 
-
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_interval:', _RC)
       _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
       if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
-      if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', sec
+      if (mapl_am_I_root()) write(6,106) 'Epoch (hhmmss)   :', this%epoch
       
       i= index( trim(STR1), ' ' )
       if (i>0) then
@@ -484,7 +487,6 @@ contains
          shms=trim(STR1)
       endif
       call convert_twostring_2_esmfinterval (symd, shms,  this%obsfile_interval, _RC)      
-
       
       second = hms_2_s(this%Epoch)
       call ESMF_TimeIntervalSet(this%epoch_frequency, s=second, _RC)      
@@ -497,12 +499,10 @@ contains
       endif
       
       call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
-      print*,__FILE__, __LINE__
       !!write(6,'(2x,a,/,4i8,/,5(2x,a))') 'nx,ny,lm,epoch -- filename,tmp', &
       !!     this%nx,this%ny,this%lm,this%epoch,&
       !!     trim(filename),trim(tmp)
       !!print*, 'ck: Epoch_init:', trim(tmp)
-
 
 
       call ESMF_ConfigGetAttribute(config, value=this%index_name_lon, default="", &
@@ -510,9 +510,9 @@ contains
       call ESMF_ConfigGetAttribute(config, this%var_name_time, default="", &
            label=prefix//'var_name_time:',  _RC)
       call ESMF_ConfigGetAttribute(config, this%var_name_lon, &
-           label=prefix // 'var_name_Longitude:', default="", _RC)
+           label=prefix // 'var_name_lon:', default="", _RC)
       call ESMF_ConfigGetAttribute(config, this%var_name_lat, &
-           label=prefix // 'var_name_Latitude:', default="", _RC)
+           label=prefix // 'var_name_lat:', default="", _RC)
       
 !      i=index(this%nc_time, '/')
 !      if (i>0) then
@@ -559,6 +559,25 @@ contains
            this%epoch_frequency,  this%input_template, M_file, filenames, &
            T_offset_in_file_content = Toff,  _RC)
 
+
+  write(6,*) 'M_file=', M_file
+  do i=1, M_file
+     write(6,*) 'filenames(i)=', trim(filenames(i))
+  end do
+
+  call read_M_files_4_swath (filenames(1:M_file),  Xdim, Ydim, &
+       this%index_name_lon, this%index_name_lat, _RC)
+  allocate( time_R8(Xdim, Ydim) )
+  allocate( lon_center(Xdim, Ydim) )
+
+  call read_M_files_4_swath (filenames(1:M_file),  Xdim, Ydim, &
+       this%index_name_lon, this%index_name_lat, &
+       var_name_time=this%var_name_time, time_R8=time_R8, &
+       var_name_lon=this%var_name_lon, lon=lon_center, rc=rc)
+
+  deallocate( time_R8, lon_center )
+
+      
       stop -1
 
 !      call get_obsfile_Tbracket_from_epoch(currTime, &
@@ -585,6 +604,8 @@ contains
            key_lon=key_lon, key_lat=key_lat, _RC)
       print*, 'filename input', trim(filename)
       print*, 'nlon, nlat=', nlon, nlat
+
+
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
       
