@@ -2891,6 +2891,182 @@ contains
 ! The routine works for both the gmao cube and lat/lon grids.
 ! Currently the lat/lon grid is asumed to go from -180 to 180
 !
+!  module subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
+!    implicit none
+!    !ARGUMENTS:
+!    integer,                      intent(in   ) :: npts        !! number of points in lat and lon arrays
+!    integer,                      intent(inout) :: II(npts)    !! array of the first index for each lat and lon
+!    integer,                      intent(inout) :: JJ(npts)    !! array of the second index for each lat and lon
+!    real, optional,               intent(in   ) :: lon(npts)   !! array of longitudes in radians
+!    real, optional,               intent(in   ) :: lat(npts)   !! array of latitudes in radians
+!    real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) !! array of longitudes in radians
+!    real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) !! array of latitudes in radians
+!    type(ESMF_Grid),    optional, intent(inout) :: Grid        !! ESMF grid
+!    integer,            optional, intent(out  ) :: rc          !! return code
+!
+!    integer                    :: status
+!
+!    integer                         :: IM_World, JM_World, dims(3)
+!    integer                         :: IM, JM, counts(3)
+!    real(ESMF_KIND_R8), pointer     :: lons(:,:)
+!    real(ESMF_KIND_R8), pointer     :: lats(:,:)
+!    real(ESMF_KIND_R8), allocatable :: elons(:)
+!    real(ESMF_KIND_R8), allocatable :: elats(:)
+!    integer :: i,iiloc,jjloc
+!    real(ESMF_KIND_R4) :: lonloc,latloc
+!    logical                 :: localSearch
+!    real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
+!    real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
+!    type(ESMF_CoordSys_Flag) :: coordSys
+!    character(len=ESMF_MAXSTR) :: grid_type
+!
+!    ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
+!    ! this also means we are running on a distributed grid
+!    ! if grid not present then the we just be running outside of ESMF and the user must
+!    ! pass in the the dimensions of the grid and we must compute them
+!    ! and assume search on the global domain
+!    if (present(Grid)) then
+!       call MAPL_GridGet(grid, localCellCountPerDim=counts,globalCellCountPerDim=dims,rc=status)
+!       _VERIFY(STATUS)
+!       IM_World = dims(1)
+!       JM_World = dims(2)
+!       IM = counts(1)
+!       JM = counts(2)
+!       localSearch = .true.
+!    else
+!       localSearch = .false.
+!    end if
+!    allocate(target_lons(npts),target_lats(npts))
+!    if (present(lon) .and. present(lat)) then
+!       target_lons = lon
+!       target_lats = lat
+!    else if (present(lonR8) .and. present(latR8)) then
+!       target_lons = lonR8
+!       target_lats = latR8
+!    end if
+!
+!    _ASSERT(localSearch,"Global Search for IJ not implemented")
+!
+!!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
+!    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
+!    if(trim(grid_type) == "Cubed-Sphere") then
+!       call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
+!            staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
+!       _VERIFY(STATUS)
+!       call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
+!            staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
+!       _VERIFY(STATUS)
+!       call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+!       _VERIFY(STATUS)
+!       allocate(corner_lons(im+1,jm+1))
+!       allocate(corner_lats(im+1,jm+1))
+!       allocate(center_lons(im,jm),center_lats(im,jm))
+!
+!       if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+!          center_lons=lons*MAPL_DEGREES_TO_RADIANS_R8
+!          center_lats=lats*MAPL_DEGREES_TO_RADIANS_R8
+!       else if (coordSys==ESMF_COORDSYS_SPH_RAD) then
+!          center_lons=lons
+!          center_lats=lats
+!       else if (coordSys==ESMF_COORDSYS_CART) then
+!          _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+!       end if
+!       call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
+!       ii=-1
+!       jj=-1
+!       call get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
+!       _VERIFY(status)
+!       deallocate(corner_lons,corner_lats, center_lons,center_lats)
+!    else
+!       if (localSearch) then
+!          call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
+!               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lons, _RC)
+!          call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
+!               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lats, _RC)
+!       else
+!          _FAIL('if not isCubed, localSearch must be .true.')
+!       end if
+!       allocate(elons(im+1),stat=status)
+!       _VERIFY(STATUS)
+!       allocate(elats(jm+1),stat=status)
+!       _VERIFY(STATUS)
+!       call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+!       _VERIFY(STATUS)
+!       elons = lons(:,1)
+!       elats = lats(1,:)
+!       if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+!          elons=elons*MAPL_DEGREES_TO_RADIANS_R8
+!          elats=elats*MAPL_DEGREES_TO_RADIANS_R8
+!       else if (coordSys==ESMF_COORDSYS_CART) then
+!          _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+!       end if
+!       ! lat-lon grid goes from -180 to 180 shift if we must
+!       ! BMA this -180 to 180 might change at some point
+!       do i=1,npts
+!          lonloc = target_lons(i)
+!          latloc = target_lats(i)
+!          if (lonloc > MAPL_PI) lonloc = lonloc - 2.0*MAPL_PI
+!          IIloc = ijsearch(elons,im+1,lonloc,.false.)
+!          JJloc = ijsearch(elats,jm+1,latloc,.false.)
+!          II(i) = IIloc
+!          JJ(i) = JJloc
+!       end do
+!       deallocate(elons,elats)
+!    end if
+!
+!    _RETURN(ESMF_SUCCESS)
+!
+!  contains
+!
+!    integer function ijsearch(coords,idim,valueIn,periodic) ! fast bisection version
+!      implicit NONE
+!      integer, intent(in) :: idim
+!      real(ESMF_KIND_R8), intent(in) :: coords(:)
+!      real, intent(inout) :: valueIn
+!      logical, intent(in)  :: periodic
+!      integer i, i1, i2, k
+!      real :: value
+!      value = valueIn
+!      if ( periodic ) then
+!         if ( value>coords(idim) ) value = value - 360.
+!      endif
+!
+!      ijsearch = -1
+!      i1 = 1
+!      i2 = idim
+!      if (coords(idim) > coords(1)) then
+!         do k = 1, idim  ! it should never take take long
+!            i = (i1 + i2) / 2
+!            if ( (value .ge. coords(i)) ) then
+!               if (value .lt. coords(i+1) ) then
+!                  ijsearch = i
+!                  exit
+!               else
+!                  i1 = i
+!               end if
+!            else
+!               i2 = i
+!            endif
+!         end do
+!      else
+!         do k = 1, idim  ! it should never take take long
+!            i = (i1 + i2) / 2
+!            if ( (value .lt. coords(i)) ) then
+!               if (value .ge. coords(i+1) ) then
+!                  ijsearch = i
+!                  exit
+!               else
+!                  i1 = i
+!               end if
+!            else
+!               i2 = i
+!            endif
+!         end do
+!      endif
+!    end function ijsearch
+!
+!  end subroutine MAPL_GetHorzIJIndex
+
   module subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
     implicit none
     !ARGUMENTS:
@@ -2904,166 +3080,19 @@ contains
     type(ESMF_Grid),    optional, intent(inout) :: Grid        !! ESMF grid
     integer,            optional, intent(out  ) :: rc          !! return code
 
-    integer                    :: status
+    integer                    :: status, i1, i2, j1, j2
 
-    integer                         :: IM_World, JM_World, dims(3)
-    integer                         :: IM, JM, counts(3)
-    real(ESMF_KIND_R8), pointer     :: lons(:,:)
-    real(ESMF_KIND_R8), pointer     :: lats(:,:)
-    real(ESMF_KIND_R8), allocatable :: elons(:)
-    real(ESMF_KIND_R8), allocatable :: elats(:)
-    integer :: i,iiloc,jjloc
-    real(ESMF_KIND_R4) :: lonloc,latloc
-    logical                 :: localSearch
-    real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
-    real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
-    type(ESMF_CoordSys_Flag) :: coordSys
-    character(len=ESMF_MAXSTR) :: grid_type
+    if (npts == 0 ) then
+      _RETURN(_SUCCESS)
+    endif
 
-    ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
-    ! this also means we are running on a distributed grid
-    ! if grid not present then the we just be running outside of ESMF and the user must
-    ! pass in the the dimensions of the grid and we must compute them
-    ! and assume search on the global domain
-    if (present(Grid)) then
-       call MAPL_GridGet(grid, localCellCountPerDim=counts,globalCellCountPerDim=dims,rc=status)
-       _VERIFY(STATUS)
-       IM_World = dims(1)
-       JM_World = dims(2)
-       IM = counts(1)
-       JM = counts(2)
-       localSearch = .true.
-    else
-       localSearch = .false.
-    end if
-    allocate(target_lons(npts),target_lats(npts))
-    if (present(lon) .and. present(lat)) then
-       target_lons = lon
-       target_lats = lat
-    else if (present(lonR8) .and. present(latR8)) then
-       target_lons = lonR8
-       target_lats = latR8
-    end if
-
-    _ASSERT(localSearch,"Global Search for IJ not implemented")
-
-!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
-    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
-    if(trim(grid_type) == "Cubed-Sphere") then
-       call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
-            staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
-       _VERIFY(STATUS)
-       call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
-       _VERIFY(STATUS)
-       allocate(corner_lons(im+1,jm+1))
-       allocate(corner_lats(im+1,jm+1))
-       allocate(center_lons(im,jm),center_lats(im,jm))
-
-       if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-          center_lons=lons*MAPL_DEGREES_TO_RADIANS_R8
-          center_lats=lats*MAPL_DEGREES_TO_RADIANS_R8
-       else if (coordSys==ESMF_COORDSYS_SPH_RAD) then
-          center_lons=lons
-          center_lats=lats
-       else if (coordSys==ESMF_COORDSYS_CART) then
-          _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
-       end if
-       call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
-       ii=-1
-       jj=-1
-       call get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
-       _VERIFY(status)
-       deallocate(corner_lons,corner_lats, center_lons,center_lats)
-    else
-       if (localSearch) then
-          call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
-               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lons, _RC)
-          call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
-               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lats, _RC)
-       else
-          _FAIL('if not isCubed, localSearch must be .true.')
-       end if
-       allocate(elons(im+1),stat=status)
-       _VERIFY(STATUS)
-       allocate(elats(jm+1),stat=status)
-       _VERIFY(STATUS)
-       call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
-       _VERIFY(STATUS)
-       elons = lons(:,1)
-       elats = lats(1,:)
-       if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-          elons=elons*MAPL_DEGREES_TO_RADIANS_R8
-          elats=elats*MAPL_DEGREES_TO_RADIANS_R8
-       else if (coordSys==ESMF_COORDSYS_CART) then
-          _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
-       end if
-       ! lat-lon grid goes from -180 to 180 shift if we must
-       ! BMA this -180 to 180 might change at some point
-       do i=1,npts
-          lonloc = target_lons(i)
-          latloc = target_lats(i)
-          if (lonloc > MAPL_PI) lonloc = lonloc - 2.0*MAPL_PI
-          IIloc = ijsearch(elons,im+1,lonloc,.false.)
-          JJloc = ijsearch(elats,jm+1,latloc,.false.)
-          II(i) = IIloc
-          JJ(i) = JJloc
-       end do
-       deallocate(elons,elats)
-    end if
-
-    _RETURN(ESMF_SUCCESS)
-
-  contains
-
-    integer function ijsearch(coords,idim,valueIn,periodic) ! fast bisection version
-      implicit NONE
-      integer, intent(in) :: idim
-      real(ESMF_KIND_R8), intent(in) :: coords(:)
-      real, intent(inout) :: valueIn
-      logical, intent(in)  :: periodic
-      integer i, i1, i2, k
-      real :: value
-      value = valueIn
-      if ( periodic ) then
-         if ( value>coords(idim) ) value = value - 360.
-      endif
-
-      ijsearch = -1
-      i1 = 1
-      i2 = idim
-      if (coords(idim) > coords(1)) then
-         do k = 1, idim  ! it should never take take long
-            i = (i1 + i2) / 2
-            if ( (value .ge. coords(i)) ) then
-               if (value .lt. coords(i+1) ) then
-                  ijsearch = i
-                  exit
-               else
-                  i1 = i
-               end if
-            else
-               i2 = i
-            endif
-         end do
-      else
-         do k = 1, idim  ! it should never take take long
-            i = (i1 + i2) / 2
-            if ( (value .lt. coords(i)) ) then
-               if (value .ge. coords(i+1) ) then
-                  ijsearch = i
-                  exit
-               else
-                  i1 = i
-               end if
-            else
-               i2 = i
-            endif
-         end do
-      endif
-    end function ijsearch
+    call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, rc=rc)
+    
+    ! convert index to local
+    call MAPL_Grid_Interior(Grid,i1,i2,j1,j2)
+    II = II - i1 + 1
+    JJ = JJ - j1 + 1
+    _RETURN(_SUCCESS)
 
   end subroutine MAPL_GetHorzIJIndex
 
@@ -3087,6 +3116,7 @@ contains
     real(ESMF_KIND_R8), allocatable :: max_abs(:)
     real(ESMF_KIND_R8)              :: dalpha
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
+    type(ESMF_CoordSys_Flag) :: coordSys
 
     ! sqrt(2.0d0), distance from center to the mid of an edge for a 2x2x2 cube
     real(ESMF_KIND_R8), parameter :: sqr2 = 1.41421356237310d0
@@ -3106,11 +3136,16 @@ contains
     if ( .not. present(grid)) then
       _ASSERT(.false., "need a cubed-sphere grid")
     endif
+
     call MAPL_GridGet(grid, globalCellCountPerDim=dims,rc=status)
     _VERIFY(STATUS)
     IM_World = dims(1)
     JM_World = dims(2)
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
+
+    call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+    _VERIFY(STATUS)
+    _ASSERT(coordSys==ESMF_COORDSYS_SPH_RAD, "Coordsys unit should be in Radiant")
 
     dalpha = 2.0d0*alpha/IM_WORLD
 
