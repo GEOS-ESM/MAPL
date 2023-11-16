@@ -1549,7 +1549,7 @@ new interface with conventional ordering has been introduced.
 ### Changed
 
 - Change to non-blocking send and receive from frontend to beckend in the class MultiGroupServer
-- Change one sided mpi_put to MPI_Ssend and receive pair in the class MultiGroupServer
+- Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
 - Change command line interface to --npes_backend_pernode to avoid confusion
 - Remove self-defined-in-file MAPL macros
 
