@@ -540,7 +540,7 @@ module MAPL_CommsMod
        jn = request%jn(request%mype)
        request%DstArray(i1:in,j1:jn) = local_array
     else
-       call MPI_ISend(request%Local_Array, size(Local_Array), MPI_REAL, &
+       call MPI_Issend(request%Local_Array, size(Local_Array), MPI_REAL, &
             request%root, request%tag, request%comm, request%send(0), status)
        _VERIFY(STATUS)
     end if
@@ -609,7 +609,7 @@ module MAPL_CommsMod
              else
                   request%Buff(n)%A = Global_Array(i1:in,j1:jn)
              end if
-             call MPI_ISend(request%Buff(n)%A, count, MPI_REAL, &
+             call MPI_Issend(request%Buff(n)%A, count, MPI_REAL, &
                   n, request%tag, request%comm, request%send(n),  status)
              _VERIFY(STATUS)
           end if

@@ -114,7 +114,7 @@ PFIO follows these steps in the execution of the `MultiGroupServer` option:
 
 - The `Oserver` is divided into frontend and backend.
 - **When the frontend receive the data,  its root process asks `backend`‘s root (or head) for an idle process for each collection**. Then it broadcasts the info to the other `frontend` processes.
-- When the `frontend` processors forward (`MPI_SEND`) the data to the backend ( different collections to different `backend` processors), they get back to the clients without waiting for the actual writing.
+- When the `frontend` processors forward (`MPI_Ssend`) the data to the backend ( different collections to different `backend` processors), they get back to the clients without waiting for the actual writing.
 
 ![MultiGroup](fig_MultiGroupServerClass.png)
 

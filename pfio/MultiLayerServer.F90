@@ -125,7 +125,7 @@ contains
       ! send terminate back for synchronization
       ! if no syncrohization, the writer may be still writing while the main testing node is comparing
       if( this%rank == 0 .and. this%nwriters > 1 ) then
-        call MPI_send(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
+        call MPI_Ssend(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
         call MPI_recv(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, MPI_STAT, ierr)
       endif
 
@@ -243,18 +243,18 @@ contains
          call serialize_message_vector(forwardVec,buffer)
          bsize = size(buffer)
 
-         call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
+         call MPI_Ssend(command, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
          call MPI_recv(writer_rank, 1, MPI_INTEGER, &
                    0, pFIO_s_tag, this%Inter_Comm , &
                    MPI_STAT, ierr)
          !forward Message
-         call MPI_send(bsize,  1,     MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
-         call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         call MPI_Ssend(bsize,  1,     MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         call MPI_Ssend(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
          !send number of collections
          call StringAttributeMap_serialize(forwardData,buffer)
          bsize = size(buffer)
-         call MPI_send(bsize,  1, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
-         call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         call MPI_Ssend(bsize,  1, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         call MPI_Ssend(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
          !2) send the data
 
          _RETURN(_SUCCESS)

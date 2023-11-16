@@ -154,7 +154,7 @@ contains
         end if
 
         if (next_rank /= -1) then
-           call MPI_Send(buffer, 0, MPI_LOGICAL, next_rank, &
+           call MPI_Ssend(buffer, 0, MPI_LOGICAL, next_rank, &
                 & LOCK_TAG, this%comm, ierror)
         end if
       end block

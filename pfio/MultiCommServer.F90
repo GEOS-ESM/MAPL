@@ -125,7 +125,7 @@ contains
 
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%front_ranks, 1, MPI_INTEGER, s%front_comm, ierror)
          if (local_rank ==0 ) then
-            call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
+            call MPI_Ssend(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
          endif
 
       endif
@@ -136,7 +136,7 @@ contains
          call MPI_Comm_rank(s%back_comm, local_rank, ierror)
          if (local_rank ==0 ) then
             s%I_am_back_root = .true.
-            call MPI_Send(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
+            call MPI_Ssend(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
          endif
 
          if (s_rank == s%back_ranks(1)) then
@@ -273,13 +273,13 @@ contains
       if (this%I_am_front_root) then
          call serialize_message_vector(thread_ptr%request_backlog,buffer)
          bsize = size(buffer)
-         call MPI_send(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
-         call MPI_send(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
+         call MPI_Ssend(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
+         call MPI_Ssend(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
 
          call HistoryCollectionVector_serialize(thread_ptr%hist_collections, buffer)
          bsize = size(buffer)
-         call MPI_send(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
-         call MPI_send(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
+         call MPI_Ssend(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
+         call MPI_Ssend(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
 
       endif
 

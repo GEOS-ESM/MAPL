@@ -37,7 +37,7 @@
     call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
     _VERIFY(STATUS)
 
-    call MPI_Send(DATA, count, MPITYPE_, dest, msg_tag, COMM, IERR)
+    call MPI_Ssend(DATA, count, MPITYPE_, dest, msg_tag, COMM, IERR)
     _VERIFY(IERR)
 
     _RETURN(ESMF_SUCCESS)

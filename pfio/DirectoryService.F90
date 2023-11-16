@@ -241,7 +241,7 @@ contains
          call this%mutex%release()
 
          if (found) then
-            call MPI_Send(this%rank, 1, MPI_INTEGER, server_root_rank, DISCOVERY_TAG, this%comm, ierror)
+            call MPI_Ssend(this%rank, 1, MPI_INTEGER, server_root_rank, DISCOVERY_TAG, this%comm, ierror)
          else
             call MPI_Recv(server_root_rank, 1, MPI_INTEGER, MPI_ANY_SOURCE, DISCOVERY_TAG, this%comm, status, ierror)
          end if
@@ -260,8 +260,8 @@ contains
 
       call MPI_Gather(this%rank, 1, MPI_INTEGER, client_ranks, 1, MPI_INTEGER, 0, client_comm, ierror)
       if (rank_in_client == 0) then
-         call MPI_Send(client_npes, 1, MPI_INTEGER, server_root_rank, NPES_TAG, this%comm, ierror)
-         call MPI_Send(client_ranks, client_npes, MPI_INTEGER, server_root_rank, RANKS_TAG, this%comm, ierror)
+         call MPI_Ssend(client_npes, 1, MPI_INTEGER, server_root_rank, NPES_TAG, this%comm, ierror)
+         call MPI_Ssend(client_ranks, client_npes, MPI_INTEGER, server_root_rank, RANKS_TAG, this%comm, ierror)
          call MPI_Recv(server_ranks, client_npes, MPI_INTEGER, server_root_rank, 0, this%comm, status, ierror)
          call MPI_Recv(server_npes, 1, MPI_INTEGER, server_root_rank, 0, this%comm, status, ierror)
          if (present(server_size)) server_size = server_npes
@@ -351,7 +351,7 @@ contains
          call this%mutex%release()
 
          if (found) then
-            call MPI_Send(this%rank, 1, MPI_INTEGER, client_root_rank, DISCOVERY_TAG, this%comm, ierror)
+            call MPI_Ssend(this%rank, 1, MPI_INTEGER, client_root_rank, DISCOVERY_TAG, this%comm, ierror)
          else
             call MPI_Recv(client_root_rank, 1, MPI_INTEGER, MPI_ANY_SOURCE, DISCOVERY_TAG, this%comm, status, ierror)
          end if
@@ -396,8 +396,8 @@ contains
            & 0, server_comm, ierror)
 
       if (rank_in_server == 0) then
-        call MPI_Send(server_ranks, client_npes, MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
-        call MPI_Send(server_npes,   1,          MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
+        call MPI_Ssend(server_ranks, client_npes, MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
+        call MPI_Ssend(server_npes,   1,          MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
       endif
 
       if (rank_in_server /= 0) then
@@ -409,7 +409,7 @@ contains
 
       do p = 1, cnts
          client_rank = my_client_ranks(p)
-         call MPI_Send(this%rank, 1, MPI_INTEGER, client_rank, CONNECT_TAG, this%comm, ierror)
+         call MPI_Ssend(this%rank, 1, MPI_INTEGER, client_rank, CONNECT_TAG, this%comm, ierror)
          allocate(sckt, source=MpiSocket(this%comm, client_rank, this%parser))
          call server%add_connection(sckt)
          nullify(sckt)
@@ -575,7 +575,7 @@ contains
 
          do i = 1, dir%num_entries
 
-            call MPI_Send(TERMINATE, 1, MPI_INTEGER, dir%entries(i)%partner_root_rank, DISCOVERY_TAG, &
+            call MPI_Ssend(TERMINATE, 1, MPI_INTEGER, dir%entries(i)%partner_root_rank, DISCOVERY_TAG, &
                 & this%comm, ierror)
 
          enddo

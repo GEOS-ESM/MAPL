@@ -156,7 +156,7 @@ contains
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%front_ranks, 1, MPI_INTEGER, s%front_comm, ierror)
          _VERIFY(ierror)
          if (local_rank ==0 ) then
-            call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
+            call MPI_Ssend(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
             _VERIFY(ierror)
          endif
          allocate(s%buffers(s%nwriter))
@@ -170,7 +170,7 @@ contains
          _VERIFY(ierror)
          if (local_rank ==0 ) then
             s%I_am_back_root = .true.
-            call MPI_Send(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
+            call MPI_Ssend(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
             _VERIFY(ierror)
          endif
 
@@ -387,12 +387,12 @@ contains
         ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
            collection_id = collection_ids%at(collection_counter)
-           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+           call MPI_Ssend(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            msg =>f_d_ms(collection_counter)%msg_vec%at(1) ! just pick first one. All messages should have the same filename
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
               Filename = q%file_name
-              call Mpi_Send(FileName, FNAME_LEN, MPI_CHARACTER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+              call MPI_Ssend(FileName, FNAME_LEN, MPI_CHARACTER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            class default
               _FAIL( "yet to implemented")
            end select
@@ -411,9 +411,9 @@ contains
                 this%front_ranks(1), this%server_comm, MPI_STAT, ierror)
 
            msg_size= size(buffer)
-           call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
+           call MPI_Ssend(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
                this%back_ranks(back_local_rank+1), this%server_comm, ierror)
-           call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
+           call MPI_Ssend(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
                this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         endif
 
@@ -422,9 +422,9 @@ contains
         if (allocated(this%buffers(back_local_rank+1)%buffer)) call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
         call f_d_ms(collection_counter)%serialize(this%buffers(back_local_rank+1)%buffer)
         msg_size= size(this%buffers(back_local_rank+1)%buffer)
-        call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
+        call MPI_Ssend(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
-        call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
+        call MPI_Issend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
         if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
      enddo
@@ -500,7 +500,7 @@ contains
        ! at the end , send done message to root of oserver
        ! this serves the syncronization with oserver
        terminate = -1
-       call MPI_send(terminate, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
+       call MPI_Ssend(terminate, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
        deallocate(num_idlePEs, idleRank)
        _RETURN(_SUCCESS)
      end subroutine start_back_captain
@@ -570,11 +570,11 @@ contains
        enddo ! while,  get one idle writer
 
        ! 2.2) tell front comm which idel_worker is ready
-       call MPI_send(idle_writer, 1, MPI_INTEGER, this%front_ranks(1), &
+       call MPI_Ssend(idle_writer, 1, MPI_INTEGER, this%front_ranks(1), &
                      this%front_ranks(1), this%server_comm, ierr)
 
        ! 2.3) forward the collection_id to the idle_writer
-       call MPI_send(collection_id, 1, MPI_INTEGER, idle_writer, idle_writer,this%back_comm, ierr)
+       call MPI_Ssend(collection_id, 1, MPI_INTEGER, idle_writer, idle_writer,this%back_comm, ierr)
        _RETURN(_SUCCESS)
      end subroutine dispatch_work
 
@@ -594,7 +594,7 @@ contains
 
           if (idleRank(node_rank, nth_writer) >=1) then
              ! send no_job directly to terminate
-             call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+             call MPI_Ssend(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
           else
              ! For busy worker, wait to receive idle_writer and the send no_job
              call MPI_recv( idle_writer, 1, MPI_INTEGER, &
@@ -604,7 +604,7 @@ contains
                             local_rank, stag+1, this%back_comm, &
                             MPI_STAT, ierr)
              _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
-             call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+             call MPI_Ssend(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
           endif
        enddo
        _RETURN(_SUCCESS)
@@ -858,9 +858,9 @@ contains
          ! telling captain it is idle by sending its own rank
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-         call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
+         call MPI_Ssend(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
          FileDone = Filename
-         call MPI_send(FileDone, FNAME_LEN, MPI_CHARACTER, 0, stag+1, this%back_comm , ierr)
+         call MPI_Ssend(FileDone, FNAME_LEN, MPI_CHARACTER, 0, stag+1, this%back_comm , ierr)
        enddo
        _RETURN(_SUCCESS)
      end subroutine start_back_writers
@@ -886,7 +886,7 @@ contains
       ! The front root rank sends termination signal to the back root
       ! The back root send terminate back for synchronization
       if (this%I_am_front_root) then
-         call MPI_send(terminate, 1, MPI_INTEGER, this%back_ranks(1), &
+         call MPI_Ssend(terminate, 1, MPI_INTEGER, this%back_ranks(1), &
               this%back_ranks(1),  this%server_comm, ierr)
          _VERIFY(ierr)
          call MPI_recv(terminate, 1, MPI_INTEGER, this%back_ranks(1), &

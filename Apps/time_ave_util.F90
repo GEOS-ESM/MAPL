@@ -1463,7 +1463,7 @@ contains
             deallocate(buf)
          enddo
       else
-         call mpi_send(q,im*jm,MPI_FLOAT,peid0,mypet,MPI_COMM_WORLD,status)
+         call MPI_Ssend(q,im*jm,MPI_FLOAT,peid0,mypet,MPI_COMM_WORLD,status)
          _VERIFY(status)
       end if
 
@@ -1482,7 +1482,7 @@ contains
 ! send mean back to other ranks
          do n=1,nx-1
             peid = peid0+n
-            call mpi_send(qz,jm,MPI_FLOAT,peid,peid0,MPI_COMM_WORLD,status)
+            call MPI_Ssend(qz,jm,MPI_FLOAT,peid,peid0,MPI_COMM_WORLD,status)
             _VERIFY(status)
          enddo
       else

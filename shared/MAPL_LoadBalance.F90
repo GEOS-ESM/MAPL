@@ -166,7 +166,7 @@ contains
 
           if(SEND) then ! -- SENDER
              CURSOR = CURSOR - LENGTH
-             call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
+             call MPI_Ssend(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           endif
 
@@ -270,7 +270,7 @@ contains
 
           if(SEND) then ! -- SENDER
              CURSOR = CURSOR - LENGTH
-             call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
+             call MPI_Ssend(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           endif
 

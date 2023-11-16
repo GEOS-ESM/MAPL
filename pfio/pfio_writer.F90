@@ -78,22 +78,22 @@ program main
             endif
 
             ! tell server the idel_worker
-            call MPI_send(idle_worker, 1, MPI_INTEGER, server_rank, pFIO_s_tag, Inter_Comm, ierr)
+            call MPI_Ssend(idle_worker, 1, MPI_INTEGER, server_rank, pFIO_s_tag, Inter_Comm, ierr)
             busy(idle_worker) = 1
             ! tell the idle_worker which server has work
-            call MPI_send(server_rank, 1, MPI_INTEGER, idle_worker, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
+            call MPI_Ssend(server_rank, 1, MPI_INTEGER, idle_worker, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
 
          else ! command /=1, notify the worker to quit and finalize
             no_job = -1
             do i = 1, n_workers -1
                if ( busy(i) == 0) then
-                  call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
+                  call MPI_Ssend(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
                else
                   call MPI_recv( idle, 1, MPI_INTEGER, &
                        i, pFIO_w_m_tag, MPI_COMM_WORLD, &
                        MPI_STAT, ierr)
                    if (idle /= i ) stop ("idle should be i")
-                   call MPI_send(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
+                   call MPI_Ssend(no_job, 1, MPI_INTEGER, i, pFIO_m_w_tag, MPI_COMM_WORLD, ierr)
                endif  
             enddo  
             exit
@@ -167,7 +167,7 @@ program main
         deallocate(bufferd, bufferm)
  
         ! telling captain, I am the soldier that is ready to have more work
-        call MPI_send(rank, 1, MPI_INTEGER, 0, pFIO_w_m_tag, MPI_COMM_WORLD , ierr)
+        call MPI_Ssend(rank, 1, MPI_INTEGER, 0, pFIO_w_m_tag, MPI_COMM_WORLD , ierr)
 
       enddo
    endif
@@ -178,7 +178,7 @@ program main
       ! send done message to server
       ! this serves the syncronization with oserver
       command = -1
-      call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, Inter_Comm, ierr)
+      call MPI_Ssend(command, 1, MPI_INTEGER, 0, pFIO_s_tag, Inter_Comm, ierr)
    endif
      
    call MPI_Finalize(ierr)

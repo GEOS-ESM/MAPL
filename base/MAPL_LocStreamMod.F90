@@ -2251,7 +2251,7 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
      allocate(request(NumReceivers), stat=status)
      _VERIFY(status)
      do n=1, NumReceivers
-        call MPI_ISend(input, count, MPI_REAL, &
+        call MPI_Issend(input, count, MPI_REAL, &
                        Xform%PTR%receivers(n), msg_tag, &
                        Xform%PTR%Comm, request(n), status)
         _VERIFY(status)

@@ -2247,7 +2247,7 @@ contains
          _VERIFY(STATUS)
       end if
 
-         call MPI_ISend(Gout, size(Gout), MPI_REAL, MCFIO%RootRank, &
+         call MPI_Issend(Gout, size(Gout), MPI_REAL, MCFIO%RootRank, &
                  trans_tag, mCFIO%comm, request,         STATUS)
             _VERIFY(STATUS)
 

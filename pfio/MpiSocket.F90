@@ -127,7 +127,7 @@ contains
       integer :: ierror
 
       buffer = this%parser%encode(message)
-      call MPI_Send(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
+      call MPI_Ssend(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & ierror)
       _RETURN(_SUCCESS)      
    end subroutine send
@@ -164,7 +164,7 @@ contains
       n_words = big_n
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
-      call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
+      call MPI_Issend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)
