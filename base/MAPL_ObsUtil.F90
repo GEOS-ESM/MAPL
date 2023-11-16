@@ -242,7 +242,7 @@ contains
   subroutine read_M_files_4_swath ( filenames, Xdim, Ydim, &
        index_name_lon, index_name_lat,&
        var_name_lon, var_name_lat, var_name_time, &       
-       lon, lat, time_R8, rc )
+       lon, lat, time, rc )
 
     character(len=ESMF_MAXSTR), intent(in) :: filenames(:)
     integer,  intent(out) :: Xdim
@@ -255,7 +255,8 @@ contains
 
     real, optional, intent(inout) :: lon(:,:)
     real, optional, intent(inout) :: lat(:,:)
-    real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)
+    !!    real(ESMF_KIND_R8), optional, intent(inout) :: time_R8(:,:)
+    real, optional, intent(inout) :: time(:,:)    
 
     integer, optional, intent(out) :: rc
 
@@ -299,10 +300,10 @@ contains
        nlon = nlons(i)
        nlat = nlats(i)
 
-       if (present(var_name_time).AND.present(time_R8)) then
+       if (present(var_name_time).AND.present(time)) then
           allocate (time_loc_R8(nlon, nlat))
           call get_var_from_name_w_group (var_name_time, time_loc_R8, filename, _RC)
-          time_R8(1:nlon,jx+1:jx+nlat) = time_loc_R8(1:nlon,1:nlat)
+          time(1:nlon,jx+1:jx+nlat) = time_loc_R8(1:nlon,1:nlat)
           deallocate(time_loc_R8)
        end if
 
@@ -432,17 +433,15 @@ contains
        short_name=var_name
     endif
 
-    print*, 'ck grp1, grp2, short_name:', trim(grp1), trim(grp2), trim(short_name)
+    write(6,'(10(2x,a))') 'ck grp1, grp2, short_name:', trim(grp1), trim(grp2), trim(short_name)
 
 
     call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid2), _RC)
     if ( found_group ) then
        call check_nc_status(nf90_inq_ncid(ncid2, grp1, ncid), _RC)
-       print*, 'ck grp1'
        if (j>0) then
           call check_nc_status(nf90_inq_ncid(ncid, grp2, ncid2), _RC)
           ncid=ncid2
-          print*, 'ck grp2'
        endif
     else
        print*, 'no grp name'
@@ -450,6 +449,7 @@ contains
     endif
     call check_nc_status(nf90_inq_varid(ncid, short_name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, var2d), _RC)
+!!    call check_nc_status(nf90_close(ncid), _RC)
 
     write(6,*)  var2d(::100,::100)
 

@@ -21,6 +21,7 @@ module MAPL_SwathGridFactoryMod
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
    integer, parameter :: gridLabel_max = 20
+   integer, parameter :: mx_file = 300
    private
 
    public :: SwathGridFactory
@@ -29,7 +30,9 @@ module MAPL_SwathGridFactoryMod
       private
       character(len=:), allocatable :: grid_name
       character(len=:), allocatable :: grid_file_name      
-
+      character(len=ESMF_MAXSTR)    :: filenames(mx_file)
+      integer                       :: M_file
+      
       integer :: cell_across_swath
       integer :: cell_along_swath
       integer :: im_world = MAPL_UNDEFINED_INTEGER
@@ -39,13 +42,13 @@ module MAPL_SwathGridFactoryMod
 
       integer :: epoch                         ! unit: second
       integer(ESMF_KIND_I8) :: epoch_index(4)  ! is,ie,js,je
-      character(len=ESMF_MAXSTR) :: tunit
-      real(ESMF_KIND_R8), allocatable :: t_alongtrack(:)
+      real(ESMF_KIND_R8), allocatable:: t_alongtrack(:)
+      character(len=ESMF_MAXSTR)     :: tunit
       character(len=ESMF_MAXSTR)     :: index_name_lon
       character(len=ESMF_MAXSTR)     :: index_name_lat      
-      character(len=ESMF_MAXSTR)     :: var_name_time
-      character(len=ESMF_MAXSTR)     :: var_name_lat
       character(len=ESMF_MAXSTR)     :: var_name_lon
+      character(len=ESMF_MAXSTR)     :: var_name_lat
+      character(len=ESMF_MAXSTR)     :: var_name_time
       character(len=ESMF_MAXSTR)     :: input_template
       logical                        :: found_group
 
@@ -218,21 +221,17 @@ contains
       integer :: i, j, k
       integer :: Xdim, Ydim
       integer :: Xdim_full, Ydim_full
+      integer :: nx, ny
       
       integer :: IM, JM
       integer :: IM_WORLD, JM_WORLD
       integer :: COUNTS(3), DIMS(3)
       integer :: i_1, i_n, j_1, j_n  ! regional array bounds
-      !      character(len=:), allocatable :: lon_center_name, lat_center_name, time_name
-      character(len=ESMF_MAXSTR) :: lon_center_name, lat_center_name, time_name      
       type(Logger), pointer :: lgr
 
       _UNUSED_DUMMY(unusable)
 
-      ! keywords in netCDF
-      lon_center_name = "clon"
-      lat_center_name = "clat"
-      time_name = "scanTime"      
+
       Xdim=this%im_world
       Ydim=this%jm_world
       Xdim_full=this%cell_across_swath
@@ -245,7 +244,10 @@ contains
       ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
-          call get_v2d_netcdf(this%grid_file_name, lon_center_name, centers_full, Xdim_full, Ydim_full)
+          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+               this%index_name_lon, this%index_name_lat, &
+               var_name_lon=this%var_name_lon, lon=centers_full, _RC)
+
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
@@ -262,7 +264,9 @@ contains
        ! read latitudes 
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
-          call get_v2d_netcdf(this%grid_file_name, lat_center_name, centers_full, Xdim_full, Ydim_full)
+          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+               this%index_name_lon, this%index_name_lat, &
+               var_name_lat=this%var_name_lat, lat=centers_full, _RC)
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
@@ -393,7 +397,6 @@ contains
       use esmf
       use pflogger, only : Logger, logging
       implicit none
-      integer, parameter :: mx_file = 300
       class (SwathGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: prefix
@@ -404,11 +407,12 @@ contains
       type(ESMF_VM) :: VM
       integer :: nlon, nlat, tdim
       integer :: Xdim, Ydim, ntime
+      integer :: nx, ny
       character(len=ESMF_MAXSTR) :: key_lon, key_lat, key_time
       character(len=ESMF_MAXSTR) :: tunit, grp1, grp2
       character(len=ESMF_MAXSTR) :: filename, STR1, tmp      
       character(len=ESMF_MAXSTR) :: symd, shms
-      character(len=ESMF_MAXSTR) :: filenames(mx_file)      
+
       
       !      real(ESMF_KIND_R8), allocatable :: scanTime(:,:)
       real, allocatable :: scanTime(:,:)
@@ -434,6 +438,10 @@ contains
       call ESMF_VmGetCurrent(VM, _RC)
 
 
+      !
+      !   Read in specs, crop epoch_index based on scanTime
+      !
+      
       !__ s1. read in file spec.
       !
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
@@ -506,149 +514,67 @@ contains
 
 
       call ESMF_ConfigGetAttribute(config, value=this%index_name_lon, default="", &
-                 label=prefix // 'index_name_lon:', _RC)      
-      call ESMF_ConfigGetAttribute(config, this%var_name_time, default="", &
-           label=prefix//'var_name_time:',  _RC)
+           label=prefix // 'index_name_lon:', _RC)
+      call ESMF_ConfigGetAttribute(config, value=this%index_name_lat, default="", &
+                 label=prefix // 'index_name_lat:', _RC)            
       call ESMF_ConfigGetAttribute(config, this%var_name_lon, &
            label=prefix // 'var_name_lon:', default="", _RC)
       call ESMF_ConfigGetAttribute(config, this%var_name_lat, &
            label=prefix // 'var_name_lat:', default="", _RC)
+      call ESMF_ConfigGetAttribute(config, this%var_name_time, default="", &
+           label=prefix//'var_name_time:',  _RC)
+      call ESMF_ConfigGetAttribute(config, this%tunit, default="", &
+           label=prefix//'tunit:',  _RC)      
+
       
-!      i=index(this%nc_time, '/')
-!      if (i>0) then
-!         this%found_group = .true.
-!         grp1 = this%nc_time(1:i-1)
-!         j=index(this%nc_time(i+1:), '/')
-!         if (j>0) then
-!            grp2=this%nc_time(i+1:i+j-1)
-!         else
-!            grp2=''
-!         endif
-!         i=i+j
-!      else
-!         this%found_group = .false.
-!         grp1 = ''
-!         grp2=''
-!      endif
-!      this%var_name_time= this%nc_time(i+1:)
-!
-!      i=index(this%nc_longitude, '/')      
-!      this%var_name_lat = this%nc_latitude(i+1:)
-!      this%var_name_lon = this%nc_longitude(i+1:)
-!           
-!      ! read global dim from nc file
-!      ! ----------------------------
-!      key_lon=this%var_name_lon
-!      key_lat=this%var_name_lat
-!      key_time=this%var_name_time
-!
-!      write(6,*) 'this%nc index, time, long, lat=', &
-!           trim(this%nc_index), trim(this%nc_time), trim(this%nc_longitude), trim(this%nc_latitude)
-!      write(6,'(10(2x,a))') 'name lat, lon, time',  &
-!           trim(this%var_name_lat),  trim(this%var_name_lon), trim(this%var_name_time)
-!      write(6,'(10(2x,a))') 'grp1, grp2', trim(grp1), trim(grp2)
-!
+      write(6,'(10(2x,a20,2x,a40,/))') &
+           'index_name_lon:', trim(this%index_name_lon), &
+           'index_name_lat:', trim(this%index_name_lat), &
+           'var_name_lon:',   trim(this%var_name_lon), &
+           'var_name_lat:',   trim(this%var_name_lat), &
+           'var_name_time:',  trim(this%var_name_time), &
+           'tunit:',          trim(this%tunit)      
 
 
       !__ s2. find obsFile on disk and get array: this%t_alongtrack(:)
       !
-
+      
       call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=0, _RC)
       call Find_M_files_for_currTime (currTime, &
            this%obsfile_start_time, this%obsfile_end_time, this%obsfile_interval, &
-           this%epoch_frequency,  this%input_template, M_file, filenames, &
+           this%epoch_frequency,  this%input_template, M_file, this%filenames, &
            T_offset_in_file_content = Toff,  _RC)
-
-
-  write(6,*) 'M_file=', M_file
-  do i=1, M_file
-     write(6,*) 'filenames(i)=', trim(filenames(i))
-  end do
-
-  call read_M_files_4_swath (filenames(1:M_file),  Xdim, Ydim, &
-       this%index_name_lon, this%index_name_lat, _RC)
-  allocate( time_R8(Xdim, Ydim) )
-  allocate( lon_center(Xdim, Ydim) )
-
-  call read_M_files_4_swath (filenames(1:M_file),  Xdim, Ydim, &
-       this%index_name_lon, this%index_name_lat, &
-       var_name_time=this%var_name_time, time_R8=time_R8, &
-       var_name_lon=this%var_name_lon, lon=lon_center, rc=rc)
-
-  deallocate( time_R8, lon_center )
-
+      this%M_file = M_file
       
-      stop -1
+      write(6,*) 'M_file=', M_file
+      do i=1, M_file
+         write(6,*) 'filenames(i)=', trim(this%filenames(i))
+      end do
 
-!      call get_obsfile_Tbracket_from_epoch(currTime, &
-!           this%obsfile_start_time, this%obsfile_end_time, &
-!           this%obsfile_interval, this%epoch_frequency, &
-!           this%obsfile_Ts_index, this%obsfile_Te_index, _RC)
-!
-!      L=0
-!      fid_s=this%obsfile_Ts_index
-!      fid_e=this%obsfile_Te_index
-
-      
-!! marker bug
-      this%grid_file_name = trim(filename)
-
-!! marker bug      
-!      filename='/discover/nobackup/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
-!      filename='/Users/yyu11/ModelData/earthData/flk_modis_MOD04_2017_090/MOD04_L2.A2017090.0010.051.NRT.h5'
-!      I am taking short cuts      
-      filename='./MOD04_L2.A2017090.0010.051.NRT.h5'
-
-
-      CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
-           key_lon=key_lon, key_lat=key_lat, _RC)
-      print*, 'filename input', trim(filename)
-      print*, 'nlon, nlat=', nlon, nlat
-
-
+      call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
+           this%index_name_lon, this%index_name_lat, _RC)
+      nlon=nx
+      nlat=ny
       allocate(scanTime(nlon, nlat))
       allocate(this%t_alongtrack(nlat))
-      
-      lgr => logging%get_logger('HISTORY.sampler')
-      call lgr%debug('%a  %a', &
-           'swath Epoch init time:', trim(tmp) )
-      call lgr%debug('%a  %a', &
-           'swath obs filename:   ', trim(filename) )
-      call lgr%debug('%a  %i8  %i8', &
-           'swath obs nlon,nlat:', nlon,nlat)
-      print*, 'key_time=', trim(key_time)
 
+      call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
+           this%index_name_lon, this%index_name_lat, &
+           var_name_time=this%var_name_time, time=scanTime, _RC)
 
-      call check_nc_status(nf90_open(fileName, NF90_NOWRITE, ncid2), _RC)
-      if ( this%found_group ) then
-         call check_nc_status(nf90_inq_ncid(ncid2, grp1, ncid), _RC)
-         print*, 'ck grp1'
-         if (j>0) then
-            call check_nc_status(nf90_inq_ncid(ncid, grp2, ncid2), _RC)
-            ncid=ncid2
-            print*, 'ck grp2'            
-         endif
-      else
-         ncid=ncid2
-      endif
-      !      call check_nc_status(nf90_inq_varid(ncid, key_time, varid), _RC)
-      call check_nc_status(nf90_inq_varid(ncid, key_time, varid), _RC)
-      call check_nc_status(nf90_get_var(ncid, varid, scanTime), _RC)
+      !      lgr => logging%get_logger('HISTORY.sampler')
+      !      print*, 'key_time=', trim(key_time)
+
       do j=1, nlat
-        this%t_alongtrack(j)= scanTime(1,j)
-      enddo
-
-      write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::3)
-     
-      
-      !
-      ! skip un-defined time value
-      !
-      !
+         this%t_alongtrack(j)= scanTime(1,j)
+      enddo      
       nstart = 1
+      !
+      ! redefine nstart to skip un-defined time value
+      ! If the t_alongtrack contains undefined values, use this code
+      ! 
       x0 = this%t_alongtrack(1)
       x1 = 1.d16
-
       if (x0 > x1) then
          !
          ! bisect backward finding the first index arr[n] < x1
@@ -667,81 +593,76 @@ contains
          call lgr%debug('%a %i4', 'nstart', nstart)
          call lgr%debug('%a %i4', 'this%t_alongtrack(nstart)',  this%t_alongtrack(nstart))
       endif
-      
-      deallocate(scanTime)
-      
+
       this%cell_across_swath = nlon
       this%cell_along_swath = nlat
+      deallocate(scanTime)
 
-
+      write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
 
 
 ! P2.      
-!      
-!      ! determine im_world from Epoch
-!      ! -----------------------------
-!      ! t_axis = t_alongtrack = t_a
-!      ! convert currTime to j0
-!      ! use Epoch to find j1
-!      ! search j0, j1 in t_a
-!
-!
-!      ! this is a bug
-!      !
-!      tunit='seconds since 1993-01-01 00:00:00'
-!      this%tunit = tunit
-!      call time_esmf_2_nc_int (currTime, tunit, j0, _RC)
-!      sec = hms_2_s (this%Epoch)
-!      j1= j0 + sec
-!      jx0= j0
-!      jx1= j1
-!      !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
-!      call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
-!
-!      
-!      this%epoch_index(1)= 1
-!      this%epoch_index(2)= this%cell_across_swath
-!      call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-!      call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-!
-!
-!      if (jt1==jt2) then
-!         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
-!      endif
-!      jt1 = jt1 + 1               ! (x1,x2]  design
-!      this%epoch_index(3)= jt1
-!      this%epoch_index(4)= jt2
-!      Xdim = this%cell_across_swath
-!      Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
-!
-!
-!      call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
-!      call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
-!      call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
-!      call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
-!           this%epoch_index(1), this%epoch_index(2), &
-!           this%epoch_index(3), this%epoch_index(4))
-!
-!
-!      this%im_world = Xdim
-!      this%jm_world = Ydim
-!
-!
-!      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
-!      if ( status == _SUCCESS ) then
-!         call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)
-!      else
-!         call get_multi_integer(this%ims, 'IMS:', _RC)
-!      endif
-!      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
-!      if ( status == _SUCCESS ) then
-!         call get_ims_from_file(this%jms, trim(tmp),this%ny, _RC)
-!      else
-!         call get_multi_integer(this%jms, 'JMS:', _RC)
-!      endif
-!      ! ims is set at here
-!      call this%check_and_fill_consistency(_RC)
-!
+      
+      ! determine im_world from Epoch
+      ! -----------------------------
+      ! t_axis = t_alongtrack = t_a
+      ! convert currTime to j0
+      ! use Epoch to find j1
+      ! search j0, j1 in t_a
+
+
+      call time_esmf_2_nc_int (currTime, this%tunit, j0, _RC)
+      sec = hms_2_s (this%Epoch)
+      j1= j0 + sec
+      jx0= j0
+      jx1= j1
+      !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
+      call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
+
+      
+      this%epoch_index(1)= 1
+      this%epoch_index(2)= this%cell_across_swath
+      call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+      call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+
+
+      if (jt1==jt2) then
+         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+      endif
+      jt1 = jt1 + 1               ! (x1,x2]  design
+      this%epoch_index(3)= jt1
+      this%epoch_index(4)= jt2
+      Xdim = this%cell_across_swath
+      Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
+
+
+      call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
+      call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
+      call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
+      call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
+           this%epoch_index(1), this%epoch_index(2), &
+           this%epoch_index(3), this%epoch_index(4))
+
+
+      this%im_world = Xdim
+      this%jm_world = Ydim
+
+
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
+      if ( status == _SUCCESS ) then
+         call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)
+      else
+         call get_multi_integer(this%ims, 'IMS:', _RC)
+      endif
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
+      if ( status == _SUCCESS ) then
+         call get_ims_from_file(this%jms, trim(tmp),this%ny, _RC)
+      else
+         call get_multi_integer(this%jms, 'JMS:', _RC)
+      endif
+      ! ims is set at here
+      call this%check_and_fill_consistency(_RC)
+
 
       _RETURN(_SUCCESS)
       
@@ -1378,7 +1299,11 @@ contains
       call time_esmf_2_nc_int (T2, this%tunit, i2, _RC)
       iT1 = i1   ! int to real*8
       iT2 = i2
-      jlo = this%epoch_index(3) - 2
+      if (this%epoch_index(3) > 2) then
+         jlo = this%epoch_index(3) - 2
+      else
+         jlo = this%epoch_index(3)
+      end if
       jhi = this%epoch_index(4) + 1
       call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
       call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
@@ -1440,13 +1365,10 @@ contains
       integer :: i, j, k
       integer :: Xdim, Ydim
       integer :: Xdim_full, Ydim_full
-      
+      integer :: nx, ny
       integer :: IM_WORLD, JM_WORLD
-      character(len=:), allocatable :: time_name
 
-
-      ! keywords in netCDF
-      time_name = "scanTime"
+      
       call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
 
       !- shared mem case in MPI
@@ -1456,33 +1378,36 @@ contains
 
       Xdim_full=this%cell_across_swath
       Ydim_full=this%cell_along_swath
-      
+
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
-      
 
-       ! read Time and set
-       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          allocate( centers_full(Xdim_full, Ydim_full))
-          call get_v2d_netcdf(this%grid_file_name, time_name, centers_full, Xdim_full, Ydim_full)
-          k=0
-          do j=this%epoch_index(3), this%epoch_index(4)
-             k=k+1
-             centers(1:Xdim, k) = centers_full(1:Xdim, j)
-          enddo
-          deallocate (centers_full)
-       end if
-       call MAPL_SyncSharedMemory(_RC)
 
-       !(Xdim, Ydim)
-       obs_time = centers(i_1:i_n,j_1:j_n)
+      ! read Time and set
+      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+         allocate( centers_full(Xdim_full, Ydim_full))
+         call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+              this%index_name_lon, this%index_name_lat, &
+              var_name_time=this%var_name_time, lon=centers_full, _RC)
+          !!call get_v2d_netcdf(this%grid_file_name, time_name, centers_full, Xdim_full, Ydim_full)
+         k=0
+         do j=this%epoch_index(3), this%epoch_index(4)
+            k=k+1
+            centers(1:Xdim, k) = centers_full(1:Xdim, j)
+         enddo
+         deallocate (centers_full)
+      end if
+      call MAPL_SyncSharedMemory(_RC)
 
-       if(MAPL_ShmInitialized) then
-          call MAPL_DeAllocNodeArray(centers,_RC)
-       else
-          deallocate(centers)
-       end if
-      
+      !(Xdim, Ydim)
+      obs_time = centers(i_1:i_n,j_1:j_n)
+
+      if(MAPL_ShmInitialized) then
+         call MAPL_DeAllocNodeArray(centers,_RC)
+      else
+         deallocate(centers)
+      end if
+
       _RETURN(_SUCCESS)
     end subroutine get_obs_time
 
