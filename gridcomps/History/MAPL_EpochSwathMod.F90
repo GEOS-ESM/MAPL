@@ -1156,7 +1156,7 @@ contains
                       pt2d_(:,jj) = pt2d(:,jj)
                    enddo
                 endif
-!!             write(6,*) 'out_pt2d', pt2d_(10,10:50:2)
+             write(6,*) 'out_pt2d', pt2d_(10,10:50:2)
 
           elseif (rank==3) then
              call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)
