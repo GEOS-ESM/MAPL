@@ -241,6 +241,14 @@ contains
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
+      if (rank==0)
+          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
+               this%index_name_lon, this%index_name_lat, &
+               var_name_lon=this%var_name_lon, lon=centers_full, _RC)
+       endroot
+       rank=0 to NODEROOT
+       
+          
       ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))

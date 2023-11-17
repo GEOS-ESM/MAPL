@@ -370,6 +370,11 @@ contains
     nymd = itime(1)
     nhms = itime(2)
 
+
+    !--
+    call ESMF_VMgetcurrent(emsf_vm)
+    esmf_vmget( esmf_vm, mpi_communicator)
+    if (rank==0) then
     j= index(file_template, '*')
     if (j>0) then
        ! wild char exist
@@ -386,14 +391,18 @@ contains
        if (i==1) then
           filename=''
        end if
-       cmd="rm -f ./zzz_MAPL"
-       CALL execute_command_line(trim(cmd))
+!       cmd="rm -f ./zzz_MAPL"
+!       CALL execute_command_line(trim(cmd))
        close(7213)
     else
        ! exact file name
        call fill_grads_template ( filename, file_template, &
             experiment_id='', nymd=nymd, nhms=nhms, _RC )
     end if
+    endrank
+    call MPI_bcast (filename, mpi_communicator))
+
+!--    
     _RETURN(_SUCCESS)
 
   end function get_filename_from_template_use_index
