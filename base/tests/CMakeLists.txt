@@ -17,6 +17,7 @@ set (TEST_SRCS
     test_MAPL_NetCDF.pf
     Test_MAPL_Resource.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
+#    test_MAPL_DateTime_Parsing_ESMF.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
