@@ -456,6 +456,8 @@ contains
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_begin:', _RC)
+
+      write(6,'(//2x, a)')  'SWATH initialize_from_config_with_prefix'
       print*, 'obs_file_begin: str1=', trim(STR1)
       
       if (trim(STR1)=='') then
