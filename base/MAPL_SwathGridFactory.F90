@@ -1183,8 +1183,8 @@ contains
       character(len=ESMF_MAXSTR) :: key_lat
       _UNUSED_DUMMY(this)
       
-      key_lon=trim(this%var_name_lon)
-      key_lat=trim(this%var_name_lat)
+      !!key_lon=trim(this%var_name_lon)
+      !!key_lat=trim(this%var_name_lat)
       vars = 'lon,lat'
 
    end function get_grid_vars

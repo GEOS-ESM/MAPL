@@ -3601,7 +3601,8 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         call lgr%debug('%a %i','list(n)%unit=', list(n)%unit)
+!!  -- bug, what is this?         
+!!         call lgr%debug('%a %i','list(n)%unit=', list(n)%unit)
 
          list(n)%currentFile = filename(n)
 
