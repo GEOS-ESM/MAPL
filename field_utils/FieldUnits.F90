@@ -19,36 +19,31 @@
 
 module FieldUnits
 
-   use ESMF, only: Field => ESMF_Field
+   use udunits2mod
+!   use ESMF, only: Field => ESMF_Field
+   use MockField_mod, only: Field => MockField
 
-   use, intrinsic :: iso_fortran_env, only: r64 => real64
+   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
 
    implicit none
 
-   ! type to wrap C ut_unit
-   type, bind(c) :: fut_unit
-   end type fut_unit
-
-   interface fut_unit
-      module procedure :: construct_fut_unit
-   end interface fut_unit
-
    ! Do I need to keep track of pointers?
 !   procedure(FieldUnitConverter), pointer :: fldunicon(:)
+   integer, parameter :: ESMF_KIND_R8 = R64, ESMF_KIND_R4 = R32
 
    abstract interface
 
       ! conversion procedure from t1 to t2
       elemental subroutine ScalarConverter(t1, t2, rc)
-         real(r64), intent(in) :: t1
-         real(r64), intent(out) :: t2
+         real(ESMF_KIND_R8), intent(in) :: t1
+         real(ESMF_KIND_R8), intent(out) :: t2
          integer, optional, intent(out) :: rc
       end subroutine ScalarConverter
 
       ! conversion procedure from e1 to e2
       subroutine FieldConverter(e1, e1, rc)
-         type(ESMF_Field), intent(inout) :: e1
-         type(ESMF_Field), intent(inout) :: e2
+         type(Field), intent(inout) :: e1
+         type(Field), intent(inout) :: e2
          integer, optional, intent(out) :: rc
       end subroutine FieldConverter
 
@@ -61,15 +56,15 @@ contains
       procedure(FieldConverter), pointer, intent(out) :: cf
       procedure(FieldConverter), optional, pointer, intent(out) :: invcf
       integer, optional, intent(out) :: rc
-      class(fut_unit) :: fu1, fu2
+      class(ut_unit) :: unit1, unit2
       integer :: status
 
-      call get_unit(e1, fu1, _RC)
+      call get_unit(e1, unit1, _RC)
       _VERIFY
-      call get_unit(e2, fu2, _RC)
+      call get_unit(e2, unit2, _RC)
       _VERIFY 
 
-      call are_compatible(fu1, fu2, compatible, _RC)
+      call are_compatible(unit1, unit2, compatible, _RC)
       _VERIFY
 
       if(.not. compatible) then
@@ -78,22 +73,22 @@ contains
          return
       end if
 
-      call get_scalar_unit_converter(fu1, fu1, cf, _RC)
+      call get_scalar_unit_converter(unit1, unit1, cf, _RC)
       _VERIFY
 
       if(present(invcf)) then
-         call get_scalar_unit_converter(fu1, fu2, invcf, _RC)
+         call get_scalar_unit_converter(unit1, unit2, invcf, _RC)
          _VERIFY
       end if
 
    end subroutine get_field_unit_converter
 
-   ! get the fu for e using get_unit_name or get_unit_symbol
+   ! get the unit e using get_unit_name or get_unit_symbol
    ! calls get_unit_name or get_unit_symbol to get unit name or symbol
    ! calls get_unit_by_name or get_unit_by_symbol to get unit
-   subroutine get_unit(e, fu, rc)
+   subroutine get_unit(e, unit_, rc)
       type(Field), intent(inout) :: e
-      type(fut_unit), intent(out) :: fu
+      type(ut_unit), intent(out) :: unit_
       integer, optional, intent(out) :: rc
       character(len=MAXLEN) :: unit_name, unit_symbol
 
@@ -103,19 +98,18 @@ contains
       call get_unit_symbol(e, unit_symbol, _RC)
       _VERIFY 
 
-
    end subroutine get_unit
 
-   ! get unit_name for ESMF_Field e
-   ! grabs from ESMF_Field info
+   ! get unit_name for Field e
+   ! grabs from Field info
    subroutine get_unit_name(e, unit_name, rc)
       type(Field), intent(inout) :: e
       character(len=*), intent(out) :: unit_name
       integer, optional, intent(out) :: rc
    end subroutine get_unit_name
 
-   ! get unit_symbol for ESMF_Field e
-   ! grabs from ESMF_Field info
+   ! get unit_symbol for Field e
+   ! grabs from Field info
    subroutine get_unit_symbol(e, unit_symbol, rc)
       type(Field), intent(inout) :: e
       character(len=*), intent(out) :: unit_symbol
@@ -124,9 +118,9 @@ contains
 
    ! unit corresponding to unit_name: C interface
    ! gets unit using udunits2 API
-   subroutine get_unit_by_name(unit_name, fu, rc)
+   subroutine get_unit_by_name(unit_name, unit_, rc)
       character(len=*), intent(in) :: unit_name
-      type(fut_unit), intent(out) :: fu
+      class(ut_unit), intent(out) :: unit_
       integer, optional, intent(out) :: rc
       
       error stop 'Not implemented'
@@ -135,9 +129,9 @@ contains
 
    ! unit corresponding to unit_symbol: C interface
    ! gets unit using udunits2 API
-   subroutine get_unit_by_symbol(unit_symbol, fu, rc)
+   subroutine get_unit_by_symbol(unit_symbol, unit_, rc)
       character(len=*), intent(in) :: unit_symbol
-      type(fut_unit), intent(out) :: fu
+      class(ut_unit), intent(out) :: unit_
       integer, optional, intent(out) :: rc
 
       error stop 'Not implemented'
@@ -146,8 +140,8 @@ contains
 
    ! check if units are compatible (for the same type of quantity: length, mass, time, etc)
    ! checks using udunits2 API
-   subroutine are_compatible(fu1, fu2, compatible, rc)
-      class(fut_unit), intent(in) :: fu1, fu2
+   subroutine are_compatible(unit1, unit2, compatible, rc)
+      class(ut_unit), intent(in) :: unit1, unit2
       logical, intent(out) :: compatible
       integer, optional, intent(out) :: rc
 
@@ -157,8 +151,8 @@ contains
 
    ! get a conversion function for two units
    ! scalar function
-   subroutine get_scalar_unit_converter(fu1, fu2, cf, rc)
-      type(ft_unit), intent(in) :: fu1, fu2
+   subroutine get_scalar_unit_converter(unit1, unit2, cf, rc)
+      class(ut_unit), intent(in) :: unit1, unit2
       procedure(ScalarConverter), pointer, intent(out) :: cf
       integer, optional, intent(out) :: rc
 
