@@ -3,6 +3,7 @@
 module MAPL_FieldPointerUtilities
    use ESMF
    use MAPL_ExceptionHandling
+   use, intrinsic :: iso_c_bindings, only: c_ptr
    implicit none
    private
 
