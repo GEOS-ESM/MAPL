@@ -223,7 +223,6 @@ contains
                call ESMF_TimeGet(time, dayOfYear=doy, _RC)
                call ESMF_CalendarDestroy(gregorianCalendar)
                write(buffer,'(i3.3)')doy
-               write(6,*) 'doy=', doy
             else
                _FAIL('Day of Year must be %D3')
             end if

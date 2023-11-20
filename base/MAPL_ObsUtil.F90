@@ -5,6 +5,7 @@ module MAPL_ObsUtilMod
   use ESMF
   use Plain_netCDF_Time
   use netCDF
+  use MAPL_CommsMod, only : MAPL_AM_I_ROOT
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
 
@@ -178,7 +179,6 @@ contains
 
     !__ s1.  Arithmetic index list based on s,e,interval
     !
-    print*, __LINE__, __FILE__
     if (present(T_offset_in_file_content)) then
        Toff = T_offset_in_file_content
     else
@@ -202,8 +202,8 @@ contains
     n1 = floor (dT1_s / dT0_s)
     n2 = floor (dT2_s / dT0_s)
 
-    print*, 'ck dT0_s, dT1_s, dT2_s', dT0_s, dT1_s, dT2_s
-    print*, '1st n1, n2', n1, n2
+!    print*, 'ck dT0_s, dT1_s, dT2_s', dT0_s, dT1_s, dT2_s
+!    print*, '1st n1, n2', n1, n2
 
     obsfile_Ts_index = n1
     if ( dT2_s - n2*dT0_s < 1 ) then
@@ -216,8 +216,8 @@ contains
     n1 = obsfile_Ts_index
     n2 = obsfile_Te_index
 
-    print*, __LINE__, __FILE__
-    print*, '2nd n1, n2', n1, n2
+!    print*, __LINE__, __FILE__
+!    print*, '2nd n1, n2', n1, n2
 
     !__ s2.  further test file existence
     !    
@@ -281,12 +281,14 @@ contains
     jx=0
     do i = 1, M
        filename = filenames(i)
-       print*, 'ck filename input', trim(filename)
        CALL get_ncfile_dimension(filename, nlon=nlon, nlat=nlat, &
             key_lon=index_name_lon, key_lat=index_name_lat, _RC)
        nlons(i)=nlon
        nlats(i)=nlat
-       print*, 'nlon, nlat=', nlon, nlat
+       if (mapl_am_i_root()) then
+          print*, 'ck filename input', trim(filename)
+          print*, 'nlon, nlat=', nlon, nlat
+       end if
        jx=jx+nlat
     end do
     Xdim=nlon
@@ -328,17 +330,16 @@ contains
     !       allocate(scanTime(nlon, nlat))
     !       allocate(this%t_alongtrack(nlat))
 
-    rc=0
-    !!    _RETURN(_SUCCESS)
+    !!rc=0
+    _RETURN(_SUCCESS)
   end subroutine read_M_files_4_swath
-
 
 
 
   function get_filename_from_template_use_index (obsfile_start_time, obsfile_interval, &
        f_index, file_template, rc) result(filename)
     use Plain_netCDF_Time, only : ESMF_time_to_two_integer
-    use  MAPL_StringTemplate, only : fill_grads_template    
+    use MAPL_StringTemplate, only : fill_grads_template    
     character(len=ESMF_MAXSTR) :: filename
     type(ESMF_Time), intent(in) :: obsfile_start_time
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval
@@ -359,7 +360,12 @@ contains
     character(len=ESMF_MAXSTR) :: file_template_right
     character(len=ESMF_MAXSTR) :: filename_left
     character(len=ESMF_MAXSTR) :: filename_full
+    character(len=ESMF_MAXSTR) :: filename2
     character(len=ESMF_MAXSTR) :: cmd
+
+!    type(ESMF_VM) :: vm
+!    integer:: mpic
+!    integer:: irank, ierror
 
     call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
     s = dT0_s * f_index
@@ -370,39 +376,43 @@ contains
     nymd = itime(1)
     nhms = itime(2)
 
+!    call ESMF_VMGetCurrent(vm, _RC)
+!    call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
+!    call MPI_COMM_RANK(mpic, irank, ierror)
 
-    !--
-    call ESMF_VMgetcurrent(emsf_vm)
-    esmf_vmget( esmf_vm, mpi_communicator)
-    if (rank==0) then
-    j= index(file_template, '*')
-    if (j>0) then
-       ! wild char exist
-       !!print*, 'pos of * in template =', j
-       file_template_left = file_template(1:j-1)
-       call fill_grads_template ( filename_left, file_template_left, &
-            experiment_id='', nymd=nymd, nhms=nhms, _RC )
-       filename= trim(filename_left)//trim(file_template(j:))
-       cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
-       CALL execute_command_line(trim(cmd))
-       open(7213, file='zzz_MAPL', status='unknown')
-       read(7213, '(a)') filename
-       i=index(trim(filename), 'ls')
-       if (i==1) then
-          filename=''
+!!    if (irank==0) then
+       j= index(file_template, '*')
+       if (j>0) then
+          ! wild char exist
+          !!print*, 'pos of * in template =', j
+          file_template_left = file_template(1:j-1)
+          call fill_grads_template ( filename_left, file_template_left, &
+               experiment_id='', nymd=nymd, nhms=nhms, _RC )
+          filename= trim(filename_left)//trim(file_template(j:))
+          cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
+          CALL execute_command_line(trim(cmd))
+          open(7213, file='zzz_MAPL', status='unknown')
+          read(7213, '(a)') filename
+          i=index(trim(filename), 'ls')
+          if (i==1) then
+             filename=''
+          end if
+          !       cmd="rm -f ./zzz_MAPL"
+          !       CALL execute_command_line(trim(cmd))
+          close(7213)
+       else
+          ! exact file name
+          call fill_grads_template ( filename, file_template, &
+               experiment_id='', nymd=nymd, nhms=nhms, _RC )
        end if
-!       cmd="rm -f ./zzz_MAPL"
-!       CALL execute_command_line(trim(cmd))
-       close(7213)
-    else
-       ! exact file name
-       call fill_grads_template ( filename, file_template, &
-            experiment_id='', nymd=nymd, nhms=nhms, _RC )
-    end if
-    endrank
-    call MPI_bcast (filename, mpi_communicator))
+!!    end if
+    
+!    call MPI_bcast(filename2, ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
+!    call MPI_Barrier(mpic,ierror)
+!    filename=filename2
+!    write(6,*) 'my irank=', irank
+!    write(6,*) 'ck MPI filename=', trim(filename)
 
-!--    
     _RETURN(_SUCCESS)
 
   end function get_filename_from_template_use_index
@@ -442,8 +452,9 @@ contains
        short_name=var_name
     endif
 
-    write(6,'(10(2x,a))') 'ck grp1, grp2, short_name:', trim(grp1), trim(grp2), trim(short_name)
-
+    if (mapl_am_i_root()) then
+       write(6,'(10(2x,a))') 'ck grp1, grp2, short_name:', trim(grp1), trim(grp2), trim(short_name)
+    end if
 
     call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid2), _RC)
     if ( found_group ) then

@@ -241,25 +241,25 @@ contains
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
-      if (rank==0)
-          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
-               this%index_name_lon, this%index_name_lat, &
-               var_name_lon=this%var_name_lon, lon=centers_full, _RC)
-       endroot
-       rank=0 to NODEROOT
-       
-          
+      if (mapl_am_I_root()) then
+         write(6,'(2x,a,10i8)')  &
+              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
+         write(6,'(2x,a,10i8)')  &
+              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
+      end if
+
       ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
           call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
                this%index_name_lon, this%index_name_lat, &
                var_name_lon=this%var_name_lon, lon=centers_full, _RC)
-
+          write(6,*) 'this%epoch_index(3:4)', this%epoch_index(3:4)
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
+!!             write(6,'(100f12.2)')   centers(1:Xdim:40, k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
@@ -268,6 +268,7 @@ contains
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
+
 
        ! read latitudes 
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
@@ -404,6 +405,7 @@ contains
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
       use pflogger, only : Logger, logging
+      use MPI
       implicit none
       class (SwathGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
@@ -413,6 +415,8 @@ contains
       integer :: status
 
       type(ESMF_VM) :: VM
+      integer:: mpic
+      integer:: irank, ierror
       integer :: nlon, nlat, tdim
       integer :: Xdim, Ydim, ntime
       integer :: nx, ny
@@ -445,7 +449,8 @@ contains
       
       call ESMF_VmGetCurrent(VM, _RC)
 
-
+      !   input :  config
+      !   output:  this%epoch_index,  nx, ny
       !
       !   Read in specs, crop epoch_index based on scanTime
       !
@@ -464,37 +469,37 @@ contains
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_begin:', _RC)
-
-      write(6,'(//2x, a)')  'SWATH initialize_from_config_with_prefix'
-      print*, 'obs_file_begin: str1=', trim(STR1)
       
       if (trim(STR1)=='') then
          _FAIL('obs_file_begin missing, code crash')
       else
          call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
-         if (mapl_am_I_root()) then
-            write(6,105) 'obs_file_begin provided: ', trim(STR1)
-         end if
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label=prefix // 'obs_file_end:', _RC)
-      print*, 'obs_file_end: str1=', trim(STR1)
 
       if (trim(STR1)=='') then
          _FAIL('obs_file_end missing, code crash')
       else
          call ESMF_TimeSet(this%obsfile_end_time, timestring=STR1, _RC)
-         if (mapl_am_I_root()) then
-            write(6,105) 'obs_file_end provided:', trim(STR1)
-         end if
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_interval:', _RC)
       _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
-      if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
-      if (mapl_am_I_root()) write(6,106) 'Epoch (hhmmss)   :', this%epoch
+
+
+!      if (mapl_am_I_root()) then
+!         write(6,'(//2x, a)')  'SWATH initialize_from_config_with_prefix'
+!         print*, 'obs_file_begin: str1=', trim(STR1)
+!         write(6,105) 'obs_file_begin provided: ', trim(STR1)
+!         print*, 'obs_file_end: str1=', trim(STR1)
+!         write(6,105) 'obs_file_end provided:', trim(STR1)
+!         write(6,105) 'obs_file_interval:', trim(STR1)
+!         write(6,106) 'Epoch (hhmmss)   :', this%epoch
+!      end if
+
       
       i= index( trim(STR1), ' ' )
       if (i>0) then
@@ -536,127 +541,142 @@ contains
       call ESMF_ConfigGetAttribute(config, this%tunit, default="", &
            label=prefix//'tunit:',  _RC)      
 
-      
-      write(6,'(10(2x,a20,2x,a40,/))') &
+     
+
+      !__ s2. find obsFile on disk and get array: this%t_alongtrack(:)
+      !
+      call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
+      call MPI_COMM_RANK(mpic, irank, ierror)
+            
+      if (irank==0) &
+           write(6,'(10(2x,a20,2x,a40,/))') &
            'index_name_lon:', trim(this%index_name_lon), &
            'index_name_lat:', trim(this%index_name_lat), &
            'var_name_lon:',   trim(this%var_name_lon), &
            'var_name_lat:',   trim(this%var_name_lat), &
            'var_name_time:',  trim(this%var_name_time), &
            'tunit:',          trim(this%tunit)      
-
-
-      !__ s2. find obsFile on disk and get array: this%t_alongtrack(:)
-      !
       
-      call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=0, _RC)
-      call Find_M_files_for_currTime (currTime, &
-           this%obsfile_start_time, this%obsfile_end_time, this%obsfile_interval, &
-           this%epoch_frequency,  this%input_template, M_file, this%filenames, &
-           T_offset_in_file_content = Toff,  _RC)
-      this%M_file = M_file
-      
-      write(6,*) 'M_file=', M_file
-      do i=1, M_file
-         write(6,*) 'filenames(i)=', trim(this%filenames(i))
-      end do
+      if (irank==0) then      
+         call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=0, _RC)
+         call Find_M_files_for_currTime (currTime, &
+              this%obsfile_start_time, this%obsfile_end_time, this%obsfile_interval, &
+              this%epoch_frequency,  this%input_template, M_file, this%filenames, &
+              T_offset_in_file_content = Toff,  _RC)
+         this%M_file = M_file
+         write(6,*) 'M_file=', M_file
+!         do i=1, M_file
+!            write(6,*) 'filenames(i)=', trim(this%filenames(i))
+!         end do
 
-      call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-           this%index_name_lon, this%index_name_lat, _RC)
-      nlon=nx
-      nlat=ny
-      allocate(scanTime(nlon, nlat))
-      allocate(this%t_alongtrack(nlat))
+         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
+              this%index_name_lon, this%index_name_lat, _RC)
+         nlon=nx
+         nlat=ny
+         allocate(scanTime(nlon, nlat))
+         allocate(this%t_alongtrack(nlat))
 
-      call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
-           this%index_name_lon, this%index_name_lat, &
-           var_name_time=this%var_name_time, time=scanTime, _RC)
+         call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
+              this%index_name_lon, this%index_name_lat, &
+              var_name_time=this%var_name_time, time=scanTime, _RC)
 
-      !      lgr => logging%get_logger('HISTORY.sampler')
-      !      print*, 'key_time=', trim(key_time)
 
-      do j=1, nlat
-         this%t_alongtrack(j)= scanTime(1,j)
-      enddo      
-      nstart = 1
-      !
-      ! redefine nstart to skip un-defined time value
-      ! If the t_alongtrack contains undefined values, use this code
-      ! 
-      x0 = this%t_alongtrack(1)
-      x1 = 1.d16
-      if (x0 > x1) then
+         do j=1, nlat
+            this%t_alongtrack(j)= scanTime(1,j)
+         enddo
+         nstart = 1
          !
-         ! bisect backward finding the first index arr[n] < x1
-         klo=1
-         khi=nlat
-         max_iter = int( log( real(nlat) ) / log(2.d0) ) + 2         
-         do i=1, max_iter
-            k = (klo+khi)/2
-            if ( this%t_alongtrack(k) < x1 ) then
-               khi=k
-            else
-               nstart = khi
-               exit
-            endif
-         enddo         
-         call lgr%debug('%a %i4', 'nstart', nstart)
-         call lgr%debug('%a %i4', 'this%t_alongtrack(nstart)',  this%t_alongtrack(nstart))
-      endif
+         ! redefine nstart to skip un-defined time value
+         ! If the t_alongtrack contains undefined values, use this code
+         ! 
+         x0 = this%t_alongtrack(1)
+         x1 = 1.d16
+         if (x0 > x1) then
+            !
+            ! bisect backward finding the first index arr[n] < x1
+            klo=1
+            khi=nlat
+            max_iter = int( log( real(nlat) ) / log(2.d0) ) + 2         
+            do i=1, max_iter
+               k = (klo+khi)/2
+               if ( this%t_alongtrack(k) < x1 ) then
+                  khi=k
+               else
+                  nstart = khi
+                  exit
+               endif
+            enddo
+            call lgr%debug('%a %i4', 'nstart', nstart)
+            call lgr%debug('%a %i4', 'this%t_alongtrack(nstart)',  this%t_alongtrack(nstart))
+         endif
 
-      this%cell_across_swath = nlon
-      this%cell_along_swath = nlat
-      deallocate(scanTime)
+         this%cell_across_swath = nlon
+         this%cell_along_swath = nlat
+         deallocate(scanTime)
+         write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
 
-      write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
+
+         ! P2.
+         ! determine im_world from Epoch
+         ! -----------------------------
+         ! t_axis = t_alongtrack = t_a
+         ! convert currTime to j0
+         ! use Epoch to find j1
+         ! search j0, j1 in t_a
+
+         call time_esmf_2_nc_int (currTime, this%tunit, j0, _RC)
+         sec = hms_2_s (this%Epoch)
+         j1= j0 + sec
+         jx0= j0
+         jx1= j1
+         !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
+         call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
 
 
-! P2.      
+         this%epoch_index(1)= 1
+         this%epoch_index(2)= this%cell_across_swath
+         call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+         call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
+
+
+         if (jt1==jt2) then
+            _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
+         endif
+         jt1 = jt1 + 1               ! (x1,x2]  design
+         this%epoch_index(3)= jt1
+         this%epoch_index(4)= jt2
+         Xdim = this%cell_across_swath
+         Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
+
+         call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
+         call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
+         call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
+         call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
+              this%epoch_index(1), this%epoch_index(2), &
+              this%epoch_index(3), this%epoch_index(4))
+
+         this%im_world = Xdim
+         this%jm_world = Ydim
+      end if
       
-      ! determine im_world from Epoch
-      ! -----------------------------
-      ! t_axis = t_alongtrack = t_a
-      ! convert currTime to j0
-      ! use Epoch to find j1
-      ! search j0, j1 in t_a
-
-
-      call time_esmf_2_nc_int (currTime, this%tunit, j0, _RC)
-      sec = hms_2_s (this%Epoch)
-      j1= j0 + sec
-      jx0= j0
-      jx1= j1
-      !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
-      call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
-
+      call MPI_bcast(this%M_file, 1, MPI_INTEGER, 0, mpic, ierror)
+      do i=1, this%M_file
+         call MPI_bcast(this%filenames(i), ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
+      end do
+      call MPI_bcast(this%epoch_index, 4, MPI_INTEGER8, 0, mpic, ierror)
+      call MPI_bcast(this%im_world, 1, MPI_INTEGER, 0, mpic, ierror)
+      call MPI_bcast(this%jm_world, 1, MPI_INTEGER, 0, mpic, ierror)
+      call MPI_bcast(this%cell_across_swath, 1, MPI_INTEGER, 0, mpic, ierror)
+      call MPI_bcast(this%cell_along_swath, 1, MPI_INTEGER, 0, mpic, ierror)      
+      ! donot need to bcast this%along_track (root only)
       
-      this%epoch_index(1)= 1
-      this%epoch_index(2)= this%cell_across_swath
-      call bisect( this%t_alongtrack, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-      call bisect( this%t_alongtrack, jx1, jt2, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(this%cell_along_swath, ESMF_KIND_I8), rc=rc)
-
-
-      if (jt1==jt2) then
-         _FAIL('Epoch Time is too small, empty swath grid is generated, increase Epoch')
-      endif
-      jt1 = jt1 + 1               ! (x1,x2]  design
-      this%epoch_index(3)= jt1
-      this%epoch_index(4)= jt2
-      Xdim = this%cell_across_swath
-      Ydim = this%epoch_index(4) - this%epoch_index(3) + 1
-
-
-      call lgr%debug ('%a %i4 %i4', 'bisect for j0:  rc, jt', rc, jt1)
-      call lgr%debug ('%a %i4 %i4', 'bisect for j1:  rc, jt', rc, jt2)      
-      call lgr%debug ('%a %i4 %i4', 'Xdim, Ydim', Xdim, Ydim)
-      call lgr%debug ('%a %i4 %i4 %i4 %i4', 'this%epoch_index(4)', &
-           this%epoch_index(1), this%epoch_index(2), &
-           this%epoch_index(3), this%epoch_index(4))
-
-
-      this%im_world = Xdim
-      this%jm_world = Ydim
-
+!      if (irank==0) write(6,*) 'af  root  find_M_files'
+!      write(6,106) 'my irank, M_file =', irank, this%M_file
+!      do i=1, this%M_file
+!         write(6,*) 'my irank=', irank
+!         write(6,*) 'ck MPI filename=', trim(this%filenames(i))
+!      end do
+!      _FAIL('nail stop')
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -677,7 +697,7 @@ contains
       _RETURN(_SUCCESS)
       
 105      format (1x,a,2x,a)
-106      format (1x,a,2x,i8)
+106      format (1x,a,2x,10i8)
 
    contains
 
@@ -1284,10 +1304,15 @@ contains
 
 
    subroutine get_xy_subset(this, interval, xy_subset, rc)
+      use MPI
       class(SwathGridFactory), intent(in) :: this
       type(ESMF_Time), intent(in) :: interval(2)
       integer, intent(out) :: xy_subset(2,2)
       integer, optional, intent(out) :: rc
+
+      type(ESMF_VM) :: VM
+      integer:: mpic
+      integer:: irank, ierror
 
       integer :: status
       type(ESMF_Time) :: T1, T2      
@@ -1296,53 +1321,62 @@ contains
       integer(ESMF_KIND_I8) :: index1, index2
       integer :: jlo, jhi, je
 
-      ! xtrack
-      xy_subset(1:2,1)=this%epoch_index(1:2)
 
-      ! atrack      
-      T1= interval(1)
-      T2= interval(2)
-      
-      ! this%t_alongtrack
-      !
-      call time_esmf_2_nc_int (T1, this%tunit, i1, _RC)
-      call time_esmf_2_nc_int (T2, this%tunit, i2, _RC)
-      iT1 = i1   ! int to real*8
-      iT2 = i2
-      if (this%epoch_index(3) > 2) then
-         jlo = this%epoch_index(3) - 2
-      else
-         jlo = this%epoch_index(3)
+      call ESMF_VmGetCurrent(VM, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
+      call MPI_COMM_RANK(mpic, irank, ierror)
+
+      if (irank==0) then
+         ! xtrack
+         xy_subset(1:2,1)=this%epoch_index(1:2)
+
+         ! atrack      
+         T1= interval(1)
+         T2= interval(2)
+
+         ! this%t_alongtrack
+         !
+         call time_esmf_2_nc_int (T1, this%tunit, i1, _RC)
+         call time_esmf_2_nc_int (T2, this%tunit, i2, _RC)
+         iT1 = i1   ! int to real*8
+         iT2 = i2
+         if (this%epoch_index(3) > 2) then
+            jlo = this%epoch_index(3) - 2
+         else
+            jlo = this%epoch_index(3)
+         end if
+         jhi = this%epoch_index(4) + 1
+         call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
+         call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
+
+         !! complex version      
+         !!      ! (x1, x2]  design in bisect
+         !!      if (index1==jlo-1) then
+         !!         je = index1 + 1
+         !!      else
+         !!         je = index1
+         !!      end if
+         !!      xy_subset(1, 2) = je 
+         !!      if (index2==jlo-1) then
+         !!         je = index2 + 1
+         !!      else
+         !!         je = index2
+         !!      end if      
+         !!      xy_subset(2, 2) = je
+
+         ! simple version      
+         xy_subset(1,  2)=index1+1                 ! atrack
+         xy_subset(2,  2)=index2      
+
+         !
+         !- relative
+         !
+         xy_subset(1,2)= xy_subset(1,2) - this%epoch_index(3) + 1
+         xy_subset(2,2)= xy_subset(2,2) - this%epoch_index(3) + 1
       end if
-      jhi = this%epoch_index(4) + 1
-      call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
-      call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
 
-!! complex version      
-!!      ! (x1, x2]  design in bisect
-!!      if (index1==jlo-1) then
-!!         je = index1 + 1
-!!      else
-!!         je = index1
-!!      end if
-!!      xy_subset(1, 2) = je 
-!!      if (index2==jlo-1) then
-!!         je = index2 + 1
-!!      else
-!!         je = index2
-!!      end if      
-!!      xy_subset(2, 2) = je
-
-      ! simple version      
-      xy_subset(1,  2)=index1+1                 ! atrack
-      xy_subset(2,  2)=index2      
+      call MPI_bcast(xy_subset, 4, MPI_INTEGER, 0, mpic, ierror)
       
-      !
-      !- relative
-      !
-      xy_subset(1,2)= xy_subset(1,2) - this%epoch_index(3) + 1
-      xy_subset(2,2)= xy_subset(2,2) - this%epoch_index(3) + 1      
-
       _RETURN(_SUCCESS)
     end subroutine get_xy_subset
 
