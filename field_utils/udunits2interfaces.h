@@ -65,8 +65,8 @@
 
       ! Use ut_get_status to check error condition. 
       type(ut_system) function ut_read_xml(path) bind(c, name='ut_read_xml')
-         import :: ut_system, c_char
-         character(kind=c_char, len=MAXLEN), intent(in) :: path
+         import :: ut_system, c_char, c_ptr
+         type(c_ptr), intent(in) :: path
       end function ut_real_xml
 
       ! Use ut_get_status to check error condition. 

@@ -3,6 +3,8 @@
 !=================== TYPE: UT_UNIT - type to wrap C union ut_unit ==============
    type :: ut_unit
        type(c_ptr) :: ptr
+   contains
+       procedure, public, pass(this) :: finalize
    end type ut_unit
 
 !================================ END UT_UNIT ==================================
@@ -10,6 +12,8 @@
 !============== TYPE: CV_CONVERTER - type to wrap C union cv_converter =========
    type :: cv_converter
       type(c_ptr) :: ptr
+   contains
+       procedure, public, pass(this) :: finalize
    end type cv_converter
 
 !============================== END CV_CONVERTER ===============================
