@@ -12,11 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
-- Inserted missing USE statement for `C_PTR` in FieldPointerUtilities.F90
 
 ### Removed
 
 ### Deprecated
+
+## [2.42.1] - 2023-11-20
+
+### Fixed
+
+- Inserted missing USE statement for `C_PTR` in FieldPointerUtilities.F90
 
 ## [2.42.0] - 2023-10-27
 
