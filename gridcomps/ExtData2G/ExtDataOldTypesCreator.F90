@@ -141,7 +141,13 @@ module MAPL_ExtDataOldTypesCreator
       ! file_template
       primary_item%isConst = .false.
       if (index(rule%collection,"/dev/null")==0) then
-         dataset => this%file_stream_map%at(trim(rule%collection))
+
+         if ( ASSOCIATED(this%file_stream_map%at(trim(rule%collection))) ) then
+           dataset => this%file_stream_map%at(trim(rule%collection))
+         else
+           _ASSERT(.FALSE.,"ExtData problem with collection "//TRIM(rule%collection))
+         end if
+
          primary_item%file_template = dataset%file_template
          get_range = trim(time_sample%extrap_outside) /= "none"
          call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
