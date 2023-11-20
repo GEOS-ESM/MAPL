@@ -117,3 +117,4 @@
    end interface
 
 !========================== END PROCEDURE INTERFACES ===========================
+! vim: filetype=fortran
