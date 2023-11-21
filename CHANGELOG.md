@@ -18,10 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Various fixes for NVHPC work
+- [#2433] Implemented workarounds for gfortran-13
 
 ### Removed
 
 ### Deprecated
+
+## [2.42.1] - 2023-11-20
+
+### Fixed
+
+- Inserted missing USE statement for `C_PTR` in FieldPointerUtilities.F90
 
 ## [2.42.0] - 2023-10-27
 
