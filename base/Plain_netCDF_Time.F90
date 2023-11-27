@@ -450,10 +450,14 @@ contains
     integer :: i, nmax
 
     LB=1; UB=size(xa,1)
-    if(present(n_LB)) LB=n_LB
-    if(present(n_UB)) UB=n_UB
+    if(present(n_LB)) LB=max(LB, n_LB)
+    if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
 
+    write(6,121)   'size(xa0), n_LB, n_UB', size(xa), n_LB, n_UB
+    
+#include '/Users/yyu11/sftp/myformat.inc'
+    
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
        khi= LB

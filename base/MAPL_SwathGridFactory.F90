@@ -259,7 +259,7 @@ contains
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-!!             write(6,'(100f12.2)')   centers(1:Xdim:40, k)
+!!             write(6,'(100f12.2)')   centers(1:Xdim:1, k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
@@ -269,7 +269,12 @@ contains
           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
 
+       write(6,'(2x,a,2f30.16)') 'min/max', minval(fptr), maxval(fptr)
+       write(6,'(2x,a,2f30.16)') 'fptr(::5,::5), fptr(::5,::5)'
+       write(6,'(6f15.5)') fptr(::20,::20)
+!!       _FAIL('ck write lon')
 
+       
        ! read latitudes 
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           allocate( centers_full(Xdim_full, Ydim_full))
@@ -454,6 +459,7 @@ contains
       !
       !   Read in specs, crop epoch_index based on scanTime
       !
+
       
       !__ s1. read in file spec.
       !
@@ -543,7 +549,7 @@ contains
 
      
 
-      !__ s2. find obsFile on disk and get array: this%t_alongtrack(:)
+      !__ s2. find obsFile even if missing on disk and get array: this%t_alongtrack(:)
       !
       call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
       call MPI_COMM_RANK(mpic, irank, ierror)
@@ -613,7 +619,7 @@ contains
          this%cell_across_swath = nlon
          this%cell_along_swath = nlat
          deallocate(scanTime)
-         write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
+!!         write(6,*) 'this%t_alongtrack(j)=', this%t_alongtrack(::100)
 
 
          ! P2.
@@ -1346,8 +1352,11 @@ contains
             jlo = this%epoch_index(3)
          end if
          jhi = this%epoch_index(4) + 1
+         !
+         ! -- it is possible obs files is missing
+         !
          call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
-         call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)      
+         call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
 
          !! complex version      
          !!      ! (x1, x2]  design in bisect
