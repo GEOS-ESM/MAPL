@@ -839,7 +839,7 @@ module MAPL_GriddedIOMod
 
      integer :: status
      real(REAL64), pointer :: ptr2d(:,:)
-     type(ArrayReference) :: ref
+     type(ArrayReference), target :: ref
      class (AbstractGridFactory), pointer :: factory
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      logical :: hasll
@@ -860,6 +860,11 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+
+        write(6,*) 'ck ref in stage2dLatLon'
+        write(6,'(8f12.2)') this%lons(::20,::20)
+        !-- this is a bug in NAG here
+        !
         ref = ArrayReference(this%lons)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)

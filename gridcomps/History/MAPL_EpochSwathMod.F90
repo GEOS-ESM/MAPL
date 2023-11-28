@@ -326,6 +326,10 @@ contains
     factory => grid_manager%get_factory(this%ogrid,_RC)
     call factory%get_obs_time (this%ogrid, ptr2d, _RC)
 
+    write(6,*) 'print out time:  ptr2d(::20,::20)'
+    write(6,*) ptr2d(::20,::20)
+    
+    
     _RETURN(ESMF_SUCCESS)
 
   end subroutine fill_time_in_bundle
@@ -409,7 +413,8 @@ contains
 
         ! __ please note, metadata in this section is not used in put_var to netCDF
         !    the design used mGriddedIO%metadata in MAPL_HistoryGridComp.F90
-        ! 
+        !    In other words, factory%append_metadata appeared here and in GriddedIO.F90
+        !
         if (allocated(this%metadata)) then
            deallocate (this%metadata)
         end if
@@ -1156,7 +1161,7 @@ contains
                       pt2d_(:,jj) = pt2d(:,jj)
                    enddo
                 endif
-             write(6,*) 'out_pt2d', pt2d_(10,10:50:2)
+             write(6,*) 'out_pt2d', pt2d_(::10,::10)
 
           elseif (rank==3) then
              call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)

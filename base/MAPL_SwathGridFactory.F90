@@ -1421,17 +1421,15 @@ contains
       integer :: nx, ny
       integer :: IM_WORLD, JM_WORLD
 
-      
-      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
 
       !- shared mem case in MPI
       !
       Xdim=this%im_world
       Ydim=this%jm_world
-
       Xdim_full=this%cell_across_swath
       Ydim_full=this%cell_along_swath
 
+      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
@@ -1441,7 +1439,7 @@ contains
          allocate( centers_full(Xdim_full, Ydim_full))
          call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, &
-              var_name_time=this%var_name_time, lon=centers_full, _RC)
+              var_name_time=this%var_name_time, time=centers_full, _RC)
           !!call get_v2d_netcdf(this%grid_file_name, time_name, centers_full, Xdim_full, Ydim_full)
          k=0
          do j=this%epoch_index(3), this%epoch_index(4)

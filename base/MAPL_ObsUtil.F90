@@ -234,6 +234,9 @@ contains
     M=j
 
     _ASSERT ( M < size(filenames) , 'code crash, number of files exceeds upper bound')
+    _ASSERT (M/=0, 'M is zero, no files found for currTime')
+    
+
     _RETURN(_SUCCESS)
 
   end subroutine Find_M_files_for_currTime
@@ -277,6 +280,9 @@ contains
 
     !__ s1. get Xdim Ydim
     M = size(filenames)
+    _ASSERT(M/=0, 'M is zero, no files found')
+
+
     allocate(nlons(M), nlats(M))
     jx=0
     do i = 1, M
