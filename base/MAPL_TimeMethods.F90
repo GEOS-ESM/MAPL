@@ -6,7 +6,6 @@ module MAPL_TimeDataMod
   use pFIO
   use MAPL_ExceptionHandling
   use MAPL_ESMFTimeVectorMod
-  use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
 
   private

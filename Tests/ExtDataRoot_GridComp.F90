@@ -69,7 +69,6 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_Config)          :: cf
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth
-         logical :: on_tiles
          integer :: vloc
 
          call ESMF_GridCompGet( GC, NAME=COMP_NAME, CONFIG=CF, _RC )
@@ -156,10 +155,7 @@ MODULE ExtDataUtRoot_GridCompMod
          integer                     :: status
          character(len=ESMF_MAXSTR)  :: comp_name
 
-         !real(REAL64) :: ptop, pint
-         !real(REAL64), allocatable :: ak(:),bk(:)
          integer :: nrows, ncolumn,i
-         !integer :: ls
          type(ESMF_Grid) :: grid
          type(ESMF_Time) :: currTime
          type(SyntheticFieldSupportWrapper) :: synthWrap
@@ -199,13 +195,6 @@ MODULE ExtDataUtRoot_GridCompMod
          call MAPL_GridCreate(GC, _RC)
          call ESMF_GridCompGet(GC, grid=grid, _RC)
          call set_locstream(_RC)
-         !allocate(ak(lm+1),stat=status)
-         !allocate(bk(lm+1),stat=status)
-         !call set_eta(lm,ls,ptop,pint,ak,bk)
-         !call ESMF_AttributeSet(grid,name='GridAK', itemCount=LM+1, &
-               !valuelist=ak,_RC)
-         !call ESMF_AttributeSet(grid,name='GridBK', itemCount=LM+1, &
-               !valuelist=bk,_RC)
 
          call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock, _RC)
          call ForceAllocation(Export,_RC)

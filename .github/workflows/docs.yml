@@ -6,6 +6,7 @@ on:
       - main
     tags:
       - v*
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -20,8 +21,8 @@ jobs:
       - name: Build and Deploy Docs
         uses: ./.github/actions/deploy-ford-docs
         with:
-          ford-input: Ford/docs-with-remote-esmf.md
-          doc-folder: Ford/doc
+          ford-input: docs/Ford/docs-with-remote-esmf.md
+          doc-folder: docs/Ford/doc
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-deploy-dev-docs:
@@ -33,7 +34,7 @@ jobs:
       - name: Build and Deploy Dev Docs
         uses: ./.github/actions/deploy-ford-docs
         with:
-          ford-input: Ford/docs-with-remote-esmf.public_private_protected.md
-          doc-folder: Ford/dev-doc
+          ford-input: docs/Ford/docs-with-remote-esmf.public_private_protected.md
+          doc-folder: docs/Ford/dev-doc
           token: ${{ secrets.GITHUB_TOKEN }}
           target-folder: dev-doc

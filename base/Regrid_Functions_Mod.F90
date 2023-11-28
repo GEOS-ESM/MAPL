@@ -594,7 +594,6 @@
          Integer                 :: iFace
          Integer                 :: xFace
          Integer                 :: minJJ, maxJJ, minJJOut
-         Integer                 :: II0(nVal)
          Integer                 :: JJ0(nVal)
          Integer                 :: I
          Integer, Parameter      :: faceMap(6) = (/4,5,1,2,6,3/)
@@ -602,7 +601,6 @@
          _UNUSED_DUMMY(nY)
 
          ! Copy input
-         II0 = II
          JJ0 = JJ
 
          Do iFace = 1,6
@@ -689,7 +687,7 @@
 
       ! NOTE: Tile files are little-endian
       Open(File=Trim(fName),Unit=fID,IOStat=status,&
-               FORM='UNFORMATTED',STATUS='OLD',CONVERT='little_endian')
+               FORM='UNFORMATTED',STATUS='OLD')
       If (status/=0) Then
          Write(errMsg,'(a,a,a,I8)') 'Failed to open ',Trim(fName),&
             '. ID: ', status

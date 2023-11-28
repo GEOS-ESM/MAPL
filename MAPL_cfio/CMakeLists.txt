@@ -3,7 +3,7 @@ string (REPLACE MAPL_cfio_ "" precision ${this})
 
 
 set (srcs
-  ESMF_CFIOBaseMod.f
+  ESMF_CFIOBaseMod.F90
   ESMF_CFIOFileMod.F90
   ESMF_CFIOGridMod.F90
   ESMF_CFIOMod.F90

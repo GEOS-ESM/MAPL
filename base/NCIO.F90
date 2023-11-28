@@ -19,8 +19,7 @@ module NCIOMod
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
-  use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
-  !use netcdf
+  use netcdf
   use pFIO
   !use pFIO_ClientManagerMod
   use gFTL_StringIntegerMap
@@ -44,8 +43,6 @@ module NCIOMod
   public MAPL_NCIOGetFileType
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
-
-  include "netcdf.inc"
 
   interface MAPL_VarReadNCPar
      module procedure MAPL_StateVarReadNCPar
@@ -315,6 +312,7 @@ module NCIOMod
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
+    logical :: have_oclients
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
@@ -323,9 +321,7 @@ module NCIOMod
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    if( arrdes%write_restart_by_oserver) then
-      _ASSERT(present(oClients), "output server is needed")
-    endif
+    have_oclients = present(oClients) 
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
     _VERIFY(STATUS)
@@ -354,7 +350,7 @@ module NCIOMod
                 size_1d = size(var_1d,1)
              endif
 
-             if (arrdes%write_restart_by_oserver) then
+             if (have_oclients) then
                 if( MAPL_AM_I_ROOT())  then
                    lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[size_1d])
@@ -393,7 +389,7 @@ module NCIOMod
                 size_1d = size(vr8_1d,1)
              endif
 
-             if (arrdes%write_restart_by_oserver) then
+             if (have_oclients) then
                 if(MAPL_AM_I_ROOT()) then
                    lMemRef = LocalMemReference(pFIO_REAL64,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[size_1d])
@@ -431,7 +427,7 @@ module NCIOMod
           if (associated(var_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if(MAPL_AM_I_ROOT()) then
                       lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[arrdes%im_world, size(var_2d,2)])
@@ -465,7 +461,7 @@ module NCIOMod
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[arrdes%im_world,size(vr8_2d,2)])
@@ -500,7 +496,7 @@ module NCIOMod
           if (associated(var_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if( MAPL_Am_I_Root() ) then
                       lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
@@ -539,7 +535,7 @@ module NCIOMod
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
 
-                if (arrdes%write_restart_by_oserver) then
+                if (have_oclients) then
                    if( MAPL_Am_I_Root() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
@@ -622,8 +618,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
     if (present(arrdes)) then
-       if (arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if (present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
           _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -673,8 +668,7 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "output server is needed")
+    if (present(oClients)) then
        call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
        _VERIFY(status)
        call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -715,8 +709,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
     if (present(arrdes)) then
-       if (arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if (present(oclients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
           _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -783,8 +776,7 @@ module NCIOMod
     type(ArrayReference)     :: ref
 
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "outpur server is needed")
+    if (present(oclients)) then
        call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
         _VERIFY(status)
        call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -843,7 +835,6 @@ module NCIOMod
 ! Local variables
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:,:)
     integer                               :: IM_WORLD
-    integer                               :: JM_WORLD
     integer                               :: status
 
     real(kind=ESMF_KIND_R4),  allocatable :: recvbuf(:)
@@ -856,8 +847,7 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
 
     if (present(arrdes)) then
-       if(arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -878,7 +868,6 @@ module NCIOMod
     if (present(arrdes)) then
 
        IM_WORLD = arrdes%im_world
-       JM_WORLD = arrdes%jm_world
 
        ndes_x = size(arrdes%in)
 
@@ -957,9 +946,9 @@ module NCIOMod
           endif
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
@@ -986,9 +975,9 @@ module NCIOMod
           cnt(4) = 1
 
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1020,17 +1009,6 @@ module NCIOMod
     integer                               :: start(4), cnt(4)
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: sendcounts(:), displs(:)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if (present(arrdes) ) then
 
@@ -1085,9 +1063,9 @@ module NCIOMod
           endif
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1139,9 +1117,9 @@ module NCIOMod
        cnt(4) = 1
 
        call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-       if(status /= nf_noerr) then
+       if(status /= NF90_NOERR) then
           print*,'Error reading variable ',status
-          print*, NF_STRERROR(status)
+          print*, NF90_STRERROR(status)
           _VERIFY(STATUS)
        endif
 
@@ -1387,9 +1365,9 @@ module NCIOMod
 !          print*,'count values are ',cnt
 
           call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ', status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        endif
@@ -1434,9 +1412,9 @@ module NCIOMod
 
              if (io_rank == 0) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-                if(status /= nf_noerr) then
+                if(status /= NF90_NOERR) then
                    print*,trim(IAm),'Error writing variable ',status
-                   print*, NF_STRERROR(status)
+                   print*, NF90_STRERROR(status)
                    _VERIFY(STATUS)
                 endif
              endif ! io_rank = 0
@@ -1444,9 +1422,9 @@ module NCIOMod
        else ! not present(arrdes)
           ! WY notes : it doesnot seem to get this branch
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),' :Error writing variable: '// trim(name)
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1693,9 +1671,9 @@ module NCIOMod
 !          print*,'count values are ',cnt
 
           call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ', status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        endif
@@ -1740,9 +1718,9 @@ module NCIOMod
 
              if (io_rank == 0) then
                 call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-                if(status /= nf_noerr) then
+                if(status /= NF90_NOERR) then
                    print*,trim(IAm),'Error writing variable ',status
-                   print*, NF_STRERROR(status)
+                   print*, NF90_STRERROR(status)
                    _VERIFY(STATUS)
                 endif
              endif ! io_rank
@@ -1751,9 +1729,9 @@ module NCIOMod
        else
           !WJ notes : not here
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -1801,17 +1779,6 @@ module NCIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activesendcounts(:)
     integer                               :: start(4), cnt(4)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -1866,9 +1833,9 @@ module NCIOMod
 !          print*,'count values are ',count
 
           call formatter%get_var(trim(name),var,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -2037,9 +2004,9 @@ module NCIOMod
        if (present(layout) ) then
           if (MAPL_am_i_root(layout)) then
              call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-             if(status /= nf_noerr) then
+             if(status /= NF90_NOERR) then
                 print*,trim(IAm),'Error reading variable ',status
-                print*, NF_STRERROR(status)
+                print*, NF90_STRERROR(status)
                 _VERIFY(STATUS)
              endif
           endif
@@ -2047,9 +2014,9 @@ module NCIOMod
           _VERIFY(STATUS)
        else
           call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        end if
@@ -2094,17 +2061,6 @@ module NCIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activesendcounts(:)
     integer                               :: start(4), cnt(4)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
@@ -2159,9 +2115,9 @@ module NCIOMod
 !          print*,'count values are ',count
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
 
@@ -2329,9 +2285,9 @@ module NCIOMod
        if (present(layout) ) then
           if (MAPL_am_i_root(layout)) then
              call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-             if(status /= nf_noerr) then
+             if(status /= NF90_NOERR) then
                 print*,trim(IAm),'Error reading variable ',status
-                print*, NF_STRERROR(status)
+                print*, NF90_STRERROR(status)
                 _VERIFY(STATUS)
              endif
           endif
@@ -2339,9 +2295,9 @@ module NCIOMod
           _VERIFY(STATUS)
        else
           call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,trim(IAm),'Error reading variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
        end if
@@ -2380,8 +2336,7 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
 
     if (present(arrdes)) then
-       if( arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), "output server is needed")
+       if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
@@ -2479,9 +2434,9 @@ module NCIOMod
           endif
 
           call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
              print*,'Error writing variable ',status
-             print*, NF_STRERROR(status)
+             print*, NF90_STRERROR(status)
              _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
@@ -2507,9 +2462,9 @@ module NCIOMod
        cnt(4) = 1
 
        call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-       if(status /= nf_noerr) then
+       if(status /= NF90_NOERR) then
           print*,'Error writing variable ',status
-          print*, NF_STRERROR(status)
+          print*, NF90_STRERROR(status)
           _VERIFY(STATUS)
        endif
 
@@ -2541,17 +2496,6 @@ module NCIOMod
     integer                               :: start(4), cnt(4)
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: sendcounts(:), displs(:)
-
-    logical :: AM_READER
-
-    AM_READER = .false.
-    if (present(arrdes)) then
-       if (arrdes%readers_comm/=MPI_COMM_NULL) then
-          AM_READER = .true.
-       end if
-    else
-       AM_READER = .true.
-    end if
 
     if (present(arrdes)) then
 
@@ -2606,9 +2550,9 @@ module NCIOMod
           endif
 
           call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
-          if(status /= nf_noerr) then
+          if(status /= NF90_NOERR) then
                   print*,'Error reading variable ',status
-                  print*, NF_STRERROR(status)
+                  print*, NF90_STRERROR(status)
                   _VERIFY(STATUS)
           endif
 
@@ -2660,9 +2604,9 @@ module NCIOMod
        cnt(4) = 1
 
        call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
-       if(status /= nf_noerr) then
+       if(status /= NF90_NOERR) then
                print*,'Error reading variable ',status
-               print*, NF_STRERROR(status)
+               print*, NF90_STRERROR(status)
                _VERIFY(STATUS)
        endif
 
@@ -2883,13 +2827,13 @@ module NCIOMod
     if (MAPL_AM_I_Root()) then
        if(arrdes%read_restart_by_face) then
           fname_by_face = get_fname_by_face(filename, 1)
-          status = nf_open(trim(fname_by_face),NF_NOWRITE, ncid) ! just pick one
+          status = NF90_OPEN(trim(fname_by_face),NF90_NOWRITE, ncid) ! just pick one
           _VERIFY(STATUS)
        else
-          status = nf_open(trim(filename),NF_NOWRITE, ncid)
+          status = NF90_OPEN(trim(filename),NF90_NOWRITE, ncid)
           _VERIFY(STATUS)
        endif
-       status = nf_inq_nvars(ncid, nVarFile)
+       status = NF90_INQUIRE(ncid, nVariables=nVarFile)
        _VERIFY(STATUS)
     end if
 
@@ -2900,10 +2844,10 @@ module NCIOMod
 
     if (MAPL_AM_I_Root()) then
        do i=1,nVarFile
-          status = nf_inq_varname(ncid, i, VarNamesFile(i))
+          status = NF90_INQUIRE_VARIABLE(ncid, i, VarNamesFile(i))
           _VERIFY(STATUS)
        end do
-       status = nf_close(ncid)
+       status = NF90_CLOSE(ncid)
        _VERIFY(STATUS)
     end if
 
@@ -3280,7 +3224,6 @@ module NCIOMod
     real(KIND=REAL64),  allocatable :: lon(:), lat(:), lev(:), edges(:)
     integer, allocatable                  :: LOCATION(:), DIMS(:), UNGRID_DIMS(:,:)
     integer, allocatable                  :: UNIQUE_UNGRID_DIMS(:), ungriddim(:)
-    integer                               :: myungriddim1, myungriddim2
     real(KIND=REAL64)                     :: x0,x1
     integer                               :: arrayRank, KM_WORLD, DataType
     integer                               :: ungrid_dim_max_size, n_unique_ungrid_dims
@@ -3324,8 +3267,9 @@ module NCIOMod
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
     type(ESMF_Field) :: lons_field, lats_field
-    logical :: isGridCapture
+    logical :: isGridCapture, have_oclients
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
+    have_oclients = present(oClients)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
@@ -3521,7 +3465,7 @@ module NCIOMod
     ndims = ndims + 1
 
     !WJ note: if arrdes%write_restart_by_oserver is true, all processors will participate
-    if (arrdes%writers_comm/=MPI_COMM_NULL .or. arrdes%write_restart_by_oserver) then
+    if (arrdes%writers_comm/=MPI_COMM_NULL .or. have_oclients ) then
 
        ! Create dimensions as needed
        if (Have_HorzVert .or. Have_HorzOnly) then
@@ -3712,11 +3656,11 @@ module NCIOMod
           ! Extract some info from the array and define variables accordingly
           call ESMF_ArrayGet    (array, typekind=tk, rank=arrayRank,  RC=STATUS)
           _VERIFY(STATUS)
-   !ALT                if (tk .eq. ESMF_TYPEKIND_I1) DataType = NF_BYTE
-   !ALT                if (tk .eq. ESMF_TYPEKIND_I2) DataType = NF_SHORT
-          if (tk .eq. ESMF_TYPEKIND_I4) DataType = NF_INT
-          if (tk .eq. ESMF_TYPEKIND_R4) DataType = NF_FLOAT
-          if (tk .eq. ESMF_TYPEKIND_R8) DataType = NF_DOUBLE
+   !ALT                if (tk .eq. ESMF_TYPEKIND_I1) DataType = NF90_BYTE
+   !ALT                if (tk .eq. ESMF_TYPEKIND_I2) DataType = NF90_SHORT
+          if (tk .eq. ESMF_TYPEKIND_I4) DataType = NF90_INT
+          if (tk .eq. ESMF_TYPEKIND_R4) DataType = NF90_FLOAT
+          if (tk .eq. ESMF_TYPEKIND_R8) DataType = NF90_DOUBLE
           if (tk .eq. ESMF_TYPEKIND_I4) pfDataType = pFIO_INT32
           if (tk .eq. ESMF_TYPEKIND_R4) pfDataType = pFIO_REAL32
           if (tk .eq. ESMF_TYPEKIND_R8) pfDataType = pFIO_REAL64
@@ -3739,7 +3683,6 @@ module NCIOMod
                 found = .false.
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       found = .true.
                       exit
@@ -3761,7 +3704,6 @@ module NCIOMod
              elseif(DIMS(1)==MAPL_DimsTileOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3789,7 +3731,6 @@ module NCIOMod
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3799,14 +3740,12 @@ module NCIOMod
              else if (DIMS(1)==MAPL_DimsTileOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
-                      myungriddim2 = j
                       myUngridDimName2 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3820,7 +3759,6 @@ module NCIOMod
              if (DIMS(1)==MAPL_DimsHorzVert) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3837,14 +3775,12 @@ module NCIOMod
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
-                      myungriddim1 = j
                       myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
-                      myungriddim2 = j
                       myUngridDimName2 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
@@ -3890,8 +3826,7 @@ module NCIOMod
        _VERIFY(STATUS)
 
 
-       if (arrdes%write_restart_by_oserver) then
-          _ASSERT(present(oClients), 'output server is needed')
+       if (have_oclients) then
           call oClients%set_optimal_server(1)
           iter = RstCollections%find(trim(BundleName))
           if (iter == RstCollections%end()) then
@@ -3993,7 +3928,7 @@ module NCIOMod
        call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
     end if
 
-    if (arrdes%write_restart_by_oserver) then
+    if (have_oclients) then
        call oClients%done_collective_stage(_RC)
        call oClients%post_wait()
        call MPI_Info_free(info, status)
