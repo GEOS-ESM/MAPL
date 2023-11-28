@@ -455,8 +455,8 @@ contains
     klo=LB; khi=UB; dk=1
 
     write(6,121)   'size(xa0), n_LB, n_UB', size(xa), n_LB, n_UB
-    
-#include '/Users/yyu11/sftp/myformat.inc'
+
+
     
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
@@ -496,6 +496,7 @@ contains
 
     _RETURN(_SUCCESS)
 
+include '/Users/yyu11/sftp/myformat.inc'    
   end subroutine bisect_find_LB_R8_I8
 
 
