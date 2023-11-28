@@ -43,6 +43,7 @@ module MAPL_SwathGridFactoryMod
       integer :: epoch                         ! unit: second
       integer(ESMF_KIND_I8) :: epoch_index(4)  ! is,ie,js,je
       real(ESMF_KIND_R8), allocatable:: t_alongtrack(:)
+      ! note: this var is not deallocated in swathfactory, use caution
       character(len=ESMF_MAXSTR)     :: tunit
       character(len=ESMF_MAXSTR)     :: index_name_lon
       character(len=ESMF_MAXSTR)     :: index_name_lat      
@@ -1353,7 +1354,7 @@ contains
          end if
          jhi = this%epoch_index(4) + 1
          !
-         ! -- it is possible obs files is missing
+         ! -- it is possible some obs files are missing
          !
          call bisect( this%t_alongtrack, iT1, index1, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
          call bisect( this%t_alongtrack, iT2, index2, n_LB=int(jlo, ESMF_KIND_I8), n_UB=int(jhi, ESMF_KIND_I8), rc=rc)
