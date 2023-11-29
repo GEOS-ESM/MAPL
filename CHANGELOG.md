@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
 - Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
 - Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
-- Updated CI to use ESMF 8.6.0 Baselibs; updated ESMF required version to 8.6.0
+- Updated CI to use ESMF 8.6.0 Baselibs and updated ESMF required version to 8.6.0
 
 ### Fixed
 
