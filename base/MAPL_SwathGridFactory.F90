@@ -625,7 +625,6 @@ contains
          j1= j0 + sec
          jx0= j0
          jx1= j1
-         !!call lgr%debug ('%a %f8 %f8', 'jx0, jx1', jx0, jx1)
          call lgr%debug ('%a %i16 %i16', 'j0,  j1 ', j0,  j1)
 
 
@@ -666,14 +665,6 @@ contains
       call MPI_bcast(this%cell_along_swath, 1, MPI_INTEGER, 0, mpic, ierror)      
       ! donot need to bcast this%along_track (root only)
       
-!      if (irank==0) write(6,*) 'af  root  find_M_files'
-!      write(6,106) 'my irank, M_file =', irank, this%M_file
-!      do i=1, this%M_file
-!         write(6,*) 'my irank=', irank
-!         write(6,*) 'ck MPI filename=', trim(this%filenames(i))
-!      end do
-!      _FAIL('nail stop')
-
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
          call get_ims_from_file(this%ims, trim(tmp),this%nx, _RC)

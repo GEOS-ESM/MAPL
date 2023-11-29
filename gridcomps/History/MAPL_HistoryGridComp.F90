@@ -145,7 +145,7 @@
 
   public HISTORY_ExchangeListWrap
 
-  type(samplerHQ) :: Hsampler    ! is 'save' needed here?
+  type(samplerHQ) :: Hsampler
 
 contains
 

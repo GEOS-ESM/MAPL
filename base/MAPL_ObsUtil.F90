@@ -80,7 +80,7 @@ contains
     integer :: nymd, nhms
     integer :: status
 
-    stop 'DO not use get_filename_from_template'
+    _FAIL ('DO not use get_filename_from_template')
     call ESMF_time_to_two_integer(time, itime, _RC)
     print*, 'two integer time, itime(:)', itime(1:2)
     nymd = itime(1)
@@ -337,7 +337,10 @@ contains
   end subroutine read_M_files_4_swath
 
 
-
+  !
+  !-- caveat: note call this subr. on head node
+  !           because of (bash ls) command therein
+  !
   function get_filename_from_template_use_index (obsfile_start_time, obsfile_interval, &
        f_index, file_template, rc) result(filename)
     use Plain_netCDF_Time, only : ESMF_time_to_two_integer
@@ -365,10 +368,6 @@ contains
     character(len=ESMF_MAXSTR) :: filename2
     character(len=ESMF_MAXSTR) :: cmd
 
-!    type(ESMF_VM) :: vm
-!    integer:: mpic
-!    integer:: irank, ierror
-
     call ESMF_TimeIntervalGet(obsfile_interval, s_r8=dT0_s, rc=status)
     s = dT0_s * f_index
     call ESMF_TimeIntervalSet(dT, s_r8=s, rc=status)
@@ -378,11 +377,7 @@ contains
     nymd = itime(1)
     nhms = itime(2)
 
-!    call ESMF_VMGetCurrent(vm, _RC)
-!    call ESMF_VMGet(vm, mpiCommunicator=mpic, _RC)
-!    call MPI_COMM_RANK(mpic, irank, ierror)
 
-!!    if (irank==0) then
        j= index(file_template, '*')
        if (j>0) then
           ! wild char exist
@@ -407,13 +402,7 @@ contains
           call fill_grads_template ( filename, file_template, &
                experiment_id='', nymd=nymd, nhms=nhms, _RC )
        end if
-!!    end if
-    
-!    call MPI_bcast(filename2, ESMF_MAXSTR, MPI_CHARACTER, 0, mpic, ierror)
-!    call MPI_Barrier(mpic,ierror)
-!    filename=filename2
-!    write(6,*) 'my irank=', irank
-!    write(6,*) 'ck MPI filename=', trim(filename)
+
 
     _RETURN(_SUCCESS)
 
@@ -474,7 +463,6 @@ contains
   end subroutine get_var_from_name_w_group
 
 
-
   subroutine sort_three_arrays_by_time(U,V,T,rc)
     use MAPL_SortMod
     real(ESMF_KIND_R8), intent(inout) :: U(:), V(:), T(:)
@@ -510,6 +498,7 @@ contains
     enddo
     _RETURN(_SUCCESS)
   end subroutine sort_three_arrays_by_time
+
 
   subroutine sort_four_arrays_by_time(U,V,T,ID,rc)
     use MAPL_SortMod

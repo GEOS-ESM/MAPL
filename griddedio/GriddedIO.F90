@@ -859,12 +859,7 @@ module MAPL_GriddedIOMod
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
-        !        this%lons= real(ptr2d*MAPL_RADIANS_TO_DEGREES, kind=ESMF_KIND_R4)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-
-        write(6,*) 'ck ref in stage2dLatLon'
-        write(6,'(8f12.2)') this%lons(::50,::50)
-        write(6,*) 'I think !-- this is a bug in NAG here'
 
         ref = ArrayReference(this%lons)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
@@ -875,7 +870,6 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
-        !        this%lats= real(ptr2d*MAPL_RADIANS_TO_DEGREES, kind=ESMF_KIND_R4)
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
