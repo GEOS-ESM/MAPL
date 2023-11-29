@@ -6,6 +6,7 @@ module MAPL_ObsUtilMod
   use Plain_netCDF_Time
   use netCDF
   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
+  use pFlogger, only: logging, Logger, WrapArray
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
 
@@ -276,13 +277,13 @@ contains
     real(ESMF_KIND_R8), allocatable :: time_loc_R8(:,:)
     real(ESMF_KIND_R8), allocatable :: lon_loc(:,:)
     real(ESMF_KIND_R8), allocatable :: lat_loc(:,:)
-
+    class(Logger), pointer :: lgr
 
     !__ s1. get Xdim Ydim
     M = size(filenames)
     _ASSERT(M/=0, 'M is zero, no files found')
-
-
+    lgr => logging%get_logger('MAPL.Sampler')
+    
     allocate(nlons(M), nlats(M))
     jx=0
     do i = 1, M
@@ -291,11 +292,10 @@ contains
             key_lon=index_name_lon, key_lat=index_name_lat, _RC)
        nlons(i)=nlon
        nlats(i)=nlat
-       if (mapl_am_i_root()) then
-          print*, 'ck filename input', trim(filename)
-          print*, 'nlon, nlat=', nlon, nlat
-       end if
        jx=jx+nlat
+       
+       call lgr%debug('Input filename: %a', trim(filename))
+       call lgr%debug('Input file    : nlon, nlat= %i6  %i6', nlon, nlat)
     end do
     Xdim=nlon
     Ydim=jx
@@ -333,10 +333,6 @@ contains
 
     end do
 
-    !       allocate(scanTime(nlon, nlat))
-    !       allocate(this%t_alongtrack(nlat))
-
-    !!rc=0
     _RETURN(_SUCCESS)
   end subroutine read_M_files_4_swath
 
@@ -458,10 +454,6 @@ contains
        short_name=var_name
     endif
 
-    if (mapl_am_i_root()) then
-       write(6,'(10(2x,a))') 'ck grp1, grp2, short_name:', trim(grp1), trim(grp2), trim(short_name)
-    end if
-
     call check_nc_status(nf90_open(filename, NF90_NOWRITE, ncid2), _RC)
     if ( found_group ) then
        call check_nc_status(nf90_inq_ncid(ncid2, grp1, ncid), _RC)
@@ -476,8 +468,6 @@ contains
     call check_nc_status(nf90_inq_varid(ncid, short_name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, var2d), _RC)
 !!    call check_nc_status(nf90_close(ncid), _RC)
-
-    write(6,*)  var2d(::100,::100)
 
     _RETURN(_SUCCESS)
 

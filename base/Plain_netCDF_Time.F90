@@ -79,12 +79,7 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     if(present(key_lon)) then
        lon_name=trim(key_lon)
-!       print*, 'fileName=', trim(fileName)
-!       print*, 'ncid=', ncid       
-!       print*, 'lon_name=', trim(key_lon)
-!       print*, 'ck step 1'
        call check_nc_status(nf90_inq_dimid(ncid, trim(lon_name), dimid), _RC)
-!       print*, 'ck step 2'
        call check_nc_status(nf90_inquire_dimension(ncid, dimid, len=nlon), _RC)
     endif
 
@@ -453,10 +448,6 @@ contains
     if(present(n_LB)) LB=max(LB, n_LB)
     if(present(n_UB)) UB=min(UB, n_UB)
     klo=LB; khi=UB; dk=1
-
-    write(6,121)   'size(xa0), n_LB, n_UB', size(xa), n_LB, n_UB
-
-
     
     if ( xa(LB ) > xa(UB) )  then
        klo= UB
@@ -496,7 +487,6 @@ contains
 
     _RETURN(_SUCCESS)
 
-include '/Users/yyu11/sftp/myformat.inc'    
   end subroutine bisect_find_LB_R8_I8
 
 

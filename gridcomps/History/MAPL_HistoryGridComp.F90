@@ -145,7 +145,7 @@
 
   public HISTORY_ExchangeListWrap
 
-  type(samplerHQ), save :: Hsampler
+  type(samplerHQ) :: Hsampler    ! is 'save' needed here?
 
 contains
 
@@ -3518,7 +3518,7 @@ ENDDO PARSER
             end if
          elseif (list(n)%sampler_spec == 'station') then
             if (list(n)%unit.eq.0) then
-               if (mapl_am_i_root()) call lgr%debug('%a %a',&
+               call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
@@ -3605,9 +3605,6 @@ ENDDO PARSER
          else
             state_out = INTSTATE%GIM(n)
          end if
-
-!!  -- bug, what is this?         
-!!         call lgr%debug('%a %i','list(n)%unit=', list(n)%unit)
 
          list(n)%currentFile = filename(n)
 

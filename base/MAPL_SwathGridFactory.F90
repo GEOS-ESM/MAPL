@@ -17,6 +17,7 @@ module MAPL_SwathGridFactoryMod
    !!use netcdf
    !!use Plain_netCDF_Time
    use MAPL_ObsUtilMod
+   use pflogger,    only : Logger, logging
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -207,7 +208,6 @@ contains
 
    subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
-      use pflogger,    only : Logger, logging
       implicit none
       class (SwathGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
@@ -242,12 +242,14 @@ contains
       call MAPL_AllocateShared(centers,[Xdim,Ydim],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
 
-      if (mapl_am_I_root()) then
-         write(6,'(2x,a,10i8)')  &
-              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
-         write(6,'(2x,a,10i8)')  &
-              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
-      end if
+
+!      if (mapl_am_I_root()) then
+!         write(6,'(2x,a,10i8)')  &
+!              'ck: Xdim, Ydim, Xdim_full, Ydim_full', Xdim, Ydim, Xdim_full, Ydim_full
+!         write(6,'(2x,a,10i8)')  &
+!              'ck: i_1, i_n, j_1, j_n', i_1, i_n, j_1, j_n
+!      end if
+
 
       ! read longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
@@ -255,12 +257,10 @@ contains
           call read_M_files_4_swath (this%filenames(1:this%M_file), nx, ny, &
                this%index_name_lon, this%index_name_lat, &
                var_name_lon=this%var_name_lon, lon=centers_full, _RC)
-          write(6,*) 'this%epoch_index(3:4)', this%epoch_index(3:4)
           k=0
           do j=this%epoch_index(3), this%epoch_index(4)
              k=k+1
              centers(1:Xdim, k) = centers_full(1:Xdim, j)
-!!             write(6,'(100f12.2)')   centers(1:Xdim:1, k)
           enddo
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
           deallocate (centers_full)
@@ -269,11 +269,6 @@ contains
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
        fptr=real(centers(i_1:i_n,j_1:j_n), kind=ESMF_KIND_R8)
-
-       write(6,'(2x,a,2f30.16)') 'min/max', minval(fptr), maxval(fptr)
-       write(6,'(2x,a,2f30.16)') 'fptr(::5,::5), fptr(::5,::5)'
-       write(6,'(6f15.5)') fptr(::20,::20)
-!!       _FAIL('ck write lon')
 
        
        ! read latitudes 
@@ -301,14 +296,6 @@ contains
        else
           deallocate(centers)
        end if
-
-      lgr => logging%get_logger('HISTORY.sampler')
-      call lgr%debug('%a', 'test')
-      call lgr%debug('%a %i8 %i8',  'Xdim, Ydim', Xdim, Ydim)
-      call lgr%debug('%a %i8 %i8', 'Xdim_full, Ydim_full', Xdim_full, Ydim_full)
-      call lgr%debug('%a %i8 %i8 %i8 %i8', 'epoch_index(1:4)', &
-           this%epoch_index(1), this%epoch_index(2), &
-           this%epoch_index(3), this%epoch_index(4))
        
       _RETURN(_SUCCESS)
    end subroutine add_horz_coordinates_from_file
@@ -571,10 +558,12 @@ contains
               this%epoch_frequency,  this%input_template, M_file, this%filenames, &
               T_offset_in_file_content = Toff,  _RC)
          this%M_file = M_file
-         write(6,*) 'M_file=', M_file
-!         do i=1, M_file
-!            write(6,*) 'filenames(i)=', trim(this%filenames(i))
-!         end do
+         write(6,'(10(2x,a20,2x,i40))') &         
+              'M_file:', M_file
+         do i=1, M_file
+            write(6,'(10(2x,a20,2x,a))') &
+                 'filenames(i):', trim(this%filenames(i))
+         end do
 
          call read_M_files_4_swath (this%filenames(1:M_file), nx, ny, &
               this%index_name_lon, this%index_name_lat, _RC)

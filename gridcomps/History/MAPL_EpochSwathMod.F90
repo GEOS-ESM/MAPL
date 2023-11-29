@@ -127,7 +127,7 @@ contains
     type(ESMF_Config) :: cf
 
     
-    hq%clock= clock    
+    hq%clock= clock
     hq%config_grid_save= config
 
     hq%arr(1:2) = -2.d0
@@ -211,10 +211,6 @@ contains
     timeset(2) = current_time
     call factory%get_xy_subset( timeset, xy_subset, _RC)
     
-    write(6,*) 'xy_subset(:,1)_x', xy_subset(:,1)    ! LB, UB
-    !!write(6,*) 'xy_subset(:,2)_a', xy_subset(:,2)    
-    write(6,*) 'xy_subset(:,2)_a', xy_subset(:,2), xy_subset(2,2)-xy_subset(1,2)+1  ! UB
-
     ! __ s2.  interpolate then save data using xy_mask
 
     call sp%interp_accumulate_fields (xy_subset, _RC)
@@ -325,10 +321,6 @@ contains
     ! __ obs_time from swath factory
     factory => grid_manager%get_factory(this%ogrid,_RC)
     call factory%get_obs_time (this%ogrid, ptr2d, _RC)
-
-    write(6,*) 'print out time:  ptr2d(::20,::20)'
-    write(6,*) ptr2d(::20,::20)
-    
     
     _RETURN(ESMF_SUCCESS)
 
@@ -437,8 +429,6 @@ contains
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
-              print*, 'item%xname'
-              print*, item%xname
               call this%CreateVariable(item%xname,rc=status)
               _VERIFY(status)
            else if (item%itemType == ItemTypeVector) then
@@ -1129,9 +1119,6 @@ contains
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
-
-!!          write(6,*) 'ck bundlepost_acc, item%xname ', item%xname
-
           call this%RegridScalar(item%xname,rc=status)
           _VERIFY(status)
           call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField, _RC)
@@ -1149,9 +1136,6 @@ contains
           call ESMF_ArrayGet(array1, rank=rank, _RC)
           if (rank==2) then
              call ESMF_ArrayGet(array1, farrayptr=pt2d, _RC)
-!!             write(6,*) 'shape(pt2d)', shape(pt2d)
-!!             write(6,*) 'in_pt2d', pt2d(10,10:50:2)
-             
              call ESMF_ArrayGet(array2, farrayptr=pt2d_, _RC)
              localDe=0
                 if (j1(localDe)>0) then
@@ -1161,11 +1145,8 @@ contains
                       pt2d_(:,jj) = pt2d(:,jj)
                    enddo
                 endif
-             write(6,*) 'out_pt2d', pt2d_(::10,::10)
-
           elseif (rank==3) then
              call ESMF_ArrayGet(array1, farrayptr=pt3d, _RC)
-             write(6,*) 'shape(pt3d)', shape(pt3d)
              call ESMF_ArrayGet(array2, farrayptr=pt3d_, _RC)
              do localDe=0, localDEcount-1
                 if (j1(localDe)>0) then
