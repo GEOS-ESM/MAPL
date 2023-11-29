@@ -832,7 +832,7 @@ module MAPL_GriddedIOMod
      end subroutine RegridVector
 
   subroutine stage2DLatLon(this, fileName, oClients, rc)
-     class (MAPL_GriddedIO), intent(inout) :: this
+     class (MAPL_GriddedIO), target, intent(inout) :: this
      character(len=*), intent(in) :: fileName
      type (ClientManager), optional, target, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
