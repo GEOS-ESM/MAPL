@@ -864,7 +864,7 @@ module MAPL_GriddedIOMod
 
         write(6,*) 'ck ref in stage2dLatLon'
         write(6,'(8f12.2)') this%lons(::50,::50)
-        write(6,'(8f12.2)') 'I think !-- this is a bug in NAG here'
+        write(6,*) 'I think !-- this is a bug in NAG here'
 
         ref = ArrayReference(this%lons)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
