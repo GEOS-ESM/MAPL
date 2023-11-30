@@ -1,3 +1,4 @@
+! vim: filetype=fortran
 !================================ ENUMERATORS ==================================
 
    enum, bind(c)
@@ -23,21 +24,21 @@
        UT_OPEN_ARG, & ! Can't open argument-specified unit database 
        UT_OPEN_ENV, & ! Can't open environment-specified unit database 
        UT_OPEN_DEFAULT, & ! Can't open installed, default, unit database 
-       UT_PARSE ! Error parsing unit specification 
+       UT_PARSE_ERROR ! Error parsing unit specification 
    end enum
    integer, parameter :: ut_status = kind(ENUM_TYPE)
 !============================== END - UT_STATUS ================================
 
-!=========================== UTENCODING - ENUMERATOR ===========================
-! utEncoding is actually an integer kind for enumerators.
+!=========================== UT_ENCODING - ENUMERATOR ===========================
+! UT_ENCODING is actually an integer kind for enumerators.
    enum, bind(c)
       enumerator :: UT_ASCII = 0
       enumerator :: UT_ISO_8859_1 = 1
       enumerator :: UT_LATIN1 = UT_ISO_8859_1
       enumerator :: UT_UTF8 = 2
    end enum
-   integer, parameter :: utEncoding = kind(ENUM_TYPE)
-!=============================== END UTENCODING ================================
+   integer, parameter :: ut_encoding = kind(ENUM_TYPE)
+!=============================== END UT_ENCODING ================================
 
 !=========================== UNITTYPE - ENUMERATOR =============================
 ! UnitType is actually an integer parameter = integer kind of enumerators
@@ -49,5 +50,4 @@
    integer, parameter :: UnitType = kind(ENUM_TYPE)
 !================================ END UnitType =================================
 
-!============================== END ENUMERATORS ================================
-! vim: filetype=fortran
+!============================= END - ENUMERATORS ===============================
