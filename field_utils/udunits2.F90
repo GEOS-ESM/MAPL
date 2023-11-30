@@ -1,284 +1,228 @@
 module udunits2mod
 
-   ! The kinds and derived types that follow are needed for the following include files.
-   use iso_c_binding, only:   c_char, c_int, c_short, c_float, c_double
-   use iso_c_binding, only:   c_size_t, c_null_char, c_null_ptr
-   use iso_c_binding, only:   c_ptr, c_funptr 
+   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
+   use iso_c_binding, only:   c_char, c_int, c_float, c_double, c_ptr
+
    implicit none
 
-!================================ ENUMERATORS ==================================
+   public :: udunits2initialize => initialize
+   public :: udunits2converter => get_converter
+   !private
 
-   enum, bind(c)
-      enumerator :: ENUM_TYPE = 0
-   end enum
-
-!=========================== UT_STATUS - ENUMERATOR ============================
-! ut_status is actually an integer kind for enumerators
-   enum, bind(c)
-       enumerator :: &
-       UT_SUCCESS = 0, & ! Success 
-       UT_BAD_ARG, & ! An argument violates the function's contract 
-       UT_EXISTS, & ! Unit, prefix, or identifier already exists 
-       UT_NO_UNIT, & ! No such unit exists 
-       UT_OS, & ! Operating-system error. See "errno". 
-       UT_NOT_SAME_SYSTEM, & ! The units belong to different unit-systems 
-       UT_MEANINGLESS, & ! The operation on the unit(s) is meaningless 
-       UT_NO_SECOND, & ! The unit-system doesn't have a unit named "second" 
-       UT_VISIT_ERROR, & ! An error occurred while visiting a unit 
-       UT_CANT_FORMAT, & ! A unit can't be formatted in the desired manner 
-       UT_SYNTAX, & ! string unit representation contains syntax error 
-       UT_UNKNOWN, & ! string unit representation contains unknown word 
-       UT_OPEN_ARG, & ! Can't open argument-specified unit database 
-       UT_OPEN_ENV, & ! Can't open environment-specified unit database 
-       UT_OPEN_DEFAULT, & ! Can't open installed, default, unit database 
-       UT_PARSE_ERROR ! Error parsing unit specification 
-   end enum
-   integer, parameter :: ut_status = kind(ENUM_TYPE)
-!============================== END - UT_STATUS ================================
-
-!=========================== UT_ENCODING - ENUMERATOR ===========================
-! UT_ENCODING is actually an integer kind for enumerators.
-   enum, bind(c)
-      enumerator :: UT_ASCII = 0
-      enumerator :: UT_ISO_8859_1 = 1
-      enumerator :: UT_LATIN1 = UT_ISO_8859_1
-      enumerator :: UT_UTF8 = 2
-   end enum
-   integer, parameter :: ut_encoding = kind(ENUM_TYPE)
-!=============================== END UT_ENCODING ================================
-
-!=========================== UNITTYPE - ENUMERATOR =============================
-! UnitType is actually an integer parameter = integer kind of enumerators
-! So the type is: integer(UnitType)
-
-   enum, bind(c)
-      enumerator :: BASIC, PRODUCT_, GALILEAN, LOG_, TIMESTAMP
-   end enum
-   integer, parameter :: UnitType = kind(ENUM_TYPE)
-!================================ END UnitType =================================
-
-!============================== END ENUMERATORS ================================
+   include 'udunits2enumerators.h'
 
 !=================================== TYPES =====================================
 
+   type, abstract :: CPT
+      type(c_ptr) :: ptr_ = c_null_ptr
+   contains
+      procedure, public, pass(this) :: is_null => cpt_is_null
+      procedure, public, pass(this) :: ptr => cpt_ptr
+      procedure, public, deferred, pass(this) :: finalize
+   end type CPT
+   
 !=================== TYPE: UT_UNIT - type to wrap C union ut_unit ==============
-   type, bind(c) :: ut_unit
-       type(c_ptr) :: ptr
+   type, extends(CPT) :: ut_unit
+   contains
+      procedure, public, pass(this) :: finalize => finalize_ut_unit
    end type ut_unit
+   
+   interface ut_unit
+      module procedure :: construct_ut_unit_from_string
+   end interface ut_unit
 !================================ END UT_UNIT ==================================
 
 !============== TYPE: CV_CONVERTER - type to wrap C union cv_converter =========
-   type, bind(c) :: cv_converter
-      type(c_ptr) :: ptr
+   type, extends(CPT) :: cv_converter
+   contains
+      procedure, private, pass(this) :: finalize => finalize_cv_converter
    end type cv_converter
+   
+   interface cv_converter
+      procedure, public, pass(this) :: construct_cv_converter
+   end interface cv_converter
 !============================== END CV_CONVERTER ===============================
 
 !================================= TYPE: UT_SYSTEM =============================
 ! unit system
-!   type, bind(c) :: ut_system 
-!      type(ut_unit)  :: second
-!      type(ut_unit)  :: one
-!      integer(UnitType) :: basicUnits(:)
-!      type(c_int) :: basicCount
-!   end type ut_system
-   type, bind(c) :: ut_system
-      type(c_ptr) :: ptr
+   type, extends(CPT) :: ut_system
+   contains
+      procedure, public, pass(this) :: finalize => finalize_ut_system
+      procedure, public, pass(this) :: is_initialized => &
+         ut_system_is_initialized
    end type ut_system
+
+   interface ut_system
+      module procedure :: construct_ut_system_path
+      module procedure :: construct_ut_system_no_path
+   end interface ut_system
 !=============================== END UT_SYSTEM =================================
 
-!================================== TYPE: UNITOPTS =============================
-! unit operations
-!   type, bind(c) :: UnitOps
-!      type(c_funptr) :: getProduct ! ProductUnit* :: (const ut_unit*)
-!      type(c_funptr) :: clone ! ut_unit* :: (ut_unit*)
-!      type(c_funptr) :: free ! void :: (ut_unit*)
-!      type(c_funptr) :: compare ! int :: (ut_unit*, ut_unit*)
-!      type(c_funptr) :: multiply ! ut_unit* :: (const ut_unit*, const ut_unit*)
-!      type(c_funptr) :: raise ! ut_unit* :: (const ut_unit*, const int power)
-!      type(c_funptr) :: root ! ut_unit* :: (const ut_unit*, const int root)
-!      type(c_funptr) :: initConverterToProduct ! int :: (ut_unit*)
-!      type(c_funptr) :: initConverterFromProduct ! int :: (ut_unit*)
-!      type(c_funptr) :: acceptVisitor ! ut_status :: (const ut_unit*, const ut_visitor*, void*)
-!   end type UnitOps
-!================================ END UNITOPS ==================================
+!================================= CONVERTER ===================================
+   type :: Converter
+      private
+      type(cv_converter) :: conv_
+      logical :: is_null_
+   contains
+      procedure, public, pass(this) :: is_null
+      procedure, public, pass(this) :: convert_double
+      procedure, public, pass(this) :: convert_float
+      procedure, public, pass(this) :: convert_doubles
+      procedure, public, pass(this) :: convert_floats
+      generic :: convert => convert_double, convert_float, convert_doubles, convert_floats
+   end type Converter
 
-!================================== TYPE: COMMON_ ==============================
-! COMMON_ is used instead of COMMON to avoid collision with Fortran "common"
-!   type, bind(c) :: Common_
-!       type(ut_system)  :: system
-!       type(UnitOps)   :: ops
-!       integer(UnitType)  :: type_ ! type_ is used to avoid collision
-!       type(cv_converter)   :: toProduct
-!       type(cv_converter)   :: fromProduct
-!   end type Common_
-!================================ END COMMON_ ==================================
-
-!============================== TYPE: BASICUNIT ================================
-! common__ is used to avoid collision with derived type Command_
-!   type, bind(c) :: BasicUnit
-!       type(Common_) :: common__
-!       type(ProductUnit)    :: product_
-!       type(c_int) :: index_
-!       type(c_int) :: isDimensionless
-!   end type BasicUnit
-!=============================== END BASICUNIT =================================
-
-!============================= TYPE: PRODUCTUNIT ===============================
-! common__ is used to avoid collision with derived type Command_
-!   type, bind(c) :: ProductUnit
-!       type(Common_) :: common__
-!       type(c_short) :: indexes(:)
-!       type(c_short) :: powers(:)
-!       type(c_int) :: count_
-!   end type ProductUnit
-!============================== END PRODUCTUNIT ================================
-   
-!============================= TYPE: GALILEANUNIT ==============================
-! common__ is used to avoid collision with derived type Command_
-!   type, bind(c) :: GalileanUnit
-!       type(Common_) :: common__
-!       type(ut_unit)   :: unit_
-!       type(c_double) :: scale_
-!       type(c_double) :: offset_
-!   end type GalileanUnit
-!============================= END GALILEANUNIT ================================
-
-!============================ TYPE: TIMESTAMPUNIT ==============================
-! common__ is used to avoid collision with derived type Command_
-!   type, bind(c) :: TimestampUnit
-!       type(Common_) :: common__
-!       type(ut_unit)   :: unit_
-!       type(c_double) :: origin
-!   end type TimestampUnit
-!============================= END TIMESTAMPUNIT ===============================
-    
-!=============================== TYPE: LOGUNIT =================================
-! common__ is used to avoid collision with derived type Command_
-!   type, bind(c) :: LogUnit
-!       type(Common_) :: common__
-!       type(ut_unit)   :: reference
-!       type(c_double)   :: base
-!   end type LogUnit
-!================================ END LOGUNIT ==================================
+   interface Converter
+      module procedure :: construct_null_converter
+   end interface Converter
+!============================== END - CONVERTER ================================
 
 !================================= END TYPES ===================================
 
-!============================ PROCEDURE INTERFACES =============================
+include "udunits2interfaces.h"
 
-   interface
+   type(ut_system) :: unit_system = ut_system(c_null_ptr)
 
-      ! Get last status
-      integer(ut_status) function ut_get_status() &
-         bind(c, name='ut_get_status')
-         import :: ut_status
-      end function ut_get_status
+   interface get_converter
+      module procedure :: get_converter_from_strings
+   end interface get_converter
       
-      ! Return non-zero value if unit1 can be converted to unit2, otherwise 0
-      ! Use ut_get_status to check error condition. 
-      ! UT_SUCCESS indicates that the function ran successfully, not that the units are convertible
-      integer(c_int) function ut_are_convertible(unit1, unit2) &
-         bind(c, name='ut_are_convertible')
-         import :: c_int, ut_unit
-         type(ut_unit), intent(in) :: unit1, unit2
-      end function ut_are_convertible
+   interface convert
+      module procedure :: convertR64
+      module procedure :: convertR32
+   end interface convert
 
-      ! Return pointer wrapper for converter, NULL if error.
-      ! Use ut_get_status to check error condition. 
-      type(cv_converter) function ut_get_converter(from, to) &
-         bind(c, name='ut_get_converter')
-         import :: cv_converter, ut_unit
-         type(ut_unit), intent(in) :: from, to
-      end function ut_get_converter
+   integer, parameter :: SUCCESS = 0
+   integer, parameter :: FAILURE = SUCCESS - 1
+   integer(ut_encoding), parameter :: UT_ENCODING_DEFAULT = UT_ASCII
+   character(len=*), parameter :: EMPTY = ''
 
-      ! Use converter to convert value_
-      real(c_float) function cv_convert_float(converter, value_) bind(c)
-         import :: cv_converter, c_float
-         type(cv_converter), intent(in) :: converter
-         real(c_float), intent(in) :: value_
-      end function cv_convert_float
+contains
 
-      ! Use converter to convert value_
-      real(c_double) function cv_convert_double(converter, value_) bind(c)
-         import :: cv_converter, c_double
-         type(cv_converter), intent(in) :: converter
-         real(c_double), intent(in) :: value_
-      end function cv_convert_double
+   logical function cpt_is_null(this)
+      type(CPT), intent(in) :: this
+      cpt_is_null = (this % ptr() == c_null_ptr)
+   end function cpt_is_null
 
-      ! Use converter to convert in_ and put it in out_.
-      subroutine cv_convert_doubles(converter, in_, count_, out_) &
-         bind(c, name='cv_convert_doubles')
-         import :: cv_converter, c_double, c_int, c_ptr
-         type(cv_converter), intent(in) :: converter
-         real(c_double), intent(in) :: in_(*)
-         integer(c_int), intent(in) :: count_
-         real(c_double), intent(out) :: out_(count_)
-!         real(c_double) :: cv_convert_doubles(count_)
-      end subroutine cv_convert_doubles
+   type(ptr) function cpt_ptr(this)
+      type(CPT), intent(in) :: this
+      cpt_ptr = this % ptr_
+   end function cpt_ptr
 
-      ! Use converter to convert in_ and put it in out_.
-      subroutine cv_convert_floats(converter, in_, count_, out_) &
-         bind(c, name='cv_convert_floats')
-         import :: cv_converter, c_float, c_int
-         type(cv_converter), intent(in) :: converter
-         real(c_float), intent(in) :: in_(*)
-         integer(c_int), intent(in) :: count_
-         real(c_float), intent(out) :: out_(count_)
-!         real(c_float) :: cv_convert_floats(count_)
-      end subroutine cv_convert_floats
+   subroutine finalize_ut_unit(this)
+      type(ut_unit), intent(in) :: this
+      call ut_free(this % ptr())
+   end subroutine finalize_ut_unit
 
-      ! Use ut_get_status to check error condition. 
-      type(ut_system) function ut_read_xml(path) bind(c, name='ut_read_xml')
-         import :: ut_system, c_char, c_ptr
-         type(c_ptr), intent(in) :: path
-      end function ut_read_xml
+   subroutine finalize_cv_converter(this)
+      type(cv_converter), intent(in) :: this
+      call cv_free(this % ptr())
+   end subroutine finalize_cv_converter
 
-      ! Use ut_get_status to check error condition. 
-      type(ut_unit) function ut_parse(system, string, encoding) bind(c, name='ut_parse')
-         import :: ut_unit, ut_system, ut_encoding, c_char
-         type(ut_system), intent(in) :: system
-         character(c_char), intent(in) ::  string
-         integer(ut_encoding), intent(in) :: encoding
-      end function ut_parse
+   subroutine finalize_ut_system(this)
+      type(ut_system), intent(in) :: this
+      call ut_free_system(this % ptr())
+   end subroutine finalize_ut_system
 
-!      subroutine ut_free(unit_) bind(c, name='ut_free')
-!         import :: ut_unit
-!         type(ut_unit), intent(inout) :: unit_
-!      end subroutine ut_free
+   subroutine initialize(path)
+      character(len=*), optional, intent(in) :: path
+      character(len=len(path)) :: path_
 
-!      subroutine ut_free_system(system) bind(c, name='ut_free_system')
-!         import :: ut_system
-!         type(ut_system), intent(inout) :: system
-!      end subroutine ut_free_system
+      if(unit_system.is_null()) then
+         if(present(path)) then
+            path_ = path
+         else
+            path_ = EMPTY
+         end if
+         unit_system = ut_system(path_)
+      end if
 
-!      type(ut_status) function ut_set_second(second) bind(c, name='ut_set_second')
-!         import :: ut_status, ut_unit
-!         type(ut_unit), intent(inout) :: second
-!      end function ut_second_second
-!
-!      subroutine cv_free(conv) bind(c, name='cv_free')
-!         import :: cv_converter
-!         type(cv_converter), intent(inout) :: conv
-!      end subroutine cv_free
+   end subroutine initialize
 
-!      type(ut_unit) function ut_get_unit_by_name(system, name_) bind(c, name='ut_get_unit_by_name')
-!         import :: ut_unit, ut_system, c_char
-!         type(ut_system), intent(in) :: system
-!         character(kind=c_char, len=MAXLEN), intent(in) :: name_
-!      end function ut_get_unit_by_name
+   function construct_cv_converter(usfrom, usto) result(conv)
+      character(len=*), intent(in) :: usfrom, usto
+      type(cv_converter) :: conv
+      type(c_ptr) :: from, to
+      type(ut_unit) :: fromunit, tounit
 
-!      type(ut_unit) function ut_get_unit_by_symbol(system, symbol) bind(c, name='ut_get_unit_by_symbol')
-!         import :: ut_unit, ut_system, c_char
-!         type(ut_system), intent(in) :: system
-!         character(kind=c_char, len=MAXLEN), intent(in) :: symbol
-!      end function ut_get_unit_by_symbol
+      fromunit = ut_unit
+      conv = cv_converter(ut_get_converter(from, to))
 
-!      type(ut_unit) function ut_get_dimensionless_unit_one(system) bind(c, name='ut_get_dimensionless_unit_one')
-!         import :: ut_unit, ut_system
-!         type(ut_system), intent(in) :: system
-!      end function ut_get_dimensionless_unit_one
+   end function construct_cv_converter
 
-   end interface
+   function construct_ut_system_path(path) result(usys)
+      character(len=*), intent(in) :: path
+      type(ut_system) :: usys
 
-!========================== END PROCEDURE INTERFACES ===========================
+      usys = ut_system(ut_read_xml(trim(adjustl(path)) // c_null_ptr))
+
+   end function construct_ut_system_path
+
+   function construct_ut_system_no_path() result(usys)
+      type(ut_system) :: usys
+
+      usys = ut_system(ut_read_xml(c_null_ptr))
+
+   end function construct_ut_system_no_path
+
+   function construct_ut_unit(usys, string, encoding) result(uwrap)
+      type(ut_system), intent(in) :: usys
+      character(len=*), intent(in) :: string
+      integer(ut_encoding), optional, intent(in) :: encoding
+      type(ut_unit) :: uwrap
+      integer(ut_encoding) :: encoding_
+
+      encoding_ = merge(encoding, UT_ENCODING_DEFAULT)
+      uwrap = ut_unit(ut_parse(usys % ptr(), &
+         trim(adjustl(string)) // c_null_ptr, encoding_))
+
+   end function construct_ut_unit
+
+   integer function status(condition)
+      logical, intent(in) :: condition
+      status = merge(SUCCESS, ut_get_status(), condition)
+   end function status
+
+   logical are_convertible(unit1, unit2)
+      type(ut_unit), intent(in) :: unit1, unit2
+      are_convertible = c_true(ut_are_convertible(unit1 % ptr(), unit2 % ptr()))
+   end function are_convertible
+
+   logical function c_true(n)
+      integer(c_int), intent(in) :: n
+      true = (n /= 0)
+   end function c_true
+
+   elemental real(R64) function convertR64(from, conv, path)
+      real(R64), intent(in) :: from
+      type(cv_converter), intent(in) :: conv
+      character(len=*), optional, intent(in) :: path
+      
+      convertR64 = cv_convert_double(conv, from)
+
+   end function convertR64
+
+   elemental real(R32) function convertR32(from, conv, path)
+      real(R32), intent(in) :: from
+      type(cv_converter), intent(in) :: conv
+      character(len=*), optional, intent(in) :: path
+      
+      convertR32 = cv_convert_float(conv, from)
+
+   end function convertR32
+
+   type(Converter) function construct_converter() result(conv)
+      conv = Converter(cv_converter(c_null_ptr), .TRUE.)
+   end function construct_converter
+
+   type(Converter) function get_converter_from_strings(u1string, u2string, path) result(convtr)
+      character(len=*), intent(in) :: u1string, u2string
+      character(len=*), optional, intent(in) :: path
+   end function get_converter_from_strings
+
+   logical function is_null(this)
+      type(Converter), intent(in) :: this
+      is_null = this % is_null_
+   end function is_null
 
 end module udunits2mod
