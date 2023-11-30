@@ -358,7 +358,7 @@ contains
     real(ESMF_KIND_R8) :: s
     type(ESMF_TimeInterval) :: dT
     type(ESMF_Time) :: time
-    integer :: i, j
+    integer :: i, j, u
 
     character(len=ESMF_MAXSTR) :: file_template_left
     character(len=ESMF_MAXSTR) :: file_template_right
@@ -387,15 +387,15 @@ contains
           filename= trim(filename_left)//trim(file_template(j:))
           cmd="bash -c 'ls "//trim(filename)//"' &> zzz_MAPL"
           CALL execute_command_line(trim(cmd))
-          open(7213, file='zzz_MAPL', status='unknown')
-          read(7213, '(a)') filename
+          open(newunit=u, file='zzz_MAPL', status='unknown')
+          read(u, '(a)') filename
           i=index(trim(filename), 'ls')
           if (i==1) then
              filename=''
           end if
           !       cmd="rm -f ./zzz_MAPL"
           !       CALL execute_command_line(trim(cmd))
-          close(7213)
+          close(u)
        else
           ! exact file name
           call fill_grads_template ( filename, file_template, &
@@ -511,8 +511,8 @@ contains
     real(ESMF_KIND_R8), allocatable :: X(:)
     integer, allocatable :: NX(:)
 
-    _ASSERT (size(U)==size(V), 'U,V different dimension')
-    _ASSERT (size(U)==size(T), 'U,T different dimension')
+    _ASSERT(size(U)==size(V), 'U,V different dimension')
+    _ASSERT(size(U)==size(T), 'U,T different dimension')
     len = size (T)
 
     allocate (IA(len), IX(len), X(len), NX(len))
