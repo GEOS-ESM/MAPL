@@ -396,8 +396,6 @@ contains
 
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
-      use esmf
-      use pflogger, only : Logger, logging
       use MPI
       implicit none
       class (SwathGridFactory), intent(inout) :: this

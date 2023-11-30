@@ -6,7 +6,6 @@ module MAPL_ObsUtilMod
   use Plain_netCDF_Time
   use netCDF
   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
-  use pFlogger, only: logging, Logger, WrapArray
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
 
@@ -247,7 +246,7 @@ contains
        index_name_lon, index_name_lat,&
        var_name_lon, var_name_lat, var_name_time, &       
        lon, lat, time, rc )
-
+    use pFlogger, only: logging, Logger
     character(len=ESMF_MAXSTR), intent(in) :: filenames(:)
     integer,  intent(out) :: Xdim
     integer,  intent(out) :: Ydim
