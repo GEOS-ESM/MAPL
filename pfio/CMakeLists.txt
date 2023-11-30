@@ -125,7 +125,12 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 target_include_directories (${this} PUBLIC
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+  $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+# Workaround for ifort 2010.10.0 Explicit deep copy in some pfio
+# container results in odd error in GEOM_Manager - even when pfio is
+# not being directly used.
+target_compile_options(${this} PRIVATE "-D__gftl_map_use_default_assignment")
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...

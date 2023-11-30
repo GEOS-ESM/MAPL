@@ -1,7 +1,6 @@
 module mapl3g_CoordinateAxis
    use mapl_RangeMod
    use esmf, only: ESMF_KIND_R8
-   use pfio
    implicit none
    private
 
@@ -89,6 +88,7 @@ module mapl3g_CoordinateAxis
       end function is_periodic
 
       module function get_dim_name(file_metadata, units, rc) result(dim_name)
+         use pfio_FileMetadataMod, only: FileMetadata
          character(:), allocatable :: dim_name
          type(FileMetadata), target, intent(in) :: file_metadata
          character(*), intent(in) :: units
@@ -96,7 +96,7 @@ module mapl3g_CoordinateAxis
       end function get_dim_name
 
       module function get_coordinates_dim(file_metadata, dim_name, rc) result(coordinates)
-         use pfio, only: FileMetadata
+         use pfio_FileMetadataMod, only: FileMetadata
          real(kind=R8), dimension(:), allocatable :: coordinates
          type(FileMetadata), intent(in) :: file_metadata
          character(len=*), intent(in) :: dim_name

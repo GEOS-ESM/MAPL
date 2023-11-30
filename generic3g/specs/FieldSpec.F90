@@ -151,6 +151,7 @@ contains
       call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(dependency_specs)
    end subroutine create
 
    subroutine MAPL_FieldEmptySet(field, geom, rc)
@@ -291,6 +292,7 @@ contains
             
    end subroutine allocate
 
+   ! TODO: This probably belongs in a base class.
    function get_dependencies(this, rc) result(dependencies)
       type(ActualPtVector) :: dependencies
       class(FieldSpec), intent(in) :: this
@@ -299,6 +301,7 @@ contains
       dependencies = ActualPtVector()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
@@ -394,7 +397,6 @@ contains
 
       type(ESMF_Field) :: alias
       integer :: status
-      type(ESMF_FieldStatus_Flag) :: fstatus
       type(ESMF_State) :: state, substate
       character(:), allocatable :: short_name
 
@@ -437,14 +439,12 @@ contains
       class(AbstractStateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       cost = 0
       select type (src_spec)
       type is (FieldSpec)
          cost = cost + get_cost(this%geom, src_spec%geom)
          cost = cost + get_cost(this%typekind, src_spec%typekind)
-!#         cost = cost + get_cost(this%units, src_spec%units)
+!#  !#         cost = cost + get_cost(this%units, src_spec%units)
       class default
          _FAIL('Cannot extend to this StateItemSpec subclass.')
       end select
@@ -459,11 +459,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
+      type(StateItemSpecptr) :: list(0)
       find_mismatch: select type (dst_spec)
       type is (FieldSpec)
          allocate(extension, source=this%make_extension_safely(dst_spec))
-         call extension%create([StateItemSpecPtr::], _RC)
+         call extension%create(list, _RC)
       class default
          extension=this
          _FAIL('Unsupported subclass.')
@@ -477,14 +477,12 @@ contains
       class(FieldSpec), intent(in) :: this
       type(FieldSpec), intent(in) :: src_spec
 
-      logical :: found
-
       extension = this
       if (update_item(extension%geom, src_spec%geom)) return
       if (update_item(extension%typekind, src_spec%typekind)) then
          return
       end if
-!#      if (update_item(extension%units, src_spec%units)) return
+   !#      if (update_item(extension%units, src_spec%units)) return
 
     end function make_extension_safely
 
@@ -495,8 +493,6 @@ contains
       class(FieldSpec), intent(in) :: this
       class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       action = NullAction() ! default
 
@@ -515,10 +511,10 @@ contains
             _RETURN(_SUCCESS)
          end if
          
-!#         if (this%units /= dst_spec%units) then
-!#            action = ChangeUnitsAction(this%payload, dst_spec%payload)
-!#            _RETURN(_SUCCESS)
-!#         end if
+  !#         if (this%units /= dst_spec%units) then
+  !#            action = ChangeUnitsAction(this%payload, dst_spec%payload)
+  !#            _RETURN(_SUCCESS)
+  !#         end if
          
       class default
          action = NullAction()
@@ -531,14 +527,11 @@ contains
    logical function match_geom(a, b) result(match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
 
-      integer :: status
-
       match = .false.
 
       if (allocated(a) .and. allocated(b)) then
          match = MAPL_SameGeom(a, b)
       end if
-
 
    end function match_geom
 

@@ -36,13 +36,13 @@ set(srcs
 
   VectorBasis.F90
   VectorBasis_smod.F90
-  )
+)
 
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.pfio MAPL.base MAPL.shared MAPL.field_utils GFTL::gftl-v2
   TYPE ${MAPL_LIBRARY_TYPE}
-  )
+)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

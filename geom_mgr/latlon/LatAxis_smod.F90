@@ -51,6 +51,7 @@ contains
 
 
    logical module function supports_metadata(file_metadata, rc) result(supports)
+      use pfio_FileMetadataMod, only: FileMetadata
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
 
@@ -94,6 +95,7 @@ contains
    end function make_LatAxis_from_hconfig
 
    module function make_lataxis_from_metadata(file_metadata, rc) result(axis)
+      use pfio_FileMetadataMod, only: FileMetadata
       type(LatAxis) :: axis
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc

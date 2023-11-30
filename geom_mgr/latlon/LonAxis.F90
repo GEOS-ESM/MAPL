@@ -1,6 +1,5 @@
 module mapl3g_LonAxis
    use mapl3g_CoordinateAxis
-   use pfio
    use esmf
    implicit none
    private
@@ -56,6 +55,7 @@ module mapl3g_LonAxis
       end function supports_hconfig
 
       module logical function supports_metadata(file_metadata, rc) result(supports)
+         use pFIO_FileMetadataMod, only: FileMetadata
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function supports_metadata
@@ -76,6 +76,7 @@ module mapl3g_LonAxis
       end function make_LonAxis_from_hconfig
 
       module function make_LonAxis_from_metadata(file_metadata, rc) result(axis)
+         use pFIO_FileMetadataMod, only: FileMetadata
          type(LonAxis) :: axis
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc

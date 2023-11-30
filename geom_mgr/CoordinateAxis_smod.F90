@@ -94,6 +94,11 @@ contains
 
  
    module function get_dim_name(file_metadata, units, rc) result(dim_name)
+      use pfio_FileMetadataMod, only: FileMetadata
+      use pfio_StringVariableMapMod, only: StringVariableMap, StringVariableMapIterator, operator(/=)
+      use pfio_VariableMod, only: Variable
+      use pfio_CoordinateVariableMod, only: CoordinateVariable
+      use pfio_AttributeMod, only: Attribute
       character(:), allocatable :: dim_name
       type(FileMetadata), target, intent(in) :: file_metadata
       character(*), intent(in) :: units
@@ -147,6 +152,8 @@ contains
    end function get_dim_name
 
    module function get_coordinates_dim(file_metadata, dim_name, rc) result(coordinates)
+      use pfio_FileMetadataMod, only: FileMetadata
+      use pfio_CoordinateVariableMod, only: CoordinateVariable
       real(kind=R8), dimension(:), allocatable :: coordinates
       type(FileMetadata), intent(in) :: file_metadata
       character(len=*), intent(in) :: dim_name

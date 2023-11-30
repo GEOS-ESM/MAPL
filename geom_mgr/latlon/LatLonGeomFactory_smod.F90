@@ -8,7 +8,6 @@ submodule (mapl3g_LatLonGeomFactory) LatLonGeomFactory_smod
    use mapl_MinMaxMod
    use mapl_ErrorHandlingMod
    use mapl_Constants
-   use pFIO
    use gFTL_StringVector
    use esmf
    implicit none
@@ -28,10 +27,12 @@ contains
       geom_spec = make_LatLonGeomSpec(hconfig, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom_spec_from_hconfig
 
 
    module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
+      use pFIO_FileMetadataMod, only: FileMetadata
       class(GeomSpec), allocatable :: geom_spec
       class(LatLonGeomFactory), intent(in) :: this
       type(FileMetadata), intent(in) :: file_metadata
@@ -42,7 +43,8 @@ contains
       geom_spec = make_LatLonGeomSpec(file_metadata, _RC)
 
       _RETURN(_SUCCESS)
-   end function make_geom_spec_from_metadata
+       _UNUSED_DUMMY(this)
+  end function make_geom_spec_from_metadata
 
 
    logical module function supports_spec(this, geom_spec) result(supports)
@@ -52,7 +54,7 @@ contains
       type(LatLonGeomSpec) :: reference
 
       supports = same_type_as(geom_spec, reference)
-
+      _UNUSED_DUMMY(this)
    end function supports_spec
 
    logical module function supports_hconfig(this, hconfig, rc) result(supports)
@@ -66,9 +68,11 @@ contains
       supports = spec%supports(hconfig, _RC)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_hconfig
 
    logical module function supports_metadata(this, file_metadata, rc) result(supports)
+      use pFIO_FileMetadataMod, only: FileMetadata
       class(LatLonGeomFactory), intent(in) :: this
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
@@ -79,6 +83,7 @@ contains
       supports = spec%supports(file_metadata, _RC)
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_metadata
 
 
@@ -98,6 +103,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_geom
 
 
@@ -236,7 +242,8 @@ contains
    end subroutine fill_coordinates
 
 
-   module subroutine get_ranks(nx, ny, ix, iy, rc)
+   ! Helper procedure
+   subroutine get_ranks(nx, ny, ix, iy, rc)
       integer, intent(in) :: nx, ny
       integer, intent(out) :: ix, iy
       integer, optional, intent(out) :: rc
@@ -248,6 +255,8 @@ contains
       call ESMF_VMGetCurrent(vm, _RC)
       call ESMF_VMGet(vm, petCount=petCount, localPet=localPet, _RC)
 
+      _ASSERT(localPet < nx*ny, 'Requested topology does not include all PEs.')
+         
       ix = mod(localPet, nx)
       iy = localPet / nx
 
@@ -270,10 +279,12 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_gridded_dims
 
 
    module function make_file_metadata(this, geom_spec, rc) result(file_metadata)
+      use pFIO_FileMetadataMod, only: FileMetadata
       type(FileMetadata) :: file_metadata
       class(LatLonGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec
@@ -289,9 +300,14 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function make_file_metadata
 
    function typesafe_make_file_metadata(geom_spec, rc) result(file_metadata)
+      use pFIO_FileMetadataMod, only: FileMetadata
+      use pFIO_VariableMod, only: Variable
+      use pFIO, only: PFIO_REAL64
+      use pFIO, only: UnlimitedEntity
       type(FileMetadata) :: file_metadata
       type(LatLonGeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc

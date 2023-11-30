@@ -4,11 +4,13 @@ module mapl3g_IntegerMaplGeomMap
 #define Key __INTEGER
 #define T MaplGeom
 #define Map IntegerMaplGeomMap
+#define Pair IntegerMaplGeomPair
 #define MapIterator IntegerMaplGeomMapIterator
 
 #include "map/template.inc"
 
 #undef MapIterator
+#undef Pair
 #undef Map
 #undef Key
 #undef T

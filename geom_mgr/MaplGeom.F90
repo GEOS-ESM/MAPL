@@ -27,7 +27,7 @@ module mapl3g_MaplGeom
       class(GeomSpec), allocatable :: spec
       type(ESMF_Geom) :: geom
       type(FileMetadata) :: file_metadata
-      type(StringVector) :: gridded_dims ! center staggered
+     type(StringVector) :: gridded_dims ! center staggered
 
       ! Derived - lazy initialization
       type(VectorBases) :: bases

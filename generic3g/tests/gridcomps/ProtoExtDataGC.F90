@@ -57,6 +57,8 @@ contains
       type(ESMF_HConfigIter) :: iter,e,b
       character(:), allocatable :: var_name
 
+      type(StateItemSpecPtr) :: empty(0)
+
       call MAPL_Get(gc, hconfig=hconfig, registry=registry, _RC)
 
       ! We would do this quite differently in an actual ExtData implementation.
@@ -81,7 +83,7 @@ contains
                allocate(import_spec, source=export_spec)
 
                ! Need new payload ... (but maybe not as it will get tossed at connect() anyway.)
-               call import_spec%create([StateItemSpecPtr::], _RC)
+               call import_spec%create(empty, _RC)
                call registry%add_item_spec(import_v_pt, import_spec)
 
                ! And now connect

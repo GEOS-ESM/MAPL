@@ -6,7 +6,6 @@ module mapl3g_LatLonGeomFactory
    use mapl3g_LatLonGeomSpec
    use mapl_KeywordEnforcerMod
    use gftl_StringVector
-   use pfio
    use esmf
    implicit none
    private
@@ -44,7 +43,7 @@ module mapl3g_LatLonGeomFactory
 
       module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
          use mapl3g_GeomSpec, only: GeomSpec
-         use pfio, only: FileMetadata
+         use pFIO_FileMetadataMod, only: FileMetadata
          class(GeomSpec), allocatable :: geom_spec
          class(LatLonGeomFactory), intent(in) :: this
          type(FileMetadata), intent(in) :: file_metadata
@@ -67,7 +66,7 @@ module mapl3g_LatLonGeomFactory
       end function supports_hconfig
 
       logical module function supports_metadata(this, file_metadata, rc) result(supports)
-         use pfio, only: FileMetadata
+         use pFIO_FileMetadataMod, only: FileMetadata
          class(LatLonGeomFactory), intent(in) :: this
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
@@ -101,12 +100,6 @@ module mapl3g_LatLonGeomFactory
       end subroutine fill_coordinates
 
 
-      module subroutine get_ranks(nx, ny, ix, iy, rc)
-         integer, intent(in) :: nx, ny
-         integer, intent(out) :: ix, iy
-         integer, optional, intent(out) :: rc
-      end subroutine get_ranks
-
       module function make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
          type(StringVector) :: gridded_dims
          class(LatLonGeomFactory), intent(in) :: this
@@ -116,6 +109,7 @@ module mapl3g_LatLonGeomFactory
 
 
       module function make_file_metadata(this, geom_spec, rc) result(file_metadata)
+         use pFIO_FileMetadataMod, only: FileMetadata
          type(FileMetadata) :: file_metadata
          class(LatLonGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec

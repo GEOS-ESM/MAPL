@@ -134,6 +134,7 @@ contains
    
 
    logical module function supports_metadata(file_metadata, rc) result(supports)
+      use pFIO_FileMetadataMod, only: FileMetadata
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
 
@@ -149,6 +150,7 @@ contains
 
 
    module function make_LonAxis_from_metadata(file_metadata, rc) result(axis)
+      use pFIO_FileMetadataMod, only: FileMetadata
       type(LonAxis) :: axis
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc

@@ -16,12 +16,12 @@ submodule (mapl3g_GeomManager) GeomManager_smod
 contains
    
    module function new_GeomManager() result(mgr)
-      use mapl3g_LatLonGeomFactory
+!#      use mapl3g_LatLonGeomFactory
 !#      use mapl_CubedSphereGeomFactory
       type(GeomManager) :: mgr
 
       ! Load default factories
-      type(LatLonGeomFactory) :: latlon_factory
+!#      type(LatLonGeomFactory) :: latlon_factory
 !#      type(CubedSphereGeomFactory) :: cs_factory
 !#      type(FakeCubedSphereGeomFactory) :: fake_cs_factory 
 !#      type(TripolarGeomFactory) :: tripolar_factory
@@ -39,8 +39,9 @@ contains
 !#      call mgr%factories%push_back(TrajectorySampler_factory)
 !#      call mgr%factories%push_back(SwathSampler_factory)
 
-      call mgr%add_factory(latlon_factory)
+!#      call mgr%add_factory(latlon_factory)
 
+      call mgr%initialize()
    end function new_GeomManager
 
    module subroutine initialize(this)
@@ -50,6 +51,7 @@ contains
       ! Load default factories
       type(LatLonGeomFactory) :: latlon_factory
 
+      this%mapl_geoms = IntegerMaplGeomMap()
       call this%add_factory(latlon_factory)
 
    end subroutine initialize

@@ -2,6 +2,7 @@
 
 module mapl3g_WildcardSpec
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_InvalidSpec
    use mapl3g_ActualPtStateItemSpecMap
    use mapl3g_ActualConnectionPt
    use mapl3g_MultiState
@@ -61,11 +62,11 @@ contains
       type(StateItemSpecPtr), intent(in) :: dependency_specs(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       call this%set_created()
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dependency_specs)
    end subroutine create
 
    ! No-op
@@ -73,11 +74,10 @@ contains
       class(WildcardSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       call this%set_created(.false.)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine destroy
 
 
@@ -85,7 +85,6 @@ contains
       class(WildcardSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
 !!$      type(ActualPtSpecPtrMapIterator) :: iter
 !!$      class(StateItemSpecPtr), pointer :: spec_ptr
 !!$
@@ -100,6 +99,7 @@ contains
 !!$      end associate
    
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine allocate
 
    function get_dependencies(this, rc) result(dependencies)
@@ -110,6 +110,7 @@ contains
       dependencies = ActualPtVector()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function get_dependencies
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
@@ -120,9 +121,12 @@ contains
 
       integer :: status
 
-      call with_target_attribute(this, src_spec, actual_pt, rc)
+      call with_target_attribute(this, src_spec, actual_pt, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
+      _UNUSED_DUMMY(actual_pt)
    contains
       subroutine with_target_attribute(this, src_spec, actual_pt, rc)
          class(WildcardSpec), target, intent(inout) :: this
@@ -138,7 +142,7 @@ contains
          
          call this%matched_items%insert(actual_pt, this%reference_spec)
          spec => this%matched_items%of(actual_pt)
-         call spec%create([StateItemSpecPtr::], _RC)
+!#         call spec%create([StateItemSpecPtr::], _RC)
          call spec%connect_to(src_spec, actual_pt, _RC)
 
          _RETURN(ESMF_SUCCESS)
@@ -198,11 +202,11 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _FAIL('not implemented')
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
    function make_extension(this, dst_spec, rc) result(extension)
@@ -211,7 +215,10 @@ contains
       class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
+      extension = InvalidSpec()
       _FAIL('wildcard cannot be extended - only used for imports')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_spec)
    end function make_extension
 
    function make_action(this, dst_spec, rc) result(action)
@@ -220,10 +227,10 @@ contains
       class(AbstractStateItemSpec), intent(in) :: dst_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       action = NullAction()
       _FAIL('wildcard cannot be extended - only used for imports')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_spec)
    end function make_action
 
    integer function extension_cost(this, src_spec, rc) result(cost)
@@ -236,6 +243,8 @@ contains
       cost = this%reference_spec%extension_cost(src_spec, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_spec)
    end function extension_cost
 
 end module mapl3g_WildcardSpec

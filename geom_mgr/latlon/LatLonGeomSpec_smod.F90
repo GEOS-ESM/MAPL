@@ -4,7 +4,6 @@ submodule (mapl3g_LatLonGeomSpec) LatLonGeomSpec_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
    use mapl3g_HConfigUtils
-   use pfio
    use MAPL_RangeMod
    use MAPLBase_Mod
    use mapl_ErrorHandling
@@ -139,6 +138,7 @@ contains
    ! as the optimal decomposition depends on the ratio of the extens along each
    ! dimension.
    module function make_LatLonGeomSpec_from_metadata(file_metadata, rc) result(spec)
+      use pFIO_FileMetadataMod, only: FileMetadata
       type(LatLonGeomSpec) :: spec
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
@@ -191,7 +191,7 @@ contains
       decomposition = spec%decomposition
    end function get_decomposition
 
-   logical module function supports_hconfig(this, hconfig, rc) result(supports)
+   logical module function supports_hconfig_(this, hconfig, rc) result(supports)
       class(LatLonGeomSpec), intent(in) :: this
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -216,9 +216,10 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
-   end function supports_hconfig
+   end function supports_hconfig_
 
-   logical module function supports_metadata(this, file_metadata, rc) result(supports)
+   logical module function supports_metadata_(this, file_metadata, rc) result(supports)
+      use pFIO_FileMetadataMod, only: FileMetadata
       class(LatLonGeomSpec), intent(in) :: this
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
@@ -236,6 +237,6 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
-   end function supports_metadata
+   end function supports_metadata_
 
 end submodule LatLonGeomSpec_smod

@@ -22,8 +22,8 @@ module mapl3g_LatLonGeomSpec
       procedure :: equal_to
 
       ! LatLon specific
-      procedure :: supports_hconfig
-      procedure :: supports_metadata
+      procedure :: supports_hconfig => supports_hconfig_
+      procedure :: supports_metadata => supports_metadata_
       generic :: supports => supports_hconfig, supports_metadata
 
       ! Accessors
@@ -78,7 +78,7 @@ interface
       ! as the optimal decomposition depends on the ratio of the extens along each
       ! dimension.
       module function make_LatLonGeomSpec_from_metadata(file_metadata, rc) result(spec)
-         use pfio, only: FileMetadata
+         use pFIO_FileMetadataMod, only: FileMetadata
          type(LatLonGeomSpec) :: spec
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
@@ -127,19 +127,19 @@ interface
          class(LatLonGeomSpec), intent(in) :: spec
       end function get_decomposition
 
-      logical module function supports_hconfig(this, hconfig, rc) result(supports)
+      logical module function supports_hconfig_(this, hconfig, rc) result(supports)
          use esmf, only: ESMF_HConfig
          class(LatLonGeomSpec), intent(in) :: this
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
-      end function supports_hconfig
+      end function supports_hconfig_
 
-      logical module function supports_metadata(this, file_metadata, rc) result(supports)
-         use pfio, only: FileMetadata
+      logical module function supports_metadata_(this, file_metadata, rc) result(supports)
+         use pFIO_FileMetadataMod, only: FileMetadata
          class(LatLonGeomSpec), intent(in) :: this
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
-      end function supports_metadata
+      end function supports_metadata_
 
    end interface
 
