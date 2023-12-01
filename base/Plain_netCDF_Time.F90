@@ -516,7 +516,7 @@ contains
 end module Plain_NetCDF_Time
 
 
-module Fortran_read_file
+module MAPL_scan_pattern_in_file
 
 !  procedure :: matchbgn
 !  procedure :: matches
@@ -616,7 +616,6 @@ contains
     character (len=150), intent(out) :: outline   ! fixed
     character (len=150) :: line
     integer :: ios, nr, mx
-    !
 
     if (rew) rewind (iunps)
     ios=0
@@ -749,4 +748,4 @@ contains
 12  format (2x, a, 4x, a, 4x, "ierr =", i4)
     return
   end subroutine error
-end module Fortran_read_file
+end module MAPL_scan_pattern_in_file

@@ -62,7 +62,6 @@
 
   use pflogger, only: Logger, logging
   use mpi
-  use Fortran_read_file
 
   implicit none
   private
@@ -5258,7 +5257,7 @@ ENDDO PARSER
   ! __ for each collection: find union fields, write to collection.rcx
   !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
-    use Fortran_read_file
+    use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
     !
     !  Plan:
