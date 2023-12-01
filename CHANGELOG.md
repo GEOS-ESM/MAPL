@@ -16,6 +16,9 @@ Made changes to allocate fields to use farray instead of farrayPtr. This allows 
 ### Changed
 
 - Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
+- Update CI to Baselibs 7.17.0 (for future MAPL3 work) and the BCs v11.3.0 (to fix coupled run)
+- Update `components.yaml`
+  - ESMA_env v4.22.0 (Baselibs 7.15.1)
 
 ### Fixed
 
